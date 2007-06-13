@@ -1,0 +1,78 @@
+### PropKB
+>>> kb = PropKB()
+>>> kb.tell(A & B)
+>>> kb.tell(B >> C)
+>>> kb.ask(C) ## The result {} means true, with no substitutions
+{}
+>>> kb.ask(P) 
+False
+>>> kb.retract(B)
+>>> kb.ask(C) 
+False
+
+>>> pl_true(P, {}) 
+>>> pl_true(P | Q, {P: True}) 
+True
+
+# Notice that the function pl_true cannot reason by cases:
+>>> pl_true(P | ~P) 
+
+# However, tt_true can:
+>>> tt_true(P | ~P) 
+True
+
+# The following are tautologies from [Fig. 7.11]:
+>>> tt_true("(A & B) <=> (B & A)") 
+True
+>>> tt_true("(A | B) <=> (B | A)") 
+True
+>>> tt_true("((A & B) & C) <=> (A & (B & C))") 
+True
+>>> tt_true("((A | B) | C) <=> (A | (B | C))") 
+True
+>>> tt_true("~~A <=> A") 
+True
+>>> tt_true("(A >> B) <=> (~B >> ~A)") 
+True
+>>> tt_true("(A >> B) <=> (~A | B)") 
+True
+>>> tt_true("(A <=> B) <=> ((A >> B) & (B >> A))") 
+True
+>>> tt_true("~(A & B) <=> (~A | ~B)") 
+True
+>>> tt_true("~(A | B) <=> (~A & ~B)") 
+True
+>>> tt_true("(A & (B | C)) <=> ((A & B) | (A & C))") 
+True
+>>> tt_true("(A | (B & C)) <=> ((A | B) & (A | C))") 
+True
+
+# The following are not tautologies:
+>>> tt_true(A & ~A) 
+False
+>>> tt_true(A & B) 
+False
+
+### [Fig. 7.13]
+>>> alpha = expr("~P12")
+>>> to_cnf(Fig[7,13] & ~alpha)
+((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)
+>>> tt_entails(Fig[7,13], alpha) 
+True
+>>> pl_resolution(PropKB(Fig[7,13]), alpha) 
+True
+
+### [Fig. 7.15]
+>>> pl_fc_entails(Fig[7,15], expr('SomethingSilly')) 
+False
+
+### Unification:
+>>> unify(x, x, {}) 
+{}
+>>> unify(x, 3, {}) 
+{x: 3}
+
+
+>>> to_cnf((P&Q) | (~P & ~Q)) 
+((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))
+

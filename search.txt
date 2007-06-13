@@ -1,0 +1,68 @@
+
+>>> ab = GraphProblem('A', 'B', romania)
+>>> breadth_first_tree_search(ab).state 
+'B'
+>>> breadth_first_graph_search(ab).state 
+'B'
+>>> depth_first_graph_search(ab).state 
+'B'
+>>> iterative_deepening_search(ab).state 
+'B'
+>>> depth_limited_search(ab).state 
+'B'
+>>> astar_search(ab).state 
+'B'
+>>> [node.state for node in astar_search(ab).path()] 
+['B', 'P', 'R', 'S', 'A']
+
+
+### demo
+
+>>> compare_graph_searchers()
+Searcher                     Romania(A,B)         Romania(O, N)        Australia            
+breadth_first_tree_search    <  21/  22/  59/B>   <1158/1159/3288/N>   <   7/   8/  22/WA>  
+breadth_first_graph_search   <  10/  19/  26/B>   <  19/  45/  45/N>   <   5/   8/  16/WA>  
+depth_first_graph_search     <   9/  15/  23/B>   <  16/  27/  39/N>   <   4/   7/  13/WA>  
+iterative_deepening_search   <  11/  33/  31/B>   < 656/1815/1812/N>   <   3/  11/  11/WA>  
+depth_limited_search         <  54/  65/ 185/B>   < 387/1012/1125/N>   <  50/  54/ 200/WA>  
+astar_search                 <   3/   4/   9/B>   <   8/  10/  22/N>   <   2/   3/   6/WA>  
+
+>>> board = list('SARTELNID')
+>>> print_boggle(board)
+S  A  R 
+T  E  L 
+N  I  D 
+
+>>> f = BoggleFinder(board)
+
+>>> len(f) 
+206
+
+>>> ' '.join(f.words())
+'LID LARES DEAL LIE DIETS LIN LINT TIL TIN RATED ERAS LATEN DEAR TIE LINE INTER STEAL LATED LAST TAR SAL DITES RALES SAE RETS TAE RAT RAS SAT IDLE TILDES LEAST IDEAS LITE SATED TINED LEST LIT RASE RENTS TINEA EDIT EDITS NITES ALES LATE LETS RELIT TINES LEI LAT ELINT LATI SENT TARED DINE STAR SEAR NEST LITAS TIED SEAT SERAL RATE DINT DEL DEN SEAL TIER TIES NET SALINE DILATE EAST TIDES LINTER NEAR LITS ELINTS DENI RASED SERA TILE NEAT DERAT IDLEST NIDE LIEN STARED LIER LIES SETA NITS TINE DITAS ALINE SATIN TAS ASTER LEAS TSAR LAR NITE RALE LAS REAL NITER ATE RES RATEL IDEA RET IDEAL REI RATS STALE DENT RED IDES ALIEN SET TEL SER TEN TEA TED SALE TALE STILE ARES SEA TILDE SEN SEL ALINES SEI LASE DINES ILEA LINES ELD TIDE RENT DIEL STELA TAEL STALED EARL LEA TILES TILER LED ETA TALI ALE LASED TELA LET IDLER REIN ALIT ITS NIDES DIN DIE DENTS STIED LINER LASTED RATINE ERA IDLES DIT RENTAL DINER SENTI TINEAL DEIL TEAR LITER LINTS TEAL DIES EAR EAT ARLES SATE STARE DITS DELI DENTAL REST DITE DENTIL DINTS DITA DIET LENT NETS NIL NIT SETAL LATS TARE ARE SATI'
+
+>>> boggle_hill_climbing(list('ABCDEFGHI'))
+30 1 ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'S', 'I']
+35 2 ['A', 'B', 'S', 'D', 'E', 'F', 'G', 'S', 'I']
+36 10 ['A', 'B', 'O', 'D', 'E', 'F', 'G', 'S', 'I']
+41 11 ['A', 'B', 'O', 'D', 'O', 'F', 'G', 'S', 'I']
+46 13 ['A', 'B', 'O', 'D', 'O', 'C', 'G', 'S', 'I']
+48 14 ['A', 'M', 'O', 'D', 'O', 'C', 'G', 'S', 'I']
+55 16 ['A', 'M', 'L', 'D', 'O', 'C', 'G', 'S', 'I']
+60 17 ['A', 'M', 'L', 'D', 'O', 'C', 'G', 'S', 'E']
+67 23 ['A', 'M', 'L', 'D', 'O', 'A', 'G', 'S', 'E']
+70 29 ['A', 'B', 'L', 'D', 'O', 'A', 'G', 'S', 'E']
+73 33 ['A', 'N', 'L', 'D', 'O', 'A', 'G', 'S', 'E']
+80 55 ['A', 'N', 'L', 'D', 'O', 'A', 'G', 'S', 'W']
+84 115 ['A', 'N', 'R', 'D', 'O', 'A', 'G', 'S', 'W']
+100 116 ['A', 'N', 'R', 'D', 'O', 'A', 'G', 'S', 'T']
+111 140 ['E', 'N', 'R', 'D', 'O', 'A', 'G', 'S', 'T']
+123 169 ['E', 'P', 'R', 'D', 'O', 'A', 'G', 'S', 'T']
+
+E  P  R 
+D  O  A 
+G  S  T 
+(['E', 'P', 'R', 'D', 'O', 'A', 'G', 'S', 'T'], 123)
+
+>>> random_weighted_selection(range(10), 3, lambda x: x * x)
+[8, 9, 6]

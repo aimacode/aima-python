@@ -1,0 +1,21 @@
+### This is an example module.txt file.
+### It should contain unit tests and their expected results:
+
+>>> 2 + 2
+4
+
+>>> '2' + '2'
+'22'
+
+### demo
+
+### After the part that says 'demo' we have statements that
+### are intended not as unit tests, but as demos of how to
+### use the functions and methods in the module.  The 
+### statements are executed, but the results are not
+### compared to the expected results.  This can be useful
+### for nondeterministic functions: 
+
+
+>>> import random; random.choice('abc')
+'c'
