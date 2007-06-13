@@ -1,0 +1,122 @@
+## Create a Unigram text model from the words in the book "Flatland".
+>>> flatland = DataFile("flat11.txt").read()
+>>> wordseq = words(flatland)
+>>> P = UnigramTextModel(wordseq)
+
+## Now do segmentation, using the text model as a prior.
+>>> s, p = viterbi_segment('itiseasytoreadwordswithoutspaces', P) 
+>>> s 
+['it', 'is', 'easy', 'to', 'read', 'words', 'without', 'spaces']
+>>> 1e-30 < p < 1e-20 
+True
+>>> s, p = viterbi_segment('wheninthecourseofhumaneventsitbecomesnecessary', P)
+>>> s 
+['when', 'in', 'the', 'course', 'of', 'human', 'events', 'it', 'becomes', 'necessary']
+
+## Test the decoding system
+>>> shift_encode("This is a secret message.", 17) 
+'Kyzj zj r jvtivk dvjjrxv.'
+
+>>> ring = ShiftDecoder(flatland)
+>>> ring.decode('Kyzj zj r jvtivk dvjjrxv.') 
+'This is a secret message.'
+>>> ring.decode(rot13('Hello, world!')) 
+'Hello, world!'
+
+## CountingProbDist
+## Add a thousand samples of a roll of a die to D.
+>>> D = CountingProbDist()
+>>> for i in range(10000): 
+...     D.add(random.choice('123456'))
+>>> ps = [D[n] for n in '123456']
+>>> 1./7. <= min(ps) <= max(ps) <= 1./5. 
+True
+
+## demo
+
+## Compare 1-, 2-, and 3-gram word models of the same text.
+>>> flatland = DataFile("flat11.txt").read()
+>>> wordseq = words(flatland)
+>>> P1 = UnigramTextModel(wordseq)
+>>> P2 = NgramTextModel(2, wordseq)
+>>> P3 = NgramTextModel(3, wordseq)
+
+## Generate random text from the N-gram models
+>>> P1.samples(20)
+'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
+
+>>> P2.samples(20)
+'flatland well then can anything else more into the total destruction and circles teach others confine women must be added'
+
+>>> P3.samples(20)
+'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
+
+## The most frequent entries in each model
+>>> P1.top(10)
+[(2081, 'the'), (1479, 'of'), (1021, 'and'), (1008, 'to'), (850, 'a'), (722, 'i'), (640, 'in'), (478, 'that'), (399, 'is'), (348, 'you')]
+
+>>> P2.top(10)
+[(368, ('of', 'the')), (152, ('to', 'the')), (152, ('in', 'the')), (86, ('of', 'a')), (80, ('it', 'is')), (71, ('by', 'the')), (68, ('for', 'the')), (68, ('and', 'the')), (62, ('on', 'the')), (60, ('to', 'be'))]
+
+>>> P3.top(10)
+[(30, ('a', 'straight', 'line')), (19, ('of', 'three', 'dimensions')), (16, ('the', 'sense', 'of')), (13, ('by', 'the', 'sense')), (13, ('as', 'well', 'as')), (12, ('of', 'the', 'circles')), (12, ('of', 'sight', 'recognition')), (11, ('the', 'number', 'of')), (11, ('that', 'i', 'had')), (11, ('so', 'as', 'to'))]
+
+## Probabilities of some common n-grams
+>>> P1['the']
+0.061139348356200607
+
+>>> P2[('of', 'the')]
+0.010812081325655188
+
+>>> P3[('', '', 'but')]
+0.0
+
+>>> P3[('so', 'as', 'to')]
+0.00032318721353860618
+
+## Distributions given the previous n-1 words
+>>> P2.cond_prob['went',].dictionary
+>>> P3.cond_prob['in', 'order'].dictionary
+{'to': 6}
+
+## Build and test an IR System
+>>> uc = UnixConsultant()
+>>> uc.present_results("how do I remove a file")
+76.83|       ../data/man/rm.txt | RM(1)			       FSF			    RM(1)
+67.83|      ../data/man/tar.txt | TAR(1)									TAR(1)
+67.79|       ../data/man/cp.txt | CP(1)			       FSF			    CP(1)
+66.58|      ../data/man/zip.txt | ZIP(1L)							  ZIP(1L)
+64.58|     ../data/man/gzip.txt | GZIP(1)								       GZIP(1)
+63.74|     ../data/man/pine.txt | pine(1)							  pine(1)
+62.95|    ../data/man/shred.txt | SHRED(1)		       FSF			 SHRED(1)
+57.46|     ../data/man/pico.txt | pico(1)							  pico(1)
+43.38|    ../data/man/login.txt | LOGIN(1)		   Linux Programmer's Manual		     
+41.93|       ../data/man/ln.txt | LN(1)			       FSF			    LN(1)
+
+>>> uc.present_results("how do I delete a file")
+75.47|     ../data/man/diff.txt | DIFF(1)				   GNU Tools			       DIFF(1)
+69.12|     ../data/man/pine.txt | pine(1)							  pine(1)
+63.56|      ../data/man/tar.txt | TAR(1)									TAR(1)
+60.63|      ../data/man/zip.txt | ZIP(1L)							  ZIP(1L)
+57.46|     ../data/man/pico.txt | pico(1)							  pico(1)
+51.28|    ../data/man/shred.txt | SHRED(1)		       FSF			 SHRED(1)
+26.72|       ../data/man/tr.txt | TR(1)			  User Commands			    TR(1)
+
+>>> uc.present_results("email")
+18.39|     ../data/man/pine.txt | pine(1)							  pine(1)
+12.01|     ../data/man/info.txt | INFO(1)			       FSF			  INFO(1)
+ 9.89|     ../data/man/pico.txt | pico(1)							  pico(1)
+ 8.73|     ../data/man/grep.txt | GREP(1)								       GREP(1)
+ 8.07|      ../data/man/zip.txt | ZIP(1L)							  ZIP(1L)
+
+>>> uc.present_results("word counts for files")
+112.38|     ../data/man/grep.txt | GREP(1)								       GREP(1)
+101.84|       ../data/man/wc.txt | WC(1)			  User Commands			    WC(1)
+82.46|     ../data/man/find.txt | FIND(1L)							      FIND(1L)
+74.64|       ../data/man/du.txt | DU(1)			       FSF			    DU(1)
+
+>>> uc.present_results("learn: date")
+>>> uc.present_results("2003")
+14.58|     ../data/man/pine.txt | pine(1)							  pine(1)
+11.62|      ../data/man/jar.txt | FASTJAR(1)			      GNU			    FASTJAR(1)
+

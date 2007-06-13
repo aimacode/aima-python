@@ -1,0 +1,8 @@
+
+### demo
+
+>>> min_conflicts(australia)
+{'WA': 'B', 'Q': 'B', 'T': 'G', 'V': 'B', 'SA': 'R', 'NT': 'G', 'NSW': 'G'}
+
+>>> min_conflicts(usa)
+{'WA': 'B', 'DE': 'R', 'DC': 'Y', 'WI': 'G', 'WV': 'Y', 'HI': 'R', 'FL': 'B', 'WY': 'Y', 'NH': 'R', 'NJ': 'Y', 'NM': 'Y', 'TX': 'G', 'LA': 'R', 'NC': 'B', 'ND': 'Y', 'NE': 'B', 'TN': 'G', 'NY': 'R', 'PA': 'B', 'RI': 'R', 'NV': 'Y', 'VA': 'R', 'CO': 'R', 'CA': 'B', 'AL': 'R', 'AR': 'Y', 'VT': 'Y', 'IL': 'B', 'GA': 'Y', 'IN': 'Y', 'IA': 'Y', 'OK': 'B', 'AZ': 'R', 'ID': 'G', 'CT': 'Y', 'ME': 'B', 'MD': 'G', 'KA': 'Y', 'MA': 'B', 'OH': 'R', 'UT': 'B', 'MO': 'R', 'MN': 'R', 'MI': 'B', 'AK': 'B', 'MT': 'R', 'MS': 'B', 'SC': 'G', 'KY': 'B', 'OR': 'R', 'SD': 'G'}

@@ -1,0 +1,32 @@
+## We can build up a probability distribution like this (p. 469):
+>>> P = ProbDist()
+>>> P['sunny'] = 0.7
+>>> P['rain'] = 0.2
+>>> P['cloudy'] = 0.08
+>>> P['snow'] = 0.02
+
+## and query it like this:
+>>> P['rain'] 
+0.20000000000000001
+
+## A Joint Probability Distribution is dealt with like this (p. 475):
+>>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
+>>> T, F = True, False
+>>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008
+>>> P[T, F, T] = 0.016; P[T, F, F] = 0.064; P[F, F, T] = 0.144; P[F, F, F] = 0.576
+
+>>> P[T, T, T] 
+0.108
+
+## Ask for P(Cavity|Toothache=T)
+>>> PC = enumerate_joint_ask('Cavity', {'Toothache': T}, P) 
+>>> PC.prob
+{False: 0.39999999999999997, True: 0.59999999999999998}
+
+>>> 0.6-epsilon < PC[T] < 0.6+epsilon 
+True
+
+>>> 0.4-epsilon < PC[F] < 0.4+epsilon 
+True
+
+
