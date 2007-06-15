@@ -1,0 +1,52 @@
+#summary How to use the aima-python project.
+#labels Featured,Phase-Deploy
+
+= Introduction =
+
+This file gives an overview of the Python code for the algorithms in
+the textbook _[http://aima.cs.berkeley.edu Artificial Intelligence: A Modern
+Approach]_.  The code is offered free for your use under the MIT License.
+As you may know, the textbook presents algorithms in
+pseudo-code format; as a supplement we provide this code.  
+The intent is to implement all the algorithms in the book,
+but we are not done yet.
+
+
+= How to Browse the Code =
+
+You can get some use out of the code here just by browsing, starting
+at the [http://code.google.com/p/aima-python/src/trunk/ root of the
+source tree] or by clicking on the links in the 
+[http://code.google.com/p/aima-python index on the project home page].
+The source code is in the *.py files; the *.txt files give examples of
+how to use the code.
+
+= How to Install the Code =
+
+If you like what you see, install the code using either one of these methods:
+
+  # From a command shell on your computer, execute the `svn checkout` command given on the [http://code.google.com/p/aima-python/source source tab] of the project.  This assumes you have previously installed the version control system [http://subversion.tigris.org/ Subversion (svn)].
+  # Download and unzip the zip file listed as a "Featured download"on the right hand side of the [http://code.google.com/p/aima-python/ project home page].
+
+You can put the code anywhere you want on your computer, but it should all be in one
+directory called _aima-python_.
+
+= How to Test the Code =
+
+First, you need to install Python (version 2.2 or later). Python comes preinstalled on most versions of Linux and Mac OS. Versions are also available for Windows, Solaris, and other operating systems. If your system does not have Python installed, you can [http://python.org/download/ download] and install it for free.
+
+In the _aima-python_ directory, execute the command
+
+    `python doctests.py -v *.py`
+
+The "-v" is optional; it means "verbose". Various output is printed, but if all goes well there should be no instances of the word "`Failure`", nor of a long line of "*****".
+If you do use the "-v" option, the last line printed should be "Test passed."
+
+= How to Run the Code =
+
+You're on your own -- experiment!  Create a new python file, import the modules you need,
+and call the functions you want.
+
+= Acknowledgements =
+
+Many thanks for the bug reports, corrected code, and other support from Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others.
