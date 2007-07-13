@@ -156,7 +156,7 @@ def depth_first_graph_search(problem):
 
 def depth_limited_search(problem, limit=50):
     "[Fig. 3.12]"
-    # Would this work better with an exception instead of 'cutoff'?
+    # Would this not be more elegant with an exception instead of 'cutoff'?
     # Or would an exception work better for the _successful_ case? ;-)
     def recursive_dls(node, problem, limit):
         cutoff_occurred = False
@@ -462,7 +462,7 @@ class NQueensProblem(Problem):
     each other.  A state is represented as an N-element array, where the
     a value of r in the c-th entry means there is a queen at column c,
     row r, and a value of None means that the c-th column has not been
-    filled in left.  We fill in columns left to right."""
+    filled in yet.  We fill in columns left to right."""
     def __init__(self, N):
         self.N = N
         self.initial = [None] * N
@@ -482,7 +482,7 @@ class NQueensProblem(Problem):
 
     def conflicted(self, state, row, col):
         "Would placing a queen at (row, col) conflict with anything?"
-        for c in range(col-1):
+        for c in range(col): # Fixed subtle bug: range(col-1) is 0..n-2
             if self.conflict(row, col, state[c], c):
                 return True
         return False
