@@ -25,12 +25,22 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 
 """
 
+# TO DO:
+# Implement grabbing correctly.
+# When an object is grabbed, does it still have a location?
+# What if it is released?
+# What if the grabbed or the grabber is deleted?
+# What if the grabber moves?
+#
+# Speed control in GUI does not have any effect -- fix it.
+
 from utils import *
 import random, copy
 
 # Additional modules needed for loading non-bitmap images
-import Image # Python Imaging Library (PIL)
-import ImageTk # PIL + Tk
+import Image    # Python Imaging Library (PIL)
+import ImageTk  # PIL + Tk
+
 #______________________________________________________________________________
 
 
@@ -49,6 +59,9 @@ class Object (object):
         """Display an image of this Object on the canvas."""
         pass
 
+    def get_image_file (self):
+        raise NoImageException()
+    
 class Agent (Object):
     """An Agent is a subclass of Object with one required slot,
     .program, which should hold a function that takes one argument, the
@@ -68,7 +81,12 @@ class Agent (Object):
         self.program = program
         self.alive = True
         self.bump = False
-        
+
+    def can_grab (self, obj):
+        """Returns True if this agent can grab this object.
+        Override for appropriate subclasses of Agent and Object."""
+        return False
+    
 def TraceAgent(agent):
     """Wrap the agent's program to print its input and output. This will let
     you see what the agent is doing in the environment."""
@@ -123,7 +141,7 @@ class ReflexVacuumAgent (Agent):
             elif location == loc_B: return 'Left'
         self.program = program
 
-    image_file = "images/vacuum.png"
+    def get_image_file (self): return "images/vacuum.png"
     
 def RandomVacuumAgent():
     "Randomly choose one of the actions from the vaccum environment."
@@ -222,16 +240,47 @@ class Environment (object):
             if self.is_done(): return
             self.step()
 
+    def list_objects_at (self, location, oclass=Object):
+        "Return all objects exactly at a given location."
+        return [obj for obj in self.objects
+                if obj.location == location and isinstance(obj, oclass)]
+    
+    def some_objects_at (self, location, oclass=Object):
+        """Return true if at least one of the objects at location
+        is an instance of class oclass.
+
+        'Is an instance' in the sense of 'isinstance',
+        which is true if the object is an instance of a subclass of oclass."""
+
+        return self.list_objects_at(location, oclass) != []
+
     def add_object(self, obj, location=None):
 	"""Add an object to the environment, setting its location. Also keep
 	track of objects that are agents.  Shouldn't need to override this."""
+
 	obj.location = location or self.default_location(obj)
 	self.objects.append(obj)
 	if isinstance(obj, Agent):
             obj.performance = 0
             self.agents.append(obj)
 	return self
-    
+
+    def delete_object (self, obj):
+        """Remove an object from the environment."""
+        try:
+            self.objects.remove(obj)
+        except ValueError, e:
+            print e
+            print "  in Environment delete_object"
+            print "  Object to be removed: %s at %s" % (obj, obj.location)
+            trace_list("  from list", self.objects)
+        if obj in self.agents:
+            self.agents.remove(obj)
+
+
+def trace_list (name, objlist):
+    ol_list = [(obj, obj.location) for obj in objlist]
+    print "%s: %s" % (name, ol_list)
 
 class XYEnvironment (Environment):
     """This class is for environments on a 2D plane, with locations
@@ -249,20 +298,6 @@ class XYEnvironment (Environment):
         #update(self, objects=[], agents=[], width=width, height=height)
         self.observers = []
         
-    def objects_at(self, location): # promote to Environment?
-        "Return all objects exactly at a given location."
-        return [obj for obj in self.objects if obj.location == location]
-
-    def find_at (self, oclass, location):
-        """Return true if at least one of the objects at location
-        is an instance of class oclass.
-
-        'Is an instance' in the sense of 'isinstance',
-        which is true if the object is an instance of a subclass of oclass."""
-        
-        return some(lambda obj: isinstance(obj, oclass),
-                    self.objects_at(location))
-        
     def objects_near(self, location, radius):
         "Return all objects within radius of location."
         radius2 = radius * radius
@@ -275,21 +310,21 @@ class XYEnvironment (Environment):
                 for obj in self.objects_near(agent)]
 
     def execute_action(self, agent, action):
+        agent.bump = False
         if action == 'TurnRight':
-            agent.heading = turn_heading(agent.heading, -1)
+            agent.heading = self.turn_heading(agent.heading, -1)
         elif action == 'TurnLeft':
-            agent.heading = turn_heading(agent.heading, +1)
+            agent.heading = self.turn_heading(agent.heading, +1)
         elif action == 'Forward':
             self.move_to(agent, vector_add(agent.heading, agent.location))
-        elif action == 'Grab':
-            objs = [obj for obj in self.objects_at(agent.location)
-                    if obj.is_grabable(agent)]
-            if objs:
-                agent.holding.append(objs[0])
+#         elif action == 'Grab':
+#             objs = [obj for obj in self.list_objects_at(agent.location)
+#                     if agent.can_grab(obj)]
+#             if objs:
+#                 agent.holding.append(objs[0])
         elif action == 'Release':
             if agent.holding:
                 agent.holding.pop()
-        agent.bump = False
 
     def object_percept(self, obj, agent): #??? Should go to object?
         "Return the percept for this object."
@@ -300,28 +335,31 @@ class XYEnvironment (Environment):
 
     def move_to(self, obj, destination):
         "Move an object to a new location."
-        if self.find_at(Obstacle, destination):
-            obj.bump = True
-            # Nothing moved, so no report to observers
-        else:
-            obj.bump = False
-            old_location = obj.location
+
+        # Bumped?
+        obj.bump = self.some_objects_at(destination, Obstacle)
+
+        if not obj.bump:
+            # Move object and report to observers
             obj.location = destination
-            print "Moving %s to %s -- now notify the observer somehow" % \
-                  (obj, destination)
-            # Report to observers
             for o in self.observers:
-                o.object_moved(obj, old_location, obj.location)
+                o.object_moved(obj)
         
     def add_object(self, obj, location=(1, 1)):
         super(XYEnvironment, self).add_object(obj, location)
         obj.holding = []
         obj.held = None
-        self.objects.append(obj)
+        # self.objects.append(obj) # done in Environment!
         # Report to observers
-        for o in self.observers:
-            o.object_added(obj, location)
+        for obs in self.observers:
+            obs.object_added(obj)
 
+    def delete_object (self, obj):
+        super(XYEnvironment, self).delete_object(obj)
+        # Any more to do?  Object holding anything or being held?
+        for obs in self.observers:
+            obs.object_deleted(obj)
+    
     def add_walls(self):
         "Put walls around the entire perimeter of the grid."
         for x in range(self.width):
@@ -338,11 +376,12 @@ class XYEnvironment (Environment):
         Each observer is notified of changes in move_to and add_object,
         by calling the observer's methods object_moved(obj, old_loc, new_loc)
         and object_added(obj, loc)."""
+        self.observers.append(observer)
         
-def turn_heading(self, heading, inc,
-                 headings=[(1, 0), (0, 1), (-1, 0), (0, -1)]):
-    "Return the heading to the left (inc=+1) or right (inc=-1) in headings."
-    return headings[(headings.index(heading) + inc) % len(headings)]  
+    def turn_heading(self, heading, inc,
+                     headings=[(1, 0), (0, 1), (-1, 0), (0, -1)]):
+        "Return the heading to the left (inc=+1) or right (inc=-1) in headings."
+        return headings[(headings.index(heading) + inc) % len(headings)]  
 
 class Obstacle (Object):
     """Something that can cause a bump, preventing an agent from
@@ -356,7 +395,7 @@ class Wall (Obstacle): pass
 
 class Dirt (Object):
 
-    image_file = "images/dirt.png"
+    def get_image_file (self): return "images/dirt.png"
     
 class VacuumEnvironment (XYEnvironment):
     """The environment of [Ex. 2.12]. Agent perceives dirty or clean,
@@ -375,22 +414,30 @@ class VacuumEnvironment (XYEnvironment):
     def percept(self, agent):
         """The percept is a tuple of ('Dirty' or 'Clean', 'Bump' or 'None').
         Unlike the TrivialVacuumEnvironment, location is NOT perceived."""
-        status =  if_(self.find_at(Dirt, agent.location), 'Dirty', 'Clean')
+        status =  if_(self.some_objects_at(agent.location, Dirt),
+                      'Dirty', 'Clean')
         bump = if_(agent.bump, 'Bump', 'None')
         return (status, bump)
 
     def execute_action(self, agent, action):
         if action == 'Suck':
-            if self.find_at(Dirt, agent.location):
+            dirt_list = self.list_objects_at(agent.location, Dirt)
+            if dirt_list != []:
+                dirt = dirt_list[0]
                 agent.performance += 100
-        agent.performance -= 1
-        super(VacuumEnvironment, self).execute_action(agent, action)
+                self.delete_object(dirt)
+        else:
+            super(VacuumEnvironment, self).execute_action(agent, action)
 
+        if action != 'Nop':
+            agent.performance -= 1
 
 class TrivialVacuumEnvironment (Environment):
-    """This environment has two locations, A and B. Each can be Dirty or Clean.
-    The agent perceives its location and the location's status. This serves as
-    an example of how to implement a simple Environment."""
+
+    """This environment has two locations, A and B. Each can be Dirty
+    or Clean.  The agent perceives its location and the location's
+    status. This serves as an example of how to implement a simple
+    Environment."""
 
     def __init__(self):
         super(TrivialVacuumEnvironment, self).__init__()
@@ -598,8 +645,6 @@ class EnvCanvas (tk.Canvas, object):
         self.env = env
         self.cellwidth = cellwidth
         self.n = n
-        print "cellwidth, canvwidth, camvheight = %d, %d, %d" % \
-              (self.cellwidth, canvwidth, canvheight)
 
         # Draw the gridlines
         
@@ -610,8 +655,17 @@ class EnvCanvas (tk.Canvas, object):
                 self.pack(expand=1, fill='both')            
         self.pack()
 
-        # Set up image dictionary.
+        # Set up object_icon dictionary.
+        # Each object has an icon mapped in the object_icon dictionary.
+        # The icon may be a Tk image or any other canvas item,
+        # typically a "text" if no image is found.
 
+        self.object_icon = {}
+        
+        # Set up image dictionary.
+        # An image is associated with an image file; multiple objects of the
+        # same kind use the same image.
+        
         # Ugly hack: we need to keep a reference to each ImageTk.PhotoImage,
         # or it will be garbage collected.  This dictionary maps image files
         # that have been opened to their PhotoImage objects
@@ -623,6 +677,41 @@ class EnvCanvas (tk.Canvas, object):
         #self.bind('<Button-2>', self.user_edit_objects)        
         self.bind('<Button-3>', self.user_add_object)
 
+        # Draw existing objects
+        for obj in env.objects:
+            self.object_added(obj)
+
+        # Observe future new objects and object moves
+        env.add_observer(self)
+
+    def add_object_icon (self, obj):
+        """Return a drawable representation for a newly added object obj.
+        If obj's class has an image file, use the image from that.
+        Otherwise create a canvas text item.
+        Store the icon in the object_icon dictionary and re-use
+        as needed."""
+
+        cell = obj.location
+        xy = self.cell_topleft(cell)
+
+        # Look for an image file
+        try:
+            tk_image = self.get_image(obj.get_image_file())
+            icon = self.create_image(xy, anchor="nw", image=tk_image)
+        except NoImageException:
+            # Last resort: create a canvas text icon
+            icon = self.create_text(xy, anchor="nw", justify="left",
+                                    # Abbreviate class name to fit cell
+                                    text=obj.__class__.__name__[0:6]
+                                    # , fill = ?
+                                    #, font = ?
+                                    )
+
+        # Store and return the icon
+        self.object_icon[obj] = icon
+        return icon
+        
+        
     def get_image (self, file):
         """Try to find the image in the images dictionary.
         If it's not there, open the file and create it, and stick
@@ -647,7 +736,7 @@ class EnvCanvas (tk.Canvas, object):
         """Pops up a menu of Object classes; you choose the
         one you want to put in this square."""
         cell = self.event_cell(event)
-        xy = self.cell_topleft_xy(cell)
+        xy = self.cell_topleft(cell)
         menu = tk.Menu(self, title='Edit (%d, %d)' % cell)
         # Generalize object classes available,
         # and why is self.run the command?
@@ -659,18 +748,29 @@ class EnvCanvas (tk.Canvas, object):
             def cmd ():
                 obj = oclass()
                 self.env.add_object(obj, cell)
-                # what about drawing it on the canvas?
-                print "Drawing object %s at %s %s" % (obj, cell, xy)
-                tk_image = self.get_image(oclass.image_file)
-                self.canvas.create_image(xy, anchor="nw", image=tk_image)
             return cmd
 
         for oclass in obj_classes:
-            menu.add_command(label=oclass.__name__, command=class_cmd(oclass))
+            menu.add_command(label=oclass.__name__,
+                             command=class_cmd(oclass))
             
         menu.tk_popup(event.x + self.winfo_rootx(),
                       event.y + self.winfo_rooty())
         
+    def object_added (self, obj):
+        # Assert obj exists in the environment but has no icon yet
+        self.add_object_icon(obj)
+        
+    def object_moved (self, obj):
+        # Assert obj exists and has an icon already
+        icon = self.object_icon[obj]
+        self.coords(icon, self.cell_topleft(obj.location))
+
+    def object_deleted (self, obj):
+        icon = self.object_icon[obj]
+        del self.object_icon[obj]
+        self.delete(icon)
+    
     def event_cell (self, event):
         return self.xy_cell((event.x, event.y))
 
@@ -680,17 +780,32 @@ class EnvCanvas (tk.Canvas, object):
         w = self.cellwidth
         return x / w, y / w
     
-    def cell_topleft_xy (self, (row, column)):
+    def cell_topleft (self, (row, column)):
         """Given a (row, column) tuple, return the (x, y) coordinates
         of the cell(row, column)'s top left corner."""
 
         w = self.cellwidth
         return w * row, w * column
 
+class NoImageException (Exception): pass
 
 def test_gui ():
     v = VacuumEnvironment()
     w = EnvGUI(v)
-    a = ModelBasedVacuumAgent()
-    v.add_object(TraceAgent(a))
-    v.run(5)
+    a = TraceAgent(RandomAgent(['Forward',
+                                'TurnRight',
+                                'TurnLeft',
+                                # omit grab because grabbing is
+                                # is not implemented correctly.
+                                #'Grab',
+                                'Suck']))
+    a.heading = (1, 0) # east?
+    v.add_object(Dirt(), (6, 6))
+    v.add_object(Dirt(), (3, 2))
+    v.add_object(Dirt(), (5, 7))
+    v.add_object(a, (6, 6))
+    w.mainloop()
+    
+# test_gui()
+
+
