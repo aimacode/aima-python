@@ -328,8 +328,9 @@ class XYEnvironment (Environment):
 
     def percept(self, agent):
         "By default, agent perceives objects within radius r."
+        ### Error below: objects_near requires also a radius argument
         return [self.object_percept(obj, agent)
-                for obj in self.objects_near(agent)]
+                for obj in self.objects_near(agent)] ### <- error
 
     def execute_action(self, agent, action):
         agent.bump = False
@@ -706,12 +707,12 @@ class EnvCanvas (tk.Canvas, object):
 
         # Draw the gridlines
         
-        if cellwidth:
+        if cellwidth: # Pointless!
             for i in range(0, n+1):
                 self.create_line(0, i*cellwidth, n*cellwidth, i*cellwidth)
                 self.create_line(i*cellwidth, 0, i*cellwidth, n*cellwidth)
-                self.pack(expand=1, fill='both')            
-        self.pack()
+                self.pack(expand=1, fill='both') # Shouldn't be? after loop?
+        self.pack() # Ditto
 
         # Set up object_icon dictionary.
         # Each object has an icon mapped in the object_icon dictionary.
