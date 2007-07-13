@@ -180,7 +180,7 @@ def order_domain_values(var, assignment, csp):
     if csp.lcv:
         # If LCV is specified, consider values with fewer conflicts first
         key = lambda val: csp.nconflicts(var, val, assignment)
-        domain.sort(lambda(x,y): cmp(key(x), key(y)))
+        domain.sort(lambda x, y: cmp(key(x), key(y)))
     while domain:
         yield domain.pop()
 
