@@ -13,7 +13,7 @@ import math, random, sys, time, bisect, string
 
 #______________________________________________________________________________
 
-class Problem:
+class Problem (object):
     """The abstract class for a formal problem.  You should subclass this and
     implement the method successor, and possibly __init__, goal_test, and
     path_cost. Then you will create instances of your subclass and solve them
@@ -454,8 +454,6 @@ class GraphProblem(Problem):
             return infinity
 
 #______________________________________________________________________________
-
-#### NOTE: NQueensProblem not working properly yet.
 
 class NQueensProblem(Problem):
     """The problem of placing N queens on an NxN board with none attacking
