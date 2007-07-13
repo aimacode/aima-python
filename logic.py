@@ -293,7 +293,7 @@ def literals(s):
     [F(A, B), G(B, C), R(A, C)]
     """
     op = s.op
-    if op in set(['&', '|', '<<', '>>', '<=>', '^']):
+    if op in set(['&', '|', '<<', '>>', '%', '^']):
         result = []
         for arg in s.args:
             result.extend(literals(arg))
@@ -303,6 +303,21 @@ def literals(s):
     else:
         return []
 
+def variables(s):
+    """returns the set of variables in logical expression s.
+    >>> ppset(variables(F(x, A, y)))
+    set([x, y])
+    >>> ppset(variables(expr('F(x, x) & G(x, y) & H(y, z) & R(A, z, z)')))
+    set([x, y, z])
+    """
+    if is_literal(s):
+        return set([v for v in s.args if is_variable(v)])
+    else:
+        vars = set([])
+        for lit in literals(s):
+            vars = vars.union(variables(lit))
+        return vars
+    
 def is_definite_clause(s):
     """returns True for exprs s of the form A & B & ... & C ==> D,
     where all literals are positive.  In clause form, this is
@@ -317,9 +332,8 @@ def is_definite_clause(s):
     False
     """
     op = s.op
-    return (is_symbol(op) or \
-            (op == '>>' and \
-             every(is_positive, literals(s))))
+    return (is_symbol(op) or
+            (op == '>>' and every(is_positive, literals(s))))
 
 ## Useful constant Exprs used in examples and code:
 TRUE, FALSE, ZERO, ONE, TWO = map(Expr, ['TRUE', 'FALSE', 0, 1, 2]) 
@@ -884,8 +898,11 @@ def fol_fc_ask(KB, alpha):
 
 def standardize_apart(sentence, dic={}):
     """Replace all the variables in sentence with new variables.
-    >>> standardize_apart(expr('F(a, b, c) & G(c, A, 23)'))
-    (F(v_1, v_2, v_3) & G(v_3, A, 23))
+    >>> e = expr('F(a, b, c) & G(c, A, 23)')
+    >>> len(variables(standardize_apart(e)))
+    3
+    >>> variables(e).intersection(variables(standardize_apart(e)))
+    set([])
     >>> is_variable(standardize_apart(expr('x')))
     True
     """
@@ -910,8 +927,14 @@ standardize_apart.counter = 0
 
 class FolKB (KB):
     """A knowledge base consisting of first-order definite clauses
-    >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Peter)'),
+    >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Pete)'),
     ...              expr('(Rabbit(r) & Farmer(f)) ==> Hates(f, r)')])
+    >>> kb0.tell(expr('Rabbit(Flopsie)'))
+    >>> kb0.retract(expr('Rabbit(Pete)'))
+    >>> kb0.ask(expr('Hates(Mac, x)'))[x]
+    Flopsie
+    >>> kb0.ask(expr('Wife(Pete, x)'))
+    False
     """
 
     def __init__ (self, initial_clauses=[]):
@@ -926,10 +949,20 @@ class FolKB (KB):
             raise Exception("Not a definite clause: %s" % sentence)
 
     def ask_generator(self, query):
-        raise Exception("Not implemented")
+        return fol_bc_ask(self, [query])
 
     def retract(self, sentence):
         self.clauses.remove(sentence)
+
+def test_ask(q):
+    e = expr(q)
+    vars = variables(e)
+    ans = fol_bc_ask(test_kb, [e])
+    res = []
+    for a in ans:
+        res.append(pretty(dict([(x, v) for (x, v) in a.items() if x in vars])))
+    res.sort(key=str)
+    return res
 
 test_kb = FolKB(
     map(expr, ['Farmer(Mac)',
@@ -940,8 +973,8 @@ test_kb = FolKB(
                '(Mother(m, c)) ==> Loves(m, c)',
                '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
                '(Farmer(f)) ==> Human(f)',
-               # Note that this order of conjuncts results
-               # in infinite recursion:
+               # Note that this order of conjuncts 
+               # would result in infinite recursion:
                #'(Human(h) & Mother(m, h)) ==> Human(m)'
                '(Mother(m, h) & Human(h)) ==> Human(m)'
                ])
@@ -950,14 +983,24 @@ test_kb = FolKB(
     
 def fol_bc_ask(KB, goals, theta={}):
     """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
-    KB should be an instance of FolKB, and goals a list of literals."""
+    KB should be an instance of FolKB, and goals a list of literals.
+
+    >>> test_ask('Farmer(x)')
+    ['{x: Mac}']
+    >>> test_ask('Human(x)')
+    ['{x: Mac}', '{x: MrsMac}']
+    >>> test_ask('Hates(x, y)')
+    ['{x: Mac, y: Pete}']
+    >>> test_ask('Loves(x, y)')
+    ['{x: MrsMac, y: Mac}', '{x: MrsRabbit, y: Pete}']
+    >>> test_ask('Rabbit(x)')
+    ['{x: MrsRabbit}', '{x: Pete}']
+    """
 
     if goals == []:
-        answers = [theta] # yield theta
-        return answers # yield theta
-
-    answers = []
-
+        yield theta
+        raise StopIteration()
+    
     q1 = subst(theta, goals[0])
 
     for r in KB.clauses:
@@ -967,28 +1010,24 @@ def fol_bc_ask(KB, goals, theta={}):
         if is_symbol(sar.op):
             head = sar
             body = []
-        elif sar.op == '>>':
-            # sar has the form B1 & B2 & ... >> H
+        elif sar.op == '>>': # sar = (Body1 & Body2 & ...) >> Head
             head = sar.args[1]
-            body = sar.args[0] # as a conjunction
+            body = sar.args[0] # as conjunction
         else:
             raise Exception("Invalid clause in FolKB: %s" % r)
 
-        theta1 = unify(head, q1, {}) # extra arg. on unify
+        theta1 = unify(head, q1, {})
 
         if theta1 is not None:
             if body == []:
-                conjs = []
+                new_goals = goals[1:]
             else:
-                conjs = conjuncts(body)            
-            new_goals = conjs + goals[1:]
+                new_goals = conjuncts(body) + goals[1:]
             
-            new_answers = fol_bc_ask(KB, new_goals, subst_compose(theta1, theta)) # theta1)
-            
-            # Should + be union on next line?  But answers is a list not a set
-            answers = new_answers + answers
+            for ans in fol_bc_ask(KB, new_goals, subst_compose(theta1, theta)):
+                yield ans
 
-    return answers
+    raise StopIteration()
 
 def subst_compose (s1, s2):
     """Return the substitution which is equivalent to applying s2 to
@@ -1110,20 +1149,23 @@ def d(y, x):
 # These functions print their arguments in a standard order
 # to compensate for the random order in the standard representation
 
-def ppsubst(s):
-    """Print substitution s"""
-    ppdict(s)
+def pretty(x):
+    t = type(x)
+    if t == dict:
+        return pretty_dict(x)
+    elif t == set:
+        return pretty_set(x)
 
-def ppdict(d):
+def pretty_dict(d):
     """Print the dictionary d.
     
     Prints a string representation of the dictionary
     with keys in sorted order according to their string
     representation: {a: A, d: D, ...}.
-    >>> ppdict({'m': 'M', 'a': 'A', 'r': 'R', 'k': 'K'})
-    {'a': 'A', 'k': 'K', 'm': 'M', 'r': 'R'}
-    >>> ppdict({z: C, y: B, x: A})
-    {x: A, y: B, z: C}
+    >>> pretty_dict({'m': 'M', 'a': 'A', 'r': 'R', 'k': 'K'})
+    "{'a': 'A', 'k': 'K', 'm': 'M', 'r': 'R'}"
+    >>> pretty_dict({z: C, y: B, x: A})
+    '{x: A, y: B, z: C}'
     """
 
     def format(k, v):
@@ -1135,27 +1177,31 @@ def ppdict(d):
     dpairs = format(k, v)
     for (k, v) in ditems[1:]:
         dpairs += (', ' + format(k, v))
-    print '{%s}' % dpairs
+    return '{%s}' % dpairs
 
-def ppset(s):
+def pretty_set(s):
     """Print the set s.
 
-    >>> ppset(set(['A', 'Q', 'F', 'K', 'Y', 'B']))
-    set(['A', 'B', 'F', 'K', 'Q', 'Y'])
-    >>> ppset(set([z, y, x]))
-    set([x, y, z])
+    >>> pretty_set(set(['A', 'Q', 'F', 'K', 'Y', 'B']))
+    "set(['A', 'B', 'F', 'K', 'Q', 'Y'])"
+    >>> pretty_set(set([z, y, x]))
+    'set([x, y, z])'
     """
 
     slist = list(s)
     slist.sort(key=str)
-    print 'set(%s)' % slist
+    return 'set(%s)' % slist
 
-# Debug this expression:
+def pp(x):
+    print pretty(x)
+    
+def ppsubst(s):
+    """Pretty-print substitution s"""
+    ppdict(s)
 
-e = expr('Human(x)')
-print e
+def ppdict(d):
+    print pretty_dict(d)
 
-debug = False
+def ppset(s):
+    print pretty_set(s)
 
-if debug:
-    fol_bc_ask(test_kb, [e])
