@@ -76,12 +76,16 @@ class Agent (Object):
     the performance measure of the agent in its environment."""
 
     def __init__(self):
-        def program(percept):
-            return raw_input('Percept=%s; action? ' % percept)
-        self.program = program
+        self.program = self.make_agent_program()
         self.alive = True
         self.bump = False
 
+    def make_agent_program (self):
+        
+        def program(percept):
+            return raw_input('Percept=%s; action? ' % percept)
+        return program
+    
     def can_grab (self, obj):
         """Returns True if this agent can grab this object.
         Override for appropriate subclasses of Agent and Object."""
@@ -109,21 +113,29 @@ class TableDrivenAgent (Agent):
         "Supply as table a dictionary of all {percept_sequence:action} pairs."
         ## The agent program could in principle be a function, but because
         ## it needs to store state, we make it a callable instance of a class.
+        self.table = table
         super(TableDrivenAgent, self).__init__()
+
+    def make_agent_program (self):
+        table = self.table
         percepts = []
         def program(percept):
             percepts.append(percept)
             action = table.get(tuple(percepts))
             return action
-        self.program = program
+        return program
 
 
 class RandomAgent (Agent):
     "An agent that chooses an action at random, ignoring all percepts."
 
     def __init__(self, actions):
+        self.actions = actions
         super(RandomAgent, self).__init__()
-        self.program = lambda percept: random.choice(actions)
+
+    def make_agent_program (self):
+        actions = self.actions
+        return lambda percept: random.choice(actions)
 
 
 #______________________________________________________________________________
@@ -135,11 +147,13 @@ class ReflexVacuumAgent (Agent):
 
     def __init__(self):
         super(ReflexVacuumAgent, self).__init__()
+
+    def make_agent_program (self):
         def program((location, status)):
             if status == 'Dirty': return 'Suck'
             elif location == loc_A: return 'Right'
             elif location == loc_B: return 'Left'
-        self.program = program
+        return program
 
     def get_image_file (self): return "images/vacuum.png"
     
@@ -168,8 +182,11 @@ class ModelBasedVacuumAgent (Agent):
     "An agent that keeps track of what locations are clean or dirty."
 
     def __init__(self):
+        self.model = {loc_A: None, loc_B: None}
         super(ModelBasedVacuumAgent, self).__init__()
-        model = {loc_A: None, loc_B: None}
+
+    def make_agent_program (self):
+        model = self.model
         def program((location, status)):
             "Same as ReflexVacuumAgent, except if everything is clean, do NoOp"
             model[location] = status ## Update the model here
@@ -177,7 +194,7 @@ class ModelBasedVacuumAgent (Agent):
             elif status == 'Dirty': return 'Suck'
             elif location == loc_A: return 'Right'
             elif location == loc_B: return 'Left'
-        self.program = program
+        return program
 
 #______________________________________________________________________________
 
@@ -388,14 +405,18 @@ class Obstacle (Object):
     moving into the same square it's in."""
     pass
 
-class Wall (Obstacle): pass
+class Wall (Obstacle):
+
+    def get_image_file (self):
+        return "images/wall-icon.jpg"
 
 #______________________________________________________________________________
 ## Vacuum environment 
 
 class Dirt (Object):
 
-    def get_image_file (self): return "images/dirt.png"
+    def get_image_file (self):
+        return "images/dirt05-icon.jpg" # "images/dirt.png"
     
 class VacuumEnvironment (XYEnvironment):
     """The environment of [Ex. 2.12]. Agent perceives dirty or clean,
@@ -476,26 +497,39 @@ class SimpleReflexAgent (Agent):
     """This agent takes action based solely on the percept. [Fig. 2.13]"""
 
     def __init__(self, rules, interpret_input):
+        self.rules = rules
+        self.interpret_input = interpret_input
         super(SimpleReflexAgent, self).__init__()
+
+    def make_agent_program (self):
+        rules = self.rules
+        interpret_input = self.interpret_input
         def program(percept):
             state = interpret_input(percept)
             rule = rule_match(state, rules)
             action = rule.action
             return action
-        self.program = program
+        return program
 
 class ReflexAgentWithState (Agent):
     """This agent takes action based on the percept and state. [Fig. 2.16]"""
 
     def __init__(self, rules, udpate_state):
+        self.rules = rules
+        self.update_state = update_state
         super(ReflexAgentWithState, self).__init__()
-        state, action = None, None
+
+    def make_agent_program (self):
+        rules = self.rules
+        update_state = self.update_state
+        state = None
+        action = None
         def program(percept):
             state = update_state(state, action, percept)
             rule = rule_match(state, rules)
             action = rule.action
             return action
-        self.program = program
+        return program
 
 #______________________________________________________________________________
 ## The Wumpus World
@@ -608,11 +642,14 @@ class EnvToolbar (tk.Frame, object):
         # Create buttons and other controls
         
         for txt, cmd in [('Step >', self.env.step), ('Run >>', self.run),
-                         ('Stop [ ]', self.stop)]:
+                         ('Stop [ ]', self.stop),
+                         ('List objects', self.list_objects),
+                         ('List agents', self.list_agents)]:
             tk.Button(self, text=txt, command=cmd).pack(side='left')
         tk.Label(self, text='Delay').pack(side='left')
-        scale = tk.Scale(self, orient='h', from_=0.0, to=10, resolution=0.5,
-                         command=lambda d: setattr(parent, 'delay', d))
+        res = 0.1
+        scale = tk.Scale(self, orient='h', from_=(0.0 + res), to=5, resolution=res,
+                         command=self.set_delay)
         scale.set(self.delay)
         scale.pack(side='left')
 
@@ -628,10 +665,23 @@ class EnvToolbar (tk.Frame, object):
     def background_run(self):
         if self.running:
             self.env.step()
-            ms = int(1000 * max(float(self.delay), 0.5))
+            # ms = int(1000 * max(float(self.delay), 0.5))
+            ms = max(int(1000 * float(self.delay)), 1)
             self.after(ms, self.background_run)
         
+    def list_objects (self):
+        print "Objects in the environment:"
+        for obj in self.env.objects:
+            print "%s at %s" % (obj, obj.location)
 
+    def list_agents (self):
+        print "Agents in the environment:"
+        for agt in self.env.agents:
+            print "%s at %s" % (agt, agt.location)
+
+    def set_delay (self, delay):
+        self.delay = delay
+    
 class EnvCanvas (tk.Canvas, object):
 
     def __init__ (self, parent, env, cellwidth, n):

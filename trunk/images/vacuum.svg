@@ -15,7 +15,10 @@
    inkscape:version="0.45.1"
    sodipodi:docbase="/home/gdweber/src/aima-python/trunk/images"
    sodipodi:docname="vacuum.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/home/gdweber/src/aima-python/trunk/images/vacuum.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs2162" />
   <sodipodi:namedview
@@ -27,7 +30,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="7"
      inkscape:cx="24"
-     inkscape:cy="24"
+     inkscape:cy="13.428571"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
@@ -52,6 +55,16 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
     <rect
+       style="opacity:1;fill:#000000;fill-opacity:0.04117647;stroke:none;stroke-width:0.42500001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2163"
+       width="49"
+       height="49.14286"
+       x="0"
+       y="-0.14285713"
+       inkscape:export-filename="/home/gdweber/src/aima-python/trunk/images/path2178.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
        style="opacity:1;fill:#d50000;fill-opacity:1;stroke:#182d0f;stroke-width:0.42519686;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect2168"
        width="13.857142"
@@ -59,7 +72,10 @@
        x="10"
        y="17.571428"
        rx="4.0406103"
-       ry="2.5714285" />
+       ry="2.5714285"
+       inkscape:export-filename="/home/gdweber/src/aima-python/trunk/images/path2178.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <rect
        style="opacity:1;fill:#d50000;fill-opacity:1;stroke:#182d0f;stroke-width:0.38444248;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect2170"
@@ -70,7 +86,10 @@
        rx="2.8977532"
        ry="2.5714285"
        inkscape:transform-center-y="3.1975204"
-       inkscape:transform-center-x="-1.1473855" />
+       inkscape:transform-center-x="-1.1473855"
+       inkscape:export-filename="/home/gdweber/src/aima-python/trunk/images/path2178.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <rect
        style="opacity:1;fill:#d50000;fill-opacity:1;stroke:#182d0f;stroke-width:0.42519689;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect2172"
@@ -82,7 +101,10 @@
        ry="0.80000001"
        transform="matrix(0.6427875,-0.7660445,0.7660445,0.6427875,0,0)"
        inkscape:transform-center-x="-0.85714286"
-       inkscape:transform-center-y="1.1428571" />
+       inkscape:transform-center-y="1.1428571"
+       inkscape:export-filename="/home/gdweber/src/aima-python/trunk/images/path2178.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        sodipodi:type="arc"
        style="opacity:1;fill:#d50000;fill-opacity:1;stroke:#182d0f;stroke-width:0.42519686;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -95,7 +117,10 @@
        sodipodi:start="0.87094466"
        sodipodi:end="5.3867807"
        sodipodi:open="true"
-       transform="matrix(1.3748607e-8,1.2272272,-0.9937961,1.6977995e-8,42.458882,-29.829847)" />
+       transform="matrix(1.3748607e-8,1.2272272,-0.9937961,1.6977995e-8,42.458882,-29.829847)"
+       inkscape:export-filename="/home/gdweber/src/aima-python/trunk/images/path2178.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        sodipodi:type="arc"
        style="opacity:1;fill:#d50000;fill-opacity:1;stroke:#182d0f;stroke-width:0.42519686;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -105,7 +130,10 @@
        sodipodi:rx="1.8571428"
        sodipodi:ry="1.7142857"
        d="M 31.571428 21.285715 A 1.8571428 1.7142857 0 1 1  27.857142,21.285715 A 1.8571428 1.7142857 0 1 1  31.571428 21.285715 z"
-       transform="matrix(0.7217013,0,0,0.781843,7.0551619,1.9276543)" />
+       transform="matrix(0.7217013,0,0,0.781843,7.0551619,1.9276543)"
+       inkscape:export-filename="/home/gdweber/src/aima-python/trunk/images/path2178.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <path
        sodipodi:type="arc"
        style="opacity:1;fill:#d50000;fill-opacity:1;stroke:#182d0f;stroke-width:0.42519686;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -115,6 +143,8 @@
        sodipodi:rx="1.8571428"
        sodipodi:ry="1.7142857"
        d="M 31.571428 21.285715 A 1.8571428 1.7142857 0 1 1  27.857142,21.285715 A 1.8571428 1.7142857 0 1 1  31.571428 21.285715 z"
-       transform="matrix(0.7217013,0,0,0.781843,10.629967,1.9276533)" />
+       transform="matrix(0.7217013,0,0,0.781843,10.629967,1.9276533)"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
   </g>
 </svg>
