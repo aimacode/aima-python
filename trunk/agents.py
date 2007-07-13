@@ -24,7 +24,11 @@ EnvFrame ## A graphical representation of the Environment
 from utils import *
 import random, copy
 
+# Additional modules needed for loading non-bitmap images
+import Image # Python Imaging Library (PIL)
+import ImageTk # PIL + Tk
 #______________________________________________________________________________
+
 
 class Object:
     """This represents any physical object that can appear in an Environment.
@@ -59,7 +63,8 @@ class Agent(Object):
             return raw_input('Percept=%s; action? ' % percept)
         self.program = program
         self.alive = True
-
+        self.bump = False
+        
 def TraceAgent(agent):
     """Wrap the agent's program to print its input and output. This will let
     you see what the agent is doing in the environment."""
@@ -93,6 +98,7 @@ class TableDrivenAgent(Agent):
 
 class RandomAgent(Agent):
     "An agent that chooses an action at random, ignoring all percepts."
+
     def __init__(self, actions):
         Agent.__init__(self)
         self.program = lambda percept: random.choice(actions)
@@ -113,7 +119,8 @@ class ReflexVacuumAgent(Agent):
             elif location == loc_B: return 'Left'
         self.program = program
 
-
+    image_file = "images/vacuum.png"
+    
 def RandomVacuumAgent():
     "Randomly choose one of the actions from the vaccum environment."
     return RandomAgent(['Right', 'Left', 'Suck', 'NoOp'])
@@ -137,6 +144,7 @@ def TableDrivenVacuumAgent():
 
 class ModelBasedVacuumAgent(Agent):
     "An agent that keeps track of what locations are clean or dirty."
+
     def __init__(self):
         Agent.__init__(self)
         model = {loc_A: None, loc_B: None}
@@ -148,8 +156,9 @@ class ModelBasedVacuumAgent(Agent):
             elif location == loc_A: return 'Right'
             elif location == loc_B: return 'Left'
         self.program = program
-        
+
 #______________________________________________________________________________
+
 
 class Environment:
     """Abstract class representing an Environment.  'Real' Environment classes
@@ -162,10 +171,12 @@ class Environment:
     Each object has a .location slot, even though some environments may not
     need this."""
 
-    def __init__(self,):
-        self.objects = []; self.agents = []
+    def __init__(self):
+        self.objects = []
+        self.agents = []
 
-    object_classes = [] ## List of classes that can go into environment
+    def object_classes (self):
+        return [] ## List of classes that can go into environment
 
     def percept(self, agent):
 	"Return the percept that the agent sees at this point. Override this."
@@ -229,10 +240,20 @@ class XYEnvironment(Environment):
     def __init__(self, width=10, height=10):
         update(self, objects=[], agents=[], width=width, height=height)
 
-    def objects_at(self, location):
+    def objects_at(self, location): # promote to Environment?
         "Return all objects exactly at a given location."
         return [obj for obj in self.objects if obj.location == location]
 
+    def find_at (self, oclass, location):
+        """Return true if at least one of the objects at location
+        is an instance of class oclass.
+
+        'Is an instance' in the sense of 'isinstance',
+        which is true if the object is an instance of a subclass of oclass."""
+        
+        return some(lambda obj: isinstance(obj, oclass),
+                    self.objects_at(location))
+        
     def objects_near(self, location, radius):
         "Return all objects within radius of location."
         radius2 = radius * radius
@@ -268,8 +289,17 @@ class XYEnvironment(Environment):
     def default_location(self, object):
         return (random.choice(self.width), random.choice(self.height))
 
-    def move_to(object, destination):
+    def move_to(self, object, destination):
         "Move an object to a new location."
+        if self.find_at(Obstacle, destination):
+            object.bump = True
+            print "%s bumped at %s -- now notify the observer somehow?" % \
+                  (object, destination)
+        else:
+            object.bump = False
+            object.location = destination
+            print "Moving %s to %s -- now notify the observer somehow" % \
+                  (object, destination)
         
     def add_object(self, object, location=(1, 1)):
         Environment.add_object(self, object, location)
@@ -291,8 +321,48 @@ def turn_heading(self, heading, inc,
     "Return the heading to the left (inc=+1) or right (inc=-1) in headings."
     return headings[(headings.index(heading) + inc) % len(headings)]  
 
+class Obstacle (Object):
+    """Something that can cause a bump, preventing an agent from
+    moving into the same square it's in."""
+    pass
+
+class Wall(Obstacle): pass
+
 #______________________________________________________________________________
 ## Vacuum environment 
+
+class Dirt(Object):
+
+    image_file = "images/dirt.png"
+    
+class VacuumEnvironment(XYEnvironment):
+    """The environment of [Ex. 2.12]. Agent perceives dirty or clean,
+    and bump (into obstacle) or not; 2D discrete world of unknown size;
+    performance measure is 100 for each dirt cleaned, and -1 for
+    each turn taken."""
+
+    def __init__(self, width=10, height=10):
+        XYEnvironment.__init__(self, width, height)
+        self.add_walls()
+
+    def object_classes (self):
+        return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent,
+                TableDrivenVacuumAgent, ModelBasedVacuumAgent]
+
+    def percept(self, agent):
+        """The percept is a tuple of ('Dirty' or 'Clean', 'Bump' or 'None').
+        Unlike the TrivialVacuumEnvironment, location is NOT perceived."""
+        status =  if_(self.find_at(Dirt, agent.location), 'Dirty', 'Clean')
+        bump = if_(agent.bump, 'Bump', 'None')
+        return (status, bump)
+
+    def execute_action(self, agent, action):
+        if action == 'Suck':
+            if self.find_at(Dirt, agent.location):
+                agent.performance += 100
+        agent.performance -= 1
+        XYEnvironment.execute_action(self, agent, action)
+
 
 class TrivialVacuumEnvironment(Environment):
     """This environment has two locations, A and B. Each can be Dirty or Clean.
@@ -303,7 +373,11 @@ class TrivialVacuumEnvironment(Environment):
         Environment.__init__(self)
         self.status = {loc_A:random.choice(['Clean', 'Dirty']),
                        loc_B:random.choice(['Clean', 'Dirty'])}
-        
+
+    def object_classes (self):
+        return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent, 
+                TableDrivenVacuumAgent, ModelBasedVacuumAgent]
+    
     def percept(self, agent):
         "Returns the agent's location, and the location status (Dirty/Clean)."
         return (agent.location, self.status[agent.location])
@@ -325,35 +399,6 @@ class TrivialVacuumEnvironment(Environment):
     def default_location(self, object):
         "Agents start in either location at random."
         return random.choice([loc_A, loc_B])
-
-class Dirt(Object): pass
-class Wall(Object): pass
-
-class VacuumEnvironment(XYEnvironment):
-    """The environment of [Ex. 2.12]. Agent perceives dirty or clean,
-    and bump (into obstacle) or not; 2D discrete world of unknown size;
-    performance measure is 100 for each dirt cleaned, and -1 for
-    each turn taken."""
-    def __init__(self, width=10, height=10):
-        XYEnvironment.__init__(self, width, height)
-        self.add_walls()
-
-    object_classes = [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent,
-                      TableDrivenVacuumAgent, ModelBasedVacuumAgent]
-
-    def percept(self, agent):
-        """The percept is a tuple of ('Dirty' or 'Clean', 'Bump' or 'None').
-        Unlike the TrivialVacuumEnvironment, location is NOT perceived."""
-        status =  if_(self.find_at(Dirt, agent.location), 'Dirty', 'Clean')
-        bump = if_(agent.bump, 'Bump', 'None')
-        return (status, bump)
-
-    def execute_action(self, agent, action):
-        if action == 'Suck':
-            if self.find_at(Dirt, agent.location):
-                agent.performance += 100
-        agent.performance -= 1
-        XYEnvironment.execute_action(self, agent, action)
 
 #______________________________________________________________________________
 
@@ -392,10 +437,14 @@ class Wumpus(Agent): pass
 class Explorer(Agent): pass
 
 class WumpusEnvironment(XYEnvironment):
-    object_classes = [Wall, Gold, Pit, Arrow, Wumpus, Explorer]
+
     def __init__(self, width=10, height=10):
         XYEnvironment.__init__(self, width, height)
         self.add_walls()
+
+    def object_classes (self):
+        return [Wall, Gold, Pit, Arrow, Wumpus, Explorer]
+
     ## Needs a lot of work ...
 
     
@@ -420,7 +469,7 @@ def test_agent(AgentFactory, steps, envs):
         total += agent.performance
     return float(total)/len(envs)
 
-#______________________________________________________________________________
+#_________________________________________________________________________
 
 _docex = """
 a = ReflexVacuumAgent()
@@ -455,43 +504,31 @@ testv(RandomVacuumAgent)
 # (Tkinter is standard in all new releases), or delete the rest of this file
 # and muddle through without a GUI.
 
-'''
 import Tkinter as tk
 
-class EnvFrame(tk.Frame):
-    def __init__(self, env, title='AIMA GUI', cellwidth=50, n=10):
-        update(self, cellwidth = cellwidth, running=False, delay=1.0)
-        self.n = n
+class EnvGUI (tk.Tk, object):
+
+    def __init__ (self, env, title = 'AIMA GUI', cellwidth=50, n=10):
+        super(EnvGUI, self).__init__()
+        self.title(title)
+        self.env = env
         self.running = 0
         self.delay = 1.0
-        self.env = env
-        tk.Frame.__init__(self, None, width=(cellwidth+2)*n, height=(cellwidth+2)*n)
-        #self.title(title)
-        # Toolbar
-        toolbar = tk.Frame(self, relief='raised', bd=2)
-        toolbar.pack(side='top', fill='x')
-        for txt, cmd in [('Step >', self.env.step), ('Run >>', self.run),
-                         ('Stop [ ]', self.stop)]:
-            tk.Button(toolbar, text=txt, command=cmd).pack(side='left')
-        tk.Label(toolbar, text='Delay').pack(side='left')
-        scale = tk.Scale(toolbar, orient='h', from_=0.0, to=10, resolution=0.5,
-                         command=lambda d: setattr(self, 'delay', d))
-        scale.set(self.delay)
-        scale.pack(side='left')
-        # Canvas for drawing on
-        self.canvas = tk.Canvas(self, width=(cellwidth+1)*n,
-                                height=(cellwidth+1)*n, background="white")
-        self.canvas.bind('<Button-1>', self.left) ## What should this do?
-        self.canvas.bind('<Button-2>', self.edit_objects)        
-        self.canvas.bind('<Button-3>', self.add_object)
-        if cellwidth:
-            c = self.canvas
-            for i in range(1, n+1):
-                c.create_line(0, i*cellwidth, n*cellwidth, i*cellwidth)
-                c.create_line(i*cellwidth, 0, i*cellwidth, n*cellwidth)
-                c.pack(expand=1, fill='both')            
-        self.pack()
+        self.cellwidth = cellwidth
+        
+        self.canvas = EnvCanvas(self, cellwidth, n)
+        self.toolbar = EnvToolbar(self, self.canvas)
+        for w in [self.canvas, self.toolbar]:
+            w.pack(side="bottom", fill="x", padx="3", pady="3")
 
+        # Ugly hack: we need to keep a reference to each ImageTk.PhotoImage,
+        # or it will be garbage collected.  This dictionary maps image files
+        # that have been opened to their PhotoImage objects
+        self.images = {}
+
+        #self.canvas.bind('<Button-1>', self.left) ## What should this do?
+        #self.canvas.bind('<Button-2>', self.edit_objects)        
+        self.canvas.bind('<Button-3>', self.add_object)
 
     def background_run(self):
         if self.running:
@@ -507,27 +544,110 @@ class EnvFrame(tk.Frame):
     def stop(self):
         print 'stop'
         self.running = 0
+
+    def get_image (self, file):
+        """Try to find the image in the images dictionary.
+        If it's not there, open the file and create it, and stick
+        it in the dictionary.  Return the image in a form usable
+        by the canvas."""
+        if self.images.has_key(file):
+            tk_image = self.images[file]
+        else:
+            pil_image = Image.open(file)
+            tk_image = ImageTk.PhotoImage(pil_image)
+            self.images[file] = tk_image
+        return tk_image
+        
         
     def left(self, event):
-        print 'left at ', event.x/50, event.y/50
+        print 'left at %d, %d' % self.event_cell(event)
 
     def edit_objects(self, event):
         """Choose an object within radius and edit its fields."""
         pass
 
     def add_object(self, event):
-        ## This is supposed to pop up a menu of Object classes; you choose the one
-        ## You want to put in this square.  Not working yet.
-        menu = tk.Menu(self, title='Edit (%d, %d)' % (event.x/50, event.y/50))
-        for (txt, cmd) in [('Wumpus', self.run), ('Pit', self.run)]:
-            menu.add_command(label=txt, command=cmd)
+        """Pops up a menu of Object classes; you choose the
+        one you want to put in this square."""
+        cell = self.event_cell(event)
+        xy = self.cell_topleft_xy(cell)
+        menu = tk.Menu(self, title='Edit (%d, %d)' % cell)
+        # Generalize object classes available,
+        # and why is self.run the command?
+        #for (txt, cmd) in [('Wumpus', self.run), ('Pit', self.run)]:
+        #    menu.add_command(label=txt, command=cmd)
+        obj_classes = self.env.object_classes()
+
+        def class_cmd (oclass):
+            def cmd ():
+                obj = oclass()
+                self.env.add_object(obj, cell)
+                # what about drawing it on the canvas?
+                print "Drawing object %s at %s %s" % (obj, cell, xy)
+                tk_image = self.get_image(oclass.image_file)
+                self.canvas.create_image(xy, anchor="nw", image=tk_image)
+            return cmd
+
+        for oclass in obj_classes:
+            menu.add_command(label=oclass.__name__, command=class_cmd(oclass))
+            
         menu.tk_popup(event.x + self.winfo_rootx(),
                       event.y + self.winfo_rooty())
+        
+    def event_cell (self, event):
+        return self.xy_cell((event.x, event.y))
 
-        #image=PhotoImage(file=r"C:\Documents and Settings\pnorvig\Desktop\wumpus.gif")
-        #self.images = []
-        #self.images.append(image)
-        #c.create_image(200,200,anchor=NW,image=image)
+    def xy_cell (self, (x, y)):
+        """Given an (x, y) on the canvas, return the row and column
+        of the cell containing it."""
+        w = self.cellwidth
+        return x / w, y / w
+    
+    def cell_topleft_xy (self, (row, column)):
+        """Given a (row, column) tuple, return the (x, y) coordinates
+        of the cell(row, column)'s top left corner."""
 
-#v = VacuumEnvironment(); w = EnvFrame(v);
-'''
+        w = self.cellwidth
+        return w * row, w * column
+
+class EnvToolbar (tk.Frame, object):
+
+    def __init__ (self, parent, canvas):
+        super(EnvToolbar, self).__init__(parent, relief='raised', bd=2)
+        self.canvas = canvas
+        for txt, cmd in [('Step >', parent.env.step), ('Run >>', parent.run),
+                         ('Stop [ ]', parent.stop)]:
+            tk.Button(self, text=txt, command=cmd).pack(side='left')
+        tk.Label(self, text='Delay').pack(side='left')
+        scale = tk.Scale(self, orient='h', from_=0.0, to=10, resolution=0.5,
+                         command=lambda d: setattr(parent, 'delay', d))
+        scale.set(parent.delay)
+        scale.pack(side='left')
+        
+
+class EnvCanvas (tk.Canvas, object):
+
+    def __init__ (self, parent, cellwidth, n):
+        canvwidth = cellwidth * n # (cellwidth + 1 ) * n
+        canvheight = cellwidth * n # (cellwidth + 1) * n
+        super(EnvCanvas, self).__init__(parent, background="white",
+                                        width=canvwidth, height=canvheight)
+        
+        self.cellwidth = cellwidth
+        self.n = n
+        print "cellwidth, canvwidth, camvheight = %d, %d, %d" % \
+              (self.cellwidth, canvwidth, canvheight)
+
+        if cellwidth:
+            for i in range(0, n+1):
+                self.create_line(0, i*cellwidth, n*cellwidth, i*cellwidth)
+                self.create_line(i*cellwidth, 0, i*cellwidth, n*cellwidth)
+                self.pack(expand=1, fill='both')            
+        self.pack()
+
+
+v = VacuumEnvironment()
+w = EnvGUI(v)
+a = ModelBasedVacuumAgent()
+v.add_object(TraceAgent(a))
+v.run(5)
