@@ -4,7 +4,9 @@ The way to use this code is to subclass Problem to create a class of problems,
 then create problem instances and solve them with calls to the various search
 functions."""
 
-from __future__ import generators
+# The future is here, but if you're still in the past, uncomment next line
+# from __future__ import generators
+
 from utils import *
 import agents
 import math, random, sys, time, bisect, string
@@ -71,7 +73,8 @@ class Node:
         return "<Node %s>" % (self.state,)
     
     def path(self):
-        "Create a list of nodes from the root to this node."
+        """Create a list of nodes from the root to this node."""
+        # Isn't this backwards???
         x, result = self, [self]
         while x.parent:
             result.append(x.parent)
@@ -153,6 +156,8 @@ def depth_first_graph_search(problem):
 
 def depth_limited_search(problem, limit=50):
     "[Fig. 3.12]"
+    # Would this work better with an exception instead of 'cutoff'?
+    # Or would an exception work better for the _successful_ case? ;-)
     def recursive_dls(node, problem, limit):
         cutoff_occurred = False
         if problem.goal_test(node.state):
@@ -531,7 +536,7 @@ def print_boggle(board):
     print
     
 def boggle_neighbors(n2, cache={}):
-    """"Return a list of lists, where the i-th element is the list of indexes
+    """Return a list of lists, where the i-th element is the list of indexes
     for the neighbors of square i."""
     if cache.get(n2):
         return cache.get(n2)
