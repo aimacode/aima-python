@@ -38,7 +38,7 @@ class KB:
     The book is a bit vague on what ask means --
     For a Propositional Logic KB, ask(P & Q) returns True or False, but for an
     FOL KB, something like ask(Brother(x, y)) might return many substitutions
-    such as {x: Cain, y: Able}, {x: Able, y: Cain}, {x: George, y: Jeb}, etc.  
+    such as {x: Cain, y: Abel}, {x: Abel, y: Cain}, {x: George, y: Jeb}, etc.  
     So ask_generator generates these one at a time, and ask either returns the
     first one or returns False."""
 
@@ -254,6 +254,72 @@ def is_prop_symbol(s):
     TRUE or FALSE."""
     return is_symbol(s) and s[0].isupper() and s != 'TRUE' and s != 'FALSE'
 
+def is_positive(s):
+    """s is an unnegated logical expression
+    >>> is_positive(expr('F(A, B)'))
+    True
+    >>> is_positive(expr('~F(A, B)'))
+    False
+    """
+    return s.op != '~'
+
+def is_negative(s):
+    """s is a negated logical expression
+    >>> is_negative(expr('F(A, B)'))
+    False
+    >>> is_negative(expr('~F(A, B)'))
+    True
+    """
+    return s.op == '~'
+
+def is_literal(s):
+    """s is a FOL literal
+    >>> is_literal(expr('~F(A, B)'))
+    True
+    >>> is_literal(expr('F(A, B)'))
+    True
+    >>> is_literal(expr('F(A, B) & G(B, C)'))
+    False
+    """
+    return is_symbol(s.op) or (s.op == '~' and is_literal(s.args[0]))
+
+def literals(s):
+    """returns the list of literals of logical expression s.
+    >>> literals(expr('F(A, B)'))
+    [F(A, B)]
+    >>> literals(expr('~F(A, B)'))
+    [~F(A, B)]
+    >>> literals(expr('(F(A, B) & G(B, C)) ==> R(A, C)'))
+    [F(A, B), G(B, C), R(A, C)]
+    """
+    op = s.op
+    if op in set(['&', '|', '<<', '>>', '<=>', '^']):
+        result = []
+        for arg in s.args:
+            result.extend(literals(arg))
+        return result
+    elif is_literal(s):
+        return [s]
+    else:
+        return []
+
+def is_definite_clause(s):
+    """returns True for exprs s of the form A & B & ... & C ==> D,
+    where all literals are positive.  In clause form, this is
+    ~A | ~B | ... | ~C | D, where exactly one clause is positive.
+    >>> is_definite_clause(expr('Farmer(Mac)'))
+    True
+    >>> is_definite_clause(expr('~Farmer(Mac)'))
+    False
+    >>> is_definite_clause(expr('(Farmer(f) & Rabbit(r)) ==> Hates(f, r)'))
+    True
+    >>> is_definite_clause(expr('(Farmer(f) & ~Rabbit(r)) ==> Hates(f, r)'))
+    False
+    """
+    op = s.op
+    return (is_symbol(op) or \
+            (op == '>>' and \
+             every(is_positive, literals(s))))
 
 ## Useful constant Exprs used in examples and code:
 TRUE, FALSE, ZERO, ONE, TWO = map(Expr, ['TRUE', 'FALSE', 0, 1, 2]) 
@@ -483,19 +549,22 @@ def pl_resolution(KB, alpha):
     new = set()
     while True:
         n = len(clauses)
-        pairs = [(clauses[i], clauses[j]) for i in range(n) for j in range(i+1, n)]
+        pairs = [(clauses[i], clauses[j])
+                 for i in range(n) for j in range(i+1, n)]
         for (ci, cj) in pairs:
             resolvents = pl_resolve(ci, cj)
             if FALSE in resolvents: return True
-            new.union_update(set(resolvents))
+            new = new.union(set(resolvents))
         if new.issubset(set(clauses)): return False
         for c in new:
             if c not in clauses: clauses.append(c)
 
 def pl_resolve(ci, cj):
     """Return all clauses that can be obtained by resolving clauses ci and cj.
-    >>> pl_resolve(to_cnf(A|B|C), to_cnf(~B|~C|F))
-    [(A | C | ~C | F), (A | B | ~B | F)]
+    >>> for res in pl_resolve(to_cnf(A|B|C), to_cnf(~B|~C|F)):
+    ...    ppset(disjuncts(res))
+    set([A, C, F, ~C])
+    set([A, B, F, ~B])
     """
     clauses = []
     for di in disjuncts(ci):
@@ -559,7 +628,7 @@ def pl_fc_entails(KB, q):
 ## Wumpus World example [Fig. 7.13]
 Fig[7,13] = expr("(B11 <=> (P12 | P21))  &  ~B11")
 
-## Propositional Logic Forward Chanining example [Fig. 7.15]
+## Propositional Logic Forward Chaining example [Fig. 7.15]
 Fig[7,15] = PropHornKB()
 for s in "P>>Q   (L&M)>>P   (B&L)>>M   (A&P)>>L   (A&B)>>L   A   B".split(): 
     Fig[7,15].tell(expr(s))
@@ -574,7 +643,7 @@ def dpll_satisfiable(s):
     rather than True when it succeeds; this is more useful. (2) The
     function find_pure_symbol is passed a list of unknown clauses, rather
     than a list of all clauses and the model; this is more efficient.
-    >>> dpll_satisfiable(A&~B)
+    >>> ppsubst(dpll_satisfiable(A&~B))
     {A: True, B: False}
     >>> dpll_satisfiable(P&~P)
     False
@@ -675,7 +744,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 class PLWumpusAgent(agents.Agent):
     "An agent for the wumpus world that does logical inference. [Fig. 7.19]"""
     def __init__(self):
-        KB = FOLKB()
+        KB = FOLKB() ## shouldn't this be a propositional KB? ***
         x, y, orientation = 1, 1, (1, 0)
         visited = set() ## squares already visited
         action = None
@@ -707,15 +776,15 @@ def update_position(x, y, orientation, action):
     elif action == 'Forward':
         x, y = x + vector_add((x, y), orientation)
     return x, y, orientation
-
+    
 #______________________________________________________________________________
 
 def unify(x, y, s):
     """Unify expressions x,y with substitution s; return a substitution that
     would make x,y equal, or None if x,y can not unify. x and y can be
     variables (e.g. Expr('x')), constants, lists, or Exprs. [Fig. 9.1]
-    >>> unify(x + y, y + C, {})
-    {y: C, x: y}
+    >>> ppsubst(unify(x + y, y + C, {}))
+    {x: y, y: C}
     """
     if s == None:
         return None
@@ -780,8 +849,8 @@ def extend(s, var, val):
     """Copy the substitution s and extend it by setting var to val;
     return copy.
     
-    >>> extend({x: 1}, y, 2)
-    {y: 2, x: 1}
+    >>> ppsubst(extend({x: 1}, y, 2))
+    {x: 1, y: 2}
     """
     s2 = s.copy()
     s2[var] = val
@@ -813,28 +882,78 @@ def fol_fc_ask(KB, alpha):
             ps, q = conjuncts(r.args[0]), r.args[1]
             raise NotImplementedError
 
-def standardize_apart(sentence, dic):
-    """Replace all the variables in sentence with new variables."""
-    if not isinstance(sentence, Expr): 
+def standardize_apart(sentence, dic={}):
+    """Replace all the variables in sentence with new variables.
+    >>> standardize_apart(expr('F(a, b, c) & G(c, A, 23)'))
+    (F(V_1, V_2, V_3) & G(V_3, A, 23))
+    """
+    if not isinstance(sentence, Expr):
         return sentence
     elif is_var_symbol(sentence.op): 
         if sentence in dic:
             return dic[sentence]
         else:
             standardize_apart.counter += 1
-            dic[sentence] = Expr('V_%d' % standardize-apart.counter)
-            return dic[sentence]
+            v = Expr('V_%d' % standardize_apart.counter)
+            dic[sentence] = v
+            return v
     else: 
-        return Expr(sentence.op, *[standardize-apart(a, dic) for a in sentence.args])
+        return Expr(sentence.op,
+                    *[standardize_apart(a, dic) for a in sentence.args])
 
 standardize_apart.counter = 0
 
-def fol_bc_ask(KB, goals, theta):
-    "A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]"
-    if not goals:
-        yield theta
+#______________________________________________________________________________
+
+
+class FolKB (KB):
+    """A knowledge base consisting of first-order definite clauses
+    >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Peter)'),
+    ...              expr('(Rabbit(r) & Farmer(f)) ==> Hates(f, r)')])
+    """
+
+    def __init__ (self, initial_clauses=[]):
+        self.clauses = [] # inefficient: no indexing
+        for clause in initial_clauses:
+            self.tell(clause)
+
+    def tell(self, sentence):
+        if is_definite_clause(sentence):
+            self.clauses.append(sentence)
+        else:
+            raise Exception("Not a definite clause: %s" % sentence)
+
+    def ask_generator(self, query):
+        raise Exception("Not implemented")
+
+    def retract(self, sentence):
+        self.clauses.remove(sentence)
+
+def fol_bc_ask(KB, goals, theta={}):
+    """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
+    KB should be an instance of FolKB, and goals a list of literals."""
+    if goals == []:
+        return set([theta]) # yield theta
     q1 = subst(theta, goals[0])
-    raise NotImplementedError
+    for r in KB.clauses:
+        sar = standardize_apart(r)
+        # Split into head and body
+        if is_symbol(sar.op):
+            head = sar
+            body = []
+        elif sar.op == '>>':
+            # sar has the form B1 & B2 & ... >> H
+            head = sar.args[1]
+            body = sar.args[0] # as a conjunction
+        else:
+            raise Exception("Invalid clause in FolKB: %s" % r)
+
+        theta1 = unify(head, q1, theta) # extra arg. on unify
+        if theta1 is not None: # theta1 is compose(theta1, theta) in the fig.?
+            new_goals = map(theta1, conjuncts(body)) + goals[1:]
+            answers = fol_bc_ask(KB, new_goals, theta1).union(answers)
+
+    return answers
 
 #______________________________________________________________________________
 
@@ -906,4 +1025,50 @@ def simp(x):
 def d(y, x):
     "Differentiate and then simplify."
     return simp(diff(y, x))    
+
+#_______________________________________________________________________________
+
+# Utilities for doctest cases
+# These functions print their arguments in a standard order
+# to compensate for the random order in the standard representation
+
+def ppsubst(s):
+    """Print substitution s"""
+    ppdict(s)
+
+def ppdict(d):
+    """Print the dictionary d.
+    
+    Prints a string representation of the dictionary
+    with keys in sorted order according to their string
+    representation: {a: A, d: D, ...}.
+    >>> ppdict({'m': 'M', 'a': 'A', 'r': 'R', 'k': 'K'})
+    {'a': 'A', 'k': 'K', 'm': 'M', 'r': 'R'}
+    >>> ppdict({z: C, y: B, x: A})
+    {x: A, y: B, z: C}
+    """
+
+    def format(k, v):
+        return "%s: %s" % (repr(k), repr(v))
+
+    ditems = d.items()
+    ditems.sort(key=str)
+    k, v = ditems[0]
+    dpairs = format(k, v)
+    for (k, v) in ditems[1:]:
+        dpairs += (', ' + format(k, v))
+    print '{%s}' % dpairs
+
+def ppset(s):
+    """Print the set s.
+
+    >>> ppset(set(['A', 'Q', 'F', 'K', 'Y', 'B']))
+    set(['A', 'B', 'F', 'K', 'Q', 'Y'])
+    >>> ppset(set([z, y, x]))
+    set([x, y, z])
+    """
+
+    slist = list(s)
+    slist.sort(key=str)
+    print 'set(%s)' % slist
 
