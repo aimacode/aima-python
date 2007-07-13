@@ -39,7 +39,7 @@ class ProbDist:
     """
     def __init__(self, varname='?', freqs=None):
         """If freqs is given, it is a dictionary of value: frequency pairs,
-        and the ProbDist is normalized."""
+        and the ProbDist then is normalized."""
         update(self, prob={}, varname=varname, values=[])
         if freqs:
             for (v, p) in freqs.items():
@@ -109,23 +109,164 @@ class JointProbDist(ProbDist):
     def __repr__(self):
         return "P(%s)" % self.variables
 
+
+#______________________________________________________________________________
+
+
+class BoolCpt:
+    """Conditional probability table for a boolean (True/False)
+    random variable conditioned on its parents."""
+
+    def __init__ (self, table_data):
+        
+        """Initialize the table.
+
+        table_data may have one of three forms, depending on the
+        number of parents:
+        
+        1.  If the variable has no parents, table_data MAY be
+        a single number (float), representing P(X = True).
+
+        2.  If the variable has one parent, table_data MAY be
+        a dictionary containing items of the form v: p,
+        where p is P(X = True | parent = v).
+        
+        3.  If the variable has n parents, n > 1, table_data MUST be
+        a dictionary containing items (v1, ..., vn): p,
+        where p is P(P = True | parent1 = v1, ..., parentn = vn).
+
+        (Form 3 is also allowed in the case of zero or one parent.)
+
+        >>> cpt = BoolCpt(0.2)
+        >>> T = True; F = False
+        >>> cpt = BoolCpt({T: 0.2, F: 0.7})
+        >>> cpt = BoolCpt({(T, T): 0.2, (T, F): 0.3, (F, T): 0.5, (F, F): 0.7})
+        """
+
+        # A little work here makes looking up values MUCH simpler
+        # later on.  We transform table_data into the standard form
+        # of a dictionary {(value, ...): number, ...} even if
+        # the tuple has just 0 or 1 value.
+        
+        if type(table_data) == float: # no parents, 0-tuple
+            self.table_data = {(): table_data}
+        elif type(table_data) == dict:
+            keys = table_data.keys()
+            if type(keys[0]) == bool: # one parent, 1-tuple
+                d = {}
+                for k in keys:
+                    d[(k,)] = table_data[k]
+                self.table_data = d
+            elif type(keys[0]) == tuple: # normal case, n-tuple
+                self.table_data = table_data
+            else:
+                raise Exception("wrong key type: %s" % table_data)
+        else:
+            raise Exception("wrong table_data type: %s" % table_data)
+        
+    def p (self, value, parent_vars, event):
+        
+        """Return the conditional probability P(value | parent_vars =
+        parent_values), where parent_values are the values of
+        parent_vars in event.
+
+        value is True or False.
+        parent_vars is a list or tuple of variable names (strings).
+        event is a dictionary of variable-name: value pairs.
+
+        Preconditions:
+        1.  each variable in parent_vars is bound to a value in event.
+        2.  the variables are listed in parent_vars in the same order
+        in which they are listed in the Cpt.
+
+        >>> cpt = burglary.variable_node('Alarm').cpt
+        >>> parents = ['Burglary', 'Earthquake']
+        >>> event = {'Burglary': True, 'Earthquake': True}
+        >>> print '%4.2f' % cpt.p(True, parents, event)
+        0.95
+        >>> event = {'Burglary': False, 'Earthquake': True}
+        >>> print '%4.2f' % cpt.p(False, parents, event)
+        0.71
+        >>> BoolCpt({T: 0.2, F: 0.625}).p(False, ['Burglary'], event)
+        0.375
+        >>> BoolCpt(0.75).p(False, [], {})
+        0.25
+
+        """
+        
+        return self.p_values(value, event_values(event, parent_vars))
+
+    def p_values (self, xvalue, parent_values):
+        """Return P(X = xvalue | parents = parent_values),
+        where parent_values is a tuple, even if of only 0 or 1 element.
+
+        >>> cpt = BoolCpt(0.25)
+        >>> cpt.p_values(F, ())
+        0.75
+        >>> cpt = BoolCpt({T: 0.25, F: 0.625})
+        >>> cpt.p_values(T, (T,))
+        0.25
+        >>> cpt.p_values(F, (F,))
+        0.375
+        >>> cpt = BoolCpt({(T, T): 0.2, (T, F): 0.31,
+        ...  (F, T): 0.5, (F, F): 0.62})
+        >>> cpt.p_values(T, (T, F))
+        0.31
+        >>> cpt.p_values(F, (F, F))
+        0.38
+        """
+        
+        ptrue = self.table_data[parent_values] # True or False
+        if xvalue:
+            return ptrue
+        else:
+            return 1.0 - ptrue
+
+    def rand (self, parents, event):
+        """Generate and return a random sample value True or False
+        given that the parent variables have the values they have in
+        event.
+
+        parents is a list of variable names (strings).
+        event is a dictionary of variable-name: value pairs.
+
+        >>> cpt = BoolCpt({True: 0.2, False: 0.7})
+        >>> cpt.rand(['A'], {'A': True}) in [True, False]
+        True
+        >>> cpt = BoolCpt({(True, True): 0.1, (True, False): 0.3,
+        ...   (False, True): 0.5, (False, False): 0.7})
+        >>> cpt.rand(['A', 'B'], {'A': True, 'B': False}) in [True, False]
+        True
+        """
+
+        return (random() <= self.p(True, parents, event))
+
+def event_values (event, vars):
+    """Return a tuple of the values of variables vars in event.
+
+    >>> event_values ({'A': 10, 'B': 9, 'C': 8}, ['C', 'A'])
+    (8, 10)
+    """
+        
+    return tuple([event[parent] for parent in vars])
+
+
 #______________________________________________________________________________
 
 def enumerate_joint_ask(X, e, P):
     """Return a probability distribution over the values of the variable X,
     given the {var:val} observations e, in the JointProbDist P. 
-    Works for Boolean variables only. [Fig. 13.4]. *** or discrete only? ***
+    Works for Boolean variables only. [Fig. 13.4].
 
     X is a string (variable name).
     e is a dictionary of variable-name value pairs.
     P is an instance of JointProbDist."""
     
-    Q = ProbDist(X) ## A probability distribution for X, initially empty
-    Y = [v for v in P.variables if v != X and v not in e] # hidden variables
+    Q = ProbDist(X) # probability distribution for X, initially empty
+    Y = [v for v in P.variables if v != X and v not in e] # hidden vars.
     for xi in P.values(X):
-        Q[xi] = enumerate_joint(Y, extend(e, X, xi), P)
-        # extend(e, X, xi) copies dictionary e and adds the pair X: xi
-        # (from logic.py)
+        ext = extend(e, X, xi) # copies e and adds X: xi
+        Q[xi] = enumerate_joint(Y, ext, P)
     return Q.normalize()
 
 def enumerate_joint(vars, values, P):
@@ -143,7 +284,7 @@ class BayesNet:
     """Bayesian network containing only boolean variable nodes."""
     
     def __init__(self, nodes=[]):
-        update(self, nodes=[], vars=[])
+        update(self, nodes=[], vars=[], evidence={})
         for node in nodes:
             self.add(node)
 
@@ -186,23 +327,19 @@ class BayesNode:
 
 node = BayesNode
 
-
 # Burglary example [Fig. 14.2]
 
 T, F = True, False
 
 burglary = BayesNet([
     # It seems important in enumerate_all that variables (nodes)
-    # be listed in such an order that parents precede all of their children.
-    node('Burglary', '', .001), 
-    node('Earthquake', '', .002),
+    # be ordered with parents before their children.
+    node('Burglary', '', BoolCpt(0.001)),
+    node('Earthquake', '', BoolCpt(0.002)),
     node('Alarm', 'Burglary Earthquake',
-         { (T, T):.95,
-           (T, F):.94,
-           (F, T):.29,
-           (F, F):.001}),
-    node('JohnCalls', 'Alarm', {T:.90, F:.05}),
-    node('MaryCalls', 'Alarm', {T:.70, F:.01})
+         BoolCpt({(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001})),
+    node('JohnCalls', 'Alarm', BoolCpt({T: 0.90, F: 0.05})),
+    node('MaryCalls', 'Alarm', BoolCpt({T: 0.70, F: 0.01}))
     ])
 
 #______________________________________________________________________________
@@ -226,20 +363,20 @@ def enumeration_ask (X, e, bn):
     Q = ProbDist(X) # empty probability distribution for X
     for xi in bn.variable_values(X):
         Q[xi] = enumerate_all(bn.variables(), extend(e, X, xi), bn)
-        # Assume that parents precede children in bn.variables,
-        # otherwise in enumerate_all, the values of y's parents
+        # Assume that parents precede children in bn.variables.
+        # Otherwise, in enumerate_all, the values of Y's parents
         # may be unspecified.
     return Q.normalize()
 
 def enumerate_all (vars, e, bn):
-    """Returns a real number = ??? the probability that X = xi given e.
+    """Returns the probability that X = xi given e.
 
-    vars is a list of variables in bn.
-    e is a dictionary of variablename: value pairs
+    vars is a list of variables, the parents of X in bn.
+    e is a dictionary of variable-name: value pairs
     bn is an instance of BayesNet.
 
     Precondition: no variable in vars precedes its parents."""
-    if not vars: # i.e. []
+    if vars == []:
         return 1.0
     else:
         Y = vars[0]
@@ -251,83 +388,15 @@ def enumerate_all (vars, e, bn):
         
         if e.has_key(Y):
             y = e[Y]
-            cp = condprob(cpt, y, parents, e) # P(y | parents(Y))
+            cp = cpt.p(y, parents, e) # P(y | parents(Y))
             result = cp * enumerate_all(rest, e, bn)
         else:
             result = 0
             for y in bn.variable_values(Y):
-                cp = condprob(cpt, y, parents, e) # P(y | parents(Y)
+                cp = cpt.p(y, parents, e) # P(y | parents(Y))
                 result += cp * enumerate_all(rest, extend(e, Y, y), bn)
 
         return result
-
-def condprob (cpt, y, parent_vars, evidence):
-    """Return the conditional probability P(y | parent_vars = parent_values)
-    by lookup in cpt, where parent_values are the values that
-    parent_vars have in evidence.
-
-    cpt is a conditional probability table for a variable Y:
-    a dictionary if Y has parents; otherwise a single number.
-    y is a possible value of a boolean random variable Y.
-    parent_vars is a tuple of the names of the parents of Y.
-    evidence is a dictionary of variablename: value pairs.
-
-    Preconditions:
-    1.  each variable in parent_vars is bound to a value in evidence.
-    2.  the variables are listed in parent_vars in the same order
-    in which they are listed in cpt.
-
-    >>> cpt = burglary.variable_node('Alarm').cpt
-    >>> parents = ['Burglary', 'Earthquake']
-    >>> evidence = {'Burglary': True, 'Earthquake': True}
-    >>> print '%4.2f' % condprob(cpt, True, parents, evidence)
-    0.95
-    >>> evidence = {'Burglary': False, 'Earthquake': True}
-    >>> print '%4.2f' % condprob(cpt, False, parents, evidence)
-    0.71
-    >>> print '%4.2f' % condprob(0.75, False, [], {})
-    0.25
-    """
-
-    # It is a little unpleasant that while enumeration_ask and
-    # enumerate_all are independent of the variables being boolean,
-    # this is not.
-    # Can that assumption be confined to the BayesNet class?
-    # Or to a particular CPT class, BooleanCPT?
-    # Also that cpt may be either a dictionary or a number.
-
-    if parent_vars == []:
-        py = cpt
-    else:
-        parent_values = [evidence[parent] for parent in parent_vars]
-        if len(parent_values) == 1:
-            key = parent_values[0]
-        else:
-            key = tuple(parent_values)
-        py = cpt[key]
-    if y:
-        return py # P(Y = True)
-    else:
-        return 1.0 - py # P(Y = False)
-
-
-def condsamp (cpt, parent_vars, evidence):
-    
-    """Return a sample value True or False from the conditional
-    distribution cpt of an unspecified variable, given its parent
-    parent_vars have the values they have in evidence
-
-    >>> cpt = {True: 0.2, False: 0.7}
-    >>> condsamp(cpt, ['A'], {'A': True}) in [True, False]
-    True
-    >>> cpt = {(True, True): 0.1, (True, False): 0.3,
-    ...   (False, True): 0.5, (False, False): 0.7}
-    >>> condsamp(cpt, ['A', 'B'], {'A': True, 'B': False}) in [True, False]
-    True
-    """
-    
-    p = condprob(cpt, True, parent_vars, evidence)
-    return (random() <= p)
 
 #______________________________________________________________________________
 
@@ -353,15 +422,11 @@ def sum_out(var, factors):
 # Fig. 14.11a: sprinkler network
 
 sprinkler = BayesNet([
-    node('Cloudy', '', 0.5),
-    node('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
-    node('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
+    node('Cloudy', '', BoolCpt(0.5)),
+    node('Sprinkler', 'Cloudy', BoolCpt({T: 0.10, F: 0.50})),
+    node('Rain', 'Cloudy', BoolCpt({T: 0.80, F: 0.20})),
     node('WetGrass', 'Sprinkler Rain',
-         { (T, T): 0.99,
-           (T, F): 0.90,
-           (F, T): 0.90,
-           (F, F): 0.00})
-    ])
+         BoolCpt({(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00}))])
 
 #______________________________________________________________________________
 
@@ -384,7 +449,7 @@ def prior_sample(bn):
     sample = {} # boldface x in Fig. 14.12
     for node in bn.nodes:
         var = node.variable
-        sample[var] = condsamp(node.cpt, node.parents, sample)
+        sample[var] = node.cpt.rand(node.parents, sample)
     return sample
 
 #_______________________________________________________________________________
@@ -414,19 +479,14 @@ def rejection_sampling (X, e, bn, N):
     [0.29999999999999999, 0.69999999999999996]
     """
 
-    counts = {True: 0, False: 0} # counts is boldface N in Fig. 14.13
+    counts = {True: 0, False: 0} # boldface N in Fig. 14.13
 
-    # Generate and count observations
     for j in xrange(N):
-        sample = prior_sample(bn) # sample is boldface x in Fig. 14.13
+        sample = prior_sample(bn) # boldface x in Fig. 14.13
         if consistent_with(sample, e):
-            counts[sample[X]] += 1 # increment count of sampled value of X
+            counts[sample[X]] += 1
             
-    # Package counts as a ProbDist
-    d = ProbDist(X)
-    for value in bn.variable_values(X):
-        d[value] = counts[value]
-    return d.normalize()
+    return ProbDist(X, counts)
 
 def consistent_with (sample, evidence):
     """Returns True if sample is consistent with evidence, False otherwise.
@@ -453,10 +513,8 @@ def consistent_with (sample, evidence):
 
 #_______________________________________________________________________________
 
-# Fig. 14.14: likelihood_weighting, weighted_sample
-
 def likelihood_weighting (X, e, bn, N):
-    """Returns an estimate of P(X | e).
+    """Returns an estimate of P(X | e).  [Fig. 14.14]
 
     Arguments:
     X is a variable name (string).
@@ -476,41 +534,32 @@ def likelihood_weighting (X, e, bn, N):
     [0.29801552320954111, 0.70198447679045894]
     """
 
-    # Initialize weighted counts of X values
     weights = {True: 0.0, False: 0.0} # boldface W in Fig. 14.14
 
-    # Generate and count observations
     for j in xrange(N):
         sample, weight = weighted_sample(bn, e) # boldface x, w in Fig. 14.14
         sample_X = sample[X] # value of X in sample
         weights[sample_X] += weight
 
-    # Package and return weights as a ProbDist
     return ProbDist(X, weights)
     
 def weighted_sample (bn, e):
     """Returns an event (a sample) and a weight."""
 
-    # Initialize
-    event = {} # will store variables and values (boldface x in Fig. 14.14)
+    event = {} # boldface x in Fig. 14.14
     weight = 1.0 # w in Fig. 14.14
 
-    # Accumulate event and weight
     for node in bn.nodes:
         X = node.variable # X sub i in Fig. 14.14
         parents = node.parents
         cpt = node.cpt
-#        print "Variable %s, parents %s, cpt %s" % (X, parents, cpt)
         if e.has_key(X):
-            xvalue = e[X]
-            event[X] = xvalue
-            cp = condprob(cpt, xvalue, parents, event)
-            weight *= cp
-#            print "    value = %s, cp = %f, weight = %f" % (xvalue, cp, weight)
+            value = e[X]
+            event[X] = value
+            weight *= cpt.p(value, parents, event)
             
         else:
-            event[X] = condsamp(cpt, parents, event)
-#            print "    value = %s" % event[X]
+            event[X] = cpt.rand(parents, event)
         
     return event, weight
     
