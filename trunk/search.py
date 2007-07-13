@@ -470,10 +470,10 @@ class NQueensProblem(Problem):
     def successor(self, state): 
         "In the leftmost empty column, try all non-conflicting rows."
         if state[-1] is not None:
-            return [] ## All columns filled; no successors
+            return [] # All columns filled; no successors
         else:
             def place(col, row):
-                new = state[:]
+                new = state[:] # copy the state
                 new[col] = row
                 return new
             col = state.index(None)
