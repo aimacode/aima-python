@@ -885,7 +885,9 @@ def fol_fc_ask(KB, alpha):
 def standardize_apart(sentence, dic={}):
     """Replace all the variables in sentence with new variables.
     >>> standardize_apart(expr('F(a, b, c) & G(c, A, 23)'))
-    (F(V_1, V_2, V_3) & G(V_3, A, 23))
+    (F(v_1, v_2, v_3) & G(v_3, A, 23))
+    >>> is_variable(standardize_apart(expr('x')))
+    True
     """
     if not isinstance(sentence, Expr):
         return sentence
@@ -894,7 +896,7 @@ def standardize_apart(sentence, dic={}):
             return dic[sentence]
         else:
             standardize_apart.counter += 1
-            v = Expr('V_%d' % standardize_apart.counter)
+            v = Expr('v_%d' % standardize_apart.counter)
             dic[sentence] = v
             return v
     else: 
@@ -929,14 +931,38 @@ class FolKB (KB):
     def retract(self, sentence):
         self.clauses.remove(sentence)
 
+test_kb = FolKB(
+    map(expr, ['Farmer(Mac)',
+               'Rabbit(Pete)',
+               'Mother(MrsMac, Mac)',
+               'Mother(MrsRabbit, Pete)',
+               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
+               '(Mother(m, c)) ==> Loves(m, c)',
+               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
+               '(Farmer(f)) ==> Human(f)',
+               # Note that this order of conjuncts results
+               # in infinite recursion:
+               #'(Human(h) & Mother(m, h)) ==> Human(m)'
+               '(Mother(m, h) & Human(h)) ==> Human(m)'
+               ])
+)
+               
+    
 def fol_bc_ask(KB, goals, theta={}):
     """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
     KB should be an instance of FolKB, and goals a list of literals."""
+
     if goals == []:
-        return set([theta]) # yield theta
+        answers = [theta] # yield theta
+        return answers # yield theta
+
+    answers = []
+
     q1 = subst(theta, goals[0])
+
     for r in KB.clauses:
         sar = standardize_apart(r)
+        
         # Split into head and body
         if is_symbol(sar.op):
             head = sar
@@ -948,12 +974,64 @@ def fol_bc_ask(KB, goals, theta={}):
         else:
             raise Exception("Invalid clause in FolKB: %s" % r)
 
-        theta1 = unify(head, q1, theta) # extra arg. on unify
-        if theta1 is not None: # theta1 is compose(theta1, theta) in the fig.?
-            new_goals = map(theta1, conjuncts(body)) + goals[1:]
-            answers = fol_bc_ask(KB, new_goals, theta1).union(answers)
+        theta1 = unify(head, q1, {}) # extra arg. on unify
+
+        if theta1 is not None:
+            if body == []:
+                conjs = []
+            else:
+                conjs = conjuncts(body)            
+            new_goals = conjs + goals[1:]
+            
+            new_answers = fol_bc_ask(KB, new_goals, subst_compose(theta1, theta)) # theta1)
+            
+            # Should + be union on next line?  But answers is a list not a set
+            answers = new_answers + answers
 
     return answers
+
+def subst_compose (s1, s2):
+    """Return the substitution which is equivalent to applying s2 to
+    the result of applying s1 to an expression.
+
+    >>> s1 = {x: A, y: B}
+    >>> s2 = {z: x, x: C}
+    >>> p = F(x) & G(y) & expr('H(z)')
+    >>> subst(s1, p)
+    ((F(A) & G(B)) & H(z))
+    >>> subst(s2, p)
+    ((F(C) & G(y)) & H(x))
+    
+    >>> subst(s2, subst(s1, p))
+    ((F(A) & G(B)) & H(x))
+    >>> subst(subst_compose(s1, s2), p)
+    ((F(A) & G(B)) & H(x))
+
+    >>> subst(s1, subst(s2, p))
+    ((F(C) & G(B)) & H(A))
+    >>> subst(subst_compose(s2, s1), p)
+    ((F(C) & G(B)) & H(A))
+    >>> ppsubst(subst_compose(s1, s2))
+    {x: A, y: B, z: x}
+    >>> ppsubst(subst_compose(s2, s1))
+    {x: C, y: B, z: A}
+    >>> subst(subst_compose(s1, s2), p) == subst(s2, subst(s1, p))
+    True
+    >>> subst(subst_compose(s2, s1), p) == subst(s1, subst(s2, p))
+    True
+    """
+    sc = {}
+    for x, v in s1.items():
+        if s2.has_key(v):
+            w = s2[v]
+            sc[x] = w # x -> v -> w
+        else:
+            sc[x] = v
+    for x, v in s2.items():
+        if not (s1.has_key(x)):
+            sc[x] = v
+        # otherwise s1[x] preemptys s2[x]
+    return sc
 
 #______________________________________________________________________________
 
@@ -1072,3 +1150,12 @@ def ppset(s):
     slist.sort(key=str)
     print 'set(%s)' % slist
 
+# Debug this expression:
+
+e = expr('Human(x)')
+print e
+
+debug = False
+
+if debug:
+    fol_bc_ask(test_kb, [e])
