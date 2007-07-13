@@ -728,8 +728,10 @@ def unify(x, y, s):
     elif isinstance(x, Expr) and isinstance(y, Expr):
         return unify(x.args, y.args, unify(x.op, y.op, s))
     elif isinstance(x, str) or isinstance(y, str) or not x or not y:
-        return if_(x == y, s, None)
+        # orig. return if_(x == y, s, None) but we already know x != y
+        return None
     elif issequence(x) and issequence(y) and len(x) == len(y):
+        # Assert neither x nor y is []
         return unify(x[1:], y[1:], unify(x[0], y[0], s))
     else:
         return None
@@ -741,24 +743,43 @@ def is_variable(x):
 def unify_var(var, x, s):
     if var in s:
         return unify(s[var], x, s)
-    elif occur_check(var, x):
+    elif occur_check(var, x, s):
         return None
     else:
         return extend(s, var, x)
 
-def occur_check(var, x):
-    "Return true if var occurs anywhere in x."
+def occur_check(var, x, s):
+    """Return true if variable var occurs anywhere in x
+    (or in subst(s, x), if s has a binding for x)."""
+
     if var == x:
         return True
+    elif is_variable(x) and s.has_key(x):
+        return occur_check(var, s[x], s) # fixed
+    # What else might x be?  an Expr, a list, a string?
     elif isinstance(x, Expr):
-        return var.op == x.op or occur_check(var, x.args)
-    elif not isinstance(x, str) and issequence(x):
-        for xi in x:
-            if occur_check(var, xi): return True
-    return False
+        # Compare operator and arguments
+        return (occur_check(var, x.op, s) or
+                occur_check(var, x.args, s))
+    elif isinstance(x, list) and x != []:
+        # Compare first and rest
+        return (occur_check(var, x[0], s) or
+                occur_check(var, x[1:], s))
+    else:
+        # A variable cannot occur in a string
+        return False
+    
+    #elif isinstance(x, Expr):
+    #    return var.op == x.op or occur_check(var, x.args)
+    #elif not isinstance(x, str) and issequence(x):
+    #    for xi in x:
+    #        if occur_check(var, xi): return True
+    #return False
 
 def extend(s, var, val):
-    """Copy the substitution s and extend it by setting var to val; return copy.
+    """Copy the substitution s and extend it by setting var to val;
+    return copy.
+    
     >>> extend({x: 1}, y, 2)
     {y: 2, x: 1}
     """
