@@ -55,7 +55,12 @@ class Object (object):
         """Objects that are 'alive' should return true."""
         return hasattr(self, 'alive') and self.alive
 
+    def show_state (self):
+        """Display the agent's internal state.  Subclasses should override."""
+        print "I don't know how to show_state."
+
     def display(self, canvas, x, y, width, height):
+        # Do we need this?
         """Display an image of this Object on the canvas."""
         pass
 
@@ -85,7 +90,7 @@ class Agent (Object):
         def program(percept):
             return raw_input('Percept=%s; action? ' % percept)
         return program
-    
+
     def can_grab (self, obj):
         """Returns True if this agent can grab this object.
         Override for appropriate subclasses of Agent and Object."""
@@ -636,8 +641,8 @@ class EnvToolbar (tk.Frame, object):
         
         self.env = env
         self.canvas = canvas
-        self.running = 0
-        self.delay = 1.0
+        self.running = False
+        self.speed = 1.0
 
         # Create buttons and other controls
         
@@ -646,27 +651,30 @@ class EnvToolbar (tk.Frame, object):
                          ('List objects', self.list_objects),
                          ('List agents', self.list_agents)]:
             tk.Button(self, text=txt, command=cmd).pack(side='left')
-        tk.Label(self, text='Delay').pack(side='left')
-        res = 0.1
-        scale = tk.Scale(self, orient='h', from_=(0.0 + res), to=5, resolution=res,
-                         command=self.set_delay)
-        scale.set(self.delay)
+
+        tk.Label(self, text='Speed').pack(side='left')
+        scale = tk.Scale(self, orient='h',
+                         from_=(1.0), to=10.0, resolution=1.0,
+                         command=self.set_speed)
+        scale.set(self.speed)
         scale.pack(side='left')
 
     def run(self):
         print 'run'
-        self.running = 1
+        self.running = True
         self.background_run()
 
     def stop(self):
         print 'stop'
-        self.running = 0
+        self.running = False
 
     def background_run(self):
         if self.running:
             self.env.step()
-            # ms = int(1000 * max(float(self.delay), 0.5))
-            ms = max(int(1000 * float(self.delay)), 1)
+            # ms = int(1000 * max(float(self.speed), 0.5))
+            #ms = max(int(1000 * float(self.delay)), 1)
+            delay_sec = 1.0 / max(self.speed, 1.0) # avoid division by zero
+            ms = int(1000.0 * delay_sec)  # seconds to milliseconds
             self.after(ms, self.background_run)
         
     def list_objects (self):
@@ -679,8 +687,8 @@ class EnvToolbar (tk.Frame, object):
         for agt in self.env.agents:
             print "%s at %s" % (agt, agt.location)
 
-    def set_delay (self, delay):
-        self.delay = delay
+    def set_speed (self, speed):
+        self.speed = float(speed)
     
 class EnvCanvas (tk.Canvas, object):
 
@@ -723,7 +731,7 @@ class EnvCanvas (tk.Canvas, object):
 
         # Bind canvas events.
         
-        #self.bind('<Button-1>', self.user_left) ## What should this do?
+        self.bind('<Button-1>', self.show_object_state)
         #self.bind('<Button-2>', self.user_edit_objects)        
         self.bind('<Button-3>', self.user_add_object)
 
@@ -775,9 +783,15 @@ class EnvCanvas (tk.Canvas, object):
             self.images[file] = tk_image
         return tk_image
 
-    def user_left(self, event):
-        print 'left at %d, %d' % self.event_cell(event)
 
+    def show_object_state (self, event):
+        """Display the state of the selected object, which may be an agent."""
+        cell = self.event_cell(event)
+        objs = self.env.list_objects_at(cell)
+        n = len(objs)
+        for o in objs:
+            o.show_state()
+        
     def user_edit_objects(self, event):
         """Choose an object within radius and edit its fields."""
         pass
@@ -787,7 +801,7 @@ class EnvCanvas (tk.Canvas, object):
         one you want to put in this square."""
         cell = self.event_cell(event)
         xy = self.cell_topleft(cell)
-        menu = tk.Menu(self, title='Edit (%d, %d)' % cell)
+        menu = tk.Menu(self, title='Add object at (%d, %d)' % cell)
         # Generalize object classes available,
         # and why is self.run the command?
         #for (txt, cmd) in [('Wumpus', self.run), ('Pit', self.run)]:
