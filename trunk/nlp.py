@@ -78,6 +78,11 @@ E_ = Grammar('E_', # Trivial Grammar and lexicon for testing
     V = 'saw | liked | feel'
     ))
 
+E_NP_ = Grammar('E_NP_', # another trivial grammar for testing
+              Rules(NP = 'Adj NP | N'),
+              Lexicon(Adj = 'happy | handsome | hairy',
+                      N = 'man'))
+
 def generate_random(grammar=E_, s='S'):
     """Replace each token in s by a random entry in grammar (recursively).
     This is useful for testing a grammar, e.g. generate_random(E_)"""
@@ -113,14 +118,20 @@ class Chart:
         update(self, grammar=grammar, trace=trace)
 
     def parses(self, words, S='S'):
-        """Return a list of parses; words can be a list or string."""
+        """Return a list of parses; words can be a list or string.
+        >>> chart = Chart(E_NP_)
+        >>> chart.parses('happy man', 'NP')
+        [[0, 2, 'NP', [('Adj', 'happy'), [1, 2, 'NP', [('N', 'man')], []]], []]]
+        """
         if isinstance(words, str):
             words = words.split()
         self.parse(words, S)
         # Return all the parses that span the whole input
+        # 'span the whole input' => begin at 0, end at len(words)
         return [[i, j, S, found, []]
                 for (i, j, lhs, found, expects) in self.chart[len(words)]
-                if lhs == S and expects == []]
+                # assert j == len(words)
+                if i == 0 and lhs == S and expects == []]
 
     def parse(self, words, S='S'):
         """Parse a list of words; according to the grammar.
