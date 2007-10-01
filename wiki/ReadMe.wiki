@@ -4,8 +4,8 @@
 = Introduction =
 
 This file gives an overview of the Python code for the algorithms in
-the textbook _[http://aima.cs.berkeley.edu Artificial Intelligence: A Modern
-Approach]_.  The code is offered free for your use under the MIT License.
+the textbook [http://aima.cs.berkeley.edu Artificial Intelligence: A Modern
+Approach].  The code is offered free for your use under the MIT License.
 As you may know, the textbook presents algorithms in
 pseudo-code format; as a supplement we provide this code.  
 The intent is to implement all the algorithms in the book,
@@ -27,6 +27,7 @@ If you like what you see, install the code using either one of these methods:
 
   # From a command shell on your computer, execute the `svn checkout` command given on the [http://code.google.com/p/aima-python/source source tab] of the project.  This assumes you have previously installed the version control system [http://subversion.tigris.org/ Subversion (svn)].
   # Download and unzip the zip file listed as a "Featured download"on the right hand side of the [http://code.google.com/p/aima-python/ project home page].
+  # You'll also need to install the data files from the [http://code.google.com/p/aima-data aima-data] project.  These are text files that are used by the tests in the aima-python project, and may be useful for yout own work.
 
 You can put the code anywhere you want on your computer, but it should all be in one
 directory called _aima-python_.
