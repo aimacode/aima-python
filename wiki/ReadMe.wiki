@@ -25,8 +25,7 @@ how to use the code.
 
 If you like what you see, install the code using either one of these methods:
 
-  # From a command shell on your computer, execute the `svn checkout` command given on the [http://code.google.com/p/aima-python/source source tab] of the project.  This assumes you have previously installed the version control 
-system [http://subversion.tigris.org/ Subversion (svn)].
+  # From a command shell on your computer, execute the `svn checkout` command given on the [http://code.google.com/p/aima-python/source source tab] of the project.  This assumes you have previously installed the version control system [http://subversion.tigris.org/ Subversion] (svn).
   # Download and unzip the zip file listed as a "Featured download"on the right hand side of the [http://code.google.com/p/aima-python/ project home page].
   # You'll also need to install the data files from the [http://code.google.com/p/aima-data aima-data] project.  These are text files that are used by the tests in the aima-python project, and may be useful for yout own work.
 
