@@ -429,7 +429,7 @@ def histogram(values, mode=0, bin_function=None):
     for val in values:
         bins[val] = bins.get(val, 0) + 1
     if mode:
-        return sorted(bins.items(), key=lambda v: v[1], reverse=True)
+        return sorted(bins.items(), key=lambda x: (x[1],x[0]), reverse=True)
     else:
         return sorted(bins.items())
 
