@@ -37,7 +37,7 @@ def split_extra_tests(filename):
         return ('', '')
 
 if __name__ == "__main__":
-    import sys
+    import sys, glob
     modules = [__import__(name.replace('.py',''))
-               for name in sys.argv if name != "-v"]
+               for arg in sys.argv if arg != "-v" for name in glob.glob(arg)]
     run_tests(modules, ("-v" in sys.argv))
