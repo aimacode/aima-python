@@ -445,6 +445,10 @@ def solve_zebra(algorithm=min_conflicts, **args):
         for (var, val) in ans.items():
             if val == h: print var,
         print
-    return ans['Zebra'], ans['Water'], z.nassigns, ans,
-               
-    
+    return ans['Zebra'], ans['Water'], z.nassigns, ans
+
+
+__doc__ += random_tests("""
+>>> min_conflicts(australia)
+{'WA': 'B', 'Q': 'B', 'T': 'G', 'V': 'B', 'SA': 'R', 'NT': 'G', 'NSW': 'G'}
+""")

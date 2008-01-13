@@ -528,7 +528,7 @@ def print_boggle(board):
     "Print the board in a 2-d array."
     n2 = len(board); n = exact_sqrt(n2)
     for i in range(n2):
-        if i % n == 0: print
+        if i % n == 0 and i > 0: print
         if board[i] == 'Q': print 'Qu',
         else: print str(board[i]) + ' ',
     print
@@ -659,7 +659,7 @@ class BoggleFinder:
 
 ##_____________________________________________________________________________
     
-def boggle_hill_climbing(board=None, ntimes=100, print_it=True):
+def boggle_hill_climbing(board=None, ntimes=100, verbose=True):
     """Solve inverse Boggle by hill-climbing: find a high-scoring board by
     starting with a random one and changing it."""
     finder = BoggleFinder()
@@ -671,10 +671,10 @@ def boggle_hill_climbing(board=None, ntimes=100, print_it=True):
         new = len(finder.set_board(board))
         if new > best:
             best = new
-            print best, _, board
+            if verbose: print best, _, board
         else:
             board[i] = oldc ## Change back
-    if print_it:
+    if verbose:
         print_boggle(board)
     return board, best
 
@@ -732,8 +732,55 @@ def compare_searchers(problems, header, searchers=[breadth_first_tree_search,
     print_table(table, header)
 
 def compare_graph_searchers():
+    """Prints a table of results like this:
+Searcher                     Romania(A,B)         Romania(O, N)        Australia            
+breadth_first_tree_search    <  21/  22/  59/B>   <1158/1159/3288/N>   <   7/   8/  22/WA>  
+breadth_first_graph_search   <  10/  19/  26/B>   <  19/  45/  45/N>   <   5/   8/  16/WA>  
+depth_first_graph_search     <   9/  15/  23/B>   <  16/  27/  39/N>   <   4/   7/  13/WA>  
+iterative_deepening_search   <  11/  33/  31/B>   < 656/1815/1812/N>   <   3/  11/  11/WA>  
+depth_limited_search         <  54/  65/ 185/B>   < 387/1012/1125/N>   <  50/  54/ 200/WA>  
+astar_search                 <   3/   4/   9/B>   <   8/  10/  22/N>   <   2/   3/   6/WA>  """
     compare_searchers(problems=[GraphProblem('A', 'B', romania),
                                 GraphProblem('O', 'N', romania),
                                 GraphProblem('Q', 'WA', australia)],
             header=['Searcher', 'Romania(A,B)', 'Romania(O, N)', 'Australia'])
 
+#______________________________________________________________________________
+
+__doc__ += """
+>>> ab = GraphProblem('A', 'B', romania)
+>>> breadth_first_tree_search(ab).state 
+'B'
+>>> breadth_first_graph_search(ab).state 
+'B'
+>>> depth_first_graph_search(ab).state 
+'B'
+>>> iterative_deepening_search(ab).state 
+'B'
+>>> depth_limited_search(ab).state 
+'B'
+>>> astar_search(ab).state 
+'B'
+>>> [node.state for node in astar_search(ab).path()] 
+['B', 'P', 'R', 'S', 'A']
+
+>>> board = list('SARTELNID')
+>>> print_boggle(board)
+S  A  R 
+T  E  L 
+N  I  D 
+>>> f = BoggleFinder(board)
+>>> len(f) 
+206
+"""
+
+__doc__ += random_tests("""
+>>> ' '.join(f.words())
+'LID LARES DEAL LIE DIETS LIN LINT TIL TIN RATED ERAS LATEN DEAR TIE LINE INTER STEAL LATED LAST TAR SAL DITES RALES SAE RETS TAE RAT RAS SAT IDLE TILDES LEAST IDEAS LITE SATED TINED LEST LIT RASE RENTS TINEA EDIT EDITS NITES ALES LATE LETS RELIT TINES LEI LAT ELINT LATI SENT TARED DINE STAR SEAR NEST LITAS TIED SEAT SERAL RATE DINT DEL DEN SEAL TIER TIES NET SALINE DILATE EAST TIDES LINTER NEAR LITS ELINTS DENI RASED SERA TILE NEAT DERAT IDLEST NIDE LIEN STARED LIER LIES SETA NITS TINE DITAS ALINE SATIN TAS ASTER LEAS TSAR LAR NITE RALE LAS REAL NITER ATE RES RATEL IDEA RET IDEAL REI RATS STALE DENT RED IDES ALIEN SET TEL SER TEN TEA TED SALE TALE STILE ARES SEA TILDE SEN SEL ALINES SEI LASE DINES ILEA LINES ELD TIDE RENT DIEL STELA TAEL STALED EARL LEA TILES TILER LED ETA TALI ALE LASED TELA LET IDLER REIN ALIT ITS NIDES DIN DIE DENTS STIED LINER LASTED RATINE ERA IDLES DIT RENTAL DINER SENTI TINEAL DEIL TEAR LITER LINTS TEAL DIES EAR EAT ARLES SATE STARE DITS DELI DENTAL REST DITE DENTIL DINTS DITA DIET LENT NETS NIL NIT SETAL LATS TARE ARE SATI'
+
+>>> boggle_hill_climbing(list('ABCDEFGHI'), verbose=False)
+(['E', 'P', 'R', 'D', 'O', 'A', 'G', 'S', 'T'], 123)
+
+>>> random_weighted_selection(range(10), 3, lambda x: x * x)
+[8, 9, 6]
+""")
