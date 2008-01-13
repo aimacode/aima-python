@@ -37,10 +37,6 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 from utils import *
 import random, copy
 
-# Additional modules needed for loading non-bitmap images
-import Image    # Python Imaging Library (PIL)
-import ImageTk  # PIL + Tk
-
 #______________________________________________________________________________
 
 
@@ -64,9 +60,6 @@ class Object (object):
         """Display an image of this Object on the canvas."""
         pass
 
-    def get_image_file (self):
-        raise NoImageException()
-    
 class Agent (Object):
     """An Agent is a subclass of Object with one required slot,
     .program, which should hold a function that takes one argument, the
@@ -160,8 +153,6 @@ class ReflexVacuumAgent (Agent):
             elif location == loc_B: return 'Left'
         return program
 
-    def get_image_file (self): return "images/vacuum.png"
-    
 def RandomVacuumAgent():
     "Randomly choose one of the actions from the vaccum environment."
     return RandomAgent(['Right', 'Left', 'Suck', 'NoOp'])
@@ -412,17 +403,13 @@ class Obstacle (Object):
     pass
 
 class Wall (Obstacle):
-
-    def get_image_file (self):
-        return "images/wall-icon.jpg"
+    pass
 
 #______________________________________________________________________________
 ## Vacuum environment 
 
 class Dirt (Object):
-
-    def get_image_file (self):
-        return "images/dirt05-icon.jpg" # "images/dirt.png"
+    pass
     
 class VacuumEnvironment (XYEnvironment):
     """The environment of [Ex. 2.12]. Agent perceives dirty or clean,
@@ -691,186 +678,3 @@ class EnvToolbar (tk.Frame, object):
     def set_speed (self, speed):
         self.speed = float(speed)
     
-class EnvCanvas (tk.Canvas, object):
-
-    def __init__ (self, parent, env, cellwidth, n):
-        canvwidth = cellwidth * n # (cellwidth + 1 ) * n
-        canvheight = cellwidth * n # (cellwidth + 1) * n
-        super(EnvCanvas, self).__init__(parent, background="white",
-                                        width=canvwidth, height=canvheight)
-
-        # Initialize instance variables
-        
-        self.env = env
-        self.cellwidth = cellwidth
-        self.n = n
-
-        # Draw the gridlines
-        
-        if cellwidth: # Pointless!
-            for i in range(0, n+1):
-                self.create_line(0, i*cellwidth, n*cellwidth, i*cellwidth)
-                self.create_line(i*cellwidth, 0, i*cellwidth, n*cellwidth)
-                self.pack(expand=1, fill='both') # Shouldn't be? after loop?
-        self.pack() # Ditto
-
-        # Set up object_icon dictionary.
-        # Each object has an icon mapped in the object_icon dictionary.
-        # The icon may be a Tk image or any other canvas item,
-        # typically a "text" if no image is found.
-
-        self.object_icon = {}
-        
-        # Set up image dictionary.
-        # An image is associated with an image file; multiple objects of the
-        # same kind use the same image.
-        
-        # Ugly hack: we need to keep a reference to each ImageTk.PhotoImage,
-        # or it will be garbage collected.  This dictionary maps image files
-        # that have been opened to their PhotoImage objects
-        self.images = {}
-
-        # Bind canvas events.
-        
-        self.bind('<Button-1>', self.show_object_state)
-        #self.bind('<Button-2>', self.user_edit_objects)        
-        self.bind('<Button-3>', self.user_add_object)
-
-        # Draw existing objects
-        for obj in env.objects:
-            self.object_added(obj)
-
-        # Observe future new objects and object moves
-        env.add_observer(self)
-
-    def add_object_icon (self, obj):
-        """Return a drawable representation for a newly added object obj.
-        If obj's class has an image file, use the image from that.
-        Otherwise create a canvas text item.
-        Store the icon in the object_icon dictionary and re-use
-        as needed."""
-
-        cell = obj.location
-        xy = self.cell_topleft(cell)
-
-        # Look for an image file
-        try:
-            tk_image = self.get_image(obj.get_image_file())
-            icon = self.create_image(xy, anchor="nw", image=tk_image)
-        except NoImageException:
-            # Last resort: create a canvas text icon
-            icon = self.create_text(xy, anchor="nw", justify="left",
-                                    # Abbreviate class name to fit cell
-                                    text=obj.__class__.__name__[0:6]
-                                    # , fill = ?
-                                    #, font = ?
-                                    )
-
-        # Store and return the icon
-        self.object_icon[obj] = icon
-        return icon
-        
-        
-    def get_image (self, file):
-        """Try to find the image in the images dictionary.
-        If it's not there, open the file and create it, and stick
-        it in the dictionary.  Return the image in a form usable
-        by the canvas."""
-        if self.images.has_key(file):
-            tk_image = self.images[file]
-        else:
-            pil_image = Image.open(file)
-            tk_image = ImageTk.PhotoImage(pil_image)
-            self.images[file] = tk_image
-        return tk_image
-
-
-    def show_object_state (self, event):
-        """Display the state of the selected object, which may be an agent."""
-        cell = self.event_cell(event)
-        objs = self.env.list_objects_at(cell)
-        n = len(objs)
-        for o in objs:
-            o.show_state()
-        
-    def user_edit_objects(self, event):
-        """Choose an object within radius and edit its fields."""
-        pass
-
-    def user_add_object(self, event):
-        """Pops up a menu of Object classes; you choose the
-        one you want to put in this square."""
-        cell = self.event_cell(event)
-        xy = self.cell_topleft(cell)
-        menu = tk.Menu(self, title='Add object at (%d, %d)' % cell)
-        # Generalize object classes available,
-        # and why is self.run the command?
-        #for (txt, cmd) in [('Wumpus', self.run), ('Pit', self.run)]:
-        #    menu.add_command(label=txt, command=cmd)
-        obj_classes = self.env.object_classes()
-
-        def class_cmd (oclass):
-            def cmd ():
-                obj = oclass()
-                self.env.add_object(obj, cell)
-            return cmd
-
-        for oclass in obj_classes:
-            menu.add_command(label=oclass.__name__,
-                             command=class_cmd(oclass))
-            
-        menu.tk_popup(event.x + self.winfo_rootx(),
-                      event.y + self.winfo_rooty())
-        
-    def object_added (self, obj):
-        # Assert obj exists in the environment but has no icon yet
-        self.add_object_icon(obj)
-        
-    def object_moved (self, obj):
-        # Assert obj exists and has an icon already
-        icon = self.object_icon[obj]
-        self.coords(icon, self.cell_topleft(obj.location))
-
-    def object_deleted (self, obj):
-        icon = self.object_icon[obj]
-        del self.object_icon[obj]
-        self.delete(icon)
-    
-    def event_cell (self, event):
-        return self.xy_cell((event.x, event.y))
-
-    def xy_cell (self, (x, y)):
-        """Given an (x, y) on the canvas, return the row and column
-        of the cell containing it."""
-        w = self.cellwidth
-        return x / w, y / w
-    
-    def cell_topleft (self, (row, column)):
-        """Given a (row, column) tuple, return the (x, y) coordinates
-        of the cell(row, column)'s top left corner."""
-
-        w = self.cellwidth
-        return w * row, w * column
-
-class NoImageException (Exception): pass
-
-def test_gui ():
-    v = VacuumEnvironment()
-    w = EnvGUI(v)
-    a = TraceAgent(RandomAgent(['Forward',
-                                'TurnRight',
-                                'TurnLeft',
-                                # omit grab because grabbing is
-                                # is not implemented correctly.
-                                #'Grab',
-                                'Suck']))
-    a.heading = (1, 0) # east?
-    v.add_object(Dirt(), (6, 6))
-    v.add_object(Dirt(), (3, 2))
-    v.add_object(Dirt(), (5, 7))
-    v.add_object(a, (6, 6))
-    w.mainloop()
-    
-# test_gui()
-
-
