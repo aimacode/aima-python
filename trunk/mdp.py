@@ -136,7 +136,7 @@ def policy_evaluation(pi, U, mdp, k=20):
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
     for i in range(k):
         for s in mdp.states:
-            U[s] = R(s) + gamma * sum([p * U[s] for (p, s1) in T(s, pi[s])])
+            U[s] = R(s) + gamma * sum([p * U[s1] for (p, s1) in T(s, pi[s])])
     return U
 
 __doc__ += """
