@@ -204,7 +204,8 @@ class IRSystem:
         "Present the results as a list."
         for (score, d) in results:
             doc = self.documents[d]
-            print "%5.2f|%25s | %s" % (100 * score, doc.url, doc.title[:45])
+            print ("%5.2f|%25s | %s"
+                   % (100 * score, doc.url, doc.title[:45].expandtabs()))
 
     def present_results(self, query_text, n=10):
         "Get results for the query and present them."
@@ -445,45 +446,48 @@ __doc__ += random_tests("""
 >>> P2.cond_prob['went',].dictionary
 >>> P3.cond_prob['in', 'order'].dictionary
 {'to': 6}
+""")
+
+__doc__ += """
 
 ## Build and test an IR System
 >>> uc = UnixConsultant()
 >>> uc.present_results("how do I remove a file")
-76.83|       ../data/man/rm.txt | RM(1)			       FSF			    RM(1)
-67.83|      ../data/man/tar.txt | TAR(1)									TAR(1)
-67.79|       ../data/man/cp.txt | CP(1)			       FSF			    CP(1)
-66.58|      ../data/man/zip.txt | ZIP(1L)							  ZIP(1L)
-64.58|     ../data/man/gzip.txt | GZIP(1)								       GZIP(1)
-63.74|     ../data/man/pine.txt | pine(1)							  pine(1)
-62.95|    ../data/man/shred.txt | SHRED(1)		       FSF			 SHRED(1)
-57.46|     ../data/man/pico.txt | pico(1)							  pico(1)
-43.38|    ../data/man/login.txt | LOGIN(1)		   Linux Programmer's Manual		     
-41.93|       ../data/man/ln.txt | LN(1)			       FSF			    LN(1)
+76.83|       ../data/MAN/rm.txt | RM(1)                          FSF                          RM(1)
+67.83|      ../data/MAN/tar.txt | TAR(1)                                                                  TAR(1)
+67.79|       ../data/MAN/cp.txt | CP(1)                          FSF                          CP(1)
+66.58|      ../data/MAN/zip.txt | ZIP(1L)                                                   ZIP(1L)
+64.58|     ../data/MAN/gzip.txt | GZIP(1)                                                                GZIP(1)
+63.74|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
+62.95|    ../data/MAN/shred.txt | SHRED(1)                       FSF                       SHRED(1)
+57.46|     ../data/MAN/pico.txt | pico(1)                                                   pico(1)
+43.38|    ../data/MAN/login.txt | LOGIN(1)                   Linux Programmer's Manual                 
+41.93|       ../data/MAN/ln.txt | LN(1)                          FSF                          LN(1)
 
 >>> uc.present_results("how do I delete a file")
-75.47|     ../data/man/diff.txt | DIFF(1)				   GNU Tools			       DIFF(1)
-69.12|     ../data/man/pine.txt | pine(1)							  pine(1)
-63.56|      ../data/man/tar.txt | TAR(1)									TAR(1)
-60.63|      ../data/man/zip.txt | ZIP(1L)							  ZIP(1L)
-57.46|     ../data/man/pico.txt | pico(1)							  pico(1)
-51.28|    ../data/man/shred.txt | SHRED(1)		       FSF			 SHRED(1)
-26.72|       ../data/man/tr.txt | TR(1)			  User Commands			    TR(1)
+75.47|     ../data/MAN/diff.txt | DIFF(1)                            GNU Tools                           DIFF(1)
+69.12|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
+63.56|      ../data/MAN/tar.txt | TAR(1)                                                                  TAR(1)
+60.63|      ../data/MAN/zip.txt | ZIP(1L)                                                   ZIP(1L)
+57.46|     ../data/MAN/pico.txt | pico(1)                                                   pico(1)
+51.28|    ../data/MAN/shred.txt | SHRED(1)                       FSF                       SHRED(1)
+26.72|       ../data/MAN/tr.txt | TR(1)                     User Commands                     TR(1)
 
 >>> uc.present_results("email")
-18.39|     ../data/man/pine.txt | pine(1)							  pine(1)
-12.01|     ../data/man/info.txt | INFO(1)			       FSF			  INFO(1)
- 9.89|     ../data/man/pico.txt | pico(1)							  pico(1)
- 8.73|     ../data/man/grep.txt | GREP(1)								       GREP(1)
- 8.07|      ../data/man/zip.txt | ZIP(1L)							  ZIP(1L)
+18.39|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
+12.01|     ../data/MAN/info.txt | INFO(1)                        FSF                        INFO(1)
+ 9.89|     ../data/MAN/pico.txt | pico(1)                                                   pico(1)
+ 8.73|     ../data/MAN/grep.txt | GREP(1)                                                                GREP(1)
+ 8.07|      ../data/MAN/zip.txt | ZIP(1L)                                                   ZIP(1L)
 
 >>> uc.present_results("word counts for files")
-112.38|     ../data/man/grep.txt | GREP(1)								       GREP(1)
-101.84|       ../data/man/wc.txt | WC(1)			  User Commands			    WC(1)
-82.46|     ../data/man/find.txt | FIND(1L)							      FIND(1L)
-74.64|       ../data/man/du.txt | DU(1)			       FSF			    DU(1)
+112.38|     ../data/MAN/grep.txt | GREP(1)                                                                GREP(1)
+101.84|       ../data/MAN/wc.txt | WC(1)                     User Commands                     WC(1)
+82.46|     ../data/MAN/find.txt | FIND(1L)                                                              FIND(1L)
+74.64|       ../data/MAN/du.txt | DU(1)                          FSF                          DU(1)
 
 >>> uc.present_results("learn: date")
 >>> uc.present_results("2003")
-14.58|     ../data/man/pine.txt | pine(1)							  pine(1)
-11.62|      ../data/man/jar.txt | FASTJAR(1)			      GNU			    FASTJAR(1)
-""")
+14.58|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
+11.62|      ../data/MAN/jar.txt | FASTJAR(1)                            GNU                           FASTJAR(1)
+"""
