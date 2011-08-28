@@ -51,7 +51,7 @@ class Object (object):
         """Objects that are 'alive' should return true."""
         return hasattr(self, 'alive') and self.alive
 
-    def show_state (self):
+    def show_state(self):
         """Display the agent's internal state.  Subclasses should override."""
         print "I don't know how to show_state."
 
@@ -78,13 +78,13 @@ class Agent (Object):
         self.alive = True
         self.bump = False
 
-    def make_agent_program (self):
+    def make_agent_program(self):
         
         def program(percept):
             return raw_input('Percept=%s; action? ' % percept)
         return program
 
-    def can_grab (self, obj):
+    def can_grab(self, obj):
         """Returns True if this agent can grab this object.
         Override for appropriate subclasses of Agent and Object."""
         return False
@@ -114,7 +114,7 @@ class TableDrivenAgent (Agent):
         self.table = table
         super(TableDrivenAgent, self).__init__()
 
-    def make_agent_program (self):
+    def make_agent_program(self):
         table = self.table
         percepts = []
         def program(percept):
@@ -131,7 +131,7 @@ class RandomAgent (Agent):
         self.actions = actions
         super(RandomAgent, self).__init__()
 
-    def make_agent_program (self):
+    def make_agent_program(self):
         actions = self.actions
         return lambda percept: random.choice(actions)
 
@@ -146,7 +146,7 @@ class ReflexVacuumAgent (Agent):
     def __init__(self):
         super(ReflexVacuumAgent, self).__init__()
 
-    def make_agent_program (self):
+    def make_agent_program(self):
         def program((location, status)):
             if status == 'Dirty': return 'Suck'
             elif location == loc_A: return 'Right'
@@ -154,7 +154,7 @@ class ReflexVacuumAgent (Agent):
         return program
 
 def RandomVacuumAgent():
-    "Randomly choose one of the actions from the vaccum environment."
+    "Randomly choose one of the actions from the vacuum environment."
     return RandomAgent(['Right', 'Left', 'Suck', 'NoOp'])
 
 
@@ -181,7 +181,7 @@ class ModelBasedVacuumAgent (Agent):
         self.model = {loc_A: None, loc_B: None}
         super(ModelBasedVacuumAgent, self).__init__()
 
-    def make_agent_program (self):
+    def make_agent_program(self):
         model = self.model
         def program((location, status)):
             "Same as ReflexVacuumAgent, except if everything is clean, do NoOp"
@@ -210,7 +210,7 @@ class Environment (object):
         self.objects = []
         self.agents = []
 
-    def object_classes (self):
+    def object_classes(self):
         return [] ## List of classes that can go into environment
 
     def percept(self, agent):
@@ -253,12 +253,12 @@ class Environment (object):
             if self.is_done(): return
             self.step()
 
-    def list_objects_at (self, location, oclass=Object):
+    def list_objects_at(self, location, oclass=Object):
         "Return all objects exactly at a given location."
         return [obj for obj in self.objects
                 if obj.location == location and isinstance(obj, oclass)]
     
-    def some_objects_at (self, location, oclass=Object):
+    def some_objects_at(self, location, oclass=Object):
         """Return true if at least one of the objects at location
         is an instance of class oclass.
 
@@ -278,7 +278,7 @@ class Environment (object):
             self.agents.append(obj)
 	return self
 
-    def delete_object (self, obj):
+    def delete_object(self, obj):
         """Remove an object from the environment."""
         try:
             self.objects.remove(obj)
@@ -368,7 +368,7 @@ class XYEnvironment (Environment):
         for obs in self.observers:
             obs.object_added(obj)
 
-    def delete_object (self, obj):
+    def delete_object(self, obj):
         super(XYEnvironment, self).delete_object(obj)
         # Any more to do?  Object holding anything or being held?
         for obs in self.observers:
@@ -383,7 +383,7 @@ class XYEnvironment (Environment):
             self.add_object(Wall(), (0, y))
             self.add_object(Wall(), (self.width-1, y))
 
-    def add_observer (self, observer):
+    def add_observer(self, observer):
         """Adds an observer to the list of observers.  
         An observer is typically an EnvGUI.
         
@@ -421,15 +421,15 @@ class VacuumEnvironment (XYEnvironment):
         super(VacuumEnvironment, self).__init__(width, height)
         self.add_walls()
 
-    def object_classes (self):
+    def object_classes(self):
         return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent,
                 TableDrivenVacuumAgent, ModelBasedVacuumAgent]
 
     def percept(self, agent):
         """The percept is a tuple of ('Dirty' or 'Clean', 'Bump' or 'None').
         Unlike the TrivialVacuumEnvironment, location is NOT perceived."""
-        status =  if_(self.some_objects_at(agent.location, Dirt),
-                      'Dirty', 'Clean')
+        status = if_(self.some_objects_at(agent.location, Dirt),
+                     'Dirty', 'Clean')
         bump = if_(agent.bump, 'Bump', 'None')
         return (status, bump)
 
@@ -458,7 +458,7 @@ class TrivialVacuumEnvironment (Environment):
         self.status = {loc_A:random.choice(['Clean', 'Dirty']),
                        loc_B:random.choice(['Clean', 'Dirty'])}
 
-    def object_classes (self):
+    def object_classes(self):
         return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent, 
                 TableDrivenVacuumAgent, ModelBasedVacuumAgent]
     
@@ -494,7 +494,7 @@ class SimpleReflexAgent (Agent):
         self.interpret_input = interpret_input
         super(SimpleReflexAgent, self).__init__()
 
-    def make_agent_program (self):
+    def make_agent_program(self):
         rules = self.rules
         interpret_input = self.interpret_input
         def program(percept):
@@ -512,7 +512,7 @@ class ReflexAgentWithState (Agent):
         self.update_state = update_state
         super(ReflexAgentWithState, self).__init__()
 
-    def make_agent_program (self):
+    def make_agent_program(self):
         rules = self.rules
         update_state = self.update_state
         state = None
@@ -539,7 +539,7 @@ class WumpusEnvironment(XYEnvironment):
         super(WumpusEnvironment, self).__init__(width, height)
         self.add_walls()
 
-    def object_classes (self):
+    def object_classes(self):
         return [Wall, Gold, Pit, Arrow, Wumpus, Explorer]
 
     ## Needs a lot of work ...
@@ -605,7 +605,7 @@ import Tkinter as tk
 
 class EnvGUI (tk.Tk, object):
 
-    def __init__ (self, env, title = 'AIMA GUI', cellwidth=50, n=10):
+    def __init__(self, env, title = 'AIMA GUI', cellwidth=50, n=10):
 
         # Initialize window
         
@@ -622,7 +622,7 @@ class EnvGUI (tk.Tk, object):
 
 class EnvToolbar (tk.Frame, object):
 
-    def __init__ (self, parent, env, canvas):
+    def __init__(self, parent, env, canvas):
         super(EnvToolbar, self).__init__(parent, relief='raised', bd=2)
 
         # Initialize instance variables
@@ -665,16 +665,16 @@ class EnvToolbar (tk.Frame, object):
             ms = int(1000.0 * delay_sec)  # seconds to milliseconds
             self.after(ms, self.background_run)
         
-    def list_objects (self):
+    def list_objects(self):
         print "Objects in the environment:"
         for obj in self.env.objects:
             print "%s at %s" % (obj, obj.location)
 
-    def list_agents (self):
+    def list_agents(self):
         print "Agents in the environment:"
         for agt in self.env.agents:
             print "%s at %s" % (agt, agt.location)
 
-    def set_speed (self, speed):
+    def set_speed(self, speed):
         self.speed = float(speed)
     

@@ -123,7 +123,7 @@ class BoolCpt:
     """Conditional probability table for a boolean (True/False)
     random variable conditioned on its parents."""
 
-    def __init__ (self, table_data):
+    def __init__(self, table_data):
         
         """Initialize the table.
 
@@ -170,7 +170,7 @@ class BoolCpt:
         else:
             raise Exception("wrong table_data type: %s" % table_data)
         
-    def p (self, value, parent_vars, event):
+    def p(self, value, parent_vars, event):
         
         """Return the conditional probability P(value | parent_vars =
         parent_values), where parent_values are the values of
@@ -202,7 +202,7 @@ class BoolCpt:
         
         return self.p_values(value, event_values(event, parent_vars))
 
-    def p_values (self, xvalue, parent_values):
+    def p_values(self, xvalue, parent_values):
         """Return P(X = xvalue | parents = parent_values),
         where parent_values is a tuple, even if of only 0 or 1 element.
 
@@ -228,7 +228,7 @@ class BoolCpt:
         else:
             return 1.0 - ptrue
 
-    def rand (self, parents, event):
+    def rand(self, parents, event):
         """Generate and return a random sample value True or False
         given that the parent variables have the values they have in
         event.
@@ -301,7 +301,7 @@ class BayesNet:
     def observe(self, var, val):
         self.evidence[var] = val
 
-    def variable_node (self, var):
+    def variable_node(self, var):
         """Returns the node for the variable named var.
 
         >>> burglary.variable_node('Burglary').variable
@@ -313,7 +313,7 @@ class BayesNet:
                 return n
         raise Exception("No such variable: %s" % var)
 
-    def variables (self):
+    def variables(self):
         """Returns the list of names of the variables.
 
         >>> burglary.variables()
@@ -322,7 +322,7 @@ class BayesNet:
         
         return [n.variable for n in self.nodes]
     
-    def variable_values (self, var):
+    def variable_values(self, var):
         return [True, False]
         
 
