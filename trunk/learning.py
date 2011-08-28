@@ -196,7 +196,7 @@ class NaiveBayesLearner(Learner):
         possible_values = self.dataset.values[self.dataset.target]
         def class_probability(targetval):
             return product([self.P(targetval, a, example[a])
-                            for a in self.dataset.inputs], 1)
+                            for a in self.dataset.inputs])
         return argmax(possible_values, class_probability)
 
 #______________________________________________________________________________
