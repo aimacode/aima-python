@@ -733,6 +733,7 @@ def compare_searchers(problems, header, searchers=[breadth_first_tree_search,
 
 def compare_graph_searchers():
     """Prints a table of results like this:
+>>> compare_graph_searchers()
 Searcher                     Romania(A,B)         Romania(O, N)        Australia            
 breadth_first_tree_search    <  21/  22/  59/B>   <1158/1159/3288/N>   <   7/   8/  22/WA>  
 breadth_first_graph_search   <  10/  19/  26/B>   <  19/  45/  45/N>   <   5/   8/  16/WA>  
