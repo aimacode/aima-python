@@ -937,7 +937,7 @@ class FolKB (KB):
     False
     """
 
-    def __init__ (self, initial_clauses=[]):
+    def __init__(self, initial_clauses=[]):
         self.clauses = [] # inefficient: no indexing
         for clause in initial_clauses:
             self.tell(clause)

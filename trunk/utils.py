@@ -281,9 +281,9 @@ def removeall(item, seq):
     [1, 2, 3]
     """
     if isinstance(seq, str):
-      return seq.replace(item, '')
+        return seq.replace(item, '')
     else:
-      return [x for x in seq if x != item]
+        return [x for x in seq if x != item]
 
 def unique(seq):
     """Remove duplicate elements from seq. Assumes hashable elements.
@@ -337,7 +337,7 @@ def some(predicate, seq):
     """
     for x in seq:
         px = predicate(x)
-        if  px: return px
+        if px: return px
     return False   
 
 def isin(elt, seq):
@@ -397,7 +397,7 @@ def argmin_random_tie(seq, fn):
         elif x_score == best_score:
             n += 1
             if random.randrange(n) == 0:
-                    best = x
+                best = x
     return best
 
 def argmax(seq, fn):
@@ -509,7 +509,7 @@ def num_or_str(x):
         try:
             return float(x) 
         except ValueError:
-                return str(x).strip() 
+            return str(x).strip() 
 
 def normalize(numbers, total=1.0):
     """Multiply each number by a constant such that the sum is 1.0 (or total).
@@ -523,7 +523,7 @@ def normalize(numbers, total=1.0):
 ## functions here, but they do show up wherever we have 2D grids: Wumpus and
 ## Vacuum worlds, TicTacToe and Checkers, and markov decision Processes.
 
-orientations = [(1,0), (0, 1), (-1, 0), (0, -1)]
+orientations = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
 def turn_right(orientation):
     return orientations[orientations.index(orientation)-1]
@@ -566,7 +566,7 @@ def caller(n=1):
     'f'
     """
     import inspect
-    return  inspect.getouterframes(inspect.currentframe())[n][3]
+    return inspect.getouterframes(inspect.currentframe())[n][3]
 
 def memoize(fn, slot=None):
     """Memoize fn: make it remember the computed value for any argument list.
@@ -621,12 +621,12 @@ def print_table(table, header=None, sep=' ', numfmt='%g'):
     """Print a list of lists as a table, so that columns line up nicely.
     header, if specified, will be printed as the first row.
     numfmt is the format for all numbers; you might want e.g. '%6.2f'.
-    (If you want different formats in differnt columns, don't use print_table.)
+    (If you want different formats in different columns, don't use print_table.)
     sep is the separator between columns."""
     justs = [if_(isnumber(x), 'rjust', 'ljust') for x in table[0]]
     if header:
         table = [header] + table
-    table = [[if_(isnumber(x), lambda: numfmt % x, x)  for x in row]
+    table = [[if_(isnumber(x), lambda: numfmt % x, x) for x in row]
              for row in table]    
     maxlen = lambda seq: max(map(len, seq))
     sizes = map(maxlen, zip(*[map(str, row) for row in table]))

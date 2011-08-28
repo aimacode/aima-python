@@ -83,7 +83,7 @@ class CSP(search.Problem):
             for (B, b) in self.pruned[var]:
                 self.curr_domains[B].append(b)
             self.pruned[var] = []
-            # Prune any other B=b assignement that conflict with var=val
+            # Prune any other B=b assignments that conflict with var=val
             for B in self.neighbors[var]:
                 if B not in assignment:
                     for b in self.curr_domains[B][:]:
@@ -220,12 +220,12 @@ def remove_inconsistent_values(csp, Xi, Xj):
 
 def min_conflicts(csp, max_steps=1000000): 
     """Solve a CSP by stochastic hillclimbing on the number of conflicts."""
-    # Generate a complete assignement for all vars (probably with conflicts)
+    # Generate a complete assignment for all vars (probably with conflicts)
     current = {}; csp.current = current
     for var in csp.vars:
         val = min_conflicts_value(csp, var, current)
         csp.assign(var, val, current)
-    # Now repeapedly choose a random conflicted variable and change it
+    # Now repeatedly choose a random conflicted variable and change it
     for i in range(max_steps):
         conflicted = csp.conflicted_vars(current)
         if not conflicted:
