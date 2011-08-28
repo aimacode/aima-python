@@ -55,7 +55,7 @@ except NameError:
         [3, 2, 1]
         """
         if hasattr(seq, 'keys'):
-            raise ValueError("mappings do not support reverse iteration")
+            raise TypeError("mappings do not support reverse iteration")
         i = len(seq)
         while i > 0:
             i -= 1
