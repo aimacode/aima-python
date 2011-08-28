@@ -106,8 +106,8 @@ class CSP(search.Problem):
             var = find_if(lambda v: v not in assignment, self.vars)
             result = []
             for val in self.domains[var]:
-                if self.nconflicts(self, var, val, assignment) == 0:
-                    a = assignment.copy; a[var] = val
+                if self.nconflicts(var, val, assignment) == 0:
+                    a = assignment.copy(); a[var] = val
                     result.append(((var, val), a))
             return result
 
