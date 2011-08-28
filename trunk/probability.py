@@ -74,6 +74,12 @@ class ProbDist:
                 self.prob[val] /= total
         return self
 
+    def show_approx(self, ndigits=3):
+        """Show the probabilities rounded and sorted by key, for the
+        sake of portable doctests."""
+        return ', '.join(['%s: %.*g' % (v, ndigits, p)
+                          for (v, p) in sorted(self.prob.items())])
+
 epsilon = 0.001
 
 class JointProbDist(ProbDist):
@@ -356,8 +362,8 @@ def enumeration_ask (X, e, bn):
     [0.002, 0.998]
     >>> p = enumeration_ask('Burglary',
     ...   {'JohnCalls': True, 'MaryCalls': True}, burglary)
-    >>> [p[True], p[False]]
-    [0.28417183536439289, 0.71582816463560706]
+    >>> p.show_approx()
+    'False: 0.716, True: 0.284'
     """
 
     Q = ProbDist(X) # empty probability distribution for X
@@ -475,8 +481,8 @@ def rejection_sampling (X, e, bn, N):
     >>> seed(47)
     >>> p = rejection_sampling('Burglary',
     ...   {'JohnCalls': True, 'MaryCalls': True}, burglary, 10000)
-    >>> [p[True], p[False]]
-    [0.29999999999999999, 0.69999999999999996]
+    >>> p.show_approx()
+    'False: 0.7, True: 0.3'
     """
 
     counts = {True: 0, False: 0} # boldface N in Fig. 14.13
@@ -530,8 +536,8 @@ def likelihood_weighting (X, e, bn, N):
     >>> seed(1017)
     >>> p = likelihood_weighting('Burglary',
     ...  {'JohnCalls': True, 'MaryCalls': True}, burglary, 10000)
-    >>> [p[True], p[False]]
-    [0.29801552320954111, 0.70198447679045894]
+    >>> p.show_approx()
+    'False: 0.702, True: 0.298'
     """
 
     weights = {True: 0.0, False: 0.0} # boldface W in Fig. 14.14
@@ -578,9 +584,10 @@ __doc__ += """
 >>> P['cloudy'] = 0.08
 >>> P['snow'] = 0.02
 
-## and query it like this:
->>> P['rain'] 
-0.20000000000000001
+## and query it like this: (Never mind this ELLIPSIS option
+##                          added to make the doctest portable.)
+>>> P['rain']               #doctest:+ELLIPSIS
+0.2...
 
 ## A Joint Probability Distribution is dealt with like this (p. 475):
 >>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
@@ -593,8 +600,8 @@ __doc__ += """
 
 ## Ask for P(Cavity|Toothache=T)
 >>> PC = enumerate_joint_ask('Cavity', {'Toothache': T}, P) 
->>> PC.prob
-{False: 0.39999999999999997, True: 0.59999999999999998}
+>>> PC.show_approx()
+'False: 0.4, True: 0.6'
 
 >>> 0.6-epsilon < PC[T] < 0.6+epsilon 
 True
