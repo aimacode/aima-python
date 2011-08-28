@@ -27,7 +27,7 @@ class MDP:
 
     def T(self, state, action): 
         """Transition model.  From a state and an action, return a list
-        of (result-state, probability) pairs."""
+        of (probability, result-state) pairs."""
         abstract
 
     def actions(self, state):
