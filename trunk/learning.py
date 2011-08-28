@@ -582,5 +582,4 @@ def compare(algorithms=[MajorityLearner, NaiveBayesLearner,
     print_table([[a.__name__.replace('Learner','')] +
                  [cross_validation(a(), d, k, trials) for d in datasets]
                  for a in algorithms],
-                header=[''] + [d.name[0:7] for d in datasets], round=2)
-    
+                header=[''] + [d.name[0:7] for d in datasets], numfmt='%.2f')
