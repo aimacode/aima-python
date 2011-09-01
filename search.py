@@ -159,22 +159,19 @@ def depth_limited_search(problem, limit=50):
     # Would this not be more elegant with an exception instead of 'cutoff'?
     # Or would an exception work better for the _successful_ case? ;-)
     def recursive_dls(node, problem, limit):
-        cutoff_occurred = False
         if problem.goal_test(node.state):
             return node
         elif node.depth == limit:
             return 'cutoff'
         else:
+            nonresult = None
             for successor in node.expand(problem):
                 result = recursive_dls(successor, problem, limit)
                 if result == 'cutoff':
-                    cutoff_occurred = True
+                    nonresult = 'cutoff'
                 elif result != None:
                     return result
-        if cutoff_occurred:
-            return 'cutoff'
-        else:
-            return None
+            return nonresult
     # Body of depth_limited_search:
     return recursive_dls(Node(problem.initial), problem, limit)
 
