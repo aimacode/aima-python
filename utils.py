@@ -653,7 +653,7 @@ class Queue:
     """Queue is an abstract class/interface. There are three types:
         Stack(): A Last In First Out Queue.
         FIFOQueue(): A First In First Out Queue.
-        PriorityQueue(lt): Queue where items are sorted by lt, (default <).
+        PriorityQueue(order, f): Queue in sorted order (default min-first).
     Each type supports the following methods and functions:
         q.append(item)  -- add an item to the queue
         q.extend(items) -- equivalent to: for item in items: q.append(item)
