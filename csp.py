@@ -33,14 +33,14 @@ class CSP(search.Problem):
         curr_domains[var]       Slot: remaining consistent values for var
                                 Used by constraint propagation routines.
     The following methods are used only by graph_search and tree_search:
-        succ(a)                 Return a list of (action, state) pairs
+        successor(a)            Return a list of (action, state) pairs
         goal_test(a)            Return true if all constraints satisfied
     The following are just for debugging purposes:
         nassigns                Slot: tracks the number of assignments made
         display(a)              Print a human-readable representation
 
-    >>> search.depth_first_tree_search(australia)
-    <Node {'Q': 'B', 'T': 'B', 'WA': 'B', 'V': 'B', 'SA': 'G', 'NT': 'R', 'NSW': 'R'}>
+    >>> search.depth_first_graph_search(australia)
+    <Node (('WA', 'B'), ('Q', 'B'), ('T', 'B'), ('V', 'B'), ('SA', 'G'), ('NT', 'R'), ('NSW', 'R'))>
     """
 
     def __init__(self, vars, domains, neighbors, constraints):
@@ -48,7 +48,7 @@ class CSP(search.Problem):
         vars = vars or domains.keys()
         update(self, vars=vars, domains=domains,
                neighbors=neighbors, constraints=constraints,
-               initial={}, curr_domains=None, pruned=None, nassigns=0)
+               initial=(), curr_domains=None, pruned=None, nassigns=0)
         
     def assign(self, var, val, assignment):
         """Add {var: val} to assignment; Discard the old value if any.
@@ -101,21 +101,22 @@ class CSP(search.Problem):
 
     ## These methods are for the tree and graph search interface:
 
-    def successor(self, assignment):
+    def successor(self, state):
         "Return a list of (action, state) pairs."
-        if len(assignment) == len(self.vars):
+        if len(state) == len(self.vars):
             return []
         else:
+            assignment = dict(state)
             var = find_if(lambda v: v not in assignment, self.vars)
             result = []
             for val in self.domains[var]:
                 if self.nconflicts(var, val, assignment) == 0:
-                    a = assignment.copy(); a[var] = val
-                    result.append(((var, val), a))
+                    result.append(((var, val), state + ((var, val),)))
             return result
 
-    def goal_test(self, assignment):
+    def goal_test(self, state):
         "The goal is to assign all vars, with all constraints satisfied."
+        assignment = dict(state)
         return (len(assignment) == len(self.vars) and
                 every(lambda var: self.nconflicts(var, assignment[var],
                                                   assignment) == 0,
