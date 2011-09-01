@@ -242,9 +242,9 @@ class TicTacToe(Game):
                       utility=self.compute_utility(board, move, state.to_move),
                       board=board, moves=moves)
 
-    def utility(self, state):
-        "Return the value to X; 1 for win, -1 for loss, 0 otherwise."
-        return state.utility
+    def utility(self, state, player):
+        "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
+        return if_(player == 'X', state.utility, -state.utility)
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
@@ -296,4 +296,6 @@ class ConnectFour(TicTacToe):
 __doc__ += random_tests("""
 >>> play_game(Fig62Game(), random_player, random_player)
 6
+>>> play_game(TicTacToe(), random_player, random_player)
+0
 """)
