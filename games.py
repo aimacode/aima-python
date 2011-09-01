@@ -281,6 +281,5 @@ class ConnectFour(TicTacToe):
         TicTacToe.__init__(self, h, v, k)
 
     def legal_moves(self, state):
-        "Legal moves are any square not yet taken."
         return [(x, y) for (x, y) in state.moves
                 if y == 0 or (x, y-1) in state.board]
