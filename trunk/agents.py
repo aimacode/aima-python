@@ -524,6 +524,12 @@ class ReflexAgentWithState (Agent):
             return action
         return program
 
+def rule_match(state, rules):
+    "Find the first rule that matches state."
+    for rule in rules:
+        if rule.matches(state):
+            return rule
+
 #______________________________________________________________________________
 ## The Wumpus World
 
