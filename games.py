@@ -124,14 +124,17 @@ def alphabeta_player(game, state):
     return alphabeta_search(state, game)
 
 def play_game(game, *players):
-    "Play an n-person, move-alternating game."
+    """Play an n-person, move-alternating game.
+    >>> play_game(Fig62Game(), alphabeta_player, alphabeta_player)
+    3
+    """
     state = game.initial
     while True:
         for player in players:
             move = player(game, state)
             state = game.make_move(move, state)
             if game.terminal_test(state):
-                return game.utility(state, players[0])
+                return game.utility(state, game.to_move(game.initial))
 
 #______________________________________________________________________________
 # Some Sample Games
@@ -292,5 +295,5 @@ class ConnectFour(TicTacToe):
 
 __doc__ += random_tests("""
 >>> play_game(Fig62Game(), random_player, random_player)
--6
+6
 """)
