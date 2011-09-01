@@ -7,7 +7,7 @@ import types
 
 class CSP(search.Problem):
     """This class describes finite-domain Constraint Satisfaction Problems.
-    A CSP is specified by the following three inputs:
+    A CSP is specified by the following inputs:
         vars        A list of variables; each is atomic (e.g. int or string).
         domains     A dict of {var:[possible_value, ...]} entries.
         neighbors   A dict of {var:[var,...]} that for each variable lists
@@ -33,7 +33,7 @@ class CSP(search.Problem):
         curr_domains[var]       Slot: remaining consistent values for var
                                 Used by constraint propagation routines.
     The following methods are used only by graph_search and tree_search:
-        succ()                  Return a list of (action, state) pairs
+        succ(a)                 Return a list of (action, state) pairs
         goal_test(a)            Return true if all constraints satisfied
     The following are just for debugging purposes:
         nassigns                Slot: tracks the number of assignments made
