@@ -118,7 +118,7 @@ def query_player(game, state):
 
 def random_player(game, state):
     "A player that chooses a legal move at random."
-    return random.choice(game.legal_moves())
+    return random.choice(game.legal_moves(state))
 
 def alphabeta_player(game, state):
     return alphabeta_search(state, game)
@@ -187,16 +187,22 @@ class Fig62Game(Game):
     >>> alphabeta_search('A', g)
     'a1'
     """
-    succs = {'A': [('a1', 'B'), ('a2', 'C'), ('a3', 'D')],
-             'B': [('b1', 'B1'), ('b2', 'B2'), ('b3', 'B3')],
-             'C': [('c1', 'C1'), ('c2', 'C2'), ('c3', 'C3')],
-             'D': [('d1', 'D1'), ('d2', 'D2'), ('d3', 'D3')]}
+    succs = dict(A=dict(a1='B', a2='C', a3='D'),
+                 B=dict(b1='B1', b2='B2', b3='B3'),
+                 C=dict(c1='C1', c2='C2', c3='C3'),
+                 D=dict(d1='D1', d2='D2', d3='D3'))
     utils = Dict(B1=3, B2=12, B3=8, C1=2, C2=4, C3=6, D1=14, D2=5, D3=2)
     initial = 'A'
     
+    def legal_moves(self, state):
+        return [move for (move, next) in self.successors(state)]
+
+    def make_move(self, move, state):
+        return self.succs[state][move]
+
     def successors(self, state):
-        return self.succs.get(state, [])
-    
+        return self.succs.get(state, {}).items()
+
     def utility(self, state, player):
         if player == 'MAX':
             return self.utils[state]
@@ -283,3 +289,8 @@ class ConnectFour(TicTacToe):
     def legal_moves(self, state):
         return [(x, y) for (x, y) in state.moves
                 if y == 0 or (x, y-1) in state.board]
+
+__doc__ += random_tests("""
+>>> play_game(Fig62Game(), random_player, random_player)
+-6
+""")
