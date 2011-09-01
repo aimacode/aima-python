@@ -329,8 +329,6 @@ class NQueensCSP(CSP):
     selection will also be O(1).
     >>> len(backtracking_search(NQueensCSP(8)))
     8
-    >>> len(min_conflicts(NQueensCSP(8)))
-    8
     """
     def __init__(self, n):
         """Initialize data structures for n Queens."""
@@ -451,4 +449,6 @@ def solve_zebra(algorithm=min_conflicts, **args):
 __doc__ += random_tests("""
 >>> min_conflicts(australia)
 {'WA': 'B', 'Q': 'B', 'T': 'G', 'V': 'B', 'SA': 'R', 'NT': 'G', 'NSW': 'G'}
+>>> min_conflicts(NQueensCSP(8), max_steps=10000)
+{0: 5, 1: 0, 2: 4, 3: 1, 4: 7, 5: 2, 6: 6, 7: 3}
 """)
