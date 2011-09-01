@@ -164,14 +164,15 @@ def depth_limited_search(problem, limit=50):
         elif node.depth == limit:
             return 'cutoff'
         else:
-            nonresult = None
+            cutoff_occurred = False
             for successor in node.expand(problem):
                 result = recursive_dls(successor, problem, limit)
                 if result == 'cutoff':
-                    nonresult = 'cutoff'
+                    cutoff_occurred = True
                 elif result != None:
                     return result
-            return nonresult
+            return if_(cutoff_occurred, 'cutoff', None)
+
     # Body of depth_limited_search:
     return recursive_dls(Node(problem.initial), problem, limit)
 
