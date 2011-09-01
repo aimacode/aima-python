@@ -38,7 +38,10 @@ class CSP(search.Problem):
     The following are just for debugging purposes:
         nassigns                Slot: tracks the number of assignments made
         display(a)              Print a human-readable representation
-        """
+
+    >>> search.depth_first_tree_search(australia)
+    <Node {'Q': 'B', 'T': 'B', 'WA': 'B', 'V': 'B', 'SA': 'G', 'NT': 'R', 'NSW': 'R'}>
+    """
 
     def __init__(self, vars, domains, neighbors, constraints):
         "Construct a CSP problem. If vars is empty, it becomes domains.keys()."
@@ -98,7 +101,7 @@ class CSP(search.Problem):
 
     ## These methods are for the tree and graph search interface:
 
-    def succ(self, assignment):
+    def successor(self, assignment):
         "Return a list of (action, state) pairs."
         if len(assignment) == len(self.vars):
             return []
