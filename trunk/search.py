@@ -457,7 +457,7 @@ class GraphProblem(Problem):
 
 class NQueensProblem(Problem):
     """The problem of placing N queens on an NxN board with none attacking
-    each other.  A state is represented as an N-element array, where the
+    each other.  A state is represented as an N-element array, where
     a value of r in the c-th entry means there is a queen at column c,
     row r, and a value of None means that the c-th column has not been
     filled in yet.  We fill in columns left to right."""
@@ -503,7 +503,7 @@ class NQueensProblem(Problem):
 
 #______________________________________________________________________________
 ## Inverse Boggle: Search for a high-scoring Boggle board. A good domain for
-## iterative-repair and related search tehniques, as suggested by Justin Boyan.
+## iterative-repair and related search techniques, as suggested by Justin Boyan.
 
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -698,7 +698,7 @@ class InstrumentedProblem(Problem):
         
     def successor(self, state):
         "Return a list of (action, state) pairs reachable from this state."
-        result =  self.problem.successor(state)
+        result = self.problem.successor(state)
         self.succs += 1; self.states += len(result)
         return result
     

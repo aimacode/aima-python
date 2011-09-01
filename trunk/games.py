@@ -1,4 +1,4 @@
-"""Games, or Adversarial Search. (Chapters 6)
+"""Games, or Adversarial Search. (Chapter 6)
 
 """
 

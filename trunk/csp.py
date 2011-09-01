@@ -210,7 +210,7 @@ def remove_inconsistent_values(csp, Xi, Xj):
     for x in csp.curr_domains[Xi][:]:
         # If Xi=x conflicts with Xj=y for every possible y, eliminate Xi=x
         if every(lambda y: not csp.constraints(Xi, x, Xj, y),
-                csp.curr_domains[Xj]):
+                 csp.curr_domains[Xj]):
             csp.curr_domains[Xi].remove(x)
             removed = True
     return removed
