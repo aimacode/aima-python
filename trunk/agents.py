@@ -507,7 +507,7 @@ class SimpleReflexAgent (Agent):
 class ReflexAgentWithState (Agent):
     """This agent takes action based on the percept and state. [Fig. 2.16]"""
 
-    def __init__(self, rules, udpate_state):
+    def __init__(self, rules, update_state):
         self.rules = rules
         self.update_state = update_state
         super(ReflexAgentWithState, self).__init__()
