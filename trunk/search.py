@@ -229,12 +229,11 @@ def recursive_best_first_search(problem, h=None):
             best = successors[0]
             if best.f > flimit:
                 return None, best.f
-            if len(successors) == 1:
-                new_flimit = flimit
+            if len(successors) > 1:
+                alternative = successors[1].f
             else:
-                alternative = successors[1]
-                new_flimit = min(flimit, alternative.f)
-            result, best.f = RBFS(problem, best, new_flimit)
+                alternative = infinity
+            result, best.f = RBFS(problem, best, min(flimit, alternative))
             if result is not None:
                 return result, best.f
 
