@@ -554,7 +554,7 @@ def printf(format, *args):
     """Format args with the first argument as format string, and write.
     Return the last arg, or format itself if there are no args."""
     sys.stdout.write(str(format) % args)
-    return if_(args, args[-1], format)
+    return if_(args, lambda: args[-1], lambda: format)
 
 def caller(n=1):
     """Return the name of the calling function n levels up in the frame stack.
@@ -626,7 +626,7 @@ def print_table(table, header=None, sep=' ', numfmt='%g'):
     justs = [if_(isnumber(x), 'rjust', 'ljust') for x in table[0]]
     if header:
         table = [header] + table
-    table = [[if_(isnumber(x), lambda: numfmt % x, x) for x in row]
+    table = [[if_(isnumber(x), lambda: numfmt % x, lambda: x) for x in row]
              for row in table]    
     maxlen = lambda seq: max(map(len, seq))
     sizes = map(maxlen, zip(*[map(str, row) for row in table]))
