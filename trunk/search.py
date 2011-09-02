@@ -212,27 +212,36 @@ def astar_search(problem, h=None):
 #______________________________________________________________________________
 ## Other search algorithms
 
-def recursive_best_first_search(problem):
+def recursive_best_first_search(problem, h=None):
     "[Fig. 4.5]"
+    h = h or problem.h
+
     def RBFS(problem, node, flimit):
         if problem.goal_test(node.state): 
-            return node
-        successors = expand(node, problem)
+            return node, 0   # (The second value is immaterial)
+        successors = node.expand(problem)
         if len(successors) == 0:
             return None, infinity
         for s in successors:
-            s.f = max(s.path_cost + s.h, node.f)
+            s.f = max(s.path_cost + h(s), node.f)
         while True:
-            successors.sort(lambda x,y: x.f - y.f) # Order by lowest f value
+            successors.sort(lambda x,y: cmp(x.f, y.f)) # Order by lowest f value
             best = successors[0]
             if best.f > flimit:
                 return None, best.f
-            alternative = successors[1]
-            result, best.f = RBFS(problem, best, min(flimit, alternative))
+            if len(successors) == 1:
+                new_flimit = flimit
+            else:
+                alternative = successors[1]
+                new_flimit = min(flimit, alternative.f)
+            result, best.f = RBFS(problem, best, new_flimit)
             if result is not None:
-                return result
-    return RBFS(Node(problem.initial), infinity)
+                return result, best.f
 
+    node = Node(problem.initial)
+    node.f = h(node)
+    result, bestf = RBFS(problem, node, infinity)
+    return result
 
 def hill_climbing(problem):
     """From the initial node, keep choosing the neighbor with highest value,
@@ -721,7 +730,7 @@ class InstrumentedProblem(Problem):
 def compare_searchers(problems, header, searchers=[breadth_first_tree_search,
                       breadth_first_graph_search, depth_first_graph_search,
                       iterative_deepening_search, depth_limited_search,
-                      astar_search]):
+                      astar_search, recursive_best_first_search]):
     def do(searcher, problem):
         p = InstrumentedProblem(problem)
         searcher(p)
@@ -732,13 +741,14 @@ def compare_searchers(problems, header, searchers=[breadth_first_tree_search,
 def compare_graph_searchers():
     """Prints a table of results like this:
 >>> compare_graph_searchers()
-Searcher                     Romania(A,B)         Romania(O, N)        Australia            
-breadth_first_tree_search    <  21/  22/  59/B>   <1158/1159/3288/N>   <   7/   8/  22/WA>  
-breadth_first_graph_search   <  10/  19/  26/B>   <  19/  45/  45/N>   <   5/   8/  16/WA>  
-depth_first_graph_search     <   9/  15/  23/B>   <  16/  27/  39/N>   <   4/   7/  13/WA>  
-iterative_deepening_search   <  11/  33/  31/B>   < 656/1815/1812/N>   <   3/  11/  11/WA>  
-depth_limited_search         <  54/  65/ 185/B>   < 387/1012/1125/N>   <  50/  54/ 200/WA>  
-astar_search                 <   3/   4/   9/B>   <   8/  10/  22/N>   <   2/   3/   6/WA>  """
+Searcher                      Romania(A,B)         Romania(O, N)        Australia            
+breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>   <   7/   8/  22/WA>  
+breadth_first_graph_search    <  10/  19/  26/B>   <  19/  45/  45/N>   <   5/   8/  16/WA>  
+depth_first_graph_search      <   9/  15/  23/B>   <  16/  27/  39/N>   <   4/   7/  13/WA>  
+iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>   <   3/  11/  11/WA>  
+depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>   <  50/  54/ 200/WA>  
+astar_search                  <   3/   4/   9/B>   <   8/  10/  22/N>   <   2/   3/   6/WA>  
+recursive_best_first_search   < 200/ 201/ 601/B>   <  71/  72/ 213/N>   <  11/  12/  43/WA>  """
     compare_searchers(problems=[GraphProblem('A', 'B', romania),
                                 GraphProblem('O', 'N', romania),
                                 GraphProblem('Q', 'WA', australia)],
@@ -759,6 +769,8 @@ __doc__ += """
 >>> depth_limited_search(ab).state 
 'B'
 >>> astar_search(ab).state 
+'B'
+>>> recursive_best_first_search(ab).state 
 'B'
 >>> [node.state for node in astar_search(ab).path()] 
 ['B', 'P', 'R', 'S', 'A']
