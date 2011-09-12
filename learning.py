@@ -15,7 +15,7 @@ class DataSet:
     d.target      The attribute that a learning algorithm will try to predict.
                   By default the final attribute.
     d.inputs      The list of attrs without the target.
-    d.values      A list of lists, each sublist is the set of possible
+    d.values      A list of lists: each sublist is the set of possible
                   values for the corresponding attribute. If None, it
                   is computed from the known examples by self.setproblem.
                   If not None, an erroneous value raises ValueError.
@@ -42,7 +42,7 @@ class DataSet:
         else:
             self.examples = examples
         map(self.check_example, self.examples)
-        # Attrs are the indicies of examples, unless otherwise stated.
+        # Attrs are the indices of examples, unless otherwise stated.
         if not attrs and self.examples:
             attrs = range(len(self.examples[0]))
         self.attrs = attrs
@@ -57,7 +57,7 @@ class DataSet:
         """Set (or change) the target and/or inputs.
         This way, one DataSet can be used multiple ways. inputs, if specified,
         is a list of attributes, or specify exclude as a list of attributes
-        to not put use in inputs. Attributes can be -n .. n, or an attrname.
+        to not use in inputs. Attributes can be -n .. n, or an attrname.
         Also computes the list of possible values, if that wasn't done yet."""
         self.target = self.attrnum(target)
         exclude = map(self.attrnum, exclude)
@@ -156,7 +156,7 @@ class MajorityLearner(Learner):
 class NaiveBayesLearner(Learner):
     
     def train(self, dataset):
-        """Just count the target/attr/val occurences.
+        """Just count the target/attr/val occurrences.
         Count how many times each value of each attribute occurs.
         Store count in N[targetvalue][attr][val]. Let N[attr][None] be the
         sum over all vals."""
@@ -291,7 +291,7 @@ class DecisionTreeLearner(Learner):
             return default
         elif self.all_same_class(examples):
             return examples[0][self.dataset.target]
-        elif  len(attrs) == 0:
+        elif len(attrs) == 0:
             return self.majority_value(examples)
         else:
             best = self.choose_attribute(attrs, examples)
@@ -410,7 +410,7 @@ class EnsembleLearner(Learner):
     """Given a list of learning algorithms, have them vote."""
 
     def __init__(self, learners=[]):
-        self.learners=learners
+        self.learners = learners
 
     def train(self, dataset):
         for learner in self.learners:
@@ -481,7 +481,7 @@ def learningcurve(learner, dataset, trials=10, sizes=None):
             for size in sizes]
 
 #______________________________________________________________________________
-# The rest of this file gives Data sets for machine learning problems.
+# The rest of this file gives datasets for machine learning problems.
 
 orings = DataSet(name='orings', target='Distressed',
                  attrnames="Rings Distressed Temp Pressure Flightnum")
@@ -502,8 +502,8 @@ iris = DataSet(name="iris", target="class",
 def RestaurantDataSet(examples=None):
     "Build a DataSet of Restaurant waiting examples."
     return DataSet(name='restaurant', target='Wait', examples=examples,
-                  attrnames='Alternate Bar Fri/Sat Hungry Patrons Price '
-                   + 'Raining Reservation Type WaitEstimate Wait')
+                   attrnames='Alternate Bar Fri/Sat Hungry Patrons Price '
+                    + 'Raining Reservation Type WaitEstimate Wait')
 
 restaurant = RestaurantDataSet()
 
@@ -563,7 +563,7 @@ def Xor(n):
     return Parity(2, n, name="xor")
 
 def ContinuousXor(n):
-    "2 inputs are chosen uniformly form (0.0 .. 2.0]; output is xor of ints."
+    "2 inputs are chosen uniformly from (0.0 .. 2.0]; output is xor of ints."
     examples = []
     for i in range(n):
         x, y = [random.uniform(0.0, 2.0) for i in '12']

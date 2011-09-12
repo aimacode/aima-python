@@ -749,7 +749,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
         if probability(p):
             sym = random.choice(prop_symbols(clause))
         else:
-            ## Flip the symbol in clause that miximizes number of sat. clauses
+            ## Flip the symbol in clause that maximizes number of sat. clauses
             raise NotImplementedError
         model[sym] = not model[sym]
 
