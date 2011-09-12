@@ -287,7 +287,7 @@ def parse_neighbors(neighbors, vars=[]):
         dict[var] = []
     specs = [spec.split(':') for spec in neighbors.split(';')]
     for (A, Aneighbors) in specs:
-        A = A.strip();
+        A = A.strip()
         dict.setdefault(A, [])
         for B in Aneighbors.split():
             dict[A].append(B)

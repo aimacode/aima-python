@@ -320,7 +320,7 @@ class PermutationDecoder:
     common one-letter words, etc.); etc.
       We could represent a search state as a permutation of the 26 letters,
     and alter the solution through hill climbing.  With an initial guess
-    based on unigram probabilities, this would probably fair well. However,
+    based on unigram probabilities, this would probably fare well. However,
     I chose instead to have an incremental representation. A state is 
     represented as a letter-to-letter map; for example {'z': 'e'} to
     represent that 'z' will be translated to 'e'

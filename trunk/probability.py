@@ -104,7 +104,7 @@ class JointProbDist(ProbDist):
         if isinstance(values, dict):
             values = [values[var] for var in self.variables]
         self.prob[values] = p
-        for var,val in zip(self.variables, values):
+        for var, val in zip(self.variables, values):
             if val not in self.vals[var]:
                 self.vals[var].append(val)
 
