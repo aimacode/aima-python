@@ -392,8 +392,7 @@ class XYEnvironment (Environment):
         and object_added(obj, loc)."""
         self.observers.append(observer)
         
-    def turn_heading(self, heading, inc,
-                     headings=[(1, 0), (0, 1), (-1, 0), (0, -1)]):
+    def turn_heading(self, heading, inc, headings=orientations):
         "Return the heading to the left (inc=+1) or right (inc=-1) in headings."
         return headings[(headings.index(heading) + inc) % len(headings)]  
 
