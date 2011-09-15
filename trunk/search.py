@@ -247,7 +247,7 @@ def hill_climbing(problem):
     stopping when no neighbor is better. [Fig. 4.11]"""
     current = Node(problem.initial)
     while True:
-        neighbor = argmax(expand(node, problem), Node.value)
+        neighbor = argmax(current.expand(problem), Node.value)
         if neighbor.value() <= current.value():
             return current.state
         current = neighbor
@@ -263,7 +263,7 @@ def simulated_annealing(problem, schedule=exp_schedule()):
         T = schedule(t)
         if T == 0:
             return current
-        next = random.choice(expand(node. problem))
+        next = random.choice(current.expand(problem))
         delta_e = next.path_cost - current.path_cost
         if delta_e > 0 or probability(math.exp(delta_e/T)):
             current = next
