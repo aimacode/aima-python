@@ -160,6 +160,7 @@ class NaiveBayesLearner(Learner):
         Count how many times each value of each attribute occurs.
         Store count in N[targetvalue][attr][val]. Let N[attr][None] be the
         sum over all vals."""
+        self.dataset = dataset
         N = {}
         ## Initialize to 0
         for gv in self.dataset.values[self.dataset.target]:
@@ -446,7 +447,6 @@ def train_and_test(learner, dataset, start, end):
     examples = dataset.examples
     try:
         dataset.examples = examples[:start] + examples[end:]
-        learner.dataset = dataset 
         learner.train(dataset)
         return test(learner, dataset, examples[start:end])
     finally:
