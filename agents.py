@@ -443,7 +443,7 @@ class VacuumEnvironment (XYEnvironment):
         else:
             super(VacuumEnvironment, self).execute_action(agent, action)
 
-        if action != 'Nop':
+        if action != 'NoOp':
             agent.performance -= 1
 
 class TrivialVacuumEnvironment (Environment):
