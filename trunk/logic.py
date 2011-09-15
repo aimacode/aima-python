@@ -189,6 +189,9 @@ class Expr:
         return (other is self) or (isinstance(other, Expr) 
             and self.op == other.op and self.args == other.args)
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __hash__(self):
         "Need a hash method so Exprs can live in dicts."
         return hash(self.op) ^ hash(tuple(self.args))
