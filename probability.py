@@ -87,22 +87,22 @@ class JointProbDist(ProbDist):
     >>> P = JointProbDist(['X', 'Y']); P[1, 1] = 0.25
     >>> P[1, 1]
     0.25
+    >>> P[dict(X=0, Y=1)] = 0.5
+    >>> P[dict(X=0, Y=1)]
+    0.5
     """
     def __init__(self, variables):
         update(self, prob={}, variables=variables, vals=DefaultDict([]))
 
     def __getitem__(self, values):
         "Given a tuple or dict of values, return P(values)."
-        if isinstance(values, dict):
-            values = tuple([values[var] for var in self.variables])
-        return self.prob[values]
+        return self.prob[event_values(values, self.variables)]
 
     def __setitem__(self, values, p):
         """Set P(values) = p.  Values can be a tuple or a dict; it must
         have a value for each of the variables in the joint. Also keep track
         of the values we have seen so far for each variable."""
-        if isinstance(values, dict):
-            values = [values[var] for var in self.variables]
+        values = event_values(values, self.variables)
         self.prob[values] = p
         for var, val in zip(self.variables, values):
             if val not in self.vals[var]:
@@ -247,13 +247,16 @@ class BoolCpt:
 
         return (random() <= self.p(True, parents, event))
 
-def event_values (event, vars):
+def event_values(event, vars):
     """Return a tuple of the values of variables vars in event.
 
     >>> event_values ({'A': 10, 'B': 9, 'C': 8}, ['C', 'A'])
     (8, 10)
+    >>> event_values ((1, 2), ['C', 'A'])
+    (1, 2)
     """
-        
+    if isinstance(event, tuple) and len(event) == len(vars):
+        return event
     return tuple([event[parent] for parent in vars])
 
 
