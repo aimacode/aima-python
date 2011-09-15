@@ -218,13 +218,13 @@ class NearestNeighborLearner(Learner):
             ## Maintain a sorted list of (distance, example) pairs.
             ## For very large k, a PriorityQueue would be better
             best = [] 
-            for e in examples:
+            for e in self.dataset.examples:
                 d = self.distance(e, example)
-                if len(best) < k: 
-                    e.append((d, e))
+                if len(best) < self.k:
+                    best.append((d, e))
                 elif d < best[-1][0]:
                     best[-1] = (d, e)
-                    best.sort()
+                best.sort()
             return mode([e[self.dataset.target] for (d, e) in best])
 
     def distance(self, e1, e2):
