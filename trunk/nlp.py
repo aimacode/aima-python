@@ -46,7 +46,7 @@ class Grammar:
 E0 = Grammar('E0',
     Rules( # Grammar for E_0 [Fig. 22.4]
     S = 'NP VP | S Conjunction S',
-    NP = 'Pronoun | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',
+    NP = 'Pronoun | Name | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',
     VP = 'Verb | VP NP | VP Adjective | VP PP | VP Adverb',
     PP = 'Preposition NP',
     RelClause = 'That VP'),
