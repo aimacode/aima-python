@@ -41,7 +41,6 @@ class DataSet:
             self.examples = parse_csv(DataFile(name+'.csv').read())
         else:
             self.examples = examples
-        map(self.check_example, self.examples)
         # Attrs are the indices of examples, unless otherwise stated.
         if not attrs and self.examples:
             attrs = range(len(self.examples[0]))
@@ -68,6 +67,7 @@ class DataSet:
                            if a is not self.target and a not in exclude]
         if not self.values:
             self.values = map(unique, zip(*self.examples))
+        map(self.check_example, self.examples)
 
     def add_example(self, example):
         """Add an example to the list of examples, checking it first."""
