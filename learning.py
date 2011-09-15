@@ -62,7 +62,7 @@ class DataSet:
         self.target = self.attrnum(target)
         exclude = map(self.attrnum, exclude)
         if inputs:
-            self.inputs = removall(self.target, inputs)
+            self.inputs = removeall(self.target, inputs)
         else:
             self.inputs = [a for a in self.attrs
                            if a is not self.target and a not in exclude]
