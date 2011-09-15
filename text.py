@@ -330,8 +330,6 @@ class PermutationDecoder:
         self.Pwords = UnigramTextModel(words(training_text))
         self.P1 = UnigramTextModel(training_text) # By letter
         self.P2 = NgramTextModel(2, training_text) # By letter pair
-        if ciphertext:
-            return self.decode(ciphertext)
 
     def decode(self, ciphertext):
         "Search for a decoding of the ciphertext."
