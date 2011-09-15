@@ -58,11 +58,8 @@ class ProbDist:
 
     def normalize(self):
         """Make sure the probabilities of all values sum to 1.
-
         Returns the normalized distribution.
-
         Raises a ZeroDivisionError if the sum of the values is 0.
-        
         >>> P = ProbDist('Flip'); P['H'], P['T'] = 35, 65
         >>> P = P.normalize()
         >>> print '%5.3f %5.3f' % (P.prob['H'], P.prob['T'])
@@ -89,8 +86,7 @@ class JointProbDist(ProbDist):
     0.25
     >>> P[dict(X=0, Y=1)] = 0.5
     >>> P[dict(X=0, Y=1)]
-    0.5
-    """
+    0.5"""
     def __init__(self, variables):
         update(self, prob={}, variables=variables, vals=DefaultDict([]))
 
@@ -124,7 +120,6 @@ class BoolCpt:
     random variable conditioned on its parents."""
 
     def __init__(self, table_data):
-        
         """Initialize the table.
 
         table_data may have one of three forms, depending on the
@@ -148,12 +143,10 @@ class BoolCpt:
         >>> cpt = BoolCpt({T: 0.2, F: 0.7})
         >>> cpt = BoolCpt({(T, T): 0.2, (T, F): 0.3, (F, T): 0.5, (F, F): 0.7})
         """
-
         # A little work here makes looking up values MUCH simpler
         # later on.  We transform table_data into the standard form
         # of a dictionary {(value, ...): number, ...} even if
         # the tuple has just 0 or 1 value.
-        
         if type(table_data) == float: # no parents, 0-tuple
             self.table_data = {(): table_data}
         elif type(table_data) == dict:
@@ -171,7 +164,6 @@ class BoolCpt:
             raise Exception("wrong table_data type: %s" % table_data)
         
     def p(self, value, parent_vars, event):
-        
         """Return the conditional probability P(value | parent_vars =
         parent_values), where parent_values are the values of
         parent_vars in event.
@@ -197,15 +189,12 @@ class BoolCpt:
         0.375
         >>> BoolCpt(0.75).p(False, [], {})
         0.25
-
         """
-        
         return self.p_values(value, event_values(event, parent_vars))
 
     def p_values(self, xvalue, parent_values):
         """Return P(X = xvalue | parents = parent_values),
         where parent_values is a tuple, even if of only 0 or 1 element.
-
         >>> cpt = BoolCpt(0.25)
         >>> cpt.p_values(F, ())
         0.75
@@ -221,7 +210,6 @@ class BoolCpt:
         >>> cpt.p_values(F, (F, F))
         0.38
         """
-        
         ptrue = self.table_data[parent_values] # True or False
         if xvalue:
             return ptrue
@@ -244,12 +232,10 @@ class BoolCpt:
         >>> cpt.rand(['A', 'B'], {'A': True, 'B': False}) in [True, False]
         True
         """
-
         return (random() <= self.p(True, parents, event))
 
 def event_values(event, vars):
     """Return a tuple of the values of variables vars in event.
-
     >>> event_values ({'A': 10, 'B': 9, 'C': 8}, ['C', 'A'])
     (8, 10)
     >>> event_values ((1, 2), ['C', 'A'])
@@ -289,7 +275,6 @@ def enumerate_joint(vars, values, P):
 #______________________________________________________________________________
 
 class BayesNet:
-
     """Bayesian network containing only boolean variable nodes."""
     
     def __init__(self, nodes=[]):
@@ -306,11 +291,8 @@ class BayesNet:
 
     def variable_node(self, var):
         """Returns the node for the variable named var.
-
         >>> burglary.variable_node('Burglary').variable
-        'Burglary'
-        """
-        
+        'Burglary'"""
         for n in self.nodes:
             if n.variable == var:
                 return n
@@ -318,11 +300,8 @@ class BayesNet:
 
     def variables(self):
         """Returns the list of names of the variables.
-
         >>> burglary.variables()
-        ['Burglary', 'Earthquake', 'Alarm', 'JohnCalls', 'MaryCalls']
-        """
-        
+        ['Burglary', 'Earthquake', 'Alarm', 'JohnCalls', 'MaryCalls']"""
         return [n.variable for n in self.nodes]
     
     def variable_values(self, var):
@@ -366,9 +345,7 @@ def enumeration_ask (X, e, bn):
     >>> p = enumeration_ask('Burglary',
     ...   {'JohnCalls': True, 'MaryCalls': True}, burglary)
     >>> p.show_approx()
-    'False: 0.716, True: 0.284'
-    """
-
+    'False: 0.716, True: 0.284'"""
     Q = ProbDist(X) # empty probability distribution for X
     for xi in bn.variable_values(X):
         Q[xi] = enumerate_all(bn.variables(), extend(e, X, xi), bn)
@@ -487,7 +464,6 @@ def rejection_sampling (X, e, bn, N):
     >>> p.show_approx()
     'False: 0.7, True: 0.3'
     """
-
     counts = {True: 0, False: 0} # boldface N in Fig. 14.13
 
     for j in xrange(N):
@@ -542,7 +518,6 @@ def likelihood_weighting (X, e, bn, N):
     >>> p.show_approx()
     'False: 0.702, True: 0.298'
     """
-
     weights = {True: 0.0, False: 0.0} # boldface W in Fig. 14.14
 
     for j in xrange(N):
