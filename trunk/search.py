@@ -46,7 +46,7 @@ class Problem (object):
         and action. The default method costs 1 for every step in the path."""
         return c + 1
 
-    def value(self):
+    def value(self, state):
         """For optimization problems, each state has a value.  Hill-climbing
         and related algorithms try to maximize this value."""
         abstract
@@ -247,10 +247,14 @@ def hill_climbing(problem):
     stopping when no neighbor is better. [Fig. 4.11]"""
     current = Node(problem.initial)
     while True:
-        neighbor = argmax(current.expand(problem), Node.value)
-        if neighbor.value() <= current.value():
-            return current.state
+        neighbors = current.expand(problem)
+        if not neighbors:
+            break
+        neighbor = argmax(neighbors, lambda node: problem.value(node.state))
+        if problem.value(neighbor.state) <= problem.value(current.state):
+            break
         current = neighbor
+    return current.state
 
 def exp_schedule(k=20, lam=0.005, limit=100):
     "One possible schedule function for simulated annealing"
@@ -263,8 +267,11 @@ def simulated_annealing(problem, schedule=exp_schedule()):
         T = schedule(t)
         if T == 0:
             return current
-        next = random.choice(current.expand(problem))
-        delta_e = next.path_cost - current.path_cost
+        neighbors = current.expand(problem)
+        if not neighbors:
+            return current
+        next = random.choice(neighbors)
+        delta_e = problem.value(next.state) - problem.value(current.state)
         if delta_e > 0 or probability(math.exp(delta_e/T)):
             current = next
 
