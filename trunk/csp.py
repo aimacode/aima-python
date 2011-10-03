@@ -98,8 +98,15 @@ class CSP(search.Problem):
 
     ## These are for constraint propagation
 
+    def support_pruning(self):
+        """Make sure we can prune values from domains. (We want to pay
+        for this only if we use it.)"""
+        if self.curr_domains is None:
+            self.curr_domains = dict((v, self.domains[v][:]) for v in self.vars)
+
     def suppose(self, var, value):
         "Start accumulating inferences from assuming var=value."
+        self.support_pruning()
         removals = [(var, a) for a in self.curr_domains[var] if a != value]
         self.curr_domains[var] = [value]
         return removals
@@ -117,6 +124,12 @@ class CSP(search.Problem):
         "Undo all inferences from a supposition."
         for B, b in removals:
             self.curr_domains[B].append(b)
+
+    def infer_assignment(self):
+        "Return the partial assignment implied by the current inferences."
+        self.support_pruning()
+        return dict((v, self.curr_domains[v][0]) 
+                    for v in self.vars if 1 == len(self.curr_domains[v]))
 
     ## This is for min_conflicts search
 
@@ -232,6 +245,7 @@ def AC3(csp, queue=None, removals=None):
     """[Fig. 5.7]"""
     if queue is None:
         queue = [(Xi, Xk) for Xi in csp.vars for Xk in csp.neighbors[Xi]]
+    csp.support_pruning()
     while queue:
         (Xi, Xj) = queue.pop()
         if remove_inconsistent_values(csp, Xi, Xj, removals):
@@ -417,6 +431,73 @@ class NQueensCSP(CSP):
                 else: ch = ' '
                 print str(self.nconflicts(var, val, assignment))+ch, 
             print        
+
+#______________________________________________________________________________
+# Sudoku
+
+import itertools, re
+
+def flatten(seqs): return sum(seqs, [])
+
+easy1   = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'
+harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
+
+class Sudoku(CSP):
+    """A Sudoku problem.
+    The box grid is a 3x3 array of boxes, each a 3x3 array of cells.
+    Each cell holds a digit in 1..9. In each box, all digits are
+    different; the same for each row and column as a 9x9 grid.
+    >>> e = Sudoku(easy1)
+    >>> e.display(e.infer_assignment())
+    . . 3 | . 2 . | 6 . .
+    9 . . | 3 . 5 | . . 1
+    . . 1 | 8 . 6 | 4 . .
+    ------+-------+------
+    . . 8 | 1 . 2 | 9 . .
+    7 . . | . . . | . . 8
+    . . 6 | 7 . 8 | 2 . .
+    ------+-------+------
+    . . 2 | 6 . 9 | 5 . .
+    8 . . | 2 . 3 | . . 9
+    . . 5 | . 1 . | 3 . .
+    >>> AC3(e); e.display(e.infer_assignment())
+    4 8 3 | 9 2 1 | 6 5 7
+    9 6 7 | 3 4 5 | 8 2 1
+    2 5 1 | 8 7 6 | 4 9 3
+    ------+-------+------
+    5 4 8 | 1 3 2 | 9 7 6
+    7 2 9 | 5 6 4 | 1 3 8
+    1 3 6 | 7 9 8 | 2 4 5
+    ------+-------+------
+    3 7 2 | 6 8 9 | 5 1 4
+    8 1 4 | 2 5 3 | 7 6 9
+    6 9 5 | 4 1 7 | 3 8 2
+    >>> h = Sudoku(harder1)
+    >>> None != backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking)
+    True
+    """
+    R3 = range(3)
+    Cell = itertools.count().next
+    bgrid = [[[[Cell() for x in R3] for y in R3] for bx in R3] for by in R3]
+    boxes = flatten([map(flatten, brow)       for brow in bgrid])
+    rows  = flatten([map(flatten, zip(*brow)) for brow in bgrid])
+    units = map(set, boxes + rows + zip(*rows))
+    neighbors = dict([(v, set.union(*[u for u in units if v in u]) - set([v]))
+                      for v in flatten(rows)])
+
+    def __init__(self, grid):
+        squares = re.findall(r'\d|\.', grid)
+        domains = dict((var, [int(ch)] if ch.isdigit() else range(1, 10))
+                       for var, ch in zip(flatten(self.rows), squares))
+        CSP.__init__(self, None, domains, self.neighbors,
+                     different_values_constraint)
+
+    def display(self, assignment):
+        def show_box(box): return [' '.join(map(show_cell, row)) for row in box]
+        def show_cell(cell): return str(assignment.get(cell, '.'))
+        def abut(lines1, lines2): return map(' | '.join, zip(lines1, lines2))
+        print '\n------+-------+------\n'.join(
+            '\n'.join(reduce(abut, map(show_box, brow))) for brow in self.bgrid)
 
 #______________________________________________________________________________
 # The Zebra Puzzle
