@@ -33,8 +33,8 @@ class CSP(search.Problem):
         curr_domains[var]       Slot: remaining consistent values for var
                                 Used by constraint propagation routines.
     The following methods are used only by graph_search and tree_search:
-        successor(a)            Return a list of (action, state) pairs
-        goal_test(a)            Return true if all constraints satisfied
+        successor(state)        Return a list of (action, state) pairs
+        goal_test(state)        Return true if all constraints satisfied
     The following are just for debugging purposes:
         nassigns                Slot: tracks the number of assignments made
         display(a)              Print a human-readable representation
@@ -48,27 +48,18 @@ class CSP(search.Problem):
         vars = vars or domains.keys()
         update(self, vars=vars, domains=domains,
                neighbors=neighbors, constraints=constraints,
-               initial=(), curr_domains=None, pruned=None, nassigns=0)
+               initial=(), curr_domains=None, nassigns=0)
         
     def assign(self, var, val, assignment):
-        """Add {var: val} to assignment; Discard the old value if any.
-        Do bookkeeping for curr_domains and nassigns."""
-        self.nassigns += 1
+        "Add {var: val} to assignment; Discard the old value if any."
         assignment[var] = val
-        if self.curr_domains:
-            if self.fc:
-                self.forward_check(var, val, assignment)
-            if self.mac:
-                AC3(self, [(Xk, var) for Xk in self.neighbors[var]])
+        self.nassigns += 1
 
     def unassign(self, var, assignment):
-        """Remove {var: val} from assignment; that is backtrack.
+        """Remove {var: val} from assignment.
         DO NOT call this if you are changing a variable to a new value;
         just call assign for that."""
         if var in assignment:
-            # Reset the curr_domain to be the full original domain
-            if self.curr_domains:
-                self.curr_domains[var] = self.domains[var][:]
             del assignment[var]
 
     def nconflicts(self, var, val, assignment):
@@ -78,21 +69,6 @@ class CSP(search.Problem):
             val2 = assignment.get(var2, None)
             return val2 != None and not self.constraints(var, val, var2, val2)
         return count_if(conflict, self.neighbors[var])
-
-    def forward_check(self, var, val, assignment):
-        "Do forward checking (current domain reduction) for this assignment."
-        if self.curr_domains:
-            # Restore prunings from previous value of var
-            for (B, b) in self.pruned[var]:
-                self.curr_domains[B].append(b)
-            self.pruned[var] = []
-            # Prune any other B=b assignments that conflict with var=val
-            for B in self.neighbors[var]:
-                if B not in assignment:
-                    for b in self.curr_domains[B][:]:
-                        if not self.constraints(var, val, B, b):
-                            self.curr_domains[B].remove(b)
-                            self.pruned[var].append((B, b))
 
     def display(self, assignment):
         "Show a human-readable representation of the CSP."
@@ -108,11 +84,9 @@ class CSP(search.Problem):
         else:
             assignment = dict(state)
             var = find_if(lambda v: v not in assignment, self.vars)
-            result = []
-            for val in self.domains[var]:
-                if self.nconflicts(var, val, assignment) == 0:
-                    result.append(((var, val), state + ((var, val),)))
-            return result
+            return [((var, val), state + ((var, val),))
+                    for val in self.domains[var]
+                    if self.nconflicts(var, val, assignment) == 0]
 
     def goal_test(self, state):
         "The goal is to assign all vars, with all constraints satisfied."
@@ -121,6 +95,28 @@ class CSP(search.Problem):
                 every(lambda var: self.nconflicts(var, assignment[var],
                                                   assignment) == 0,
                       self.vars))
+
+    ## These are for constraint propagation
+
+    def suppose(self, var, value):
+        "Start accumulating inferences from assuming var=value."
+        removals = [(var, a) for a in self.curr_domains[var] if a != value]
+        self.curr_domains[var] = [value]
+        return removals
+
+    def prune(self, var, value, removals):
+        "Rule out var=value."
+        self.curr_domains[var].remove(value)
+        if removals is not None: removals.append((var, value))
+
+    def choices(self, var):
+        "Return all values for var that aren't currently ruled out."
+        return (self.curr_domains or self.domains)[var]
+
+    def restore(self, removals):
+        "Undo all inferences from a supposition."
+        for B, b in removals:
+            self.curr_domains[B].append(b)
 
     ## This is for min_conflicts search
 
@@ -131,62 +127,18 @@ class CSP(search.Problem):
 
 #______________________________________________________________________________
 # CSP Backtracking Search
-                
-def backtracking_search(csp, mcv=False, lcv=False, fc=False, mac=False):
-    """Set up to do recursive backtracking search. Allow the following options:
-    mcv - If true, use Most Constrained Variable Heuristic
-    lcv - If true, use Least Constraining Value Heuristic
-    fc  - If true, use Forward Checking
-    mac - If true, use Maintaining Arc Consistency.              [Fig. 5.3]
-    >>> backtracking_search(australia)
-    {'WA': 'B', 'Q': 'B', 'T': 'B', 'V': 'B', 'SA': 'G', 'NT': 'R', 'NSW': 'R'}
-    """
-    if fc or mac:
-        csp.curr_domains, csp.pruned = {}, {}
-        for v in csp.vars:
-            csp.curr_domains[v] = csp.domains[v][:]
-            csp.pruned[v] = []
-    update(csp, mcv=mcv, lcv=lcv, fc=fc, mac=mac)
-    return recursive_backtracking({}, csp)
 
-def recursive_backtracking(assignment, csp):
-    """Search for a consistent assignment for the csp.
-    Each recursive call chooses a variable, and considers values for it."""
-    if len(assignment) == len(csp.vars):
-        return assignment
-    var = select_unassigned_variable(assignment, csp)
-    for val in order_domain_values(var, assignment, csp):
-        if csp.fc or csp.nconflicts(var, val, assignment) == 0:
-            csp.assign(var, val, assignment)
-            result = recursive_backtracking(assignment, csp)
-            if result is not None:
-                return result
-        csp.unassign(var, assignment)
-    return None
+## Variable ordering
 
-def select_unassigned_variable(assignment, csp):
-    "Select the variable to work on next.  Find"
-    if csp.mcv: # Most Constrained Variable 
-        unassigned = [v for v in csp.vars if v not in assignment] 
-        return argmin_random_tie(unassigned,
-                     lambda var: -num_legal_values(csp, var, assignment))
-    else: # First unassigned variable
-        for v in csp.vars:
-            if v not in assignment:
-                return v
+def first_unassigned_variable(assignment, csp):
+    "The default variable order."
+    return find_if(lambda var: var not in assignment, csp.vars)
 
-def order_domain_values(var, assignment, csp):
-    "Decide what order to consider the domain variables."
-    if csp.curr_domains:
-        domain = csp.curr_domains[var]
-    else:
-        domain = csp.domains[var][:]
-    if csp.lcv:
-        # If LCV is specified, consider values with fewer conflicts first
-        key = lambda val: csp.nconflicts(var, val, assignment)
-        domain.sort(lambda x, y: cmp(key(x), key(y)))
-    while domain:
-        yield domain.pop()
+def mrv(assignment, csp):
+    "Minimum-remaining-values heuristic."
+    return argmin_random_tie(
+        [v for v in csp.vars if v not in assignment],
+        lambda var: num_legal_values(csp, var, assignment))
 
 def num_legal_values(csp, var, assignment):
     if csp.curr_domains:
@@ -195,37 +147,115 @@ def num_legal_values(csp, var, assignment):
         return count_if(lambda val: csp.nconflicts(var, val, assignment) == 0,
                         csp.domains[var])
 
+## Value ordering
+
+def unordered_domain_values(var, assignment, csp):
+    "The default value order."
+    return csp.choices(var)
+
+def lcv(var, assignment, csp):
+    "Least-constraining-values heuristic."
+    return sorted(csp.choices(var),
+                  key=lambda val: csp.nconflicts(var, val, assignment))
+
+## Inference
+
+def no_inference(assignment, csp, var, value):
+    return []
+
+def forward_checking(assignment, csp, var, value):
+    "Prune neighbor values inconsistent with var=value."
+    removals = csp.suppose(var, value)
+    for B in csp.neighbors[var]:
+        if B not in assignment:
+            for b in csp.curr_domains[B][:]:
+                if not csp.constraints(var, value, B, b):
+                    csp.prune(B, b, removals)
+    return removals
+
+def mac(assignment, csp, var, value):
+    "Maintain arc consistency."
+    removals = csp.suppose(var, value)
+    AC3(csp, [(X, var) for X in csp.neighbors[var]], removals)
+    return removals
+
+## The search, proper
+
+def backtracking_search(csp,
+                        select_unassigned_variable = first_unassigned_variable,
+                        order_domain_values = unordered_domain_values,
+                        inference = no_inference):
+    """Fig. 6.5 (3rd edition)
+    >>> backtracking_search(australia) is not None
+    True
+    >>> backtracking_search(australia, select_unassigned_variable=mrv) is not None
+    True
+    >>> backtracking_search(australia, order_domain_values=lcv) is not None
+    True
+    >>> backtracking_search(australia, select_unassigned_variable=mrv, order_domain_values=lcv) is not None
+    True
+    >>> backtracking_search(australia, inference=forward_checking) is not None
+    True
+    >>> backtracking_search(australia, inference=mac) is not None
+    True
+    >>> backtracking_search(usa, select_unassigned_variable=mrv, order_domain_values=lcv, inference=mac) is not None
+    True
+    """
+
+    if inference is not no_inference:
+        csp.curr_domains = dict((v, csp.domains[v][:])
+                                for v in csp.vars)
+
+    def backtrack(assignment):
+        if len(assignment) == len(csp.vars):
+            return assignment
+        var = select_unassigned_variable(assignment, csp)
+        for value in order_domain_values(var, assignment, csp):
+            if 0 == csp.nconflicts(var, value, assignment):
+                csp.assign(var, value, assignment)
+                removals = inference(assignment, csp, var, value)
+                result = backtrack(assignment)
+                if result is not None:
+                    return result
+                csp.restore(removals)
+                csp.unassign(var, assignment)
+        return None
+
+    result = backtrack({})
+    assert result is None or csp.goal_test(result)
+    return result
+                
 #______________________________________________________________________________
 # Constraint Propagation with AC-3
 
-def AC3(csp, queue=None):
+def AC3(csp, queue=None, removals=None):
     """[Fig. 5.7]"""
-    if queue == None:
+    if queue is None:
         queue = [(Xi, Xk) for Xi in csp.vars for Xk in csp.neighbors[Xi]]
     while queue:
         (Xi, Xj) = queue.pop()
-        if remove_inconsistent_values(csp, Xi, Xj):
+        if remove_inconsistent_values(csp, Xi, Xj, removals):
             for Xk in csp.neighbors[Xi]:
                 queue.append((Xk, Xi))
 
-def remove_inconsistent_values(csp, Xi, Xj):
+def remove_inconsistent_values(csp, Xi, Xj, removals):
     "Return true if we remove a value."
     removed = False
     for x in csp.curr_domains[Xi][:]:
         # If Xi=x conflicts with Xj=y for every possible y, eliminate Xi=x
         if every(lambda y: not csp.constraints(Xi, x, Xj, y),
                  csp.curr_domains[Xj]):
-            csp.curr_domains[Xi].remove(x)
+            csp.prune(Xi, x, removals)
             removed = True
     return removed
 
 #______________________________________________________________________________
 # Min-conflicts hillclimbing search for CSPs
 
-def min_conflicts(csp, max_steps=1000000): 
+def min_conflicts(csp, max_steps=100000):
     """Solve a CSP by stochastic hillclimbing on the number of conflicts."""
     # Generate a complete assignment for all vars (probably with conflicts)
-    current = {}; csp.current = current
+    csp.current = current = {}
     for var in csp.vars:
         val = min_conflicts_value(csp, var, current)
         csp.assign(var, val, current)
