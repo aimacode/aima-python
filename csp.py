@@ -215,10 +215,6 @@ def backtracking_search(csp,
     True
     """
 
-    if inference is not no_inference:
-        csp.curr_domains = dict((v, csp.domains[v][:])
-                                for v in csp.vars)
-
     def backtrack(assignment):
         if len(assignment) == len(csp.vars):
             return assignment
