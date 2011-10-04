@@ -287,6 +287,7 @@ def is_literal(s):
     >>> is_literal(expr('x'))   # XXX I guess this is intended?
     True
     """
+#XXX    return is_symbol(s.op) or (s.op == '~' and is_literal(s.args[0]))
     return is_symbol(s.op) or (s.op == '~' and is_symbol(s.args[0].op))
 
 def literals(s):
@@ -372,7 +373,7 @@ def tt_check_all(kb, alpha, symbols, model):
     if not symbols:
         if pl_true(kb, model): return pl_true(alpha, model)
         else: return True
-        assert result != None
+        assert result is not None
     else:
         P, rest = symbols[0], symbols[1:]
         return (tt_check_all(kb, alpha, rest, extend(model, P, True)) and
@@ -385,11 +386,8 @@ def prop_symbols(x):
     elif is_prop_symbol(x.op):
         return [x]
     else:
-        s = set(())
-        for arg in x.args:
-            for symbol in prop_symbols(arg):
-                s.add(symbol)
-        return list(s)
+        return list(set(symbol for arg in x.args
+                        for symbol in prop_symbols(arg)))
 
 def tt_true(alpha):
     """Is the sentence alpha a tautology? (alpha will be coerced to an expr.)
@@ -412,21 +410,21 @@ def pl_true(exp, model={}):
         return model.get(exp)
     elif op == '~':
         p = pl_true(args[0], model)
-        if p == None: return None
+        if p is None: return None
         else: return not p
     elif op == '|':
         result = False
         for arg in args:
             p = pl_true(arg, model)
-            if p == True: return True
-            if p == None: result = None
+            if p is True: return True
+            if p is None: result = None
         return result
     elif op == '&':
         result = True
         for arg in args:
             p = pl_true(arg, model)
-            if p == False: return False
-            if p == None: result = None
+            if p is False: return False
+            if p is None: result = None
         return result
     p, q = args
     if op == '>>':
@@ -434,9 +432,9 @@ def pl_true(exp, model={}):
     elif op == '<<':
         return pl_true(p | ~q, model)
     pt = pl_true(p, model)
-    if pt == None: return None
+    if pt is None: return None
     qt = pl_true(q, model)
-    if qt == None: return None
+    if qt is None: return None
     if op == '<=>':
         return pt == qt
     elif op == '^':
@@ -589,7 +587,7 @@ def disjuncts(s):
 #______________________________________________________________________________
 
 def pl_resolution(KB, alpha):
-    "Propositional Logic Resolution: say if alpha follows from KB. [Fig. 7.12]"
+    "Propositional-logic resolution: say if alpha follows from KB. [Fig. 7.12]"
     clauses = KB.clauses + conjuncts(to_cnf(~alpha))
     new = set()
     while True:
@@ -623,19 +621,18 @@ def pl_resolve(ci, cj):
 #______________________________________________________________________________
 
 class PropHornKB(PropKB):
-    "A KB of Propositional Horn clauses."
+    "A KB of propositional Horn clauses."
 
     def tell(self, sentence):
-        "Add a Horn Clauses to this KB."
+        "Add a Horn clause to this KB."
         op = sentence.op
-        assert op == '>>' or is_prop_symbol(op), "Must be Horn Clause"
+        assert op == '>>' or is_prop_symbol(op), "Must be Horn clause" # XXX use is_definite_clause?
         self.clauses.append(sentence)
 
     def ask_generator(self, query): 
-        "Yield the empty substitution if KB implies query; else False"
-        if not pl_fc_entails(self.clauses, query):
-            return
-        yield {}
+        "Yield the empty substitution if KB implies query."
+        if pl_fc_entails(self.clauses, query):
+            yield {}
 
     def retract(self, sentence):
         "Remove the sentence's clauses from the KB"
@@ -644,16 +641,17 @@ class PropHornKB(PropKB):
                 self.clauses.remove(c)
 
     def clauses_with_premise(self, p):
-        """The list of clauses in KB that have p in the premise.
+        """Return a list of the clauses in KB that have p in their premise.
         This could be cached away for O(1) speed, but we'll recompute it."""
         return [c for c in self.clauses 
-                if c.op == '>>' and p in conjuncts(c.args[0])]
+                if c.op == '>>' and p in conjuncts(c.args[0])] # XXX use parse_definite_clause?
 
 def pl_fc_entails(KB, q):
     """Use forward chaining to see if a HornKB entails symbol q. [Fig. 7.14]
     >>> pl_fc_entails(Fig[7,15], expr('Q'))
     True
     """
+    # XXX use parse_definite_clause?
     count = dict([(c, len(conjuncts(c.args[0]))) for c in KB.clauses
                                                  if c.op == '>>'])
     inferred = DefaultDict(False)
@@ -714,7 +712,7 @@ def dpll(clauses, symbols, model):
     P, value = find_unit_clause(clauses, model)
     if P:
         return dpll(clauses, removeall(P, symbols), extend(model, P, value))
-    P = symbols.pop()
+    P = symbols.pop()           # XXX is this side-effect more global than desired?
     return (dpll(clauses, symbols, extend(model, P, True)) or
             dpll(clauses, symbols, extend(model, P, False)))
  
@@ -784,8 +782,9 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
             raise NotImplementedError
         model[sym] = not model[sym]
 
-
+#______________________________________________________________________________
 # PL-Wumpus-Agent [Fig. 7.19]
+
 class PLWumpusAgent(agents.Agent):
     "An agent for the wumpus world that does logical inference. [Fig. 7.19]"""
     def __init__(self):
@@ -807,7 +806,7 @@ class PLWumpusAgent(agents.Agent):
                     if KB.ask('~P_%d,%d & ~W_%d,%d' % (i, j, i, j)) != False:
                         raise NotImplementedError
                     KB.ask('~P_%d,%d | ~W_%d,%d' % (i, j, i, j)) != False 
-            if action == None: 
+            if action is None: 
                 action = random.choice(['Forward', 'Right', 'Left'])
             return action
 
@@ -831,7 +830,7 @@ def unify(x, y, s):
     >>> ppsubst(unify(x + y, y + C, {}))
     {x: y, y: C}
     """
-    if s == None:
+    if s is None:
         return None
     elif x == y:
         return s
@@ -865,30 +864,19 @@ def unify_var(var, x, s):
 def occur_check(var, x, s):
     """Return true if variable var occurs anywhere in x
     (or in subst(s, x), if s has a binding for x)."""
-
     if var == x:
         return True
     elif is_variable(x) and s.has_key(x):
-        return occur_check(var, s[x], s) # fixed
-    # What else might x be?  an Expr, a list, a string?
+        return occur_check(var, s[x], s)
     elif isinstance(x, Expr):
-        # Compare operator and arguments
         return (occur_check(var, x.op, s) or
                 occur_check(var, x.args, s))
-    elif isinstance(x, list) and x != []:
-        # Compare first and rest
-        return (occur_check(var, x[0], s) or
-                occur_check(var, x[1:], s))
+    elif isinstance(x, list):
+        return any(occur_check(var, element, s)
+                   for element in x)
     else:
-        # A variable cannot occur in a string
+        assert isinstance(x, (str, int)), x
         return False
-    
-    #elif isinstance(x, Expr):
-    #    return var.op == x.op or occur_check(var, x.args)
-    #elif not isinstance(x, str) and issequence(x):
-    #    for xi in x:
-    #        if occur_check(var, xi): return True
-    #return False
 
 def extend(s, var, val):
     """Copy the substitution s and extend it by setting var to val;
