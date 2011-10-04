@@ -287,7 +287,6 @@ def is_literal(s):
     >>> is_literal(expr('x'))   # XXX I guess this is intended?
     True
     """
-#XXX    return is_symbol(s.op) or (s.op == '~' and is_literal(s.args[0]))
     return is_symbol(s.op) or (s.op == '~' and is_symbol(s.args[0].op))
 
 def literals(s):
@@ -788,7 +787,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 class PLWumpusAgent(agents.Agent):
     "An agent for the wumpus world that does logical inference. [Fig. 7.19]"""
     def __init__(self):
-        KB = FOLKB() ## shouldn't this be a propositional KB? ***
+        KB = FolKB() ## shouldn't this be a propositional KB? ***
         x, y, orientation = 1, 1, (1, 0)
         visited = set() ## squares already visited
         action = None
@@ -843,8 +842,7 @@ def unify(x, y, s):
     elif isinstance(x, str) or isinstance(y, str) or not x or not y:
         # orig. return if_(x == y, s, None) but we already know x != y
         return None
-    elif issequence(x) and issequence(y) and len(x) == len(y):
-        # Assert neither x nor y is []
+    elif issequence(x) and issequence(y) and len(x) == len(y) and x:
         return unify(x[1:], y[1:], unify(x[0], y[0], s))
     else:
         return None
@@ -871,11 +869,10 @@ def occur_check(var, x, s):
     elif isinstance(x, Expr):
         return (occur_check(var, x.op, s) or
                 occur_check(var, x.args, s))
-    elif isinstance(x, list):
+    elif isinstance(x, (list, tuple)):
         return any(occur_check(var, element, s)
                    for element in x)
     else:
-        assert isinstance(x, (str, int)), x
         return False
 
 def extend(s, var, val):
