@@ -333,10 +333,17 @@ def is_definite_clause(s):
     True
     >>> is_definite_clause(expr('(Farmer(f) & ~Rabbit(r)) ==> Hates(f, r)'))
     False
+    >>> is_definite_clause(expr('(Farmer(f) | Rabbit(r)) ==> Hates(f, r)'))
+    False
     """
-    op = s.op
-    return (is_symbol(op) or
-            (op == '>>' and every(is_positive, literals(s))))
+    if is_symbol(s.op): return True
+    if s.op != '>>': return False
+    antecedent, consequent = s.args
+    antecedent = NaryExpr('&', antecedent)
+    return (is_symbol(consequent.op)
+            and (is_symbol(antecedent.op)
+                 or (antecedent.op == '&'
+                     and all(is_symbol(arg.op) for arg in antecedent.args))))
 
 ## Useful constant Exprs used in examples and code:
 TRUE, FALSE, ZERO, ONE, TWO = map(Expr, ['TRUE', 'FALSE', 0, 1, 2]) 
@@ -996,7 +1003,7 @@ test_kb = FolKB(
                ])
 )
 
-               
+
 def fol_bc_ask(KB, goals, theta={}):
     """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
     KB should be an instance of FolKB, and goals a list of literals.
