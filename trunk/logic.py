@@ -911,7 +911,7 @@ def fol_fc_ask(KB, alpha):
             ps, q = conjuncts(r.args[0]), r.args[1]
             raise NotImplementedError
 
-def standardize_apart(sentence, dic={}):
+def standardize_apart(sentence, dic=None):
     """Replace all the variables in sentence with new variables.
     >>> e = expr('F(a, b, c) & G(c, A, 23)')
     >>> len(variables(standardize_apart(e)))
@@ -921,6 +921,7 @@ def standardize_apart(sentence, dic={}):
     >>> is_variable(standardize_apart(expr('x')))
     True
     """
+    if dic is None: dic = {}
     if not isinstance(sentence, Expr):
         return sentence
     elif is_var_symbol(sentence.op): 
@@ -994,8 +995,8 @@ test_kb = FolKB(
                '(Mother(m, h) & Human(h)) ==> Human(m)'
                ])
 )
+
                
-    
 def fol_bc_ask(KB, goals, theta={}):
     """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
     KB should be an instance of FolKB, and goals a list of literals.
@@ -1005,7 +1006,7 @@ def fol_bc_ask(KB, goals, theta={}):
     >>> test_ask('Human(x)')
     ['{x: Mac}', '{x: MrsMac}']
     >>> test_ask('Hates(x, y)')
-    ['{x: Mac, y: Pete}']
+    ['{x: Mac, y: MrsRabbit}', '{x: Mac, y: Pete}']
     >>> test_ask('Loves(x, y)')
     ['{x: MrsMac, y: Mac}', '{x: MrsRabbit, y: Pete}']
     >>> test_ask('Rabbit(x)')
@@ -1038,7 +1039,7 @@ def fol_bc_ask(KB, goals, theta={}):
                 new_goals = goals[1:]
             else:
                 new_goals = conjuncts(body) + goals[1:]
-            
+
             for ans in fol_bc_ask(KB, new_goals, subst_compose(theta1, theta)):
                 yield ans
 
