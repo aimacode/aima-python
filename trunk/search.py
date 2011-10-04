@@ -493,7 +493,7 @@ class NQueensProblem(Problem):
 
     def conflicted(self, state, row, col):
         "Would placing a queen at (row, col) conflict with anything?"
-        for c in range(col): # Fixed subtle bug: range(col-1) is 0..n-2
+        for c in range(col):
             if self.conflict(row, col, state[c], c):
                 return True
         return False
