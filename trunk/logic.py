@@ -345,6 +345,16 @@ def is_definite_clause(s):
                  or (antecedent.op == '&'
                      and all(is_symbol(arg.op) for arg in antecedent.args))))
 
+def parse_definite_clause(s):
+    "Return the antecedents and the consequent of a definite clause."
+    assert is_definite_clause(s)
+    if is_symbol(s.op):
+        return [], s
+    antecedent, consequent = s.args
+    antecedent = NaryExpr('&', antecedent)
+    antecedents = antecedent.args if antecedent.op == '&' else [antecedent]
+    return antecedents, consequent
+
 ## Useful constant Exprs used in examples and code:
 TRUE, FALSE, ZERO, ONE, TWO = map(Expr, ['TRUE', 'FALSE', 0, 1, 2]) 
 A, B, C, F, G, P, Q, x, y, z  = map(Expr, 'ABCFGPQxyz') 
@@ -914,8 +924,7 @@ def fol_fc_ask(KB, alpha):
     while True:
         new = {}
         for r in KB.clauses:
-            r1 = standardize_apart(r)
-            ps, q = conjuncts(r.args[0]), r.args[1]
+            ps, q = parse_definite_clause(standardize_apart(r))
             raise NotImplementedError
 
 def standardize_apart(sentence, dic=None):
@@ -947,7 +956,6 @@ standardize_apart.counter = 0
 
 #______________________________________________________________________________
 
-
 class FolKB (KB):
     """A knowledge base consisting of first-order definite clauses
     >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Pete)'),
@@ -977,10 +985,10 @@ class FolKB (KB):
     def retract(self, sentence):
         self.clauses.remove(sentence)
 
-def test_ask(q):
+def test_ask(q, kb=None):
     e = expr(q)
     vars = variables(e)
-    ans = fol_bc_ask(test_kb, [e])
+    ans = fol_bc_ask(kb or test_kb, [e])
     res = []
     for a in ans:
         res.append(pretty(dict([(x, v) for (x, v) in a.items() if x in vars])))
@@ -1003,11 +1011,22 @@ test_kb = FolKB(
                ])
 )
 
-
+crime_kb = FolKB(
+  map(expr,
+    ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+     'Owns(Nono, M1)',
+     'Missile(M1)',
+     '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+     'Missile(x) ==> Weapon(x)',
+     'Enemy(x, America) ==> Hostile(x)',
+     'American(West)',
+     'Enemy(Nono, America)'
+     ])
+)
+    
 def fol_bc_ask(KB, goals, theta={}):
     """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
     KB should be an instance of FolKB, and goals a list of literals.
-
     >>> test_ask('Farmer(x)')
     ['{x: Mac}']
     >>> test_ask('Human(x)')
@@ -1018,39 +1037,20 @@ def fol_bc_ask(KB, goals, theta={}):
     ['{x: MrsMac, y: Mac}', '{x: MrsRabbit, y: Pete}']
     >>> test_ask('Rabbit(x)')
     ['{x: MrsRabbit}', '{x: Pete}']
+    >>> test_ask('Criminal(x)', crime_kb)
+    ['{x: West}']
     """
-
-    if goals == []:
+    if not goals:
         yield theta
-        raise StopIteration()
-    
+        return
     q1 = subst(theta, goals[0])
-
     for r in KB.clauses:
-        sar = standardize_apart(r)
-        
-        # Split into head and body
-        if is_symbol(sar.op):
-            head = sar
-            body = []
-        elif sar.op == '>>': # sar = (Body1 & Body2 & ...) >> Head
-            head = sar.args[1]
-            body = sar.args[0] # as conjunction
-        else:
-            raise Exception("Invalid clause in FolKB: %s" % r)
-
-        theta1 = unify(head, q1, {})
-
+        ps, q = parse_definite_clause(standardize_apart(r))
+        theta1 = unify(q, q1, {})
         if theta1 is not None:
-            if body == []:
-                new_goals = goals[1:]
-            else:
-                new_goals = conjuncts(body) + goals[1:]
-
+            new_goals = ps + goals[1:]
             for ans in fol_bc_ask(KB, new_goals, subst_compose(theta1, theta)):
                 yield ans
-
-    raise StopIteration()
 
 def subst_compose (s1, s2):
     """Return the substitution which is equivalent to applying s2 to
