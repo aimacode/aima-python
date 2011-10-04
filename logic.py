@@ -26,13 +26,14 @@ And a few other functions:
 
 from __future__ import generators
 import re
+import itertools
 import agents
 from utils import *
 
 #______________________________________________________________________________
 
 class KB:
-    """A Knowledge base to which you can tell and ask sentences.
+    """A knowledge base to which you can tell and ask sentences.
     To create a KB, first subclass this class and implement
     tell, ask_generator, and retract.  Why ask_generator instead of ask?  
     The book is a bit vague on what ask means --
@@ -50,24 +51,23 @@ class KB:
         abstract
 
     def ask(self, query):
-        """Ask returns a substitution that makes the query true, or
-        it returns False. It is implemented in terms of ask_generator."""
-        try: 
-            return self.ask_generator(query).next()
-        except StopIteration:
-            return False
+        """Return a substitution that makes the query true, or,
+        failing that, return False."""
+        for result in self.ask_generator(query):
+            return result
+        return False
 
     def ask_generator(self, query): 
         "Yield all the substitutions that make query true."
         abstract
 
     def retract(self, sentence):
-        "Remove the sentence from the KB"
+        "Remove sentence from the KB."
         abstract
 
 
 class PropKB(KB):
-    "A KB for Propositional Logic.  Inefficient, with no indexing."
+    "A KB for propositional logic. Inefficient, with no indexing."
 
     def __init__(self, sentence=None):
         self.clauses = []
@@ -75,17 +75,16 @@ class PropKB(KB):
             self.tell(sentence)
 
     def tell(self, sentence): 
-        "Add the sentence's clauses to the KB"
+        "Add the sentence's clauses to the KB."
         self.clauses.extend(conjuncts(to_cnf(sentence)))        
 
     def ask_generator(self, query): 
-        "Yield the empty substitution if KB implies query; else False"
-        if not tt_entails(Expr('&', *self.clauses), query):
-            return
-        yield {}
+        "Yield the empty substitution if KB implies query."
+        if tt_entails(Expr('&', *self.clauses), query):
+            yield {}
 
     def retract(self, sentence):
-        "Remove the sentence's clauses from the KB"
+        "Remove the sentence's clauses from the KB."
         for c in conjuncts(to_cnf(sentence)):
             if c in self.clauses:
                 self.clauses.remove(c)
@@ -95,23 +94,23 @@ class PropKB(KB):
 class KB_Agent(agents.Agent):
     """A generic logical knowledge-based agent. [Fig. 7.1]"""
     def __init__(self, KB):
-        t = 0
+        steps = itertools.count()
         def program(percept):
+            t = steps.next()
             KB.tell(self.make_percept_sentence(percept, t))
             action = KB.ask(self.make_action_query(t))
             KB.tell(self.make_action_sentence(action, t))
-            t = t + 1
             return action
         self.program = program
 
-    def make_percept_sentence(self, percept, t): 
-        return(Expr("Percept")(percept, t))
+    def make_percept_sentence(self, percept, t):
+        return Expr("Percept")(percept, t)
 
-    def make_action_query(self, t): 
-        return(expr("ShouldDo(action, %d)" % t))
+    def make_action_query(self, t):
+        return expr("ShouldDo(action, %d)" % t)
 
     def make_action_sentence(self, action, t):
-        return(Expr("Did")(action, t))
+        return Expr("Did")(action, t)
 
 #______________________________________________________________________________
 
@@ -175,13 +174,13 @@ class Expr:
 
     def __repr__(self):
         "Show something like 'P' or 'P(x, y)', or '~P' or '(P | Q | R)'"
-        if len(self.args) == 0: # Constant or proposition with arity 0
+        if not self.args:         # Constant or proposition with arity 0
             return str(self.op)
-        elif is_symbol(self.op): # Functional or Propositional operator
+        elif is_symbol(self.op):  # Functional or propositional operator
             return '%s(%s)' % (self.op, ', '.join(map(repr, self.args)))
         elif len(self.args) == 1: # Prefix operator
             return self.op + repr(self.args[0])
-        else: # Infix operator
+        else:                     # Infix operator
             return '(%s)' % (' '+self.op+' ').join(map(repr, self.args))
 
     def __eq__(self, other):
@@ -215,7 +214,7 @@ class Expr:
     def __or__(self, other):     return Expr('|',  self, other)
     def __pow__(self, other):    return Expr('**', self, other)
     def __xor__(self, other):    return Expr('^',  self, other)
-    def __mod__(self, other):    return Expr('<=>',  self, other) ## (x % y)
+    def __mod__(self, other):    return Expr('<=>',  self, other)
     
 
 
@@ -246,7 +245,7 @@ def expr(s):
 
 def is_symbol(s):
     "A string s is a symbol if it starts with an alphabetic char."
-    return isinstance(s, str) and s[0].isalpha()
+    return isinstance(s, str) and s[:1].isalpha()
 
 def is_var_symbol(s):
     "A logic variable symbol is an initial-lowercase string."
@@ -276,18 +275,22 @@ def is_negative(s):
     return s.op == '~'
 
 def is_literal(s):
-    """s is a FOL literal
+    """Is s a FOL literal?
     >>> is_literal(expr('~F(A, B)'))
     True
     >>> is_literal(expr('F(A, B)'))
     True
     >>> is_literal(expr('F(A, B) & G(B, C)'))
     False
+    >>> is_literal(expr('~~A'))
+    False
+    >>> is_literal(expr('x'))   # XXX I guess this is intended?
+    True
     """
-    return is_symbol(s.op) or (s.op == '~' and is_literal(s.args[0]))
+    return is_symbol(s.op) or (s.op == '~' and is_symbol(s.args[0].op))
 
 def literals(s):
-    """returns the list of literals of logical expression s.
+    """Return a list of the literals in expression s.
     >>> literals(expr('F(A, B)'))
     [F(A, B)]
     >>> literals(expr('~F(A, B)'))
@@ -295,19 +298,15 @@ def literals(s):
     >>> literals(expr('(F(A, B) & G(B, C)) ==> R(A, C)'))
     [F(A, B), G(B, C), R(A, C)]
     """
-    op = s.op
-    if op in set(['&', '|', '<<', '>>', '%', '^']):
-        result = []
-        for arg in s.args:
-            result.extend(literals(arg))
-        return result
-    elif is_literal(s):
+    if is_literal(s):
         return [s]
     else:
-        return []
+        return flatten(map(literals, s.args))
+
+def flatten(seqs): return sum(seqs, [])
 
 def variables(s):
-    """returns the set of variables in logical expression s.
+    """Return a set of the variables in expression s.
     >>> ppset(variables(F(x, A, y)))
     set([x, y])
     >>> ppset(variables(expr('F(x, x) & G(x, y) & H(y, z) & R(A, z, z)')))
@@ -362,7 +361,7 @@ A, B, C, F, G, P, Q, x, y, z  = map(Expr, 'ABCFGPQxyz')
 #______________________________________________________________________________
 
 def tt_entails(kb, alpha):
-    """Use truth tables to determine if KB entails sentence alpha. [Fig. 7.10]
+    """Does kb entail the sentence alpha? Use truth tables. [Fig. 7.10]
     >>> tt_entails(expr('P & Q'), expr('Q'))
     True
     """
