@@ -434,7 +434,7 @@ def pl_true(exp, model={}):
  
 def to_cnf(s):
     """Convert a propositional logical sentence s to conjunctive normal form.
-    That is, of the form ((A | ~B | ...) & (B | C | ...) & ...) [p. 215]
+    That is, to the form ((A | ~B | ...) & (B | C | ...) & ...) [p. 215]
     >>> to_cnf("~(B|C)")
     (~B & ~C)
     >>> to_cnf("B <=> (P1|P2)")
@@ -443,6 +443,8 @@ def to_cnf(s):
     ((b | a | d) & (c | a | d))
     >>> to_cnf("A & (B | (D & E))")
     (A & (D | B) & (E | B))
+    >>> to_cnf("A | (B | (C | (D & E)))")
+    ((D | A | B | C) & (E | A | B | C))
     """
     if isinstance(s, str): s = expr(s)
     s = eliminate_implications(s) # Steps 1, 2 from p. 215
@@ -454,6 +456,8 @@ def eliminate_implications(s):
     that is equivalent to s, but has only &, |, and ~ as logical operators.
     >>> eliminate_implications(A >> (~B << C))
     ((~B | ~C) | ~A)
+    >>> eliminate_implications(A ^ B)
+    ((A & ~B) | (~A & B))
     """
     if not s.args or is_symbol(s.op): return s     ## (Atoms are unchanged.)
     args = map(eliminate_implications, s.args)
@@ -464,7 +468,11 @@ def eliminate_implications(s):
         return (a | ~b)
     elif s.op == '<=>':
         return (a | ~b) & (b | ~a)
+    elif s.op == '^':
+        assert len(args) == 2   ## TODO: relax this restriction
+        return (a & ~b) | (~a & b)
     else:
+        assert s.op in ('&', '|', '~')
         return Expr(s.op, *args)
 
 def move_not_inwards(s):
@@ -522,14 +530,18 @@ def NaryExpr(op, *args):
     nested instances of the same op up to the top level.
     >>> NaryExpr('&', (A&B),(B|C),(B&C))
     (A & B & (B | C) & B & C)
+    >>> NaryExpr('|', A|(B|(C|(A&B))))
+    (A | B | C | (A & B))
     """
     arglist = []
-    for arg in args:
-        if arg.op == op: arglist.extend(arg.args)
-        else: arglist.append(arg)
-    if len(args) == 1:
-        return args[0]
-    elif len(args) == 0:
+    def collect(subargs):
+        for arg in subargs:
+            if arg.op == op: collect(arg.args)
+            else: arglist.append(arg)
+    collect(args)
+    if len(arglist) == 1:
+        return arglist[0]
+    elif len(arglist) == 0:
         return _NaryExprTable[op]
     else:
         return Expr(op, *arglist)
