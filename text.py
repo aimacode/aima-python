@@ -335,12 +335,13 @@ class PermutationDecoder:
         "Search for a decoding of the ciphertext."
         self.ciphertext = ciphertext
         problem = PermutationDecoderProblem(decoder=self)
-        return search.best_first_tree_search(problem, self.score)
+        return search.best_first_tree_search(
+            problem, lambda node: self.score(node.state))
 
-    def score(self, ciphertext, code):
+    def score(self, code):
         """Score is product of word scores, unigram scores, and bigram scores.
         This can get very small, so we use logs and exp."""
-        text = decode(ciphertext, code)
+        text = permutation_decode(self.ciphertext, code)
         logP = (sum([log(self.Pwords[word]) for word in words(text)]) +
                 sum([log(self.P1[c]) for c in text]) +
                 sum([log(self.P2[b]) for b in bigrams(text)]))
