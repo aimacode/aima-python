@@ -290,24 +290,23 @@ def is_definite_clause(s):
     >>> is_definite_clause(expr('(Farmer(f) | Rabbit(r)) ==> Hates(f, r)'))
     False
     """
-    if is_symbol(s.op): return True
-    if s.op != '>>': return False
-    antecedent, consequent = s.args
-    antecedent = NaryExpr('&', antecedent)
-    return (is_symbol(consequent.op)
-            and (is_symbol(antecedent.op)
-                 or (antecedent.op == '&'
-                     and all(is_symbol(arg.op) for arg in antecedent.args))))
+    if is_symbol(s.op):
+        return True
+    elif s.op == '>>':
+        antecedent, consequent = s.args
+        return (is_symbol(consequent.op)
+                and all(is_symbol(arg.op) for arg in conjuncts(antecedent)))
+    else:
+        return False
 
 def parse_definite_clause(s):
     "Return the antecedents and the consequent of a definite clause."
     assert is_definite_clause(s)
     if is_symbol(s.op):
         return [], s
-    antecedent, consequent = s.args
-    antecedent = NaryExpr('&', antecedent)
-    antecedents = antecedent.args if antecedent.op == '&' else [antecedent]
-    return antecedents, consequent
+    else:
+        antecedent, consequent = s.args
+        return conjuncts(antecedent), consequent
 
 ## Useful constant Exprs used in examples and code:
 TRUE, FALSE, ZERO, ONE, TWO = map(Expr, ['TRUE', 'FALSE', 0, 1, 2]) 
@@ -462,8 +461,8 @@ def move_not_inwards(s):
         NOT = lambda b: move_not_inwards(~b)
         a = s.args[0]
         if a.op == '~': return move_not_inwards(a.args[0]) # ~~A ==> A
-        if a.op =='&': return NaryExpr('|', *map(NOT, a.args))
-        if a.op =='|': return NaryExpr('&', *map(NOT, a.args))
+        if a.op =='&': return associate('|', map(NOT, a.args))
+        if a.op =='|': return associate('&', map(NOT, a.args))
         return s
     elif is_symbol(s.op) or not s.args:
         return s
@@ -477,7 +476,7 @@ def distribute_and_over_or(s):
     ((A | C) & (B | C))
     """
     if s.op == '|':
-        s = NaryExpr('|', *s.args)
+        s = associate('|', s.args)
         if s.op != '|':
             return distribute_and_over_or(s)
         if len(s.args) == 0: 
@@ -488,36 +487,43 @@ def distribute_and_over_or(s):
         if not conj:
             return s
         others = [a for a in s.args if a is not conj]
-        rest = NaryExpr('|', *others)
-        return NaryExpr('&', *[distribute_and_over_or(c|rest)
+        rest = associate('|', others)
+        return associate('&', [distribute_and_over_or(c|rest)
                                for c in conj.args])
     elif s.op == '&':
-        return NaryExpr('&', *map(distribute_and_over_or, s.args))
+        return associate('&', map(distribute_and_over_or, s.args))
     else:
         return s
 
-_NaryExprTable = {'&':TRUE, '|':FALSE, '+':ZERO, '*':ONE}
-
-def NaryExpr(op, *args):
-    """Create an Expr, but with an nary, associative op, so we can promote
-    nested instances of the same op up to the top level.
-    >>> NaryExpr('&', (A&B),(B|C),(B&C))
+def associate(op, args):
+    """Given an associative op, return an expression with the same
+    meaning as Expr(op, *args), but flattened -- that is, with nested
+    instances of the same op promoted to the top level.
+    >>> associate('&', [(A&B),(B|C),(B&C)])
     (A & B & (B | C) & B & C)
-    >>> NaryExpr('|', A|(B|(C|(A&B))))
+    >>> associate('|', [A|(B|(C|(A&B)))])
     (A | B | C | (A & B))
     """
-    arglist = []
+    args = disassociate(op, args)
+    if len(args) == 0:
+        return _op_identity[op]
+    elif len(args) == 1:
+        return args[0]
+    else:
+        return Expr(op, *args)
+
+_op_identity = {'&':TRUE, '|':FALSE, '+':ZERO, '*':ONE}
+
+def disassociate(op, args):
+    """Given an associative op, return a flattened list result such
+    that Expr(op, *result) means the same as Expr(op, *args)."""
+    result = []
     def collect(subargs):
         for arg in subargs:
             if arg.op == op: collect(arg.args)
-            else: arglist.append(arg)
+            else: result.append(arg)
     collect(args)
-    if len(arglist) == 1:
-        return arglist[0]
-    elif len(arglist) == 0:
-        return _NaryExprTable[op]
-    else:
-        return Expr(op, *arglist)
+    return result
 
 def conjuncts(s):
     """Return a list of the conjuncts in the sentence s.
@@ -526,10 +532,7 @@ def conjuncts(s):
     >>> conjuncts(A | B)
     [(A | B)]
     """
-    if isinstance(s, Expr) and s.op == '&': 
-        return s.args
-    else:
-        return [s]
+    return disassociate('&', [s])
 
 def disjuncts(s):
     """Return a list of the disjuncts in the sentence s.
@@ -538,10 +541,7 @@ def disjuncts(s):
     >>> disjuncts(A & B)
     [(A & B)]
     """
-    if isinstance(s, Expr) and s.op == '|': 
-        return s.args
-    else:
-        return [s]
+    return disassociate('|', [s])
 
 #______________________________________________________________________________
 
@@ -574,18 +574,19 @@ def pl_resolve(ci, cj):
             if di == ~dj or ~di == dj:
                 dnew = unique(removeall(di, disjuncts(ci)) + 
                               removeall(dj, disjuncts(cj)))
-                clauses.append(NaryExpr('|', *dnew))
+                clauses.append(associate('|', dnew))
     return clauses
 
 #______________________________________________________________________________
 
 class PropHornKB(PropKB):
     "A KB of propositional Horn clauses."
+    # Actually definite clauses, but I won't resolve this discrepancy till
+    # the code upgrade to the 3rd edition.
 
     def tell(self, sentence):
         "Add a Horn clause to this KB."
-        op = sentence.op
-        assert op == '>>' or is_prop_symbol(op), "Must be Horn clause" # XXX use is_definite_clause?
+        assert is_definite_clause(sentence), "Must be definite clause"
         self.clauses.append(sentence)
 
     def ask_generator(self, query): 
@@ -594,23 +595,19 @@ class PropHornKB(PropKB):
             yield {}
 
     def retract(self, sentence):
-        "Remove the sentence's clauses from the KB"
-        for c in conjuncts(to_cnf(sentence)):
-            if c in self.clauses:
-                self.clauses.remove(c)
+        self.clauses.remove(sentence)
 
     def clauses_with_premise(self, p):
         """Return a list of the clauses in KB that have p in their premise.
         This could be cached away for O(1) speed, but we'll recompute it."""
         return [c for c in self.clauses 
-                if c.op == '>>' and p in conjuncts(c.args[0])] # XXX use parse_definite_clause?
+                if c.op == '>>' and p in conjuncts(c.args[0])]
 
 def pl_fc_entails(KB, q):
     """Use forward chaining to see if a HornKB entails symbol q. [Fig. 7.14]
     >>> pl_fc_entails(Fig[7,15], expr('Q'))
     True
     """
-    # XXX use parse_definite_clause?
     count = dict([(c, len(conjuncts(c.args[0]))) for c in KB.clauses
                                                  if c.op == '>>'])
     inferred = DefaultDict(False)
