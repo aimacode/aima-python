@@ -256,70 +256,25 @@ def is_prop_symbol(s):
     TRUE or FALSE."""
     return is_symbol(s) and s[0].isupper() and s != 'TRUE' and s != 'FALSE'
 
-def is_positive(s):
-    """s is an unnegated logical expression
-    >>> is_positive(expr('F(A, B)'))
-    True
-    >>> is_positive(expr('~F(A, B)'))
-    False
-    """
-    return s.op != '~'
-
-def is_negative(s):
-    """s is a negated logical expression
-    >>> is_negative(expr('F(A, B)'))
-    False
-    >>> is_negative(expr('~F(A, B)'))
-    True
-    """
-    return s.op == '~'
-
-def is_literal(s):
-    """Is s a FOL literal?
-    >>> is_literal(expr('~F(A, B)'))
-    True
-    >>> is_literal(expr('F(A, B)'))
-    True
-    >>> is_literal(expr('F(A, B) & G(B, C)'))
-    False
-    >>> is_literal(expr('~~A'))
-    False
-    >>> is_literal(expr('x'))   # XXX I guess this is intended?
-    True
-    """
-    return is_symbol(s.op) or (s.op == '~' and is_symbol(s.args[0].op))
-
-def literals(s):
-    """Return a list of the literals in expression s.
-    >>> literals(expr('F(A, B)'))
-    [F(A, B)]
-    >>> literals(expr('~F(A, B)'))
-    [~F(A, B)]
-    >>> literals(expr('(F(A, B) & G(B, C)) ==> R(A, C)'))
-    [F(A, B), G(B, C), R(A, C)]
-    """
-    if is_literal(s):
-        return [s]
-    else:
-        return flatten(map(literals, s.args))
-
-def flatten(seqs): return sum(seqs, [])
-
 def variables(s):
     """Return a set of the variables in expression s.
     >>> ppset(variables(F(x, A, y)))
     set([x, y])
+    >>> ppset(variables(F(G(x), z)))
+    set([x, z])
     >>> ppset(variables(expr('F(x, x) & G(x, y) & H(y, z) & R(A, z, z)')))
     set([x, y, z])
     """
-    if is_literal(s):
-        return set([v for v in s.args if is_variable(v)])
-    else:
-        vars = set([])
-        for lit in literals(s):
-            vars = vars.union(variables(lit))
-        return vars
-    
+    result = set([])
+    def walk(s):
+        if is_variable(s):
+            result.add(s)
+        else:
+            for arg in s.args:
+                walk(arg)
+    walk(s)
+    return result
+
 def is_definite_clause(s):
     """returns True for exprs s of the form A & B & ... & C ==> D,
     where all literals are positive.  In clause form, this is
@@ -1158,46 +1113,28 @@ def d(y, x):
 
 def pretty(x):
     t = type(x)
-    if t == dict:
-        return pretty_dict(x)
-    elif t == set:
-        return pretty_set(x)
+    if t is dict:  return pretty_dict(x)
+    elif t is set: return pretty_set(x)
+    else:          return repr(x)
 
 def pretty_dict(d):
-    """Print the dictionary d.
-    
-    Prints a string representation of the dictionary
-    with keys in sorted order according to their string
-    representation: {a: A, d: D, ...}.
+    """Return dictionary d's repr but with the items sorted.
     >>> pretty_dict({'m': 'M', 'a': 'A', 'r': 'R', 'k': 'K'})
     "{'a': 'A', 'k': 'K', 'm': 'M', 'r': 'R'}"
     >>> pretty_dict({z: C, y: B, x: A})
     '{x: A, y: B, z: C}'
     """
-
-    def format(k, v):
-        return "%s: %s" % (repr(k), repr(v))
-
-    ditems = d.items()
-    ditems.sort(key=str)
-    k, v = ditems[0]
-    dpairs = format(k, v)
-    for (k, v) in ditems[1:]:
-        dpairs += (', ' + format(k, v))
-    return '{%s}' % dpairs
+    return '{%s}' % ', '.join('%r: %r' % (k, v)
+                              for k, v in sorted(d.items(), key=repr))
 
 def pretty_set(s):
-    """Print the set s.
-
+    """Return set s's repr but with the items sorted.
     >>> pretty_set(set(['A', 'Q', 'F', 'K', 'Y', 'B']))
     "set(['A', 'B', 'F', 'K', 'Q', 'Y'])"
     >>> pretty_set(set([z, y, x]))
     'set([x, y, z])'
     """
-
-    slist = list(s)
-    slist.sort(key=str)
-    return 'set(%s)' % slist
+    return 'set(%r)' % sorted(s, key=repr)
 
 def pp(x):
     print pretty(x)
