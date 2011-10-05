@@ -79,7 +79,7 @@ class PropKB(KB):
         self.clauses.extend(conjuncts(to_cnf(sentence)))        
 
     def ask_generator(self, query): 
-        "Yield the empty substitution if KB implies query."
+        "Yield the empty substitution if KB implies query; else nothing."
         if tt_entails(Expr('&', *self.clauses), query):
             yield {}
 
@@ -316,18 +316,23 @@ A, B, C, F, G, P, Q, x, y, z  = map(Expr, 'ABCFGPQxyz')
 #______________________________________________________________________________
 
 def tt_entails(kb, alpha):
-    """Does kb entail the sentence alpha? Use truth tables. [Fig. 7.10]
+    """Does kb entail the sentence alpha? Use truth tables. For propositional
+    kb's and sentences. [Fig. 7.10]
     >>> tt_entails(expr('P & Q'), expr('Q'))
     True
     """
+    assert not variables(alpha)
     return tt_check_all(kb, alpha, prop_symbols(kb & alpha), {})
 
 def tt_check_all(kb, alpha, symbols, model):
     "Auxiliary routine to implement tt_entails."
     if not symbols:
-        if pl_true(kb, model): return pl_true(alpha, model)
-        else: return True
-        assert result is not None
+        if pl_true(kb, model):
+            result = pl_true(alpha, model)
+            assert result in (True, False)
+            return result
+        else:
+            return True
     else:
         P, rest = symbols[0], symbols[1:]
         return (tt_check_all(kb, alpha, rest, extend(model, P, True)) and
@@ -344,7 +349,8 @@ def prop_symbols(x):
                         for symbol in prop_symbols(arg)))
 
 def tt_true(alpha):
-    """Is the sentence alpha a tautology? (alpha will be coerced to an expr.)
+    """Is the propositional sentence alpha a tautology? (alpha will be
+    coerced to an expr.)
     >>> tt_true(expr("(P >> Q) <=> (~P | Q)"))
     True
     """
@@ -472,20 +478,19 @@ def distribute_and_over_or(s):
     """
     if s.op == '|':
         s = NaryExpr('|', *s.args)
+        if s.op != '|':
+            return distribute_and_over_or(s)
         if len(s.args) == 0: 
             return FALSE
         if len(s.args) == 1: 
             return distribute_and_over_or(s.args[0])
         conj = find_if((lambda d: d.op == '&'), s.args)
         if not conj:
-            return NaryExpr(s.op, *s.args)
+            return s
         others = [a for a in s.args if a is not conj]
-        if len(others) == 1:
-            rest = others[0]
-        else:
-            rest = NaryExpr('|', *others)
-        return NaryExpr('&', *map(distribute_and_over_or,
-                                  [(c|rest) for c in conj.args]))
+        rest = NaryExpr('|', *others)
+        return NaryExpr('&', *[distribute_and_over_or(c|rest)
+                               for c in conj.args])
     elif s.op == '&':
         return NaryExpr('&', *map(distribute_and_over_or, s.args))
     else:
@@ -584,7 +589,7 @@ class PropHornKB(PropKB):
         self.clauses.append(sentence)
 
     def ask_generator(self, query): 
-        "Yield the empty substitution if KB implies query."
+        "Yield the empty substitution if KB implies query; else nothing."
         if pl_fc_entails(self.clauses, query):
             yield {}
 
@@ -794,10 +799,10 @@ def unify(x, y, s):
         return unify_var(y, x, s)
     elif isinstance(x, Expr) and isinstance(y, Expr):
         return unify(x.args, y.args, unify(x.op, y.op, s))
-    elif isinstance(x, str) or isinstance(y, str) or not x or not y:
-        # orig. return if_(x == y, s, None) but we already know x != y
+    elif isinstance(x, str) or isinstance(y, str):
         return None
-    elif issequence(x) and issequence(y) and len(x) == len(y) and x:
+    elif issequence(x) and issequence(y) and len(x) == len(y):
+        if not x: return s
         return unify(x[1:], y[1:], unify(x[0], y[0], s))
     else:
         return None
@@ -833,7 +838,6 @@ def occur_check(var, x, s):
 def extend(s, var, val):
     """Copy the substitution s and extend it by setting var to val;
     return copy.
-    
     >>> ppsubst(extend({x: 1}, y, 2))
     {x: 1, y: 2}
     """
@@ -859,7 +863,7 @@ def subst(s, x):
         
 def fol_fc_ask(KB, alpha):
     """Inefficient forward chaining for first-order logic. [Fig. 9.3]
-    KB is an FOLHornKB and alpha must be an atomic sentence."""
+    KB is a FolKB and alpha must be an atomic sentence."""
     while True:
         new = {}
         for r in KB.clauses:
@@ -883,20 +887,19 @@ def standardize_apart(sentence, dic=None):
         if sentence in dic:
             return dic[sentence]
         else:
-            standardize_apart.counter += 1
-            v = Expr('v_%d' % standardize_apart.counter)
+            v = Expr('v_%d' % standardize_apart.counter.next())
             dic[sentence] = v
             return v
     else: 
         return Expr(sentence.op,
                     *[standardize_apart(a, dic) for a in sentence.args])
 
-standardize_apart.counter = 0
+standardize_apart.counter = itertools.count()
 
 #______________________________________________________________________________
 
-class FolKB (KB):
-    """A knowledge base consisting of first-order definite clauses
+class FolKB(KB):
+    """A knowledge base consisting of first-order definite clauses.
     >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Pete)'),
     ...              expr('(Rabbit(r) & Farmer(f)) ==> Hates(f, r)')])
     >>> kb0.tell(expr('Rabbit(Flopsie)'))
@@ -906,7 +909,6 @@ class FolKB (KB):
     >>> kb0.ask(expr('Wife(Pete, x)'))
     False
     """
-
     def __init__(self, initial_clauses=[]):
         self.clauses = [] # inefficient: no indexing
         for clause in initial_clauses:
@@ -924,15 +926,13 @@ class FolKB (KB):
     def retract(self, sentence):
         self.clauses.remove(sentence)
 
-def test_ask(q, kb=None):
-    e = expr(q)
-    vars = variables(e)
-    ans = fol_bc_ask(kb or test_kb, [e])
-    res = []
-    for a in ans:
-        res.append(pretty(dict([(x, v) for (x, v) in a.items() if x in vars])))
-    res.sort(key=str)
-    return res
+def test_ask(query, kb=None):
+    q = expr(query)
+    vars = variables(q)
+    answers = fol_bc_ask(kb or test_kb, [q])
+    return sorted([pretty(dict((x, v) for x, v in a.items() if x in vars))
+                   for a in answers],
+                  key=repr)
 
 test_kb = FolKB(
     map(expr, ['Farmer(Mac)',
@@ -991,7 +991,7 @@ def fol_bc_ask(KB, goals, theta={}):
             for ans in fol_bc_ask(KB, new_goals, subst_compose(theta1, theta)):
                 yield ans
 
-def subst_compose (s1, s2):
+def subst_compose(s1, s2):
     """Return the substitution which is equivalent to applying s2 to
     the result of applying s1 to an expression.
 
@@ -1021,18 +1021,9 @@ def subst_compose (s1, s2):
     >>> subst(subst_compose(s2, s1), p) == subst(s1, subst(s2, p))
     True
     """
-    sc = {}
-    for x, v in s1.items():
-        if s2.has_key(v):
-            w = s2[v]
-            sc[x] = w # x -> v -> w
-        else:
-            sc[x] = v
-    for x, v in s2.items():
-        if not (s1.has_key(x)):
-            sc[x] = v
-        # otherwise s1[x] preemptys s2[x]
-    return sc
+    result = dict((x, s2.get(v, v)) for x, v in s1.items())
+    result.update((x, v) for x, v in s2.items() if x not in s1)
+    return result
 
 #______________________________________________________________________________
 
