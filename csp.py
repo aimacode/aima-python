@@ -491,9 +491,14 @@ class Sudoku(CSP):
                       for v in flatten(rows)])
 
     def __init__(self, grid):
-        squares = re.findall(r'\d|\.', grid)
-        domains = dict((var, [int(ch)] if ch.isdigit() else range(1, 10))
+        """Build a Sudoku problem from a string representing the grid: the digits
+        1-9 denote a filled cell, '.' or '0' an empty one; other characters are
+        ignored."""
+        squares = iter(re.findall(r'\d|\.', grid))
+        domains = dict((var, [int(ch)] if ch in '123456789' else range(1, 10))
                        for var, ch in zip(flatten(self.rows), squares))
+        for _ in squares:
+            raise ValueError("Not a Sudoku grid", grid) # Too many squares
         CSP.__init__(self, None, domains, self.neighbors,
                      different_values_constraint)
 
