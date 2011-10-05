@@ -13,7 +13,7 @@ import math, random, sys, time, bisect, string
 
 #______________________________________________________________________________
 
-class Problem (object):
+class Problem(object):
     """The abstract class for a formal problem.  You should subclass this and
     implement the method successor, and possibly __init__, goal_test, and
     path_cost. Then you will create instances of your subclass and solve them

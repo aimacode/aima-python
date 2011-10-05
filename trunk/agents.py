@@ -40,7 +40,7 @@ import random, copy
 #______________________________________________________________________________
 
 
-class Object (object):
+class Object(object):
     """This represents any physical object that can appear in an Environment.
     You subclass Object to get the objects you want.  Each object can have a
     .__name__  slot (used for output only)."""
@@ -60,7 +60,7 @@ class Object (object):
         """Display an image of this Object on the canvas."""
         pass
 
-class Agent (Object):
+class Agent(object):
     """An Agent is a subclass of Object with one required slot,
     .program, which should hold a function that takes one argument, the
     percept, and returns an action. (What counts as a percept or action
@@ -102,7 +102,7 @@ def TraceAgent(agent):
 
 #______________________________________________________________________________
 
-class TableDrivenAgent (Agent):
+class TableDrivenAgent(Agent):
     """This agent selects an action based on the percept sequence.
     It is practical only for tiny domains.
     To customize it you provide a table to the constructor. [Fig. 2.7]"""
@@ -124,7 +124,7 @@ class TableDrivenAgent (Agent):
         return program
 
 
-class RandomAgent (Agent):
+class RandomAgent(Agent):
     "An agent that chooses an action at random, ignoring all percepts."
 
     def __init__(self, actions):
@@ -140,7 +140,7 @@ class RandomAgent (Agent):
 
 loc_A, loc_B = (0, 0), (1, 0) # The two locations for the Vacuum world
 
-class ReflexVacuumAgent (Agent):
+class ReflexVacuumAgent(Agent):
     "A reflex agent for the two-state vacuum environment. [Fig. 2.8]"
 
     def __init__(self):
@@ -174,7 +174,7 @@ def TableDrivenVacuumAgent():
     return TableDrivenAgent(table)
 
 
-class ModelBasedVacuumAgent (Agent):
+class ModelBasedVacuumAgent(Agent):
     "An agent that keeps track of what locations are clean or dirty."
 
     def __init__(self):
@@ -195,7 +195,7 @@ class ModelBasedVacuumAgent (Agent):
 #______________________________________________________________________________
 
 
-class Environment (object):
+class Environment(object):
     """Abstract class representing an Environment.  'Real' Environment classes
     inherit from this. Your Environment will typically need to implement:
         percept:           Define the percept that an agent sees.
@@ -295,7 +295,7 @@ def trace_list (name, objlist):
     ol_list = [(obj, obj.location) for obj in objlist]
     print "%s: %s" % (name, ol_list)
 
-class XYEnvironment (Environment):
+class XYEnvironment(Environment):
     """This class is for environments on a 2D plane, with locations
     labelled by (x, y) points, either discrete or continuous.
 
@@ -396,21 +396,21 @@ class XYEnvironment (Environment):
         "Return the heading to the left (inc=+1) or right (inc=-1) in headings."
         return headings[(headings.index(heading) + inc) % len(headings)]  
 
-class Obstacle (Object):
+class Obstacle(object):
     """Something that can cause a bump, preventing an agent from
     moving into the same square it's in."""
     pass
 
-class Wall (Obstacle):
+class Wall(Obstacle):
     pass
 
 #______________________________________________________________________________
 ## Vacuum environment 
 
-class Dirt (Object):
+class Dirt(object):
     pass
     
-class VacuumEnvironment (XYEnvironment):
+class VacuumEnvironment(XYEnvironment):
     """The environment of [Ex. 2.12]. Agent perceives dirty or clean,
     and bump (into obstacle) or not; 2D discrete world of unknown size;
     performance measure is 100 for each dirt cleaned, and -1 for
@@ -445,7 +445,7 @@ class VacuumEnvironment (XYEnvironment):
         if action != 'NoOp':
             agent.performance -= 1
 
-class TrivialVacuumEnvironment (Environment):
+class TrivialVacuumEnvironment(Environment):
 
     """This environment has two locations, A and B. Each can be Dirty
     or Clean.  The agent perceives its location and the location's
@@ -485,7 +485,7 @@ class TrivialVacuumEnvironment (Environment):
 
 #______________________________________________________________________________
 
-class SimpleReflexAgent (Agent):
+class SimpleReflexAgent(Agent):
     """This agent takes action based solely on the percept. [Fig. 2.13]"""
 
     def __init__(self, rules, interpret_input):
@@ -503,7 +503,7 @@ class SimpleReflexAgent (Agent):
             return action
         return program
 
-class ReflexAgentWithState (Agent):
+class ReflexAgentWithState(Agent):
     """This agent takes action based on the percept and state. [Fig. 2.16]"""
 
     def __init__(self, rules, update_state):
@@ -532,11 +532,11 @@ def rule_match(state, rules):
 #______________________________________________________________________________
 ## The Wumpus World
 
-class Gold (Object): pass
-class Pit (Object): pass
-class Arrow (Object): pass
-class Wumpus (Agent): pass
-class Explorer (Agent): pass
+class Gold(object): pass
+class Pit(object): pass
+class Arrow(object): pass
+class Wumpus(Agent): pass
+class Explorer(Agent): pass
 
 class WumpusEnvironment(XYEnvironment):
 
@@ -608,7 +608,7 @@ testv(RandomVacuumAgent)
 
 import Tkinter as tk
 
-class EnvGUI (tk.Tk, object):
+class EnvGUI(tk.Tk, object):
 
     def __init__(self, env, title = 'AIMA GUI', cellwidth=50, n=10):
 
@@ -625,7 +625,7 @@ class EnvGUI (tk.Tk, object):
             w.pack(side="bottom", fill="x", padx="3", pady="3")
 
 
-class EnvToolbar (tk.Frame, object):
+class EnvToolbar(tk.Frame, object):
 
     def __init__(self, parent, env, canvas):
         super(EnvToolbar, self).__init__(parent, relief='raised', bd=2)
