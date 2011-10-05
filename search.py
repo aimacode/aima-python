@@ -34,7 +34,7 @@ class Problem(object):
     
     def goal_test(self, state):
         """Return True if the state is a goal. The default method compares the
-        state to self.goal, as specified in the constructor. Implement this
+        state to self.goal, as specified in the constructor. Override this
         method if checking against a single self.goal is not enough."""
         return state == self.goal
     
@@ -725,10 +725,7 @@ class InstrumentedProblem(Problem):
         return result
     
     def __getattr__(self, attr):
-        if attr in ('succs', 'goal_tests', 'states'):
-            return self.__dict__[attr]
-        else:
-            return getattr(self.problem, attr)
+        return getattr(self.problem, attr)
 
     def __repr__(self):
         return '<%4d/%4d/%4d/%s>' % (self.succs, self.goal_tests,
@@ -748,7 +745,7 @@ def compare_searchers(problems, header, searchers=[breadth_first_tree_search,
 def compare_graph_searchers():
     """Prints a table of results like this:
 >>> compare_graph_searchers()
-Searcher                      Romania(A,B)         Romania(O, N)        Australia            
+Searcher                      Romania(A, B)        Romania(O, N)        Australia            
 breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>   <   7/   8/  22/WA>  
 breadth_first_graph_search    <  10/  19/  26/B>   <  19/  45/  45/N>   <   5/   8/  16/WA>  
 depth_first_graph_search      <   9/  15/  23/B>   <  16/  27/  39/N>   <   4/   7/  13/WA>  
@@ -759,7 +756,7 @@ recursive_best_first_search   < 200/ 201/ 601/B>   <  71/  72/ 213/N>   <  11/  
     compare_searchers(problems=[GraphProblem('A', 'B', romania),
                                 GraphProblem('O', 'N', romania),
                                 GraphProblem('Q', 'WA', australia)],
-            header=['Searcher', 'Romania(A,B)', 'Romania(O, N)', 'Australia'])
+            header=['Searcher', 'Romania(A, B)', 'Romania(O, N)', 'Australia'])
 
 #______________________________________________________________________________
 
