@@ -98,7 +98,7 @@ class KB_Agent(agents.Agent):
         def program(percept):
             t = steps.next()
             KB.tell(self.make_percept_sentence(percept, t))
-            action = KB.ask(self.make_action_query(t))
+            action = KB.ask(self.make_action_query(t))[expr('action')]
             KB.tell(self.make_action_sentence(action, t))
             return action
         self.program = program
