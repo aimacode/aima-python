@@ -525,11 +525,14 @@ def normalize(numbers, total=1.0):
 
 orientations = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
-def turn_right(orientation):
-    return orientations[orientations.index(orientation)-1]
+def turn_heading(heading, inc, headings=orientations):
+    return headings[(headings.index(heading) + inc) % len(headings)]  
 
-def turn_left(orientation):
-    return orientations[(orientations.index(orientation)+1) % len(orientations)]
+def turn_right(heading):
+    return turn_heading(heading, -1)
+
+def turn_left(heading):
+    return turn_heading(heading, +1)
 
 def distance((ax, ay), (bx, by)):
     "The distance between two (x, y) points."
