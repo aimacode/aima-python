@@ -60,7 +60,7 @@ class Object(object):
         """Display an image of this Object on the canvas."""
         pass
 
-class Agent(object):
+class Agent(Object):
     """An Agent is a subclass of Object with one required slot,
     .program, which should hold a function that takes one argument, the
     percept, and returns an action. (What counts as a percept or action
@@ -214,11 +214,11 @@ class Environment(object):
         return [] ## List of classes that can go into environment
 
     def percept(self, agent):
-	"Return the percept that the agent sees at this point. Override this."
+	"Return the percept that the agent sees at this point. (Implement this.)"
         abstract
 
     def execute_action(self, agent, action):
-        "Change the world to reflect this action. Override this."
+        "Change the world to reflect this action. (Implement this.)"
         abstract
 
     def default_location(self, object):
@@ -260,23 +260,17 @@ class Environment(object):
     
     def some_objects_at(self, location, oclass=Object):
         """Return true if at least one of the objects at location
-        is an instance of class oclass.
-
-        'Is an instance' in the sense of 'isinstance',
-        which is true if the object is an instance of a subclass of oclass."""
-
+        is an instance of class oclass (or a subclass)."""
         return self.list_objects_at(location, oclass) != []
 
     def add_object(self, obj, location=None):
 	"""Add an object to the environment, setting its location. Also keep
 	track of objects that are agents.  Shouldn't need to override this."""
-
 	obj.location = location or self.default_location(obj)
 	self.objects.append(obj)
 	if isinstance(obj, Agent):
             obj.performance = 0
             self.agents.append(obj)
-	return self
 
     def delete_object(self, obj):
         """Remove an object from the environment."""
@@ -286,14 +280,10 @@ class Environment(object):
             print e
             print "  in Environment delete_object"
             print "  Object to be removed: %s at %s" % (obj, obj.location)
-            trace_list("  from list", self.objects)
+            print "  from list: %s" % [(obj, obj.location)
+                                       for obj in self.objects]
         if obj in self.agents:
             self.agents.remove(obj)
-
-
-def trace_list (name, objlist):
-    ol_list = [(obj, obj.location) for obj in objlist]
-    print "%s: %s" % (name, ol_list)
 
 class XYEnvironment(Environment):
     """This class is for environments on a 2D plane, with locations
@@ -306,22 +296,21 @@ class XYEnvironment(Environment):
 
     def __init__(self, width=10, height=10):
         super(XYEnvironment, self).__init__()
-        self.width = width
-        self.height = height
-        #update(self, objects=[], agents=[], width=width, height=height)
-        self.observers = []
+        update(self, width=width, height=height, observers=[])
         
-    def objects_near(self, location, radius):
+    def objects_near(self, location, radius=None):
         "Return all objects within radius of location."
+        if radius is None: radius = self.perceptible_distance
         radius2 = radius * radius
         return [obj for obj in self.objects
                 if distance2(location, obj.location) <= radius2]
 
+    perceptible_distance = 1
+
     def percept(self, agent):
-        "By default, agent perceives objects within radius r."
-        ### Error below: objects_near requires also a radius argument
+        "By default, agent perceives objects within a default radius."
         return [self.object_percept(obj, agent)
-                for obj in self.objects_near(agent)] ### <- error
+                for obj in self.objects_near(agent.location)]
 
     def execute_action(self, agent, action):
         agent.bump = False
@@ -349,12 +338,8 @@ class XYEnvironment(Environment):
 
     def move_to(self, obj, destination):
         "Move an object to a new location."
-
-        # Bumped?
         obj.bump = self.some_objects_at(destination, Obstacle)
-
         if not obj.bump:
-            # Move object and report to observers
             obj.location = destination
             for o in self.observers:
                 o.object_moved(obj)
@@ -363,8 +348,6 @@ class XYEnvironment(Environment):
         super(XYEnvironment, self).add_object(obj, location)
         obj.holding = []
         obj.held = None
-        # self.objects.append(obj) # done in Environment!
-        # Report to observers
         for obs in self.observers:
             obs.object_added(obj)
 
@@ -392,11 +375,11 @@ class XYEnvironment(Environment):
         and object_added(obj, loc)."""
         self.observers.append(observer)
         
-    def turn_heading(self, heading, inc, headings=orientations):
-        "Return the heading to the left (inc=+1) or right (inc=-1) in headings."
-        return headings[(headings.index(heading) + inc) % len(headings)]  
+    def turn_heading(self, heading, inc):
+        "Return the heading to the left (inc=+1) or right (inc=-1) of heading."
+        return turn_heading(heading, inc)
 
-class Obstacle(object):
+class Obstacle(Object):
     """Something that can cause a bump, preventing an agent from
     moving into the same square it's in."""
     pass
@@ -407,7 +390,7 @@ class Wall(Obstacle):
 #______________________________________________________________________________
 ## Vacuum environment 
 
-class Dirt(object):
+class Dirt(Object):
     pass
     
 class VacuumEnvironment(XYEnvironment):
@@ -446,7 +429,6 @@ class VacuumEnvironment(XYEnvironment):
             agent.performance -= 1
 
 class TrivialVacuumEnvironment(Environment):
-
     """This environment has two locations, A and B. Each can be Dirty
     or Clean.  The agent perceives its location and the location's
     status. This serves as an example of how to implement a simple
@@ -454,8 +436,8 @@ class TrivialVacuumEnvironment(Environment):
 
     def __init__(self):
         super(TrivialVacuumEnvironment, self).__init__()
-        self.status = {loc_A:random.choice(['Clean', 'Dirty']),
-                       loc_B:random.choice(['Clean', 'Dirty'])}
+        self.status = {loc_A: random.choice(['Clean', 'Dirty']),
+                       loc_B: random.choice(['Clean', 'Dirty'])}
 
     def object_classes(self):
         return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent, 
@@ -532,9 +514,9 @@ def rule_match(state, rules):
 #______________________________________________________________________________
 ## The Wumpus World
 
-class Gold(object): pass
-class Pit(object): pass
-class Arrow(object): pass
+class Gold(Object): pass
+class Pit(Object): pass
+class Arrow(Object): pass
 class Wumpus(Agent): pass
 class Explorer(Agent): pass
 
@@ -573,31 +555,34 @@ def test_agent(AgentFactory, steps, envs):
 
 #_________________________________________________________________________
 
-_docex = """
-a = ReflexVacuumAgent()
-a.program
-a.program((loc_A, 'Clean')) ==> 'Right'
-a.program((loc_B, 'Clean')) ==> 'Left'
-a.program((loc_A, 'Dirty')) ==> 'Suck'
-a.program((loc_A, 'Dirty')) ==> 'Suck'
+__doc__ += """
+>>> a = ReflexVacuumAgent()
+>>> a.program((loc_A, 'Clean'))
+'Right'
+>>> a.program((loc_B, 'Clean'))
+'Left'
+>>> a.program((loc_A, 'Dirty'))
+'Suck'
+>>> a.program((loc_A, 'Dirty'))
+'Suck'
 
-e = TrivialVacuumEnvironment()
-e.add_object(TraceAgent(ModelBasedVacuumAgent()))
-e.run(5)
+>>> e = TrivialVacuumEnvironment()
+>>> e.add_object(ModelBasedVacuumAgent()); None
+>>> e.run(5)
 
 ## Environments, and some agents, are randomized, so the best we can
 ## give is a range of expected scores.  If this test fails, it does
 ## not necessarily mean something is wrong.
-envs = [TrivialVacuumEnvironment() for i in range(100)]
-def testv(A): return test_agent(A, 4, copy.deepcopy(envs)) 
-testv(ModelBasedVacuumAgent)
-(7 < _ < 11) ==> True
-testv(ReflexVacuumAgent)
-(5 < _ < 9) ==> True
-testv(TableDrivenVacuumAgent)
-(2 < _ < 6) ==> True
-testv(RandomVacuumAgent)
-(0.5 < _ < 3) ==> True
+>>> envs = [TrivialVacuumEnvironment() for i in range(100)]
+>>> def testv(A): return test_agent(A, 4, copy.deepcopy(envs)) 
+>>> 7 < testv(ModelBasedVacuumAgent) < 11
+True
+>>> 5 < testv(ReflexVacuumAgent) < 9
+True
+>>> 2 < testv(TableDrivenVacuumAgent) < 6
+True
+>>> 0.5 < testv(RandomVacuumAgent) < 3
+True
 """
 
 #______________________________________________________________________________
