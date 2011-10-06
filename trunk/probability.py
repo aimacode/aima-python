@@ -111,6 +111,30 @@ class JointProbDist(ProbDist):
     def __repr__(self):
         return "P(%s)" % self.variables
 
+#______________________________________________________________________________
+
+def enumerate_joint_ask(X, e, P):
+    """Return a probability distribution over the values of the variable X,
+    given the {var:val} observations e, in the JointProbDist P. 
+    Works for Boolean variables only. [Fig. 13.4].
+
+    X is a string (variable name).
+    e is a dictionary of variable-name value pairs.
+    P is an instance of JointProbDist."""
+    
+    Q = ProbDist(X) # probability distribution for X, initially empty
+    Y = [v for v in P.variables if v != X and v not in e] # hidden vars.
+    for xi in P.values(X):
+        Q[xi] = enumerate_joint(Y, extend(e, X, xi), P)
+    return Q.normalize()
+
+def enumerate_joint(vars, values, P):
+    "As in Fig 13.4, except x and e are already incorporated in values."
+    if not vars: 
+        return P[values] 
+    Y, rest = vars[0], vars[1:]
+    return sum([enumerate_joint(rest, extend(values, Y, y), P) 
+                for y in P.values(Y)])
 
 #______________________________________________________________________________
 
@@ -119,20 +143,20 @@ class BoolCpt:
     """Conditional probability table for a boolean (True/False)
     random variable conditioned on its parents."""
 
-    def __init__(self, table_data):
+    def __init__(self, table):
         """Initialize the table.
 
-        table_data may have one of three forms, depending on the
+        table may have one of three forms, depending on the
         number of parents:
         
-        1.  If the variable has no parents, table_data MAY be
+        1.  If the variable has no parents, table MAY be
         a single number (float), representing P(X = True).
 
-        2.  If the variable has one parent, table_data MAY be
+        2.  If the variable has one parent, table MAY be
         a dictionary containing items of the form v: p,
         where p is P(X = True | parent = v).
         
-        3.  If the variable has n parents, n > 1, table_data MUST be
+        3.  If the variable has n parents, n > 1, table MUST be
         a dictionary containing items (v1, ..., vn): p,
         where p is P(P = True | parent1 = v1, ..., parentn = vn).
 
@@ -144,24 +168,21 @@ class BoolCpt:
         >>> cpt = BoolCpt({(T, T): 0.2, (T, F): 0.3, (F, T): 0.5, (F, F): 0.7})
         """
         # A little work here makes looking up values MUCH simpler
-        # later on.  We transform table_data into the standard form
+        # later on.  We transform table into the standard form
         # of a dictionary {(value, ...): number, ...} even if
         # the tuple has just 0 or 1 value.
-        if type(table_data) == float: # no parents, 0-tuple
-            self.table_data = {(): table_data}
-        elif type(table_data) == dict:
-            keys = table_data.keys()
-            if type(keys[0]) == bool: # one parent, 1-tuple
-                d = {}
-                for k in keys:
-                    d[(k,)] = table_data[k]
-                self.table_data = d
-            elif type(keys[0]) == tuple: # normal case, n-tuple
-                self.table_data = table_data
+        if isinstance(table, (float, int)): # no parents, 0-tuple
+            self.table = {(): table}
+        elif isinstance(table, dict):
+            key = table.keys()[0] if table else None
+            if isinstance(key, bool):       # one parent, 1-tuple
+                self.table = dict(((k,), v) for k, v in table.items())
+            elif isinstance(key, tuple):    # normal case, n-tuple
+                self.table = table
             else:
-                raise Exception("wrong key type: %s" % table_data)
+                raise Exception("wrong key type: %s" % table)
         else:
-            raise Exception("wrong table_data type: %s" % table_data)
+            raise Exception("wrong table type: %s" % table)
         
     def p(self, value, parent_vars, event):
         """Return the conditional probability P(value | parent_vars =
@@ -210,7 +231,7 @@ class BoolCpt:
         >>> cpt.p_values(F, (F, F))
         0.38
         """
-        ptrue = self.table_data[parent_values] # True or False
+        ptrue = self.table[parent_values] # True or False
         if xvalue:
             return ptrue
         else:
@@ -243,34 +264,9 @@ def event_values(event, vars):
     """
     if isinstance(event, tuple) and len(event) == len(vars):
         return event
-    return tuple([event[parent] for parent in vars])
+    else:
+        return tuple([event[var] for var in vars])
 
-
-#______________________________________________________________________________
-
-def enumerate_joint_ask(X, e, P):
-    """Return a probability distribution over the values of the variable X,
-    given the {var:val} observations e, in the JointProbDist P. 
-    Works for Boolean variables only. [Fig. 13.4].
-
-    X is a string (variable name).
-    e is a dictionary of variable-name value pairs.
-    P is an instance of JointProbDist."""
-    
-    Q = ProbDist(X) # probability distribution for X, initially empty
-    Y = [v for v in P.variables if v != X and v not in e] # hidden vars.
-    for xi in P.values(X):
-        ext = extend(e, X, xi) # copies e and adds X: xi
-        Q[xi] = enumerate_joint(Y, ext, P)
-    return Q.normalize()
-
-def enumerate_joint(vars, values, P):
-    "As in Fig 13.4, except x and e are already incorporated in values."
-    if not vars: 
-        return P[values] 
-    Y = vars[0]; rest = vars[1:]
-    return sum([enumerate_joint(rest, extend(values, Y, y), P) 
-                for y in P.values(Y)])
 
 #______________________________________________________________________________
 
@@ -290,7 +286,7 @@ class BayesNet:
         self.evidence[var] = val
 
     def variable_node(self, var):
-        """Returns the node for the variable named var.
+        """Return the node for the variable named var.
         >>> burglary.variable_node('Burglary').variable
         'Burglary'"""
         for n in self.nodes:
@@ -299,7 +295,7 @@ class BayesNet:
         raise Exception("No such variable: %s" % var)
 
     def variables(self):
-        """Returns the list of names of the variables.
+        """Return the list of names of the variables.
         >>> burglary.variables()
         ['Burglary', 'Earthquake', 'Alarm', 'JohnCalls', 'MaryCalls']"""
         return [n.variable for n in self.nodes]
@@ -332,7 +328,7 @@ burglary = BayesNet([
 
 #______________________________________________________________________________
 
-def enumeration_ask (X, e, bn):
+def enumeration_ask(X, e, bn):
     """Returns a distribution of X given e from bayes net bn.  [Fig. 14.9]
     
     X is a string (variable name).
@@ -354,7 +350,7 @@ def enumeration_ask (X, e, bn):
         # may be unspecified.
     return Q.normalize()
 
-def enumerate_all (vars, e, bn):
+def enumerate_all(vars, e, bn):
     """Returns the probability that X = xi given e.
 
     vars is a list of variables, the parents of X in bn.
@@ -365,24 +361,22 @@ def enumerate_all (vars, e, bn):
     if vars == []:
         return 1.0
     else:
-        Y = vars[0]
-        rest = vars[1:]
+        Y, rest = vars[0], vars[1:]
 
         Ynode = bn.variable_node(Y)
         parents = Ynode.parents
         cpt = Ynode.cpt
         
-        if e.has_key(Y):
+        if Y in e:
             y = e[Y]
             cp = cpt.p(y, parents, e) # P(y | parents(Y))
-            result = cp * enumerate_all(rest, e, bn)
+            return cp * enumerate_all(rest, e, bn)
         else:
             result = 0
             for y in bn.variable_values(Y):
                 cp = cpt.p(y, parents, e) # P(y | parents(Y))
                 result += cp * enumerate_all(rest, extend(e, Y, y), bn)
-
-        return result
+            return result
 
 #______________________________________________________________________________
 
@@ -440,7 +434,7 @@ def prior_sample(bn):
 
 #_______________________________________________________________________________
 
-def rejection_sampling (X, e, bn, N):
+def rejection_sampling(X, e, bn, N):
     """Estimates probability distribution of X given evidence e
     in BayesNet bn, using N samples.  [Fig. 14.13]
 
@@ -473,7 +467,7 @@ def rejection_sampling (X, e, bn, N):
             
     return ProbDist(X, counts)
 
-def consistent_with (sample, evidence):
+def consistent_with(sample, evidence):
     """Returns True if sample is consistent with evidence, False otherwise.
 
     sample is a dictionary of variable-name: value pairs.
@@ -498,7 +492,7 @@ def consistent_with (sample, evidence):
 
 #_______________________________________________________________________________
 
-def likelihood_weighting (X, e, bn, N):
+def likelihood_weighting(X, e, bn, N):
     """Returns an estimate of P(X | e).  [Fig. 14.14]
 
     Arguments:
@@ -527,7 +521,7 @@ def likelihood_weighting (X, e, bn, N):
 
     return ProbDist(X, weights)
     
-def weighted_sample (bn, e):
+def weighted_sample(bn, e):
     """Returns an event (a sample) and a weight."""
 
     event = {} # boldface x in Fig. 14.14
