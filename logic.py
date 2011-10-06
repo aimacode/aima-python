@@ -821,7 +821,7 @@ def occur_check(var, x, s):
     (or in subst(s, x), if s has a binding for x)."""
     if var == x:
         return True
-    elif is_variable(x) and s.has_key(x):
+    elif is_variable(x) and x in s:
         return occur_check(var, s[x], s)
     elif isinstance(x, Expr):
         return (occur_check(var, x.op, s) or
