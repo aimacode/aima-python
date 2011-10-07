@@ -94,6 +94,7 @@ class PropKB(KB):
 class KB_Agent(agents.Agent):
     """A generic logical knowledge-based agent. [Fig. 7.1]"""
     def __init__(self, KB):
+        agents.Agent.__init__(self)
         steps = itertools.count()
         def program(percept):
             t = steps.next()
@@ -743,7 +744,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 
 class PLWumpusAgent(agents.Agent):
     "An agent for the wumpus world that does logical inference. [Fig. 7.19]"""
-    def __init__(self):
+    def make_agent_program(self):
         KB = FolKB() ## shouldn't this be a propositional KB? ***
         x, y, orientation = 1, 1, (1, 0)
         visited = set() ## squares already visited
@@ -766,7 +767,7 @@ class PLWumpusAgent(agents.Agent):
                 action = random.choice(['Forward', 'Right', 'Left'])
             return action
 
-        self.program = program
+        return program
 
 def update_position(x, y, orientation, action):
     if action == 'TurnRight':
