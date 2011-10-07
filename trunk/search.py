@@ -92,6 +92,12 @@ class Node:
 class SimpleProblemSolvingAgent(agents.Agent):
     """Abstract framework for problem-solving agent. [Fig. 3.1]"""
     def make_agent_program(self):
+        # Some nits in this code:
+        # - We're requiring state to be a list so it can be
+        #   updated as a nonlocal variable.
+        # - The agent program calls self.foo() methods,
+        #   against the usual policy that agent programs
+        #   be self-contained.
         state = []
         seq = []
 
