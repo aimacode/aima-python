@@ -96,11 +96,11 @@ class SimpleProblemSolvingAgent(agents.Agent):
         seq = []
 
         def program(percept):
-            state = self.update_state(state, percept)
+            state[:] = self.update_state(state, percept)
             if not seq:
                 goal = self.formulate_goal(state)
                 problem = self.formulate_problem(state, goal)
-                seq = self.search(problem)
+                seq[:] = self.search(problem)
                 if not seq: return None
             return seq.pop(0)
 
