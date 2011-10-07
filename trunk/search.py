@@ -156,8 +156,6 @@ def depth_first_graph_search(problem):
 
 def depth_limited_search(problem, limit=50):
     "[Fig. 3.12]"
-    # Would this not be more elegant with an exception instead of 'cutoff'?
-    # Or would an exception work better for the _successful_ case? ;-)
     def recursive_dls(node, problem, limit):
         if problem.goal_test(node.state):
             return node
@@ -484,7 +482,7 @@ class NQueensProblem(Problem):
             return [] # All columns filled; no successors
         else:
             def place(col, row):
-                new = state[:] # copy the state
+                new = state[:]
                 new[col] = row
                 return new
             col = state.index(None)
