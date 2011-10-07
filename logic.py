@@ -505,7 +505,7 @@ def associate(op, args):
     >>> associate('|', [A|(B|(C|(A&B)))])
     (A | B | C | (A & B))
     """
-    args = disassociate(op, args)
+    args = dissociate(op, args)
     if len(args) == 0:
         return _op_identity[op]
     elif len(args) == 1:
@@ -515,7 +515,7 @@ def associate(op, args):
 
 _op_identity = {'&':TRUE, '|':FALSE, '+':ZERO, '*':ONE}
 
-def disassociate(op, args):
+def dissociate(op, args):
     """Given an associative op, return a flattened list result such
     that Expr(op, *result) means the same as Expr(op, *args)."""
     result = []
@@ -533,7 +533,7 @@ def conjuncts(s):
     >>> conjuncts(A | B)
     [(A | B)]
     """
-    return disassociate('&', [s])
+    return dissociate('&', [s])
 
 def disjuncts(s):
     """Return a list of the disjuncts in the sentence s.
@@ -542,7 +542,7 @@ def disjuncts(s):
     >>> disjuncts(A & B)
     [(A & B)]
     """
-    return disassociate('|', [s])
+    return dissociate('|', [s])
 
 #______________________________________________________________________________
 
