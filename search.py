@@ -91,8 +91,7 @@ class Node:
 
 class SimpleProblemSolvingAgent(agents.Agent):
     """Abstract framework for problem-solving agent. [Fig. 3.1]"""
-    def __init__(self):
-        Agent.__init__(self)
+    def make_agent_program(self):
         state = []
         seq = []
 
@@ -102,12 +101,10 @@ class SimpleProblemSolvingAgent(agents.Agent):
                 goal = self.formulate_goal(state)
                 problem = self.formulate_problem(state, goal)
                 seq = self.search(problem)
-            action = seq[0]
-            seq[0:1] = []
-            return action
+                if not seq: return None
+            return seq.pop(0)
 
-        self.program = program
-
+        return program
 #______________________________________________________________________________
 ## Uninformed Search algorithms
 
