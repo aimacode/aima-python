@@ -545,13 +545,12 @@ def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
 
 def test_agent(AgentFactory, steps, envs):
     "Return the mean score of running an agent in each of the envs, for steps"
-    total = 0
-    for env in envs:
+    def score(env):
         agent = AgentFactory()
         env.add_object(agent)
         env.run(steps)
-        total += agent.performance
-    return float(total)/len(envs)
+        return agent.performance
+    return mean(map(score, envs))
 
 #_________________________________________________________________________
 
@@ -567,7 +566,7 @@ __doc__ += """
 'Suck'
 
 >>> e = TrivialVacuumEnvironment()
->>> e.add_object(ModelBasedVacuumAgent()); None
+>>> e.add_object(ModelBasedVacuumAgent())
 >>> e.run(5)
 
 ## Environments, and some agents, are randomized, so the best we can
