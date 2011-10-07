@@ -74,12 +74,11 @@ class Node:
     
     def path(self):
         """Create a list of nodes from the root to this node."""
-        # Isn't this backwards???
-        x, result = self, [self]
-        while x.parent:
-            result.append(x.parent)
-            x = x.parent
-        return result
+        node, path_back = self, []
+        while node:
+            path_back.append(node)
+            node = node.parent
+        return list(reversed(path_back))
 
     def expand(self, problem):
         "Return a list of nodes reachable from this node. [Fig. 3.8]"
@@ -778,7 +777,7 @@ __doc__ += """
 >>> recursive_best_first_search(ab).state 
 'B'
 >>> [node.state for node in astar_search(ab).path()] 
-['B', 'P', 'R', 'S', 'A']
+['A', 'S', 'R', 'P', 'B']
 
 >>> board = list('SARTELNID')
 >>> print_boggle(board)
