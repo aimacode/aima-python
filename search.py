@@ -287,33 +287,41 @@ def lrta_star_agent(a):
 #______________________________________________________________________________
 # Genetic Algorithm
 
-def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.0, n=20):
+def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
     """Call genetic_algorithm on the appropriate parts of a problem.
-    This requires that the problem has a successor function that generates
-    reasonable states, and that it has a path_cost function that scores states.
-    We use the negative of the path_cost function, because costs are to be
-    minimized, while genetic-algorithm expects a fitness_fn to be maximized."""
-    states = [s for (a, s) in problem.successor(problem.initial_state)[:n]]
+    This requires that the problem has a successor function that
+    generates states that can mate and mutate, and that it has a value
+    method that scores states."""
+    states = [s for (a, s) in problem.successor(problem.initial_state)]
     random.shuffle(states)
-    fitness_fn = lambda s: - problem.path_cost(0, s, None, s)
-    return genetic_algorithm(states, fitness_fn, ngen, pmut)
+    return genetic_algorithm(states[:n], problem.value, ngen, pmut)
 
-def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.0):
+def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
     """[Fig. 4.7]"""
-    def reproduce(p1, p2):
-        c = random.randrange(len(p1))
-        return p1[:c] + p2[c:]
-
     for i in range(ngen):
         new_population = []
         for i in len(population):
             p1, p2 = random_weighted_selections(population, 2, fitness_fn)
-            child = reproduce(p1, p2)
-            if random.uniform(0,1) > pmut:
+            child = p1.mate(p2)
+            if random.uniform(0, 1) < pmut:
                 child.mutate()
             new_population.append(child)
         population = new_population
     return argmax(population, fitness_fn)
+
+class GAState:
+    "Abstract class for individuals in a genetic algorithm."
+    def __init__(self, genes):
+        self.genes = genes
+
+    def mate(self, other):
+        "Return a new individual crossing self and other."
+        c = random.randrange(len(self.genes))
+        return self.__class__(self.genes[:c] + other.genes[c:])
+
+    def mutate(self):
+        "Change a few of my genes."
+        abstract
 
 def random_weighted_selection(seq, n, weight_fn):
     """Pick n elements of seq, weighted according to weight_fn.
