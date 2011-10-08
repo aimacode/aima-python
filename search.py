@@ -250,7 +250,8 @@ def hill_climbing(problem):
         neighbors = current.expand(problem)
         if not neighbors:
             break
-        neighbor = argmax(neighbors, lambda node: problem.value(node.state))
+        neighbor = argmax_random_tie(neighbors,
+                                     lambda node: problem.value(node.state))
         if problem.value(neighbor.state) <= problem.value(current.state):
             break
         current = neighbor
