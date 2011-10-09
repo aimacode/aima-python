@@ -342,8 +342,8 @@ usa = MapColoringCSP(list('RGBY'),
         UT: WY CO AZ; MT: ND SD WY; WY: SD NE CO; CO: NE KA OK NM; NM: OK TX;
         ND: MN SD; SD: MN IA NE; NE: IA MO KA; KA: MO OK; OK: MO AR TX;
         TX: AR LA; MN: WI IA; IA: WI IL MO; MO: IL KY TN AR; AR: MS TN LA;
-        LA: MS; WI: MI IL; IL: IN KY; IN: OH KY; MS: TN AL; AL: TN GA FL; MI: OH IN;
-        OH: PA WV KY; KY: WV VA TN; TN: VA NC GA; GA: NC SC FL;
+        LA: MS; WI: MI IL; IL: IN KY; IN: OH KY; MS: TN AL; AL: TN GA FL;
+        MI: OH IN; OH: PA WV KY; KY: WV VA TN; TN: VA NC GA; GA: NC SC FL;
         PA: NY NJ DE MD WV; WV: MD VA; VA: MD DC NC; NC: SC; NY: VT MA CT NJ;
         NJ: DE; DE: MD; MD: DC; VT: NH MA; MA: NH RI CT; CT: RI; ME: NH;
         HI: ; AK: """)
@@ -491,9 +491,9 @@ class Sudoku(CSP):
                       for v in flatten(rows)])
 
     def __init__(self, grid):
-        """Build a Sudoku problem from a string representing the grid: the digits
-        1-9 denote a filled cell, '.' or '0' an empty one; other characters are
-        ignored."""
+        """Build a Sudoku problem from a string representing the grid:
+        the digits 1-9 denote a filled cell, '.' or '0' an empty one;
+        other characters are ignored."""
         squares = iter(re.findall(r'\d|\.', grid))
         domains = dict((var, [int(ch)] if ch in '123456789' else range(1, 10))
                        for var, ch in zip(flatten(self.rows), squares))

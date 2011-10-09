@@ -372,8 +372,8 @@ class DecisionListLearner(Learner):
         return [(t, o)] + self.decision_list_learning(examples - examples_t)
 
     def find_examples(self, examples):
-        """Find a set of examples that all have the same outcome under some test.
-        Return a tuple of the test, outcome, and examples."""
+        """Find a set of examples that all have the same outcome under
+        some test. Return a tuple of the test, outcome, and examples."""
         NotImplemented
 #______________________________________________________________________________
 
