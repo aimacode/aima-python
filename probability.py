@@ -174,7 +174,8 @@ class BoolCpt:
         if isinstance(table, (float, int)): # no parents, 0-tuple
             self.table = {(): table}
         elif isinstance(table, dict):
-            key = table.keys()[0] if table else None
+            if table: key = table.keys()[0]
+            else: key = None
             if isinstance(key, bool):       # one parent, 1-tuple
                 self.table = dict(((k,), v) for k, v in table.items())
             elif isinstance(key, tuple):    # normal case, n-tuple

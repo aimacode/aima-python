@@ -102,7 +102,8 @@ class CSP(search.Problem):
         """Make sure we can prune values from domains. (We want to pay
         for this only if we use it.)"""
         if self.curr_domains is None:
-            self.curr_domains = dict((v, self.domains[v][:]) for v in self.vars)
+            self.curr_domains = dict((v, list(self.domains[v]))
+                                     for v in self.vars)
 
     def suppose(self, var, value):
         "Start accumulating inferences from assuming var=value."
@@ -498,7 +499,7 @@ class Sudoku(CSP):
         the digits 1-9 denote a filled cell, '.' or '0' an empty one;
         other characters are ignored."""
         squares = iter(re.findall(r'\d|\.', grid))
-        domains = dict((var, [int(ch)] if ch in '123456789' else range(1, 10))
+        domains = dict((var, if_(ch in '123456789', [ch], '123456789'))
                        for var, ch in zip(flatten(self.rows), squares))
         for _ in squares:
             raise ValueError("Not a Sudoku grid", grid) # Too many squares
