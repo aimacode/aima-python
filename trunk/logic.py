@@ -296,7 +296,7 @@ def is_definite_clause(s):
     elif s.op == '>>':
         antecedent, consequent = s.args
         return (is_symbol(consequent.op)
-                and all(is_symbol(arg.op) for arg in conjuncts(antecedent)))
+                and every(lambda arg: is_symbol(arg.op), conjuncts(antecedent)))
     else:
         return False
 
@@ -828,8 +828,7 @@ def occur_check(var, x, s):
         return (occur_check(var, x.op, s) or
                 occur_check(var, x.args, s))
     elif isinstance(x, (list, tuple)):
-        return any(occur_check(var, element, s)
-                   for element in x)
+        return some(lambda element: occur_check(var, element, s), x)
     else:
         return False
 
