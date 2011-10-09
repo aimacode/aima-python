@@ -486,9 +486,12 @@ class Sudoku(CSP):
     bgrid = [[[[Cell() for x in R3] for y in R3] for bx in R3] for by in R3]
     boxes = flatten([map(flatten, brow)       for brow in bgrid])
     rows  = flatten([map(flatten, zip(*brow)) for brow in bgrid])
-    units = map(set, boxes + rows + zip(*rows))
-    neighbors = dict([(v, set.union(*[u for u in units if v in u]) - set([v]))
-                      for v in flatten(rows)])
+    cols  = zip(*rows)
+
+    neighbors = dict([(v, set()) for v in flatten(rows)])
+    for unit in map(set, boxes + rows + cols):
+        for v in unit:
+            neighbors[v].update(unit - set([v]))
 
     def __init__(self, grid):
         """Build a Sudoku problem from a string representing the grid:
