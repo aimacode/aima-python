@@ -88,29 +88,32 @@ class Node:
 
 #______________________________________________________________________________
 
-class SimpleProblemSolvingAgent(agents.Agent):
-    """Abstract framework for problem-solving agent. [Fig. 3.1]"""
-    def __init__(self):
-        # Some nits in this code:
-        # - We're requiring state to be a list so it can be
-        #   updated as a nonlocal variable.
-        # - The agent program calls self.foo() methods,
-        #   against the usual policy that agent programs
-        #   be self-contained.
-        agents.Agent.__init__(self)
-        state = []
-        seq = []
+class SimpleProblemSolvingAgentProgram:
+    """Abstract framework for a problem-solving agent. [Fig. 3.1]"""
+    def __init__(self, initial_state=None):
+        update(self, state=initial_state, seq=[])
 
-        def program(percept):
-            state[:] = self.update_state(state, percept)
-            if not seq:
-                goal = self.formulate_goal(state)
-                problem = self.formulate_problem(state, goal)
-                seq[:] = self.search(problem)
-                if not seq: return None
-            return seq.pop(0)
+    def __call__(self, percept):
+        self.state = self.update_state(self.state, percept)
+        if not self.seq:
+            goal = self.formulate_goal(self.state)
+            problem = self.formulate_problem(self.state, goal)
+            self.seq = self.search(problem)
+            if not self.seq: return None
+        return self.seq.pop(0)
 
-        self.program = program
+    def update_state(self, percept):
+        abstract
+
+    def formulate_goal(self, state):
+        abstract
+
+    def formulate_problem(self, state, goal):
+        abstract
+
+    def search(self, problem):
+        abstract
+
 #______________________________________________________________________________
 ## Uninformed Search algorithms
 

@@ -94,7 +94,6 @@ class PropKB(KB):
 class KB_Agent(agents.Agent):
     """A generic logical knowledge-based agent. [Fig. 7.1]"""
     def __init__(self, KB):
-        agents.Agent.__init__(self)
         steps = itertools.count()
         def program(percept):
             t = steps.next()
@@ -102,7 +101,7 @@ class KB_Agent(agents.Agent):
             action = KB.ask(self.make_action_query(t))[expr('action')]
             KB.tell(self.make_action_sentence(action, t))
             return action
-        self.program = program
+        agents.Agent.__init__(self, program)
 
     def make_percept_sentence(self, percept, t):
         return Expr("Percept")(percept, t)
@@ -745,30 +744,31 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 class PLWumpusAgent(agents.Agent):
     "An agent for the wumpus world that does logical inference. [Fig. 7.19]"""
     def __init__(self):
-        agents.Agent.__init__(self)
         KB = FolKB() ## shouldn't this be a propositional KB? ***
         x, y, orientation = 1, 1, (1, 0)
         visited = set() ## squares already visited
-        action = None
         plan = []
 
         def program(percept):
             stench, breeze, glitter = percept
-            x, y, orientation = update_position(x, y, orientation, action)
+            x, y, orientation = \
+                update_position(x, y, orientation, program.action)
             KB.tell('%sS_%d,%d' % (if_(stench, '', '~'), x, y))
             KB.tell('%sB_%d,%d' % (if_(breeze, '', '~'), x, y))
-            if glitter: action = 'Grab'
-            elif plan: action = plan.pop()
+            if glitter: program.action = 'Grab'
+            elif plan: program.action = plan.pop()
             else:
                 for [i, j] in fringe(visited):
                     if KB.ask('~P_%d,%d & ~W_%d,%d' % (i, j, i, j)) != False:
                         raise NotImplementedError
                     KB.ask('~P_%d,%d | ~W_%d,%d' % (i, j, i, j)) != False 
-            if action is None: 
-                action = random.choice(['Forward', 'Right', 'Left'])
-            return action
+            if program.action is None: 
+                program.action = random.choice(['Forward', 'Right', 'Left'])
+            return program.action
 
-        return program
+        program.action = None
+
+        agents.Agent.__init__(self, program)
 
 def update_position(x, y, orientation, action):
     if action == 'TurnRight':
