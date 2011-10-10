@@ -70,7 +70,7 @@ class Agent(Object):
     It's not supposed to do that: the program can only look at the
     percepts.  An agent program that needs a model of the world (and of
     the agent itself) will have to build and maintain its own model.
-    There is an optional slots, .performance, which is a number giving
+    There is an optional slot, .performance, which is a number giving
     the performance measure of the agent in its environment."""
 
     def __init__(self, program=None):
@@ -106,8 +106,6 @@ class TableDrivenAgent(Agent):
     
     def __init__(self, table):
         "Supply as table a dictionary of all {percept_sequence:action} pairs."
-        ## The agent program could in principle be a function, but because
-        ## it needs to store state, we make it a callable instance of a class.
         percepts = []
         def program(percept):
             percepts.append(percept)
@@ -138,6 +136,7 @@ class ReflexVacuumAgent(Agent):
             elif location == loc_A: return 'Right'
             elif location == loc_B: return 'Left'
         Agent.__init__(self, program)
+
 
 def RandomVacuumAgent():
     "Randomly choose one of the actions from the vacuum environment."
