@@ -195,7 +195,7 @@ class Environment(object):
         return [] ## List of classes that can go into environment
 
     def percept(self, agent):
-	"Return the percept that the agent sees at this point. (Implement this.)"
+        "Return the percept that the agent sees at this point. (Implement this.)"
         abstract
 
     def execute_action(self, agent, action):
@@ -203,12 +203,12 @@ class Environment(object):
         abstract
 
     def default_location(self, object):
-	"Default location to place a new object with unspecified location."
+        "Default location to place a new object with unspecified location."
         return None
 
     def exogenous_change(self):
-	"If there is spontaneous change in the world, override this."
-	pass
+        "If there is spontaneous change in the world, override this."
+        pass
 
     def is_done(self):
         "By default, we're done when we can't find a live agent."
@@ -217,20 +217,20 @@ class Environment(object):
         return True
 
     def step(self):
-	"""Run the environment for one time step. If the
-	actions and exogenous changes are independent, this method will
-	do.  If there are interactions between them, you'll need to
-	override this method."""
-	if not self.is_done():
+        """Run the environment for one time step. If the
+        actions and exogenous changes are independent, this method will
+        do.  If there are interactions between them, you'll need to
+        override this method."""
+        if not self.is_done():
             actions = [agent.program(self.percept(agent))
                        for agent in self.agents]
             for (agent, action) in zip(self.agents, actions):
-		self.execute_action(agent, action)
+                self.execute_action(agent, action)
             self.exogenous_change()
 
     def run(self, steps=1000):
-	"""Run the Environment for given number of time steps."""
-	for step in range(steps):
+        """Run the Environment for given number of time steps."""
+        for step in range(steps):
             if self.is_done(): return
             self.step()
 
@@ -245,11 +245,11 @@ class Environment(object):
         return self.list_objects_at(location, oclass) != []
 
     def add_object(self, obj, location=None):
-	"""Add an object to the environment, setting its location. Also keep
-	track of objects that are agents.  Shouldn't need to override this."""
-	obj.location = location or self.default_location(obj)
-	self.objects.append(obj)
-	if isinstance(obj, Agent):
+        """Add an object to the environment, setting its location. Also keep
+        track of objects that are agents.  Shouldn't need to override this."""
+        obj.location = location or self.default_location(obj)
+        self.objects.append(obj)
+        if isinstance(obj, Agent):
             obj.performance = 0
             self.agents.append(obj)
 

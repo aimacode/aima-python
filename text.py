@@ -219,7 +219,7 @@ class UnixConsultant(IRSystem):
         import os
         mandir = '../data/MAN/'
         man_files = [mandir + f for f in os.listdir(mandir)
-		     if f.endswith('.txt')]
+                     if f.endswith('.txt')]
         self.index_collection(man_files)
 
 class Document:

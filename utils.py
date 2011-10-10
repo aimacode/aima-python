@@ -723,10 +723,10 @@ def random_tests(text):
     """Some functions are stochastic. We want to be able to write a test
     with random output.  We do that by ignoring the output."""
     def fixup(test): 
-	if " = " in test:
-	    return ">>> " + test
-	else:
-	    return ">>> ignore(" + test + ")"
+        if " = " in test:
+            return ">>> " + test
+        else:
+            return ">>> ignore(" + test + ")"
     tests =  re.findall(">>> (.*)", text)
     return '\n'.join(map(fixup, tests))
 
@@ -904,5 +904,3 @@ False
 ['a', 'b', 'c', 'd', 'r', 'w', 'y', 'z']
 
 """
-
-
