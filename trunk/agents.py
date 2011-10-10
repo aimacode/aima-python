@@ -143,9 +143,6 @@ loc_A, loc_B = (0, 0), (1, 0) # The two locations for the Vacuum world
 class ReflexVacuumAgent(Agent):
     "A reflex agent for the two-state vacuum environment. [Fig. 2.8]"
 
-    def __init__(self):
-        super(ReflexVacuumAgent, self).__init__()
-
     def make_agent_program(self):
         def program((location, status)):
             if status == 'Dirty': return 'Suck'
