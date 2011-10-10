@@ -73,11 +73,12 @@ class Agent(Object):
     There is an optional slots, .performance, which is a number giving
     the performance measure of the agent in its environment."""
 
-    def __init__(self):
+    def __init__(self, program=None):
         self.alive = True
         self.bump = False
-        def program(percept):
-            return raw_input('Percept=%s; action? ' % percept)
+        if program is None:
+            def program(percept):
+                return raw_input('Percept=%s; action? ' % percept)
         self.program = program
 
     def can_grab(self, obj):
@@ -107,21 +108,21 @@ class TableDrivenAgent(Agent):
         "Supply as table a dictionary of all {percept_sequence:action} pairs."
         ## The agent program could in principle be a function, but because
         ## it needs to store state, we make it a callable instance of a class.
-        super(TableDrivenAgent, self).__init__()
         percepts = []
         def program(percept):
             percepts.append(percept)
             action = table.get(tuple(percepts))
             return action
-        self.program = program
+        Agent.__init__(self, program)
 
 
 class RandomAgent(Agent):
     "An agent that chooses an action at random, ignoring all percepts."
 
     def __init__(self, actions):
-        super(RandomAgent, self).__init__()
-        self.program = lambda percept: random.choice(actions)
+        def program(percept):
+            return random.choice(actions)
+        Agent.__init__(self, program)
 
 
 #______________________________________________________________________________
@@ -132,12 +133,11 @@ class ReflexVacuumAgent(Agent):
     "A reflex agent for the two-state vacuum environment. [Fig. 2.8]"
 
     def __init__(self):
-        super(ReflexVacuumAgent, self).__init__()
         def program((location, status)):
             if status == 'Dirty': return 'Suck'
             elif location == loc_A: return 'Right'
             elif location == loc_B: return 'Left'
-        self.program = program
+        Agent.__init__(self, program)
 
 def RandomVacuumAgent():
     "Randomly choose one of the actions from the vacuum environment."
@@ -164,7 +164,6 @@ class ModelBasedVacuumAgent(Agent):
     "An agent that keeps track of what locations are clean or dirty."
 
     def __init__(self):
-        super(ModelBasedVacuumAgent, self).__init__()
         model = {loc_A: None, loc_B: None}
         def program((location, status)):
             "Same as ReflexVacuumAgent, except if everything is clean, do NoOp"
@@ -173,7 +172,7 @@ class ModelBasedVacuumAgent(Agent):
             elif status == 'Dirty': return 'Suck'
             elif location == loc_A: return 'Right'
             elif location == loc_B: return 'Left'
-        self.program = program
+        Agent.__init__(self, program)
 
 #______________________________________________________________________________
 
@@ -454,26 +453,24 @@ class SimpleReflexAgent(Agent):
     """This agent takes action based solely on the percept. [Fig. 2.13]"""
 
     def __init__(self, rules, interpret_input):
-        super(SimpleReflexAgent, self).__init__()
         def program(percept):
             state = interpret_input(percept)
             rule = rule_match(state, rules)
             action = rule.action
             return action
-        self.program = program
+        Agent.__init__(self, program)
 
 class ReflexAgentWithState(Agent):
     """This agent takes action based on the percept and state. [Fig. 2.16]"""
 
     def __init__(self, rules, update_state):
-        super(ReflexAgentWithState, self).__init__()
-        state = [None]
         def program(percept):
-            state[0] = update_state(state[0], action, percept)
-            rule = rule_match(state[0], rules)
+            program.state = update_state(program.state, program.action, percept)
+            rule = rule_match(program.state, rules)
             action = rule.action
             return action
-        return program
+        program.state = program.action = None
+        Agent.__init__(self, program)
 
 def rule_match(state, rules):
     "Find the first rule that matches state."
