@@ -74,15 +74,11 @@ class Agent(Object):
     the performance measure of the agent in its environment."""
 
     def __init__(self):
-        self.program = self.make_agent_program()
         self.alive = True
         self.bump = False
-
-    def make_agent_program(self):
-        
         def program(percept):
             return raw_input('Percept=%s; action? ' % percept)
-        return program
+        self.program = program
 
     def can_grab(self, obj):
         """Returns True if this agent can grab this object.
@@ -111,29 +107,21 @@ class TableDrivenAgent(Agent):
         "Supply as table a dictionary of all {percept_sequence:action} pairs."
         ## The agent program could in principle be a function, but because
         ## it needs to store state, we make it a callable instance of a class.
-        self.table = table
         super(TableDrivenAgent, self).__init__()
-
-    def make_agent_program(self):
-        table = self.table
         percepts = []
         def program(percept):
             percepts.append(percept)
             action = table.get(tuple(percepts))
             return action
-        return program
+        self.program = program
 
 
 class RandomAgent(Agent):
     "An agent that chooses an action at random, ignoring all percepts."
 
     def __init__(self, actions):
-        self.actions = actions
         super(RandomAgent, self).__init__()
-
-    def make_agent_program(self):
-        actions = self.actions
-        return lambda percept: random.choice(actions)
+        self.program = lambda percept: random.choice(actions)
 
 
 #______________________________________________________________________________
@@ -143,12 +131,13 @@ loc_A, loc_B = (0, 0), (1, 0) # The two locations for the Vacuum world
 class ReflexVacuumAgent(Agent):
     "A reflex agent for the two-state vacuum environment. [Fig. 2.8]"
 
-    def make_agent_program(self):
+    def __init__(self):
+        super(ReflexVacuumAgent, self).__init__()
         def program((location, status)):
             if status == 'Dirty': return 'Suck'
             elif location == loc_A: return 'Right'
             elif location == loc_B: return 'Left'
-        return program
+        self.program = program
 
 def RandomVacuumAgent():
     "Randomly choose one of the actions from the vacuum environment."
@@ -175,11 +164,8 @@ class ModelBasedVacuumAgent(Agent):
     "An agent that keeps track of what locations are clean or dirty."
 
     def __init__(self):
-        self.model = {loc_A: None, loc_B: None}
         super(ModelBasedVacuumAgent, self).__init__()
-
-    def make_agent_program(self):
-        model = self.model
+        model = {loc_A: None, loc_B: None}
         def program((location, status)):
             "Same as ReflexVacuumAgent, except if everything is clean, do NoOp"
             model[location] = status ## Update the model here
@@ -187,7 +173,7 @@ class ModelBasedVacuumAgent(Agent):
             elif status == 'Dirty': return 'Suck'
             elif location == loc_A: return 'Right'
             elif location == loc_B: return 'Left'
-        return program
+        self.program = program
 
 #______________________________________________________________________________
 
@@ -468,36 +454,23 @@ class SimpleReflexAgent(Agent):
     """This agent takes action based solely on the percept. [Fig. 2.13]"""
 
     def __init__(self, rules, interpret_input):
-        self.rules = rules
-        self.interpret_input = interpret_input
         super(SimpleReflexAgent, self).__init__()
-
-    def make_agent_program(self):
-        rules = self.rules
-        interpret_input = self.interpret_input
         def program(percept):
             state = interpret_input(percept)
             rule = rule_match(state, rules)
             action = rule.action
             return action
-        return program
+        self.program = program
 
 class ReflexAgentWithState(Agent):
     """This agent takes action based on the percept and state. [Fig. 2.16]"""
 
     def __init__(self, rules, update_state):
-        self.rules = rules
-        self.update_state = update_state
         super(ReflexAgentWithState, self).__init__()
-
-    def make_agent_program(self):
-        rules = self.rules
-        update_state = self.update_state
-        state = None
-        action = None
+        state = [None]
         def program(percept):
-            state = update_state(state, action, percept)
-            rule = rule_match(state, rules)
+            state[0] = update_state(state[0], action, percept)
+            rule = rule_match(state[0], rules)
             action = rule.action
             return action
         return program

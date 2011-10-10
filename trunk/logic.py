@@ -744,7 +744,8 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 
 class PLWumpusAgent(agents.Agent):
     "An agent for the wumpus world that does logical inference. [Fig. 7.19]"""
-    def make_agent_program(self):
+    def __init__(self):
+        agents.Agent.__init__(self)
         KB = FolKB() ## shouldn't this be a propositional KB? ***
         x, y, orientation = 1, 1, (1, 0)
         visited = set() ## squares already visited
