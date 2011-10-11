@@ -6,6 +6,9 @@ as a dictionary of {state:action} pairs, and a Utility function as a
 dictionary of {state:number} pairs.  We then define the value_iteration 
 and policy_iteration algorithms."""
 
+# (Written for the second edition of AIMA; expect some discrepanciecs
+# from the third edition until this gets reviewed.)
+
 from utils import *
 
 class MDP:

@@ -1,5 +1,8 @@
 """A chart parser and some grammars. (Chapter 22)"""
 
+# (Written for the second edition of AIMA; expect some discrepanciecs
+# from the third edition until this gets reviewed.)
+
 from utils import *
 
 #______________________________________________________________________________

@@ -1,5 +1,7 @@
 """Probability models. (Chapter 13-15)
 """
+# (Written for the second edition of AIMA; expect some discrepanciecs
+# from the third edition until this gets reviewed.)
 
 from utils import *
 from logic import extend
