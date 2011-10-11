@@ -36,7 +36,8 @@ class CSP(search.Problem):
         curr_domains[var]       Slot: remaining consistent values for var
                                 Used by constraint propagation routines.
     The following methods are used only by graph_search and tree_search:
-        successor(state)        Return a list of (action, state) pairs
+        actions(state)          Return a list of actions
+        result(state, action)   Return a successor of state
         goal_test(state)        Return true if all constraints satisfied
     The following are just for debugging purposes:
         nassigns                Slot: tracks the number of assignments made
@@ -78,18 +79,22 @@ class CSP(search.Problem):
         # Subclasses can print in a prettier way, or display with a GUI
         print 'CSP:', self, 'with assignment:', assignment
 
-    ## These methods are for the tree and graph search interface:
+    ## These methods are for the tree- and graph-search interface:
 
-    def successor(self, state):
-        "Return a list of (action, state) pairs."
+    def actions(self, state):
+        """Return a list of applicable actions: nonconflicting
+        assignments to an unassigned variable."""
         if len(state) == len(self.vars):
             return []
         else:
             assignment = dict(state)
             var = find_if(lambda v: v not in assignment, self.vars)
-            return [((var, val), state + ((var, val),))
-                    for val in self.domains[var]
+            return [(var, val) for val in self.domains[var]
                     if self.nconflicts(var, val, assignment) == 0]
+    
+    def result(self, state, (var, val)):
+        "Perform an action and return the new state."
+        return state + ((var, val),)
 
     def goal_test(self, state):
         "The goal is to assign all vars, with all constraints satisfied."

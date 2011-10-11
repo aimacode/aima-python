@@ -662,6 +662,7 @@ class Queue:
         q.extend(items) -- equivalent to: for item in items: q.append(item)
         q.pop()         -- return the top item from the queue
         len(q)          -- number of items in q (also q.__len())
+        item in q       -- does q contain item?
     Note that isinstance(Stack(), Queue) is false, because we implement stacks
     as lists.  If Python ever gets interfaces, Queue will be an interface."""
 
@@ -692,6 +693,8 @@ class FIFOQueue(Queue):
             self.A = self.A[self.start:]
             self.start = 0
         return e
+    def __contains__(self, item):
+        return item in self.A[self.start:]
 
 class PriorityQueue(Queue):
     """A queue in which the minimum (or maximum) element (as determined by f and
@@ -708,6 +711,8 @@ class PriorityQueue(Queue):
             return self.A.pop(0)[1]
         else:
             return self.A.pop()[1]
+    def __contains__(self, item):
+        return some(lambda (_, x): x == item, self.A)
 
 ## Fig: The idea is we can define things like Fig[3,10] later.
 ## Alas, it is Fig[3,10] not Fig[3.10], because that would be the same
@@ -806,8 +811,10 @@ calculating gnp ...
 # Test Queues:
 >>> nums = [1, 8, 2, 7, 5, 6, -99, 99, 4, 3, 0]
 >>> def qtest(q): 
-...     return [q.extend(nums), [q.pop() for i in range(len(q))]][1]
-
+...     q.extend(nums)
+...     for num in nums: assert num in q
+...     assert 42 not in q
+...     return [q.pop() for i in range(len(q))]
 >>> qtest(Stack()) 
 [0, 3, 4, 99, -99, 6, 5, 7, 2, 8, 1]
 

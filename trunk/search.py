@@ -4,9 +4,6 @@ The way to use this code is to subclass Problem to create a class of problems,
 then create problem instances and solve them with calls to the various search
 functions."""
 
-# (Written for the second edition of AIMA; expect some discrepanciecs
-# from the third edition until this gets reviewed.)
-
 from utils import *
 import agents
 import math, random, sys, time, bisect, string
@@ -14,10 +11,10 @@ import math, random, sys, time, bisect, string
 #______________________________________________________________________________
 
 class Problem(object):
-    """The abstract class for a formal problem.  You should subclass this and
-    implement the method successor, and possibly __init__, goal_test, and
-    path_cost. Then you will create instances of your subclass and solve them
-    with the various search functions."""
+    """The abstract class for a formal problem.  You should subclass
+    this and implement the methods actions and result, and possibly
+    __init__, goal_test, and path_cost. Then you will create instances
+    of your subclass and solve them with the various search functions."""
 
     def __init__(self, initial, goal=None):
         """The constructor specifies the initial state, and possibly a goal
@@ -25,11 +22,17 @@ class Problem(object):
         other arguments."""
         self.initial = initial; self.goal = goal
         
-    def successor(self, state):
-        """Given a state, return a sequence of (action, state) pairs reachable
-        from this state. If there are many successors, consider an iterator
-        that yields the successors one at a time, rather than building them
-        all at once. Iterators will work fine within the framework."""
+    def actions(self, state):
+        """Return the actions that can be executed in the given
+        state. The result would typically be a list, but if there are
+        many actions, consider yielding them one at a time in an
+        iterator, rather than building them all at once."""
+        abstract
+    
+    def result(self, state, action):
+        """Return the state that results from executing the given
+        action in the given state. The action must be one of
+        self.actions(state)."""
         abstract
     
     def goal_test(self, state):
@@ -72,19 +75,28 @@ class Node:
     def __repr__(self):
         return "<Node %s>" % (self.state,)
     
+    def expand(self, problem):
+        "List the nodes reachable in one step from this node."
+        return [self.child_node(problem, action)
+                for action in problem.actions(self.state)]
+
+    def child_node(self, problem, action):
+        "Fig. 3.10"
+        next = problem.result(self.state, action)
+        return Node(next, self, action,
+                    problem.path_cost(self.path_cost, self.state, action, next))
+
+    def solution(self):
+        "Return the sequence of actions to go from the root to this node."
+        return [node.action for node in self.path()]
+
     def path(self):
-        """Create a list of nodes from the root to this node."""
+        "Return a list of nodes forming the path from the root to this node."
         node, path_back = self, []
         while node:
             path_back.append(node)
             node = node.parent
         return list(reversed(path_back))
-
-    def expand(self, problem):
-        "Return a list of nodes reachable from this node. [Fig. 3.8]"
-        return [Node(next, self, act,
-                     problem.path_cost(self.path_cost, self.state, act, next))
-                for (act, next) in problem.successor(self.state)]
 
 #______________________________________________________________________________
 
@@ -117,51 +129,60 @@ class SimpleProblemSolvingAgentProgram:
 #______________________________________________________________________________
 ## Uninformed Search algorithms
 
-def tree_search(problem, fringe):
+def tree_search(problem, frontier):
     """Search through the successors of a problem to find a goal.
-    The argument fringe should be an empty queue.
-    Don't worry about repeated paths to a state. [Fig. 3.8]"""
-    fringe.append(Node(problem.initial))
-    while fringe:
-        node = fringe.pop()
+    The argument frontier should be an empty queue.
+    Don't worry about repeated paths to a state. [Fig. 3.7]"""
+    frontier.append(Node(problem.initial))
+    while frontier:
+        node = frontier.pop()
         if problem.goal_test(node.state):
             return node
-        fringe.extend(node.expand(problem))
+        frontier.extend(node.expand(problem))
+    return None
+
+def graph_search(problem, frontier):
+    """Search through the successors of a problem to find a goal.
+    The argument frontier should be an empty queue.
+    If two paths reach a state, only use the best one. [Fig. 3.7]"""
+    frontier.append(Node(problem.initial))
+    explored = set()
+    while frontier:
+        node = frontier.pop()
+        if problem.goal_test(node.state): 
+            return node
+        explored.add(node.state)
+        frontier.extend(successor for successor in node.expand(problem)
+                        if successor.state not in explored
+                        and successor.state not in frontier)
     return None
 
 def breadth_first_tree_search(problem):
-    "Search the shallowest nodes in the search tree first. [p 74]"
+    "Search the shallowest nodes in the search tree first."
     return tree_search(problem, FIFOQueue())
     
 def depth_first_tree_search(problem):
-    "Search the deepest nodes in the search tree first. [p 74]"
+    "Search the deepest nodes in the search tree first."
     return tree_search(problem, Stack())
 
-def graph_search(problem, fringe):
-    """Search through the successors of a problem to find a goal.
-    The argument fringe should be an empty queue.
-    If two paths reach a state, only use the best one. [Fig. 3.18]"""
-    closed = {}
-    fringe.append(Node(problem.initial))
-    while fringe:
-        node = fringe.pop()
-        if problem.goal_test(node.state): 
-            return node
-        if node.state not in closed:
-            closed[node.state] = True
-            fringe.extend(node.expand(problem))    
-    return None
-
 def breadth_first_graph_search(problem):
-    "Search the shallowest nodes in the search tree first. [p 74]"
+    "Search the shallowest nodes in the search tree first."
     return graph_search(problem, FIFOQueue())
     
 def depth_first_graph_search(problem):
-    "Search the deepest nodes in the search tree first. [p 74]"
+    "Search the deepest nodes in the search tree first."
     return graph_search(problem, Stack())
 
+def breadth_first_search(problem):
+    "Fig. 3.11"
+    NotImplemented
+
+def uniform_cost_search(problem):
+    "Fig. 3.14"
+    NotImplemented
+
 def depth_limited_search(problem, limit=50):
-    "[Fig. 3.12]"
+    "[Fig. 3.17]"
     def recursive_dls(node, problem, limit):
         if problem.goal_test(node.state):
             return node
@@ -181,7 +202,7 @@ def depth_limited_search(problem, limit=50):
     return recursive_dls(Node(problem.initial), problem, limit)
 
 def iterative_deepening_search(problem):
-    "[Fig. 3.13]"
+    "[Fig. 3.18]"
     for depth in xrange(sys.maxint):
         result = depth_limited_search(problem, depth)
         if result is not 'cutoff':
@@ -217,7 +238,7 @@ def astar_search(problem, h=None):
 ## Other search algorithms
 
 def recursive_best_first_search(problem, h=None):
-    "[Fig. 4.5]"
+    "[Fig. 3.26]"
     h = h or problem.h
 
     def RBFS(problem, node, flimit):
@@ -248,7 +269,7 @@ def recursive_best_first_search(problem, h=None):
 
 def hill_climbing(problem):
     """From the initial node, keep choosing the neighbor with highest value,
-    stopping when no neighbor is better. [Fig. 4.11]"""
+    stopping when no neighbor is better. [Fig. 4.2]"""
     current = Node(problem.initial)
     while True:
         neighbors = current.expand(problem)
@@ -280,28 +301,32 @@ def simulated_annealing(problem, schedule=exp_schedule()):
         if delta_e > 0 or probability(math.exp(delta_e/T)):
             current = next
 
-def online_dfs_agent(a):
-    "[Fig. 4.12]"
-    pass #### more
+def and_or_graph_search(problem):
+    "[Fig. 4.11]"
+    NotImplemented
 
-def lrta_star_agent(a):
-    "[Fig. 4.12]"
-    pass #### more
+def online_dfs_agent(s1):
+    "[Fig. 4.21]"
+    NotImplemented
+
+def lrta_star_agent(s1):
+    "[Fig. 4.24]"
+    NotImplemented
 
 #______________________________________________________________________________
 # Genetic Algorithm
 
 def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
     """Call genetic_algorithm on the appropriate parts of a problem.
-    This requires that the problem has a successor function that
-    generates states that can mate and mutate, and that it has a value
-    method that scores states."""
-    states = [s for (a, s) in problem.successor(problem.initial_state)]
+    This requires the problem to have states that can mate and mutate,
+    plus a value method that scores states."""
+    s = problem.initial_state
+    states = [problem.result(s, a) for a in problem.actions(s)]
     random.shuffle(states)
     return genetic_algorithm(states[:n], problem.value, ngen, pmut)
 
 def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
-    """[Fig. 4.7]"""
+    "[Fig. 4.8]"
     for i in range(ngen):
         new_population = []
         for i in len(population):
@@ -314,7 +339,7 @@ def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
     return argmax(population, fitness_fn)
 
 class GAState:
-    "Abstract class for individuals in a genetic algorithm."
+    "Abstract class for individuals in a genetic search."
     def __init__(self, genes):
         self.genes = genes
 
@@ -464,9 +489,13 @@ class GraphProblem(Problem):
         Problem.__init__(self, initial, goal)
         self.graph = graph
 
-    def successor(self, A):
-        "Return a list of (action, result) pairs."
-        return [(B, B) for B in self.graph.get(A).keys()]
+    def actions(self, A):
+        "The actions at a graph node are just its neighbors."
+        return self.graph.get(A).keys()
+
+    def result(self, state, action):
+        "The result of going to a neighbor is just that neighbor."
+        return action
 
     def path_cost(self, cost_so_far, A, action, B):
         return cost_so_far + (self.graph.get(A,B) or infinity)
@@ -486,23 +515,29 @@ class NQueensProblem(Problem):
     each other.  A state is represented as an N-element array, where
     a value of r in the c-th entry means there is a queen at column c,
     row r, and a value of None means that the c-th column has not been
-    filled in yet.  We fill in columns left to right."""
+    filled in yet.  We fill in columns left to right.
+    >>> depth_first_tree_search(NQueensProblem(8))
+    <Node [7, 3, 0, 2, 5, 1, 6, 4]>
+    """
     def __init__(self, N):
         self.N = N
         self.initial = [None] * N
 
-    def successor(self, state): 
+    def actions(self, state):
         "In the leftmost empty column, try all non-conflicting rows."
         if state[-1] is not None:
             return [] # All columns filled; no successors
         else:
-            def place(col, row):
-                new = state[:]
-                new[col] = row
-                return new
             col = state.index(None)
-            return [(row, place(col, row)) for row in range(self.N)
+            return [row for row in range(self.N)
                     if not self.conflicted(state, row, col)]
+
+    def result(self, state, row):
+        "Place the next queen at the given row."
+        col = state.index(None)
+        new = state[:]
+        new[col] = row
+        return new
 
     def conflicted(self, state, row, col):
         "Would placing a queen at (row, col) conflict with anything?"
@@ -723,14 +758,15 @@ class InstrumentedProblem(Problem):
         self.succs = self.goal_tests = self.states = 0
         self.found = None
         
-    def successor(self, state):
-        "Return a list of (action, state) pairs reachable from this state."
-        result = self.problem.successor(state)
-        self.succs += 1; self.states += len(result)
-        return result
+    def actions(self, state):
+        self.succs += 1
+        return self.problem.actions(state)
+
+    def result(self, state, action):
+        self.states += 1
+        return self.problem.result(state, action)
     
     def goal_test(self, state):
-        "Return true if the state is a goal."
         self.goal_tests += 1
         result = self.problem.goal_test(state)
         if result: 
@@ -742,7 +778,7 @@ class InstrumentedProblem(Problem):
 
     def __repr__(self):
         return '<%4d/%4d/%4d/%s>' % (self.succs, self.goal_tests,
-                                     self.states, str(self.found)[0:4])
+                                     self.states, str(self.found)[:4])
 
 def compare_searchers(problems, header, searchers=[breadth_first_tree_search,
                       breadth_first_graph_search, depth_first_graph_search,
@@ -760,11 +796,11 @@ def compare_graph_searchers():
 >>> compare_graph_searchers()
 Searcher                      Romania(A, B)        Romania(O, N)        Australia            
 breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>   <   7/   8/  22/WA>  
-breadth_first_graph_search    <  10/  19/  26/B>   <  19/  45/  45/N>   <   5/   8/  16/WA>  
-depth_first_graph_search      <   9/  15/  23/B>   <  16/  27/  39/N>   <   4/   7/  13/WA>  
+breadth_first_graph_search    <  11/  12/  28/B>   <  33/  34/  76/N>   <   6/   7/  19/WA>  
+depth_first_graph_search      <   9/  10/  23/B>   <  16/  17/  39/N>   <   4/   5/  13/WA>  
 iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>   <   3/  11/  11/WA>  
 depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>   <  50/  54/ 200/WA>  
-astar_search                  <   3/   4/   9/B>   <   8/  10/  22/N>   <   2/   3/   6/WA>  
+astar_search                  <   3/   4/   9/B>   <   8/   9/  22/N>   <   2/   3/   6/WA>  
 recursive_best_first_search   < 200/ 201/ 601/B>   <  71/  72/ 213/N>   <  11/  12/  43/WA>  """
     compare_searchers(problems=[GraphProblem('A', 'B', romania),
                                 GraphProblem('O', 'N', romania),
