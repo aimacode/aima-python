@@ -1,5 +1,8 @@
 """Learn to estimate functions  from examples. (Chapters 18-20)"""
 
+# (Written for the second edition of AIMA; expect some discrepanciecs
+# from the third edition until this gets reviewed.)
+
 from utils import *
 import agents, random, operator
 

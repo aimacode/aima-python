@@ -1,5 +1,8 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 5)."""
 
+# (Written for the second edition of AIMA; expect some discrepanciecs
+# from the third edition until this gets reviewed.)
+
 from __future__ import generators
 from utils import *
 import search

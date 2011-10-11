@@ -122,6 +122,36 @@ class RandomAgent(Agent):
             return random.choice(actions)
         Agent.__init__(self, program)
 
+#______________________________________________________________________________
+
+class SimpleReflexAgent(Agent):
+    "This agent takes action based solely on the percept. [Fig. 2.10]"
+
+    def __init__(self, rules, interpret_input):
+        def program(percept):
+            state = interpret_input(percept)
+            rule = rule_match(state, rules)
+            action = rule.action
+            return action
+        Agent.__init__(self, program)
+
+class ModelBasedReflexAgent(Agent):
+    "This agent takes action based on the percept and state. [Fig. 2.12]"
+
+    def __init__(self, rules, update_state):
+        def program(percept):
+            program.state = update_state(program.state, program.action, percept)
+            rule = rule_match(program.state, rules)
+            action = rule.action
+            return action
+        program.state = program.action = None
+        Agent.__init__(self, program)
+
+def rule_match(state, rules):
+    "Find the first rule that matches state."
+    for rule in rules:
+        if rule.matches(state):
+            return rule
 
 #______________________________________________________________________________
 
@@ -165,7 +195,7 @@ class ModelBasedVacuumAgent(Agent):
     def __init__(self):
         model = {loc_A: None, loc_B: None}
         def program((location, status)):
-            "Same as ReflexVacuumAgent, except if everything is clean, do NoOp"
+            "Same as ReflexVacuumAgent, except if everything is clean, do NoOp."
             model[location] = status ## Update the model here
             if model[loc_A] == model[loc_B] == 'Clean': return 'NoOp'
             elif status == 'Dirty': return 'Suck'
@@ -447,37 +477,6 @@ class TrivialVacuumEnvironment(Environment):
         return random.choice([loc_A, loc_B])
 
 #______________________________________________________________________________
-
-class SimpleReflexAgent(Agent):
-    """This agent takes action based solely on the percept. [Fig. 2.13]"""
-
-    def __init__(self, rules, interpret_input):
-        def program(percept):
-            state = interpret_input(percept)
-            rule = rule_match(state, rules)
-            action = rule.action
-            return action
-        Agent.__init__(self, program)
-
-class ReflexAgentWithState(Agent):
-    """This agent takes action based on the percept and state. [Fig. 2.16]"""
-
-    def __init__(self, rules, update_state):
-        def program(percept):
-            program.state = update_state(program.state, program.action, percept)
-            rule = rule_match(program.state, rules)
-            action = rule.action
-            return action
-        program.state = program.action = None
-        Agent.__init__(self, program)
-
-def rule_match(state, rules):
-    "Find the first rule that matches state."
-    for rule in rules:
-        if rule.matches(state):
-            return rule
-
-#______________________________________________________________________________
 ## The Wumpus World
 
 class Gold(Object): pass
@@ -589,7 +588,8 @@ class EnvToolbar(tk.Frame, object):
 
         # Create buttons and other controls
         
-        for txt, cmd in [('Step >', self.env.step), ('Run >>', self.run),
+        for txt, cmd in [('Step >', self.env.step),
+                         ('Run >>', self.run),
                          ('Stop [ ]', self.stop),
                          ('List objects', self.list_objects),
                          ('List agents', self.list_agents)]:

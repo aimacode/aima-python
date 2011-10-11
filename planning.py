@@ -1,4 +1,4 @@
-"""Planning (Chapters 11-12)
+"""Planning (Chapters 10-11)
 """
 
 from __future__ import generators

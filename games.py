@@ -1,6 +1,8 @@
 """Games, or Adversarial Search. (Chapter 6)
 
 """
+# (Written for the second edition of AIMA; expect some discrepanciecs
+# from the third edition until this gets reviewed.)
 
 from utils import *
 import random 
