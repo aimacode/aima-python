@@ -327,7 +327,7 @@ class PermutationDecoder:
     based on unigram probabilities, this would probably fare well. However,
     I chose instead to have an incremental representation. A state is 
     represented as a letter-to-letter map; for example {'z': 'e'} to
-    represent that 'z' will be translated to 'e'
+    represent that 'z' will be translated to 'e'.
     """
     def __init__(self, training_text, ciphertext=None):
         self.Pwords = UnigramTextModel(words(training_text))
@@ -355,7 +355,7 @@ class PermutationDecoderProblem(search.Problem):
         self.initial = initial or {}
         self.decoder = decoder
 
-    def successors(self, state):
+    def actions(self, state):
         ## Find the best 
         p, plainchar = max([(self.decoder.P1[c], c) 
                             for c in alphabet if c not in state])
