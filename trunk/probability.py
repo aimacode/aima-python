@@ -47,7 +47,8 @@ class ProbDist:
 
     def __getitem__(self, val):
         "Given a value, return P(value)."
-        return self.prob[val]
+        try: return self.prob[val]
+        except KeyError: return 0
 
     def __setitem__(self, val, p):
         "Set P(val) = p"
@@ -91,7 +92,8 @@ class JointProbDist(ProbDist):
 
     def __getitem__(self, values):
         "Given a tuple or dict of values, return P(values)."
-        return self.prob[event_values(values, self.variables)]
+        values = event_values(values, self.variables)
+        return ProbDist.__getitem__(self, values)
 
     def __setitem__(self, values, p):
         """Set P(values) = p.  Values can be a tuple or a dict; it must
@@ -114,13 +116,12 @@ class JointProbDist(ProbDist):
 
 def enumerate_joint_ask(X, e, P):
     """Return a probability distribution over the values of the variable X,
-    given the {var:val} observations e, in the JointProbDist P. 
-    Works for Boolean variables only. [Fig. 13.4].
-
-    X is a string (variable name).
-    e is a dictionary of variable-name value pairs.
-    P is an instance of JointProbDist."""
-    
+    given the {var:val} observations e, in the JointProbDist P. [Fig. 13.4]
+    >>> P = JointProbDist(['X', 'Y'])
+    >>> P[0,0] = 0.25; P[0,1] = 0.5; P[1,1] = P[2,1] = 0.125
+    >>> enumerate_joint_ask('X', dict(Y=1), P).show_approx()
+    '0: 0.667, 1: 0.167, 2: 0.167'
+    """
     Q = ProbDist(X) # probability distribution for X, initially empty
     Y = [v for v in P.variables if v != X and v not in e] # hidden vars.
     for xi in P.values(X):
