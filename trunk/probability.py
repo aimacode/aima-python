@@ -158,7 +158,7 @@ class BoolCpt:
         
         3.  If the variable has n parents, n > 1, table MUST be
         a dictionary containing items (v1, ..., vn): p,
-        where p is P(P = True | parent1 = v1, ..., parentn = vn).
+        where p is P(X = True | parent1 = v1, ..., parentn = vn).
 
         (Form 3 is also allowed in the case of zero or one parent.)
 
