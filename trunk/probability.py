@@ -120,6 +120,7 @@ def enumerate_joint_ask(X, e, P):
     >>> enumerate_joint_ask('X', dict(Y=1), P).show_approx()
     '0: 0.667, 1: 0.167, 2: 0.167'
     """
+    assert X not in e, "Query variable must be distinct from evidence"
     Q = ProbDist(X) # probability distribution for X, initially empty
     Y = [v for v in P.variables if v != X and v not in e] # hidden vars.
     for xi in P.values(X):
