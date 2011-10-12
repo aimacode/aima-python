@@ -1,7 +1,5 @@
 """Probability models. (Chapter 13-15)
 """
-# (Written for the second edition of AIMA; expect some discrepanciecs
-# from the third edition until this gets reviewed.)
 
 from utils import *
 from logic import extend
@@ -116,7 +114,7 @@ class JointProbDist(ProbDist):
 
 def enumerate_joint_ask(X, e, P):
     """Return a probability distribution over the values of the variable X,
-    given the {var:val} observations e, in the JointProbDist P. [Fig. 13.4]
+    given the {var:val} observations e, in the JointProbDist P. [Section 13.3]
     >>> P = JointProbDist(['X', 'Y'])
     >>> P[0,0] = 0.25; P[0,1] = 0.5; P[1,1] = P[2,1] = 0.125
     >>> enumerate_joint_ask('X', dict(Y=1), P).show_approx()
@@ -128,12 +126,13 @@ def enumerate_joint_ask(X, e, P):
         Q[xi] = enumerate_joint(Y, extend(e, X, xi), P)
     return Q.normalize()
 
-def enumerate_joint(vars, values, P):
-    "As in Fig 13.4, except x and e are already incorporated in values."
+def enumerate_joint(vars, e, P):
+    """Return the sum of the entries in P consistent with e, provided
+    vars is P's remaining variables (the ones not in e)."""
     if not vars: 
-        return P[values] 
+        return P[e] 
     Y, rest = vars[0], vars[1:]
-    return sum([enumerate_joint(rest, extend(values, Y, y), P) 
+    return sum([enumerate_joint(rest, extend(e, Y, y), P) 
                 for y in P.values(Y)])
 
 #______________________________________________________________________________
@@ -384,7 +383,7 @@ def enumerate_all(vars, e, bn):
 # elimination_ask: implementation is incomplete
 
 def elimination_ask(X, e, bn):
-    "[Fig. 14.10]"
+    "[Fig. 14.11]"
     factors = []
     for var in reverse(bn.vars):
         factors.append(Factor(var, e)) 
@@ -412,7 +411,7 @@ sprinkler = BayesNet([
 #______________________________________________________________________________
 
 def prior_sample(bn):
-    """[Fig. 14.12]
+    """[Fig. 14.13]
 
     Argument: bn is an instance of BayesNet.
     Returns: one sample, a dictionary of variable-name: value pairs.
@@ -437,7 +436,7 @@ def prior_sample(bn):
 
 def rejection_sampling(X, e, bn, N):
     """Estimates probability distribution of X given evidence e
-    in BayesNet bn, using N samples.  [Fig. 14.13]
+    in BayesNet bn, using N samples.  [Fig. 14.14]
 
     Arguments:
     X is a variable name (string).
@@ -494,7 +493,7 @@ def consistent_with(sample, evidence):
 #_______________________________________________________________________________
 
 def likelihood_weighting(X, e, bn, N):
-    """Returns an estimate of P(X | e).  [Fig. 14.14]
+    """Returns an estimate of P(X | e).  [Fig. 14.15]
 
     Arguments:
     X is a variable name (string).
@@ -547,7 +546,7 @@ def weighted_sample(bn, e):
 
 # MISSING
 
-# Fig. 14.15: mcmc_ask
+# Fig. 14.16: gibbs_ask
 
 __doc__ += """
 ## We can build up a probability distribution like this (p. 469):
