@@ -242,7 +242,7 @@ class BayesNet:
         raise Exception("No such variable: %s" % var)
 
     def variables(self):
-        """List all the variables in the net.
+        """List all of the net's variables, parents before children.
         >>> burglary.variables()
         ['Burglary', 'Earthquake', 'Alarm', 'JohnCalls', 'MaryCalls']"""
         return [n.variable for n in self.nodes]
@@ -287,8 +287,10 @@ def enumeration_ask(X, e, bn):
     return Q.normalize()
 
 def enumerate_all(vars, e, bn):
-    """ XXX rewrite this doc comment
-    Precondition: no variable in vars precedes its parents."""
+    """Return the sum of those entries in P(vars | e{others})
+    consistent with e, where P is the joint distribution represented
+    by bn, and e{others} means e restricted to bn's other variables
+    (the ones other than vars). Parents must precede children in vars."""
     if not vars:
         return 1.0
 
@@ -324,7 +326,7 @@ def sum_out(var, factors):
 
 #______________________________________________________________________________
 
-# Fig. 14.11a: sprinkler network
+# Fig. 14.12a: sprinkler network
 
 sprinkler = BayesNet([
     node('Cloudy', '', 0.5),
@@ -419,7 +421,7 @@ __doc__ += """
 >>> P['rain']               #doctest:+ELLIPSIS
 0.2...
 
-## A Joint Probability Distribution is dealt with like this (p. 475):
+## A Joint Probability Distribution is dealt with like this (Fig. 13.3):
 >>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
 >>> T, F = True, False
 >>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008
