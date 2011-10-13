@@ -107,6 +107,18 @@ class JointProbDist(ProbDist):
     def __repr__(self):
         return "P(%s)" % self.variables
 
+def event_values(event, vars):
+    """Return a tuple of the values of variables vars in event.
+    >>> event_values ({'A': 10, 'B': 9, 'C': 8}, ['C', 'A'])
+    (8, 10)
+    >>> event_values ((1, 2), ['C', 'A'])
+    (1, 2)
+    """
+    if isinstance(event, tuple) and len(event) == len(vars):
+        return event
+    else:
+        return tuple([event[var] for var in vars])
+
 #______________________________________________________________________________
 
 def enumerate_joint_ask(X, e, P):
@@ -132,86 +144,6 @@ def enumerate_joint(vars, e, P):
     Y, rest = vars[0], vars[1:]
     return sum([enumerate_joint(rest, extend(e, Y, y), P) 
                 for y in P.values(Y)])
-
-#______________________________________________________________________________
-
-
-class BoolCPT:
-    """A conditional probability table for a boolean (True/False)
-    random variable conditioned on its parents."""
-
-    def __init__(self, table):
-        """table must take one of these forms:
-
-        * A number, the unconditional probability P(X=true). You can
-          use this form when the variable has no parents.
-
-        * A dict {v: p, ...}, the conditional probability distribution
-          P(X=true | parent=v) = p.
-
-        * A dict {(v1, v2, ...): p, ...}, the conditional probability
-          distribution P(X=true | parent1=v1, parent2=v2, ...) = p.
-          You can use this form always; the first two are just
-          conveniences.
-
-        In all cases the probability of X being false is left implicit,
-        since it follows from P(X=true).
-
-        >>> cpt = BoolCPT(0.2)
-        >>> cpt = BoolCPT({T: 0.2, F: 0.7})
-        >>> cpt = BoolCPT({(T, T): 0.2, (T, F): 0.3, (F, T): 0.5, (F, F): 0.7})
-        """
-        # We store the table always in the third form above.
-        if isinstance(table, (float, int)): # no parents, 0-tuple
-            self.table = {(): table}
-        elif isinstance(table, dict):
-            if table: key = table.keys()[0]
-            else: key = None
-            if isinstance(key, bool):       # one parent, 1-tuple
-                self.table = dict(((k,), v) for k, v in table.items())
-            elif isinstance(key, tuple):    # normal case, n-tuple
-                self.table = table
-            else:
-                raise Exception("wrong key type: %s" % table)
-        else:
-            raise Exception("wrong table type: %s" % table)
-        
-    def p(self, value, parent_vars, event):
-        """Return the conditional probability 
-        P(X=value | parent_vars = parent_values), where parent_values
-        are the values of parent_vars in event.
-
-        Preconditions:
-        1.  each variable in parent_vars is bound to a value in event.
-        2.  the variables are listed in parent_vars in the same order
-        in which they are listed in the CPT.
-
-        >>> event = {'Burglary': False, 'Earthquake': True}
-        >>> BoolCPT({T: 0.2, F: 0.625}).p(False, ['Burglary'], event)
-        0.375"""
-        assert isinstance(value, bool)
-        ptrue = self.table[event_values(event, parent_vars)]
-        return if_(value, ptrue, 1 - ptrue)
-
-    def sample(self, parent_vars, event):
-        """Sample from the distribution for this variable conditioned
-        on event's values for parent_vars. That is, return True/False
-        at random according with the conditional probability given
-        event."""
-        return random() <= self.p(True, parent_vars, event)
-
-def event_values(event, vars):
-    """Return a tuple of the values of variables vars in event.
-    >>> event_values ({'A': 10, 'B': 9, 'C': 8}, ['C', 'A'])
-    (8, 10)
-    >>> event_values ((1, 2), ['C', 'A'])
-    (1, 2)
-    """
-    if isinstance(event, tuple) and len(event) == len(vars):
-        return event
-    else:
-        return tuple([event[var] for var in vars])
-
 
 #______________________________________________________________________________
 
@@ -253,10 +185,72 @@ class BayesNet:
         
 
 class BayesNode:
-    def __init__(self, variable, parents, cpt):
+    """A conditional probability distribution for a boolean variable,
+    P(X | parents). Part of a BayesNet."""
+
+    def __init__(self, X, parents, cpt):
+        """X is a variable name, and parents a sequence of variable
+        names or a space-separated string.  cpt, the conditional
+        probability table, takes one of these forms:
+
+        * A number, the unconditional probability P(X=true). You can
+          use this form when there are no parents.
+
+        * A dict {v: p, ...}, the conditional probability distribution
+          P(X=true | parent=v) = p. When there's just one parent.
+
+        * A dict {(v1, v2, ...): p, ...}, the distribution P(X=true |
+          parent1=v1, parent2=v2, ...) = p. You can use this form
+          always; the first two are just conveniences.
+
+        In all cases the probability of X being false is left implicit,
+        since it follows from P(X=true).
+
+        >>> X = BayesNode('X', '', 0.2)
+        >>> Y = BayesNode('Y', 'P', {T: 0.2, F: 0.7})
+        >>> Z = BayesNode('Z', 'P Q', 
+        ...    {(T, T): 0.2, (T, F): 0.3, (F, T): 0.5, (F, F): 0.7})"""
         if isinstance(parents, str): parents = parents.split()
-        if not isinstance(cpt, BoolCPT): cpt = BoolCPT(cpt)
-        update(self, variable=variable, parents=parents, cpt=cpt)
+
+        # We store the table always in the third form above.
+        if isinstance(cpt, (float, int)): # no parents, 0-tuple
+            cpt = {(): cpt}
+        elif isinstance(cpt, dict):
+            if cpt: key = cpt.keys()[0]
+            else: key = None
+            if isinstance(key, bool):       # one parent, 1-tuple
+                cpt = dict(((k,), v) for k, v in cpt.items())
+            elif isinstance(key, tuple):    # normal case, n-tuple
+                pass
+            else:
+                raise Exception("wrong key type: %s" % cpt)
+        else:
+            raise Exception("wrong table type: %s" % cpt)
+
+        update(self, variable=X, parents=parents, cpt=cpt)
+
+    def p(self, value, event):
+        """Return the conditional probability 
+        P(X=value | parents = parent_values), where parent_values
+        are the values of parents in event.
+
+        Preconditions:
+        1.  each variable in parents is bound to a value in event.
+        in which they are listed in the CPT.
+        XXX fix doctest
+        >> event = {'Burglary': False, 'Earthquake': True}
+        >> BoolCPT({T: 0.2, F: 0.625}).p(False, ['Burglary'], event)
+        0.375"""
+        assert isinstance(value, bool)
+        ptrue = self.cpt[event_values(event, self.parents)]
+        return if_(value, ptrue, 1 - ptrue)
+
+    def sample(self, event):
+        """Sample from the distribution for this variable conditioned
+        on event's values for parent_vars. That is, return True/False
+        at random according with the conditional probability given
+        event."""
+        return random() <= self.p(True, event)
 
 node = BayesNode
 
@@ -293,17 +287,12 @@ def enumerate_all(vars, e, bn):
     (the ones other than vars). Parents must precede children in vars."""
     if not vars:
         return 1.0
-
     Y, rest = vars[0], vars[1:]
     Ynode = bn.variable_node(Y)
-    parents, cpt = Ynode.parents, Ynode.cpt
-
     if Y in e:
-        y = e[Y]
-        return cpt.p(y, parents, e) * enumerate_all(rest, e, bn)
+        return Ynode.p(e[Y], e) * enumerate_all(rest, e, bn)
     else:
-        return sum(cpt.p(y, parents, e)
-                   * enumerate_all(rest, extend(e, Y, y), bn)
+        return sum(Ynode.p(y, e) * enumerate_all(rest, extend(e, Y, y), bn)
                    for y in bn.variable_values(Y))
 
 #______________________________________________________________________________
@@ -342,7 +331,7 @@ def prior_sample(bn):
     is a {variable: value} dict. [Fig. 14.13]"""
     event = {}
     for node in bn.nodes:
-        event[node.variable] = node.cpt.sample(node.parents, event)
+        event[node.variable] = node.sample(event)
     return event
 
 #_______________________________________________________________________________
@@ -394,11 +383,11 @@ def weighted_sample(bn, e):
     w = 1
     event = dict(e) # boldface x in Fig. 14.15
     for node in bn.nodes:
-        Xi, parents, cpt = node.variable, node.parents, node.cpt
+        Xi = node.variable
         if Xi in e:
-            w *= cpt.p(e[Xi], parents, event)
+            w *= node.p(e[Xi], event)
         else:
-            event[Xi] = cpt.sample(parents, event)
+            event[Xi] = node.sample(event)
     return event, w
     
 
