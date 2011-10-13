@@ -200,8 +200,9 @@ class BayesNode:
           P(X=true | parent=v) = p. When there's just one parent.
 
         * A dict {(v1, v2, ...): p, ...}, the distribution P(X=true |
-          parent1=v1, parent2=v2, ...) = p. You can use this form
-          always; the first two are just conveniences.
+          parent1=v1, parent2=v2, ...) = p. Each key must have as many
+          values as there are parents. You can use this form always;
+          the first two are just conveniences.
 
         In all cases the probability of X being false is left implicit,
         since it follows from P(X=true).
@@ -209,37 +210,32 @@ class BayesNode:
         >>> X = BayesNode('X', '', 0.2)
         >>> Y = BayesNode('Y', 'P', {T: 0.2, F: 0.7})
         >>> Z = BayesNode('Z', 'P Q', 
-        ...    {(T, T): 0.2, (T, F): 0.3, (F, T): 0.5, (F, F): 0.7})"""
+        ...    {(T, T): 0.2, (T, F): 0.3, (F, T): 0.5, (F, F): 0.7})
+        """
         if isinstance(parents, str): parents = parents.split()
 
         # We store the table always in the third form above.
         if isinstance(cpt, (float, int)): # no parents, 0-tuple
             cpt = {(): cpt}
         elif isinstance(cpt, dict):
-            if cpt: key = cpt.keys()[0]
-            else: key = None
-            if isinstance(key, bool):       # one parent, 1-tuple
+            if cpt and isinstance(cpt.keys()[0], bool): # one parent, 1-tuple
                 cpt = dict(((k,), v) for k, v in cpt.items())
-            elif isinstance(key, tuple):    # normal case, n-tuple
-                pass
-            else:
-                raise Exception("wrong key type: %s" % cpt)
-        else:
-            raise Exception("wrong table type: %s" % cpt)
+
+        assert isinstance(cpt, dict)
+        for vs, p in cpt.items():
+            assert isinstance(vs, tuple) and len(vs) == len(parents)
+            assert every(lambda v: isinstance(v, bool), vs)
+            assert 0 <= p <= 1
 
         update(self, variable=X, parents=parents, cpt=cpt)
 
     def p(self, value, event):
         """Return the conditional probability 
         P(X=value | parents = parent_values), where parent_values
-        are the values of parents in event.
-
-        Preconditions:
-        1.  each variable in parents is bound to a value in event.
-        in which they are listed in the CPT.
-        XXX fix doctest
-        >> event = {'Burglary': False, 'Earthquake': True}
-        >> BoolCPT({T: 0.2, F: 0.625}).p(False, ['Burglary'], event)
+        are the values of parents in event. (event must assign each
+        parent a value.)
+        >>> bn = BayesNode('X', 'Burglary', {T: 0.2, F: 0.625})
+        >>> bn.p(False, {'Burglary': False, 'Earthquake': True})
         0.375"""
         assert isinstance(value, bool)
         ptrue = self.cpt[event_values(event, self.parents)]
