@@ -327,11 +327,11 @@ def sum_out(var, factors):
 # Fig. 14.11a: sprinkler network
 
 sprinkler = BayesNet([
-    node('Cloudy', '', BoolCPT(0.5)),
-    node('Sprinkler', 'Cloudy', BoolCPT({T: 0.10, F: 0.50})),
-    node('Rain', 'Cloudy', BoolCPT({T: 0.80, F: 0.20})),
+    node('Cloudy', '', 0.5),
+    node('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
+    node('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
     node('WetGrass', 'Sprinkler Rain',
-         BoolCPT({(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00}))])
+         {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
 
 #______________________________________________________________________________
 
