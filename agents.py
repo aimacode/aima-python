@@ -79,6 +79,7 @@ class Agent(Object):
         if program is None:
             def program(percept):
                 return raw_input('Percept=%s; action? ' % percept)
+        assert callable(program)
         self.program = program
 
     def can_grab(self, obj):
@@ -260,8 +261,12 @@ class Environment(object):
         return self.list_objects_at(location, oclass) != []
 
     def add_object(self, obj, location=None):
-        """Add an object to the environment, setting its location. Also keep
-        track of objects that are agents.  Shouldn't need to override this."""
+        """Add an object to the environment, setting its location. For
+        convenience, if obj is an agent program we make a new agent
+        for it. (Shouldn't need to override this."""
+        if not isinstance(obj, Object):
+            obj = Agent(obj)
+        assert obj not in self.objects, "Don't add the same object twice"
         obj.location = location or self.default_location(obj)
         self.objects.append(obj)
         if isinstance(obj, Agent):
