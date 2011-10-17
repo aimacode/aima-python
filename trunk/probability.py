@@ -3,22 +3,19 @@
 
 from utils import *
 from logic import extend
-import agents
 from random import random, seed
 
 #______________________________________________________________________________
 
-class DTAgent(agents.Agent):
+def DTAgentProgram(belief_state):
     "A decision-theoretic agent. [Fig. 13.1]"
-
-    def __init__(self, belief_state):
-        def program(percept):
-            belief_state.observe(program.action, percept)
-            program.action = argmax(belief_state.actions(), 
-                                    belief_state.expected_outcome_utility)
-            return program.action
-        program.action = None
-        agents.Agent.__init__(self, program)
+    def program(percept):
+        belief_state.observe(program.action, percept)
+        program.action = argmax(belief_state.actions(), 
+                                belief_state.expected_outcome_utility)
+        return program.action
+    program.action = None
+    return program
 
 #______________________________________________________________________________
 

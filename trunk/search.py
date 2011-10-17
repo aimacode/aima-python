@@ -5,7 +5,6 @@ then create problem instances and solve them with calls to the various search
 functions."""
 
 from utils import *
-import agents
 import math, random, sys, time, bisect, string
 
 #______________________________________________________________________________

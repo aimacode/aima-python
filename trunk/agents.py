@@ -99,53 +99,44 @@ def TraceAgent(agent):
 
 #______________________________________________________________________________
 
-class TableDrivenAgent(Agent):
+def TableDrivenAgentProgram(table):
     """This agent selects an action based on the percept sequence.
     It is practical only for tiny domains.
-    To customize it you provide a table to the constructor. [Fig. 2.7]"""
-    
-    def __init__(self, table):
-        "Supply as table a dictionary of all {percept_sequence:action} pairs."
-        percepts = []
-        def program(percept):
-            percepts.append(percept)
-            action = table.get(tuple(percepts))
-            return action
-        Agent.__init__(self, program)
+    To customize it, provide as table a dictionary of all
+    {percept_sequence:action} pairs. [Fig. 2.7]"""
+    percepts = []
+    def program(percept):
+        percepts.append(percept)
+        action = table.get(tuple(percepts))
+        return action
+    return program
 
-
-class RandomAgent(Agent):
+def RandomAgentProgram(actions):
     "An agent that chooses an action at random, ignoring all percepts."
-
-    def __init__(self, actions):
-        def program(percept):
-            return random.choice(actions)
-        Agent.__init__(self, program)
+    def program(percept):
+        return random.choice(actions)
+    return program
 
 #______________________________________________________________________________
 
-class SimpleReflexAgent(Agent):
+def SimpleReflexAgentProgram(rules, interpret_input):
     "This agent takes action based solely on the percept. [Fig. 2.10]"
+    def program(percept):
+        state = interpret_input(percept)
+        rule = rule_match(state, rules)
+        action = rule.action
+        return action
+    return program
 
-    def __init__(self, rules, interpret_input):
-        def program(percept):
-            state = interpret_input(percept)
-            rule = rule_match(state, rules)
-            action = rule.action
-            return action
-        Agent.__init__(self, program)
-
-class ModelBasedReflexAgent(Agent):
+def ModelBasedReflexAgentProgram(rules, update_state):
     "This agent takes action based on the percept and state. [Fig. 2.12]"
-
-    def __init__(self, rules, update_state):
-        def program(percept):
-            program.state = update_state(program.state, program.action, percept)
-            rule = rule_match(program.state, rules)
-            action = rule.action
-            return action
-        program.state = program.action = None
-        Agent.__init__(self, program)
+    def program(percept):
+        program.state = update_state(program.state, program.action, percept)
+        rule = rule_match(program.state, rules)
+        action = rule.action
+        return action
+    program.state = program.action = None
+    return program
 
 def rule_match(state, rules):
     "Find the first rule that matches state."
@@ -157,20 +148,10 @@ def rule_match(state, rules):
 
 loc_A, loc_B = (0, 0), (1, 0) # The two locations for the Vacuum world
 
-class ReflexVacuumAgent(Agent):
-    "A reflex agent for the two-state vacuum environment. [Fig. 2.8]"
-
-    def __init__(self):
-        def program((location, status)):
-            if status == 'Dirty': return 'Suck'
-            elif location == loc_A: return 'Right'
-            elif location == loc_B: return 'Left'
-        Agent.__init__(self, program)
-
 
 def RandomVacuumAgent():
     "Randomly choose one of the actions from the vacuum environment."
-    return RandomAgent(['Right', 'Left', 'Suck', 'NoOp'])
+    return Agent(RandomAgentProgram(['Right', 'Left', 'Suck', 'NoOp']))
 
 
 def TableDrivenVacuumAgent():
@@ -186,22 +167,28 @@ def TableDrivenVacuumAgent():
              ((loc_A, 'Clean'), (loc_A, 'Clean'), (loc_A, 'Dirty')): 'Suck',
              # ...
              }
-    return TableDrivenAgent(table)
+    return Agent(TableDrivenAgentProgram(table))
 
 
-class ModelBasedVacuumAgent(Agent):
+def ReflexVacuumAgent():
+    "A reflex agent for the two-state vacuum environment. [Fig. 2.8]"
+    def program((location, status)):
+        if status == 'Dirty': return 'Suck'
+        elif location == loc_A: return 'Right'
+        elif location == loc_B: return 'Left'
+    return Agent(program)
+
+def ModelBasedVacuumAgent():
     "An agent that keeps track of what locations are clean or dirty."
-
-    def __init__(self):
-        model = {loc_A: None, loc_B: None}
-        def program((location, status)):
-            "Same as ReflexVacuumAgent, except if everything is clean, do NoOp."
-            model[location] = status ## Update the model here
-            if model[loc_A] == model[loc_B] == 'Clean': return 'NoOp'
-            elif status == 'Dirty': return 'Suck'
-            elif location == loc_A: return 'Right'
-            elif location == loc_B: return 'Left'
-        Agent.__init__(self, program)
+    model = {loc_A: None, loc_B: None}
+    def program((location, status)):
+        "Same as ReflexVacuumAgent, except if everything is clean, do NoOp."
+        model[location] = status ## Update the model here
+        if model[loc_A] == model[loc_B] == 'Clean': return 'NoOp'
+        elif status == 'Dirty': return 'Suck'
+        elif location == loc_A: return 'Right'
+        elif location == loc_B: return 'Left'
+    return Agent(program)
 
 #______________________________________________________________________________
 

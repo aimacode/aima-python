@@ -93,17 +93,16 @@ class PropKB(KB):
 
 #______________________________________________________________________________
     
-class KB_Agent(agents.Agent):
-    """A generic logical knowledge-based agent. [Fig. 7.1]"""
-    def __init__(self, KB):
-        steps = itertools.count()
-        def program(percept):
-            t = steps.next()
-            KB.tell(self.make_percept_sentence(percept, t))
-            action = KB.ask(self.make_action_query(t))[expr('action')]
-            KB.tell(self.make_action_sentence(action, t))
-            return action
-        agents.Agent.__init__(self, program)
+def KB_AgentProgram(KB):
+    """A generic logical knowledge-based agent program. [Fig. 7.1]"""
+    steps = itertools.count()
+
+    def program(percept):
+        t = steps.next()
+        KB.tell(make_percept_sentence(percept, t))
+        action = KB.ask(make_action_query(t))
+        KB.tell(make_action_sentence(action, t))
+        return action
 
     def make_percept_sentence(self, percept, t):
         return Expr("Percept")(percept, t)
@@ -112,7 +111,9 @@ class KB_Agent(agents.Agent):
         return expr("ShouldDo(action, %d)" % t)
 
     def make_action_sentence(self, action, t):
-        return Expr("Did")(action, t)
+        return Expr("Did")(action[expr('action')], t)
+
+    return program
 
 #______________________________________________________________________________
 
