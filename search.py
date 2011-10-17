@@ -540,10 +540,8 @@ class NQueensProblem(Problem):
 
     def conflicted(self, state, row, col):
         "Would placing a queen at (row, col) conflict with anything?"
-        for c in range(col):
-            if self.conflict(row, col, state[c], c):
-                return True
-        return False
+        return any(self.conflict(row, col, state[c], c)
+                   for c in range(col))
 
     def conflict(self, row1, col1, row2, col2):
         "Would putting two queens in (row1, col1) and (row2, col2) conflict?"
@@ -556,10 +554,8 @@ class NQueensProblem(Problem):
         "Check if all columns filled, no conflicts."
         if state[-1] is None: 
             return False
-        for c in range(len(state)):
-            if self.conflicted(state, state[c], c):
-                return False
-        return True
+        return not any(self.conflicted(state, state[col], col)
+                       for col in range(len(state)))
 
 #______________________________________________________________________________
 ## Inverse Boggle: Search for a high-scoring Boggle board. A good domain for

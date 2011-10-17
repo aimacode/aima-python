@@ -314,9 +314,7 @@ class DecisionTreeLearner(Learner):
         "Are all these examples in the same target class?"
         target = self.dataset.target
         class0 = examples[0][target]
-        for e in examples:
-           if e[target] != class0: return False
-        return True
+        return all(e[target] == class0 for e in examples)
 
     def majority_value(self, examples):
         """Return the most popular target value for this set of examples.

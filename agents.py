@@ -229,9 +229,7 @@ class Environment(object):
 
     def is_done(self):
         "By default, we're done when we can't find a live agent."
-        for agent in self.agents:
-            if agent.is_alive(): return False
-        return True
+        return not any(agent.is_alive() for agent in self.agents)
 
     def step(self):
         """Run the environment for one time step. If the
