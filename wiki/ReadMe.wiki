@@ -36,7 +36,7 @@ directory (you might call it _aima_ but you are free to use whatever name you wa
 
 = How to Test the Code =
 
-First, you need to install Python (version 2.2 or later). Python comes preinstalled on most versions of Linux and Mac OS. Versions are also available for Windows, Solaris, and other operating systems. If your system does not have Python installed, you can [http://python.org/download/ download] and install it for free.
+First, you need to install Python (version 2.5 or later). Python comes preinstalled on most versions of Linux and Mac OS. Versions are also available for Windows, Solaris, and other operating systems. If your system does not have Python installed, you can [http://python.org/download/ download] and install it for free.
 
 In the _aima-python_ directory, execute the command
 
