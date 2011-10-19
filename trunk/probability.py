@@ -228,7 +228,7 @@ class BayesNode:
 
     def p(self, value, event):
         """Return the conditional probability 
-        P(X=value | parents = parent_values), where parent_values
+        P(X=value | parents=parent_values), where parent_values
         are the values of parents in event. (event must assign each
         parent a value.)
         >>> bn = BayesNode('X', 'Burglary', {T: 0.2, F: 0.625})
@@ -241,8 +241,8 @@ class BayesNode:
     def sample(self, event):
         """Sample from the distribution for this variable conditioned
         on event's values for parent_vars. That is, return True/False
-        at random according with the conditional probability given
-        event."""
+        at random according with the conditional probability given the
+        parents."""
         return random() <= self.p(True, event)
 
 node = BayesNode
@@ -289,22 +289,27 @@ def enumerate_all(vars, e, bn):
                    for y in bn.variable_values(Y))
 
 #______________________________________________________________________________
-# elimination_ask: implementation is incomplete
 
-def elimination_ask(X, e, bn):
+def elimination_ask(X, e, bn, order=reversed):
     "[Fig. 14.11]"
     factors = []
-    for var in reverse(bn.vars):
+    for var in order(bn.vars):
         factors.append(Factor(var, e)) 
         if is_hidden(var, X, e):
             factors = sum_out(var, factors)
     return pointwise_product(factors).normalize()
 
+def is_hidden(var, X, e):
+    return var != X and var not in e
+
+def Factor(var, e):
+    NotImplemented
+
 def pointwise_product(factors):
-    pass
+    NotImplemented
 
 def sum_out(var, factors):
-    pass
+    NotImplemented
 
 #______________________________________________________________________________
 
