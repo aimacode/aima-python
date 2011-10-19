@@ -19,7 +19,7 @@ The code is meant for Python 2.5 through 2.7.
 
 You can get some use out of the code here just by browsing, starting
 at the 
-[http://code.google.com/p/aima-python/src/trunk/ root of the source tree] or by clicking on the links in the 
+[http://code.google.com/p/aima-python/source/browse/#svn%2Ftrunk root of the source tree] or by clicking on the links in the 
 [http://code.google.com/p/aima-python index on the project home page].
 The source code is in the *.py files; the *.txt files give examples of
 how to use the code.
