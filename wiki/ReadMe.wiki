@@ -11,6 +11,9 @@ pseudo-code format; as a supplement we provide this code.
 The intent is to implement all the algorithms in the book,
 but we are not done yet.
 
+= Prerequisites =
+
+The code is meant for Python 2.5 through 2.7.
 
 = How to Browse the Code =
 
@@ -26,8 +29,7 @@ how to use the code.
 If you like what you see, install the code using either one of these methods:
 
   # From a command shell on your computer, execute the `svn checkout` command given on the [http://code.google.com/p/aima-python/source source tab] of the project.  This assumes you have previously installed the version control system [http://subversion.tigris.org/ Subversion] (svn).
-  # Download and unzip the zip file listed as a "Featured download"on the right hand side of the [http://code.google.com/p/aima-python/ project home page].
-
+  # Download and unzip the zip file listed as a "Featured download"on the right hand side of the [http://code.google.com/p/aima-python/ project home page]. This is currently (Oct 2011) long out of date; we mean to make a new .zip when the svn checkout settles down.
 
 You'll also need to install the data files from the [http://code.google.com/p/aima-data aima-data] project.  These are text files that are used by the tests in the aima-python project, and may be useful for yout own work.
 
@@ -36,7 +38,7 @@ directory (you might call it _aima_ but you are free to use whatever name you wa
 
 = How to Test the Code =
 
-First, you need to install Python (version 2.5 or later). Python comes preinstalled on most versions of Linux and Mac OS. Versions are also available for Windows, Solaris, and other operating systems. If your system does not have Python installed, you can [http://python.org/download/ download] and install it for free.
+First, you need to install Python (version 2.5 through 2.7; parts of the code may work in other versions, but don't expect it to). Python comes preinstalled on most versions of Linux and Mac OS. Versions are also available for Windows, Solaris, and other operating systems. If your system does not have Python installed, you can [http://python.org/download/ download] and install it for free.
 
 In the _aima-python_ directory, execute the command
 
