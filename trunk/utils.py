@@ -5,13 +5,20 @@
 from __future__ import generators
 import operator, math, random, copy, sys, os.path, bisect, re
 
+assert (2,5) <= sys.version_info < (3,), """\
+This code is meant for Python 2.5 through 2.7.
+You might find that the parts you care about still work in older
+Pythons or happen to work in newer ones, but you're on your own --
+edit utils.py if you want to try it."""
+
 #______________________________________________________________________________
 # Compatibility with Python 2.2, 2.3, and 2.4
 
-# The AIMA code is designed to run in Python 2.2 and up (at some point,
-# support for 2.2 may go away; 2.2 was released in 2001, and so is over
-# 6 years old). The first part of this file brings you up to 2.5
-# compatibility if you are running in Python 2.2 through 2.4:
+# The AIMA code was originally designed to run in Python 2.2 and up.
+# The first part of this file implements for Python 2.2 through 2.4
+# the parts of 2.5 that the original code relied on. Now we're
+# starting to go beyond what can be filled in this way, but here's
+# the compatibility code still since it doesn't hurt:
 
 try: bool, True, False ## Introduced in 2.3
 except NameError:
