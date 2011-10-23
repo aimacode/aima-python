@@ -265,10 +265,11 @@ class DecisionTree:
             if isinstance(subtree, DecisionTree):
                 subtree.display(indent+1)
             else:
-                print 'RESULT = ', subtree
+                print 'RESULT =', subtree
 
     def __repr__(self):
-        return '(%r %r)' % (self.attrname, self.branches)
+        return ('DecisionTree(%r, %r, %r)'
+                % (self.attr, self.attrname, self.branches))
 
 Yes, No = True, False
 
@@ -530,10 +531,19 @@ __doc__ += """
 [Fig. 18.6]
 >>> restaurant_learner = DecisionTreeLearner()
 >>> restaurant_learner.train(restaurant)
->>> restaurant_learner.dt
-('Patrons' {'None': 'No', 'Full': ('Hungry' {'Yes': ('Type' \
-{'Burger': 'Yes', 'Thai': ('Fri/Sat' {'Yes': 'Yes', 'No': 'No'}), \
-'French': 'Yes', 'Italian': 'No'}), 'No': 'No'}), 'Some': 'Yes'})
+>>> restaurant_learner.dt.display()
+Test Patrons
+ Patrons = None ==> RESULT = No
+ Patrons = Full ==> Test Hungry
+     Hungry = Yes ==> Test Type
+         Type = Burger ==> RESULT = Yes
+         Type = Thai ==> Test Fri/Sat
+             Fri/Sat = Yes ==> RESULT = Yes
+             Fri/Sat = No ==> RESULT = No
+         Type = French ==> RESULT = Yes
+         Type = Italian ==> RESULT = No
+     Hungry = No ==> RESULT = No
+ Patrons = Some ==> RESULT = Yes
 """
 
 def SyntheticRestaurant(n=20):
