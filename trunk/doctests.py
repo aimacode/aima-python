@@ -5,9 +5,9 @@ Example usages:
     python doctests.py *.py
     python doctests.py -v *.py
 
-You can add more module-level tests with 
+You can add more module-level tests with
     __doc__ += "..."
-You can add stochastic tests with 
+You can add stochastic tests with
     __doc__ += random_tests("...")
 """
 

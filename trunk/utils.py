@@ -32,7 +32,7 @@ except NameError:
 
 try: sum ## Introduced in 2.3
 except NameError:
-    def sum(seq, start=0): 
+    def sum(seq, start=0):
         """Sum the elements of seq.
         >>> sum([1, 2, 3])
         6
@@ -75,7 +75,7 @@ except NameError:
         """Copy seq and sort and return it.
         >>> sorted([3, 1, 2])
         [1, 2, 3]
-        """     
+        """
         seq2 = copy.copy(seq)
         if key:
             if cmp == None:
@@ -86,36 +86,36 @@ except NameError:
                 seq2.sort()
             else:
                 seq2.sort(cmp)
-        if reverse: 
-            seq2.reverse() 
+        if reverse:
+            seq2.reverse()
         return seq2
 
-try: 
+try:
     set, frozenset ## set builtin introduced in 2.4
 except NameError:
-    try: 
+    try:
         import sets ## sets module introduced in 2.3
         set, frozenset = sets.Set, sets.ImmutableSet
     except (NameError, ImportError):
         class BaseSet:
             "set type (see http://docs.python.org/lib/types-set.html)"
 
-            
+
             def __init__(self, elements=[]):
                 self.dict = {}
                 for e in elements:
                     self.dict[e] = 1
-        
+
             def __len__(self):
                 return len(self.dict)
-        
+
             def __iter__(self):
                 for e in self.dict:
                     yield e
-        
+
             def __contains__(self, element):
                 return element in self.dict
-        
+
             def issubset(self, other):
                 for e in self.dict.keys():
                     if e not in other:
@@ -127,11 +127,11 @@ except NameError:
                     if e not in self:
                         return False
                 return True
-        
+
 
             def union(self, other):
                 return type(self)(list(self) + list(other))
-        
+
             def intersection(self, other):
                 return type(self)([e for e in self.dict if e in other])
 
@@ -168,9 +168,9 @@ except NameError:
             def __hash__(self):
                 return self.hash
 
-        class set(BaseSet):   
+        class set(BaseSet):
             "A set is a BaseSet that does not have a hash, but is mutable."
-        
+
             def update(self, other):
                 for e in other:
                     self.add(e)
@@ -190,43 +190,43 @@ except NameError:
 
             def symmetric_difference_update(self, other):
                 to_remove1 = [e for e in self.dict if e in other]
-                to_remove2 = [e for e in other if e in self.dict] 
+                to_remove2 = [e for e in other if e in self.dict]
                 self.difference_update(to_remove1)
                 self.difference_update(to_remove2)
                 return self
 
             def add(self, element):
                 self.dict[element] = 1
-                
+
             def remove(self, element):
                 del self.dict[element]
-        
+
             def discard(self, element):
                 if element in self.dict:
                     del self.dict[element]
-                    
+
             def pop(self):
                 key, val = self.dict.popitem()
                 return key
-        
+
             def clear(self):
                 self.dict.clear()
-        
+
             __ior__ = update
             __iand__ = intersection_update
             __isub__ = difference_update
             __ixor__ = symmetric_difference_update
-        
-        
+
+
 
 
 #______________________________________________________________________________
 # Simple Data Structures: infinity, Dict, Struct
-                
+
 infinity = 1.0e400
 
-def Dict(**entries):  
-    """Create a dict out of the argument=value arguments. 
+def Dict(**entries):
+    """Create a dict out of the argument=value arguments.
     >>> Dict(a=1, b=2, c=3)
     {'a': 1, 'c': 3, 'b': 2}
     """
@@ -240,12 +240,12 @@ class DefaultDict(dict):
     def __getitem__(self, key):
         if key in self: return self.get(key)
         return self.setdefault(key, copy.deepcopy(self.default))
-    
+
     def __copy__(self):
         copy = DefaultDict(self.default)
         copy.update(self)
         return copy
-    
+
 class Struct:
     """Create an instance with argument=value slots.
     This is for making a lightweight object whose class doesn't matter."""
@@ -270,10 +270,10 @@ def update(x, **entries):
     Struct(a=10, b=20)
     """
     if isinstance(x, dict):
-        x.update(entries)   
+        x.update(entries)
     else:
-        x.__dict__.update(entries) 
-    return x 
+        x.__dict__.update(entries)
+    return x
 
 #______________________________________________________________________________
 # Functions on Sequences (mostly inspired by Common Lisp)
@@ -298,7 +298,7 @@ def unique(seq):
     [1, 2, 3]
     """
     return list(set(seq))
-    
+
 def product(numbers):
     """Return the product of the numbers.
     >>> product([1,2,3,4])
@@ -313,7 +313,7 @@ def count_if(predicate, seq):
     """
     f = lambda count, x: count + (not not predicate(x))
     return reduce(f, seq, 0)
-    
+
 def find_if(predicate, seq):
     """If there is an element of seq that satisfies predicate; return it.
     >>> find_if(callable, [3, min, max])
@@ -345,7 +345,7 @@ def some(predicate, seq):
     for x in seq:
         px = predicate(x)
         if px: return px
-    return False   
+    return False
 
 def isin(elt, seq):
     """Like (elt in seq), but compares with is, not ==.
@@ -511,12 +511,12 @@ def num_or_str(x):
     """
     if isnumber(x): return x
     try:
-        return int(x) 
+        return int(x)
     except ValueError:
         try:
-            return float(x) 
+            return float(x)
         except ValueError:
-            return str(x).strip() 
+            return str(x).strip()
 
 def normalize(numbers, total=1.0):
     """Multiply each number by a constant such that the sum is 1.0 (or total).
@@ -533,7 +533,7 @@ def normalize(numbers, total=1.0):
 orientations = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
 def turn_heading(heading, inc, headings=orientations):
-    return headings[(headings.index(heading) + inc) % len(headings)]  
+    return headings[(headings.index(heading) + inc) % len(headings)]
 
 def turn_right(heading):
     return turn_heading(heading, -1)
@@ -560,7 +560,7 @@ def clip(vector, lowest, highest):
 #______________________________________________________________________________
 # Misc Functions
 
-def printf(format, *args): 
+def printf(format, *args):
     """Format args with the first argument as format string, and write.
     Return the last arg, or format itself if there are no args."""
     sys.stdout.write(str(format) % args)
@@ -570,7 +570,7 @@ def caller(n=1):
     """Return the name of the calling function n levels up in the frame stack.
     >>> caller(0)
     'caller'
-    >>> def f(): 
+    >>> def f():
     ...     return caller()
     >>> f()
     'f'
@@ -637,7 +637,7 @@ def print_table(table, header=None, sep='  ', numfmt='%g'):
     if header:
         table = [header] + table
     table = [[if_(isnumber(x), lambda: numfmt % x, lambda: x) for x in row]
-             for row in table]    
+             for row in table]
     maxlen = lambda seq: max(map(len, seq))
     sizes = map(maxlen, zip(*[map(str, row) for row in table]))
     for row in table:
@@ -673,7 +673,7 @@ class Queue:
     Note that isinstance(Stack(), Queue) is false, because we implement stacks
     as lists.  If Python ever gets interfaces, Queue will be an interface."""
 
-    def __init__(self): 
+    def __init__(self):
         abstract
 
     def extend(self, items):
@@ -692,8 +692,8 @@ class FIFOQueue(Queue):
     def __len__(self):
         return len(self.A) - self.start
     def extend(self, items):
-        self.A.extend(items)     
-    def pop(self):        
+        self.A.extend(items)
+    def pop(self):
         e = self.A[self.start]
         self.start += 1
         if self.start > 5 and self.start > len(self.A)/2:
@@ -724,7 +724,7 @@ class PriorityQueue(Queue):
 ## Fig: The idea is we can define things like Fig[3,10] later.
 ## Alas, it is Fig[3,10] not Fig[3.10], because that would be the same
 ## as Fig[3.1]
-Fig = {} 
+Fig = {}
 
 #______________________________________________________________________________
 # Support for doctest
@@ -734,7 +734,7 @@ def ignore(x): None
 def random_tests(text):
     """Some functions are stochastic. We want to be able to write a test
     with random output.  We do that by ignoring the output."""
-    def fixup(test): 
+    def fixup(test):
         if " = " in test:
             return ">>> " + test
         else:
@@ -745,7 +745,7 @@ def random_tests(text):
 #______________________________________________________________________________
 
 __doc__ += """
->>> d = DefaultDict(0) 
+>>> d = DefaultDict(0)
 >>> d['x'] += 1
 >>> d['x']
 1
@@ -762,36 +762,36 @@ __doc__ += """
 >>> s.a = 3
 >>> s
 Struct(a=3, b=2)
-            
->>> def is_even(x): 
+
+>>> def is_even(x):
 ...     return x % 2 == 0
->>> sorted([1, 2, -3]) 
+>>> sorted([1, 2, -3])
 [-3, 1, 2]
 >>> sorted(range(10), key=is_even)
 [1, 3, 5, 7, 9, 0, 2, 4, 6, 8]
->>> sorted(range(10), lambda x,y: y-x) 
+>>> sorted(range(10), lambda x,y: y-x)
 [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
 
->>> removeall(4, []) 
+>>> removeall(4, [])
 []
->>> removeall('s', 'This is a test. Was a test.') 
+>>> removeall('s', 'This is a test. Was a test.')
 'Thi i a tet. Wa a tet.'
->>> removeall('s', 'Something') 
+>>> removeall('s', 'Something')
 'Something'
->>> removeall('s', '') 
+>>> removeall('s', '')
 ''
 
->>> list(reversed([])) 
+>>> list(reversed([]))
 []
 
->>> count_if(is_even, [1, 2, 3, 4]) 
+>>> count_if(is_even, [1, 2, 3, 4])
 2
->>> count_if(is_even, []) 
+>>> count_if(is_even, [])
 0
 
->>> argmax([1], lambda x: x*x) 
+>>> argmax([1], lambda x: x*x)
 1
->>> argmin([1], lambda x: x*x) 
+>>> argmin([1], lambda x: x*x)
 1
 
 
@@ -799,7 +799,7 @@ Struct(a=3, b=2)
 >>> countries = [Struct(name='united states'), Struct(name='canada')]
 
 # Pretend that 'gnp' was some big hairy operation:
->>> def gnp(country): 
+>>> def gnp(country):
 ...     print 'calculating gnp ...'
 ...     return len(country.name) * 1e10
 
@@ -812,46 +812,46 @@ calculating gnp ...
 [Struct(_gnp=130000000000.0, name='united states'), Struct(_gnp=60000000000.0, name='canada')]
 
 # This time we avoid re-doing the calculation
->>> map(gnp, countries) 
+>>> map(gnp, countries)
 [130000000000.0, 60000000000.0]
 
 # Test Queues:
 >>> nums = [1, 8, 2, 7, 5, 6, -99, 99, 4, 3, 0]
->>> def qtest(q): 
+>>> def qtest(q):
 ...     q.extend(nums)
 ...     for num in nums: assert num in q
 ...     assert 42 not in q
 ...     return [q.pop() for i in range(len(q))]
->>> qtest(Stack()) 
+>>> qtest(Stack())
 [0, 3, 4, 99, -99, 6, 5, 7, 2, 8, 1]
 
->>> qtest(FIFOQueue()) 
+>>> qtest(FIFOQueue())
 [1, 8, 2, 7, 5, 6, -99, 99, 4, 3, 0]
 
->>> qtest(PriorityQueue(min)) 
+>>> qtest(PriorityQueue(min))
 [-99, 0, 1, 2, 3, 4, 5, 6, 7, 8, 99]
 
->>> qtest(PriorityQueue(max)) 
+>>> qtest(PriorityQueue(max))
 [99, 8, 7, 6, 5, 4, 3, 2, 1, 0, -99]
 
->>> qtest(PriorityQueue(min, abs)) 
+>>> qtest(PriorityQueue(min, abs))
 [0, 1, 2, 3, 4, 5, 6, 7, 8, -99, 99]
 
->>> qtest(PriorityQueue(max, abs)) 
+>>> qtest(PriorityQueue(max, abs))
 [99, -99, 8, 7, 6, 5, 4, 3, 2, 1, 0]
 
 >>> vals = [100, 110, 160, 200, 160, 110, 200, 200, 220]
->>> histogram(vals) 
+>>> histogram(vals)
 [(100, 1), (110, 2), (160, 2), (200, 3), (220, 1)]
->>> histogram(vals, 1) 
+>>> histogram(vals, 1)
 [(200, 3), (160, 2), (110, 2), (220, 1), (100, 1)]
->>> histogram(vals, 1, lambda v: round(v, -2)) 
+>>> histogram(vals, 1, lambda v: round(v, -2))
 [(200.0, 6), (100.0, 3)]
 
->>> log2(1.0) 
+>>> log2(1.0)
 0.0
 
->>> def fib(n): 
+>>> def fib(n):
 ...     return (n<=1 and 1) or (fib(n-1) + fib(n-2))
 
 >>> fib(9)
@@ -859,7 +859,7 @@ calculating gnp ...
 
 # Now we make it faster:
 >>> fib = memoize(fib)
->>> fib(9) 
+>>> fib(9)
 55
 
 >>> q = Stack()
@@ -911,7 +911,7 @@ False
 
 >>> a.add('z')                              # add a new element
 >>> a.update('wxy')                         # add multiple new elements
->>> sl(a)  
+>>> sl(a)
 ['a', 'b', 'c', 'd', 'r', 'w', 'x', 'y', 'z']
 >>> a.remove('x')                           # take one element out
 >>> sl(a)

@@ -10,7 +10,7 @@ class DataSet:
 
     d.examples    A list of examples.  Each one is a list of attribute values.
     d.attrs       A list of integers to index into an example, so example[attr]
-                  gives a value. Normally the same as range(len(d.examples)). 
+                  gives a value. Normally the same as range(len(d.examples)).
     d.attrnames   Optional list of mnemonic names for corresponding attrs.
     d.target      The attribute that a learning algorithm will try to predict.
                   By default the final attribute.
@@ -46,7 +46,7 @@ class DataSet:
             attrs = range(len(self.examples[0]))
         self.attrs = attrs
         # Initialize .attrnames from string, list, or by default
-        if isinstance(attrnames, str): 
+        if isinstance(attrnames, str):
             self.attrnames = attrnames.split()
         else:
             self.attrnames = attrnames or attrs
@@ -86,14 +86,14 @@ class DataSet:
         "Returns the number used for attr, which can be a name, or -n .. n."
         if attr < 0:
             return len(self.attrs) + attr
-        elif isinstance(attr, str): 
+        elif isinstance(attr, str):
             return self.attrnames.index(attr)
         else:
             return attr
 
     def sanitize(self, example):
        "Return a copy of example, with non-input attributes replaced by 0."
-       return [i in self.inputs and example[i] for i in range(len(example))] 
+       return [i in self.inputs and example[i] for i in range(len(example))]
 
     def __repr__(self):
         return '<DataSet(%s): %d examples, %d attributes>' % (
@@ -102,7 +102,7 @@ class DataSet:
 #______________________________________________________________________________
 
 def parse_csv(input, delim=','):
-    r"""Input is a string consisting of lines, each line has comma-delimited 
+    r"""Input is a string consisting of lines, each line has comma-delimited
     fields.  Convert this into a list of lists.  Blank lines are skipped.
     Fields that look like numbers are converted to numbers.
     The delim defaults to ',' but '\t' and None are also reasonable values.
@@ -131,10 +131,10 @@ class Learner:
     """A Learner, or Learning Algorithm, can be trained with a dataset,
     and then asked to predict the target attribute of an example."""
 
-    def train(self, dataset): 
+    def train(self, dataset):
         self.dataset = dataset
 
-    def predict(self, example): 
+    def predict(self, example):
         abstract
 
 #______________________________________________________________________________
@@ -154,7 +154,7 @@ class PluralityLearner(Learner):
 #______________________________________________________________________________
 
 class NaiveBayesLearner(Learner):
-    
+
     def train(self, dataset):
         """Just count the target/attr/val occurrences.
         Count how many times each value of each attribute occurs.
@@ -218,7 +218,7 @@ class NearestNeighborLearner(Learner):
         else:
             ## Maintain a sorted list of (distance, example) pairs.
             ## For very large k, a PriorityQueue would be better
-            best = [] 
+            best = []
             for e in self.dataset.examples:
                 d = self.distance(e, example)
                 if len(best) < self.k:
@@ -270,7 +270,7 @@ class DecisionTree:
         return '(%r %r)' % (self.attrname, self.branches)
 
 Yes, No = True, False
-        
+
 #______________________________________________________________________________
 
 class DecisionTreeLearner(Learner):
@@ -322,7 +322,7 @@ class DecisionTreeLearner(Learner):
 
     def count(self, attr, val, examples):
         return count_if(lambda e: e[attr] == val, examples)
-    
+
     def information_gain(self, attr, examples):
         def I(examples):
             target = self.dataset.target
@@ -340,7 +340,7 @@ class DecisionTreeLearner(Learner):
             examples = self.dataset.examples
         return [(v, [e for e in examples if e[attr] == v])
                 for v in self.dataset.values[attr]]
-    
+
 def information_content(values):
     "Number of bits to represent the probability distribution in values."
     # If the values do not sum to 1, normalize them to make them a Prob. Dist.
@@ -355,9 +355,9 @@ def information_content(values):
 
 class DecisionListLearner(Learner):
 
-    def train(self, dataset): 
-        self.dataset = dataset 
-        self.attrnames = dataset.attrnames 
+    def train(self, dataset):
+        self.dataset = dataset
+        self.attrnames = dataset.attrnames
         self.dl = self.decision_list_learning(Set(dataset.examples))
 
     def decision_list_learning(self, examples):
@@ -390,7 +390,7 @@ class NeuralNetLearner(Learner):
 
 class NNUnit:
    """Unit of a neural net."""
-   def __init__(self): 
+   def __init__(self):
        NotImplemented
 
 class PerceptronLearner(NeuralNetLearner):
@@ -417,7 +417,7 @@ class EnsembleLearner(Learner):
 
     def predict(self, example):
         return mode([learner.predict(example) for learner in self.learners])
-        
+
 #_____________________________________________________________________________
 # Functions for testing learners on examples
 
@@ -464,7 +464,7 @@ def cross_validation(learner, dataset, k=10, trials=1):
         random.shuffle(dataset.examples)
         return mean([train_and_test(learner, dataset, i*(n/k), (i+1)*(n/k))
                      for i in range(k)])
-    
+
 def leave1out(learner, dataset):
     "Leave one out cross-validation over the dataset."
     return cross_validation(learner, dataset, k=len(dataset.examples))
@@ -488,7 +488,7 @@ orings = DataSet(name='orings', target='Distressed',
 zoo = DataSet(name='zoo', target='type', exclude=['name'],
               attrnames="name hair feathers eggs milk airborne aquatic " +
               "predator toothed backbone breathes venomous fins legs tail " +
-              "domestic catsize type") 
+              "domestic catsize type")
 
 
 iris = DataSet(name="iris", target="class",
@@ -511,7 +511,7 @@ def T(attrname, branches):
 Fig[18,2] = T('Patrons',
              {'None': 'No', 'Some': 'Yes', 'Full':
               T('WaitEstimate',
-                {'>60': 'No', '0-10': 'Yes', 
+                {'>60': 'No', '0-10': 'Yes',
                  '30-60':
                  T('Alternate', {'No':
                                  T('Reservation', {'Yes': 'Yes', 'No':
@@ -580,7 +580,7 @@ def ContinuousXor(n):
 
 #______________________________________________________________________________
 
-def compare(algorithms=[PluralityLearner, NaiveBayesLearner, 
+def compare(algorithms=[PluralityLearner, NaiveBayesLearner,
                         NearestNeighborLearner, DecisionTreeLearner],
             datasets=[iris, orings, zoo, restaurant, SyntheticRestaurant(20),
                       Majority(7, 100), Parity(7, 100), Xor(100)],

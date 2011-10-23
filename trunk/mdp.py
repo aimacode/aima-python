@@ -3,7 +3,7 @@
 First we define an MDP, and the special case of a GridMDP, in which
 states are laid out in a 2-dimensional grid.  We also represent a policy
 as a dictionary of {state:action} pairs, and a Utility function as a
-dictionary of {state:number} pairs.  We then define the value_iteration 
+dictionary of {state:number} pairs.  We then define the value_iteration
 and policy_iteration algorithms."""
 
 # (Written for the second edition of AIMA; expect some discrepanciecs
@@ -13,43 +13,43 @@ from utils import *
 
 class MDP:
     """A Markov Decision Process, defined by an initial state, transition model,
-    and reward function. We also keep track of a gamma value, for use by 
-    algorithms. The transition model is represented somewhat differently from 
-    the text.  Instead of T(s, a, s') being a probability number for each 
+    and reward function. We also keep track of a gamma value, for use by
+    algorithms. The transition model is represented somewhat differently from
+    the text.  Instead of T(s, a, s') being a probability number for each
     state/action/state triplet, we instead have T(s, a) return a list of (p, s')
-    pairs.  We also keep track of the possible states, terminal states, and 
+    pairs.  We also keep track of the possible states, terminal states, and
     actions for each state. [page 615]"""
 
-    def __init__(self, init, actlist, terminals, gamma=.9): 
-        update(self, init=init, actlist=actlist, terminals=terminals, 
+    def __init__(self, init, actlist, terminals, gamma=.9):
+        update(self, init=init, actlist=actlist, terminals=terminals,
                gamma=gamma, states=set(), reward={})
 
-    def R(self, state): 
+    def R(self, state):
         "Return a numeric reward for this state."
         return self.reward[state]
 
-    def T(self, state, action): 
+    def T(self, state, action):
         """Transition model.  From a state and an action, return a list
         of (probability, result-state) pairs."""
         abstract
 
     def actions(self, state):
-        """Set of actions that can be performed in this state.  By default, a 
-        fixed list of actions, except for terminal states. Override this 
+        """Set of actions that can be performed in this state.  By default, a
+        fixed list of actions, except for terminal states. Override this
         method if you need to specialize by state."""
         if state in self.terminals:
             return [None]
         else:
             return self.actlist
 
-class GridMDP(MDP):  
-    """A two-dimensional grid MDP, as in [Figure 17.1].  All you have to do is 
+class GridMDP(MDP):
+    """A two-dimensional grid MDP, as in [Figure 17.1].  All you have to do is
     specify the grid as a list of lists of rewards; use None for an obstacle
     (unreachable state).  Also, you should specify the terminal states.
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
     def __init__(self, grid, terminals, init=(0, 0), gamma=.9):
         grid.reverse() ## because we want row 0 on bottom, not on top
-        MDP.__init__(self, init, actlist=orientations, 
+        MDP.__init__(self, init, actlist=orientations,
                      terminals=terminals, gamma=gamma)
         update(self, grid=grid, rows=len(grid), cols=len(grid[0]))
         for x in range(self.cols):
@@ -73,8 +73,8 @@ class GridMDP(MDP):
 
     def to_grid(self, mapping):
         """Convert a mapping from (x, y) to v into a [[..., v, ...]] grid."""
-        return list(reversed([[mapping.get((x,y), None) 
-                               for x in range(self.cols)] 
+        return list(reversed([[mapping.get((x,y), None)
+                               for x in range(self.cols)]
                               for y in range(self.rows)]))
 
     def to_arrows(self, policy):
@@ -85,7 +85,7 @@ class GridMDP(MDP):
 
 Fig[17,1] = GridMDP([[-0.04, -0.04, -0.04, +1],
                      [-0.04, None,  -0.04, -1],
-                     [-0.04, -0.04, -0.04, -0.04]], 
+                     [-0.04, -0.04, -0.04, -0.04]],
                     terminals=[(3, 2), (3, 1)])
 
 #______________________________________________________________________________
@@ -95,7 +95,7 @@ def value_iteration(mdp, epsilon=0.001):
     U1 = dict([(s, 0) for s in mdp.states])
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
     while True:
-        U = U1.copy() 
+        U = U1.copy()
         delta = 0
         for s in mdp.states:
             U1[s] = R(s) + gamma * max([sum([p * U[s1] for (p, s1) in T(s, a)])
@@ -134,7 +134,7 @@ def policy_iteration(mdp):
             return pi
 
 def policy_evaluation(pi, U, mdp, k=20):
-    """Return an updated utility mapping U from each state in the MDP to its 
+    """Return an updated utility mapping U from each state in the MDP to its
     utility, using an approximation (modified policy iteration)."""
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
     for i in range(k):
@@ -168,7 +168,7 @@ __doc__ += random_tests("""
 
 >>> policy_iteration(Fig[17,1])
 {(3, 2): None, (3, 1): None, (3, 0): (0, -1), (2, 1): (-1, 0), (0, 2): (1, 0), (1, 0): (1, 0), (0, 0): (1, 0), (1, 2): (1, 0), (2, 0): (1, 0), (0, 1): (1, 0), (2, 2): (1, 0)}
- 
+
 """)
 
 
