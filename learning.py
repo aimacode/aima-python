@@ -317,9 +317,8 @@ def DecisionTreeLearner(dataset):
 
 def information_content(values):
     "Number of bits to represent the probability distribution in values."
-    # If the values do not sum to 1, normalize them to make them a Prob. Dist.
-    values = normalize(removeall(0, values))
-    return sum([- v * log2(v) for v in values])
+    probabilities = normalize(removeall(0, values))
+    return sum(-p * log2(p) for p in probabilities)
 
 #______________________________________________________________________________
 
