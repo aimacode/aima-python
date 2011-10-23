@@ -5,6 +5,20 @@ import random
 
 #______________________________________________________________________________
 
+def rms_error(predictions, targets):
+    return math.sqrt(ms_error(predictions, targets))
+
+def ms_error(predictions, targets):
+    return mean([(p - t)**2 for p, t in zip(predictions, targets)])
+
+def mean_error(predictions, targets):
+    return mean([abs(p - t) for p, t in zip(predictions, targets)])
+
+def mean_boolean_error(predictions, targets):
+    return mean([(p != t)   for p, t in zip(predictions, targets)])
+
+#______________________________________________________________________________
+
 class DataSet:
     """A data set for a machine learning problem.  It has the following fields:
 
@@ -19,6 +33,9 @@ class DataSet:
                   values for the corresponding attribute. If initially None,
                   it is computed from the known examples by self.setproblem.
                   If not None, an erroneous value raises ValueError.
+    d.distance    A function from a pair of examples to a nonnegative number.
+                  Should be symmetric, etc. Defaults to mean_boolean_error
+                  since that can handle any field types.
     d.name        Name of the data set (for output display only).
     d.source      URL or other source where the data came from.
 
@@ -26,14 +43,15 @@ class DataSet:
     access fields like d.examples and d.target and d.inputs."""
 
     def __init__(self, examples=None, attrs=None, attrnames=None, target=-1,
-                 inputs=None, values=None, name='', source='', exclude=()):
+                 inputs=None, values=None, distance=mean_boolean_error,
+                 name='', source='', exclude=()):
         """Accepts any of DataSet's fields.  Examples can also be a
         string or file from which to parse examples using parse_csv.
         Optional parameter: exclude, as documented in .setproblem().
         >>> DataSet(examples='1, 2, 3')
         <DataSet(): 1 examples, 3 attributes>
         """
-        update(self, name=name, source=source, values=values)
+        update(self, name=name, source=source, values=values, distance=distance)
         # Initialize .examples from string or list or data directory
         if isinstance(examples, str):
             self.examples = parse_csv(examples)
@@ -120,19 +138,6 @@ def parse_csv(input, delim=','):
     """
     lines = [line for line in input.splitlines() if line.strip() is not '']
     return [map(num_or_str, line.split(delim)) for line in lines]
-
-def rms_error(predictions, targets):
-    return math.sqrt(ms_error(predictions, targets))
-
-def ms_error(predictions, targets):
-    return mean([(p - t)**2 for p, t in zip(predictions, targets)])
-
-def mean_error(predictions, targets):
-    return mean([abs(p - t) for p, t in zip(predictions, targets)])
-
-def mean_boolean_error(predictions, targets):
-    return mean([(p != t)   for p, t in zip(predictions, targets)])
-
 
 #______________________________________________________________________________
 
@@ -223,23 +228,20 @@ class NearestNeighborLearner(Learner):
         With k>1, find k closest, and have them vote for the best."""
         if self.k == 1:
             neighbor = argmin(self.dataset.examples,
-                              lambda e: self.distance(e, example))
+                              lambda e: self.dataset.distance(e, example))
             return neighbor[self.dataset.target]
         else:
             ## Maintain a sorted list of (distance, example) pairs.
             ## For very large k, a PriorityQueue would be better
             best = []
             for e in self.dataset.examples:
-                d = self.distance(e, example)
+                d = self.dataset.distance(e, example)
                 if len(best) < self.k:
                     best.append((d, e))
                 elif d < best[-1][0]:
                     best[-1] = (d, e)
                 best.sort()
             return mode([e[self.dataset.target] for (d, e) in best])
-
-    def distance(self, e1, e2):
-        return mean_boolean_error(e1, e2)
 
 #______________________________________________________________________________
 
