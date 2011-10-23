@@ -174,11 +174,11 @@ def depth_first_graph_search(problem):
 
 def breadth_first_search(problem):
     "Fig. 3.11"
-    NotImplemented
+    unimplemented()
 
 def uniform_cost_search(problem):
     "Fig. 3.14"
-    NotImplemented
+    unimplemented()
 
 def depth_limited_search(problem, limit=50):
     "[Fig. 3.17]"
@@ -302,15 +302,15 @@ def simulated_annealing(problem, schedule=exp_schedule()):
 
 def and_or_graph_search(problem):
     "[Fig. 4.11]"
-    NotImplemented
+    unimplemented()
 
 def online_dfs_agent(s1):
     "[Fig. 4.21]"
-    NotImplemented
+    unimplemented()
 
 def lrta_star_agent(s1):
     "[Fig. 4.24]"
-    NotImplemented
+    unimplemented()
 
 #______________________________________________________________________________
 # Genetic Algorithm
