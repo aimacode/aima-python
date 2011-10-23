@@ -553,7 +553,7 @@ def Majority(k, n):
     examples = []
     for i in range(n):
         bits = [random.choice([0, 1]) for i in range(k)]
-        bits.append(sum(bits) > k/2)
+        bits.append(int(sum(bits) > k/2))
         examples.append(bits)
     return DataSet(name="majority", examples=examples)
 
