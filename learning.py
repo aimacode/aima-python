@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import *
-import random
+import heapq, random
 
 #______________________________________________________________________________
 
@@ -202,26 +202,11 @@ def NaiveBayesLearner(dataset):
 
 def NearestNeighborLearner(dataset, k=1):
     "k-NearestNeighbor: the k nearest neighbors vote."
-    if k == 1:
-        def predict(example):
-            "Predict according to the point closest to example."
-            neighbor = argmin(dataset.examples,
-                              lambda e: dataset.distance(e, example))
-            return neighbor[dataset.target]
-    else:
-        def predict(example):
-            "Find the k closest, and have them vote for the best."
-            ## Maintain a sorted list of (distance, example) pairs.
-            ## For very large k, a PriorityQueue would be better
-            best = []
-            for e in dataset.examples:
-                d = dataset.distance(e, example)
-                if len(best) < k:
-                    best.append((d, e))
-                elif d < best[-1][0]:
-                    best[-1] = (d, e)
-                best.sort()
-            return mode([e[dataset.target] for (d, e) in best])
+    def predict(example):
+        "Find the k closest, and have them vote for the best."
+        best = heapq.nsmallest(k, ((dataset.distance(e, example), e)
+                                   for e in dataset.examples))
+        return mode([e[dataset.target] for (d, e) in best])
     return predict
 
 #______________________________________________________________________________
