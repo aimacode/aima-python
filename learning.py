@@ -304,16 +304,6 @@ class DecisionTreeLearner(Learner):
                 tree.add(v, subtree)
             return tree
 
-    def choose_attribute(self, attrs, examples):
-        "Choose the attribute with the highest information gain."
-        return argmax(attrs, lambda a: self.information_gain(a, examples))
-
-    def all_same_class(self, examples):
-        "Are all these examples in the same target class?"
-        target = self.dataset.target
-        class0 = examples[0][target]
-        return all(e[target] == class0 for e in examples)
-
     def plurality_value(self, examples):
         """Return the most popular target value for this set of examples.
         (If target is binary, this is the majority; otherwise plurality.)"""
@@ -323,6 +313,16 @@ class DecisionTreeLearner(Learner):
 
     def count(self, attr, val, examples):
         return count_if(lambda e: e[attr] == val, examples)
+
+    def all_same_class(self, examples):
+        "Are all these examples in the same target class?"
+        target = self.dataset.target
+        class0 = examples[0][target]
+        return all(e[target] == class0 for e in examples)
+
+    def choose_attribute(self, attrs, examples):
+        "Choose the attribute with the highest information gain."
+        return argmax(attrs, lambda a: self.information_gain(a, examples))
 
     def information_gain(self, attr, examples):
         def I(examples):
