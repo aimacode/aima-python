@@ -410,7 +410,7 @@ class Linearlearner(Learner):
 class EnsembleLearner(Learner):
     """Given a list of learning algorithms, have them vote."""
 
-    def __init__(self, learners=[]):
+    def __init__(self, learners):
         self.learners = learners
 
     def train(self, dataset):
