@@ -518,13 +518,13 @@ def num_or_str(x):
         except ValueError:
             return str(x).strip()
 
-def normalize(numbers, total=1.0):
-    """Multiply each number by a constant such that the sum is 1.0 (or total).
+def normalize(numbers):
+    """Multiply each number by a constant such that the sum is 1.0
     >>> normalize([1,2,1])
     [0.25, 0.5, 0.25]
     """
-    k = total / sum(numbers)
-    return [k * n for n in numbers]
+    total = float(sum(numbers))
+    return [n / total for n in numbers]
 
 ## OK, the following are not as widely useful utilities as some of the other
 ## functions here, but they do show up wherever we have 2D grids: Wumpus and
