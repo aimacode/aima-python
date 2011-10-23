@@ -410,7 +410,7 @@ def AdaBoost(L, K):
                 break
             assert error < 1, "AdaBoost's sub-learner misclassified everything"
             for j, example in enumerate(examples):
-                if example[target] == h[k](example):
+                if example[target] == h_k(example):
                     w[j] *= error / (1. - error)
             w = normalize(w)
             z.append(math.log((1. - error) / error))
