@@ -267,8 +267,7 @@ class DecisionTree:
                 print 'RESULT = ', subtree
 
     def __repr__(self):
-        return 'DecisionTree(%r, %r, %r)' % (
-            self.attr, self.attrname, self.branches)
+        return '(%r %r)' % (self.attrname, self.branches)
 
 Yes, No = True, False
         
@@ -525,6 +524,16 @@ Fig[18,2] = T('Patrons',
                            T('Alternate',
                              {'No': 'Yes', 'Yes':
                               T('Raining', {'No': 'No', 'Yes': 'Yes'})})})})})
+
+__doc__ += """
+[Fig. 18.6]
+>>> restaurant_learner = DecisionTreeLearner()
+>>> restaurant_learner.train(restaurant)
+>>> restaurant_learner.dt
+('Patrons' {'None': 'No', 'Full': ('Hungry' {'Yes': ('Type' \
+{'Burger': 'Yes', 'Thai': ('Fri/Sat' {'Yes': 'Yes', 'No': 'No'}), \
+'French': 'Yes', 'Italian': 'No'}), 'No': 'No'}), 'Some': 'Yes'})
+"""
 
 def SyntheticRestaurant(n=20):
     "Generate a DataSet with n examples."
