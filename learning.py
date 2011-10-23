@@ -1,7 +1,4 @@
-"""Learn to estimate functions  from examples. (Chapters 18-20)"""
-
-# (Written for the second edition of AIMA; expect some discrepanciecs
-# from the third edition until this gets reviewed.)
+"""Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import *
 import agents, random, operator
@@ -142,7 +139,7 @@ class Learner:
 
 #______________________________________________________________________________
 
-class MajorityLearner(Learner):
+class PluralityLearner(Learner):
     """A very dumb algorithm: always pick the result that was most popular
     in the training data.  Makes a baseline for comparison."""
 
@@ -278,6 +275,7 @@ Yes, No = True, False
 #______________________________________________________________________________
 
 class DecisionTreeLearner(Learner):
+    "[Fig. 18.5]"
 
     def predict(self, example):
         if isinstance(self.dt, DecisionTree):
@@ -290,19 +288,19 @@ class DecisionTreeLearner(Learner):
         self.attrnames = dataset.attrnames
         self.dt = self.decision_tree_learning(dataset.examples, dataset.inputs)
 
-    def decision_tree_learning(self, examples, attrs, default=None):
+    def decision_tree_learning(self, examples, attrs, parent_examples=()):
         if len(examples) == 0:
-            return default
+            return self.plurality_value(parent_examples)
         elif self.all_same_class(examples):
             return examples[0][self.dataset.target]
         elif len(attrs) == 0:
-            return self.majority_value(examples)
+            return self.plurality_value(examples)
         else:
-            best = self.choose_attribute(attrs, examples)
-            tree = DecisionTree(best, self.attrnames[best])
-            for (v, examples_i) in self.split_by(best, examples):
-                subtree = self.decision_tree_learning(examples_i,
-                  removeall(best, attrs), self.majority_value(examples))
+            A = self.choose_attribute(attrs, examples)
+            tree = DecisionTree(A, self.attrnames[A])
+            for (v, examples_i) in self.split_by(A, examples):
+                subtree = self.decision_tree_learning(
+                    examples_i, removeall(A, attrs), examples)
                 tree.add(v, subtree)
             return tree
 
@@ -316,7 +314,7 @@ class DecisionTreeLearner(Learner):
         class0 = examples[0][target]
         return all(e[target] == class0 for e in examples)
 
-    def majority_value(self, examples):
+    def plurality_value(self, examples):
         """Return the most popular target value for this set of examples.
         (If target is binary, this is the majority; otherwise plurality.)"""
         g = self.dataset.target
@@ -364,7 +362,7 @@ class DecisionListLearner(Learner):
         self.dl = self.decision_list_learning(Set(dataset.examples))
 
     def decision_list_learning(self, examples):
-        """[Fig. 18.14]"""
+        """[Fig. 18.11]"""
         if not examples:
             return [(True, No)]
         t, o, examples_t = self.find_examples(examples)
@@ -501,7 +499,7 @@ iris = DataSet(name="iris", target="class",
 # The Restaurant example from Fig. 18.2
 
 def RestaurantDataSet(examples=None):
-    "Build a DataSet of Restaurant waiting examples."
+    "Build a DataSet of Restaurant waiting examples. [Fig. 18.3]"
     return DataSet(name='restaurant', target='Wait', examples=examples,
                    attrnames='Alternate Bar Fri/Sat Hungry Patrons Price '
                     + 'Raining Reservation Type WaitEstimate Wait')
@@ -573,7 +571,7 @@ def ContinuousXor(n):
 
 #______________________________________________________________________________
 
-def compare(algorithms=[MajorityLearner, NaiveBayesLearner, 
+def compare(algorithms=[PluralityLearner, NaiveBayesLearner, 
                         NearestNeighborLearner, DecisionTreeLearner],
             datasets=[iris, orings, zoo, restaurant, SyntheticRestaurant(20),
                       Majority(7, 100), Parity(7, 100), Xor(100)],
