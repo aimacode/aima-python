@@ -25,11 +25,11 @@ class DataSet:
     Normally, you call the constructor and you're done; then you just
     access fields like d.examples and d.target and d.inputs."""
 
-    def __init__(self, examples=None, attrs=None, target=-1, values=None,
-                 attrnames=None, name='', source='',
-                 inputs=None, exclude=(), doc=''):
-        """Accepts any of DataSet's fields.  Examples can
-        also be a string or file from which to parse examples using parse_csv.
+    def __init__(self, examples=None, attrs=None, attrnames=None, target=-1,
+                 inputs=None, values=None, name='', source='', exclude=()):
+        """Accepts any of DataSet's fields.  Examples can also be a
+        string or file from which to parse examples using parse_csv.
+        Optional parameter: exclude, as documented in .setproblem().
         >>> DataSet(examples='1, 2, 3')
         <DataSet(): 1 examples, 3 attributes>
         """
@@ -92,8 +92,9 @@ class DataSet:
             return attr
 
     def sanitize(self, example):
-       "Return a copy of example, with non-input attributes replaced by 0."
-       return [i in self.inputs and example[i] for i in range(len(example))]
+       "Return a copy of example, with non-input attributes replaced by None."
+       return [attr_i if i in self.inputs else None
+               for i, attr_i in enumerate(example)]
 
     def __repr__(self):
         return '<DataSet(%s): %d examples, %d attributes>' % (
