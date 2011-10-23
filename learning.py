@@ -256,7 +256,6 @@ class DecisionTree:
     def add(self, val, subtree):
         "Add a branch.  If self.attr = val, go to the given subtree."
         self.branches[val] = subtree
-        return self
 
     def display(self, indent=0):
         name = self.attrname
