@@ -59,7 +59,7 @@ class GridMDP(MDP):
                     self.states.add((x, y))
 
     def T(self, state, action):
-        if action == None:
+        if action is None:
             return [(0.0, state)]
         else:
             return [(0.8, self.go(state, action)),
