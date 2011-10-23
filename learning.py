@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import *
-import heapq, random
+import heapq, math, random
 
 #______________________________________________________________________________
 
@@ -318,9 +318,7 @@ def DecisionTreeLearner(dataset):
 def information_content(values):
     "Number of bits to represent the probability distribution in values."
     # If the values do not sum to 1, normalize them to make them a Prob. Dist.
-    values = removeall(0, values)
-    s = float(sum(values))
-    if s != 1.0: values = [v/s for v in values]
+    values = normalize(removeall(0, values))
     return sum([- v * log2(v) for v in values])
 
 #______________________________________________________________________________
@@ -393,6 +391,34 @@ def EnsembleLearner(learners):
             return mode(predictor(example) for predictor in predictors)
         return predict
     return train
+
+#______________________________________________________________________________
+
+def AdaBoost(L, K):
+    """[Fig. 18.34]"""
+    def train(dataset):
+        examples, target = dataset.examples, dataset.target
+        N = len(examples)
+        w = [1./N] * N
+        h, z = [], []
+        for k in range(K):
+            h_k = L(dataset.examples, w)
+            h.append(h_k)
+            error = sum(weight for example, weight in zip(examples, w)
+                        if example[target] != h_k(example))
+            if error == 0:
+                break
+            assert error < 1, "AdaBoost's sub-learner misclassified everything"
+            for j, example in enumerate(examples):
+                if example[target] == h[k](example):
+                    w[j] *= error / (1. - error)
+            w = normalize(w)
+            z.append(math.log((1. - error) / error))
+        return WeightedMajority(h, z)
+    return train
+
+def WeightedMajority(h, z):
+    raise NotImplementedError
 
 #_____________________________________________________________________________
 # Functions for testing learners on examples
