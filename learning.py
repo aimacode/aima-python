@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import *
-import agents, random, operator
+import random
 
 #______________________________________________________________________________
 
@@ -10,14 +10,14 @@ class DataSet:
 
     d.examples    A list of examples.  Each one is a list of attribute values.
     d.attrs       A list of integers to index into an example, so example[attr]
-                  gives a value. Normally the same as range(len(d.examples)).
+                  gives a value. Normally the same as range(len(d.examples[0])).
     d.attrnames   Optional list of mnemonic names for corresponding attrs.
     d.target      The attribute that a learning algorithm will try to predict.
                   By default the final attribute.
     d.inputs      The list of attrs without the target.
     d.values      A list of lists: each sublist is the set of possible
-                  values for the corresponding attribute. If None, it
-                  is computed from the known examples by self.setproblem.
+                  values for the corresponding attribute. If initially None,
+                  it is computed from the known examples by self.setproblem.
                   If not None, an erroneous value raises ValueError.
     d.name        Name of the data set (for output display only).
     d.source      URL or other source where the data came from.
@@ -67,15 +67,23 @@ class DataSet:
                            if a is not self.target and a not in exclude]
         if not self.values:
             self.values = map(unique, zip(*self.examples))
+        self.check_me()
+
+    def check_me(self):
+        "Check that my fields make sense."
+        assert len(self.attrnames) == len(self.attrs)
+        assert self.target in self.attrs
+        assert self.target not in self.inputs
+        assert set(self.inputs).issubset(set(self.attrs))
         map(self.check_example, self.examples)
 
     def add_example(self, example):
-        """Add an example to the list of examples, checking it first."""
+        "Add an example to the list of examples, checking it first."
         self.check_example(example)
         self.examples.append(example)
 
     def check_example(self, example):
-        """Raise ValueError if example has any invalid values."""
+        "Raise ValueError if example has any invalid values."
         if self.values:
             for a in self.attrs:
                 if example[a] not in self.values[a]:
@@ -83,7 +91,7 @@ class DataSet:
                                      (example[a], self.attrnames[a], example))
 
     def attrnum(self, attr):
-        "Returns the number used for attr, which can be a name, or -n .. n."
+        "Returns the number used for attr, which can be a name, or -n .. n-1."
         if attr < 0:
             return len(self.attrs) + attr
         elif isinstance(attr, str):
@@ -166,7 +174,7 @@ class NaiveBayesLearner(Learner):
         ## Initialize to 0
         for gv in self.dataset.values[self.dataset.target]:
             N[gv] = {}
-            for attr in self.dataset.attrs:
+            for attr in self.dataset.inputs:
                 N[gv][attr] = {}
                 assert None not in self.dataset.values[attr]
                 for val in self.dataset.values[attr]:
@@ -175,7 +183,7 @@ class NaiveBayesLearner(Learner):
         ## Go thru examples
         for example in self.dataset.examples:
             Ngv = N[example[self.dataset.target]]
-            for attr in self.dataset.attrs:
+            for attr in self.dataset.inputs:
                 Ngv[attr][example[attr]] += 1
                 Ngv[attr][None] += 1
         self._N = N
@@ -309,8 +317,8 @@ class DecisionTreeLearner(Learner):
         """Return the most popular target value for this set of examples.
         (If target is binary, this is the majority; otherwise plurality.)"""
         g = self.dataset.target
-        return argmax(self.dataset.values[g],
-                      lambda v: self.count(g, v, examples))
+        return argmax_random_tie(self.dataset.values[g],
+                                 lambda v: self.count(g, v, examples))
 
     def count(self, attr, val, examples):
         return count_if(lambda e: e[attr] == val, examples)
@@ -338,7 +346,7 @@ class DecisionTreeLearner(Learner):
 
     def split_by(self, attr, examples=None):
         "Return a list of (val, examples) pairs for each val of attr."
-        if examples == None:
+        if examples is None:
             examples = self.dataset.examples
         return [(v, [e for e in examples if e[attr] == v])
                 for v in self.dataset.values[attr]]
@@ -426,7 +434,7 @@ class EnsembleLearner(Learner):
 def test(learner, dataset, examples=None, verbose=0):
     """Return the proportion of the examples that are correctly predicted.
     Assumes the learner has already been trained."""
-    if examples == None: examples = dataset.examples
+    if examples is None: examples = dataset.examples
     if len(examples) == 0: return 0.0
     right = 0.0
     for example in examples:
@@ -447,6 +455,7 @@ def train_and_test(learner, dataset, start, end):
     examples = dataset.examples
     try:
         dataset.examples = examples[:start] + examples[end:]
+        dataset.check_me()
         learner.train(dataset)
         return test(learner, dataset, examples[start:end])
     finally:
@@ -456,7 +465,7 @@ def cross_validation(learner, dataset, k=10, trials=1):
     """Do k-fold cross_validate and return their mean.
     That is, keep out 1/k of the examples for testing on each of k runs.
     Shuffle the examples first; If trials>1, average over several shuffles."""
-    if k == None:
+    if k is None:
         k = len(dataset.examples)
     if trials > 1:
         return mean([cross_validation(learner, dataset, k, trials=1)
@@ -472,7 +481,7 @@ def leave1out(learner, dataset):
     return cross_validation(learner, dataset, k=len(dataset.examples))
 
 def learningcurve(learner, dataset, trials=10, sizes=None):
-    if sizes == None:
+    if sizes is None:
         sizes = range(2, len(dataset.examples)-10, 2)
     def score(learner, size):
         random.shuffle(dataset.examples)
@@ -531,7 +540,7 @@ __doc__ += """
 [Fig. 18.6]
 >>> restaurant_learner = DecisionTreeLearner()
 >>> restaurant_learner.train(restaurant)
->>> restaurant_learner.dt.display()
+>>> restaurant_learner.dt.display()          #doctest:+ELLIPSIS
 Test Patrons
  Patrons = None ==> RESULT = No
  Patrons = Full ==> Test Hungry
@@ -540,7 +549,7 @@ Test Patrons
          Type = Thai ==> Test Fri/Sat
              Fri/Sat = Yes ==> RESULT = Yes
              Fri/Sat = No ==> RESULT = No
-         Type = French ==> RESULT = Yes
+         Type = French ==> RESULT = ...
          Type = Italian ==> RESULT = No
      Hungry = No ==> RESULT = No
  Patrons = Some ==> RESULT = Yes
