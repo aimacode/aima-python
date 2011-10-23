@@ -332,7 +332,7 @@ def DecisionListLearner(dataset):
 
     def decision_list_learning(examples):
         if not examples:
-            return [(True, No)]
+            return [(True, False)]
         t, o, examples_t = find_examples(examples)
         if not t:
             raise Failure
