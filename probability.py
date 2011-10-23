@@ -303,13 +303,13 @@ def is_hidden(var, X, e):
     return var != X and var not in e
 
 def Factor(var, e):
-    NotImplemented
+    unimplemented()
 
 def pointwise_product(factors):
-    NotImplemented
+    unimplemented()
 
 def sum_out(var, factors):
-    NotImplemented
+    unimplemented()
 
 #______________________________________________________________________________
 

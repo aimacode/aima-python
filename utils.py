@@ -366,7 +366,6 @@ def isin(elt, seq):
 # so there are three versions of argmin/argmax, depending on what you want to
 # do with ties: return the first one, return them all, or pick at random.
 
-
 def argmin(seq, fn):
     """Return an element with lowest fn(seq[i]) score; tie goes to first one.
     >>> argmin(['one', 'to', 'three'], len)
@@ -526,6 +525,7 @@ def normalize(numbers):
     total = float(sum(numbers))
     return [n / total for n in numbers]
 
+#______________________________________________________________________________
 ## OK, the following are not as widely useful utilities as some of the other
 ## functions here, but they do show up wherever we have 2D grids: Wumpus and
 ## Vacuum worlds, TicTacToe and Checkers, and markov decision Processes.
@@ -655,6 +655,9 @@ def DataFile(name, mode='r'):
     "Return a file in the AIMA /data directory."
     return AIMAFile(['..', 'data', name], mode)
 
+def unimplemented():
+    "Use this as a stub for not-yet-implemented functions."
+    raise NotImplementedError
 
 #______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue

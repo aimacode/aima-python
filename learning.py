@@ -339,11 +339,11 @@ def DecisionListLearner(dataset):
     def find_examples(examples):
         """Find a set of examples that all have the same outcome under
         some test. Return a tuple of the test, outcome, and examples."""
-        NotImplemented
+        unimplemented()
 
     def passes(example, test):
         "Does the example pass the test?"
-        NotImplemented
+        unimplemented()
 
     def predict(example):
         "Predict the outcome for the first passing test."
@@ -363,24 +363,24 @@ def NeuralNetLearner(dataset, sizes):
    weights = []
 
    def predict(example):
-      NotImplemented
+      unimplemented()
 
    return predict
 
 class NNUnit:
    """Unit of a neural net."""
    def __init__(self):
-       NotImplemented
+       unimplemented()
 
 def PerceptronLearner(dataset, sizes):
    def predict(example):
       return sum([])
-   NotImplemented
+   unimplemented()
 #______________________________________________________________________________
 
 def Linearlearner(dataset):
    """Fit a linear model to the data."""
-   NotImplemented
+   unimplemented()
 #______________________________________________________________________________
 
 def EnsembleLearner(learners):
@@ -418,7 +418,7 @@ def AdaBoost(L, K):
     return train
 
 def WeightedMajority(h, z):
-    raise NotImplementedError
+    unimplemented()
 
 #_____________________________________________________________________________
 # Functions for testing learners on examples
