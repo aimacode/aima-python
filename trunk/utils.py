@@ -481,7 +481,7 @@ def mean(values):
 def stddev(values, meanval=None):
     """The standard deviation of a set of values.
     Pass in the mean if you already know it."""
-    if meanval == None: meanval = mean(values)
+    if meanval is None: meanval = mean(values)
     return math.sqrt(sum([(x - meanval)**2 for x in values]) / (len(values)-1))
 
 def dotproduct(X, Y):

@@ -193,7 +193,7 @@ def depth_limited_search(problem, limit=50):
                 result = recursive_dls(successor, problem, limit)
                 if result == 'cutoff':
                     cutoff_occurred = True
-                elif result != None:
+                elif result is not None:
                     return result
             return if_(cutoff_occurred, 'cutoff', None)
 
