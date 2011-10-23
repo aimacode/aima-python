@@ -141,124 +141,104 @@ def parse_csv(input, delim=','):
 
 #______________________________________________________________________________
 
-class Learner:
-    """A Learner, or Learning Algorithm, can be trained with a dataset,
-    and then asked to predict the target attribute of an example."""
-
-    def train(self, dataset):
-        self.dataset = dataset
-
-    def predict(self, example):
-        abstract
-
-#______________________________________________________________________________
-
-class PluralityLearner(Learner):
+def PluralityLearner(dataset):
     """A very dumb algorithm: always pick the result that was most popular
     in the training data.  Makes a baseline for comparison."""
-
-    def train(self, dataset):
-        "Find the target value that appears most often."
-        self.most_popular = mode([e[dataset.target] for e in dataset.examples])
-
-    def predict(self, example):
+    most_popular = mode([e[dataset.target] for e in dataset.examples])
+    def predict(example):
         "Always return same result: the most popular from the training set."
-        return self.most_popular
+        return most_popular
+    return predict
 
 #______________________________________________________________________________
 
-class NaiveBayesLearner(Learner):
+def NaiveBayesLearner(dataset):
+    """Just count the target/attr/val occurrences.
+    Count how many times each value of each input attribute occurs.
+    Store count in _N[targetvalue][attr][val]. Let
+    _N[targetvalue][attr][None] be the sum over all vals."""
 
-    def train(self, dataset):
-        """Just count the target/attr/val occurrences.
-        Count how many times each value of each input attribute occurs.
-        Store count in N[targetvalue][attr][val]. Let
-        N[targetvalue][attr][None] be the sum over all vals."""
-        self.dataset = dataset
-        N = {}
-        ## Initialize to 0
-        for gv in self.dataset.values[self.dataset.target]:
-            N[gv] = {}
-            for attr in self.dataset.inputs:
-                N[gv][attr] = {}
-                assert None not in self.dataset.values[attr]
-                for val in self.dataset.values[attr]:
-                    N[gv][attr][val] = 0
-                    N[gv][attr][None] = 0
-        ## Go thru examples
-        for example in self.dataset.examples:
-            Ngv = N[example[self.dataset.target]]
-            for attr in self.dataset.inputs:
-                Ngv[attr][example[attr]] += 1
-                Ngv[attr][None] += 1
-        self._N = N
+    _N = {}
+    ## Initialize to 0
+    for gv in dataset.values[dataset.target]:
+        _N[gv] = {}
+        for attr in dataset.inputs:
+            _N[gv][attr] = {}
+            assert None not in dataset.values[attr]
+            for val in dataset.values[attr]:
+                _N[gv][attr][val] = 0
+                _N[gv][attr][None] = 0
+    ## Go thru examples
+    for example in dataset.examples:
+        Ngv = _N[example[dataset.target]]
+        for attr in dataset.inputs:
+            Ngv[attr][example[attr]] += 1
+            Ngv[attr][None] += 1
 
-    def N(self, targetval, attr, attrval):
+    def predict(example):
+        """Predict the target value for example. Consider each possible value,
+        choose the most likely, by looking at each attribute independently."""
+        possible_values = dataset.values[dataset.target]
+        def class_probability(targetval):
+            return product(P(targetval, a, example[a]) for a in dataset.inputs)
+        return argmax(possible_values, class_probability)
+
+    def P(targetval, attr, attrval):
+        """Smooth the raw counts to give a probability estimate.
+        Estimate adds 1 to numerator and len(possible vals) to denominator."""
+        return ((N(targetval, attr, attrval) + 1.0) /
+                (N(targetval, attr, None) + len(dataset.values[attr])))
+
+    def N(targetval, attr, attrval):
        "Return the count in the training data of this combination."
        try:
-          return self._N[targetval][attr][attrval]
+          return _N[targetval][attr][attrval]
        except KeyError:
           return 0
 
-    def P(self, targetval, attr, attrval):
-        """Smooth the raw counts to give a probability estimate.
-        Estimate adds 1 to numerator and len(possible vals) to denominator."""
-        return ((self.N(targetval, attr, attrval) + 1.0) /
-                (self.N(targetval, attr, None) + len(self.dataset.values[attr])))
-
-    def predict(self, example):
-        """Predict the target value for example. Consider each possible value,
-        choose the most likely, by looking at each attribute independently."""
-        possible_values = self.dataset.values[self.dataset.target]
-        def class_probability(targetval):
-            return product([self.P(targetval, a, example[a])
-                            for a in self.dataset.inputs])
-        return argmax(possible_values, class_probability)
+    return predict
 
 #______________________________________________________________________________
 
-class NearestNeighborLearner(Learner):
-
-    def __init__(self, k=1):
-        "k-NearestNeighbor: the k nearest neighbors vote."
-        self.k = k
-
-    def predict(self, example):
-        """With k=1, find the point closest to example.
-        With k>1, find k closest, and have them vote for the best."""
-        if self.k == 1:
-            neighbor = argmin(self.dataset.examples,
-                              lambda e: self.dataset.distance(e, example))
-            return neighbor[self.dataset.target]
-        else:
+def NearestNeighborLearner(dataset, k=1):
+    "k-NearestNeighbor: the k nearest neighbors vote."
+    if k == 1:
+        def predict(example):
+            "Predict according to the point closest to example."
+            neighbor = argmin(dataset.examples,
+                              lambda e: dataset.distance(e, example))
+            return neighbor[dataset.target]
+    else:
+        def predict(example):
+            "Find the k closest, and have them vote for the best."
             ## Maintain a sorted list of (distance, example) pairs.
             ## For very large k, a PriorityQueue would be better
             best = []
-            for e in self.dataset.examples:
-                d = self.dataset.distance(e, example)
-                if len(best) < self.k:
+            for e in dataset.examples:
+                d = dataset.distance(e, example)
+                if len(best) < k:
                     best.append((d, e))
                 elif d < best[-1][0]:
                     best[-1] = (d, e)
                 best.sort()
-            return mode([e[self.dataset.target] for (d, e) in best])
+            return mode([e[dataset.target] for (d, e) in best])
+    return predict
 
 #______________________________________________________________________________
 
-class DecisionTree:
-    """A DecisionTree holds an attribute that is being tested, and a
-    dict of {attrval: Tree} entries.  If Tree here is not a DecisionTree
-    then it is the final classification of the example."""
+class DecisionFork:
+    """A fork of a decision tree holds an attribute to test, and a dict 
+    of branches, one for each of the attribute's values."""
 
     def __init__(self, attr, attrname=None, branches=None):
         "Initialize by saying what attribute this node tests."
         update(self, attr=attr, attrname=attrname or attr,
                branches=branches or {})
 
-    def predict(self, example):
-        "Given an example, use the tree to classify the example."
+    def __call__(self, example):
+        "Given an example, classify it using the attribute and the branches."
         attrvalue = example[self.attr]
-        return decision_tree_predict(self.branches[attrvalue], example)
+        return self.branches[attrvalue](example)
 
     def add(self, val, subtree):
         "Add a branch.  If self.attr = val, go to the given subtree."
@@ -269,86 +249,86 @@ class DecisionTree:
         print 'Test', name
         for (val, subtree) in self.branches.items():
             print ' '*4*indent, name, '=', val, '==>',
-            if isinstance(subtree, DecisionTree):
-                subtree.display(indent+1)
-            else:
-                print 'RESULT =', subtree
+            subtree.display(indent+1)
 
     def __repr__(self):
-        return ('DecisionTree(%r, %r, %r)'
+        return ('DecisionFork(%r, %r, %r)'
                 % (self.attr, self.attrname, self.branches))
     
-def decision_tree_predict(tree, example):
-    "Treat a non-DecisionTree as a leaf."
-    return tree.predict(example) if isinstance(tree, DecisionTree) else tree
+class DecisionLeaf:
+    "A leaf of a decision tree holds just a result."
 
+    def __init__(self, result):
+        self.result = result
+
+    def __call__(self, example):
+        return self.result
+
+    def display(self, indent=0):
+        print 'RESULT =', self.result
+
+    def __repr__(self):
+        return repr(self.result)
+    
 #______________________________________________________________________________
 
-class DecisionTreeLearner(Learner):
+def DecisionTreeLearner(dataset):
     "[Fig. 18.5]"
 
-    def predict(self, example):
-        return decision_tree_predict(self.dt, example)
+    target, values = dataset.target, dataset.values
 
-    def train(self, dataset):
-        self.dataset = dataset
-        self.attrnames = dataset.attrnames
-        self.dt = self.decision_tree_learning(dataset.examples, dataset.inputs)
-
-    def decision_tree_learning(self, examples, attrs, parent_examples=()):
+    def decision_tree_learning(examples, attrs, parent_examples=()):
         if len(examples) == 0:
-            return self.plurality_value(parent_examples)
-        elif self.all_same_class(examples):
-            return examples[0][self.dataset.target]
+            return plurality_value(parent_examples)
+        elif all_same_class(examples):
+            return DecisionLeaf(examples[0][target])
         elif len(attrs) == 0:
-            return self.plurality_value(examples)
+            return plurality_value(examples)
         else:
-            A = self.choose_attribute(attrs, examples)
-            tree = DecisionTree(A, self.attrnames[A])
-            for (v, examples_i) in self.split_by(A, examples):
-                subtree = self.decision_tree_learning(
-                    examples_i, removeall(A, attrs), examples)
-                tree.add(v, subtree)
+            A = choose_attribute(attrs, examples)
+            tree = DecisionFork(A, dataset.attrnames[A])
+            for (v_k, exs) in split_by(A, examples):
+                subtree = decision_tree_learning(
+                    exs, removeall(A, attrs), examples)
+                tree.add(v_k, subtree)
             return tree
 
-    def plurality_value(self, examples):
+    def plurality_value(examples):
         """Return the most popular target value for this set of examples.
         (If target is binary, this is the majority; otherwise plurality.)"""
-        g = self.dataset.target
-        return argmax_random_tie(self.dataset.values[g],
-                                 lambda v: self.count(g, v, examples))
+        popular = argmax_random_tie(values[target],
+                                    lambda v: count(target, v, examples))
+        return DecisionLeaf(popular)
 
-    def count(self, attr, val, examples):
+    def count(attr, val, examples):
         return count_if(lambda e: e[attr] == val, examples)
 
-    def all_same_class(self, examples):
+    def all_same_class(examples):
         "Are all these examples in the same target class?"
-        target = self.dataset.target
         class0 = examples[0][target]
         return all(e[target] == class0 for e in examples)
 
-    def choose_attribute(self, attrs, examples):
+    def choose_attribute(attrs, examples):
         "Choose the attribute with the highest information gain."
         return argmax_random_tie(attrs,
-                                 lambda a: self.information_gain(a, examples))
+                                 lambda a: information_gain(a, examples))
 
-    def information_gain(self, attr, examples):
+    def information_gain(attr, examples):
         def I(examples):
-            target = self.dataset.target
-            return information_content([self.count(target, v, examples)
-                                        for v in self.dataset.values[target]])
+            return information_content([count(target, v, examples)
+                                        for v in values[target]])
         N = float(len(examples))
         remainder = 0
-        for (v, examples_i) in self.split_by(attr, examples):
+        for (v, examples_i) in split_by(attr, examples):
             remainder += (len(examples_i) / N) * I(examples_i)
         return I(examples) - remainder
 
-    def split_by(self, attr, examples=None):
+    def split_by(attr, examples):
         "Return a list of (val, examples) pairs for each val of attr."
-        if examples is None:
-            examples = self.dataset.examples
         return [(v, [e for e in examples if e[attr] == v])
-                for v in self.dataset.values[attr]]
+                for v in values[attr]]
+
+    return decision_tree_learning(dataset.examples, dataset.inputs)
 
 def information_content(values):
     "Number of bits to represent the probability distribution in values."
@@ -362,83 +342,84 @@ def information_content(values):
 
 ### A decision list is implemented as a list of (test, value) pairs.
 
-class DecisionListLearner(Learner):
+def DecisionListLearner(dataset):
+    """[Fig. 18.11]"""
 
-    def train(self, dataset):
-        self.dataset = dataset
-        self.attrnames = dataset.attrnames
-        self.dl = self.decision_list_learning(Set(dataset.examples))
-
-    def decision_list_learning(self, examples):
-        """[Fig. 18.11]"""
+    def decision_list_learning(examples):
         if not examples:
             return [(True, No)]
-        t, o, examples_t = self.find_examples(examples)
+        t, o, examples_t = find_examples(examples)
         if not t:
             raise Failure
-        return [(t, o)] + self.decision_list_learning(examples - examples_t)
+        return [(t, o)] + decision_list_learning(examples - examples_t)
 
-    def find_examples(self, examples):
+    def find_examples(examples):
         """Find a set of examples that all have the same outcome under
         some test. Return a tuple of the test, outcome, and examples."""
         NotImplemented
+
+    def passes(example, test):
+        "Does the example pass the test?"
+        NotImplemented
+
+    def predict(example):
+        "Predict the outcome for the first passing test."
+        for test, outcome in predict.decision_list:
+            if passes(example, test):
+                return outcome
+    predict.decision_list = decision_list_learning(set(dataset.examples))
+
+    return predict
+
 #______________________________________________________________________________
 
-class NeuralNetLearner(Learner):
+def NeuralNetLearner(dataset, sizes):
    """Layered feed-forward network."""
 
-   def __init__(self, sizes):
-      self.activations = map(lambda n: [0.0 for i in range(n)], sizes)
-      self.weights = []
+   activations = map(lambda n: [0.0 for i in range(n)], sizes)
+   weights = []
 
-   def train(self, dataset):
+   def predict(example):
       NotImplemented
 
-   def predict(self, example):
-      NotImplemented
+   return predict
 
 class NNUnit:
    """Unit of a neural net."""
    def __init__(self):
        NotImplemented
 
-class PerceptronLearner(NeuralNetLearner):
-
-   def predict(self, example):
+def PerceptronLearner(dataset, sizes):
+   def predict(example):
       return sum([])
-#______________________________________________________________________________
-
-class Linearlearner(Learner):
-   """Fit a linear model to the data."""
-
    NotImplemented
 #______________________________________________________________________________
 
-class EnsembleLearner(Learner):
+def Linearlearner(dataset):
+   """Fit a linear model to the data."""
+   NotImplemented
+#______________________________________________________________________________
+
+def EnsembleLearner(learners):
     """Given a list of learning algorithms, have them vote."""
-
-    def __init__(self, learners):
-        self.learners = learners
-
-    def train(self, dataset):
-        for learner in self.learners:
-           learner.train(dataset)
-
-    def predict(self, example):
-        return mode([learner.predict(example) for learner in self.learners])
+    def train(dataset):
+        predictors = [learner(dataset) for learner in learners]
+        def predict(example):
+            return mode(predictor(example) for predictor in predictors)
+        return predict
+    return train
 
 #_____________________________________________________________________________
 # Functions for testing learners on examples
 
-def test(learner, dataset, examples=None, verbose=0):
-    """Return the proportion of the examples that are correctly predicted.
-    Assumes the learner has already been trained."""
+def test(predict, dataset, examples=None, verbose=0):
+    "Return the proportion of the examples that are correctly predicted."
     if examples is None: examples = dataset.examples
     if len(examples) == 0: return 0.0
     right = 0.0
     for example in examples:
         desired = example[dataset.target]
-        output = learner.predict(dataset.sanitize(example))
+        output = predict(dataset.sanitize(example))
         if output == desired:
             right += 1
             if verbose >= 2:
@@ -454,9 +435,7 @@ def train_and_test(learner, dataset, start, end):
     examples = dataset.examples
     try:
         dataset.examples = examples[:start] + examples[end:]
-        dataset.check_me()
-        learner.train(dataset)
-        return test(learner, dataset, examples[start:end])
+        return test(learner(dataset), dataset, examples[start:end])
     finally:
         dataset.examples = examples
 
@@ -516,7 +495,10 @@ def RestaurantDataSet(examples=None):
 restaurant = RestaurantDataSet()
 
 def T(attrname, branches):
-    return DecisionTree(restaurant.attrnum(attrname), attrname, branches)
+    branches = dict((value, (child if isinstance(child, DecisionFork)
+                             else DecisionLeaf(child)))
+                    for value, child in branches.items())
+    return DecisionFork(restaurant.attrnum(attrname), attrname, branches)
 
 Fig[18,2] = T('Patrons',
              {'None': 'No', 'Some': 'Yes', 'Full':
@@ -537,10 +519,9 @@ Fig[18,2] = T('Patrons',
 
 __doc__ += """
 [Fig. 18.6]
->>> restaurant_learner = DecisionTreeLearner()
 >>> random.seed(437)
->>> restaurant_learner.train(restaurant)
->>> restaurant_learner.dt.display()
+>>> restaurant_tree = DecisionTreeLearner(restaurant)
+>>> restaurant_tree.display()
 Test Patrons
  Patrons = None ==> RESULT = No
  Patrons = Full ==> Test Hungry
@@ -558,13 +539,13 @@ Test Patrons
 def SyntheticRestaurant(n=20):
     "Generate a DataSet with n examples."
     def gen():
-        example =  map(random.choice, restaurant.values)
-        example[restaurant.target] = Fig[18,2].predict(example)
+        example = map(random.choice, restaurant.values)
+        example[restaurant.target] = Fig[18,2](example)
         return example
     return RestaurantDataSet([gen() for i in range(n)])
 
 #______________________________________________________________________________
-# Artificial, generated  examples.
+# Artificial, generated datasets.
 
 def Majority(k, n):
     """Return a DataSet with n k-bit examples of the majority problem:
@@ -608,6 +589,6 @@ def compare(algorithms=[PluralityLearner, NaiveBayesLearner,
     """Compare various learners on various datasets using cross-validation.
     Print results as a table."""
     print_table([[a.__name__.replace('Learner','')] +
-                 [cross_validation(a(), d, k, trials) for d in datasets]
+                 [cross_validation(a, d, k, trials) for d in datasets]
                  for a in algorithms],
                 header=[''] + [d.name[0:7] for d in datasets], numfmt='%.2f')
