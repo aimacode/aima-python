@@ -299,13 +299,13 @@ def DecisionTreeLearner(dataset):
                                  lambda a: information_gain(a, examples))
 
     def information_gain(attr, examples):
+        "Return the expected reduction in entropy from splitting by attr."
         def I(examples):
             return information_content([count(target, v, examples)
                                         for v in values[target]])
         N = float(len(examples))
-        remainder = 0
-        for (v, examples_i) in split_by(attr, examples):
-            remainder += (len(examples_i) / N) * I(examples_i)
+        remainder = sum((len(examples_i) / N) * I(examples_i)
+                        for (v, examples_i) in split_by(attr, examples))
         return I(examples) - remainder
 
     def split_by(attr, examples):
