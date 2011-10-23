@@ -166,7 +166,7 @@ class NaiveBayesLearner(Learner):
 
     def train(self, dataset):
         """Just count the target/attr/val occurrences.
-        Count how many times each value of each attribute occurs.
+        Count how many times each value of each input attribute occurs.
         Store count in N[targetvalue][attr][val]. Let
         N[targetvalue][attr][None] be the sum over all vals."""
         self.dataset = dataset
@@ -331,7 +331,8 @@ class DecisionTreeLearner(Learner):
 
     def choose_attribute(self, attrs, examples):
         "Choose the attribute with the highest information gain."
-        return argmax(attrs, lambda a: self.information_gain(a, examples))
+        return argmax_random_tie(attrs,
+                                 lambda a: self.information_gain(a, examples))
 
     def information_gain(self, attr, examples):
         def I(examples):
@@ -539,8 +540,9 @@ Fig[18,2] = T('Patrons',
 __doc__ += """
 [Fig. 18.6]
 >>> restaurant_learner = DecisionTreeLearner()
+>>> random.seed(437)
 >>> restaurant_learner.train(restaurant)
->>> restaurant_learner.dt.display()          #doctest:+ELLIPSIS
+>>> restaurant_learner.dt.display()
 Test Patrons
  Patrons = None ==> RESULT = No
  Patrons = Full ==> Test Hungry
@@ -549,7 +551,7 @@ Test Patrons
          Type = Thai ==> Test Fri/Sat
              Fri/Sat = Yes ==> RESULT = Yes
              Fri/Sat = No ==> RESULT = No
-         Type = French ==> RESULT = ...
+         Type = French ==> RESULT = Yes
          Type = Italian ==> RESULT = No
      Hungry = No ==> RESULT = No
  Patrons = Some ==> RESULT = Yes
