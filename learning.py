@@ -257,11 +257,8 @@ class DecisionTree:
 
     def predict(self, example):
         "Given an example, use the tree to classify the example."
-        child = self.branches[example[self.attr]]
-        if isinstance(child, DecisionTree):
-            return child.predict(example)
-        else:
-            return child
+        attrvalue = example[self.attr]
+        return decision_tree_predict(self.branches[attrvalue], example)
 
     def add(self, val, subtree):
         "Add a branch.  If self.attr = val, go to the given subtree."
@@ -280,8 +277,10 @@ class DecisionTree:
     def __repr__(self):
         return ('DecisionTree(%r, %r, %r)'
                 % (self.attr, self.attrname, self.branches))
-
-Yes, No = True, False
+    
+def decision_tree_predict(tree, example):
+    "Treat a non-DecisionTree as a leaf."
+    return tree.predict(example) if isinstance(tree, DecisionTree) else tree
 
 #______________________________________________________________________________
 
@@ -289,10 +288,7 @@ class DecisionTreeLearner(Learner):
     "[Fig. 18.5]"
 
     def predict(self, example):
-        if isinstance(self.dt, DecisionTree):
-            return self.dt.predict(example)
-        else:
-            return self.dt
+        return decision_tree_predict(self.dt, example)
 
     def train(self, dataset):
         self.dataset = dataset
