@@ -53,7 +53,7 @@ class CSP(search.Problem):
         update(self, vars=vars, domains=domains,
                neighbors=neighbors, constraints=constraints,
                initial=(), curr_domains=None, nassigns=0)
-        
+
     def assign(self, var, val, assignment):
         "Add {var: val} to assignment; Discard the old value if any."
         assignment[var] = val
@@ -91,7 +91,7 @@ class CSP(search.Problem):
             var = find_if(lambda v: v not in assignment, self.vars)
             return [(var, val) for val in self.domains[var]
                     if self.nconflicts(var, val, assignment) == 0]
-    
+
     def result(self, state, (var, val)):
         "Perform an action and return the new state."
         return state + ((var, val),)
@@ -137,7 +137,7 @@ class CSP(search.Problem):
     def infer_assignment(self):
         "Return the partial assignment implied by the current inferences."
         self.support_pruning()
-        return dict((v, self.curr_domains[v][0]) 
+        return dict((v, self.curr_domains[v][0])
                     for v in self.vars if 1 == len(self.curr_domains[v]))
 
     ## This is for min_conflicts search
@@ -242,7 +242,7 @@ def backtracking_search(csp,
     result = backtrack({})
     assert result is None or csp.goal_test(result)
     return result
-                
+
 #______________________________________________________________________________
 # Constraint Propagation with AC-3
 
@@ -292,7 +292,7 @@ def min_conflicts_value(csp, var, current):
     """Return the value that will give var the least number of conflicts.
     If there is a tie, choose at random."""
     return argmin_random_tie(csp.domains[var],
-                             lambda val: csp.nconflicts(var, val, current)) 
+                             lambda val: csp.nconflicts(var, val, current))
 
 #______________________________________________________________________________
 # Map-Coloring Problems
@@ -319,7 +319,7 @@ def MapColoringCSP(colors, neighbors):
     specified as a string of the form defined by parse_neighbors"""
 
     if isinstance(neighbors, str):
-        neighbors = parse_neighbors(neighbors)     
+        neighbors = parse_neighbors(neighbors)
     return CSP(neighbors.keys(), UniversalDict(colors), neighbors,
                different_values_constraint)
 
@@ -345,7 +345,7 @@ def parse_neighbors(neighbors, vars=[]):
 
 australia = MapColoringCSP(list('RGB'),
                            'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
-    
+
 usa = MapColoringCSP(list('RGBY'),
         """WA: OR ID; OR: ID NV CA; CA: NV AZ; NV: ID UT AZ; ID: MT WY UT;
         UT: WY CO AZ; MT: ND SD WY; WY: SD NE CO; CO: NE KA OK NM; NM: OK TX;
@@ -398,7 +398,7 @@ class NQueensCSP(CSP):
                      UniversalDict(range(n)), queen_constraint)
         update(self, rows=[0]*n, ups=[0]*(2*n - 1), downs=[0]*(2*n - 1))
 
-    def nconflicts(self, var, val, assignment): 
+    def nconflicts(self, var, val, assignment):
         """The number of conflicts, as recorded with each assignment.
         Count conflicts in row and in up, down diagonals. If there
         is a queen there, it can't conflict with itself, so subtract 3."""
@@ -422,7 +422,7 @@ class NQueensCSP(CSP):
         if var in assignment:
             self.record_conflict(assignment, var, assignment[var], -1)
         CSP.unassign(self, var, assignment)
-        
+
     def record_conflict(self, assignment, var, val, delta):
         "Record conflicts caused by addition or deletion of a Queen."
         n = len(self.vars)
@@ -443,8 +443,8 @@ class NQueensCSP(CSP):
             for var in range(n):
                 if assignment.get(var,'') == val: ch = '*'
                 else: ch = ' '
-                print str(self.nconflicts(var, val, assignment))+ch, 
-            print        
+                print str(self.nconflicts(var, val, assignment))+ch,
+            print
 
 #______________________________________________________________________________
 # Sudoku
@@ -568,7 +568,7 @@ def Zebra():
             (A in Pets and B in Pets) or
             (A in Drinks and B in Drinks) or
             (A in Countries and B in Countries) or
-            (A in Smokes and B in Smokes)): return not same        
+            (A in Smokes and B in Smokes)): return not same
         raise 'error'
     return CSP(vars, domains, neighbors, zebra_constraint)
 

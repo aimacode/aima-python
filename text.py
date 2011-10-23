@@ -12,7 +12,7 @@ from math import log, exp
 import re, probability, string, search
 
 class CountingProbDist(probability.ProbDist):
-    """A probability distribution formed by observing and counting examples. 
+    """A probability distribution formed by observing and counting examples.
     If P is an instance of this class and o
     is an observed value, then there are 3 main operations:
     p.add(o) increments the count for observation o by 1.
@@ -27,7 +27,7 @@ class CountingProbDist(probability.ProbDist):
                table=[], n_obs=0)
         for o in observations:
             self.add(o)
-        
+
     def add(self, o):
         """Add an observation o to the distribution."""
         self.dictionary[o] += 1
@@ -88,7 +88,7 @@ class NgramTextModel(CountingProbDist):
         ## mapping from (w1, ..., wn-1) to P(wn | w1, ... wn-1)
         CountingProbDist.__init__(self)
         self.n = n
-        self.cond_prob = DefaultDict(CountingProbDist()) 
+        self.cond_prob = DefaultDict(CountingProbDist())
         self.add_sequence(observation_sequence)
 
     ## sample, __len__, __getitem__ inherited from CountingProbDist
@@ -96,9 +96,9 @@ class NgramTextModel(CountingProbDist):
 
     def add(self, ngram):
         """Count 1 for P[(w1, ..., wn)] and for P(wn | (w1, ..., wn-1)"""
-        CountingProbDist.add(self, ngram)        
+        CountingProbDist.add(self, ngram)
         self.cond_prob[ngram[:-1]].add(ngram[-1])
-        
+
     def add_sequence(self, words):
         """Add each of the tuple words[i:i+n], using a sliding window.
         Prefix some copies of the empty word, '', to make the start work."""
@@ -121,12 +121,12 @@ class NgramTextModel(CountingProbDist):
             else: ## Cannot continue, so restart.
                 nminus1gram = ('',) * (n-1)
         return ' '.join(output)
-    
+
 #______________________________________________________________________________
 
 
 def viterbi_segment(text, P):
-    """Find the best segmentation of the string of characters, given the 
+    """Find the best segmentation of the string of characters, given the
     UnigramTextModel P."""
     # best[i] = best probability for text[0:i]
     # words[i] = best word ending at position i
@@ -147,16 +147,16 @@ def viterbi_segment(text, P):
         i = i - len(words[i])
     ## Return sequence of best words and overall probability
     return sequence, best[-1]
-    
+
 
 #______________________________________________________________________________
 
 
 class IRSystem:
     """A very simple Information Retrieval System, as discussed in Sect. 23.2.
-    The constructor s = IRSystem('the a') builds an empty system with two 
+    The constructor s = IRSystem('the a') builds an empty system with two
     stopwords. Next, index several documents with s.index_document(text, url).
-    Then ask queries with s.query('query words', n) to retrieve the top n 
+    Then ask queries with s.query('query words', n) to retrieve the top n
     matching documents.  Queries are literal words from the document,
     except that stopwords are ignored, and there is one special syntax:
     The query "learn: man cat", for example, runs "man cat" and indexes it."""
@@ -165,7 +165,7 @@ class IRSystem:
         """Create an IR System. Optionally specify stopwords."""
         ## index is a map of {word: {docid: count}}, where docid is an int,
         ## indicating the index into the documents list.
-        update(self, index=DefaultDict(DefaultDict(0)), 
+        update(self, index=DefaultDict(DefaultDict(0)),
                stopwords=set(words(stopwords)), documents=[])
 
     def index_collection(self, filenames):
@@ -248,12 +248,12 @@ def canonicalize(text):
 
 #______________________________________________________________________________
 
-## Example application (not in book): decode a cipher.  
+## Example application (not in book): decode a cipher.
 ## A cipher is a code that substitutes one character for another.
 ## A shift cipher is a rotation of the letters in the alphabet,
 ## such as the famous rot13, which maps A to N, B to M, etc.
 
-#### Encoding 
+#### Encoding
 
 def shift_encode(plaintext, n):
     """Encode text with a shift cipher that moves each letter up by n letters.
@@ -261,7 +261,7 @@ def shift_encode(plaintext, n):
     'bcd a'
     """
     return encode(plaintext, alphabet[n:] + alphabet[:n])
-    
+
 def rot13(plaintext):
     """Encode text by rotating letters by 13 spaces in the alphabet.
     >>> rot13('hello')
@@ -277,8 +277,8 @@ def encode(plaintext, code):
     trans = maketrans(alphabet + alphabet.upper(), code + code.upper())
     return plaintext.translate(trans)
 
-alphabet = 'abcdefghijklmnopqrstuvwxyz'  
-    
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
+
 def bigrams(text):
     """Return a list of pairs in text (a sequence of letters or words).
     >>> bigrams('this')
@@ -292,7 +292,7 @@ def bigrams(text):
 
 class ShiftDecoder:
     """There are only 26 possible encodings, so we can try all of them,
-    and return the one with the highest probability, according to a 
+    and return the one with the highest probability, according to a
     bigram probability distribution."""
     def __init__(self, training_text):
         training_text = canonicalize(training_text)
@@ -304,7 +304,7 @@ class ShiftDecoder:
         for bi in bigrams(plaintext):
             s = s * self.P2[bi]
         return s
-    
+
     def decode(self, ciphertext):
         "Return the shift decoding of text with the best score."
         return argmax(all_shifts(ciphertext), self.score)
@@ -325,7 +325,7 @@ class PermutationDecoder:
       We could represent a search state as a permutation of the 26 letters,
     and alter the solution through hill climbing.  With an initial guess
     based on unigram probabilities, this would probably fare well. However,
-    I chose instead to have an incremental representation. A state is 
+    I chose instead to have an incremental representation. A state is
     represented as a letter-to-letter map; for example {'z': 'e'} to
     represent that 'z' will be translated to 'e'.
     """
@@ -356,11 +356,11 @@ class PermutationDecoderProblem(search.Problem):
         self.decoder = decoder
 
     def actions(self, state):
-        ## Find the best 
-        p, plainchar = max([(self.decoder.P1[c], c) 
+        ## Find the best
+        p, plainchar = max([(self.decoder.P1[c], c)
                             for c in alphabet if c not in state])
         succs = [extend(state, plainchar, cipherchar)] #????
-        
+
     def goal_test(self, state):
         "We're done when we get all 26 letters assigned."
         return len(state) >= 26
@@ -375,32 +375,32 @@ __doc__ += """
 >>> P = UnigramTextModel(wordseq)
 
 ## Now do segmentation, using the text model as a prior.
->>> s, p = viterbi_segment('itiseasytoreadwordswithoutspaces', P) 
->>> s 
+>>> s, p = viterbi_segment('itiseasytoreadwordswithoutspaces', P)
+>>> s
 ['it', 'is', 'easy', 'to', 'read', 'words', 'without', 'spaces']
->>> 1e-30 < p < 1e-20 
+>>> 1e-30 < p < 1e-20
 True
 >>> s, p = viterbi_segment('wheninthecourseofhumaneventsitbecomesnecessary', P)
->>> s 
+>>> s
 ['when', 'in', 'the', 'course', 'of', 'human', 'events', 'it', 'becomes', 'necessary']
 
 ## Test the decoding system
->>> shift_encode("This is a secret message.", 17) 
+>>> shift_encode("This is a secret message.", 17)
 'Kyzj zj r jvtivk dvjjrxv.'
 
 >>> ring = ShiftDecoder(flatland)
->>> ring.decode('Kyzj zj r jvtivk dvjjrxv.') 
+>>> ring.decode('Kyzj zj r jvtivk dvjjrxv.')
 'This is a secret message.'
->>> ring.decode(rot13('Hello, world!')) 
+>>> ring.decode(rot13('Hello, world!'))
 'Hello, world!'
 
 ## CountingProbDist
 ## Add a thousand samples of a roll of a die to D.
 >>> D = CountingProbDist()
->>> for i in range(10000): 
+>>> for i in range(10000):
 ...     D.add(random.choice('123456'))
 >>> ps = [D[n] for n in '123456']
->>> 1./7. <= min(ps) <= max(ps) <= 1./5. 
+>>> 1./7. <= min(ps) <= max(ps) <= 1./5.
 True
 """
 

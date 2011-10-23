@@ -11,7 +11,7 @@ def DTAgentProgram(belief_state):
     "A decision-theoretic agent. [Fig. 13.1]"
     def program(percept):
         belief_state.observe(program.action, percept)
-        program.action = argmax(belief_state.actions(), 
+        program.action = argmax(belief_state.actions(),
                                 belief_state.expected_outcome_utility)
         return program.action
     program.action = None
@@ -136,17 +136,17 @@ def enumerate_joint_ask(X, e, P):
 def enumerate_joint(vars, e, P):
     """Return the sum of those entries in P consistent with e,
     provided vars is P's remaining variables (the ones not in e)."""
-    if not vars: 
-        return P[e] 
+    if not vars:
+        return P[e]
     Y, rest = vars[0], vars[1:]
-    return sum([enumerate_joint(rest, extend(e, Y, y), P) 
+    return sum([enumerate_joint(rest, extend(e, Y, y), P)
                 for y in P.values(Y)])
 
 #______________________________________________________________________________
 
 class BayesNet:
     "Bayesian network containing only boolean-variable nodes."
-    
+
     def __init__(self, nodes=[]):
         "nodes must be ordered with parents before children."
         update(self, nodes=[], vars=[])
@@ -175,11 +175,11 @@ class BayesNet:
         >>> burglary.variables()
         ['Burglary', 'Earthquake', 'Alarm', 'JohnCalls', 'MaryCalls']"""
         return [n.variable for n in self.nodes]
-    
+
     def variable_values(self, var):
         "Return the domain of var."
         return [True, False]
-        
+
 
 class BayesNode:
     """A conditional probability distribution for a boolean variable,
@@ -206,7 +206,7 @@ class BayesNode:
 
         >>> X = BayesNode('X', '', 0.2)
         >>> Y = BayesNode('Y', 'P', {T: 0.2, F: 0.7})
-        >>> Z = BayesNode('Z', 'P Q', 
+        >>> Z = BayesNode('Z', 'P Q',
         ...    {(T, T): 0.2, (T, F): 0.3, (F, T): 0.5, (F, F): 0.7})
         """
         if isinstance(parents, str): parents = parents.split()
@@ -227,7 +227,7 @@ class BayesNode:
         update(self, variable=X, parents=parents, cpt=cpt)
 
     def p(self, value, event):
-        """Return the conditional probability 
+        """Return the conditional probability
         P(X=value | parents=parent_values), where parent_values
         are the values of parents in event. (event must assign each
         parent a value.)
@@ -294,7 +294,7 @@ def elimination_ask(X, e, bn, order=reversed):
     "[Fig. 14.11]"
     factors = []
     for var in order(bn.vars):
-        factors.append(Factor(var, e)) 
+        factors.append(Factor(var, e))
         if is_hidden(var, X, e):
             factors = sum_out(var, factors)
     return pointwise_product(factors).normalize()
@@ -373,7 +373,7 @@ def likelihood_weighting(X, e, bn, N):
         sample, weight = weighted_sample(bn, e) # boldface x, w in Fig. 14.15
         W[sample[X]] += weight
     return ProbDist(X, W)
-    
+
 def weighted_sample(bn, e):
     """Sample an event from bn that's consistent with the evidence e;
     return the event and its weight, the likelihood that the event
@@ -387,7 +387,7 @@ def weighted_sample(bn, e):
         else:
             event[Xi] = node.sample(event)
     return event, w
-    
+
 
 #_______________________________________________________________________________
 
@@ -414,17 +414,17 @@ __doc__ += """
 >>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008
 >>> P[T, F, T] = 0.016; P[T, F, F] = 0.064; P[F, F, T] = 0.144; P[F, F, F] = 0.576
 
->>> P[T, T, T] 
+>>> P[T, T, T]
 0.108
 
 ## Ask for P(Cavity|Toothache=T)
->>> PC = enumerate_joint_ask('Cavity', {'Toothache': T}, P) 
+>>> PC = enumerate_joint_ask('Cavity', {'Toothache': T}, P)
 >>> PC.show_approx()
 'False: 0.4, True: 0.6'
 
->>> 0.6-epsilon < PC[T] < 0.6+epsilon 
+>>> 0.6-epsilon < PC[T] < 0.6+epsilon
 True
 
->>> 0.4-epsilon < PC[F] < 0.4+epsilon 
+>>> 0.4-epsilon < PC[F] < 0.4+epsilon
 True
 """

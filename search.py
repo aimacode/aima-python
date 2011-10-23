@@ -20,26 +20,26 @@ class Problem(object):
         state, if there is a unique goal.  Your subclass's constructor can add
         other arguments."""
         self.initial = initial; self.goal = goal
-        
+
     def actions(self, state):
         """Return the actions that can be executed in the given
         state. The result would typically be a list, but if there are
         many actions, consider yielding them one at a time in an
         iterator, rather than building them all at once."""
         abstract
-    
+
     def result(self, state, action):
         """Return the state that results from executing the given
         action in the given state. The action must be one of
         self.actions(state)."""
         abstract
-    
+
     def goal_test(self, state):
         """Return True if the state is a goal. The default method compares the
         state to self.goal, as specified in the constructor. Override this
         method if checking against a single self.goal is not enough."""
         return state == self.goal
-    
+
     def path_cost(self, c, state1, action, state2):
         """Return the cost of a solution path that arrives at state2 from
         state1 via action, assuming cost c to get up to state1. If the problem
@@ -53,7 +53,7 @@ class Problem(object):
         and related algorithms try to maximize this value."""
         abstract
 #______________________________________________________________________________
-    
+
 class Node:
     """A node in a search tree. Contains a pointer to the parent (the node
     that this is a successor of) and to the actual state for this node. Note
@@ -66,14 +66,14 @@ class Node:
 
     def __init__(self, state, parent=None, action=None, path_cost=0):
         "Create a search tree Node, derived from a parent by an action."
-        update(self, state=state, parent=parent, action=action, 
+        update(self, state=state, parent=parent, action=action,
                path_cost=path_cost, depth=0)
         if parent:
             self.depth = parent.depth + 1
-            
+
     def __repr__(self):
         return "<Node %s>" % (self.state,)
-    
+
     def expand(self, problem):
         "List the nodes reachable in one step from this node."
         return [self.child_node(problem, action)
@@ -148,7 +148,7 @@ def graph_search(problem, frontier):
     explored = set()
     while frontier:
         node = frontier.pop()
-        if problem.goal_test(node.state): 
+        if problem.goal_test(node.state):
             return node
         explored.add(node.state)
         frontier.extend(successor for successor in node.expand(problem)
@@ -159,7 +159,7 @@ def graph_search(problem, frontier):
 def breadth_first_tree_search(problem):
     "Search the shallowest nodes in the search tree first."
     return tree_search(problem, FIFOQueue())
-    
+
 def depth_first_tree_search(problem):
     "Search the deepest nodes in the search tree first."
     return tree_search(problem, Stack())
@@ -167,7 +167,7 @@ def depth_first_tree_search(problem):
 def breadth_first_graph_search(problem):
     "Search the shallowest nodes in the search tree first."
     return graph_search(problem, FIFOQueue())
-    
+
 def depth_first_graph_search(problem):
     "Search the deepest nodes in the search tree first."
     return graph_search(problem, Stack())
@@ -241,7 +241,7 @@ def recursive_best_first_search(problem, h=None):
     h = h or problem.h
 
     def RBFS(problem, node, flimit):
-        if problem.goal_test(node.state): 
+        if problem.goal_test(node.state):
             return node, 0   # (The second value is immaterial)
         successors = node.expand(problem)
         if len(successors) == 0:
@@ -368,7 +368,7 @@ def random_weighted_selection(seq, n, weight_fn):
                 selections.append(seq[i])
                 break
     return selections
-    
+
 
 #_____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
@@ -379,7 +379,7 @@ def random_weighted_selection(seq, n, weight_fn):
 class Graph:
     """A graph connects nodes (verticies) by edges (links).  Each edge can also
     have a length associated with it.  The constructor call is something like:
-        g = Graph({'A': {'B': 1, 'C': 2})   
+        g = Graph({'A': {'B': 1, 'C': 2})
     this makes a graph with 3 nodes, A, B, and C, with an edge of length 1 from
     A to B,  and an edge of length 2 from A to C.  You can also do:
         g = Graph({'A': {'B': 1, 'C': 2}, directed=False)
@@ -387,7 +387,7 @@ class Graph:
     stays undirected; if you add more links with g.connect('B', 'C', 3), then
     inverse link is also added.  You can use g.nodes() to get a list of nodes,
     g.get('A') to get a dict of links out of A, and g.get('A', 'B') to get the
-    length of the link from A to B.  'Lengths' can actually be any object at 
+    length of the link from A to B.  'Lengths' can actually be any object at
     all, and nodes can be any hashable object."""
 
     def __init__(self, dict=None, directed=True):
@@ -450,7 +450,7 @@ def RandomGraph(nodes=range(10), min_links=2, width=400, height=300,
                     return distance(g.locations[n], here)
                 neighbor = argmin(nodes, distance_to_node)
                 d = distance(g.locations[neighbor], here) * curvature()
-                g.connect(node, neighbor, int(d)) 
+                g.connect(node, neighbor, int(d))
     return g
 
 romania = UndirectedGraph(Dict(
@@ -468,10 +468,10 @@ romania = UndirectedGraph(Dict(
     R=Dict(S=80),
     U=Dict(V=142)))
 romania.locations = Dict(
-    A=( 91, 492),    B=(400, 327),    C=(253, 288),   D=(165, 299), 
+    A=( 91, 492),    B=(400, 327),    C=(253, 288),   D=(165, 299),
     E=(562, 293),    F=(305, 449),    G=(375, 270),   H=(534, 350),
-    I=(473, 506),    L=(165, 379),    M=(168, 339),   N=(406, 537), 
-    O=(131, 571),    P=(320, 368),    R=(233, 410),   S=(207, 457), 
+    I=(473, 506),    L=(165, 379),    M=(168, 339),   N=(406, 537),
+    O=(131, 571),    P=(320, 368),    R=(233, 410),   S=(207, 457),
     T=( 94, 410),    U=(456, 350),    V=(509, 444),   Z=(108, 531))
 
 australia = UndirectedGraph(Dict(
@@ -479,7 +479,7 @@ australia = UndirectedGraph(Dict(
     SA=Dict(WA=1, NT=1, Q=1, NSW=1, V=1),
     NT=Dict(WA=1, Q=1),
     NSW=Dict(Q=1, V=1)))
-australia.locations = Dict(WA=(120, 24), NT=(135, 20), SA=(135, 30), 
+australia.locations = Dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
                            Q=(145, 20), NSW=(145, 32), T=(145, 42), V=(145, 37))
 
 class GraphProblem(Problem):
@@ -552,7 +552,7 @@ class NQueensProblem(Problem):
 
     def goal_test(self, state):
         "Check if all columns filled, no conflicts."
-        if state[-1] is None: 
+        if state[-1] is None:
             return False
         return not any(self.conflicted(state, state[col], col)
                        for col in range(len(state)))
@@ -588,7 +588,7 @@ def print_boggle(board):
         if board[i] == 'Q': print 'Qu',
         else: print str(board[i]) + ' ',
     print
-    
+
 def boggle_neighbors(n2, cache={}):
     """Return a list of lists, where the i-th element is the list of indexes
     for the neighbors of square i."""
@@ -607,10 +607,10 @@ def boggle_neighbors(n2, cache={}):
             if not on_left:  neighbors[i].append(i - n - 1)
             if not on_right: neighbors[i].append(i - n + 1)
         if not on_bottom:
-            neighbors[i].append(i + n) 
+            neighbors[i].append(i + n)
             if not on_left:  neighbors[i].append(i + n - 1)
             if not on_right: neighbors[i].append(i + n + 1)
-        if not on_left: neighbors[i].append(i - 1) 
+        if not on_left: neighbors[i].append(i - 1)
         if not on_right: neighbors[i].append(i + 1)
     cache[n2] = neighbors
     return neighbors
@@ -645,17 +645,17 @@ class Wordlist:
         words = self.words
         if hi is None: hi = len(words)
         i = bisect.bisect_left(words, prefix, lo, hi)
-        if i < len(words) and words[i].startswith(prefix): 
+        if i < len(words) and words[i].startswith(prefix):
             return i, (words[i] == prefix)
-        else: 
+        else:
             return None, False
 
-    def __contains__(self, word): 
+    def __contains__(self, word):
         return self.lookup(word)[1]
 
-    def __len__(self): 
+    def __len__(self):
         return len(self.words)
-    
+
 ##_____________________________________________________________________________
 
 class BoggleFinder:
@@ -681,26 +681,26 @@ class BoggleFinder:
             lo, hi = self.wordlist.bounds[board[i]]
             self.find(lo, hi, i, [], '')
         return self
-            
+
     def find(self, lo, hi, i, visited, prefix):
         """Looking in square i, find the words that continue the prefix,
         considering the entries in self.wordlist.words[lo:hi], and not
         revisiting the squares in visited."""
-        if i in visited: 
+        if i in visited:
             return
         wordpos, is_word = self.wordlist.lookup(prefix, lo, hi)
         if wordpos is not None:
-            if is_word: 
+            if is_word:
                 self.found[prefix] = True
             visited.append(i)
             c = self.board[i]
             if c == 'Q': c = 'QU'
             prefix += c
-            for j in self.neighbors[i]: 
+            for j in self.neighbors[i]:
                 self.find(wordpos, hi, j, visited, prefix)
             visited.pop()
 
-    def words(self): 
+    def words(self):
         "The words found."
         return self.found.keys()
 
@@ -715,7 +715,7 @@ class BoggleFinder:
         return len(self.found)
 
 ##_____________________________________________________________________________
-    
+
 def boggle_hill_climbing(board=None, ntimes=100, verbose=True):
     """Solve inverse Boggle by hill-climbing: find a high-scoring board by
     starting with a random one and changing it."""
@@ -748,11 +748,11 @@ def mutate_boggle(board):
 class InstrumentedProblem(Problem):
     """Delegates to a problem, and keeps statistics."""
 
-    def __init__(self, problem): 
+    def __init__(self, problem):
         self.problem = problem
         self.succs = self.goal_tests = self.states = 0
         self.found = None
-        
+
     def actions(self, state):
         self.succs += 1
         return self.problem.actions(state)
@@ -760,14 +760,14 @@ class InstrumentedProblem(Problem):
     def result(self, state, action):
         self.states += 1
         return self.problem.result(state, action)
-    
+
     def goal_test(self, state):
         self.goal_tests += 1
         result = self.problem.goal_test(state)
-        if result: 
+        if result:
             self.found = state
         return result
-    
+
     def __getattr__(self, attr):
         return getattr(self.problem, attr)
 
@@ -806,21 +806,21 @@ recursive_best_first_search   < 200/ 201/ 601/B>   <  71/  72/ 213/N>   <  11/  
 
 __doc__ += """
 >>> ab = GraphProblem('A', 'B', romania)
->>> breadth_first_tree_search(ab).state 
+>>> breadth_first_tree_search(ab).state
 'B'
->>> breadth_first_graph_search(ab).state 
+>>> breadth_first_graph_search(ab).state
 'B'
->>> depth_first_graph_search(ab).state 
+>>> depth_first_graph_search(ab).state
 'B'
->>> iterative_deepening_search(ab).state 
+>>> iterative_deepening_search(ab).state
 'B'
->>> depth_limited_search(ab).state 
+>>> depth_limited_search(ab).state
 'B'
->>> astar_search(ab).state 
+>>> astar_search(ab).state
 'B'
->>> recursive_best_first_search(ab).state 
+>>> recursive_best_first_search(ab).state
 'B'
->>> [node.state for node in astar_search(ab).path()] 
+>>> [node.state for node in astar_search(ab).path()]
 ['A', 'S', 'R', 'P', 'B']
 
 >>> board = list('SARTELNID')
@@ -829,7 +829,7 @@ S  A  R
 T  E  L 
 N  I  D 
 >>> f = BoggleFinder(board)
->>> len(f) 
+>>> len(f)
 206
 """
 
