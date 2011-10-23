@@ -206,7 +206,7 @@ def NearestNeighborLearner(dataset, k=1):
         "Find the k closest, and have them vote for the best."
         best = heapq.nsmallest(k, ((dataset.distance(e, example), e)
                                    for e in dataset.examples))
-        return mode([e[dataset.target] for (d, e) in best])
+        return mode(e[dataset.target] for (d, e) in best)
     return predict
 
 #______________________________________________________________________________
