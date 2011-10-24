@@ -398,6 +398,7 @@ def AdaBoost(L, K):
     """[Fig. 18.34]"""
     def train(dataset):
         examples, target = dataset.examples, dataset.target
+        epsilon = 1./(2*N)
         N = len(examples)
         w = [1./N] * N
         h, z = [], []
@@ -406,9 +407,8 @@ def AdaBoost(L, K):
             h.append(h_k)
             error = sum(weight for example, weight in zip(examples, w)
                         if example[target] != h_k(example))
-            if error == 0:
-                break
-            assert error < 1, "AdaBoost's sub-learner misclassified everything"
+            # Avoid divide-by-0 from either 0% or 100% error rates:
+            error = max(epsilon, min(error, 1-epsilon))
             for j, example in enumerate(examples):
                 if example[target] == h_k(example):
                     w[j] *= error / (1. - error)
