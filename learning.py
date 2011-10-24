@@ -2,6 +2,7 @@
 
 from utils import *
 import heapq, math, random
+from collections import defaultdict
 
 #______________________________________________________________________________
 
@@ -401,7 +402,7 @@ def AdaBoost(L, K):
         w = [1./N] * N
         h, z = [], []
         for k in range(K):
-            h_k = L(dataset.examples, w)
+            h_k = L(examples, w)
             h.append(h_k)
             error = sum(weight for example, weight in zip(examples, w)
                         if example[target] != h_k(example))
@@ -416,8 +417,21 @@ def AdaBoost(L, K):
         return WeightedMajority(h, z)
     return train
 
-def WeightedMajority(h, z):
-    unimplemented()
+def WeightedMajority(predictors, weights):
+    "Return a predictor that takes a weighted vote."
+    def predict(example):
+        return weighted_mode((predictor(example) for predictor in predictors),
+                             weights)
+    return predict
+
+def weighted_mode(values, weights):
+    """Return the value with the greatest total weight.
+    >>> weighted_mode('abbaa', [1,2,3,1,2])
+    'b'"""
+    totals = defaultdict(int)
+    for v, w in zip(values, weights):
+        totals[v] += w
+    return max(values, key=totals.get)
 
 #_____________________________________________________________________________
 # Functions for testing learners on examples
