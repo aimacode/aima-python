@@ -398,12 +398,12 @@ def AdaBoost(L, K):
     """[Fig. 18.34]"""
     def train(dataset):
         examples, target = dataset.examples, dataset.target
-        epsilon = 1./(2*N)
         N = len(examples)
+        epsilon = 1./(2*N)
         w = [1./N] * N
         h, z = [], []
         for k in range(K):
-            h_k = L(examples, w)
+            h_k = L(dataset, w)
             h.append(h_k)
             error = sum(weight for example, weight in zip(examples, w)
                         if example[target] != h_k(example))
@@ -431,7 +431,7 @@ def weighted_mode(values, weights):
     totals = defaultdict(int)
     for v, w in zip(values, weights):
         totals[v] += w
-    return max(values, key=totals.get)
+    return max(totals.keys(), key=totals.get)
 
 #_____________________________________________________________________________
 # Functions for testing learners on examples
