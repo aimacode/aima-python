@@ -149,14 +149,14 @@ __doc__ += """
 [['>', '>', '>', '.'], ['^', None, '^', '.'], ['^', '>', '^', '<']]
 
 >>> print_table(Fig[17,1].to_arrows(pi))
->   >      >   .  
-^   None   ^   .  
-^   >      ^   <  
+>   >      >   .
+^   None   ^   .
+^   >      ^   <
 
 >>> print_table(Fig[17,1].to_arrows(policy_iteration(Fig[17,1])))
->   >      >   .  
-^   None   ^   .  
-^   >      ^   <  
+>   >      >   .
+^   None   ^   .
+^   >      ^   <
 """
 
 __doc__ += random_tests("""

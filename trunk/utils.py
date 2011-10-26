@@ -627,7 +627,7 @@ def issequence(x):
     "Is x a sequence? We say it is if it has a __getitem__ method."
     return hasattr(x, '__getitem__')
 
-def print_table(table, header=None, sep='  ', numfmt='%g'):
+def print_table(table, header=None, sep='   ', numfmt='%g'):
     """Print a list of lists as a table, so that columns line up nicely.
     header, if specified, will be printed as the first row.
     numfmt is the format for all numbers; you might want e.g. '%6.2f'.
@@ -641,9 +641,8 @@ def print_table(table, header=None, sep='  ', numfmt='%g'):
     maxlen = lambda seq: max(map(len, seq))
     sizes = map(maxlen, zip(*[map(str, row) for row in table]))
     for row in table:
-        for (j, size, x) in zip(justs, sizes, row):
-            print getattr(str(x), j)(size) + sep,
-        print
+        print sep.join(getattr(str(x), j)(size)
+                       for (j, size, x) in zip(justs, sizes, row))
 
 def AIMAFile(components, mode='r'):
     "Open a file based at the AIMA root directory."
