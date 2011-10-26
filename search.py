@@ -126,7 +126,7 @@ class SimpleProblemSolvingAgentProgram:
         abstract
 
 #______________________________________________________________________________
-## Uninformed Search algorithms
+# Uninformed Search algorithms
 
 def tree_search(problem, frontier):
     """Search through the successors of a problem to find a goal.
@@ -234,7 +234,7 @@ def astar_search(problem, h=None):
     return best_first_graph_search(problem, f)
 
 #______________________________________________________________________________
-## Other search algorithms
+# Other search algorithms
 
 def recursive_best_first_search(problem, h=None):
     "[Fig. 3.26]"
@@ -558,8 +558,8 @@ class NQueensProblem(Problem):
                        for col in range(len(state)))
 
 #______________________________________________________________________________
-## Inverse Boggle: Search for a high-scoring Boggle board. A good domain for
-## iterative-repair and related search techniques, as suggested by Justin Boyan.
+# Inverse Boggle: Search for a high-scoring Boggle board. A good domain for
+# iterative-repair and related search techniques, as suggested by Justin Boyan.
 
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -575,8 +575,8 @@ def random_boggle(n=4):
     random.shuffle(cubes)
     return map(random.choice, cubes)
 
-## The best 5x5 board found by Boyan, with our word list this board scores
-## 2274 words, for a score of 9837
+# The best 5x5 board found by Boyan, with our word list this board scores
+# 2274 words, for a score of 9837
 
 boyan_best = list('RSTCSDEIAEGNLRPEATESMSSID')
 
@@ -743,7 +743,7 @@ def mutate_boggle(board):
 
 #______________________________________________________________________________
 
-## Code to compare searchers on various problems.
+# Code to compare searchers on various problems.
 
 class InstrumentedProblem(Problem):
     """Delegates to a problem, and keeps statistics."""
