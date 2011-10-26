@@ -87,7 +87,7 @@ class Node:
 
     def solution(self):
         "Return the sequence of actions to go from the root to this node."
-        return [node.action for node in self.path()]
+        return [node.action for node in self.path()[1:]]
 
     def path(self):
         "Return a list of nodes forming the path from the root to this node."
@@ -806,22 +806,20 @@ recursive_best_first_search   < 200/ 201/ 601/B>   <  71/  72/ 213/N>   <  11/  
 
 __doc__ += """
 >>> ab = GraphProblem('A', 'B', romania)
->>> breadth_first_tree_search(ab).state
-'B'
->>> breadth_first_graph_search(ab).state
-'B'
->>> depth_first_graph_search(ab).state
-'B'
->>> iterative_deepening_search(ab).state
-'B'
->>> depth_limited_search(ab).state
-'B'
->>> astar_search(ab).state
-'B'
->>> recursive_best_first_search(ab).state
-'B'
->>> [node.state for node in astar_search(ab).path()]
-['A', 'S', 'R', 'P', 'B']
+>>> breadth_first_tree_search(ab).solution()
+['S', 'F', 'B']
+>>> breadth_first_graph_search(ab).solution()
+['S', 'F', 'B']
+>>> depth_first_graph_search(ab).solution()
+['T', 'L', 'M', 'D', 'C', 'R', 'S', 'F', 'B']
+>>> iterative_deepening_search(ab).solution()
+['S', 'F', 'B']
+>>> len(depth_limited_search(ab).solution())
+50
+>>> astar_search(ab).solution()
+['S', 'R', 'P', 'B']
+>>> recursive_best_first_search(ab).solution()
+['S', 'R', 'P', 'B']
 
 >>> board = list('SARTELNID')
 >>> print_boggle(board)
