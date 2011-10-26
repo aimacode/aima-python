@@ -151,9 +151,9 @@ def graph_search(problem, frontier):
         if problem.goal_test(node.state):
             return node
         explored.add(node.state)
-        frontier.extend(successor for successor in node.expand(problem)
-                        if successor.state not in explored
-                        and successor.state not in frontier)
+        frontier.extend(child for child in node.expand(problem)
+                        if child.state not in explored
+                        and child.state not in frontier)
     return None
 
 def breadth_first_tree_search(problem):
@@ -189,8 +189,8 @@ def depth_limited_search(problem, limit=50):
             return 'cutoff'
         else:
             cutoff_occurred = False
-            for successor in node.expand(problem):
-                result = recursive_dls(successor, problem, limit)
+            for child in node.expand(problem):
+                result = recursive_dls(child, problem, limit)
                 if result == 'cutoff':
                     cutoff_occurred = True
                 elif result is not None:
