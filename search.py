@@ -621,7 +621,7 @@ def exact_sqrt(n2):
     assert n * n == n2
     return n
 
-##_____________________________________________________________________________
+#_____________________________________________________________________________
 
 class Wordlist:
     """This class holds a list of words. You can use (word in wordlist)
@@ -656,7 +656,7 @@ class Wordlist:
     def __len__(self):
         return len(self.words)
 
-##_____________________________________________________________________________
+#_____________________________________________________________________________
 
 class BoggleFinder:
     """A class that allows you to find all the words in a Boggle board. """
@@ -714,7 +714,7 @@ class BoggleFinder:
         "The number of words found."
         return len(self.found)
 
-##_____________________________________________________________________________
+#_____________________________________________________________________________
 
 def boggle_hill_climbing(board=None, ntimes=100, verbose=True):
     """Solve inverse Boggle by hill-climbing: find a high-scoring board by
