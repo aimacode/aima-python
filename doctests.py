@@ -17,5 +17,5 @@ if __name__ == "__main__":
     modules = [__import__(name.replace('.py',''))
                for arg in args if arg != "-v" for name in glob.glob(arg)]
     for module in modules:
-        doctest.testmod(module, report=1)
+        doctest.testmod(module, report=1, optionflags=doctest.REPORT_UDIFF)
     print '%d failed out of %d' % doctest.master.summarize()
