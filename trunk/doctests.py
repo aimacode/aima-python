@@ -13,9 +13,11 @@ You can add stochastic tests with
 
 if __name__ == "__main__":
     import sys, glob, doctest
-    args = sys.argv[1:]
+    args = [arg for arg in sys.argv[1:] if arg != '-v']
+    if not args: args = ['*.py']
     modules = [__import__(name.replace('.py',''))
-               for arg in args if arg != "-v" for name in glob.glob(arg)]
+               for arg in args for name in glob.glob(arg)]
     for module in modules:
         doctest.testmod(module, report=1, optionflags=doctest.REPORT_UDIFF)
-    print '%d failed out of %d' % doctest.master.summarize()
+    summary = doctest.master.summarize() if modules else (0, 0)
+    print '%d failed out of %d' % summary
