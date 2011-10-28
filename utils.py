@@ -260,7 +260,7 @@ class Struct:
 
     def __repr__(self):
         args = ['%s=%s' % (k, repr(v)) for (k, v) in vars(self).items()]
-        return 'Struct(%s)' % ', '.join(args)
+        return 'Struct(%s)' % ', '.join(sorted(args))
 
 def update(x, **entries):
     """Update a dict; or an object with slots; according to entries.
