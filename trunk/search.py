@@ -367,7 +367,8 @@ def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
     for i in range(ngen):
         new_population = []
         for i in len(population):
-            p1, p2 = random_weighted_selections(population, 2, fitness_fn)
+            fitnesses = map(fitness_fn, population)
+            p1, p2 = weighted_sample_with_replacement(population, fitnesses, 2)
             child = p1.mate(p2)
             if random.uniform(0, 1) < pmut:
                 child.mutate()
@@ -388,25 +389,6 @@ class GAState:
     def mutate(self):
         "Change a few of my genes."
         abstract
-
-def random_weighted_selection(seq, n, weight_fn):
-    """Pick n elements of seq, weighted according to weight_fn.
-    That is, apply weight_fn to each element of seq, add up the total.
-    Then choose an element e with probability weight[e]/total.
-    Repeat n times, with replacement. """
-    totals = []; runningtotal = 0
-    for item in seq:
-        runningtotal += weight_fn(item)
-        totals.append(runningtotal)
-    selections = []
-    for s in range(n):
-        r = random.uniform(0, totals[-1])
-        for i in range(len(seq)):
-            if totals[i] > r:
-                selections.append(seq[i])
-                break
-    return selections
-
 
 #_____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
@@ -885,7 +867,4 @@ __doc__ += random_tests("""
 
 >>> boggle_hill_climbing(list('ABCDEFGHI'), verbose=False)
 (['E', 'P', 'R', 'D', 'O', 'A', 'G', 'S', 'T'], 123)
-
->>> random_weighted_selection(range(10), 3, lambda x: x * x)
-[8, 9, 6]
 """)
