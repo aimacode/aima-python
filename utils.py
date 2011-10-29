@@ -539,10 +539,8 @@ def normalize(numbers):
 
 def clip(x, lowest, highest):
     """Return x clipped to the range [lowest..highest].
-    >>> clip(-1, 0, 1)
-    0
-    >>> clip(10, 0, 1)
-    1
+    >>> [clip(x, 0, 1) for x in [-1, 0.5, 10]]
+    [0, 0.5, 1]
     """
     return max(lowest, min(x, highest))
 
