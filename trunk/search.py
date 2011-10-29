@@ -97,6 +97,17 @@ class Node:
             node = node.parent
         return list(reversed(path_back))
 
+    # We want for a queue of nodes in breadth_first_search or
+    # astar_search to have no duplicated states, so we treat nodes
+    # with the same state as equal. [Problem: this may not be what you
+    # want in other contexts.]
+
+    def __eq__(self, other):
+        return isinstance(other, Node) and self.state == other.state
+
+    def __hash__(self):
+        return hash(self.state)
+
 #______________________________________________________________________________
 
 class SimpleProblemSolvingAgentProgram:
@@ -143,7 +154,7 @@ def tree_search(problem, frontier):
 def graph_search(problem, frontier):
     """Search through the successors of a problem to find a goal.
     The argument frontier should be an empty queue.
-    If two paths reach a state, only use the best one. [Fig. 3.7]"""
+    If two paths reach a state, only use the first one. [Fig. 3.7]"""
     frontier.append(Node(problem.initial))
     explored = set()
     while frontier:
@@ -153,7 +164,7 @@ def graph_search(problem, frontier):
         explored.add(node.state)
         frontier.extend(child for child in node.expand(problem)
                         if child.state not in explored
-                        and child.state not in frontier)
+                        and child not in frontier)
     return None
 
 def breadth_first_tree_search(problem):
@@ -164,21 +175,61 @@ def depth_first_tree_search(problem):
     "Search the deepest nodes in the search tree first."
     return tree_search(problem, Stack())
 
-def breadth_first_graph_search(problem):
-    "Search the shallowest nodes in the search tree first."
-    return graph_search(problem, FIFOQueue())
-
 def depth_first_graph_search(problem):
     "Search the deepest nodes in the search tree first."
     return graph_search(problem, Stack())
 
 def breadth_first_search(problem):
-    "Fig. 3.11"
-    unimplemented()
+    "[Fig. 3.11]"
+    node = Node(problem.initial)
+    if problem.goal_test(node.state):
+        return node
+    frontier = FIFOQueue()
+    frontier.append(node)
+    explored = set()
+    while frontier:
+        node = frontier.pop()
+        explored.add(node.state)
+        for child in node.expand(problem):
+            if child.state not in explored and child not in frontier:
+                if problem.goal_test(child.state):
+                    return child
+                frontier.append(child)
+    return None
+
+def best_first_graph_search(problem, f):
+    """Search the nodes with the lowest f scores first.
+    You specify the function f(node) that you want to minimize; for example,
+    if f is a heuristic estimate to the goal, then we have greedy best
+    first search; if f is node.depth then we have breadth-first search.
+    There is a subtlety: the line "f = memoize(f, 'f')" means that the f
+    values will be cached on the nodes as they are computed. So after doing
+    a best first search you can examine the f values of the path returned."""
+    f = memoize(f, 'f')
+    node = Node(problem.initial)
+    if problem.goal_test(node.state):
+        return node
+    frontier = PriorityQueue(min, f)
+    frontier.append(node)
+    explored = set()
+    while frontier:
+        node = frontier.pop()
+        if problem.goal_test(node.state):
+            return node
+        explored.add(node.state)
+        for child in node.expand(problem):
+            if child.state not in explored and child not in frontier:
+                frontier.append(child)
+            elif child in frontier:
+                incumbent = frontier[child]
+                if f(child) < f(incumbent):
+                    del frontier[incumbent]
+                    frontier.append(child)
+    return None
 
 def uniform_cost_search(problem):
-    "Fig. 3.14"
-    unimplemented()
+    "[Fig. 3.14]"
+    return best_first_graph_search(problem, lambda node: node.path_cost)
 
 def depth_limited_search(problem, limit=50):
     "[Fig. 3.17]"
@@ -210,35 +261,22 @@ def iterative_deepening_search(problem):
 #______________________________________________________________________________
 # Informed (Heuristic) Search
 
-def best_first_graph_search(problem, f):
-    """Search the nodes with the lowest f scores first.
-    You specify the function f(node) that you want to minimize; for example,
-    if f is a heuristic estimate to the goal, then we have greedy best
-    first search; if f is node.depth then we have breadth-first search.
-    There is a subtlety: the line "f = memoize(f, 'f')" means that the f
-    values will be cached on the nodes as they are computed. So after doing
-    a best first search you can examine the f values of the path returned."""
-    f = memoize(f, 'f')
-    return graph_search(problem, PriorityQueue(min, f))
-
 greedy_best_first_graph_search = best_first_graph_search
     # Greedy best-first search is accomplished by specifying f(n) = h(n).
 
 def astar_search(problem, h=None):
     """A* search is best-first graph search with f(n) = g(n)+h(n).
-    You need to specify the h function when you call astar_search.
-    Uses the pathmax trick: f(n) = max(f(n), g(n)+h(n))."""
-    h = h or problem.h
-    def f(n):
-        return max(getattr(n, 'f', -infinity), n.path_cost + h(n))
-    return best_first_graph_search(problem, f)
+    You need to specify the h function when you call astar_search, or
+    else in your Problem subclass."""
+    h = memoize(h or problem.h, 'h')
+    return best_first_graph_search(problem, lambda n: n.path_cost + h(n))
 
 #______________________________________________________________________________
 # Other search algorithms
 
 def recursive_best_first_search(problem, h=None):
     "[Fig. 3.26]"
-    h = h or problem.h
+    h = memoize(h or problem.h, 'h')
 
     def RBFS(problem, node, flimit):
         if problem.goal_test(node.state):
@@ -768,6 +806,12 @@ class InstrumentedProblem(Problem):
             self.found = state
         return result
 
+    def path_cost(self, c, state1, action, state2):
+        return self.problem.path_cost(c, state1, action, state2)
+
+    def value(self, state):
+        return self.problem.value(state)
+
     def __getattr__(self, attr):
         return getattr(self.problem, attr)
 
@@ -775,10 +819,12 @@ class InstrumentedProblem(Problem):
         return '<%4d/%4d/%4d/%s>' % (self.succs, self.goal_tests,
                                      self.states, str(self.found)[:4])
 
-def compare_searchers(problems, header, searchers=[breadth_first_tree_search,
-                      breadth_first_graph_search, depth_first_graph_search,
-                      iterative_deepening_search, depth_limited_search,
-                      astar_search, recursive_best_first_search]):
+def compare_searchers(problems, header,
+                      searchers=[breadth_first_tree_search,
+                                 breadth_first_search, depth_first_graph_search,
+                                 iterative_deepening_search,
+                                 depth_limited_search, astar_search,
+                                 recursive_best_first_search]):
     def do(searcher, problem):
         p = InstrumentedProblem(problem)
         searcher(p)
@@ -789,14 +835,14 @@ def compare_searchers(problems, header, searchers=[breadth_first_tree_search,
 def compare_graph_searchers():
     """Prints a table of results like this:
 >>> compare_graph_searchers()
-Searcher                      Romania(A, B)        Romania(O, N)        Australia          
-breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>   <   7/   8/  22/WA>
-breadth_first_graph_search    <  11/  12/  28/B>   <  33/  34/  76/N>   <   6/   7/  19/WA>
-depth_first_graph_search      <   9/  10/  23/B>   <  16/  17/  39/N>   <   4/   5/  13/WA>
-iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>   <   3/  11/  11/WA>
-depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>   <  50/  54/ 200/WA>
-astar_search                  <   3/   4/   9/B>   <   8/   9/  22/N>   <   2/   3/   6/WA>
-recursive_best_first_search   < 200/ 201/ 601/B>   <  71/  72/ 213/N>   <  11/  12/  43/WA>"""
+Searcher                      Romania(A, B)        Romania(O, N)         Australia          
+breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>    <   7/   8/  22/WA>
+breadth_first_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/   6/   8/WA>
+depth_first_graph_search      <   8/   9/  20/B>   <  16/  17/  38/N>    <   4/   5/  11/WA>
+iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>    <   3/  11/  11/WA>
+depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>    <  50/  54/ 200/WA>
+astar_search                  <   5/   7/  15/B>   <  16/  18/  40/N>    <   2/   4/   6/WA>
+recursive_best_first_search   <   5/   6/  15/B>   <5887/5888/16532/N>   <  11/  12/  43/WA>"""
     compare_searchers(problems=[GraphProblem('A', 'B', romania),
                                 GraphProblem('O', 'N', romania),
                                 GraphProblem('Q', 'WA', australia)],
@@ -808,10 +854,12 @@ __doc__ += """
 >>> ab = GraphProblem('A', 'B', romania)
 >>> breadth_first_tree_search(ab).solution()
 ['S', 'F', 'B']
->>> breadth_first_graph_search(ab).solution()
+>>> breadth_first_search(ab).solution()
 ['S', 'F', 'B']
+>>> uniform_cost_search(ab).solution()
+['S', 'R', 'P', 'B']
 >>> depth_first_graph_search(ab).solution()
-['T', 'L', 'M', 'D', 'C', 'R', 'S', 'F', 'B']
+['T', 'L', 'M', 'D', 'C', 'P', 'B']
 >>> iterative_deepening_search(ab).solution()
 ['S', 'F', 'B']
 >>> len(depth_limited_search(ab).solution())
