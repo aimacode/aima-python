@@ -408,7 +408,7 @@ def AdaBoost(L, K):
             error = sum(weight for example, weight in zip(examples, w)
                         if example[target] != h_k(example))
             # Avoid divide-by-0 from either 0% or 100% error rates:
-            error = max(epsilon, min(error, 1-epsilon))
+            error = clip(error, epsilon, 1-epsilon)
             for j, example in enumerate(examples):
                 if example[target] == h_k(example):
                     w[j] *= error / (1. - error)

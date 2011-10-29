@@ -525,6 +525,15 @@ def normalize(numbers):
     total = float(sum(numbers))
     return [n / total for n in numbers]
 
+def clip(x, lowest, highest):
+    """Return x clipped to the range [lowest..highest].
+    >>> clip(-1, 0, 1)
+    0
+    >>> clip(10, 0, 1)
+    1
+    """
+    return max(lowest, min(x, highest))
+
 #______________________________________________________________________________
 ## OK, the following are not as widely useful utilities as some of the other
 ## functions here, but they do show up wherever we have 2D grids: Wumpus and
@@ -549,14 +558,15 @@ def distance2((ax, ay), (bx, by)):
     "The square of the distance between two (x, y) points."
     return (ax - bx)**2 + (ay - by)**2
 
-def clip(vector, lowest, highest):
+def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
     value of lowest or more than the corresponding value of highest, clip to
     those values.
-    >>> clip((-1, 10), (0, 0), (9, 9))
+    >>> vector_clip((-1, 10), (0, 0), (9, 9))
     (0, 9)
     """
-    return type(vector)(map(min, map(max, vector, lowest), highest))
+    return type(vector)(map(clip, vector, lowest, highest))
+
 #______________________________________________________________________________
 # Misc Functions
 
