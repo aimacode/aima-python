@@ -501,6 +501,18 @@ def probability(p):
     "Return true with probability p."
     return p > random.uniform(0.0, 1.0)
 
+def weighted_sample_with_replacement(seq, weights, n):
+    """Pick n samples from seq at random, with replacement, with the
+    probability of each element in proportion to its corresponding
+    weight."""
+    totals = []
+    for w in weights:
+        totals.append(w + totals[-1] if totals else w)
+    def sample():
+        r = random.uniform(0, totals[-1])
+        return seq[bisect.bisect(totals, r)]
+    return [sample() for s in range(n)]
+
 def num_or_str(x):
     """The argument is a string; convert to a number if possible, or strip it.
     >>> num_or_str('42')
@@ -939,4 +951,15 @@ False
 >>> sl(a)
 ['a', 'b', 'c', 'd', 'r', 'w', 'y', 'z']
 
+>>> weighted_sample_with_replacement([], [], 0)
+[]
+>>> weighted_sample_with_replacement('a', [3], 2)
+['a', 'a']
+>>> weighted_sample_with_replacement('ab', [0, 3], 3)
+['b', 'b', 'b']
 """
+
+__doc__ += random_tests("""
+>>> weighted_sample_with_replacement(range(10), [x*x for x in range(10)], 3)
+[8, 9, 6]
+""")
