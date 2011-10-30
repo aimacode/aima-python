@@ -388,13 +388,27 @@ def weighted_sample(bn, e):
             event[Xi] = node.sample(event)
     return event, w
 
+#_______________________________________________________________________________
+
+def gibbs_ask(X, e, bn, N):
+    """[Fig. 14.16]"""
+    unimplemented()
 
 #_______________________________________________________________________________
 
-# MISSING
+def forward_backward(ev, prior):
+    """[Fig. 15.4]"""
+    unimplemented()
 
-# Fig. 14.16: gibbs_ask
+def fixed_lag_smoothing(e_t, hmm, d):
+    """[Fig. 15.6]"""
+    unimplemented()
 
+def particle_filtering(e, N, dbn):
+    """[Fig. 15.17]"""
+    unimplemented()
+
+#_______________________________________________________________________________
 __doc__ += """
 ## We can build up a probability distribution like this (p. 469):
 >>> P = ProbDist()
