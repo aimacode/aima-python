@@ -392,6 +392,22 @@ def weighted_sample(bn, e):
 
 def gibbs_ask(X, e, bn, N):
     """[Fig. 14.16]"""
+    counts = {True: 0, False: 0} # boldface N in Fig. 14.16
+    Z = [var for var in bn.variables if var not in e]
+    state = dict(e) # boldface x in Fig. 14.16
+    for Zi in Z:
+        state[Zi] = choice([True, False])
+    for j in xrange(N):
+        for Zi in Z:
+            state[Zi] = (random() < P_markov_blanket(Zi, state, bn))
+            counts[state[X]] += 1
+    return ProbDist(X, counts)
+
+def P_markov_blanket(X, e, bn):
+    """Return P(X | mb) where mb denotes that the variables in the
+    Markov blanket of X take their values from event e (which must
+    assign a value to each). The Markov blanket of X is X's parents,
+    children, and children's parents."""
     unimplemented()
 
 #_______________________________________________________________________________
