@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import *
-import heapq, math, random
+import copy, heapq, math, random
 from collections import defaultdict
 
 #______________________________________________________________________________
@@ -432,6 +432,39 @@ def weighted_mode(values, weights):
     for v, w in zip(values, weights):
         totals[v] += w
     return max(totals.keys(), key=totals.get)
+
+#_____________________________________________________________________________
+# Adapting an unweighted learner for AdaBoost
+
+def WeightedLearner(unweighted_learner):
+    """Given a learner that takes just an unweighted dataset, return
+    one that takes also a weight for each example. [p. 749 footnote 14]"""
+    def train(dataset, weights):
+        return unweighted_learner(replicated_dataset(dataset, weights))
+    return train
+
+def replicated_dataset(dataset, weights, n=None):
+    """Copy dataset, replicating each example in proportion to the
+    corresponding weight."""
+    n = n or len(dataset.examples)
+    result = copy.copy(dataset)
+    result.examples = weighted_replicate(dataset.examples, weights, n)
+    return result
+
+def weighted_replicate(seq, weights, n):
+    """Return n selections from seq, with the count of each element of
+    seq proportional to the corresponding weight (filling in fractions
+    randomly).
+    >>> weighted_replicate('ABC', [1,2,1], 4)
+    ['A', 'B', 'B', 'C']"""
+    assert len(seq) == len(weights)
+    weights = normalize(weights)
+    wholes = [int(w*n) for w in weights]
+    fractions = [(w*n) % 1 for w in weights]
+    return (flatten([x] * nx for x, nx in zip(seq, wholes))
+            + weighted_sample_with_replacement(seq, fractions, n - sum(wholes)))
+
+def flatten(seqs): return sum(seqs, [])
 
 #_____________________________________________________________________________
 # Functions for testing learners on examples
