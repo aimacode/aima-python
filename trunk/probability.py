@@ -267,8 +267,8 @@ burglary = BayesNet([
 def enumeration_ask(X, e, bn):
     """Return the conditional probability distribution of variable X
     given evidence e, from BayesNet bn. [Fig. 14.9]
-    >>> enumeration_ask('Burglary',
-    ...   {'JohnCalls': True, 'MaryCalls': True}, burglary).show_approx()
+    >>> enumeration_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary
+    ...  ).show_approx()
     'False: 0.716, True: 0.284'"""
     Q = ProbDist(X)
     for xi in bn.variable_values(X):
@@ -342,9 +342,8 @@ def rejection_sampling(X, e, bn, N):
     Raises a ZeroDivisionError if all the N samples are rejected,
     i.e., inconsistent with e.
     >>> seed(47)
-    >>> p = rejection_sampling('Burglary',
-    ...   {'JohnCalls': True, 'MaryCalls': True}, burglary, 10000)
-    >>> p.show_approx()
+    >>> rejection_sampling('Burglary', dict(JohnCalls=T, MaryCalls=T),
+    ...   burglary, 10000).show_approx()
     'False: 0.7, True: 0.3'
     """
     counts = {True: 0, False: 0} # boldface N in Fig. 14.14
@@ -365,9 +364,8 @@ def likelihood_weighting(X, e, bn, N):
     """Estimate the probability distribution of variable X given
     evidence e in BayesNet bn.  [Fig. 14.15]
     >>> seed(1017)
-    >>> p = likelihood_weighting('Burglary',
-    ...  {'JohnCalls': True, 'MaryCalls': True}, burglary, 10000)
-    >>> p.show_approx()
+    >>> likelihood_weighting('Burglary', dict(JohnCalls=T, MaryCalls=T),
+    ...   burglary, 10000).show_approx()
     'False: 0.702, True: 0.298'
     """
     W = {True: 0.0, False: 0.0}
