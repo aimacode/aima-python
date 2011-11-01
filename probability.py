@@ -3,7 +3,7 @@
 
 from utils import *
 from logic import extend
-from random import random, seed
+from random import choice, seed
 
 #______________________________________________________________________________
 
@@ -160,6 +160,8 @@ class BayesNet:
         assert every(lambda parent: parent in self.variables(), node.parents)
         self.nodes.append(node)
         self.vars.append(node.variable)
+        for parent in node.parents:
+            self.variable_node(parent).children.append(node)
 
     def variable_node(self, var):
         """Return the node for the variable named var.
@@ -224,7 +226,7 @@ class BayesNode:
             assert every(lambda v: isinstance(v, bool), vs)
             assert 0 <= p <= 1
 
-        update(self, variable=X, parents=parents, cpt=cpt)
+        update(self, variable=X, parents=parents, cpt=cpt, children=[])
 
     def p(self, value, event):
         """Return the conditional probability
@@ -243,7 +245,7 @@ class BayesNode:
         on event's values for parent_vars. That is, return True/False
         at random according with the conditional probability given the
         parents."""
-        return random() <= self.p(True, event)
+        return probability(self.p(True, event))
 
 node = BayesNode
 
@@ -391,24 +393,36 @@ def weighted_sample(bn, e):
 #_______________________________________________________________________________
 
 def gibbs_ask(X, e, bn, N):
-    """[Fig. 14.16]"""
-    counts = {True: 0, False: 0} # boldface N in Fig. 14.16
-    Z = [var for var in bn.variables if var not in e]
+    """[Fig. 14.16]
+    >>> seed(1017)
+    >>> gibbs_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary, 1000
+    ...  ).show_approx()
+    'False: 0.738, True: 0.262'
+    """
+    counts = dict((x, 0) for x in bn.variable_values(X)) # bold N in Fig. 14.16
+    Z = [var for var in bn.variables() if var not in e]
     state = dict(e) # boldface x in Fig. 14.16
     for Zi in Z:
-        state[Zi] = choice([True, False])
+        state[Zi] = choice(bn.variable_values(Zi))
     for j in xrange(N):
         for Zi in Z:
-            state[Zi] = (random() < P_markov_blanket(Zi, state, bn))
+            state[Zi] = markov_blanket_sample(Zi, state, bn)
             counts[state[X]] += 1
     return ProbDist(X, counts)
 
-def P_markov_blanket(X, e, bn):
-    """Return P(X | mb) where mb denotes that the variables in the
-    Markov blanket of X take their values from event e (which must
-    assign a value to each). The Markov blanket of X is X's parents,
-    children, and children's parents."""
-    unimplemented()
+def markov_blanket_sample(X, e, bn):
+    """Return a sample from P(X | mb) where mb denotes that the
+    variables in the Markov blanket of X take their values from event
+    e (which must assign a value to each). The Markov blanket of X is
+    X's parents, children, and children's parents."""
+    Xnode = bn.variable_node(X)
+    Q = ProbDist(X)
+    for xi in bn.variable_values(X):
+        ei = extend(e, X, xi)
+        # [Equation 14.12:]
+        Q[xi] = Xnode.p(xi, e) * product(Yj.p(ei[Yj.variable], ei)
+                                         for Yj in Xnode.children)
+    return probability(Q.normalize()[True]) # (assuming a Boolean variable here)
 
 #_______________________________________________________________________________
 
