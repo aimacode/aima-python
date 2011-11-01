@@ -346,7 +346,7 @@ def rejection_sampling(X, e, bn, N):
     ...   burglary, 10000).show_approx()
     'False: 0.7, True: 0.3'
     """
-    counts = {True: 0, False: 0} # boldface N in Fig. 14.14
+    counts = dict((x, 0) for x in bn.variable_values(X)) # bold N in Fig. 14.14
     for j in xrange(N):
         sample = prior_sample(bn) # boldface x in Fig. 14.14
         if consistent_with(sample, e):
@@ -368,7 +368,7 @@ def likelihood_weighting(X, e, bn, N):
     ...   burglary, 10000).show_approx()
     'False: 0.702, True: 0.298'
     """
-    W = {True: 0.0, False: 0.0}
+    W = dict((x, 0) for x in bn.variable_values(X))
     for j in xrange(N):
         sample, weight = weighted_sample(bn, e) # boldface x, w in Fig. 14.15
         W[sample[X]] += weight
