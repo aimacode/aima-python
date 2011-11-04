@@ -423,27 +423,28 @@ __doc__ += random_tests("""
 
 >>> P3.samples(20)
 'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
+""")
+__doc__ += """
 
 ## Probabilities of some common n-grams
->>> P1['the']
-0.061139348356200607
+>>> P1['the']               #doctest:+ELLIPSIS
+0.0611...
 
->>> P2[('of', 'the')]
-0.010812081325655188
+>>> P2[('of', 'the')]       #doctest:+ELLIPSIS
+0.0108...
 
 >>> P3[('', '', 'but')]
 0.0
 
->>> P3[('so', 'as', 'to')]
-0.00032318721353860618
+>>> P3[('so', 'as', 'to')]  #doctest:+ELLIPSIS
+0.000323...
 
 ## Distributions given the previous n-1 words
 >>> P2.cond_prob['went',].dictionary
+{}
 >>> P3.cond_prob['in', 'order'].dictionary
 {'to': 6}
-""")
 
-__doc__ += """
 
 ## Build and test an IR System
 >>> uc = UnixConsultant()
