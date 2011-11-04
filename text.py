@@ -9,12 +9,12 @@ working on a tiny sample of Unix manual pages."""
 
 from utils import *
 from math import log, exp
-import re, probability, string, search
+import heapq, re, search
 
-class CountingProbDist(probability.ProbDist):
+class CountingProbDist:
     """A probability distribution formed by observing and counting examples.
-    If P is an instance of this class and o
-    is an observed value, then there are 3 main operations:
+    If p is an instance of this class and o is an observed value, then
+    there are 3 main operations:
     p.add(o) increments the count for observation o by 1.
     p.sample() returns a random element from the distribution.
     p[o] returns the probability for o (as in a regular ProbDist)."""
@@ -23,49 +23,40 @@ class CountingProbDist(probability.ProbDist):
         """Create a distribution, and optionally add in some observations.
         By default this is an unsmoothed distribution, but saying default=1,
         for example, gives you add-one smoothing."""
-        update(self, dictionary=DefaultDict(default), needs_recompute=False,
-               table=[], n_obs=0)
+        update(self, dictionary={}, n_obs=0.0, default=default, sampler=None)
         for o in observations:
             self.add(o)
 
     def add(self, o):
-        """Add an observation o to the distribution."""
+        "Add an observation o to the distribution."
+        self.smooth_for(o)
         self.dictionary[o] += 1
         self.n_obs += 1
-        self.needs_recompute = True
+        self.sampler = None
 
-    def sample(self):
-        """Return a random sample from the distribution."""
-        if self.needs_recompute: self._recompute()
-        if self.n_obs == 0:
-            return None
-        i = bisect.bisect_left(self.table, (1 + random.randrange(self.n_obs),))
-        (count, o) = self.table[i]
-        return o
+    def smooth_for(self, o):
+        """Include o among the possible observations, whether or not
+        it's been observed yet."""
+        if o not in self.dictionary:
+            self.dictionary[o] = self.default
+            self.n_obs += self.default
+            self.sampler = None
 
     def __getitem__(self, item):
-        """Return an estimate of the probability of item."""
-        if self.needs_recompute: self._recompute()
+        "Return an estimate of the probability of item."
+        self.smooth_for(item)
         return self.dictionary[item] / self.n_obs
-
-    def __len__(self):
-        if self.needs_recompute: self._recompute()
-        return self.n_obs
 
     def top(self, n):
         "Return (count, obs) tuples for the n most frequent observations."
-        items = [(v, k) for (k, v) in self.dictionary.items()]
-        items.sort(); items.reverse()
-        return items[0:n]
+        return heapq.nlargest(n, [(v, k) for (k, v) in self.dictionary.items()])
 
-    def _recompute(self):
-        """Recompute the total count n_obs and the table of entries."""
-        n_obs = 0
-        table = []
-        for (o, count) in self.dictionary.items():
-            n_obs += count
-            table.append((n_obs, o))
-        update(self, n_obs=float(n_obs), table=table, needs_recompute=False)
+    def sample(self):
+        "Return a random sample from the distribution."
+        if self.sampler is None:
+            self.sampler = weighted_sampler(self.dictionary.keys(),
+                                            self.dictionary.values())
+        return self.sampler()
 
 #______________________________________________________________________________
 
@@ -81,7 +72,7 @@ class UnigramTextModel(CountingProbDist):
 class NgramTextModel(CountingProbDist):
     """This is a discrete probability distribution over n-tuples of words.
     You can add, sample or get P[(word1, ..., wordn)]. The method P.samples(n)
-    builds up an n-word sequence; P.add_text and P.add_sequence add data."""
+    builds up an n-word sequence; P.add and P.add_sequence add data."""
 
     def __init__(self, n, observation_sequence=[]):
         ## In addition to the dictionary of n-tuples, cond_prob is a
@@ -91,7 +82,7 @@ class NgramTextModel(CountingProbDist):
         self.cond_prob = DefaultDict(CountingProbDist())
         self.add_sequence(observation_sequence)
 
-    ## sample, __len__, __getitem__ inherited from CountingProbDist
+    ## sample, __getitem__ inherited from CountingProbDist
     ## Note they deal with tuples, not strings, as inputs
 
     def add(self, ngram):
@@ -113,13 +104,12 @@ class NgramTextModel(CountingProbDist):
         n = self.n
         nminus1gram = ('',) * (n-1)
         output = []
-        while len(output) < nwords:
+        for i in range(nwords):
+            if nminus1gram not in self.cond_prob:
+                nminus1gram = ('',) * (n-1) # Cannot continue, so restart.
             wn = self.cond_prob[nminus1gram].sample()
-            if wn:
-                output.append(wn)
-                nminus1gram = nminus1gram[1:] + (wn,)
-            else: ## Cannot continue, so restart.
-                nminus1gram = ('',) * (n-1)
+            output.append(wn)
+            nminus1gram = nminus1gram[1:] + (wn,)
         return ' '.join(output)
 
 #______________________________________________________________________________
@@ -404,23 +394,13 @@ True
 True
 """
 
-__doc__ += random_tests("""
+__doc__ += ("""
 ## Compare 1-, 2-, and 3-gram word models of the same text.
 >>> flatland = DataFile("EN-text/flatland.txt").read()
 >>> wordseq = words(flatland)
 >>> P1 = UnigramTextModel(wordseq)
 >>> P2 = NgramTextModel(2, wordseq)
 >>> P3 = NgramTextModel(3, wordseq)
-
-## Generate random text from the N-gram models
->>> P1.samples(20)
-'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
-
->>> P2.samples(20)
-'flatland well then can anything else more into the total destruction and circles teach others confine women must be added'
-
->>> P3.samples(20)
-'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
 
 ## The most frequent entries in each model
 >>> P1.top(10)
@@ -431,6 +411,18 @@ __doc__ += random_tests("""
 
 >>> P3.top(10)
 [(30, ('a', 'straight', 'line')), (19, ('of', 'three', 'dimensions')), (16, ('the', 'sense', 'of')), (13, ('by', 'the', 'sense')), (13, ('as', 'well', 'as')), (12, ('of', 'the', 'circles')), (12, ('of', 'sight', 'recognition')), (11, ('the', 'number', 'of')), (11, ('that', 'i', 'had')), (11, ('so', 'as', 'to'))]
+""")
+
+__doc__ += random_tests("""
+## Generate random text from the N-gram models
+>>> P1.samples(20)
+'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
+
+>>> P2.samples(20)
+'flatland well then can anything else more into the total destruction and circles teach others confine women must be added'
+
+>>> P3.samples(20)
+'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
 
 ## Probabilities of some common n-grams
 >>> P1['the']

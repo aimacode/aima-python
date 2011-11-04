@@ -505,13 +505,15 @@ def weighted_sample_with_replacement(seq, weights, n):
     """Pick n samples from seq at random, with replacement, with the
     probability of each element in proportion to its corresponding
     weight."""
+    sample = weighted_sampler(seq, weights)
+    return [sample() for s in range(n)]
+
+def weighted_sampler(seq, weights):
+    "Return a random-sample function that picks from seq weighted by weights."
     totals = []
     for w in weights:
         totals.append(w + totals[-1] if totals else w)
-    def sample():
-        r = random.uniform(0, totals[-1])
-        return seq[bisect.bisect(totals, r)]
-    return [sample() for s in range(n)]
+    return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
 
 def num_or_str(x):
     """The argument is a string; convert to a number if possible, or strip it.
