@@ -1,11 +1,8 @@
-"""Statistical Language Processing tools.  (Chapter 23)
+"""Statistical Language Processing tools.  (Chapter 22)
 We define Unigram and Ngram text models, use them to generate random text,
 and show the Viterbi algorithm for segmentatioon of letters into words.
 Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
-
-# (Written for the second edition of AIMA; expect some discrepanciecs
-# from the third edition until this gets reviewed.)
 
 from utils import *
 from math import log, exp
