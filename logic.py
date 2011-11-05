@@ -1,4 +1,4 @@
-"""Representations and Inference for Logic (Chapters 7-10)
+"""Representations and Inference for Logic (Chapters 7-9, 12)
 
 Covers both Propositional and First-Order Logic. First we have four
 important data types:
@@ -23,12 +23,8 @@ And a few other functions:
     unify            Do unification of two FOL sentences
     diff, simp       Symbolic differentiation and simplification
 """
-# (Written for the second edition of AIMA; expect some discrepanciecs
-# from the third edition until this gets reviewed.)
 
-from __future__ import generators
-import re
-import itertools
+import itertools, re
 import agents
 from utils import *
 
@@ -410,7 +406,7 @@ def pl_true(exp, model={}):
 
 def to_cnf(s):
     """Convert a propositional logical sentence s to conjunctive normal form.
-    That is, to the form ((A | ~B | ...) & (B | C | ...) & ...) [p. 215]
+    That is, to the form ((A | ~B | ...) & (B | C | ...) & ...) [p. 253]
     >>> to_cnf("~(B|C)")
     (~B & ~C)
     >>> to_cnf("B <=> (P1|P2)")
@@ -423,7 +419,7 @@ def to_cnf(s):
     ((D | A | B | C) & (E | A | B | C))
     """
     if isinstance(s, str): s = expr(s)
-    s = eliminate_implications(s) # Steps 1, 2 from p. 215
+    s = eliminate_implications(s) # Steps 1, 2 from p. 253
     s = move_not_inwards(s) # Step 3
     return distribute_and_over_or(s) # Step 4
 
@@ -582,13 +578,11 @@ def pl_resolve(ci, cj):
 
 #______________________________________________________________________________
 
-class PropHornKB(PropKB):
-    "A KB of propositional Horn clauses."
-    # Actually definite clauses, but I won't resolve this discrepancy till
-    # the code upgrade to the 3rd edition.
+class PropDefiniteKB(PropKB):
+    "A KB of propositional definite clauses."
 
     def tell(self, sentence):
-        "Add a Horn clause to this KB."
+        "Add a definite clause to this KB."
         assert is_definite_clause(sentence), "Must be definite clause"
         self.clauses.append(sentence)
 
@@ -607,7 +601,8 @@ class PropHornKB(PropKB):
                 if c.op == '>>' and p in conjuncts(c.args[0])]
 
 def pl_fc_entails(KB, q):
-    """Use forward chaining to see if a HornKB entails symbol q. [Fig. 7.14]
+    """Use forward chaining to see if a PropDefiniteKB entails symbol q.
+    [Fig. 7.15]
     >>> pl_fc_entails(Fig[7,15], expr('Q'))
     True
     """
@@ -615,29 +610,27 @@ def pl_fc_entails(KB, q):
                                                  if c.op == '>>'])
     inferred = DefaultDict(False)
     agenda = [s for s in KB.clauses if is_prop_symbol(s.op)]
-    if q in agenda: return True
     while agenda:
         p = agenda.pop()
+        if p == q: return True
         if not inferred[p]:
             inferred[p] = True
             for c in KB.clauses_with_premise(p):
                 count[c] -= 1
                 if count[c] == 0:
-                    if c.args[1] == q: return True
                     agenda.append(c.args[1])
     return False
 
 ## Wumpus World example [Fig. 7.13]
 Fig[7,13] = expr("(B11 <=> (P12 | P21))  &  ~B11")
 
-## Propositional Logic Forward Chaining example [Fig. 7.15]
-Fig[7,15] = PropHornKB()
+## Propositional Logic Forward Chaining example [Fig. 7.16]
+Fig[7,15] = PropDefiniteKB()
 for s in "P>>Q   (L&M)>>P   (B&L)>>M   (A&P)>>L   (A&B)>>L   A   B".split():
     Fig[7,15].tell(expr(s))
 
 #______________________________________________________________________________
-
-# DPLL-Satisfiable [Fig. 7.16]
+# DPLL-Satisfiable [Fig. 7.17]
 
 def dpll_satisfiable(s):
     """Check satisfiability of a propositional sentence.
@@ -718,9 +711,8 @@ def literal_symbol(literal):
     else:
         return literal
 
-
 #______________________________________________________________________________
-# Walk-SAT [Fig. 7.17]
+# Walk-SAT [Fig. 7.18]
 
 def WalkSAT(clauses, p=0.5, max_flips=10000):
     ## model is a random assignment of true/false to the symbols in clauses
@@ -742,45 +734,31 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
         model[sym] = not model[sym]
 
 #______________________________________________________________________________
-# PL-Wumpus-Agent [Fig. 7.19]
 
-class PLWumpusAgent(agents.Agent):
+class HybridWumpusAgent(agents.Agent):
     "An agent for the wumpus world that does logical inference. [Fig. 7.19]"""
     def __init__(self):
-        KB = FolKB() ## shouldn't this be a propositional KB? ***
-        x, y, orientation = 1, 1, (1, 0)
-        visited = set() ## squares already visited
-        plan = []
+        unimplemented()
 
-        def program(percept):
-            stench, breeze, glitter = percept
-            x, y, orientation = \
-                update_position(x, y, orientation, program.action)
-            KB.tell('%sS_%d,%d' % (if_(stench, '', '~'), x, y))
-            KB.tell('%sB_%d,%d' % (if_(breeze, '', '~'), x, y))
-            if glitter: program.action = 'Grab'
-            elif plan: program.action = plan.pop()
-            else:
-                for [i, j] in fringe(visited):
-                    if KB.ask('~P_%d,%d & ~W_%d,%d' % (i, j, i, j)) != False:
-                        raise NotImplementedError
-                    KB.ask('~P_%d,%d | ~W_%d,%d' % (i, j, i, j)) != False
-            if program.action is None:
-                program.action = random.choice(['Forward', 'Right', 'Left'])
-            return program.action
+def plan_route(current, goals, allowed):
+    unimplemented()
 
-        program.action = None
+#______________________________________________________________________________
 
-        agents.Agent.__init__(self, program)
+def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
+    "[Fig. 7.22]"
+    for t in range(t_max):
+        cnf = translate_to_SAT(init, transition, goal, t)
+        model = SAT_solver(cnf)
+        if model is not False:
+            return extract_solution(model)
+    return None
 
-def update_position(x, y, orientation, action):
-    if action == 'TurnRight':
-        orientation = turn_right(orientation)
-    elif action == 'TurnLeft':
-        orientation = turn_left(orientation)
-    elif action == 'Forward':
-        x, y = x + vector_add((x, y), orientation)
-    return x, y, orientation
+def translate_to_SAT(init, transition, goal, t):
+    unimplemented()
+
+def extract_solution(model):
+    unimplemented()
 
 #______________________________________________________________________________
 
@@ -868,17 +846,17 @@ def fol_fc_ask(KB, alpha):
     while True:
         new = {}
         for r in KB.clauses:
-            ps, q = parse_definite_clause(standardize_apart(r))
+            ps, q = parse_definite_clause(standardize_variables(r))
             raise NotImplementedError
 
-def standardize_apart(sentence, dic=None):
+def standardize_variables(sentence, dic=None):
     """Replace all the variables in sentence with new variables.
     >>> e = expr('F(a, b, c) & G(c, A, 23)')
-    >>> len(variables(standardize_apart(e)))
+    >>> len(variables(standardize_variables(e)))
     3
-    >>> variables(e).intersection(variables(standardize_apart(e)))
+    >>> variables(e).intersection(variables(standardize_variables(e)))
     set([])
-    >>> is_variable(standardize_apart(expr('x')))
+    >>> is_variable(standardize_variables(expr('x')))
     True
     """
     if dic is None: dic = {}
@@ -888,14 +866,14 @@ def standardize_apart(sentence, dic=None):
         if sentence in dic:
             return dic[sentence]
         else:
-            v = Expr('v_%d' % standardize_apart.counter.next())
+            v = Expr('v_%d' % standardize_variables.counter.next())
             dic[sentence] = v
             return v
     else:
         return Expr(sentence.op,
-                    *[standardize_apart(a, dic) for a in sentence.args])
+                    *[standardize_variables(a, dic) for a in sentence.args])
 
-standardize_apart.counter = itertools.count()
+standardize_variables.counter = itertools.count()
 
 #______________________________________________________________________________
 
@@ -922,15 +900,18 @@ class FolKB(KB):
             raise Exception("Not a definite clause: %s" % sentence)
 
     def ask_generator(self, query):
-        return fol_bc_ask(self, [query])
+        return fol_bc_ask(self, query)
 
     def retract(self, sentence):
         self.clauses.remove(sentence)
 
+    def fetch_rules_for_goal(self, goal):
+        return self.clauses
+
 def test_ask(query, kb=None):
     q = expr(query)
     vars = variables(q)
-    answers = fol_bc_ask(kb or test_kb, [q])
+    answers = fol_bc_ask(kb or test_kb, q)
     return sorted([pretty(dict((x, v) for x, v in a.items() if x in vars))
                    for a in answers],
                   key=repr)
@@ -964,7 +945,7 @@ crime_kb = FolKB(
      ])
 )
 
-def fol_bc_ask(KB, goals, theta={}):
+def fol_bc_ask(KB, query):
     """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
     KB should be an instance of FolKB, and goals a list of literals.
     >>> test_ask('Farmer(x)')
@@ -980,51 +961,24 @@ def fol_bc_ask(KB, goals, theta={}):
     >>> test_ask('Criminal(x)', crime_kb)
     ['{x: West}']
     """
-    if not goals:
+    return fol_bc_or(KB, query, {})
+
+def fol_bc_or(KB, goal, theta):
+    for rule in KB.fetch_rules_for_goal(goal):
+        lhs, rhs = parse_definite_clause(standardize_variables(rule))
+        for theta1 in fol_bc_and(KB, lhs, unify(rhs, goal, theta)):
+            yield theta1
+
+def fol_bc_and(KB, goals, theta):
+    if theta is None:
+        pass
+    elif not goals:
         yield theta
-        return
-    q1 = subst(theta, goals[0])
-    for r in KB.clauses:
-        ps, q = parse_definite_clause(standardize_apart(r))
-        theta1 = unify(q, q1, {})
-        if theta1 is not None:
-            new_goals = ps + goals[1:]
-            for ans in fol_bc_ask(KB, new_goals, subst_compose(theta1, theta)):
-                yield ans
-
-def subst_compose(s1, s2):
-    """Return the substitution which is equivalent to applying s2 to
-    the result of applying s1 to an expression.
-
-    >>> s1 = {x: A, y: B}
-    >>> s2 = {z: x, x: C}
-    >>> p = F(x) & G(y) & expr('H(z)')
-    >>> subst(s1, p)
-    ((F(A) & G(B)) & H(z))
-    >>> subst(s2, p)
-    ((F(C) & G(y)) & H(x))
-
-    >>> subst(s2, subst(s1, p))
-    ((F(A) & G(B)) & H(x))
-    >>> subst(subst_compose(s1, s2), p)
-    ((F(A) & G(B)) & H(x))
-
-    >>> subst(s1, subst(s2, p))
-    ((F(C) & G(B)) & H(A))
-    >>> subst(subst_compose(s2, s1), p)
-    ((F(C) & G(B)) & H(A))
-    >>> ppsubst(subst_compose(s1, s2))
-    {x: A, y: B, z: x}
-    >>> ppsubst(subst_compose(s2, s1))
-    {x: C, y: B, z: A}
-    >>> subst(subst_compose(s1, s2), p) == subst(s2, subst(s1, p))
-    True
-    >>> subst(subst_compose(s2, s1), p) == subst(s1, subst(s2, p))
-    True
-    """
-    result = dict((x, s2.get(v, v)) for x, v in s1.items())
-    result.update((x, v) for x, v in s2.items() if x not in s1)
-    return result
+    else:
+        first, rest = goals[0], goals[1:]
+        for theta1 in fol_bc_or(KB, subst(theta, first), theta):
+            for theta2 in fol_bc_and(KB, rest, theta1):
+                yield theta2
 
 #______________________________________________________________________________
 
