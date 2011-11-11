@@ -439,6 +439,7 @@ def gibbs_ask(X, e, bn, N):
     ...  ).show_approx()
     'False: 0.738, True: 0.262'
     """
+    assert X not in e, "Query variable must be distinct from evidence"
     counts = dict((x, 0) for x in bn.variable_values(X)) # bold N in Fig. 14.16
     Z = [var for var in bn.vars if var not in e]
     state = dict(e) # boldface x in Fig. 14.16
