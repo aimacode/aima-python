@@ -157,7 +157,7 @@ class BayesNet:
         """Add a node to the net. Its parents must already be in the
         net, and node itself must not."""
         assert node not in self.nodes
-        assert every(lambda parent: parent in self.variables(), node.parents)
+        assert every(lambda parent: parent in self.vars, node.parents)
         self.nodes.append(node)
         self.vars.append(node.variable)
         for parent in node.parents:
@@ -171,12 +171,6 @@ class BayesNet:
             if n.variable == var:
                 return n
         raise Exception("No such variable: %s" % var)
-
-    def variables(self):
-        """List all of the net's variables, parents before children.
-        >>> burglary.variables()
-        ['Burglary', 'Earthquake', 'Alarm', 'JohnCalls', 'MaryCalls']"""
-        return [n.variable for n in self.nodes]
 
     def variable_values(self, var):
         "Return the domain of var."
@@ -270,9 +264,10 @@ def enumeration_ask(X, e, bn):
     >>> enumeration_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary
     ...  ).show_approx()
     'False: 0.716, True: 0.284'"""
+    assert X not in e, "Query variable must be distinct from evidence"
     Q = ProbDist(X)
     for xi in bn.variable_values(X):
-        Q[xi] = enumerate_all(bn.variables(), extend(e, X, xi), bn)
+        Q[xi] = enumerate_all(bn.vars, extend(e, X, xi), bn)
     return Q.normalize()
 
 def enumerate_all(vars, e, bn):
@@ -398,7 +393,7 @@ def gibbs_ask(X, e, bn, N):
     'False: 0.738, True: 0.262'
     """
     counts = dict((x, 0) for x in bn.variable_values(X)) # bold N in Fig. 14.16
-    Z = [var for var in bn.variables() if var not in e]
+    Z = [var for var in bn.vars if var not in e]
     state = dict(e) # boldface x in Fig. 14.16
     for Zi in Z:
         state[Zi] = choice(bn.variable_values(Zi))
