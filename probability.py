@@ -287,26 +287,73 @@ def enumerate_all(vars, e, bn):
 
 #______________________________________________________________________________
 
-def elimination_ask(X, e, bn, order=reversed):
-    "[Fig. 14.11]"
+def elimination_ask(X, e, bn):
+    """[Fig. 14.11]
+    >>> elimination_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary
+    ...  ).show_approx()
+    'False: 0.716, True: 0.284'"""
     factors = []
-    for var in order(bn.vars):
-        factors.append(Factor(var, e))
+    for var in reversed(bn.vars):
+        factors.append(make_factor(var, e, bn))
         if is_hidden(var, X, e):
-            factors = sum_out(var, factors)
-    return pointwise_product(factors).normalize()
+            factors = sum_out(var, factors, bn)
+    return pointwise_product(factors, bn).normalize()
 
 def is_hidden(var, X, e):
     return var != X and var not in e
 
-def Factor(var, e):
-    unimplemented()
+def make_factor(var, e, bn):
+    node = bn.variable_node(var)
+    vars = [X for X in [var] + node.parents if X not in e]
+    cpt = dict((event_values(e1, vars), node.p(e1[var], e1))
+               for e1 in all_events(vars, bn, e))
+    return Factor(vars, cpt)
 
-def pointwise_product(factors):
-    unimplemented()
+def pointwise_product(factors, bn):
+    return reduce(lambda f, g: f.pointwise_product(g, bn), factors)
 
-def sum_out(var, factors):
-    unimplemented()
+def sum_out(var, factors, bn):
+    result, var_factors = [], []
+    for f in factors:
+        (var_factors if var in f.vars else result).append(f)
+    result.append(pointwise_product(var_factors, bn).sum_out(var, bn))
+    return result
+
+class Factor:
+
+    def __init__(self, vars, cpt):
+        update(self, vars=vars, cpt=cpt)
+
+    def pointwise_product(self, other, bn):
+        vars = list(set(self.vars) | set(other.vars))
+        cpt = dict((event_values(e, vars), self.p(e) * other.p(e))
+                   for e in all_events(vars, bn, {}))
+        return Factor(vars, cpt)
+
+    def sum_out(self, var, bn):
+        vars = [X for X in self.vars if X != var]
+        cpt = dict((event_values(e, vars),
+                    sum(self.p(extend(e, var, val))
+                        for val in bn.variable_values(var)))
+                   for e in all_events(vars, bn, {}))
+        return Factor(vars, cpt)
+
+    def normalize(self):
+        assert len(self.vars) == 1
+        return ProbDist(self.vars[0],
+                        dict((k, v) for ((k,), v) in self.cpt.items()))
+
+    def p(self, e):
+        return self.cpt[event_values(e, self.vars)]
+
+def all_events(vars, bn, e1):
+    if not vars:
+        yield e1
+    else:
+        X, rest = vars[0], vars[1:]
+        for e in all_events(rest, bn, e1):
+            for x in bn.variable_values(X):
+                yield extend(e, X, x)
 
 #______________________________________________________________________________
 
