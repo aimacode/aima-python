@@ -176,6 +176,8 @@ class BayesNet:
         "Return the domain of var."
         return [True, False]
 
+    def __repr__(self):
+        return 'BayesNet(%r)' % self.nodes
 
 class BayesNode:
     """A conditional probability distribution for a boolean variable,
@@ -241,6 +243,9 @@ class BayesNode:
         parents."""
         return probability(self.p(True, event))
 
+    def __repr__(self):
+        return 'node(%r, %r)' % (self.variable, ' '.join(self.parents))
+
 node = BayesNode
 
 # Burglary example [Fig. 14.2]
@@ -292,6 +297,7 @@ def elimination_ask(X, e, bn):
     >>> elimination_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary
     ...  ).show_approx()
     'False: 0.716, True: 0.284'"""
+    assert X not in e, "Query variable must be distinct from evidence"
     factors = []
     for var in reversed(bn.vars):
         factors.append(make_factor(var, e, bn))
@@ -492,19 +498,19 @@ def particle_filtering(e, N, dbn):
 
 #_______________________________________________________________________________
 __doc__ += """
-## We can build up a probability distribution like this (p. 469):
+# We can build up a probability distribution like this (p. 469):
 >>> P = ProbDist()
 >>> P['sunny'] = 0.7
 >>> P['rain'] = 0.2
 >>> P['cloudy'] = 0.08
 >>> P['snow'] = 0.02
 
-## and query it like this: (Never mind this ELLIPSIS option
-##                          added to make the doctest portable.)
+# and query it like this:  (Never mind this ELLIPSIS option
+#                           added to make the doctest portable.)
 >>> P['rain']               #doctest:+ELLIPSIS
 0.2...
 
-## A Joint Probability Distribution is dealt with like this (Fig. 13.3):
+# A Joint Probability Distribution is dealt with like this (Fig. 13.3):
 >>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
 >>> T, F = True, False
 >>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008
@@ -513,7 +519,7 @@ __doc__ += """
 >>> P[T, T, T]
 0.108
 
-## Ask for P(Cavity|Toothache=T)
+# Ask for P(Cavity|Toothache=T)
 >>> PC = enumerate_joint_ask('Cavity', {'Toothache': T}, P)
 >>> PC.show_approx()
 'False: 0.4, True: 0.6'
