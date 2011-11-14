@@ -142,6 +142,57 @@ def parse_csv(input, delim=','):
 
 #______________________________________________________________________________
 
+class CountingProbDist:
+    """A probability distribution formed by observing and counting examples.
+    If p is an instance of this class and o is an observed value, then
+    there are 3 main operations:
+    p.add(o) increments the count for observation o by 1.
+    p.sample() returns a random element from the distribution.
+    p[o] returns the probability for o (as in a regular ProbDist)."""
+
+    def __init__(self, observations=[], default=0):
+        """Create a distribution, and optionally add in some observations.
+        By default this is an unsmoothed distribution, but saying default=1,
+        for example, gives you add-one smoothing."""
+        update(self, dictionary={}, n_obs=0.0, default=default, sampler=None)
+        for o in observations:
+            self.add(o)
+
+    def add(self, o):
+        "Add an observation o to the distribution."
+        self.smooth_for(o)
+        self.dictionary[o] += 1
+        self.n_obs += 1
+        self.sampler = None
+
+    def smooth_for(self, o):
+        """Include o among the possible observations, whether or not
+        it's been observed yet."""
+        if o not in self.dictionary:
+            self.dictionary[o] = self.default
+            self.n_obs += self.default
+            self.sampler = None
+
+    def __getitem__(self, item):
+        "Return an estimate of the probability of item."
+        self.smooth_for(item)
+        return self.dictionary[item] / self.n_obs
+
+    # (top() and sample() are not used in this module, but elsewhere.)
+
+    def top(self, n):
+        "Return (count, obs) tuples for the n most frequent observations."
+        return heapq.nlargest(n, [(v, k) for (k, v) in self.dictionary.items()])
+
+    def sample(self):
+        "Return a random sample from the distribution."
+        if self.sampler is None:
+            self.sampler = weighted_sampler(self.dictionary.keys(),
+                                            self.dictionary.values())
+        return self.sampler()
+
+#______________________________________________________________________________
+
 def PluralityLearner(dataset):
     """A very dumb algorithm: always pick the result that was most popular
     in the training data.  Makes a baseline for comparison."""
@@ -154,48 +205,29 @@ def PluralityLearner(dataset):
 #______________________________________________________________________________
 
 def NaiveBayesLearner(dataset):
-    """Just count the target/attr/val occurrences.
-    Count how many times each value of each input attribute occurs.
-    Store count in _N[targetvalue][attr][val]. Let
-    _N[targetvalue][attr][None] be the sum over all vals."""
+    """Just count how many times each value of each input attribute
+    occurs, conditional on the target value. Count the different
+    target values too."""
 
-    _N = {}
-    ## Initialize to 0
-    for gv in dataset.values[dataset.target]:
-        _N[gv] = {}
-        for attr in dataset.inputs:
-            _N[gv][attr] = {}
-            assert None not in dataset.values[attr]
-            for val in dataset.values[attr]:
-                _N[gv][attr][val] = 0
-                _N[gv][attr][None] = 0
-    ## Go thru examples
+    targetvals = dataset.values[dataset.target]
+    target_dist = CountingProbDist(targetvals)
+    attr_dists = dict(((gv, attr), CountingProbDist(dataset.values[attr]))
+                      for gv in targetvals
+                      for attr in dataset.inputs)
     for example in dataset.examples:
-        Ngv = _N[example[dataset.target]]
+        targetval = example[dataset.target]
+        target_dist.add(targetval)
         for attr in dataset.inputs:
-            Ngv[attr][example[attr]] += 1
-            Ngv[attr][None] += 1
+            attr_dists[targetval, attr].add(example[attr])
 
     def predict(example):
         """Predict the target value for example. Consider each possible value,
-        choose the most likely, by looking at each attribute independently."""
-        possible_values = dataset.values[dataset.target]
+        and pick the most likely by looking at each attribute independently."""
         def class_probability(targetval):
-            return product(P(targetval, a, example[a]) for a in dataset.inputs)
-        return argmax(possible_values, class_probability)
-
-    def P(targetval, attr, attrval):
-        """Smooth the raw counts to give a probability estimate.
-        Estimate adds 1 to numerator and len(possible vals) to denominator."""
-        return ((N(targetval, attr, attrval) + 1.0) /
-                (N(targetval, attr, None) + len(dataset.values[attr])))
-
-    def N(targetval, attr, attrval):
-       "Return the count in the training data of this combination."
-       try:
-          return _N[targetval][attr][attrval]
-       except KeyError:
-          return 0
+            return (target_dist[targetval]
+                    * product(attr_dists[targetval, attr][example[attr]]
+                              for attr in dataset.inputs))
+        return argmax(targetvals, class_probability)
 
     return predict
 

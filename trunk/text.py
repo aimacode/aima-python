@@ -5,57 +5,9 @@ Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
 from utils import *
+from learning import CountingProbDist
 from math import log, exp
-import heapq, re, search
-
-class CountingProbDist:
-    """A probability distribution formed by observing and counting examples.
-    If p is an instance of this class and o is an observed value, then
-    there are 3 main operations:
-    p.add(o) increments the count for observation o by 1.
-    p.sample() returns a random element from the distribution.
-    p[o] returns the probability for o (as in a regular ProbDist)."""
-
-    def __init__(self, observations=[], default=0):
-        """Create a distribution, and optionally add in some observations.
-        By default this is an unsmoothed distribution, but saying default=1,
-        for example, gives you add-one smoothing."""
-        update(self, dictionary={}, n_obs=0.0, default=default, sampler=None)
-        for o in observations:
-            self.add(o)
-
-    def add(self, o):
-        "Add an observation o to the distribution."
-        self.smooth_for(o)
-        self.dictionary[o] += 1
-        self.n_obs += 1
-        self.sampler = None
-
-    def smooth_for(self, o):
-        """Include o among the possible observations, whether or not
-        it's been observed yet."""
-        if o not in self.dictionary:
-            self.dictionary[o] = self.default
-            self.n_obs += self.default
-            self.sampler = None
-
-    def __getitem__(self, item):
-        "Return an estimate of the probability of item."
-        self.smooth_for(item)
-        return self.dictionary[item] / self.n_obs
-
-    def top(self, n):
-        "Return (count, obs) tuples for the n most frequent observations."
-        return heapq.nlargest(n, [(v, k) for (k, v) in self.dictionary.items()])
-
-    def sample(self):
-        "Return a random sample from the distribution."
-        if self.sampler is None:
-            self.sampler = weighted_sampler(self.dictionary.keys(),
-                                            self.dictionary.values())
-        return self.sampler()
-
-#______________________________________________________________________________
+import re, search
 
 class UnigramTextModel(CountingProbDist):
     """This is a discrete probability distribution over words, so you
@@ -79,7 +31,7 @@ class NgramTextModel(CountingProbDist):
         self.cond_prob = DefaultDict(CountingProbDist())
         self.add_sequence(observation_sequence)
 
-    ## sample, __getitem__ inherited from CountingProbDist
+    ## __getitem__, top, sample inherited from CountingProbDist
     ## Note they deal with tuples, not strings, as inputs
 
     def add(self, ngram):
