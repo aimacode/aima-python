@@ -147,16 +147,17 @@ def enumerate_joint(vars, e, P):
 class BayesNet:
     "Bayesian network containing only boolean-variable nodes."
 
-    def __init__(self, nodes=[]):
+    def __init__(self, node_specs=[]):
         "nodes must be ordered with parents before children."
         update(self, nodes=[], vars=[])
-        for node in nodes:
-            self.add(node)
+        for node_spec in node_specs:
+            self.add(node_spec)
 
-    def add(self, node):
+    def add(self, node_spec):
         """Add a node to the net. Its parents must already be in the
-        net, and node itself must not."""
-        assert node not in self.nodes
+        net, and its variable must not."""
+        node = BayesNode(*node_spec)
+        assert node.variable not in self.vars
         assert every(lambda parent: parent in self.vars, node.parents)
         self.nodes.append(node)
         self.vars.append(node.variable)
@@ -244,21 +245,19 @@ class BayesNode:
         return probability(self.p(True, event))
 
     def __repr__(self):
-        return 'node(%r, %r)' % (self.variable, ' '.join(self.parents))
-
-node = BayesNode
+        return repr((self.variable, ' '.join(self.parents)))
 
 # Burglary example [Fig. 14.2]
 
 T, F = True, False
 
 burglary = BayesNet([
-    node('Burglary', '', 0.001),
-    node('Earthquake', '', 0.002),
-    node('Alarm', 'Burglary Earthquake',
+    ('Burglary', '', 0.001),
+    ('Earthquake', '', 0.002),
+    ('Alarm', 'Burglary Earthquake',
          {(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001}),
-    node('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
-    node('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})
+    ('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
+    ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})
     ])
 
 #______________________________________________________________________________
@@ -377,10 +376,10 @@ def all_events(vars, bn, e):
 # Fig. 14.12a: sprinkler network
 
 sprinkler = BayesNet([
-    node('Cloudy', '', 0.5),
-    node('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
-    node('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
-    node('WetGrass', 'Sprinkler Rain',
+    ('Cloudy', '', 0.5),
+    ('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
+    ('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
+    ('WetGrass', 'Sprinkler Rain',
          {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
 
 #______________________________________________________________________________
