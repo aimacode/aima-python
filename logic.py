@@ -309,7 +309,7 @@ def parse_definite_clause(s):
 
 ## Useful constant Exprs used in examples and code:
 TRUE, FALSE, ZERO, ONE, TWO = map(Expr, ['TRUE', 'FALSE', 0, 1, 2])
-A, B, C, F, G, P, Q, x, y, z  = map(Expr, 'ABCFGPQxyz')
+A, B, C, D, E, F, G, P, Q, x, y, z  = map(Expr, 'ABCDEFGPQxyz')
 
 #______________________________________________________________________________
 
@@ -683,33 +683,50 @@ def find_pure_symbol(symbols, clauses):
     return None, None
 
 def find_unit_clause(clauses, model):
-    """A unit clause has only 1 variable that is not bound in the model.
-    >>> find_unit_clause([A|B|C, B|~C, A|~B], {A:True})
+    """Find a forced assignment if possible from a clause with only 1
+    variable not bound in the model.
+    >>> find_unit_clause([A|B|C, B|~C, ~A|~B], {A:True})
     (B, False)
     """
     for clause in clauses:
-        num_not_in_model = 0
-        for literal in disjuncts(clause):
-            sym = literal_symbol(literal)
-            if sym not in model:
-                num_not_in_model += 1
-                P, value = sym, (literal.op != '~')
-        if num_not_in_model == 1:
-            return P, value
+        P, value = unit_clause_assign(clause, model)
+        if P: return P, value
     return None, None
 
+def unit_clause_assign(clause, model):
+    """Return a single variable/value pair that makes clause true in
+    the model, if possible.
+    >>> unit_clause_assign(A|B|C, {A:True})
+    (None, None)
+    >>> unit_clause_assign(B|~C, {A:True})
+    (None, None)
+    >>> unit_clause_assign(~A|~B, {A:True})
+    (B, False)
+    """
+    P, value = None, None
+    for literal in disjuncts(clause):
+        sym, positive = inspect_literal(literal)
+        if sym in model:
+            if model[sym] == positive:
+                return None, None  # clause already True
+        elif P:
+            return None, None      # more than 1 unbound variable
+        else:
+            P, value = sym, positive
+    return P, value
 
-def literal_symbol(literal):
-    """The symbol in this literal (without the negation).
-    >>> literal_symbol(P)
-    P
-    >>> literal_symbol(~P)
-    P
+def inspect_literal(literal):
+    """The symbol in this literal, and the value it should take to
+    make the literal true.
+    >>> inspect_literal(P)
+    (P, True)
+    >>> inspect_literal(~P)
+    (P, False)
     """
     if literal.op == '~':
-        return literal.args[0]
+        return literal.args[0], False
     else:
-        return literal
+        return literal, True
 
 #______________________________________________________________________________
 # Walk-SAT [Fig. 7.18]
@@ -1152,6 +1169,10 @@ True
 False
 >>> tt_true(A & B)
 False
+
+### An earlier version of the code failed on this:
+>>> dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F) & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D))
+{B: False, C: True, A: True, F: False, D: True, E: False}
 
 ### [Fig. 7.13]
 >>> alpha = expr("~P12")
