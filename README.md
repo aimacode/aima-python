@@ -7,7 +7,7 @@ Eventually, this repository should have code for everything in the book.
 What languages are instructors recommending?  To get an approximate
 idea, I gave the query <tt>norvig russell "Modern Approach"</tt> along with
 the names of various languages and looked at the estimated counts of results on
-various dates:
+various dates. However, I don't have much confidence in these figures...
 
 <p>
 <table border=1>
