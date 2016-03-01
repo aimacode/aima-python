@@ -232,19 +232,32 @@ def Dict(**entries):
     """
     return entries
 
-class DefaultDict(dict):
-    """Dictionary with a default value for unknown keys."""
-    def __init__(self, default):
-        self.default = default
+try:
+    from collections import defaultdict  # Introduced in 2.5
 
-    def __getitem__(self, key):
-        if key in self: return self.get(key)
-        return self.setdefault(key, copy.deepcopy(self.default))
+    def DefaultDict(default_value=None):
+        """Front-end for native 2.5 version defaultdict while
+        maintaing backward compatibility when not using a callable.
+        """
+        if (default_value is not None and not hasattr(default_value, '__call__')):
+            default_factory = lambda: copy.deepcopy(default_value)
+        else:
+            default_factory = default_value
+        return defaultdict(default_factory)
+except ImportError:
+    class DefaultDict(dict):
+        """Dictionary with a default value for unknown keys."""
+        def __init__(self, default):
+            self.default = default
 
-    def __copy__(self):
-        copy = DefaultDict(self.default)
-        copy.update(self)
-        return copy
+        def __getitem__(self, key):
+            if key in self: return self.get(key)
+            return self.setdefault(key, copy.deepcopy(self.default))
+
+        def __copy__(self):
+            copy = DefaultDict(self.default)
+            copy.update(self)
+            return copy
 
 class Struct:
     """Create an instance with argument=value slots.
