@@ -664,6 +664,8 @@ def dpll(clauses, symbols, model):
     P, value = find_unit_clause(clauses, model)
     if P:
         return dpll(clauses, removeall(P, symbols), extend(model, P, value))
+    if not symbols:
+        raise TypeError("Argument should be of the type Expr.")
     P, symbols = symbols[0], symbols[1:]
     return (dpll(clauses, symbols, extend(model, P, True)) or
             dpll(clauses, symbols, extend(model, P, False)))
