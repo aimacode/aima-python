@@ -1,11 +1,19 @@
-# aima-python: Structure of the Project
+# `aima-python`: Structure of the Project
 
 Python code for the book *Artificial Intelligence: A Modern Approach.* 
-When complete, this project will cover all the major topics in the book, for each topic, such as `logic`, we will have the following [Python 3.5](https://www.python.org/downloads/release/python-350/) files:
+When complete, this project will cover all the major topics in the book, for each topic, such as `logic`, we will have the following [Python 3.5](https://www.python.org/downloads/release/python-350/) files in the main branch:
 
 - `logic.py`: Implementations of all the pseudocode algorithms in the book. 
 - `logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with `py.test`.
 - `logic.ipynb`: A Jupyter notebook, with examples of usage. Does a `from logic import *` to get the code.
+ 
+Until we get there, we will support a legacy branch, `aima3python2` (for the thrid edition of the textbook and for Python 2 code). To prepare code for the new master branch, the following should be done:
+
+- Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `prtint` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formating to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
+- Implement functions that were in the third edition of the book but were not yet implemented in the code.
+- As we finish chapters for the new fourth edition, we will share the pseudocode, and describe what changes are necessary.
+- Create a `_test.py` file, and define functions that use `assert` to make tests. Remove any old `doctest` tests.
+- Create a `.ipynb` notebook, and give examples of how to use the code.
 
 # Style Guide
 
@@ -28,7 +36,7 @@ Beyond the above rules, we use [Pep 8](https://www.python.org/dev/peps/pep-0008)
 
         def retry(url: Url) -> None: 
 
-# Language Choice
+# Choice of Programming Languages
 
 Are we right to concentrate on Java and Python versions of the code? I think so; both languages are popular; Java is
 fast enough for our purposes, and has reasonable type declarations (but can be verbose); Python is popular and has a very direct mapping to the pseudocode in the book (ut lacks type declarations and can be solw). The [TIOBE Index](http://www.tiobe.com/tiobe_index) says the top five most popular languages are:
@@ -37,9 +45,9 @@ fast enough for our purposes, and has reasonable type declarations (but can be v
         
 So it might be reasonable to also support C++/C# at some point in the future. It might also be reasonable to support a language that combines the terse readability of Python with the type safety and speed of Java; perhaps Go or Julia. And finally, Javascript is the language of the browser; it would be nice to have code that runs in the browser, in Javascript or a variant such as Typescript.
 
-What languages are instructors recommending for their AI class?  
-To get an approximate idea, I gave the query <tt>norvig russell "Modern Approach"</tt> along with
-the names of various languages and looked at the estimated counts of results on
+There is also a `aima-lisp` project; in 1995 when we wrote the first edition of the book, Lisp was the right choice, but today it is less popular.
+
+What languages are instructors recommending for their AI class? To get an approximate idea, I gave the query <tt>[norvig russell "Modern Approach"](https://www.google.com/webhp#q=russell%20norvig%20%22modern%20approach%22%20java)</tt> along with the names of various languages and looked at the estimated counts of results on
 various dates. However, I don't have much confidence in these figures...
 
 <p>
