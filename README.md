@@ -1,12 +1,21 @@
-# aima-python
+# aima-python: Structure of the Project
 
-Python 3 code for the book *Artificial Intelligence: A Modern Approach.*
+Python code for the book *Artificial Intelligence: A Modern Approach.* 
+When complete, this project will cover all the major topics in the book, for each topic, such as `logic`, we will have the following [Python 3.5](https://www.python.org/downloads/release/python-350/) files:
 
-Eventually, this repository should have code for everything in the book.
+- `logic.py`: Implementations of all the pseudocode algorithms in the book. 
+- `logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with `py.test`.
+- `logic.ipynb`: A Jupyter notebook, with examples of usage. Does a `from logic import *` to get the code.
 
 # Style Guide
 
-We default to [Pep 8](https://www.python.org/dev/peps/pep-0008), but with a few exceptions:
+There are a few style rules that are unique to this project:
+
+- The first rule is that the code should correspond directly to the pseudocode in the book. When possible this will be almost one-to-one, just allowing for the syntactic differences between Python and pseudocode, and for different library functions.
+- Don't make a function more complicated than the pseudocode in the book, even if the complication would add a nice feature, or give an efficiency gain. Instead, remain faithful to the pseudocode, and if you must, add a new function (not in the book) with the added feature.
+- I use functional programming in many cases, but not exclusively; let the book's pseudocode be the guide. In general, pure functions (with no side effects) are prefered, but functions with side effects, and classes, can be used where appropriate. 
+
+Beyond the above rules, we default to [Pep 8](https://www.python.org/dev/peps/pep-0008), with a few minor exceptions:
 
 - I'm not too worried about an occasional line longer than 79 characters. 
 - You don't need two spaces after a sentence-ending period.
