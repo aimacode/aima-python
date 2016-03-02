@@ -13,9 +13,9 @@ There are a few style rules that are unique to this project:
 
 - The first rule is that the code should correspond directly to the pseudocode in the book. When possible this will be almost one-to-one, just allowing for the syntactic differences between Python and pseudocode, and for different library functions.
 - Don't make a function more complicated than the pseudocode in the book, even if the complication would add a nice feature, or give an efficiency gain. Instead, remain faithful to the pseudocode, and if you must, add a new function (not in the book) with the added feature.
-- I use functional programming in many cases, but not exclusively; let the book's pseudocode be the guide. In general, pure functions (with no side effects) are prefered, but functions with side effects, and classes, can be used where appropriate. 
+- I use functional programming (functions with no side effects) in many cases, but not exclusively (sometimes classes and/or functions with side effects are used). Let the book's pseudocode be the guide. 
 
-Beyond the above rules, we default to [Pep 8](https://www.python.org/dev/peps/pep-0008), with a few minor exceptions:
+Beyond the above rules, we use [Pep 8](https://www.python.org/dev/peps/pep-0008), with a few minor exceptions:
 
 - I'm not too worried about an occasional line longer than 79 characters. 
 - You don't need two spaces after a sentence-ending period.
@@ -23,20 +23,22 @@ Beyond the above rules, we default to [Pep 8](https://www.python.org/dev/peps/pe
 - I prefer more concise docstrings; I don't follow [Pep 257](https://www.python.org/dev/peps/pep-0257/).
 - Not all constants have to be UPPERCASE.
 - [Pep 484](https://www.python.org/dev/peps/pep-0484/) type annotations are allowed but not required. If your
-  parameter name is already suggestive of the name of a type, you don't need an annotation, e.g.:
+  parameter name is already suggestive of the name of a type, such as `url` below, then i don't think the type annotation is useful.
+  Return type annotations, such as `-> None` below, can be very useful.
 
-        def retry(url: Url) -> None: # This 'Url' annotation should be avoided; but '-> None' is useful
+        def retry(url: Url) -> None: 
 
-# Language Popularity
+# Language Choice
 
-Are we right to concentrate on Java and Python versions of the code?
-What languages do students already know? The [TIOBE Index](http://www.tiobe.com/tiobe_index) says the top five are:
+Are we right to concentrate on Java and Python versions of the code? I think so; both languages are popular; Java is
+fast enough for our purposes, and has reasonable type declarations (but can be verbose); Python is popular and has a very direct mapping to the pseudocode in the book (ut lacks type declarations and can be solw). The [TIOBE Index](http://www.tiobe.com/tiobe_index) says the top five most popular languages are:
 
         Java, C, C++, C#, Python
         
+So it might be reasonable to also support C++/C# at some point in the future. It might also be reasonable to support a language that combines the terse readability of Python with the type safety and speed of Java; perhaps Go or Julia. And finally, Javascript is the language of the browser; it would be nice to have code that runs in the browser, in Javascript or a variant such as Typescript.
+
 What languages are instructors recommending for their AI class?  
-To get an approximate
-idea, I gave the query <tt>norvig russell "Modern Approach"</tt> along with
+To get an approximate idea, I gave the query <tt>norvig russell "Modern Approach"</tt> along with
 the names of various languages and looked at the estimated counts of results on
 various dates. However, I don't have much confidence in these figures...
 
