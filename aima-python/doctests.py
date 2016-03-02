@@ -12,7 +12,8 @@ You can add stochastic tests with
 """
 
 if __name__ == "__main__":
-    import sys, glob, doctest
+    import sys, glob, doctest, os
+    os.chdir('aima-python')
     args = [arg for arg in sys.argv[1:] if arg != '-v']
     if not args: args = ['*.py']
     modules = [__import__(name.replace('.py',''))
@@ -20,4 +21,5 @@ if __name__ == "__main__":
     for module in modules:
         doctest.testmod(module, report=1, optionflags=doctest.REPORT_UDIFF)
     summary = doctest.master.summarize() if modules else (0, 0)
+    os.chdir('..')
     print '%d failed out of %d' % summary

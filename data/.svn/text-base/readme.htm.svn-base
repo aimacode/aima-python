@@ -1,0 +1,27 @@
+<<header("Online Data Repository")>>
+
+The <tt>data/</tt> directory holds data files that are used in common
+by the <a href="../lisp/doc/overview.html">Lisp</a>, <a
+href="http://www.norvig.com/python/python.html">Python</a>, and <a
+href="java-overview.html">Java</a> implementations of the code
+repository.  See the "<a href="../code.html">online code instructions</a>
+for more information on how to install and use these data files.
+
+<p>The files are as follows:
+
+<p><table border=1>
+<tr><th>Data Filename<th>Documentation<th>Description
+<tr><td><a href="ascii-robotdata1.log">ascii-robotdata1.log</a><td><a href="ascii-robotdata1.txt">ascii-robotdata1.txt</a><td>Range data for robot localization
+<tr><td><b><a href="data.zip">data.zip</a><td>&nbsp;<td>A zip file of this entire directory
+<tr><td><a href="iris.csv">iris.csv</a><td><a href="iris.txt">iris.txt</a><td>Machine learning data: different types of iris flowers
+<tr><td><a href="orings.csv">orings.csv</a><td><a href="orings.txt">orings.txt</a><td>Machine learning data: O-rings on the space shuttle
+<tr><td><a href="restaurant.csv">restaurant.csv</a><td>&nbsp;<td>Machine learning data: the restaurant example from the text
+<tr><td><a href="spam.txt">spam.txt</a><td>&nbsp;<td>Machine learning data: A collection of spam email
+<tr><td><a href="wordlist">wordlist</a><td>&nbsp;<td>A list of English words
+<tr><td><a href="zola.txt">zola.txt</a><td>&nbsp;<td>English text: Emile Zola's <i>Nana</i>, through Chapter 12
+<tr><td><a href="zoo.csv">zoo.csv</a><td><a href="zoo.txt">zoo.txt</a><td>Machine learning data: animals and their characteristics
+</table>
+
+<<footer>>
+
+

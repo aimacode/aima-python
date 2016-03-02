@@ -1,0 +1,152 @@
+DATE(1)				 User Commands			       DATE(1)
+
+
+
+NAME
+       date - print or set the system date and time
+
+SYNOPSIS
+       date [OPTION]... [+FORMAT]
+       date [-u|--utc|--universal] [MMDDhhmm[[CC]YY][.ss]]
+
+DESCRIPTION
+       Display the current time in the given FORMAT, or set the system date.
+
+       -d, --date=STRING
+	      display time described by STRING, not `now'
+
+       -f, --file=DATEFILE
+	      like --date once for each line of DATEFILE
+
+       -ITIMESPEC, --iso-8601[=TIMESPEC]
+	      output  date/time	 in ISO 8601 format.  TIMESPEC=`date' for date
+	      only, `hours', `minutes', or `seconds' for date and time to  the
+	      indicated	 precision.   --iso-8601  without TIMESPEC defaults to
+	      `date'.
+
+       -r, --reference=FILE
+	      display the last modification time of FILE
+
+       -R, --rfc-822
+	      output RFC-822 compliant date string
+
+       -s, --set=STRING
+	      set time described by STRING
+
+       -u, --utc, --universal
+	      print or set Coordinated Universal Time
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+       FORMAT controls the output.  The only valid option for the second  form
+       specifies Coordinated Universal Time.  Interpreted sequences are:
+
+       %%     a literal %
+
+       %a     locale's abbreviated weekday name (Sun..Sat)
+
+       %A     locale's full weekday name, variable length (Sunday..Saturday)
+
+       %b     locale's abbreviated month name (Jan..Dec)
+
+       %B     locale's full month name, variable length (January..December)
+
+       %c     locale's date and time (Sat Nov 04 12:02:33 EST 1989)
+
+       %C     century  (year  divided  by  100	and  truncated	to an integer)
+	      [00-99]
+
+       %d     day of month (01..31)
+
+       %D     date (mm/dd/yy)
+
+       %e     day of month, blank padded ( 1..31)
+
+       %F     same as %Y-%m-%d
+
+       %g     the 2-digit year corresponding to the %V week number
+
+       %G     the 4-digit year corresponding to the %V week number
+
+       %h     same as %b
+
+       %H     hour (00..23)
+
+       %I     hour (01..12)
+
+       %j     day of year (001..366)
+
+       %k     hour ( 0..23)
+
+       %l     hour ( 1..12)
+
+       %m     month (01..12)
+
+       %M     minute (00..59)
+
+       %n     a newline
+
+       %N     nanoseconds (000000000..999999999)
+
+       %p     locale's upper case AM or PM indicator (blank in many locales)
+
+       %P     locale's lower case am or pm indicator (blank in many locales)
+
+       %r     time, 12-hour (hh:mm:ss [AP]M)
+
+       %R     time, 24-hour (hh:mm)
+
+       %s     seconds since `00:00:00 1970-01-01 UTC' (a GNU extension)
+
+       %S     second (00..60); the 60 is necessary to accommodate a leap  sec-
+	      ond
+
+       %t     a horizontal tab
+
+       %T     time, 24-hour (hh:mm:ss)
+
+       %u     day of week (1..7);  1 represents Monday
+
+       %U     week number of year with Sunday as first day of week (00..53)
+
+       %V     week number of year with Monday as first day of week (01..53)
+
+       %w     day of week (0..6);  0 represents Sunday
+
+       %W     week number of year with Monday as first day of week (00..53)
+
+       %x     locale's date representation (mm/dd/yy)
+
+       %X     locale's time representation (%H:%M:%S)
+
+       %y     last two digits of year (00..99)
+
+       %Y     year (1970...)
+
+       %z     RFC-822 style numeric timezone (-0500) (a nonstandard extension)
+
+       %Z     time zone (e.g., EDT), or nothing if  no	time  zone  is	deter-
+	      minable
+
+       By  default, date pads numeric fields with zeroes.  GNU date recognizes
+       the following modifiers between `%' and a numeric directive.
+
+	      `-' (hyphen) do not pad the field `_' (underscore) pad the field
+	      with spaces
+
+ENVIRONMENT
+       TZ     Specifies the timezone, unless overridden by command line param-
+	      eters.  If neither is specified, the setting from /etc/localtime
+	      is used.
+
+AUTHOR
+       Written by David MacKenzie.
+
+REPORTING BUGS
+       Report bugs to <bug-coreutils@gnu.org>.
+
+COPYRIGHT
+       Copyright

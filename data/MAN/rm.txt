@@ -1,0 +1,83 @@
+RM(1)			       FSF			    RM(1)
+
+
+
+NAME
+       rm - remove files or directories
+
+SYNOPSIS
+       rm [OPTION]... FILE...
+
+DESCRIPTION
+       This  manual  page  documents  the  GNU version of rm.  rm
+       removes each specified file.   By  default,  it	does  not
+       remove directories.
+
+       If  a file is unwritable, the standard input is a tty, and
+       the -f or --force option is not given, rm prompts the user
+       for  whether to remove the file.	 If the response does not
+       begin with `y' or `Y', the file is skipped.
+
+OPTIONS
+       Remove (unlink) the FILE(s).
+
+       -d, --directory
+	      unlink directory,	 even  if  non-empty  (super-user
+	      only)
+
+       -f, --force
+	      ignore nonexistent files, never prompt
+
+       -i, --interactive
+	      prompt before any removal
+
+       -r, -R, --recursive
+	      remove the contents of directories recursively
+
+       -v, --verbose
+	      explain what is being done
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+       To remove a file whose name starts with a `-', for example
+       `-foo', use one of these commands:
+
+	      ../src/rm -- -foo
+
+	      ../src/rm ./-foo
+
+       Note that if you use rm to remove a file,  it  is  usually
+       possible	 to  recover  the  contents of that file.  If you
+       want more assurance that the contents are truly unrecover-
+       able, consider using shred.
+
+AUTHOR
+       Written	by Paul Rubin, David MacKenzie, Richard Stallman,
+       and Jim Meyering.
+
+REPORTING BUGS
+       Report bugs to <bug-fileutils@gnu.org>.
+
+COPYRIGHT
+       Copyright (C) 2001 Free Software Foundation, Inc.
+       This  is	 free  software;  see  the  source  for	  copying
+       conditions.   There  is	NO  warranty;  not  even for MER-
+       CHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+SEE ALSO
+       shred(1)
+
+       The full documentation for rm is maintained as  a  Texinfo
+       manual.	  If  the  info	 and  rm  programs  are	 properly
+       installed at your site, the command
+
+	      info rm
+
+       should give you access to the complete manual.
+
+
+
+rm (fileutils) 4.1	    April 2001			    RM(1)
