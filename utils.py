@@ -2,14 +2,12 @@
 
 """
 
-from __future__ import generators
-import operator, math, random, copy, sys, os.path, bisect, re
 
-assert (2,5) <= sys.version_info < (3,), """\
-This code is meant for Python 2.5 through 2.7.
-You might find that the parts you care about still work in older
-Pythons or happen to work in newer ones, but you're on your own --
-edit utils.py if you want to try it."""
+import operator, math, random, copy, sys, os.path, bisect, re
+import collections
+from functools import reduce
+
+
 
 #______________________________________________________________________________
 # Compatibility with Python 2.2, 2.3, and 2.4
@@ -28,7 +26,7 @@ except NameError:
         def __int__(self): return self.val
         def __repr__(self): return ('False', 'True')[self.val]
 
-    True, False = bool(1), bool(0)
+   
 
 try: sum ## Introduced in 2.3
 except NameError:
@@ -50,7 +48,7 @@ except NameError:
         i = 0
         it = iter(collection)
         while 1:
-            yield (i, it.next())
+            yield (i, next(it))
             i += 1
 
 
@@ -117,7 +115,7 @@ except NameError:
                 return element in self.dict
 
             def issubset(self, other):
-                for e in self.dict.keys():
+                for e in list(self.dict.keys()):
                     if e not in other:
                         return False
                 return True
@@ -177,13 +175,13 @@ except NameError:
                 return self
 
             def intersection_update(self, other):
-                for e in self.dict.keys():
+                for e in list(self.dict.keys()):
                     if e not in other:
                         self.remove(e)
                 return self
 
             def difference_update(self, other):
-                for e in self.dict.keys():
+                for e in list(self.dict.keys()):
                     if e in other:
                         self.remove(e)
                 return self
@@ -259,7 +257,7 @@ class Struct:
             return cmp(self.__dict__, other)
 
     def __repr__(self):
-        args = ['%s=%s' % (k, repr(v)) for (k, v) in vars(self).items()]
+        args = ['%s=%s' % (k, repr(v)) for (k, v) in list(vars(self).items())]
         return 'Struct(%s)' % ', '.join(sorted(args))
 
 def update(x, **entries):
@@ -430,12 +428,12 @@ def histogram(values, mode=0, bin_function=None):
     """Return a list of (value, count) pairs, summarizing the input values.
     Sorted by increasing value, or if mode=1, by decreasing count.
     If bin_function is given, map it over values first."""
-    if bin_function: values = map(bin_function, values)
+    if bin_function: values = list(map(bin_function, values))
     bins = {}
     for val in values:
         bins[val] = bins.get(val, 0) + 1
     if mode:
-        return sorted(bins.items(), key=lambda x: (x[1],x[0]), reverse=True)
+        return sorted(list(bins.items()), key=lambda x: (x[1],x[0]), reverse=True)
     else:
         return sorted(bins.items())
 
@@ -562,12 +560,16 @@ def turn_right(heading):
 def turn_left(heading):
     return turn_heading(heading, +1)
 
-def distance((ax, ay), (bx, by)):
+def distance(a,b):
     "The distance between two (x, y) points."
+    ax,ay=a
+    bx,by=b
     return math.hypot((ax - bx), (ay - by))
 
-def distance2((ax, ay), (bx, by)):
+def distance2(a,b):
     "The square of the distance between two (x, y) points."
+    ax,ay=a
+    bx,by=b
     return (ax - bx)**2 + (ay - by)**2
 
 def vector_clip(vector, lowest, highest):
@@ -577,7 +579,7 @@ def vector_clip(vector, lowest, highest):
     >>> vector_clip((-1, 10), (0, 0), (9, 9))
     (0, 9)
     """
-    return type(vector)(map(clip, vector, lowest, highest))
+    return type(vector)(list(map(clip, vector, lowest, highest)))
 
 #______________________________________________________________________________
 # Misc Functions
@@ -614,7 +616,7 @@ def memoize(fn, slot=None):
                 return val
     else:
         def memoized_fn(*args):
-            if not memoized_fn.cache.has_key(args):
+            if args not in memoized_fn.cache:
                 memoized_fn.cache[args] = fn(*args)
             return memoized_fn.cache[args]
         memoized_fn.cache = {}
@@ -629,10 +631,10 @@ def if_(test, result, alternative):
     'ok'
     """
     if test:
-        if callable(result): return result()
+        if isinstance(result, collections.Callable): return result()
         return result
     else:
-        if callable(alternative): return alternative()
+        if isinstance(alternative, collections.Callable): return alternative()
         return alternative
 
 def name(object):
@@ -660,17 +662,17 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
         table = [header] + table
     table = [[if_(isnumber(x), lambda: numfmt % x, lambda: x) for x in row]
              for row in table]
-    maxlen = lambda seq: max(map(len, seq))
-    sizes = map(maxlen, zip(*[map(str, row) for row in table]))
+    maxlen = lambda seq: max(list(map(len, seq)))
+    sizes = list(map(maxlen, list(zip(*[list(map(str, row)) for row in table]))))
     for row in table:
-        print sep.join(getattr(str(x), j)(size)
-                       for (j, size, x) in zip(justs, sizes, row))
+        print((sep.join(getattr(str(x), j)(size)
+                       for (j, size, x) in zip(justs, sizes, row))))
 
 def AIMAFile(components, mode='r'):
     "Open a file based at the AIMA root directory."
     import utils
     dir = os.path.dirname(utils.__file__)
-    return open(apply(os.path.join, [dir] + components), mode)
+    return open(os.path.join(*[dir] + components), mode)
 
 def DataFile(name, mode='r'):
     "Return a file in the AIMA /data directory."
@@ -744,7 +746,7 @@ class PriorityQueue(Queue):
         else:
             return self.A.pop()[1]
     def __contains__(self, item):
-        return some(lambda (_, x): x == item, self.A)
+        return some(lambda __x: __x[1] == item, self.A)
     def __getitem__(self, key):
         for _, item in self.A:
             if item == key:

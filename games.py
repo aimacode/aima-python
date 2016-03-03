@@ -113,7 +113,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 def query_player(game, state):
     "Make a move by querying standard input."
     game.display(state)
-    return num_or_str(raw_input('Your move? '))
+    return num_or_str(input('Your move? '))
 
 def random_player(game, state):
     "A player that chooses a legal move at random."
@@ -169,7 +169,7 @@ class Game:
 
     def display(self, state):
         "Print or otherwise display the state."
-        print state
+        print (state)
 
     def __repr__(self):
         return '<%s>' % self.__class__.__name__
@@ -192,7 +192,7 @@ class Fig52Game(Game):
     initial = 'A'
 
     def actions(self, state):
-        return self.succs.get(state, {}).keys()
+        return list(self.succs.get(state, {}).keys())
 
     def result(self, state, move):
         return self.succs[state][move]
@@ -245,8 +245,8 @@ class TicTacToe(Game):
         board = state.board
         for x in range(1, self.h+1):
             for y in range(1, self.v+1):
-                print board.get((x, y), '.'),
-            print
+                print((board.get((x, y), '.')), end=' ')
+            print()
 
     def compute_utility(self, board, move, player):
         "If X wins with this move, return 1; if O return -1; else return 0."
@@ -258,8 +258,9 @@ class TicTacToe(Game):
         else:
             return 0
 
-    def k_in_row(self, board, move, player, (delta_x, delta_y)):
+    def k_in_row(self, board, move, player, delta_pos):
         "Return true if there is a line through move on board for player."
+        delta_x,delta_y=delta_pos
         x, y = move
         n = 0 # n is number of moves in row
         while board.get((x, y)) == player:

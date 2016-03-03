@@ -4,6 +4,7 @@
 from utils import *
 from logic import extend
 from random import choice, seed
+from functools import reduce
 
 #______________________________________________________________________________
 
@@ -33,7 +34,7 @@ class ProbDist:
         and the ProbDist then is normalized."""
         update(self, prob={}, varname=varname, values=[])
         if freqs:
-            for (v, p) in freqs.items():
+            for (v, p) in list(freqs.items()):
                 self[v] = p
             self.normalize()
 
@@ -214,11 +215,11 @@ class BayesNode:
         if isinstance(cpt, (float, int)): # no parents, 0-tuple
             cpt = {(): cpt}
         elif isinstance(cpt, dict):
-            if cpt and isinstance(cpt.keys()[0], bool): # one parent, 1-tuple
-                cpt = dict(((v,), p) for v, p in cpt.items())
+            if cpt and isinstance(list(cpt.keys())[0], bool): # one parent, 1-tuple
+                cpt = dict(((v,), p) for v, p in list(cpt.items()))
 
         assert isinstance(cpt, dict)
-        for vs, p in cpt.items():
+        for vs, p in list(cpt.items()):
             assert isinstance(vs, tuple) and len(vs) == len(parents)
             assert every(lambda v: isinstance(v, bool), vs)
             assert 0 <= p <= 1
@@ -355,7 +356,7 @@ class Factor:
         "Return my probabilities; must be down to one variable."
         assert len(self.vars) == 1
         return ProbDist(self.vars[0],
-                        dict((k, v) for ((k,), v) in self.cpt.items()))
+                        dict((k, v) for ((k,), v) in list(self.cpt.items())))
 
     def p(self, e):
         "Look up my value tabulated for e."
@@ -405,7 +406,7 @@ def rejection_sampling(X, e, bn, N):
     'False: 0.7, True: 0.3'
     """
     counts = dict((x, 0) for x in bn.variable_values(X)) # bold N in Fig. 14.14
-    for j in xrange(N):
+    for j in range(N):
         sample = prior_sample(bn) # boldface x in Fig. 14.14
         if consistent_with(sample, e):
             counts[sample[X]] += 1
@@ -413,8 +414,8 @@ def rejection_sampling(X, e, bn, N):
 
 def consistent_with(event, evidence):
     "Is event consistent with the given evidence?"
-    return every(lambda (k, v): evidence.get(k, v) == v,
-                 event.items())
+    return every(lambda k_v: evidence.get(k_v[0], k_v[1]) == k_v[1],
+                 list(event.items()))
 
 #_______________________________________________________________________________
 
@@ -427,7 +428,7 @@ def likelihood_weighting(X, e, bn, N):
     'False: 0.702, True: 0.298'
     """
     W = dict((x, 0) for x in bn.variable_values(X))
-    for j in xrange(N):
+    for j in range(N):
         sample, weight = weighted_sample(bn, e) # boldface x, w in Fig. 14.15
         W[sample[X]] += weight
     return ProbDist(X, W)
@@ -461,7 +462,7 @@ def gibbs_ask(X, e, bn, N):
     state = dict(e) # boldface x in Fig. 14.16
     for Zi in Z:
         state[Zi] = choice(bn.variable_values(Zi))
-    for j in xrange(N):
+    for j in range(N):
         for Zi in Z:
             state[Zi] = markov_blanket_sample(Zi, state, bn)
             counts[state[X]] += 1

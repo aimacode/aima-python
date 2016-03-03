@@ -76,7 +76,7 @@ class GridMDP(MDP):
 
     def to_arrows(self, policy):
         chars = {(1, 0):'>', (0, 1):'^', (-1, 0):'<', (0, -1):'v', None: '.'}
-        return self.to_grid(dict([(s, chars[a]) for (s, a) in policy.items()]))
+        return self.to_grid(dict([(s, chars[a]) for (s, a) in list(policy.items())]))
 
 #______________________________________________________________________________
 
