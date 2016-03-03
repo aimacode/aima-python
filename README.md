@@ -9,7 +9,7 @@ When complete, this project will cover all the major topics in the book, for eac
  
 Until we get there, we will support a legacy branch, `aima3python2` (for the thrid edition of the textbook and for Python 2 code). To prepare code for the new master branch, the following should be done:
 
-- Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `prtint` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formating to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
+- Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formating to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
 - Implement functions that were in the third edition of the book but were not yet implemented in the code.
 - As we finish chapters for the new fourth edition, we will share the pseudocode, and describe what changes are necessary.
 - Create a `_test.py` file, and define functions that use `assert` to make tests. Remove any old `doctest` tests.
