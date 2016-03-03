@@ -147,8 +147,8 @@ class IRSystem:
         "Present the results as a list."
         for (score, d) in results:
             doc = self.documents[d]
-            print ("%5.2f|%25s | %s"
-                   % (100 * score, doc.url, doc.title[:45].expandtabs()))
+            print(("%5.2f|%25s | %s"
+                   % (100 * score, doc.url, doc.title[:45].expandtabs())))
 
     def present_results(self, query_text, n=10):
         "Get results for the query and present them."

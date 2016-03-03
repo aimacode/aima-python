@@ -62,7 +62,7 @@ class DataSet:
             self.examples = examples
         # Attrs are the indices of examples, unless otherwise stated.
         if not attrs and self.examples:
-            attrs = range(len(self.examples[0]))
+            attrs = list(range(len(self.examples[0])))
         self.attrs = attrs
         # Initialize .attrnames from string, list, or by default
         if isinstance(attrnames, str):
@@ -78,14 +78,14 @@ class DataSet:
         to not use in inputs. Attributes can be -n .. n, or an attrname.
         Also computes the list of possible values, if that wasn't done yet."""
         self.target = self.attrnum(target)
-        exclude = map(self.attrnum, exclude)
+        exclude = list(map(self.attrnum, exclude))
         if inputs:
             self.inputs = removeall(self.target, inputs)
         else:
             self.inputs = [a for a in self.attrs
                            if a != self.target and a not in exclude]
         if not self.values:
-            self.values = map(unique, zip(*self.examples))
+            self.values = list(map(unique, list(zip(*self.examples))))
         self.check_me()
 
     def check_me(self):
@@ -94,7 +94,7 @@ class DataSet:
         assert self.target in self.attrs
         assert self.target not in self.inputs
         assert set(self.inputs).issubset(set(self.attrs))
-        map(self.check_example, self.examples)
+        list(map(self.check_example, self.examples))
 
     def add_example(self, example):
         "Add an example to the list of examples, checking it first."
@@ -138,7 +138,7 @@ def parse_csv(input, delim=','):
     [[1, 2, 3], [0, 2, 'na']]
     """
     lines = [line for line in input.splitlines() if line.strip()]
-    return [map(num_or_str, line.split(delim)) for line in lines]
+    return [list(map(num_or_str, line.split(delim))) for line in lines]
 
 #______________________________________________________________________________
 
@@ -182,13 +182,13 @@ class CountingProbDist:
 
     def top(self, n):
         "Return (count, obs) tuples for the n most frequent observations."
-        return heapq.nlargest(n, [(v, k) for (k, v) in self.dictionary.items()])
+        return heapq.nlargest(n, [(v, k) for (k, v) in list(self.dictionary.items())])
 
     def sample(self):
         "Return a random sample from the distribution."
         if self.sampler is None:
-            self.sampler = weighted_sampler(self.dictionary.keys(),
-                                            self.dictionary.values())
+            self.sampler = weighted_sampler(list(self.dictionary.keys()),
+                                            list(self.dictionary.values()))
         return self.sampler()
 
 #______________________________________________________________________________
@@ -264,9 +264,9 @@ class DecisionFork:
 
     def display(self, indent=0):
         name = self.attrname
-        print 'Test', name
-        for (val, subtree) in self.branches.items():
-            print ' '*4*indent, name, '=', val, '==>',
+        print('Test', name)
+        for (val, subtree) in list(self.branches.items()):
+            print(' '*4*indent, name, '=', val, '==>', end=' ')
             subtree.display(indent+1)
 
     def __repr__(self):
@@ -283,7 +283,7 @@ class DecisionLeaf:
         return self.result
 
     def display(self, indent=0):
-        print 'RESULT =', self.result
+        print('RESULT =', self.result)
 
     def __repr__(self):
         return repr(self.result)
@@ -391,7 +391,7 @@ def DecisionListLearner(dataset):
 def NeuralNetLearner(dataset, sizes):
    """Layered feed-forward network."""
 
-   activations = map(lambda n: [0.0 for i in range(n)], sizes)
+   activations = [[0.0 for i in range(n)] for n in sizes]
    weights = []
 
    def predict(example):
@@ -463,7 +463,7 @@ def weighted_mode(values, weights):
     totals = defaultdict(int)
     for v, w in zip(values, weights):
         totals[v] += w
-    return max(totals.keys(), key=totals.get)
+    return max(list(totals.keys()), key=totals.get)
 
 #_____________________________________________________________________________
 # Adapting an unweighted learner for AdaBoost
@@ -511,10 +511,10 @@ def test(predict, dataset, examples=None, verbose=0):
         if output == desired:
             right += 1
             if verbose >= 2:
-               print '   OK: got %s for %s' % (desired, example)
+               print('   OK: got %s for %s' % (desired, example))
         elif verbose:
-            print 'WRONG: got %s, expected %s for %s' % (
-               output, desired, example)
+            print('WRONG: got %s, expected %s for %s' % (
+               output, desired, example))
     return right / len(examples)
 
 def train_and_test(learner, dataset, start, end):
@@ -548,7 +548,7 @@ def leave1out(learner, dataset):
 
 def learningcurve(learner, dataset, trials=10, sizes=None):
     if sizes is None:
-        sizes = range(2, len(dataset.examples)-10, 2)
+        sizes = list(range(2, len(dataset.examples)-10, 2))
     def score(learner, size):
         random.shuffle(dataset.examples)
         return train_and_test(learner, dataset, 0, size)
@@ -585,7 +585,7 @@ restaurant = RestaurantDataSet()
 def T(attrname, branches):
     branches = dict((value, (child if isinstance(child, DecisionFork)
                              else DecisionLeaf(child)))
-                    for value, child in branches.items())
+                    for value, child in list(branches.items()))
     return DecisionFork(restaurant.attrnum(attrname), attrname, branches)
 
 Fig[18,2] = T('Patrons',
@@ -627,7 +627,7 @@ Test Patrons
 def SyntheticRestaurant(n=20):
     "Generate a DataSet with n examples."
     def gen():
-        example = map(random.choice, restaurant.values)
+        example = list(map(random.choice, restaurant.values))
         example[restaurant.target] = Fig[18,2](example)
         return example
     return RestaurantDataSet([gen() for i in range(n)])

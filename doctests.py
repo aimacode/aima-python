@@ -20,4 +20,4 @@ if __name__ == "__main__":
     for module in modules:
         doctest.testmod(module, report=1, optionflags=doctest.REPORT_UDIFF)
     summary = doctest.master.summarize() if modules else (0, 0)
-    print '%d failed out of %d' % summary
+    print('%d failed out of %d' % summary)
