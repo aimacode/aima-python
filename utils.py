@@ -40,7 +40,10 @@ def product(numbers):
     >>> product([1,2,3,4])
     24
     """
-    return reduce(operator.mul, numbers, 1)
+    result=1
+    for i in numbers:
+        result=result*i
+    return result
 
 
 def isin(elt, seq):
