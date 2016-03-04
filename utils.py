@@ -1,5 +1,7 @@
 """Provide some widely useful functions and objects."""
 
+import re
+
 infinity = float('inf')
 
 argmin = min
