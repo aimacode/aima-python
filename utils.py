@@ -1,6 +1,6 @@
 """Provide some widely useful functions and objects."""
-
-infinity = float('inf')
+import math #To make log() function work
+infinity = math.inf
 
 argmin = min
 
@@ -117,7 +117,7 @@ def log2(x):
     >>> log2(1024)
     10.0
     """
-    return math.log10(x) / math.log10(2)
+    return math.log(x,2) #Python 3 - short notation for logarithmic function
 
 def mode(values):
     """Return the most common value in the list of values.
@@ -128,7 +128,7 @@ def mode(values):
 
 def median(values):
     """Return the middle value, when the values are sorted.
-    If there are an odd number of elements, try to average the middle two.
+    If there are an even number of elements, try to average the middle two.
     If they can't be averaged (e.g. they are strings), choose one at random.
     >>> median([10, 100, 11])
     11
@@ -138,9 +138,9 @@ def median(values):
     n = len(values)
     values = sorted(values)
     if n % 2 == 1:
-        return values[n/2]
+        return values[n//2] #Integer Division : '/' - FloatDivison , '//' - Integer Division . Index of list cann't be float type
     else:
-        middle2 = values[(n/2)-1:(n/2)+1]
+        middle2 = values[(n//2)-1:(n//2)+1]
         try:
             return mean(middle2)
         except TypeError:
