@@ -282,7 +282,7 @@ class ConnectFour(TicTacToe):
 
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
-                if y == 0 or (x, y-1) in state.board]
+                if y == 1 or (x, y-1) in state.board]
 
 __doc__ += random_tests("""
 >>> play_game(Fig52Game(), random_player, random_player)
