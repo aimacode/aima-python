@@ -1,6 +1,6 @@
 # `aima-python`: Structure of the Project
 
-Python code for the book *Artificial Intelligence: A Modern Approach.* We're loooking for one student sponsored by Google Summer of Code (GSoC) to work on this project; if you want to be that student, make some good contributions here (by looking throush the i"Issues" and resolving some), and submit an application.
+Python code for the book *Artificial Intelligence: A Modern Approach.* We're loooking for one student sponsored by Google Summer of Code (GSoC) to work on this project; if you want to be that student, make some good contributions here (by looking throush the "Issues" and resolving some), and submit an application.
 
 When complete, this project will cover all the major topics in the book, for each topic, such as `logic`, we will have the following [Python 3.5](https://www.python.org/downloads/release/python-350/) files in the main branch:
 
