@@ -29,6 +29,12 @@ import agents
 from utils import *
 
 #______________________________________________________________________________
+#______________________________________________________________________________
+# abstract method for Notimplementederror
+def abstract():
+    import inspect
+    caller = inspect.getouterframes(inspect.currentframe())[1][3]
+    raise NotImplementedError(caller + ' must be implemented in subclass')
 
 class KB:
     """A knowledge base to which you can tell and ask sentences.
@@ -749,7 +755,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
             sym = random.choice(prop_symbols(clause))
         else:
             ## Flip the symbol in clause that maximizes number of sat. clauses
-            raise NotImplementedError
+            abstract()
         model[sym] = not model[sym]
 
 #______________________________________________________________________________
@@ -866,7 +872,7 @@ def fol_fc_ask(KB, alpha):
         new = {}
         for r in KB.clauses:
             ps, q = parse_definite_clause(standardize_variables(r))
-            raise NotImplementedError
+            abstract()
 
 def standardize_variables(sentence, dic=None):
     """Replace all the variables in sentence with new variables.

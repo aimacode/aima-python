@@ -440,7 +440,9 @@ def DataFile(name, mode='r'):
 
 def unimplemented():
     "Use this as a stub for not-yet-implemented functions."
-    raise NotImplementedError
+    import inspect
+    caller = inspect.getouterframes(inspect.currentframe())[0][3]
+    raise NotImplementedError(caller + ' must be implemented in subclass')
 
 #______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
