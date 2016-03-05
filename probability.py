@@ -236,7 +236,7 @@ class BayesNode:
         0.375"""
         assert isinstance(value, bool)
         ptrue = self.cpt[event_values(event, self.parents)]
-        return if_(value, ptrue, 1 - ptrue)
+        return (ptrue if value else 1 - ptrue)
 
     def sample(self, event):
         """Sample from the distribution for this variable conditioned

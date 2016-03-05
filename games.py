@@ -207,7 +207,7 @@ class Fig52Game(Game):
         return state not in ('A', 'B', 'C', 'D')
 
     def to_move(self, state):
-        return if_(state in 'BCD', 'MIN', 'MAX')
+        return ('MIN' if state in 'BCD' else 'MAX')
 
 class TicTacToe(Game):
     """Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
@@ -229,13 +229,13 @@ class TicTacToe(Game):
             return state # Illegal move has no effect
         board = state.board.copy(); board[move] = state.to_move
         moves = list(state.moves); moves.remove(move)
-        return Struct(to_move=if_(state.to_move == 'X', 'O', 'X'),
+        return Struct(to_move=('O' if state.to_move == 'X' else 'X'),
                       utility=self.compute_utility(board, move, state.to_move),
                       board=board, moves=moves)
 
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
-        return if_(player == 'X', state.utility, -state.utility)
+        return (state.utility if player == 'X' else -state.utility)
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
@@ -254,7 +254,7 @@ class TicTacToe(Game):
             self.k_in_row(board, move, player, (1, 0)) or
             self.k_in_row(board, move, player, (1, -1)) or
             self.k_in_row(board, move, player, (1, 1))):
-            return if_(player == 'X', +1, -1)
+            return (+1 if player == 'X' else -1)
         else:
             return 0
 
