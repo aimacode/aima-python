@@ -1,25 +1,26 @@
 # `aima-python`: Structure of the Project
 
-Python code for the book *Artificial Intelligence: A Modern Approach.*
+Python code for the book *Artificial Intelligence: A Modern Approach.* We're loooking for one student sponsored by Google Summer of Code (GSoC) to work on this project; if you want to be that student, make some good contributions here (by looking throush the i"Issues" and resolving some), and submit an application.
+
 When complete, this project will cover all the major topics in the book, for each topic, such as `logic`, we will have the following [Python 3.5](https://www.python.org/downloads/release/python-350/) files in the main branch:
 
 - `logic.py`: Implementations of all the pseudocode algorithms in the book.
 - `logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with `py.test`.
 - `logic.ipynb`: A Jupyter notebook, with examples of usage. Does a `from logic import *` to get the code.
 
-Until we get there, we will support a legacy branch, `aima3python2` (for the third edition of the textbook and for Python 2 code). To prepare code for the new master branch, the following two steps should be taken
+Until we get there, we will support a legacy branch, `aima3python2` (for the third edition of the textbook and for Python 2 code). To prepare code for the new master branch, the following two steps should be taken:
 
 ## Port to Python 3; Pythonic Idioms; py.test
 
 - Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formating to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
 - Replace poor idioms with proper Python. For example, we have many functions that were taken directly from Common Lisp, such as the `every` function: `every(callable, items)` returns true if every element of `items` is callable. This is good Lisp style, but good Python style would be to use `all` and a generator expression: `all(callable(f) for f in items)`. Eventually, fix all calls to these legacy Lisp functions and then remove the functions.
 - Create a `_test.py` file, and define functions that use `assert` to make tests. Remove any old `doctest` tests.
-In other words, replace the ">>> 2 + 2"  in a docstring with "assert 2 + 2 == 4" in `filename_test.py`.
+In other words, replace the ">>> 2 + 2 \n 4"  in a docstring with "assert 2 + 2 == 4" in `filename_test.py`.
 
 ## New and Improved Algorithms
 
-- Implement functions that were in the third edition of the book but were not yet implemented in the code.
-- As we finish chapters for the new fourth edition, we will share the pseudocode, and describe what changes are necessary.
+- Implement functions that were in the third edition of the book but were not yet implemented in the code. Check th [list of pseudocode algorithms (pdf)](http://aima.cs.berkeley.edu/algorithms.pdf) to see what's missing.
+- As we finish chapters for the new fourth edition, we will share the new pseudocode, and describe what changes are necessary.
 
 - Create a `.ipynb` notebook, and give examples of how to use the code.
 
