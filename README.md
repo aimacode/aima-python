@@ -54,9 +54,9 @@ various dates. However, I don't have much confidence in these figures...
 |Language  |2004  |2005  |2007  |2010  |2016  |
 |--------  |----: |----: |----: |----: |----: |
 |[none](http://www.google.com/search?q=norvig+russell+%22Modern+Approach%22)|8,080|20,100|75,200|150,000|132,000|
-|[java](http://www.google.com/search?q=java+norvig+russell+%22Modern+Approach%22)|8,080|20,100|75,200|150,000|132,000|
-|[c++](http://www.google.com/search?q=c%2B%2B+norvig+russell+%22Modern+Approach%22)|8,080|20,100|75,200|150,000|132,000|
-|[lisp](http://www.google.com/search?q=lisp+norvig+russell+%22Modern+Approach%22)|8,080|20,100|75,200|150,000|132,000|
-|[prolog](http://www.google.com/search?q=prolog+norvig+russell+%22Modern+Approach%22)|8,080|20,100|75,200|150,000|132,000|
-|[python](http://www.google.com/search?q=python+norvig+russell+%22Modern+Approach%22)|8,080|20,100|75,200|150,000|132,000|
+|[java](http://www.google.com/search?q=java+norvig+russell+%22Modern+Approach%22)|1,990|4,930|44,200|37,000|50,000|
+|[c++](http://www.google.com/search?q=c%2B%2B+norvig+russell+%22Modern+Approach%22)|875|1,820|35,300|105,000|35,000|
+|[lisp](http://www.google.com/search?q=lisp+norvig+russell+%22Modern+Approach%22)|844|974|30,100|19,000|14,000|
+|[prolog](http://www.google.com/search?q=prolog+norvig+russell+%22Modern+Approach%22)|789|2,010|23,200|17,000|16,000|
+|[python](http://www.google.com/search?q=python+norvig+russell+%22Modern+Approach%22)|785|1,240|18,400|11,000|12,000|
 
