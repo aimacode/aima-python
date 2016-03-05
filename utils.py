@@ -301,15 +301,21 @@ def turn_left(heading):
 
 def distance(a, b):
     "The distance between two (x, y) points."
-    return math.hypot((a.x - b.x), (a.y - b.y))
+    ax, ay = a
+    bx, by = b
+    return math.hypot((ax - bx), (ay - by))
 
 def distance_squared(a, b):
     "The distance between two (x, y) points."
-    return (a.x - b.x)**2 + (a.y - b.y)**2
+    ax, ay = a
+    bx, by = b
+    return (ax - bx)**2 + (ay - by)**2
 
 def distance2(a, b):
     "The square of the distance between two (x, y) points."
-    return distance_squared(a, b)
+    ax, ay = a
+    bx, by = b
+    return (ax - bx)**2 + (ay - by)**2
 
 def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
