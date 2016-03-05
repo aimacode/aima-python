@@ -314,12 +314,6 @@ def distance(a, b):
     bx, by = b
     return math.hypot((ax - bx), (ay - by))
 
-def distance_squared(a, b):
-    "The distance between two (x, y) points."
-    ax, ay = a
-    bx, by = b
-    return (ax - bx)**2 + (ay - by)**2
-
 def distance2(a, b):
     "The square of the distance between two (x, y) points."
     ax, ay = a
