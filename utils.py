@@ -299,6 +299,15 @@ def turn_right(heading):
 def turn_left(heading):
     return turn_heading(heading, +1)
 
+def Point(x, y):
+    return (x, y)
+
+def point_x(point):
+    return point[0]
+
+def point_y(point):
+    return point[1]
+
 def distance(a, b):
     "The distance between two (x, y) points."
     ax, ay = a
