@@ -48,7 +48,7 @@ Beyond the above rules, we use [Pep 8](https://www.python.org/dev/peps/pep-0008)
 # Choice of Programming Languages
 
 Are we right to concentrate on Java and Python versions of the code? I think so; both languages are popular; Java is
-fast enough for our purposes, and has reasonable type declarations (but can be verbose); Python is popular and has a very direct mapping to the pseudocode in the book (ut lacks type declarations and can be solw). The [TIOBE Index](http://www.tiobe.com/tiobe_index) says the top five most popular languages are:
+fast enough for our purposes, and has reasonable type declarations (but can be verbose); Python is popular and has a very direct mapping to the pseudocode in the book (but lacks type declarations and can be slow). The [TIOBE Index](http://www.tiobe.com/tiobe_index) says the top five most popular languages are:
 
         Java, C, C++, C#, Python
 
