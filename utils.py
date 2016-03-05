@@ -3,7 +3,7 @@
 TODO: Let's take the >>> doctest examples out of the docstrings, and put them in utils_test.py
 TODO: count_if and the like are leftovers from COmmon Lisp; let's make replace thenm with Pythonic alternatives.
 TODO: if_ is a terrible idea; replace all uses with (x if test else y) and remove if_
-TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
+
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
 
@@ -283,42 +283,6 @@ def clip(x, lowest, highest):
     """
     return max(lowest, min(x, highest))
 
-#______________________________________________________________________________
-## OK, the following are not as widely useful utilities as some of the other
-## functions here, but they do show up wherever we have 2D grids: Wumpus and
-## Vacuum worlds, TicTacToe and Checkers, and markov decision Processes.
-
-orientations = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-
-def turn_heading(heading, inc, headings=orientations):
-    return headings[(headings.index(heading) + inc) % len(headings)]
-
-def turn_right(heading):
-    return turn_heading(heading, -1)
-
-def turn_left(heading):
-    return turn_heading(heading, +1)
-
-def distance(a, b):
-    "The distance between two (x, y) points."
-    return math.hypot((a.x - b.x), (a.y - b.y))
-
-def distance_squared(a, b):
-    "The distance between two (x, y) points."
-    return (a.x - b.x)**2 + (a.y - b.y)**2
-
-def distance2(a, b):
-    "The square of the distance between two (x, y) points."
-    return distance_squared(a, b)
-
-def vector_clip(vector, lowest, highest):
-    """Return vector, except if any element is less than the corresponding
-    value of lowest or more than the corresponding value of highest, clip to
-    those values.
-    >>> vector_clip((-1, 10), (0, 0), (9, 9))
-    (0, 9)
-    """
-    return type(vector)(map(clip, vector, lowest, highest))
 
 #______________________________________________________________________________
 # Misc Functions
