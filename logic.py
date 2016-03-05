@@ -398,7 +398,7 @@ def pl_true(exp, model={}):
     elif op == '^':
         return pt != qt
     else:
-        raise ValueError, "illegal operator in logic expression" + str(exp)
+        raise ValueError("illegal operator in logic expression" + str(exp))
 
 #______________________________________________________________________________
 
@@ -1102,17 +1102,17 @@ def pretty_set(s):
     return 'set(%r)' % sorted(s, key=repr)
 
 def pp(x):
-    print pretty(x)
+    print(pretty(x))
 
 def ppsubst(s):
     """Pretty-print substitution s"""
     ppdict(s)
 
 def ppdict(d):
-    print pretty_dict(d)
+    print(pretty_dict(d))
 
 def ppset(s):
-    print pretty_set(s)
+    print(pretty_set(s))
 
 #________________________________________________________________________
 

@@ -1,5 +1,5 @@
- import pytest
- from utils import *
+import pytest
+from utils import *
 
 def test_struct_initialization():
     s = Struct(a=1, b=2)

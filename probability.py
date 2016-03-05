@@ -413,8 +413,8 @@ def rejection_sampling(X, e, bn, N):
 
 def consistent_with(event, evidence):
     "Is event consistent with the given evidence?"
-    return every(lambda (k, v): evidence.get(k, v) == v,
-                 event.items())
+    return all(evidence.get(k, v) == v
+               for k, v in event.items())
 
 #_______________________________________________________________________________
 
