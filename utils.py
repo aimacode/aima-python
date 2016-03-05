@@ -2,7 +2,6 @@
 
 TODO: Let's take the >>> doctest examples out of the docstrings, and put them in utils_test.py
 TODO: count_if and the like are leftovers from COmmon Lisp; let's make replace thenm with Pythonic alternatives.
-TODO: if_ is a terrible idea; replace all uses with (x if test else y) and remove if_
 TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
@@ -365,25 +364,6 @@ def memoize(fn, slot=None):
         memoized_fn.cache = {}
 
     return memoized_fn
-
-def if_(test, result, alternative):
-    """Like C++ and Java's (test ? result : alternative), except
-    both result and alternative are always evaluated. However, if
-    either evaluates to a function, it is applied to the empty arglist,
-    so you can delay execution by putting it in a lambda.
-    >>> if_(2 + 2 == 4, 'ok', lambda: expensive_computation())
-    'ok'
-    """
-    if test:
-        if callable(result): 
-            return result()
-
-        return result
-    else:
-        if callable(alternative): 
-            return alternative()
-
-        return alternative
 
 def name(obj):
     "Try to find some reasonable name for the object."
