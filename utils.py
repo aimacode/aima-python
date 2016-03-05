@@ -163,6 +163,7 @@ def dotproduct(X, Y):
     """
     return sum([x * y for x, y in zip(X, Y)])
 
+import operator #To make add operator.add work
 def vector_add(a, b):
     """Component-wise addition of two vectors.
     >>> vector_add((0, 1), (8, 9))
@@ -170,10 +171,11 @@ def vector_add(a, b):
     """
     return tuple(map(operator.add, a, b))
 
+import random #As random works in python 3+ when its imported
 def probability(p):
     "Return true with probability p."
     return p > random.uniform(0.0, 1.0)
-
+import bisect #As weighted_sammpler uses 'bisect' function
 def weighted_sample_with_replacement(seq, weights, n):
     """Pick n samples from seq at random, with replacement, with the
     probability of each element in proportion to its corresponding
@@ -190,12 +192,12 @@ def weighted_sampler(seq, weights):
 
 def num_or_str(x):
     """The argument is a string; convert to a number if possible, or strip it.
-    >>> num_or_str('42')
+    >> num_or_str('42')
     42
     >>> num_or_str(' 42x ')
     '42x'
     """
-    if isnumber(x): return x
+    if x.isnumeric(): return x
     try:
         return int(x)
     except ValueError:
@@ -235,13 +237,16 @@ def turn_right(heading):
 def turn_left(heading):
     return turn_heading(heading, +1)
 
-def distance((ax, ay), (bx, by)):
-    "The distance between two (x, y) points."
-    return math.hypot((ax - bx), (ay - by))
+import math
+def distance(a, b):
+   """The distance between two (x, y) points.
+        >>> distanece((1,2),(5,5))
+            5.0 """
+    return math.hypot((a[0] - b[0]), (a[1] - b[1]))
 
-def distance2((ax, ay), (bx, by)):
+def distance2(a, b):
     "The square of the distance between two (x, y) points."
-    return (ax - bx)**2 + (ay - by)**2
+    return (a[0] - b[0])**2 + (a[1] - b[1])**2
 
 def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
