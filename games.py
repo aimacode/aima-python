@@ -149,15 +149,15 @@ class Game:
 
     def actions(self, state):
         "Return a list of the allowable moves at this point."
-        abstract
+         raise NotImplementedError
 
     def result(self, state, move):
         "Return the state that results from making a move from a state."
-        abstract
+         raise NotImplementedError
 
     def utility(self, state, player):
         "Return the value of this final state to player."
-        abstract
+         raise NotImplementedError
 
     def terminal_test(self, state):
         "Return True if this is a final state for the game."
@@ -188,7 +188,7 @@ class Fig52Game(Game):
                  B=dict(b1='B1', b2='B2', b3='B3'),
                  C=dict(c1='C1', c2='C2', c3='C3'),
                  D=dict(d1='D1', d2='D2', d3='D3'))
-    utils = Dict(B1=3, B2=12, B3=8, C1=2, C2=4, C3=6, D1=14, D2=5, D3=2)
+    utils = dict(B1=3, B2=12, B3=8, C1=2, C2=4, C3=6, D1=14, D2=5, D3=2)
     initial = 'A'
 
     def actions(self, state):
@@ -282,7 +282,7 @@ class ConnectFour(TicTacToe):
 
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
-                if y == 0 or (x, y-1) in state.board]
+                if y == 1 or (x, y-1) in state.board]
 
 __doc__ += random_tests("""
 >>> play_game(Fig52Game(), random_player, random_player)

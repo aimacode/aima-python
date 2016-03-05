@@ -18,8 +18,12 @@ class MDP:
     actions for each state. [page 646]"""
 
     def __init__(self, init, actlist, terminals, gamma=.9):
-        update(self, init=init, actlist=actlist, terminals=terminals,
-               gamma=gamma, states=set(), reward={})
+        self.init=init
+        self.actlist=actlist
+        self.terminals=terminals
+        self.gamma=gamma
+        self.states=set()
+        self.reward={}
 
     def R(self, state):
         "Return a numeric reward for this state."
@@ -28,7 +32,7 @@ class MDP:
     def T(self, state, action):
         """Transition model.  From a state and an action, return a list
         of (probability, result-state) pairs."""
-        abstract
+         raise NotImplementedError
 
     def actions(self, state):
         """Set of actions that can be performed in this state.  By default, a
@@ -48,7 +52,9 @@ class GridMDP(MDP):
         grid.reverse() ## because we want row 0 on bottom, not on top
         MDP.__init__(self, init, actlist=orientations,
                      terminals=terminals, gamma=gamma)
-        update(self, grid=grid, rows=len(grid), cols=len(grid[0]))
+        self.grid=grid
+        self.rows=len(grid)
+        self.cols=len(grid[0])
         for x in range(self.cols):
             for y in range(self.rows):
                 self.reward[x, y] = grid[y][x]

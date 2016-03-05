@@ -7,7 +7,9 @@ working on a tiny sample of Unix manual pages."""
 from utils import *
 from learning import CountingProbDist
 from math import log, exp
-import re, search
+from collections import defaultdict
+import re
+import search
 
 class UnigramTextModel(CountingProbDist):
     """This is a discrete probability distribution over words, so you
@@ -28,7 +30,7 @@ class NgramTextModel(CountingProbDist):
         ## mapping from (w1, ..., wn-1) to P(wn | w1, ... wn-1)
         CountingProbDist.__init__(self)
         self.n = n
-        self.cond_prob = DefaultDict(CountingProbDist())
+        self.cond_prob = defaultdict(CountingProbDist())
         self.add_sequence(observation_sequence)
 
     ## __getitem__, top, sample inherited from CountingProbDist
@@ -104,7 +106,7 @@ class IRSystem:
         """Create an IR System. Optionally specify stopwords."""
         ## index is a map of {word: {docid: count}}, where docid is an int,
         ## indicating the index into the documents list.
-        update(self, index=DefaultDict(DefaultDict(0)),
+        update(self, index=defaultdict(lambda: defaultdict(int)),
                stopwords=set(words(stopwords)), documents=[])
 
     def index_collection(self, filenames):

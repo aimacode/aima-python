@@ -3,7 +3,8 @@
 
 from utils import *
 from logic import extend
-from random import choice, seed
+import random 
+from collections import defaultdict
 
 #______________________________________________________________________________
 
@@ -80,7 +81,7 @@ class JointProbDist(ProbDist):
     >>> P[dict(X=0, Y=1)]
     0.5"""
     def __init__(self, variables):
-        update(self, prob={}, variables=variables, vals=DefaultDict([]))
+        update(self, prob={}, variables=variables, vals=defaultdict(list))
 
     def __getitem__(self, values):
         "Given a tuple or dict of values, return P(values)."
@@ -399,7 +400,7 @@ def rejection_sampling(X, e, bn, N):
     evidence e in BayesNet bn, using N samples.  [Fig. 14.14]
     Raises a ZeroDivisionError if all the N samples are rejected,
     i.e., inconsistent with e.
-    >>> seed(47)
+    >>> random.seed(47)
     >>> rejection_sampling('Burglary', dict(JohnCalls=T, MaryCalls=T),
     ...   burglary, 10000).show_approx()
     'False: 0.7, True: 0.3'
@@ -413,15 +414,15 @@ def rejection_sampling(X, e, bn, N):
 
 def consistent_with(event, evidence):
     "Is event consistent with the given evidence?"
-    return every(lambda (k, v): evidence.get(k, v) == v,
-                 event.items())
+    return all(evidence.get(k, v) == v
+               for k, v in event.items())
 
 #_______________________________________________________________________________
 
 def likelihood_weighting(X, e, bn, N):
     """Estimate the probability distribution of variable X given
     evidence e in BayesNet bn.  [Fig. 14.15]
-    >>> seed(1017)
+    >>> random.seed(1017)
     >>> likelihood_weighting('Burglary', dict(JohnCalls=T, MaryCalls=T),
     ...   burglary, 10000).show_approx()
     'False: 0.702, True: 0.298'
@@ -450,7 +451,7 @@ def weighted_sample(bn, e):
 
 def gibbs_ask(X, e, bn, N):
     """[Fig. 14.16]
-    >>> seed(1017)
+    >>> random.seed(1017)
     >>> gibbs_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary, 1000
     ...  ).show_approx()
     'False: 0.738, True: 0.262'
@@ -460,7 +461,7 @@ def gibbs_ask(X, e, bn, N):
     Z = [var for var in bn.vars if var not in e]
     state = dict(e) # boldface x in Fig. 14.16
     for Zi in Z:
-        state[Zi] = choice(bn.variable_values(Zi))
+        state[Zi] = random.choice(bn.variable_values(Zi))
     for j in xrange(N):
         for Zi in Z:
             state[Zi] = markov_blanket_sample(Zi, state, bn)

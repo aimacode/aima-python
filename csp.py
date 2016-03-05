@@ -1,6 +1,7 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
 
 from utils import *
+from collections import defaultdict
 import search
 
 class CSP(search.Problem):
@@ -352,7 +353,7 @@ def parse_neighbors(neighbors, vars=[]):
     >>> parse_neighbors('X: Y Z; Y: Z')
     {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
     """
-    dict = DefaultDict([])
+    dict = defaultdict(list)
     for var in vars:
         dict[var] = []
     specs = [spec.split(':') for spec in neighbors.split(';')]

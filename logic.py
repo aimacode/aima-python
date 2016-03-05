@@ -24,9 +24,11 @@ And a few other functions:
     diff, simp       Symbolic differentiation and simplification
 """
 
-import itertools, re
+import itertools
+import re
 import agents
 from utils import *
+from collections import defaultdict
 
 #______________________________________________________________________________
 
@@ -42,11 +44,11 @@ class KB:
     first one or returns False."""
 
     def __init__(self, sentence=None):
-        abstract
+        raise NotImplementedError
 
     def tell(self, sentence):
         "Add the sentence to the KB."
-        abstract
+        raise NotImplementedError
 
     def ask(self, query):
         """Return a substitution that makes the query true, or,
@@ -57,11 +59,11 @@ class KB:
 
     def ask_generator(self, query):
         "Yield all the substitutions that make query true."
-        abstract
+        raise NotImplementedError
 
     def retract(self, sentence):
         "Remove sentence from the KB."
-        abstract
+        raise NotImplementedError
 
 
 class PropKB(KB):
@@ -398,7 +400,7 @@ def pl_true(exp, model={}):
     elif op == '^':
         return pt != qt
     else:
-        raise ValueError, "illegal operator in logic expression" + str(exp)
+        raise ValueError("illegal operator in logic expression" + str(exp))
 
 #______________________________________________________________________________
 
@@ -608,7 +610,7 @@ def pl_fc_entails(KB, q):
     """
     count = dict([(c, len(conjuncts(c.args[0]))) for c in KB.clauses
                                                  if c.op == '>>'])
-    inferred = DefaultDict(False)
+    inferred = defaultdict(bool)
     agenda = [s for s in KB.clauses if is_prop_symbol(s.op)]
     while agenda:
         p = agenda.pop()
@@ -664,6 +666,8 @@ def dpll(clauses, symbols, model):
     P, value = find_unit_clause(clauses, model)
     if P:
         return dpll(clauses, removeall(P, symbols), extend(model, P, value))
+    if not symbols:
+        raise TypeError("Argument should be of the type Expr.")
     P, symbols = symbols[0], symbols[1:]
     return (dpll(clauses, symbols, extend(model, P, True)) or
             dpll(clauses, symbols, extend(model, P, False)))
@@ -1100,17 +1104,17 @@ def pretty_set(s):
     return 'set(%r)' % sorted(s, key=repr)
 
 def pp(x):
-    print pretty(x)
+    print(pretty(x))
 
 def ppsubst(s):
     """Pretty-print substitution s"""
     ppdict(s)
 
 def ppdict(d):
-    print pretty_dict(d)
+    print(pretty_dict(d))
 
 def ppset(s):
-    print pretty_set(s)
+    print(pretty_set(s))
 
 #________________________________________________________________________
 
