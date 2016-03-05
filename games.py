@@ -188,7 +188,7 @@ class Fig52Game(Game):
                  B=dict(b1='B1', b2='B2', b3='B3'),
                  C=dict(c1='C1', c2='C2', c3='C3'),
                  D=dict(d1='D1', d2='D2', d3='D3'))
-    utils = Dict(B1=3, B2=12, B3=8, C1=2, C2=4, C3=6, D1=14, D2=5, D3=2)
+    utils = dict(B1=3, B2=12, B3=8, C1=2, C2=4, C3=6, D1=14, D2=5, D3=2)
     initial = 'A'
 
     def actions(self, state):

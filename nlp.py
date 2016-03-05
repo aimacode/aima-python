@@ -4,6 +4,7 @@
 # from the third edition until this gets reviewed.)
 
 from utils import *
+from collections import defaultdict
 
 #______________________________________________________________________________
 # Grammars and Lexicons
@@ -30,7 +31,7 @@ class Grammar:
     def __init__(self, name, rules, lexicon):
         "A grammar has a set of rules and a lexicon."
         update(self, name=name, rules=rules, lexicon=lexicon)
-        self.categories = DefaultDict([])
+        self.categories = defaultdict(list)
         for lhs in lexicon:
             for word in lexicon[lhs]:
                 self.categories[word].append(lhs)
