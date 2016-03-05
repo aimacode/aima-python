@@ -213,11 +213,11 @@ class Environment(object):
 
     def percept(self, agent):
         "Return the percept that the agent sees at this point. (Implement this.)"
-        abstract
+        raise NotImplementedError
 
     def execute_action(self, agent, action):
         "Change the world to reflect this action. (Implement this.)"
-        abstract
+        raise NotImplementedError
 
     def default_location(self, thing):
         "Default location to place a new thing with unspecified location."

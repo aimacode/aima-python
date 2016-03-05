@@ -32,7 +32,7 @@ class MDP:
     def T(self, state, action):
         """Transition model.  From a state and an action, return a list
         of (probability, result-state) pairs."""
-        abstract
+         raise NotImplementedError
 
     def actions(self, state):
         """Set of actions that can be performed in this state.  By default, a

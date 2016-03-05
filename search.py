@@ -26,13 +26,13 @@ class Problem(object):
         state. The result would typically be a list, but if there are
         many actions, consider yielding them one at a time in an
         iterator, rather than building them all at once."""
-        abstract
+        raise NotImplementedError
 
     def result(self, state, action):
         """Return the state that results from executing the given
         action in the given state. The action must be one of
         self.actions(state)."""
-        abstract
+        raise NotImplementedError
 
     def goal_test(self, state):
         """Return True if the state is a goal. The default method compares the
@@ -51,7 +51,7 @@ class Problem(object):
     def value(self, state):
         """For optimization problems, each state has a value.  Hill-climbing
         and related algorithms try to maximize this value."""
-        abstract
+        raise NotImplementedError
 #______________________________________________________________________________
 
 class Node:
@@ -125,16 +125,16 @@ class SimpleProblemSolvingAgentProgram:
         return self.seq.pop(0)
 
     def update_state(self, percept):
-        abstract
+        raise NotImplementedError
 
     def formulate_goal(self, state):
-        abstract
+        raise NotImplementedError
 
     def formulate_problem(self, state, goal):
-        abstract
+        raise NotImplementedError
 
     def search(self, problem):
-        abstract
+        raise NotImplementedError
 
 #______________________________________________________________________________
 # Uninformed Search algorithms
@@ -388,7 +388,7 @@ class GAState:
 
     def mutate(self):
         "Change a few of my genes."
-        abstract
+        raise NotImplementedError
 
 #_____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.

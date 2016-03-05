@@ -460,7 +460,7 @@ class Queue:
     Note that isinstance(Stack(), Queue) is false, because we implement stacks
     as lists.  If Python ever gets interfaces, Queue will be an interface."""
     def __init__(self):
-        abstract
+        raise NotImplementedError
 
     def extend(self, items):
         for item in items: self.append(item)

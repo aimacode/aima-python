@@ -149,15 +149,15 @@ class Game:
 
     def actions(self, state):
         "Return a list of the allowable moves at this point."
-        abstract
+         raise NotImplementedError
 
     def result(self, state, move):
         "Return the state that results from making a move from a state."
-        abstract
+         raise NotImplementedError
 
     def utility(self, state, player):
         "Return the value of this final state to player."
-        abstract
+         raise NotImplementedError
 
     def terminal_test(self, state):
         "Return True if this is a final state for the game."

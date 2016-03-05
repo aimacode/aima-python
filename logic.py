@@ -42,11 +42,11 @@ class KB:
     first one or returns False."""
 
     def __init__(self, sentence=None):
-        abstract
+        raise NotImplementedError
 
     def tell(self, sentence):
         "Add the sentence to the KB."
-        abstract
+        raise NotImplementedError
 
     def ask(self, query):
         """Return a substitution that makes the query true, or,
@@ -57,11 +57,11 @@ class KB:
 
     def ask_generator(self, query):
         "Yield all the substitutions that make query true."
-        abstract
+        raise NotImplementedError
 
     def retract(self, sentence):
         "Remove sentence from the KB."
-        abstract
+        raise NotImplementedError
 
 
 class PropKB(KB):
