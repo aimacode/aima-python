@@ -245,7 +245,7 @@ def NearestNeighborLearner(dataset, k=1):
 #______________________________________________________________________________
 
 class DecisionFork:
-    """A fork of a decision tree holds an attribute to test, and a dict 
+    """A fork of a decision tree holds an attribute to test, and a dict
     of branches, one for each of the attribute's values."""
 
     def __init__(self, attr, attrname=None, branches=None):
@@ -264,15 +264,15 @@ class DecisionFork:
 
     def display(self, indent=0):
         name = self.attrname
-        print 'Test', name
+        print('Test', name)
         for (val, subtree) in self.branches.items():
-            print ' '*4*indent, name, '=', val, '==>',
+            print(' '*4*indent, name, '=', val, '==>',)
             subtree.display(indent+1)
 
     def __repr__(self):
         return ('DecisionFork(%r, %r, %r)'
                 % (self.attr, self.attrname, self.branches))
-    
+
 class DecisionLeaf:
     "A leaf of a decision tree holds just a result."
 
@@ -283,11 +283,11 @@ class DecisionLeaf:
         return self.result
 
     def display(self, indent=0):
-        print 'RESULT =', self.result
+        print('RESULT =', self.result)
 
     def __repr__(self):
         return repr(self.result)
-    
+
 #______________________________________________________________________________
 
 def DecisionTreeLearner(dataset):
@@ -511,10 +511,10 @@ def test(predict, dataset, examples=None, verbose=0):
         if output == desired:
             right += 1
             if verbose >= 2:
-               print '   OK: got %s for %s' % (desired, example)
+               print('   OK: got %s for %s' % (desired, example))
         elif verbose:
-            print 'WRONG: got %s, expected %s for %s' % (
-               output, desired, example)
+            print('WRONG: got %s, expected %s for %s' %
+                        (output, desired, example))
     return right / len(examples)
 
 def train_and_test(learner, dataset, start, end):
