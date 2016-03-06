@@ -1,0 +1,70 @@
+lpr(1)			    Easy Software Products			lpr(1)
+
+
+
+NAME
+       lpr - print files
+
+SYNOPSIS
+       lpr  [  -E  ] [ -P destination ] [ -# num-copies [ -l ] [ -o option ] [
+       -p] [ -r ] [ -C/J/T title ] [ file(s) ]
+
+DESCRIPTION
+       lpr submits files for printing. Files named on  the  command  line  are
+       sent to the named printer (or the system default destination if no des-
+       tination is specified). If no files are listed on the command-line  lpr
+       reads the print file from the standard input.
+
+OPTIONS
+       The following options are recognized by lpr:
+
+       -E
+	    Forces encryption when connecting to the server.
+
+       -P destination
+	    Prints files to the named printer.
+
+       -# copies
+	    Sets the number of copies to print from 1 to 100.
+
+       -C name
+	    Sets the job name.
+
+       -J name
+	    Sets the job name.
+
+       -T name
+	    Sets the job name.
+
+       -l
+	    Specifies  that the print file is already formatted for the desti-
+	    nation and should be sent without filtering. This option is equiv-
+	    alent to "-oraw".
+
+       -o option
+	    Sets a job option.
+
+       -p
+	    Specifies  that  the  print file should be formatted with a shaded
+	    header with the date, time, job name, and page number. This option
+	    is	equivalent to "-oprettyprint" and is only useful when printing
+	    text files.
+
+       -r
+	    Specifies that the named  print  files  should  be	deleted	 after
+	    printing them.
+
+COMPATIBILITY
+       The  "c",  "d",	"f", "g", "i", "m", "n", "t", "v", and "w" options are
+       not supported by CUPS and will produce a warning message if used.
+
+SEE ALSO
+       cancel(1), lp(1), lpstat(1), CUPS Software Users Manual,	 http://local-
+       host:631/documentation.html
+
+COPYRIGHT
+       Copyright 1993-2002 by Easy Software Products, All Rights Reserved.
+
+
+
+23 January 2001		  Common UNIX Printing System			lpr(1)

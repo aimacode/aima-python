@@ -1,0 +1,80 @@
+FASTJAR(1)			      GNU			    FASTJAR(1)
+
+
+
+NAME
+       jar - archive tool for Java archives
+
+SYNOPSIS
+       jar -ctxu [OPTIONS] [jar-file] [manifest-file] [-C dir] files...
+
+DESCRIPTION
+       "fastjar" is an implementation of Sun's jar utility that comes with the
+       JDK, written entirely in C, and runs in a fraction of the time while
+       being feature compatible.
+
+       If any file is a directory then it is processed recursively.  The mani-
+       fest file name and the archive file name needs to be specified in the
+       same order the -m and -f flags are specified.
+
+OPTIONS
+       Exactly one of the following actions must be specified:
+
+       -c  Create new archive.
+
+       -t  List table of contents for archive.
+
+       -x  Extract named (or all) files from archive.
+
+       -u  Update existing archive. This option is disabled due to bugs (cur-
+	   rently fails with exit status 1 and does nothing).
+
+       The following parameters are optional:
+
+       -@  Read the names of the files to add to the archive from stdin.  This
+	   option is supported only in combination with -c or -u.  Non stan-
+	   dard option added in the GCC version.
+
+       -C directory
+	   Change to the directory and include the following file.
+
+       -E  Prevent fastjar from reading the content of a directory when speci-
+	   fying one (and instead relying on the provided list of files to
+	   populate the archive with regard to the directory entry). Non stan-
+	   dard option added in the GCC version.
+
+       -M  Do not create a manifest file for the entries.
+
+       -0  Store only; use no ZIP compression.
+
+       -V
+       --version
+	   Display version information.
+
+       -f archive
+	   Specify archive file name.
+
+       -m manifest
+	   Include manifest information from specified manifest file.
+
+       -v  Generate verbose output on standard output.
+
+       All remaining options are considered to be names of files.
+
+SEE ALSO
+       gcj(1), gij(1), grepjar(1) and the Info entry for gcj.
+
+COPYRIGHT
+       Copyright (C) 2002 Free Software Foundation, Inc.
+
+       Permission is granted to copy, distribute and/or modify this document
+       under the terms of the GNU Free Documentation License, Version 1.1 or
+       any later version published by the Free Software Foundation; with the
+       Invariant Sections being ``GNU General Public License'', the Front-
+       Cover texts being (a) (see below), and with the Back-Cover Texts being
+       (b) (see below).	 A copy of the license is included in the man page
+       gfdl(7).
+
+
+
+gcc-3.2.2			  2003-02-25			    FASTJAR(1)

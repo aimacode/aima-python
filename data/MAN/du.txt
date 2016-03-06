@@ -1,0 +1,98 @@
+DU(1)			       FSF			    DU(1)
+
+
+
+NAME
+       du - estimate file space usage
+
+SYNOPSIS
+       du [OPTION]... [FILE]...
+
+DESCRIPTION
+       Summarize  disk usage of each FILE, recursively for direc-
+       tories.
+
+       -a, --all
+	      write counts for all files, not just directories
+
+       --block-size=SIZE use SIZE-byte blocks
+
+       -b, --bytes
+	      print size in bytes
+
+       -c, --total
+	      produce a grand total
+
+       -D, --dereference-args
+	      dereference PATHs when symbolic link
+
+       -h, --human-readable
+	      print sizes in human readable format (e.g., 1K 234M
+	      2G)
+
+       -H, --si
+	      likewise, but use powers of 1000 not 1024
+
+       -k, --kilobytes
+	      like --block-size=1024
+
+       -l, --count-links
+	      count sizes many times if hard linked
+
+       -L, --dereference
+	      dereference all symbolic links
+
+       -m, --megabytes
+	      like --block-size=1048576
+
+       -S, --separate-dirs
+	      do not include size of subdirectories
+
+       -s, --summarize
+	      display only a total for each argument
+
+       -x, --one-file-system
+	      skip directories on different filesystems
+
+       -X FILE, --exclude-from=FILE
+	      Exclude files that match any pattern in FILE.
+
+       --exclude=PAT
+	      Exclude files that match PAT.
+
+       --max-depth=N
+	      print  the  total	 for  a	 directory (or file, with
+	      --all) only if it is N or fewer  levels  below  the
+	      command  line  argument;	--max-depth=0 is the same
+	      as --summarize
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+AUTHOR
+       Written	by  Torbjorn  Granlund,	 David	MacKenzie,  Larry
+       McVoy, and Paul Eggert.
+
+REPORTING BUGS
+       Report bugs to <bug-fileutils@gnu.org>.
+
+COPYRIGHT
+       Copyright (C) 2001 Free Software Foundation, Inc.
+       This  is	 free software; see the source for copying condi-
+       tions.  There is NO warranty; not even for MERCHANTABILITY
+       or FITNESS FOR A PARTICULAR PURPOSE.
+
+SEE ALSO
+       The  full  documentation for du is maintained as a Texinfo
+       manual.	 If  the  info	and  du	 programs  are	 properly
+       installed at your site, the command
+
+	      info du
+
+       should give you access to the complete manual.
+
+
+
+du (fileutils) 4.1	    April 2001			    DU(1)

@@ -1,0 +1,310 @@
+DIFF(1)				   GNU Tools			       DIFF(1)
+
+
+
+NAME
+       diff - find differences between two files
+
+SYNOPSIS
+       diff [options] from-file to-file
+
+DESCRIPTION
+       In the simplest case, diff compares the contents of the two files from-
+       file and to-file.  A file name of - stands for text read from the stan-
+       dard  input.   As  a special case, diff - - compares a copy of standard
+       input to itself.
+
+       If from-file is a directory and to-file is not, diff compares the  file
+       in  from-file  whose file name is that of to-file, and vice versa.  The
+       non-directory file must not be -.
+
+       If both from-file and to-file are  directories,	diff  compares	corre-
+       sponding files in both directories, in alphabetical order; this compar-
+       ison is not recursive unless the -r or  --recursive  option  is	given.
+       diff  never compares the actual contents of a directory as if it were a
+       file.  The file that is fully specified	may  not  be  standard	input,
+       because	standard  input	 is nameless and the notion of ``file with the
+       same name'' does not apply.
+
+       diff options begin with -, so normally from-file and  to-file  may  not
+       begin  with -.  However, -- as an argument by itself treats the remain-
+       ing arguments as file names even if they begin with -.
+
+   Options
+       Below is a summary of all of the options that GNU diff  accepts.	  Most
+       options have two equivalent names, one of which is a single letter pre-
+       ceded by -, and the other of which is a long name preceded by --.  Mul-
+       tiple  single letter options (unless they take an argument) can be com-
+       bined into a single command line word: -ac  is  equivalent  to  -a  -c.
+       Long  named  options  can  be abbreviated to any unique prefix of their
+       name.  Brackets ([ and ]) indicate that an  option  takes  an  optional
+       argument.
+
+       -lines Show  lines (an integer) lines of context.  This option does not
+	      specify an output format by itself; it has no effect  unless  it
+	      is combined with -c or -u.  This option is obsolete.  For proper
+	      operation, patch typically needs at least two lines of  context.
+
+       -a     Treat  all  files as text and compare them line-by-line, even if
+	      they do not seem to be text.
+
+       -b     Ignore changes in amount of white space.
+
+       -B     Ignore changes that just insert or delete blank lines.
+
+       --brief
+	      Report only whether the files differ, not	 the  details  of  the
+	      differences.
+
+       -c     Use the context output format.
+
+       -C lines
+       --context[=lines]
+	      Use  the context output format, showing lines (an integer) lines
+	      of context, or three if lines is not given.  For	proper	opera-
+	      tion, patch typically needs at least two lines of context.
+
+       --changed-group-format=format
+	      Use  format  to  output  a line group containing differing lines
+	      from both files in if-then-else format.
+
+       -d     Change the algorithm to perhaps find a smaller set  of  changes.
+	      This makes diff slower (sometimes much slower).
+
+       -D name
+	      Make  merged if-then-else format output, conditional on the pre-
+	      processor macro name.
+
+       -e
+       --ed   Make output that is a valid ed script.
+
+       --exclude=pattern
+	      When comparing  directories,  ignore  files  and	subdirectories
+	      whose basenames match pattern.
+
+       --exclude-from=file
+	      When  comparing  directories,  ignore  files  and subdirectories
+	      whose basenames match any pattern contained in file.
+
+       --expand-tabs
+	      Expand tabs to spaces in the output, to preserve	the  alignment
+	      of tabs in the input files.
+
+       -f     Make output that looks vaguely like an ed script but has changes
+	      in the order they appear in the file.
+
+       -F regexp
+	      In context and unified format, for  each	hunk  of  differences,
+	      show some of the last preceding line that matches regexp.
+
+       --forward-ed
+	      Make output that looks vaguely like an ed script but has changes
+	      in the order they appear in the file.
+
+       -h     This option currently has no effect; it is present for Unix com-
+	      patibility.
+
+       -H     Use heuristics to speed handling of large files that have numer-
+	      ous scattered small changes.
+
+       --horizon-lines=lines
+	      Do not discard the last lines lines of the common prefix and the
+	      first lines lines of the common suffix.
+
+       -i     Ignore  changes  in case; consider upper- and lower-case letters
+	      equivalent.
+
+       -I regexp
+	      Ignore changes that just insert or delete lines that match  reg-
+	      exp.
+
+       --ifdef=name
+	      Make  merged if-then-else format output, conditional on the pre-
+	      processor macro name.
+
+       --ignore-all-space
+	      Ignore white space when comparing lines.
+
+       --ignore-blank-lines
+	      Ignore changes that just insert or delete blank lines.
+
+       --ignore-case
+	      Ignore changes in case; consider upper- and lower-case to be the
+	      same.
+
+       --ignore-matching-lines=regexp
+	      Ignore  changes that just insert or delete lines that match reg-
+	      exp.
+
+       --ignore-space-change
+	      Ignore changes in amount of white space.
+
+       --initial-tab
+	      Output a tab rather than a space before the text of  a  line  in
+	      normal  or context format.  This causes the alignment of tabs in
+	      the line to look normal.
+
+       -l     Pass the output through pr to paginate it.
+
+       -L label
+       --label=label
+	      Use label instead of the file name in  the  context  format  and
+	      unified format headers.
+
+       --left-column
+	      Print  only  the left column of two common lines in side by side
+	      format.
+
+       --line-format=format
+	      Use format to output all input lines in in-then-else format.
+
+       --minimal
+	      Change the algorithm to perhaps find a smaller set  of  changes.
+	      This makes diff slower (sometimes much slower).
+
+       -n     Output RCS-format diffs; like -f except that each command speci-
+	      fies the number of lines affected.
+
+       -N
+       --new-file
+	      In directory comparison, if a file is found in only  one	direc-
+	      tory, treat it as present but empty in the other directory.
+
+       --new-group-format=format
+	      Use format to output a group of lines taken from just the second
+	      file in if-then-else format.
+
+       --new-line-format=format
+	      Use format to output a line taken from just the second  file  in
+	      if-then-else format.
+
+       --old-group-format=format
+	      Use  format to output a group of lines taken from just the first
+	      file in if-then-else format.
+
+       --old-line-format=format
+	      Use format to output a line taken from just the  first  file  in
+	      if-then-else format.
+
+       -p     Show which C function each change is in.
+
+       -P     When comparing directories, if a file appears only in the second
+	      directory of the two, treat it  as  present  but	empty  in  the
+	      other.
+
+       --paginate
+	      Pass the output through pr to paginate it.
+
+       -q     Report  only  whether  the  files differ, not the details of the
+	      differences.
+
+       -r     When comparing directories, recursively compare any  subdirecto-
+	      ries found.
+
+       --rcs  Output RCS-format diffs; like -f except that each command speci-
+	      fies the number of lines affected.
+
+       --recursive
+	      When comparing directories, recursively compare any  subdirecto-
+	      ries found.
+
+       --report-identical-files
+       -s     Report when two files are the same.
+
+       -S file
+	      When  comparing  directories, start with the file file.  This is
+	      used for resuming an aborted comparison.
+
+       --from-file=file
+	      Compare file to all operands.  file can be a directory.
+
+       --to-file=file
+	      Compare all operands to file. file can be a directory.
+
+       --sdiff-merge-assist
+	      Print extra information to help sdiff.  sdiff uses  this	option
+	      when it runs diff.  This option is not intended for users to use
+	      directly.
+
+       --show-c-function
+	      Show which C function each change is in.
+
+       --show-function-line=regexp
+	      In context and unified format, for  each	hunk  of  differences,
+	      show some of the last preceding line that matches regexp.
+
+       --side-by-side
+	      Use the side by side output format.
+
+       --speed-large-files
+	      Use heuristics to speed handling of large files that have numer-
+	      ous scattered small changes.
+
+       --starting-file=file
+	      When comparing directories, start with the file file.   This  is
+	      used for resuming an aborted comparison.
+
+       --suppress-common-lines
+	      Do not print common lines in side by side format.
+
+       -t     Expand  tabs  to spaces in the output, to preserve the alignment
+	      of tabs in the input files.
+
+       -T     Output a tab rather than a space before the text of  a  line  in
+	      normal  or context format.  This causes the alignment of tabs in
+	      the line to look normal.
+
+       --text Treat all files as text and compare them line-by-line,  even  if
+	      they do not appear to be text.
+
+       -u     Use the unified output format.
+
+       --unchanged-group-format=format
+	      Use  format  to  output  a group of common lines taken from both
+	      files in if-then-else format.
+
+       --unchanged-line-format=format
+	      Use format to output a line common to both files in if-then-else
+	      format.
+
+       --unidirectional-new-file
+	      When comparing directories, if a file appears only in the second
+	      directory of the two, treat it  as  present  but	empty  in  the
+	      other.
+
+       -U lines
+       --unified[=lines]
+	      Use  the unified output format, showing lines (an integer) lines
+	      of context, or three if lines is not given.  For	proper	opera-
+	      tion, patch typically needs at least two lines of context.
+
+       -v
+       --version
+	      Output the version number of diff.
+
+       -w     Ignore white space when comparing lines.
+
+       -W columns
+       --width=columns
+	      Use an output width of columns in side by side format.
+
+       -x pattern
+	      When  comparing  directories,  ignore  files  and subdirectories
+	      whose basenames match pattern.
+
+       -X file
+	      When comparing  directories,  ignore  files  and	subdirectories
+	      whose basenames match any pattern contained in file.
+
+       -y     Use the side by side output format.
+
+SEE ALSO
+       cmp(1), comm(1), diff3(1), ed(1), patch(1), pr(1), sdiff(1).
+
+DIAGNOSTICS
+       An  exit status of 0 means no differences were found, 1 means some dif-
+       ferences were found, and 2 means trouble.
+
+
+
+GNU Tools			   22sep1993			       DIFF(1)

@@ -1,0 +1,30 @@
+cd(n)		      Tcl Built-In Commands		    cd(n)
+
+
+
+_________________________________________________________________
+
+NAME
+       cd - Change working directory
+
+SYNOPSIS
+       cd ?dirName?
+_________________________________________________________________
+
+
+DESCRIPTION
+       Change the current working directory to dirName, or to the
+       home directory (as specified in the HOME environment vari-
+       able) if dirName is not given.  Returns an empty string.
+
+
+SEE ALSO
+       filename(n), glob(n), pwd(n)
+
+
+KEYWORDS
+       working directory
+
+
+
+Tcl							    cd(n)

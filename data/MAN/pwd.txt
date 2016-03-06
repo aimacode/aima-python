@@ -1,0 +1,30 @@
+PWD(1)				      FSF				PWD(1)
+
+
+
+NAME
+       pwd - print name of current/working directory
+
+SYNOPSIS
+       pwd [OPTION]
+
+DESCRIPTION
+       NOTE:  your  shell may have its own version of pwd which will supercede
+       the version described here. Please refer to your shell's	 documentation
+       for details about the options it supports.
+
+       Print the full filename of the current working directory.
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+AUTHOR
+       Written by Jim Meyering.
+
+REPORTING BUGS
+       Report bugs to <bug-coreutils@gnu.org>.
+
+COPYRIGHT
+       Copyright
