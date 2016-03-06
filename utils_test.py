@@ -1,5 +1,4 @@
 import pytest
-import utils
 from utils import *
 
 def test_struct_initialization():
@@ -104,8 +103,6 @@ def test_caller():
         return caller()
     assert f() == 'f'
 
-def test_if_():
-    assert if_(2 + 2 == 4, 'ok', lambda: expensive_computation()) == 'ok'
 
 if __name__ == '__main__':
     pytest.main()
