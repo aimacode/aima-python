@@ -1,8 +1,8 @@
 """Reinforcement Learning (Chapter 21)
 """
 
-from utils import *
-import agents
+from . utils import *
+from . import agents
 
 
 class PassiveADPAgent(agents.Agent):

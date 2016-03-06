@@ -1,5 +1,5 @@
 import pytest
-from probability import *
+from aimaPy.probability import *
 
 
 def tests():

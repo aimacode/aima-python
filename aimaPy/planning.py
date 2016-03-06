@@ -2,8 +2,8 @@
 """
 
 
-from utils import *
-import agents
+from . utils import *
+from . import agents
 import math
 import random
 import sys

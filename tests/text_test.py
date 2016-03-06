@@ -1,6 +1,6 @@
 import pytest
 
-from text import *
+from aimaPy.text import *
 
 from random import choice
 from math import isclose
@@ -98,10 +98,7 @@ def test_ir_system():
         assert len(expected) == len(query)
 
         for expected, (score, d) in zip(expected, query):
-            print(expected.url, "{0:.2f}".format(
-                expected.score), "{0:.2f}".format(score * 100))
             doc = uc.documents[d]
-            print(doc.url)
             assert "{0:.2f}".format(
                 expected.score) == "{0:.2f}".format(score * 100)
             assert expected.url == doc.url

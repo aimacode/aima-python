@@ -1,8 +1,8 @@
 """Probability models. (Chapter 13-15)
 """
 
-from utils import *
-from logic import extend
+from . utils import *
+from . logic import extend
 import random
 from collections import defaultdict
 from functools import reduce

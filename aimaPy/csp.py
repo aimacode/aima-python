@@ -1,9 +1,9 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
 
 
-from utils import *
+from . utils import *
 from collections import defaultdict
-import search
+from . import search
 from functools import reduce
 
 
@@ -519,6 +519,17 @@ def flatten(seqs): return sum(seqs, [])
 easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'
 harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
 
+_R3 = list(range(3))
+_CELL = itertools.count().__next__
+_BGRID = [[[[_CELL() for x in _R3] for y in _R3] for bx in _R3] for by in _R3]
+_BOXES = flatten([list(map(flatten, brow)) for brow in _BGRID])
+_ROWS = flatten([list(map(flatten, list(zip(*brow)))) for brow in _BGRID])
+_COLS = list(zip(*_ROWS))
+
+_NEIGHBORS = dict([(v, set()) for v in flatten(_ROWS)])
+for unit in map(set, _BOXES + _ROWS + _COLS):
+    for v in unit:
+        _NEIGHBORS[v].update(unit - set([v]))
 
 class Sudoku(CSP):
 
@@ -556,17 +567,13 @@ class Sudoku(CSP):
     >>> None != backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking)
     True
     """
-    R3 = list(range(3))
-    Cell = itertools.count().__next__
-    bgrid = [[[[Cell() for x in R3] for y in R3] for bx in R3] for by in R3]
-    boxes = flatten([list(map(flatten, brow)) for brow in bgrid])
-    rows = flatten([list(map(flatten, list(zip(*brow)))) for brow in bgrid])
-    cols = list(zip(*rows))
-
-    neighbors = dict([(v, set()) for v in flatten(rows)])
-    for unit in map(set, boxes + rows + cols):
-        for v in unit:
-            neighbors[v].update(unit - set([v]))
+    R3 = _R3
+    Cell = _CELL
+    bgrid = _BGRID
+    boxes = _BOXES
+    rows = _ROWS
+    cols = _COLS
+    neighbors = _NEIGHBORS
 
     def __init__(self, grid):
         """Build a Sudoku problem from a string representing the grid:

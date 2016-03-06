@@ -7,7 +7,7 @@ dictionary of {state:number} pairs.  We then define the value_iteration
 and policy_iteration algorithms."""
 
 
-from utils import *
+from . utils import *
 
 
 class MDP:

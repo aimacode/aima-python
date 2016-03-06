@@ -3,7 +3,7 @@
 # (Written for the second edition of AIMA; expect some discrepanciecs
 # from the third edition until this gets reviewed.)
 
-from utils import *
+from . utils import *
 from collections import defaultdict
 
 #______________________________________________________________________________
@@ -158,7 +158,7 @@ class Chart:
         if edge not in self.chart[end]:
             self.chart[end].append(edge)
             if self.trace:
-                print(('%10s: added %s' % (caller(2), edge)))
+                print('%10s: added %s' % (caller(2), edge))
             if not expects:
                 self.extender(edge)
             else:

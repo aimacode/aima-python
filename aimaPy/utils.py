@@ -305,7 +305,7 @@ def vector_clip(vector, lowest, highest):
 def printf(format_str, *args):
     """Format args with the first argument as format string, and write.
     Return the last arg, or format itself if there are no args."""
-    print((str(format_str).format(*args, end='')))
+    print(str(format_str).format(*args, end=''))
 
     return args[-1] if args else format_str
 
@@ -379,14 +379,13 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
         map(maxlen, list(zip(*[list(map(str, row)) for row in table]))))
 
     for row in table:
-        print((sep.join(getattr(str(x), j)(size)
-                        for (j, size, x) in zip(justs, sizes, row))))
+        print(sep.join(getattr(str(x), j)(size)
+                        for (j, size, x) in zip(justs, sizes, row)))
 
 
 def AIMAFile(components, mode='r'):
     "Open a file based at the AIMA root directory."
-    import utils
-    aima_root = os.path.dirname(utils.__file__)
+    aima_root = os.path.dirname(__file__)
 
     aima_file = os.path.join(aima_root, *components)
 

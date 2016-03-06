@@ -5,7 +5,7 @@ then create problem instances and solve them with calls to the various search
 functions."""
 
 
-from utils import *
+from . utils import *
 import math
 import random
 import sys

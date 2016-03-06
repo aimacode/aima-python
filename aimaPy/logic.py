@@ -26,8 +26,8 @@ And a few other functions:
 
 import itertools
 import re
-import agents
-from utils import *
+from . import agents
+from . utils import *
 from collections import defaultdict
 
 #______________________________________________________________________________
@@ -1253,7 +1253,7 @@ def pretty_set(s):
 
 
 def pp(x):
-    print((pretty(x)))
+    print(pretty(x))
 
 
 def ppsubst(s):
@@ -1262,11 +1262,11 @@ def ppsubst(s):
 
 
 def ppdict(d):
-    print((pretty_dict(d)))
+    print(pretty_dict(d))
 
 
 def ppset(s):
-    print((pretty_set(s)))
+    print(pretty_set(s))
 
 #________________________________________________________________________
 

@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 
-from utils import *
+from . utils import *
 import copy
 import heapq
 import math

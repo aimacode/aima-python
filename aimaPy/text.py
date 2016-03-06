@@ -4,12 +4,12 @@ and show the Viterbi algorithm for segmentatioon of letters into words.
 Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
-from utils import *
-from learning import CountingProbDist
+from . utils import *
+from . learning import CountingProbDist
 from math import log, exp
 from collections import defaultdict
 import re
-import search
+from . import search
 
 
 class UnigramTextModel(CountingProbDist):
@@ -120,8 +120,9 @@ class IRSystem:
 
     def index_collection(self, filenames):
         "Index a whole collection of files."
+        prefix = os.path.dirname(__file__)
         for filename in filenames:
-            self.index_document(open(filename).read(), filename)
+            self.index_document(open(filename).read(), os.path.relpath(filename, prefix))
 
     def index_document(self, text, url):
         "Index the text of a document."
@@ -174,7 +175,8 @@ class UnixConsultant(IRSystem):
     def __init__(self):
         IRSystem.__init__(self, stopwords="how do i the a of")
         import os
-        mandir = 'aima-data/MAN/'
+        aima_root = os.path.dirname(__file__)
+        mandir = os.path.join(aima_root, 'aima-data/MAN/')
         man_files = [mandir + f for f in os.listdir(mandir)
                      if f.endswith('.txt')]
         self.index_collection(man_files)

@@ -35,7 +35,7 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 #
 # Speed control in GUI does not have any effect -- fix it.
 
-from utils import *
+from . utils import *
 import random
 import copy
 import collections
@@ -102,7 +102,7 @@ def TraceAgent(agent):
 
     def new_program(percept):
         action = old_program(percept)
-        print(('{} perceives {} and does {}'.format(agent, percept, action)))
+        print('{} perceives {} and does {}'.format(agent, percept, action))
         return action
     agent.program = new_program
     return agent
@@ -304,10 +304,9 @@ class Environment(object):
         except(ValueError, e):
             print(e)
             print("  in Environment delete_thing")
-            print(
-                ("  Thing to be removed: {} at {}" .format(thing, thing.location)))
-            print(("  from list: {}" .format([(thing, thing.location)
-                                              for thing in self.things])))
+            print("  Thing to be removed: {} at {}" .format(thing, thing.location))
+            print("  from list: {}" .format([(thing, thing.location)
+                                             for thing in self.things]))
         if thing in self.agents:
             self.agents.remove(thing)
 
