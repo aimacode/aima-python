@@ -13,6 +13,7 @@ import random
 import os.path
 import bisect
 import re
+import functools
 
 #______________________________________________________________________________
 # Simple Data Structures: infinity, Dict, Struct
@@ -80,7 +81,7 @@ def product(numbers):
     >>> product([1,2,3,4])
     24
     """
-    return reduce(operator.mul, numbers, 1)
+    return functools.reduce(operator.mul, numbers, 1)
 
 def count_if(predicate, seq):
     """Count the number of elements of seq for which the predicate is true.
