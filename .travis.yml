@@ -1,0 +1,18 @@
+language: 
+  - python
+
+python:
+  - "3.5"
+
+install:
+  - pip install flake8
+  - pip install -r requirements.txt
+
+script: 
+  - py.test
+
+after_success:
+  - flake8 .
+
+notifications:
+  email: false
