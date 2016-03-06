@@ -75,13 +75,10 @@ def unique(seq):
     return list(set(seq))
 
 def product(numbers):
-    """Return the product of the numbers.
-    >>> product([1,2,3,4])
-    24
-    """
-    result=1
-    for i in numbers:
-        result=result*i
+    """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
+    result = 1
+    for x in numbers:
+        result *= x
     return result
 
 def count_if(predicate, seq):
