@@ -41,6 +41,7 @@ def alphabeta_full_search(state, game):
 
     player = game.to_move(state)
 
+    #Functions used by alphabeta
     def max_value(state, alpha, beta):
         if game.terminal_test(state):
             return game.utility(state, player)
@@ -64,9 +65,7 @@ def alphabeta_full_search(state, game):
         return v
 
     # Body of alphabeta_search:
-    return argmax(game.actions(state),
-                  lambda a: min_value(game.result(state, a),
-                                      -infinity, infinity))
+    return max_value(state, -infinity, infinity)
 
 def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     """Search game to determine best action; use alpha-beta pruning.
@@ -74,6 +73,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
     player = game.to_move(state)
 
+    #Functions used by alphabeta
     def max_value(state, alpha, beta, depth):
         if cutoff_test(state, depth):
             return eval_fn(state)
@@ -103,9 +103,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     cutoff_test = (cutoff_test or
                    (lambda state,depth: depth>d or game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
-    return argmax(game.actions(state),
-                  lambda a: min_value(game.result(state, a),
-                                      -infinity, infinity, 0))
+    return max_value(state, -infinity, infinity, 0)
 
 #______________________________________________________________________________
 # Players for Games
@@ -207,7 +205,7 @@ class Fig52Game(Game):
         return state not in ('A', 'B', 'C', 'D')
 
     def to_move(self, state):
-        return if_(state in 'BCD', 'MIN', 'MAX')
+        return ('MIN' if state in 'BCD' else 'MAX')
 
 class TicTacToe(Game):
     """Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
@@ -229,13 +227,13 @@ class TicTacToe(Game):
             return state # Illegal move has no effect
         board = state.board.copy(); board[move] = state.to_move
         moves = list(state.moves); moves.remove(move)
-        return Struct(to_move=if_(state.to_move == 'X', 'O', 'X'),
+        return Struct(to_move=('O' if state.to_move == 'X' else 'X'),
                       utility=self.compute_utility(board, move, state.to_move),
                       board=board, moves=moves)
 
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
-        return if_(player == 'X', state.utility, -state.utility)
+        return (state.utility if player == 'X' else -state.utility)
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
@@ -254,7 +252,7 @@ class TicTacToe(Game):
             self.k_in_row(board, move, player, (1, 0)) or
             self.k_in_row(board, move, player, (1, -1)) or
             self.k_in_row(board, move, player, (1, 1))):
-            return if_(player == 'X', +1, -1)
+            return (+1 if player == 'X' else -1)
         else:
             return 0
 

@@ -530,7 +530,7 @@ class Sudoku(CSP):
         the digits 1-9 denote a filled cell, '.' or '0' an empty one;
         other characters are ignored."""
         squares = iter(re.findall(r'\d|\.', grid))
-        domains = dict((var, if_(ch in '123456789', [ch], '123456789'))
+        domains = dict((var, ([ch] if ch in '123456789' else '123456789'))
                        for var, ch in zip(flatten(self.rows), squares))
         for _ in squares:
             raise ValueError("Not a Sudoku grid", grid) # Too many squares

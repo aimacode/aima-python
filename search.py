@@ -246,7 +246,7 @@ def depth_limited_search(problem, limit=50):
                     cutoff_occurred = True
                 elif result is not None:
                     return result
-            return if_(cutoff_occurred, 'cutoff', None)
+            return ('cutoff' if cutoff_occurred else None)
 
     # Body of depth_limited_search:
     return recursive_dls(Node(problem.initial), problem, limit)
@@ -321,7 +321,7 @@ def hill_climbing(problem):
 
 def exp_schedule(k=20, lam=0.005, limit=100):
     "One possible schedule function for simulated annealing"
-    return lambda t: if_(t < limit, k * math.exp(-lam * t), 0)
+    return lambda t: (k * math.exp(-lam * t) if t < limit else 0)
 
 def simulated_annealing(problem, schedule=exp_schedule()):
     "[Fig. 4.5]"

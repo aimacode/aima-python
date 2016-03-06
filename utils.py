@@ -2,7 +2,6 @@
 
 TODO[COMPLETED]: Let's take the >>> doctest examples out of the docstrings, and put them in utils_test.py
 TODO: count_if and the like are leftovers from COmmon Lisp; let's make replace thenm with Pythonic alternatives.
-TODO: if_ is a terrible idea; replace all uses with (x if test else y) and remove if_
 TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
@@ -63,7 +62,10 @@ def unique(seq):
 
 def product(numbers):
     """Return the product of the numbers."""
-    return reduce(operator.mul, numbers, 1)
+    result=1
+    for i in numbers:
+        result=result*i
+    return result
 
 def count_if(predicate, seq):
     """Count the number of elements of seq for which the predicate is true."""
@@ -233,17 +235,26 @@ def turn_right(heading):
 def turn_left(heading):
     return turn_heading(heading, +1)
 
+def Point(x, y):
+    return (x, y)
+
+def point_x(point):
+    return point[0]
+
+def point_y(point):
+    return point[1]
+
 def distance(a, b):
     "The distance between two (x, y) points."
-    return math.hypot((a.x - b.x), (a.y - b.y))
-
-def distance_squared(a, b):
-    "The distance between two (x, y) points."
-    return (a.x - b.x)**2 + (a.y - b.y)**2
+    ax, ay = a
+    bx, by = b
+    return math.hypot((ax - bx), (ay - by))
 
 def distance2(a, b):
     "The square of the distance between two (x, y) points."
-    return distance_squared(a, b)
+    ax, ay = a
+    bx, by = b
+    return (ax - bx)**2 + (ay - by)**2
 
 def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
@@ -291,22 +302,6 @@ def memoize(fn, slot=None):
 
     return memoized_fn
 
-def if_(test, result, alternative):
-    """Like C++ and Java's (test ? result : alternative), except
-    both result and alternative are always evaluated. However, if
-    either evaluates to a function, it is applied to the empty arglist,
-    so you can delay execution by putting it in a lambda.
-    """
-    if test:
-        if callable(result):
-            return result()
-
-        return result
-    else:
-        if callable(alternative):
-            return alternative()
-
-        return alternative
 
 def name(obj):
     "Try to find some reasonable name for the object."

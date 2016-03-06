@@ -743,7 +743,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
     for i in range(max_flips):
         satisfied, unsatisfied = [], []
         for clause in clauses:
-            if_(pl_true(clause, model), satisfied, unsatisfied).append(clause)
+            (satisfied if pl_true(clause, model) else unsatisfied).append(clause)
         if not unsatisfied: ## if model satisfies all the clauses
             return model
         clause = random.choice(unsatisfied)
