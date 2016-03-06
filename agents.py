@@ -47,7 +47,7 @@ class Thing(object):
     You subclass Thing to get the things you want.  Each thing can have a
     .__name__  slot (used for output only)."""
     def __repr__(self):
-        return '<%s>' % getattr(self, '__name__', self.__class__.__name__)
+        return '<{}>'.format(getattr(self, '__name__', self.__class__.__name__))
 
     def is_alive(self):
         "Things that are 'alive' should return true."
@@ -80,7 +80,7 @@ class Agent(Thing):
         self.bump = False
         if program is None:
             def program(percept):
-                return raw_input('Percept=%s; action? ' % percept)
+                return input('Percept={}; action? ' .format(percept))
         assert callable(program)
         self.program = program
 
@@ -95,7 +95,7 @@ def TraceAgent(agent):
     old_program = agent.program
     def new_program(percept):
         action = old_program(percept)
-        print('%s perceives %s and does %s' % (agent, percept, action))
+        print('{} perceives {} and does {}'.format(agent, percept, action))
         return action
     agent.program = new_program
     return agent
@@ -280,9 +280,9 @@ class Environment(object):
         except(ValueError, e):
             print(e)
             print("  in Environment delete_thing")
-            print("  Thing to be removed: %s at %s" % (thing, thing.location))
-            print("  from list: %s" % [(thing, thing.location)
-                                       for thing in self.things])
+            print("  Thing to be removed: {} at {}" .format(thing, thing.location))
+            print("  from list: {}" .format([(thing, thing.location)
+                                       for thing in self.things]))
         if thing in self.agents:
             self.agents.remove(thing)
 
