@@ -21,7 +21,8 @@ def test_update_struct():
 
 def test_removeall_list():
     assert removeall(4, []) == []
-    assert removeall(4, [1,2,3,4]) == [1,2,3]
+    assert removeall(4, [1, 2, 3, 4]) == [1, 2, 3]
+    assert removeall(4, [4, 1, 4, 2, 3, 4, 4] == [1, 2, 3]
 
 def test_removeall_string():
     assert removeall('s', '') == ''
@@ -33,15 +34,14 @@ def test_unique():
 
 def test_product():
     assert product([1,2,3,4]) == 24
-
-def test_count_if():
-    assert count_if(callable, [42, None, max, min]) == 2
+    assert product(range(1, 11)) == 3628800
 
 def test_find_if():
     assert find_if(callable, [1, 2, 3]) == None
     assert find_if(callable, [3, min, max]) == min
 
 def test_count_if():
+    assert count_if(callable, [42, None, max, min]) == 2
     is_odd = lambda x: x % 2
     assert count_if(is_odd, []) == 0
     assert count_if(is_odd, [1, 2, 3, 4, 5]) == 3
@@ -55,7 +55,7 @@ def test_some():
     assert some(callable, [2, 3]) == 0
 
 def test_isin():
-    e= []
+    e = []
     assert isin(e, [1, e, 3]) == True
     assert isin(e, [1, [], 3]) == False
 
