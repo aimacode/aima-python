@@ -1,6 +1,7 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
 
 from utils import *
+from collections import defaultdict
 import search
 
 class CSP(search.Problem):
@@ -353,7 +354,7 @@ def parse_neighbors(neighbors, vars=[]):
     >>> parse_neighbors('X: Y Z; Y: Z')
     {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
     """
-    dict = DefaultDict([])
+    dict = defaultdict(list)
     for var in vars:
         dict[var] = []
     specs = [spec.split(':') for spec in neighbors.split(';')]
@@ -530,7 +531,7 @@ class Sudoku(CSP):
         the digits 1-9 denote a filled cell, '.' or '0' an empty one;
         other characters are ignored."""
         squares = iter(re.findall(r'\d|\.', grid))
-        domains = dict((var, if_(ch in '123456789', [ch], '123456789'))
+        domains = dict((var, ([ch] if ch in '123456789' else '123456789'))
                        for var, ch in zip(flatten(self.rows), squares))
         for _ in squares:
             raise ValueError("Not a Sudoku grid", grid) # Too many squares

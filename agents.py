@@ -36,7 +36,8 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 # Speed control in GUI does not have any effect -- fix it.
 
 from utils import *
-import random, copy
+import random
+import copy
 
 #______________________________________________________________________________
 
@@ -46,7 +47,7 @@ class Thing(object):
     You subclass Thing to get the things you want.  Each thing can have a
     .__name__  slot (used for output only)."""
     def __repr__(self):
-        return '<%s>' % getattr(self, '__name__', self.__class__.__name__)
+        return '<{}>'.format(getattr(self, '__name__', self.__class__.__name__))
 
     def is_alive(self):
         "Things that are 'alive' should return true."
@@ -79,7 +80,7 @@ class Agent(Thing):
         self.bump = False
         if program is None:
             def program(percept):
-                return raw_input('Percept=%s; action? ' % percept)
+                return input('Percept={}; action? ' .format(percept))
         assert callable(program)
         self.program = program
 
@@ -94,7 +95,7 @@ def TraceAgent(agent):
     old_program = agent.program
     def new_program(percept):
         action = old_program(percept)
-        print('%s perceives %s and does %s' % (agent, percept, action))
+        print('{} perceives {} and does {}'.format(agent, percept, action))
         return action
     agent.program = new_program
     return agent
@@ -276,12 +277,12 @@ class Environment(object):
         """Remove a thing from the environment."""
         try:
             self.things.remove(thing)
-        except ValueError as e:
+        except(ValueError, e):
             print(e)
             print("  in Environment delete_thing")
-            print("  Thing to be removed: %s at %s" % (thing, thing.location))
-            print("  from list: %s" % [(thing, thing.location)
-                                       for thing in self.things])
+            print("  Thing to be removed: {} at {}" .format(thing, thing.location))
+            print("  from list: {}" .format([(thing, thing.location)
+                                       for thing in self.things]))
         if thing in self.agents:
             self.agents.remove(thing)
 
@@ -410,9 +411,8 @@ class VacuumEnvironment(XYEnvironment):
     def percept(self, agent):
         """The percept is a tuple of ('Dirty' or 'Clean', 'Bump' or 'None').
         Unlike the TrivialVacuumEnvironment, location is NOT perceived."""
-        status = if_(self.some_things_at(agent.location, Dirt),
-                     'Dirty', 'Clean')
-        bump = if_(agent.bump, 'Bump', 'None')
+        status = ('Dirty' if self.some_things_at(agent.location, Dirt) else 'Clean')
+        bump = ('Bump' if agent.bump else'None')
         return (status, bump)
 
     def execute_action(self, agent, action):
@@ -538,87 +538,6 @@ True
 True
 """
 
-#______________________________________________________________________________
-# GUI - Graphical User Interface for Environments
-# If you do not have Tkinter installed, either get a new installation of Python
-# (Tkinter is standard in all new releases), or delete the rest of this file
-# and muddle through without a GUI.
-
-import tkinter as tk
-
-class EnvGUI(tk.Tk, object):
-
-    def __init__(self, env, title = 'AIMA GUI', cellwidth=50, n=10):
-
-        # Initialize window
-
-        super(EnvGUI, self).__init__()
-        self.title(title)
-
-        # Create components
-
-        canvas = EnvCanvas(self, env, cellwidth, n)
-        toolbar = EnvToolbar(self, env, canvas)
-        for w in [canvas, toolbar]:
-            w.pack(side="bottom", fill="x", padx="3", pady="3")
 
 
-class EnvToolbar(tk.Frame, object):
-
-    def __init__(self, parent, env, canvas):
-        super(EnvToolbar, self).__init__(parent, relief='raised', bd=2)
-
-        # Initialize instance variables
-
-        self.env = env
-        self.canvas = canvas
-        self.running = False
-        self.speed = 1.0
-
-        # Create buttons and other controls
-
-        for txt, cmd in [('Step >', self.env.step),
-                         ('Run >>', self.run),
-                         ('Stop [ ]', self.stop),
-                         ('List things', self.list_things),
-                         ('List agents', self.list_agents)]:
-            tk.Button(self, text=txt, command=cmd).pack(side='left')
-
-        tk.Label(self, text='Speed').pack(side='left')
-        scale = tk.Scale(self, orient='h',
-                         from_=(1.0), to=10.0, resolution=1.0,
-                         command=self.set_speed)
-        scale.set(self.speed)
-        scale.pack(side='left')
-
-    def run(self):
-        print('run')
-        self.running = True
-        self.background_run()
-
-    def stop(self):
-        print('stop')
-        self.running = False
-
-    def background_run(self):
-        if self.running:
-            self.env.step()
-            # ms = int(1000 * max(float(self.speed), 0.5))
-            #ms = max(int(1000 * float(self.delay)), 1)
-            delay_sec = 1.0 / max(self.speed, 1.0) # avoid division by zero
-            ms = int(1000.0 * delay_sec)  # seconds to milliseconds
-            self.after(ms, self.background_run)
-
-    def list_things(self):
-        print("Things in the environment:")
-        for thing in self.env.things:
-            print("%s at %s" % (thing, thing.location))
-
-    def list_agents(self):
-        print("Agents in the environment:")
-        for agt in self.env.agents:
-            print("%s at %s" % (agt, agt.location))
-
-    def set_speed(self, speed):
-        self.speed = float(speed)
 

@@ -24,9 +24,11 @@ And a few other functions:
     diff, simp       Symbolic differentiation and simplification
 """
 
-import itertools, re
+import itertools
+import re
 import agents
 from utils import *
+from collections import defaultdict
 
 #______________________________________________________________________________
 
@@ -608,7 +610,7 @@ def pl_fc_entails(KB, q):
     """
     count = dict([(c, len(conjuncts(c.args[0]))) for c in KB.clauses
                                                  if c.op == '>>'])
-    inferred = DefaultDict(False)
+    inferred = defaultdict(bool)
     agenda = [s for s in KB.clauses if is_prop_symbol(s.op)]
     while agenda:
         p = agenda.pop()
@@ -741,7 +743,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
     for i in range(max_flips):
         satisfied, unsatisfied = [], []
         for clause in clauses:
-            if_(pl_true(clause, model), satisfied, unsatisfied).append(clause)
+            (satisfied if pl_true(clause, model) else unsatisfied).append(clause)
         if not unsatisfied: ## if model satisfies all the clauses
             return model
         clause = random.choice(unsatisfied)

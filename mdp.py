@@ -21,6 +21,8 @@ class MDP:
         self.init=init
         self.actlist=actlist
         self.terminals=terminals
+        if not (0 <= gamma < 1):
+            raise ValueError("An MDP must have 0 <= gamma < 1")
         self.gamma=gamma
         self.states=set()
         self.reward={}
@@ -72,7 +74,7 @@ class GridMDP(MDP):
     def go(self, state, direction):
         "Return the state that results from going in this direction."
         state1 = vector_add(state, direction)
-        return if_(state1 in self.states, state1, state)
+        return (state1 if state1 in self.states else state)
 
     def to_grid(self, mapping):
         """Convert a mapping from (x, y) to v into a [[..., v, ...]] grid."""
