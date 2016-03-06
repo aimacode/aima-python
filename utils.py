@@ -213,11 +213,6 @@ def histogram(values, mode=0, bin_function=None):
 from math import log2
 from statistics import mode, median, mean, stdev
 
-def stddev(values, meanval=None):
-    """The standard deviation of a set of values.
-    Pass in the mean if you already know it. """
-    return stdev(values, mu=meanval)
-
 def dotproduct(X, Y):
     """Return the sum of the element-wise product of vectors x and y.
     >>> dotproduct([1, 2, 3], [1000, 100, 10])
