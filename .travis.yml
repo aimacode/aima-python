@@ -4,6 +4,9 @@ language:
 python:
   - "3.5"
 
+before_install:
+  - git submodule update --remote
+
 install:
   - pip install flake8
   - pip install -r requirements.txt
