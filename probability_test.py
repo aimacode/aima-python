@@ -24,4 +24,3 @@ def tests():
     seed(71); p = likelihood_weighting('Earthquake', {}, burglary, 1000)
     assert p[True], p[False] == (0.002, 0.998)
 
-tests()
