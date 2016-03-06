@@ -36,7 +36,8 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 # Speed control in GUI does not have any effect -- fix it.
 
 from utils import *
-import random, copy
+import random
+import copy
 
 #______________________________________________________________________________
 
@@ -537,87 +538,5 @@ True
 True
 """
 
-#______________________________________________________________________________
-# GUI - Graphical User Interface for Environments
-# If you do not have Tkinter installed, either get a new installation of Python
-# (Tkinter is standard in all new releases), or delete the rest of this file
-# and muddle through without a GUI.
 
-import Tkinter as tk
-
-class EnvGUI(tk.Tk, object):
-
-    def __init__(self, env, title = 'AIMA GUI', cellwidth=50, n=10):
-
-        # Initialize window
-
-        super(EnvGUI, self).__init__()
-        self.title(title)
-
-        # Create components
-
-        canvas = EnvCanvas(self, env, cellwidth, n)
-        toolbar = EnvToolbar(self, env, canvas)
-        for w in [canvas, toolbar]:
-            w.pack(side="bottom", fill="x", padx="3", pady="3")
-
-
-class EnvToolbar(tk.Frame, object):
-
-    def __init__(self, parent, env, canvas):
-        super(EnvToolbar, self).__init__(parent, relief='raised', bd=2)
-
-        # Initialize instance variables
-
-        self.env = env
-        self.canvas = canvas
-        self.running = False
-        self.speed = 1.0
-
-        # Create buttons and other controls
-
-        for txt, cmd in [('Step >', self.env.step),
-                         ('Run >>', self.run),
-                         ('Stop [ ]', self.stop),
-                         ('List things', self.list_things),
-                         ('List agents', self.list_agents)]:
-            tk.Button(self, text=txt, command=cmd).pack(side='left')
-
-        tk.Label(self, text='Speed').pack(side='left')
-        scale = tk.Scale(self, orient='h',
-                         from_=(1.0), to=10.0, resolution=1.0,
-                         command=self.set_speed)
-        scale.set(self.speed)
-        scale.pack(side='left')
-
-    def run(self):
-        print('run')
-        self.running = True
-        self.background_run()
-
-    def stop(self):
-        print('stop')
-        self.running = False
-
-    def background_run(self):
-        if self.running:
-            self.env.step()
-            # ms = int(1000 * max(float(self.speed), 0.5))
-            #ms = max(int(1000 * float(self.delay)), 1)
-            delay_sec = 1.0 / max(self.speed, 1.0) # avoid division by zero
-            ms = int(1000.0 * delay_sec)  # seconds to milliseconds
-            self.after(ms, self.background_run)
-
-    def list_things(self):
-        print("Things in the environment:")
-        for thing in self.env.things:
-            print("%s at %s" % (thing, thing.location))
-
-    def list_agents(self):
-        print("Agents in the environment:")
-        for agt in self.env.agents:
-            print("%s at %s" % (agt, agt.location))
-
-    def set_speed(self, speed):
-        self.speed = float(speed)
 
