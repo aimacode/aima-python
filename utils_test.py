@@ -22,7 +22,7 @@ def test_update_struct():
 def test_removeall_list():
     assert removeall(4, []) == []
     assert removeall(4, [1, 2, 3, 4]) == [1, 2, 3]
-    assert removeall(4, [4, 1, 4, 2, 3, 4, 4] == [1, 2, 3]
+    assert removeall(4, [4, 1, 4, 2, 3, 4, 4]) == [1, 2, 3]
 
 def test_removeall_string():
     assert removeall('s', '') == ''
