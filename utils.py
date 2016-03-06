@@ -19,9 +19,12 @@ from functools import reduce
 
 infinity = float('inf')
 
+
 class Struct:
+
     """Create an instance with argument=value slots.
     This is for making a lightweight object whose class doesn't matter."""
+
     def __init__(self, **entries):
         self.__dict__.update(entries)
 
@@ -33,7 +36,8 @@ class Struct:
 
     def __repr__(self):
         args = ['{!s}={!s}'.format(k, repr(v))
-                    for (k, v) in list(vars(self).items())]
+                for (k, v) in list(vars(self).items())]
+
 
 def update(x, **entries):
     """Update a dict or an object with slots according to entries."""
@@ -49,6 +53,7 @@ def update(x, **entries):
 # NOTE: Sequence functions (count_if, find_if, every, some) take function
 # argument first (like reduce, filter, and map).
 
+
 def removeall(item, seq):
     """Return a copy of seq (or string) with all occurences of item removed."""
     if isinstance(seq, str):
@@ -56,9 +61,11 @@ def removeall(item, seq):
     else:
         return [x for x in seq if x != item]
 
+
 def unique(seq):
     """Remove duplicate elements from seq. Assumes hashable elements."""
     return list(set(seq))
+
 
 def product(numbers):
     """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
@@ -67,9 +74,11 @@ def product(numbers):
         result *= x
     return result
 
+
 def count_if(predicate, seq):
     """Count the number of elements of seq for which the predicate is true."""
     return sum([bool(predicate(x)) for x in seq])
+
 
 def find_if(predicate, seq):
     """If there is an element of seq that satisfies predicate; return it."""
@@ -79,18 +88,23 @@ def find_if(predicate, seq):
 
     return None
 
+
 def every(predicate, seq):
     """True if every element of seq satisfies predicate."""
 
     return all(predicate(x) for x in seq)
 
+
 def some(predicate, seq):
     """If some element x of seq satisfies predicate(x), return predicate(x)."""
-    elem = find_if(predicate,seq)
+    elem = find_if(predicate, seq)
 
     return predicate(elem) or False
 
-# TODO: rename to is_in or possibily add 'identity' to function name to clarify intent
+# TODO: rename to is_in or possibily add 'identity' to function name to
+# clarify intent
+
+
 def isin(elt, seq):
     """Like (elt in seq), but compares with is, not ==."""
     return any(x is elt for x in seq)
@@ -103,14 +117,17 @@ def isin(elt, seq):
 # so there are three versions of argmin/argmax, depending on what you want to
 # do with ties: return the first one, return them all, or pick at random.
 
+
 def argmin(seq, fn):
     return min(seq, key=fn)
+
 
 def argmin_list(seq, fn):
     """Return a list of elements of seq[i] with the lowest fn(seq[i]) scores.’"""
     smallest_score = len(min(seq, key=fn))
 
     return [elem for elem in seq if fn(elem) == smallest_score]
+
 
 def argmin_gen(seq, fn):
     """Return a generator of elements of seq[i] with the lowest fn(seq[i]) scores."""
@@ -119,14 +136,17 @@ def argmin_gen(seq, fn):
 
     yield from (elem for elem in seq if fn(elem) == smallest_score)
 
+
 def argmin_random_tie(seq, fn):
     """Return an element with lowest fn(seq[i]) score; break ties at random.
     Thus, for all s,f: argmin_random_tie(s, f) in argmin_list(s, f)"""
     return random.choice(argmin_gen(seq, fn))
 
+
 def argmax(seq, fn):
     """Return an element with highest fn(seq[i]) score; tie goes to first one."""
     return max(seq, key=fn)
+
 
 def argmax_list(seq, fn):
     """Return a list of elements of seq[i] with the highest fn(seq[i]) scores.
@@ -135,11 +155,13 @@ def argmax_list(seq, fn):
 
     return [elem for elem in seq if fn(elem) == largest_score]
 
+
 def argmax_gen(seq, fn):
     """Return a generator of elements of seq[i] with the highest fn(seq[i]) scores."""
     largest_score = len(min(seq, key=fn))
 
     yield from (elem for elem in seq if fn(elem) == largest_score)
+
 
 def argmax_random_tie(seq, fn):
     "Return an element with highest fn(seq[i]) score; break ties at random."
@@ -147,6 +169,7 @@ def argmax_random_tie(seq, fn):
 
 #______________________________________________________________________________
 # Statistical and mathematical functions
+
 
 def histogram(values, mode=0, bin_function=None):
     """Return a list of (value, count) pairs, summarizing the input values.
@@ -160,24 +183,28 @@ def histogram(values, mode=0, bin_function=None):
         bins[val] = bins.get(val, 0) + 1
 
     if mode:
-        return sorted(list(bins.items()), key=lambda x: (x[1],x[0]), reverse=True)
+        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]), reverse=True)
     else:
         return sorted(bins.items())
 
 from math import log2
 from statistics import mode, median, mean, stdev
 
+
 def dotproduct(X, Y):
     """Return the sum of the element-wise product of vectors x and y."""
     return sum([x * y for x, y in zip(X, Y)])
+
 
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
     return tuple(map(operator.add, a, b))
 
+
 def probability(p):
     "Return true with probability p."
     return p > random.uniform(0.0, 1.0)
+
 
 def weighted_sample_with_replacement(seq, weights, n):
     """Pick n samples from seq at random, with replacement, with the
@@ -187,6 +214,7 @@ def weighted_sample_with_replacement(seq, weights, n):
 
     return [sample() for _ in range(n)]
 
+
 def weighted_sampler(seq, weights):
     "Return a random-sample function that picks from seq weighted by weights."
     totals = []
@@ -194,6 +222,7 @@ def weighted_sampler(seq, weights):
         totals.append(w + totals[-1] if totals else w)
 
     return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
+
 
 def num_or_str(x):
     """The argument is a string; convert to a number if possible, or strip it."""
@@ -205,39 +234,48 @@ def num_or_str(x):
         except ValueError:
             return str(x).strip()
 
+
 def normalize(numbers):
     """Multiply each number by a constant such that the sum is 1.0"""
     total = float(sum(numbers))
     return [n / total for n in numbers]
+
 
 def clip(x, lowest, highest):
     """Return x clipped to the range [lowest..highest]."""
     return max(lowest, min(x, highest))
 
 #______________________________________________________________________________
-## OK, the following are not as widely useful utilities as some of the other
-## functions here, but they do show up wherever we have 2D grids: Wumpus and
-## Vacuum worlds, TicTacToe and Checkers, and markov decision Processes.
+# OK, the following are not as widely useful utilities as some of the other
+# functions here, but they do show up wherever we have 2D grids: Wumpus and
+# Vacuum worlds, TicTacToe and Checkers, and markov decision Processes.
 
 orientations = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
 
 def turn_heading(heading, inc, headings=orientations):
     return headings[(headings.index(heading) + inc) % len(headings)]
 
+
 def turn_right(heading):
     return turn_heading(heading, -1)
+
 
 def turn_left(heading):
     return turn_heading(heading, +1)
 
+
 def Point(x, y):
     return (x, y)
+
 
 def point_x(point):
     return point[0]
 
+
 def point_y(point):
     return point[1]
+
 
 def distance(a, b):
     "The distance between two (x, y) points."
@@ -245,11 +283,13 @@ def distance(a, b):
     bx, by = b
     return math.hypot((ax - bx), (ay - by))
 
+
 def distance2(a, b):
     "The square of the distance between two (x, y) points."
     ax, ay = a
     bx, by = b
     return (ax - bx)**2 + (ay - by)**2
+
 
 def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
@@ -261,12 +301,14 @@ def vector_clip(vector, lowest, highest):
 #______________________________________________________________________________
 # Misc Functions
 
+
 def printf(format_str, *args):
     """Format args with the first argument as format string, and write.
     Return the last arg, or format itself if there are no args."""
     print((str(format_str).format(*args, end='')))
 
     return args[-1] if args else format_str
+
 
 def caller(n=1):
     """Return the name of the calling function n levels up in the frame stack."""
@@ -275,6 +317,8 @@ def caller(n=1):
     return inspect.getouterframes(inspect.currentframe())[n][3]
 
 # TODO: Use functools.lru_cache memoization decorator
+
+
 def memoize(fn, slot=None):
     """Memoize fn: make it remember the computed value for any argument list.
     If slot is specified, store result in that slot of first argument.
@@ -304,13 +348,16 @@ def name(obj):
             or getattr(getattr(obj, '__class__', 0), '__name__', 0)
             or str(obj))
 
+
 def isnumber(x):
     "Is x a number? We say it is if it has a __int__ method."
     return hasattr(x, '__int__')
 
+
 def issequence(x):
     "Is x a sequence? We say it is if it has a __getitem__ method."
     return hasattr(x, '__getitem__')
+
 
 def print_table(table, header=None, sep='   ', numfmt='%g'):
     """Print a list of lists as a table, so that columns line up nicely.
@@ -324,15 +371,17 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
         table.insert(0, header)
 
     table = [[numfmt.format(x) if isnumber(x) else x for x in row]
-                for row in table]
+             for row in table]
 
     maxlen = lambda seq: max(list(map(len, seq)))
 
-    sizes = list(map(maxlen, list(zip(*[list(map(str, row)) for row in table]))))
+    sizes = list(
+        map(maxlen, list(zip(*[list(map(str, row)) for row in table]))))
 
     for row in table:
         print((sep.join(getattr(str(x), j)(size)
-                for (j, size, x) in zip(justs, sizes, row))))
+                        for (j, size, x) in zip(justs, sizes, row))))
+
 
 def AIMAFile(components, mode='r'):
     "Open a file based at the AIMA root directory."
@@ -343,9 +392,11 @@ def AIMAFile(components, mode='r'):
 
     return open(aima_file)
 
+
 def DataFile(name, mode='r'):
     "Return a file in the AIMA /data directory."
     return AIMAFile(['aima-data', name], mode)
+
 
 def unimplemented():
     "Use this as a stub for not-yet-implemented functions."
@@ -355,7 +406,10 @@ def unimplemented():
 # Queues: Stack, FIFOQueue, PriorityQueue
 
 # TODO: Use queue.Queue
+
+
 class Queue:
+
     """Queue is an abstract class/interface. There are three types:
         Stack(): A Last In First Out Queue.
         FIFOQueue(): A First In First Out Queue.
@@ -368,20 +422,27 @@ class Queue:
         item in q       -- does q contain item?
     Note that isinstance(Stack(), Queue) is false, because we implement stacks
     as lists.  If Python ever gets interfaces, Queue will be an interface."""
+
     def __init__(self):
         raise NotImplementedError
 
     def extend(self, items):
-        for item in items: self.append(item)
+        for item in items:
+            self.append(item)
+
 
 def Stack():
     """Return an empty list, suitable as a Last-In-First-Out Queue."""
     return []
 
+
 class FIFOQueue(Queue):
+
     """A First-In-First-Out Queue."""
+
     def __init__(self):
-        self.A = []; self.start = 0
+        self.A = []
+        self.start = 0
 
     def append(self, item):
         self.A.append(item)
@@ -404,11 +465,15 @@ class FIFOQueue(Queue):
         return item in self.A[self.start:]
 
 # TODO: Use queue.PriorityQueue
+
+
 class PriorityQueue(Queue):
+
     """A queue in which the minimum (or maximum) element (as determined by f and
     order) is returned first. If order is min, the item with minimum f(x) is
     returned first; if order is max, then it is the item with maximum f(x).
     Also supports dict-like lookup."""
+
     def __init__(self, order=min, f=lambda x: x):
         update(self, A=[], order=order, f=f)
 
@@ -437,8 +502,7 @@ class PriorityQueue(Queue):
             if item == key:
                 self.A.pop(i)
 
-## Fig: The idea is we can define things like Fig[3,10] later.
-## Alas, it is Fig[3,10] not Fig[3.10], because that would be the same
-## as Fig[3.1]
+# Fig: The idea is we can define things like Fig[3,10] later.
+# Alas, it is Fig[3,10] not Fig[3.10], because that would be the same
+# as Fig[3.1]
 Fig = {}
-

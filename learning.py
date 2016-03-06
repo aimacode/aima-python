@@ -2,26 +2,35 @@
 
 
 from utils import *
-import copy, heapq, math, random
+import copy
+import heapq
+import math
+import random
 from collections import defaultdict
 
 #______________________________________________________________________________
 
+
 def rms_error(predictions, targets):
     return math.sqrt(ms_error(predictions, targets))
+
 
 def ms_error(predictions, targets):
     return mean([(p - t)**2 for p, t in zip(predictions, targets)])
 
+
 def mean_error(predictions, targets):
     return mean([abs(p - t) for p, t in zip(predictions, targets)])
 
+
 def mean_boolean_error(predictions, targets):
-    return mean([(p != t)   for p, t in zip(predictions, targets)])
+    return mean([(p != t) for p, t in zip(predictions, targets)])
 
 #______________________________________________________________________________
 
+
 class DataSet:
+
     """A data set for a machine learning problem.  It has the following fields:
 
     d.examples    A list of examples.  Each one is a list of attribute values.
@@ -53,7 +62,8 @@ class DataSet:
         >>> DataSet(examples='1, 2, 3')
         <DataSet(): 1 examples, 3 attributes>
         """
-        update(self, name=name, source=source, values=values, distance=distance)
+        update(self, name=name, source=source,
+               values=values, distance=distance)
         # Initialize .examples from string or list or data directory
         if isinstance(examples, str):
             self.examples = parse_csv(examples)
@@ -120,15 +130,16 @@ class DataSet:
             return attr
 
     def sanitize(self, example):
-       "Return a copy of example, with non-input attributes replaced by None."
-       return [attr_i if i in self.inputs else None
-               for i, attr_i in enumerate(example)]
+        "Return a copy of example, with non-input attributes replaced by None."
+        return [attr_i if i in self.inputs else None
+                for i, attr_i in enumerate(example)]
 
     def __repr__(self):
         return '<DataSet(%s): %d examples, %d attributes>' % (
             self.name, len(self.examples), len(self.attrs))
 
 #______________________________________________________________________________
+
 
 def parse_csv(input, delim=','):
     r"""Input is a string consisting of lines, each line has comma-delimited
@@ -143,7 +154,9 @@ def parse_csv(input, delim=','):
 
 #______________________________________________________________________________
 
+
 class CountingProbDist:
+
     """A probability distribution formed by observing and counting examples.
     If p is an instance of this class and o is an observed value, then
     there are 3 main operations:
@@ -194,16 +207,19 @@ class CountingProbDist:
 
 #______________________________________________________________________________
 
+
 def PluralityLearner(dataset):
     """A very dumb algorithm: always pick the result that was most popular
     in the training data.  Makes a baseline for comparison."""
     most_popular = mode([e[dataset.target] for e in dataset.examples])
+
     def predict(example):
         "Always return same result: the most popular from the training set."
         return most_popular
     return predict
 
 #______________________________________________________________________________
+
 
 def NaiveBayesLearner(dataset):
     """Just count how many times each value of each input attribute
@@ -234,6 +250,7 @@ def NaiveBayesLearner(dataset):
 
 #______________________________________________________________________________
 
+
 def NearestNeighborLearner(dataset, k=1):
     "k-NearestNeighbor: the k nearest neighbors vote."
     def predict(example):
@@ -245,7 +262,9 @@ def NearestNeighborLearner(dataset, k=1):
 
 #______________________________________________________________________________
 
+
 class DecisionFork:
+
     """A fork of a decision tree holds an attribute to test, and a dict 
     of branches, one for each of the attribute's values."""
 
@@ -273,8 +292,10 @@ class DecisionFork:
     def __repr__(self):
         return ('DecisionFork(%r, %r, %r)'
                 % (self.attr, self.attrname, self.branches))
-    
+
+
 class DecisionLeaf:
+
     "A leaf of a decision tree holds just a result."
 
     def __init__(self, result):
@@ -288,8 +309,9 @@ class DecisionLeaf:
 
     def __repr__(self):
         return repr(self.result)
-    
+
 #______________________________________________________________________________
+
 
 def DecisionTreeLearner(dataset):
     "[Fig. 18.5]"
@@ -349,6 +371,7 @@ def DecisionTreeLearner(dataset):
 
     return decision_tree_learning(dataset.examples, dataset.inputs)
 
+
 def information_content(values):
     "Number of bits to represent the probability distribution in values."
     probabilities = normalize(removeall(0, values))
@@ -356,7 +379,8 @@ def information_content(values):
 
 #______________________________________________________________________________
 
-### A decision list is implemented as a list of (test, value) pairs.
+# A decision list is implemented as a list of (test, value) pairs.
+
 
 def DecisionListLearner(dataset):
     """[Fig. 18.11]"""
@@ -389,43 +413,52 @@ def DecisionListLearner(dataset):
 
 #______________________________________________________________________________
 
+
 def NeuralNetLearner(dataset, sizes):
-   """Layered feed-forward network."""
+    """Layered feed-forward network."""
 
-   activations = [[0.0 for i in range(n)] for n in sizes]
-   weights = []
+    activations = [[0.0 for i in range(n)] for n in sizes]
+    weights = []
 
-   def predict(example):
-      unimplemented()
+    def predict(example):
+        unimplemented()
 
-   return predict
+    return predict
+
 
 class NNUnit:
-   """Unit of a neural net."""
-   def __init__(self):
-       unimplemented()
+
+    """Unit of a neural net."""
+
+    def __init__(self):
+        unimplemented()
+
 
 def PerceptronLearner(dataset, sizes):
-   def predict(example):
-      return sum([])
-   unimplemented()
+    def predict(example):
+        return sum([])
+    unimplemented()
 #______________________________________________________________________________
 
+
 def Linearlearner(dataset):
-   """Fit a linear model to the data."""
-   unimplemented()
+    """Fit a linear model to the data."""
+    unimplemented()
 #______________________________________________________________________________
+
 
 def EnsembleLearner(learners):
     """Given a list of learning algorithms, have them vote."""
     def train(dataset):
         predictors = [learner(dataset) for learner in learners]
+
         def predict(example):
             return mode(predictor(example) for predictor in predictors)
         return predict
     return train
 
 #______________________________________________________________________________
+
 
 def AdaBoost(L, K):
     """[Fig. 18.34]"""
@@ -450,12 +483,14 @@ def AdaBoost(L, K):
         return WeightedMajority(h, z)
     return train
 
+
 def WeightedMajority(predictors, weights):
     "Return a predictor that takes a weighted vote."
     def predict(example):
         return weighted_mode((predictor(example) for predictor in predictors),
                              weights)
     return predict
+
 
 def weighted_mode(values, weights):
     """Return the value with the greatest total weight.
@@ -469,6 +504,7 @@ def weighted_mode(values, weights):
 #_____________________________________________________________________________
 # Adapting an unweighted learner for AdaBoost
 
+
 def WeightedLearner(unweighted_learner):
     """Given a learner that takes just an unweighted dataset, return
     one that takes also a weight for each example. [p. 749 footnote 14]"""
@@ -476,12 +512,14 @@ def WeightedLearner(unweighted_learner):
         return unweighted_learner(replicated_dataset(dataset, weights))
     return train
 
+
 def replicated_dataset(dataset, weights, n=None):
     "Copy dataset, replicating each example in proportion to its weight."
     n = n or len(dataset.examples)
     result = copy.copy(dataset)
     result.examples = weighted_replicate(dataset.examples, weights, n)
     return result
+
 
 def weighted_replicate(seq, weights, n):
     """Return n selections from seq, with the count of each element of
@@ -496,15 +534,19 @@ def weighted_replicate(seq, weights, n):
     return (flatten([x] * nx for x, nx in zip(seq, wholes))
             + weighted_sample_with_replacement(seq, fractions, n - sum(wholes)))
 
+
 def flatten(seqs): return sum(seqs, [])
 
 #_____________________________________________________________________________
 # Functions for testing learners on examples
 
+
 def test(predict, dataset, examples=None, verbose=0):
     "Return the proportion of the examples that are correctly predicted."
-    if examples is None: examples = dataset.examples
-    if len(examples) == 0: return 0.0
+    if examples is None:
+        examples = dataset.examples
+    if len(examples) == 0:
+        return 0.0
     right = 0.0
     for example in examples:
         desired = example[dataset.target]
@@ -512,11 +554,12 @@ def test(predict, dataset, examples=None, verbose=0):
         if output == desired:
             right += 1
             if verbose >= 2:
-               print('   OK: got %s for %s' % (desired, example))
+                print('   OK: got %s for %s' % (desired, example))
         elif verbose:
             print('WRONG: got %s, expected %s for %s' % (
-               output, desired, example))
+                output, desired, example))
     return right / len(examples)
+
 
 def train_and_test(learner, dataset, start, end):
     """Reserve dataset.examples[start:end] for test; train on the remainder.
@@ -527,6 +570,7 @@ def train_and_test(learner, dataset, start, end):
         return test(learner(dataset), dataset, examples[start:end])
     finally:
         dataset.examples = examples
+
 
 def cross_validation(learner, dataset, k=10, trials=1):
     """Do k-fold cross_validate and return their mean.
@@ -543,13 +587,16 @@ def cross_validation(learner, dataset, k=10, trials=1):
         return mean([train_and_test(learner, dataset, i*(n/k), (i+1)*(n/k))
                      for i in range(k)])
 
+
 def leave1out(learner, dataset):
     "Leave one out cross-validation over the dataset."
     return cross_validation(learner, dataset, k=len(dataset.examples))
 
+
 def learningcurve(learner, dataset, trials=10, sizes=None):
     if sizes is None:
         sizes = list(range(2, len(dataset.examples)-10, 2))
+
     def score(learner, size):
         random.shuffle(dataset.examples)
         return train_and_test(learner, dataset, 0, size)
@@ -575,13 +622,15 @@ iris = DataSet(name="iris", target="class",
 #______________________________________________________________________________
 # The Restaurant example from Fig. 18.2
 
+
 def RestaurantDataSet(examples=None):
     "Build a DataSet of Restaurant waiting examples. [Fig. 18.3]"
     return DataSet(name='restaurant', target='Wait', examples=examples,
                    attrnames='Alternate Bar Fri/Sat Hungry Patrons Price '
-                    + 'Raining Reservation Type WaitEstimate Wait')
+                   + 'Raining Reservation Type WaitEstimate Wait')
 
 restaurant = RestaurantDataSet()
+
 
 def T(attrname, branches):
     branches = dict((value, (child if isinstance(child, DecisionFork)
@@ -589,22 +638,22 @@ def T(attrname, branches):
                     for value, child in list(branches.items()))
     return DecisionFork(restaurant.attrnum(attrname), attrname, branches)
 
-Fig[18,2] = T('Patrons',
-             {'None': 'No', 'Some': 'Yes', 'Full':
-              T('WaitEstimate',
-                {'>60': 'No', '0-10': 'Yes',
-                 '30-60':
-                 T('Alternate', {'No':
-                                 T('Reservation', {'Yes': 'Yes', 'No':
-                                                   T('Bar', {'No':'No',
-                                                             'Yes':'Yes'})}),
-                                 'Yes':
-                                 T('Fri/Sat', {'No': 'No', 'Yes': 'Yes'})}),
-                 '10-30':
-                 T('Hungry', {'No': 'Yes', 'Yes':
-                           T('Alternate',
-                             {'No': 'Yes', 'Yes':
-                              T('Raining', {'No': 'No', 'Yes': 'Yes'})})})})})
+Fig[18, 2] = T('Patrons',
+               {'None': 'No', 'Some': 'Yes', 'Full':
+                T('WaitEstimate',
+                  {'>60': 'No', '0-10': 'Yes',
+                   '30-60':
+                   T('Alternate', {'No':
+                                   T('Reservation', {'Yes': 'Yes', 'No':
+                                                     T('Bar', {'No': 'No',
+                                                               'Yes': 'Yes'})}),
+                                   'Yes':
+                                   T('Fri/Sat', {'No': 'No', 'Yes': 'Yes'})}),
+                   '10-30':
+                   T('Hungry', {'No': 'Yes', 'Yes':
+                                T('Alternate',
+                                  {'No': 'Yes', 'Yes':
+                                   T('Raining', {'No': 'No', 'Yes': 'Yes'})})})})})
 
 __doc__ += """
 [Fig. 18.6]
@@ -625,16 +674,18 @@ Test Patrons
  Patrons = Some ==> RESULT = Yes
 """
 
+
 def SyntheticRestaurant(n=20):
     "Generate a DataSet with n examples."
     def gen():
         example = list(map(random.choice, restaurant.values))
-        example[restaurant.target] = Fig[18,2](example)
+        example[restaurant.target] = Fig[18, 2](example)
         return example
     return RestaurantDataSet([gen() for i in range(n)])
 
 #______________________________________________________________________________
 # Artificial, generated datasets.
+
 
 def Majority(k, n):
     """Return a DataSet with n k-bit examples of the majority problem:
@@ -646,6 +697,7 @@ def Majority(k, n):
         examples.append(bits)
     return DataSet(name="majority", examples=examples)
 
+
 def Parity(k, n, name="parity"):
     """Return a DataSet with n k-bit examples of the parity problem:
     k random bits followed by a 1 if an odd number of bits are 1, else 0."""
@@ -656,9 +708,11 @@ def Parity(k, n, name="parity"):
         examples.append(bits)
     return DataSet(name=name, examples=examples)
 
+
 def Xor(n):
     """Return a DataSet with n examples of 2-input xor."""
     return Parity(2, n, name="xor")
+
 
 def ContinuousXor(n):
     "2 inputs are chosen uniformly from (0.0 .. 2.0]; output is xor of ints."
@@ -670,6 +724,7 @@ def ContinuousXor(n):
 
 #______________________________________________________________________________
 
+
 def compare(algorithms=[PluralityLearner, NaiveBayesLearner,
                         NearestNeighborLearner, DecisionTreeLearner],
             datasets=[iris, orings, zoo, restaurant, SyntheticRestaurant(20),
@@ -677,7 +732,7 @@ def compare(algorithms=[PluralityLearner, NaiveBayesLearner,
             k=10, trials=1):
     """Compare various learners on various datasets using cross-validation.
     Print results as a table."""
-    print_table([[a.__name__.replace('Learner','')] +
+    print_table([[a.__name__.replace('Learner', '')] +
                  [cross_validation(a, d, k, trials) for d in datasets]
                  for a in algorithms],
                 header=[''] + [d.name[0:7] for d in datasets], numfmt='%.2f')

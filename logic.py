@@ -32,7 +32,9 @@ from collections import defaultdict
 
 #______________________________________________________________________________
 
+
 class KB:
+
     """A knowledge base to which you can tell and ask sentences.
     To create a KB, first subclass this class and implement
     tell, ask_generator, and retract.  Why ask_generator instead of ask?
@@ -67,6 +69,7 @@ class KB:
 
 
 class PropKB(KB):
+
     "A KB for propositional logic. Inefficient, with no indexing."
 
     def __init__(self, sentence=None):
@@ -90,6 +93,7 @@ class PropKB(KB):
                 self.clauses.remove(c)
 
 #______________________________________________________________________________
+
 
 def KB_AgentProgram(KB):
     """A generic logical knowledge-based agent program. [Fig. 7.1]"""
@@ -115,7 +119,9 @@ def KB_AgentProgram(KB):
 
 #______________________________________________________________________________
 
+
 class Expr:
+
     """A symbolic mathematical expression.  We use this class for logical
     expressions, and for terms within logical expressions. In general, an
     Expr has an op (operator) and a list of args.  The op can be:
@@ -165,7 +171,7 @@ class Expr:
         "Op is a string or number; args are Exprs (or are coerced to Exprs)."
         assert isinstance(op, str) or (isnumber(op) and not args)
         self.op = num_or_str(op)
-        self.args = list(map(expr, args)) ## Coerce args to Exprs
+        self.args = list(map(expr, args))  # Coerce args to Exprs
 
     def __call__(self, *args):
         """Self must be a symbol with no args, such as Expr('F').  Create a new
@@ -179,7 +185,7 @@ class Expr:
             return str(self.op)
         elif is_symbol(self.op):  # Functional or propositional operator
             return '%s(%s)' % (self.op, ', '.join(map(repr, self.args)))
-        elif len(self.args) == 1: # Prefix operator
+        elif len(self.args) == 1:  # Prefix operator
             return self.op + repr(self.args[0])
         else:                     # Infix operator
             return '(%s)' % (' '+self.op+' ').join(map(repr, self.args))
@@ -187,7 +193,7 @@ class Expr:
     def __eq__(self, other):
         """x and y are equal iff their ops and args are equal."""
         return (other is self) or (isinstance(other, Expr)
-            and self.op == other.op and self.args == other.args)
+                                   and self.op == other.op and self.args == other.args)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -198,25 +204,41 @@ class Expr:
 
     # See http://www.python.org/doc/current/lib/module-operator.html
     # Not implemented: not, abs, pos, concat, contains, *item, *slice
-    def __lt__(self, other):     return Expr('<',  self, other)
-    def __le__(self, other):     return Expr('<=', self, other)
-    def __ge__(self, other):     return Expr('>=', self, other)
-    def __gt__(self, other):     return Expr('>',  self, other)
-    def __add__(self, other):    return Expr('+',  self, other)
-    def __sub__(self, other):    return Expr('-',  self, other)
-    def __and__(self, other):    return Expr('&',  self, other)
-    def __div__(self, other):    return Expr('/',  self, other)
-    def __truediv__(self, other):return Expr('/',  self, other)
-    def __invert__(self):        return Expr('~',  self)
-    def __lshift__(self, other): return Expr('<<', self, other)
-    def __rshift__(self, other): return Expr('>>', self, other)
-    def __mul__(self, other):    return Expr('*',  self, other)
-    def __neg__(self):           return Expr('-',  self)
-    def __or__(self, other):     return Expr('|',  self, other)
-    def __pow__(self, other):    return Expr('**', self, other)
-    def __xor__(self, other):    return Expr('^',  self, other)
-    def __mod__(self, other):    return Expr('<=>',  self, other)
+    def __lt__(self, other): return Expr('<',  self, other)
 
+    def __le__(self, other): return Expr('<=', self, other)
+
+    def __ge__(self, other): return Expr('>=', self, other)
+
+    def __gt__(self, other): return Expr('>',  self, other)
+
+    def __add__(self, other): return Expr('+',  self, other)
+
+    def __sub__(self, other): return Expr('-',  self, other)
+
+    def __and__(self, other): return Expr('&',  self, other)
+
+    def __div__(self, other): return Expr('/',  self, other)
+
+    def __truediv__(self, other): return Expr('/',  self, other)
+
+    def __invert__(self): return Expr('~',  self)
+
+    def __lshift__(self, other): return Expr('<<', self, other)
+
+    def __rshift__(self, other): return Expr('>>', self, other)
+
+    def __mul__(self, other): return Expr('*',  self, other)
+
+    def __neg__(self): return Expr('-',  self)
+
+    def __or__(self, other): return Expr('|',  self, other)
+
+    def __pow__(self, other): return Expr('**', self, other)
+
+    def __xor__(self, other): return Expr('^',  self, other)
+
+    def __mod__(self, other): return Expr('<=>',  self, other)
 
 
 def expr(s):
@@ -234,28 +256,34 @@ def expr(s):
     >>> expr('P & Q | ~R(x, F(x))')
     ((P & Q) | ~R(x, F(x)))
     """
-    if isinstance(s, Expr): return s
-    if isnumber(s): return Expr(s)
-    ## Replace the alternative spellings of operators with canonical spellings
+    if isinstance(s, Expr):
+        return s
+    if isnumber(s):
+        return Expr(s)
+    # Replace the alternative spellings of operators with canonical spellings
     s = s.replace('==>', '>>').replace('<==', '<<')
     s = s.replace('<=>', '%').replace('=/=', '^')
-    ## Replace a symbol or number, such as 'P' with 'Expr("P")'
+    # Replace a symbol or number, such as 'P' with 'Expr("P")'
     s = re.sub(r'([a-zA-Z0-9_.]+)', r'Expr("\1")', s)
-    ## Now eval the string.  (A security hole; do not use with an adversary.)
-    return eval(s, {'Expr':Expr})
+    # Now eval the string.  (A security hole; do not use with an adversary.)
+    return eval(s, {'Expr': Expr})
+
 
 def is_symbol(s):
     "A string s is a symbol if it starts with an alphabetic char."
     return isinstance(s, str) and s[:1].isalpha()
 
+
 def is_var_symbol(s):
     "A logic variable symbol is an initial-lowercase string."
     return is_symbol(s) and s[0].islower()
+
 
 def is_prop_symbol(s):
     """A proposition logic symbol is an initial-uppercase string other than
     TRUE or FALSE."""
     return is_symbol(s) and s[0].isupper() and s != 'TRUE' and s != 'FALSE'
+
 
 def variables(s):
     """Return a set of the variables in expression s.
@@ -267,6 +295,7 @@ def variables(s):
     set([x, y, z])
     """
     result = set([])
+
     def walk(s):
         if is_variable(s):
             result.add(s)
@@ -275,6 +304,7 @@ def variables(s):
                 walk(arg)
     walk(s)
     return result
+
 
 def is_definite_clause(s):
     """returns True for exprs s of the form A & B & ... & C ==> D,
@@ -300,6 +330,7 @@ def is_definite_clause(s):
     else:
         return False
 
+
 def parse_definite_clause(s):
     "Return the antecedents and the consequent of a definite clause."
     assert is_definite_clause(s)
@@ -309,11 +340,12 @@ def parse_definite_clause(s):
         antecedent, consequent = s.args
         return conjuncts(antecedent), consequent
 
-## Useful constant Exprs used in examples and code:
+# Useful constant Exprs used in examples and code:
 TRUE, FALSE, ZERO, ONE, TWO = list(map(Expr, ['TRUE', 'FALSE', 0, 1, 2]))
-A, B, C, D, E, F, G, P, Q, x, y, z  = list(map(Expr, 'ABCDEFGPQxyz'))
+A, B, C, D, E, F, G, P, Q, x, y, z = list(map(Expr, 'ABCDEFGPQxyz'))
 
 #______________________________________________________________________________
+
 
 def tt_entails(kb, alpha):
     """Does kb entail the sentence alpha? Use truth tables. For propositional
@@ -323,6 +355,7 @@ def tt_entails(kb, alpha):
     """
     assert not variables(alpha)
     return tt_check_all(kb, alpha, prop_symbols(kb & alpha), {})
+
 
 def tt_check_all(kb, alpha, symbols, model):
     "Auxiliary routine to implement tt_entails."
@@ -338,6 +371,7 @@ def tt_check_all(kb, alpha, symbols, model):
         return (tt_check_all(kb, alpha, rest, extend(model, P, True)) and
                 tt_check_all(kb, alpha, rest, extend(model, P, False)))
 
+
 def prop_symbols(x):
     "Return a list of all propositional symbols in x."
     if not isinstance(x, Expr):
@@ -348,6 +382,7 @@ def prop_symbols(x):
         return list(set(symbol for arg in x.args
                         for symbol in prop_symbols(arg)))
 
+
 def tt_true(alpha):
     """Is the propositional sentence alpha a tautology? (alpha will be
     coerced to an expr.)
@@ -355,6 +390,7 @@ def tt_true(alpha):
     True
     """
     return tt_entails(TRUE, expr(alpha))
+
 
 def pl_true(exp, model={}):
     """Return True if the propositional logic expression is true in the model,
@@ -370,21 +406,27 @@ def pl_true(exp, model={}):
         return model.get(exp)
     elif op == '~':
         p = pl_true(args[0], model)
-        if p is None: return None
-        else: return not p
+        if p is None:
+            return None
+        else:
+            return not p
     elif op == '|':
         result = False
         for arg in args:
             p = pl_true(arg, model)
-            if p is True: return True
-            if p is None: result = None
+            if p is True:
+                return True
+            if p is None:
+                result = None
         return result
     elif op == '&':
         result = True
         for arg in args:
             p = pl_true(arg, model)
-            if p is False: return False
-            if p is None: result = None
+            if p is False:
+                return False
+            if p is None:
+                result = None
         return result
     p, q = args
     if op == '>>':
@@ -392,9 +434,11 @@ def pl_true(exp, model={}):
     elif op == '<<':
         return pl_true(p | ~q, model)
     pt = pl_true(p, model)
-    if pt is None: return None
+    if pt is None:
+        return None
     qt = pl_true(q, model)
-    if qt is None: return None
+    if qt is None:
+        return None
     if op == '<=>':
         return pt == qt
     elif op == '^':
@@ -404,7 +448,8 @@ def pl_true(exp, model={}):
 
 #______________________________________________________________________________
 
-## Convert to Conjunctive Normal Form (CNF)
+# Convert to Conjunctive Normal Form (CNF)
+
 
 def to_cnf(s):
     """Convert a propositional logical sentence s to conjunctive normal form.
@@ -420,10 +465,12 @@ def to_cnf(s):
     >>> to_cnf("A | (B | (C | (D & E)))")
     ((D | A | B | C) & (E | A | B | C))
     """
-    if isinstance(s, str): s = expr(s)
-    s = eliminate_implications(s) # Steps 1, 2 from p. 253
-    s = move_not_inwards(s) # Step 3
-    return distribute_and_over_or(s) # Step 4
+    if isinstance(s, str):
+        s = expr(s)
+    s = eliminate_implications(s)  # Steps 1, 2 from p. 253
+    s = move_not_inwards(s)  # Step 3
+    return distribute_and_over_or(s)  # Step 4
+
 
 def eliminate_implications(s):
     """Change >>, <<, and <=> into &, |, and ~. That is, return an Expr
@@ -433,7 +480,8 @@ def eliminate_implications(s):
     >>> eliminate_implications(A ^ B)
     ((A & ~B) | (~A & B))
     """
-    if not s.args or is_symbol(s.op): return s     ## (Atoms are unchanged.)
+    if not s.args or is_symbol(s.op):
+        return s  # (Atoms are unchanged.)
     args = list(map(eliminate_implications, s.args))
     a, b = args[0], args[-1]
     if s.op == '>>':
@@ -443,11 +491,12 @@ def eliminate_implications(s):
     elif s.op == '<=>':
         return (a | ~b) & (b | ~a)
     elif s.op == '^':
-        assert len(args) == 2   ## TODO: relax this restriction
+        assert len(args) == 2  # TODO: relax this restriction
         return (a & ~b) | (~a & b)
     else:
         assert s.op in ('&', '|', '~')
         return Expr(s.op, *args)
+
 
 def move_not_inwards(s):
     """Rewrite sentence s by moving negation sign inward.
@@ -461,14 +510,18 @@ def move_not_inwards(s):
     if s.op == '~':
         NOT = lambda b: move_not_inwards(~b)
         a = s.args[0]
-        if a.op == '~': return move_not_inwards(a.args[0]) # ~~A ==> A
-        if a.op =='&': return associate('|', list(map(NOT, a.args)))
-        if a.op =='|': return associate('&', list(map(NOT, a.args)))
+        if a.op == '~':
+            return move_not_inwards(a.args[0])  # ~~A ==> A
+        if a.op == '&':
+            return associate('|', list(map(NOT, a.args)))
+        if a.op == '|':
+            return associate('&', list(map(NOT, a.args)))
         return s
     elif is_symbol(s.op) or not s.args:
         return s
     else:
         return Expr(s.op, *list(map(move_not_inwards, s.args)))
+
 
 def distribute_and_over_or(s):
     """Given a sentence s consisting of conjunctions and disjunctions
@@ -489,12 +542,13 @@ def distribute_and_over_or(s):
             return s
         others = [a for a in s.args if a is not conj]
         rest = associate('|', others)
-        return associate('&', [distribute_and_over_or(c|rest)
+        return associate('&', [distribute_and_over_or(c | rest)
                                for c in conj.args])
     elif s.op == '&':
         return associate('&', list(map(distribute_and_over_or, s.args)))
     else:
         return s
+
 
 def associate(op, args):
     """Given an associative op, return an expression with the same
@@ -513,18 +567,23 @@ def associate(op, args):
     else:
         return Expr(op, *args)
 
-_op_identity = {'&':TRUE, '|':FALSE, '+':ZERO, '*':ONE}
+_op_identity = {'&': TRUE, '|': FALSE, '+': ZERO, '*': ONE}
+
 
 def dissociate(op, args):
     """Given an associative op, return a flattened list result such
     that Expr(op, *result) means the same as Expr(op, *args)."""
     result = []
+
     def collect(subargs):
         for arg in subargs:
-            if arg.op == op: collect(arg.args)
-            else: result.append(arg)
+            if arg.op == op:
+                collect(arg.args)
+            else:
+                result.append(arg)
     collect(args)
     return result
+
 
 def conjuncts(s):
     """Return a list of the conjuncts in the sentence s.
@@ -534,6 +593,7 @@ def conjuncts(s):
     [(A | B)]
     """
     return dissociate('&', [s])
+
 
 def disjuncts(s):
     """Return a list of the disjuncts in the sentence s.
@@ -546,6 +606,7 @@ def disjuncts(s):
 
 #______________________________________________________________________________
 
+
 def pl_resolution(KB, alpha):
     "Propositional-logic resolution: say if alpha follows from KB. [Fig. 7.12]"
     clauses = KB.clauses + conjuncts(to_cnf(~alpha))
@@ -556,11 +617,15 @@ def pl_resolution(KB, alpha):
                  for i in range(n) for j in range(i+1, n)]
         for (ci, cj) in pairs:
             resolvents = pl_resolve(ci, cj)
-            if FALSE in resolvents: return True
+            if FALSE in resolvents:
+                return True
             new = new.union(set(resolvents))
-        if new.issubset(set(clauses)): return False
+        if new.issubset(set(clauses)):
+            return False
         for c in new:
-            if c not in clauses: clauses.append(c)
+            if c not in clauses:
+                clauses.append(c)
+
 
 def pl_resolve(ci, cj):
     """Return all clauses that can be obtained by resolving clauses ci and cj.
@@ -580,7 +645,9 @@ def pl_resolve(ci, cj):
 
 #______________________________________________________________________________
 
+
 class PropDefiniteKB(PropKB):
+
     "A KB of propositional definite clauses."
 
     def tell(self, sentence):
@@ -602,6 +669,7 @@ class PropDefiniteKB(PropKB):
         return [c for c in self.clauses
                 if c.op == '>>' and p in conjuncts(c.args[0])]
 
+
 def pl_fc_entails(KB, q):
     """Use forward chaining to see if a PropDefiniteKB entails symbol q.
     [Fig. 7.15]
@@ -609,12 +677,13 @@ def pl_fc_entails(KB, q):
     True
     """
     count = dict([(c, len(conjuncts(c.args[0]))) for c in KB.clauses
-                                                 if c.op == '>>'])
+                  if c.op == '>>'])
     inferred = defaultdict(bool)
     agenda = [s for s in KB.clauses if is_prop_symbol(s.op)]
     while agenda:
         p = agenda.pop()
-        if p == q: return True
+        if p == q:
+            return True
         if not inferred[p]:
             inferred[p] = True
             for c in KB.clauses_with_premise(p):
@@ -623,16 +692,17 @@ def pl_fc_entails(KB, q):
                     agenda.append(c.args[1])
     return False
 
-## Wumpus World example [Fig. 7.13]
-Fig[7,13] = expr("(B11 <=> (P12 | P21))  &  ~B11")
+# Wumpus World example [Fig. 7.13]
+Fig[7, 13] = expr("(B11 <=> (P12 | P21))  &  ~B11")
 
-## Propositional Logic Forward Chaining example [Fig. 7.16]
-Fig[7,15] = PropDefiniteKB()
+# Propositional Logic Forward Chaining example [Fig. 7.16]
+Fig[7, 15] = PropDefiniteKB()
 for s in "P>>Q   (L&M)>>P   (B&L)>>M   (A&P)>>L   (A&B)>>L   A   B".split():
-    Fig[7,15].tell(expr(s))
+    Fig[7, 15].tell(expr(s))
 
 #______________________________________________________________________________
 # DPLL-Satisfiable [Fig. 7.17]
+
 
 def dpll_satisfiable(s):
     """Check satisfiability of a propositional sentence.
@@ -649,11 +719,12 @@ def dpll_satisfiable(s):
     symbols = prop_symbols(s)
     return dpll(clauses, symbols, {})
 
+
 def dpll(clauses, symbols, model):
     "See if the clauses are true in a partial model."
-    unknown_clauses = [] ## clauses with an unknown truth value
+    unknown_clauses = []  # clauses with an unknown truth value
     for c in clauses:
-        val =  pl_true(c, model)
+        val = pl_true(c, model)
         if val == False:
             return False
         if val != True:
@@ -672,6 +743,7 @@ def dpll(clauses, symbols, model):
     return (dpll(clauses, symbols, extend(model, P, True)) or
             dpll(clauses, symbols, extend(model, P, False)))
 
+
 def find_pure_symbol(symbols, clauses):
     """Find a symbol and its value if it appears only as a positive literal
     (or only as a negative) in clauses.
@@ -681,10 +753,14 @@ def find_pure_symbol(symbols, clauses):
     for s in symbols:
         found_pos, found_neg = False, False
         for c in clauses:
-            if not found_pos and s in disjuncts(c): found_pos = True
-            if not found_neg and ~s in disjuncts(c): found_neg = True
-        if found_pos != found_neg: return s, found_pos
+            if not found_pos and s in disjuncts(c):
+                found_pos = True
+            if not found_neg and ~s in disjuncts(c):
+                found_neg = True
+        if found_pos != found_neg:
+            return s, found_pos
     return None, None
+
 
 def find_unit_clause(clauses, model):
     """Find a forced assignment if possible from a clause with only 1
@@ -694,8 +770,10 @@ def find_unit_clause(clauses, model):
     """
     for clause in clauses:
         P, value = unit_clause_assign(clause, model)
-        if P: return P, value
+        if P:
+            return P, value
     return None, None
+
 
 def unit_clause_assign(clause, model):
     """Return a single variable/value pair that makes clause true in
@@ -719,6 +797,7 @@ def unit_clause_assign(clause, model):
             P, value = sym, positive
     return P, value
 
+
 def inspect_literal(literal):
     """The symbol in this literal, and the value it should take to
     make the literal true.
@@ -735,36 +814,43 @@ def inspect_literal(literal):
 #______________________________________________________________________________
 # Walk-SAT [Fig. 7.18]
 
+
 def WalkSAT(clauses, p=0.5, max_flips=10000):
-    ## model is a random assignment of true/false to the symbols in clauses
-    ## See ~/aima1e/print1/manual/knowledge+logic-answers.tex ???
+    # model is a random assignment of true/false to the symbols in clauses
+    # See ~/aima1e/print1/manual/knowledge+logic-answers.tex ???
     model = dict([(s, random.choice([True, False]))
-                 for s in prop_symbols(clauses)])
+                  for s in prop_symbols(clauses)])
     for i in range(max_flips):
         satisfied, unsatisfied = [], []
         for clause in clauses:
-            (satisfied if pl_true(clause, model) else unsatisfied).append(clause)
-        if not unsatisfied: ## if model satisfies all the clauses
+            (satisfied if pl_true(clause, model) else unsatisfied).append(
+                clause)
+        if not unsatisfied:  # if model satisfies all the clauses
             return model
         clause = random.choice(unsatisfied)
         if probability(p):
             sym = random.choice(prop_symbols(clause))
         else:
-            ## Flip the symbol in clause that maximizes number of sat. clauses
+            # Flip the symbol in clause that maximizes number of sat. clauses
             raise NotImplementedError
         model[sym] = not model[sym]
 
 #______________________________________________________________________________
 
+
 class HybridWumpusAgent(agents.Agent):
+
     "An agent for the wumpus world that does logical inference. [Fig. 7.19]"""
+
     def __init__(self):
         unimplemented()
+
 
 def plan_route(current, goals, allowed):
     unimplemented()
 
 #______________________________________________________________________________
+
 
 def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     "[Fig. 7.22]"
@@ -775,13 +861,16 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
             return extract_solution(model)
     return None
 
+
 def translate_to_SAT(init, transition, goal, t):
     unimplemented()
+
 
 def extract_solution(model):
     unimplemented()
 
 #______________________________________________________________________________
+
 
 def unify(x, y, s):
     """Unify expressions x,y with substitution s; return a substitution that
@@ -803,14 +892,17 @@ def unify(x, y, s):
     elif isinstance(x, str) or isinstance(y, str):
         return None
     elif issequence(x) and issequence(y) and len(x) == len(y):
-        if not x: return s
+        if not x:
+            return s
         return unify(x[1:], y[1:], unify(x[0], y[0], s))
     else:
         return None
 
+
 def is_variable(x):
     "A variable is an Expr with no args and a lowercase symbol as the op."
     return isinstance(x, Expr) and not x.args and is_var_symbol(x.op)
+
 
 def unify_var(var, x, s):
     if var in s:
@@ -819,6 +911,7 @@ def unify_var(var, x, s):
         return None
     else:
         return extend(s, var, x)
+
 
 def occur_check(var, x, s):
     """Return true if variable var occurs anywhere in x
@@ -835,6 +928,7 @@ def occur_check(var, x, s):
     else:
         return False
 
+
 def extend(s, var, val):
     """Copy the substitution s and extend it by setting var to val;
     return copy.
@@ -844,6 +938,7 @@ def extend(s, var, val):
     s2 = s.copy()
     s2[var] = val
     return s2
+
 
 def subst(s, x):
     """Substitute the substitution s into the expression x.
@@ -861,6 +956,7 @@ def subst(s, x):
     else:
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
+
 def fol_fc_ask(KB, alpha):
     """Inefficient forward chaining for first-order logic. [Fig. 9.3]
     KB is a FolKB and alpha must be an atomic sentence."""
@@ -869,6 +965,7 @@ def fol_fc_ask(KB, alpha):
         for r in KB.clauses:
             ps, q = parse_definite_clause(standardize_variables(r))
             raise NotImplementedError
+
 
 def standardize_variables(sentence, dic=None):
     """Replace all the variables in sentence with new variables.
@@ -880,7 +977,8 @@ def standardize_variables(sentence, dic=None):
     >>> is_variable(standardize_variables(expr('x')))
     True
     """
-    if dic is None: dic = {}
+    if dic is None:
+        dic = {}
     if not isinstance(sentence, Expr):
         return sentence
     elif is_var_symbol(sentence.op):
@@ -898,7 +996,9 @@ standardize_variables.counter = itertools.count()
 
 #______________________________________________________________________________
 
+
 class FolKB(KB):
+
     """A knowledge base consisting of first-order definite clauses.
     >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Pete)'),
     ...              expr('(Rabbit(r) & Farmer(f)) ==> Hates(f, r)')])
@@ -909,8 +1009,9 @@ class FolKB(KB):
     >>> kb0.ask(expr('Wife(Pete, x)'))
     False
     """
+
     def __init__(self, initial_clauses=[]):
-        self.clauses = [] # inefficient: no indexing
+        self.clauses = []  # inefficient: no indexing
         for clause in initial_clauses:
             self.tell(clause)
 
@@ -929,6 +1030,7 @@ class FolKB(KB):
     def fetch_rules_for_goal(self, goal):
         return self.clauses
 
+
 def test_ask(query, kb=None):
     q = expr(query)
     vars = variables(q)
@@ -939,32 +1041,33 @@ def test_ask(query, kb=None):
 
 test_kb = FolKB(
     list(map(expr, ['Farmer(Mac)',
-               'Rabbit(Pete)',
-               'Mother(MrsMac, Mac)',
-               'Mother(MrsRabbit, Pete)',
-               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
-               '(Mother(m, c)) ==> Loves(m, c)',
-               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
-               '(Farmer(f)) ==> Human(f)',
-               # Note that this order of conjuncts
-               # would result in infinite recursion:
-               #'(Human(h) & Mother(m, h)) ==> Human(m)'
-               '(Mother(m, h) & Human(h)) ==> Human(m)'
-               ]))
+                    'Rabbit(Pete)',
+                    'Mother(MrsMac, Mac)',
+                    'Mother(MrsRabbit, Pete)',
+                    '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
+                    '(Mother(m, c)) ==> Loves(m, c)',
+                    '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
+                    '(Farmer(f)) ==> Human(f)',
+                    # Note that this order of conjuncts
+                    # would result in infinite recursion:
+                    #'(Human(h) & Mother(m, h)) ==> Human(m)'
+                    '(Mother(m, h) & Human(h)) ==> Human(m)'
+                    ]))
 )
 
 crime_kb = FolKB(
-  list(map(expr,
-    ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
-     'Owns(Nono, M1)',
-     'Missile(M1)',
-     '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-     'Missile(x) ==> Weapon(x)',
-     'Enemy(x, America) ==> Hostile(x)',
-     'American(West)',
-     'Enemy(Nono, America)'
-     ]))
+    list(map(expr,
+             ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+              'Owns(Nono, M1)',
+              'Missile(M1)',
+              '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+              'Missile(x) ==> Weapon(x)',
+              'Enemy(x, America) ==> Hostile(x)',
+              'American(West)',
+              'Enemy(Nono, America)'
+              ]))
 )
+
 
 def fol_bc_ask(KB, query):
     """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
@@ -984,11 +1087,13 @@ def fol_bc_ask(KB, query):
     """
     return fol_bc_or(KB, query, {})
 
+
 def fol_bc_or(KB, goal, theta):
     for rule in KB.fetch_rules_for_goal(goal):
         lhs, rhs = parse_definite_clause(standardize_variables(rule))
         for theta1 in fol_bc_and(KB, lhs, unify(rhs, goal, theta)):
             yield theta1
+
 
 def fol_bc_and(KB, goals, theta):
     if theta is None:
@@ -1007,6 +1112,7 @@ def fol_bc_and(KB, goals, theta):
 # You can use the Expr class to do symbolic differentiation.  This used to be
 # a part of AI; now it is considered a separate field, Symbolic Algebra.
 
+
 def diff(y, x):
     """Return the symbolic derivative, dy/dx, as an Expr.
     However, you probably want to simplify the results with simp.
@@ -1015,74 +1121,115 @@ def diff(y, x):
     >>> simp(diff(x * x, x))
     (2 * x)
     """
-    if y == x: return ONE
-    elif not y.args: return ZERO
+    if y == x:
+        return ONE
+    elif not y.args:
+        return ZERO
     else:
         u, op, v = y.args[0], y.op, y.args[-1]
-        if op == '+': return diff(u, x) + diff(v, x)
-        elif op == '-' and len(args) == 1: return -diff(u, x)
-        elif op == '-': return diff(u, x) - diff(v, x)
-        elif op == '*': return u * diff(v, x) + v * diff(u, x)
-        elif op == '/': return (v*diff(u, x) - u*diff(v, x)) / (v * v)
+        if op == '+':
+            return diff(u, x) + diff(v, x)
+        elif op == '-' and len(args) == 1:
+            return -diff(u, x)
+        elif op == '-':
+            return diff(u, x) - diff(v, x)
+        elif op == '*':
+            return u * diff(v, x) + v * diff(u, x)
+        elif op == '/':
+            return (v*diff(u, x) - u*diff(v, x)) / (v * v)
         elif op == '**' and isnumber(x.op):
             return (v * u ** (v - 1) * diff(u, x))
-        elif op == '**': return (v * u ** (v - 1) * diff(u, x)
-                                 + u ** v * Expr('log')(u) * diff(v, x))
-        elif op == 'log': return diff(u, x) / u
-        else: raise ValueError("Unknown op: %s in diff(%s, %s)" % (op, y, x))
+        elif op == '**':
+            return (v * u ** (v - 1) * diff(u, x)
+                    + u ** v * Expr('log')(u) * diff(v, x))
+        elif op == 'log':
+            return diff(u, x) / u
+        else:
+            raise ValueError("Unknown op: %s in diff(%s, %s)" % (op, y, x))
+
 
 def simp(x):
-    if not x.args: return x
+    if not x.args:
+        return x
     args = list(map(simp, x.args))
     u, op, v = args[0], x.op, args[-1]
     if op == '+':
-        if v == ZERO: return u
-        if u == ZERO: return v
-        if u == v: return TWO * u
-        if u == -v or v == -u: return ZERO
+        if v == ZERO:
+            return u
+        if u == ZERO:
+            return v
+        if u == v:
+            return TWO * u
+        if u == -v or v == -u:
+            return ZERO
     elif op == '-' and len(args) == 1:
-        if u.op == '-' and len(u.args) == 1: return u.args[0] ## --y ==> y
+        if u.op == '-' and len(u.args) == 1:
+            return u.args[0]  # --y ==> y
     elif op == '-':
-        if v == ZERO: return u
-        if u == ZERO: return -v
-        if u == v: return ZERO
-        if u == -v or v == -u: return ZERO
+        if v == ZERO:
+            return u
+        if u == ZERO:
+            return -v
+        if u == v:
+            return ZERO
+        if u == -v or v == -u:
+            return ZERO
     elif op == '*':
-        if u == ZERO or v == ZERO: return ZERO
-        if u == ONE: return v
-        if v == ONE: return u
-        if u == v: return u ** 2
+        if u == ZERO or v == ZERO:
+            return ZERO
+        if u == ONE:
+            return v
+        if v == ONE:
+            return u
+        if u == v:
+            return u ** 2
     elif op == '/':
-        if u == ZERO: return ZERO
-        if v == ZERO: return Expr('Undefined')
-        if u == v: return ONE
-        if u == -v or v == -u: return ZERO
+        if u == ZERO:
+            return ZERO
+        if v == ZERO:
+            return Expr('Undefined')
+        if u == v:
+            return ONE
+        if u == -v or v == -u:
+            return ZERO
     elif op == '**':
-        if u == ZERO: return ZERO
-        if v == ZERO: return ONE
-        if u == ONE: return ONE
-        if v == ONE: return u
+        if u == ZERO:
+            return ZERO
+        if v == ZERO:
+            return ONE
+        if u == ONE:
+            return ONE
+        if v == ONE:
+            return u
     elif op == 'log':
-        if u == ONE: return ZERO
-    else: raise ValueError("Unknown op: " + op)
-    ## If we fall through to here, we can not simplify further
+        if u == ONE:
+            return ZERO
+    else:
+        raise ValueError("Unknown op: " + op)
+    # If we fall through to here, we can not simplify further
     return Expr(op, *args)
+
 
 def d(y, x):
     "Differentiate and then simplify."
     return simp(diff(y, x))
 
-#_______________________________________________________________________________
+#_________________________________________________________________________
 
 # Utilities for doctest cases
 # These functions print their arguments in a standard order
 # to compensate for the random order in the standard representation
 
+
 def pretty(x):
     t = type(x)
-    if t is dict:  return pretty_dict(x)
-    elif t is set: return pretty_set(x)
-    else:          return repr(x)
+    if t is dict:
+        return pretty_dict(x)
+    elif t is set:
+        return pretty_set(x)
+    else:
+        return repr(x)
+
 
 def pretty_dict(d):
     """Return dictionary d's repr but with the items sorted.
@@ -1094,6 +1241,7 @@ def pretty_dict(d):
     return '{%s}' % ', '.join('%r: %r' % (k, v)
                               for k, v in sorted(list(d.items()), key=repr))
 
+
 def pretty_set(s):
     """Return set s's repr but with the items sorted.
     >>> pretty_set(set(['A', 'Q', 'F', 'K', 'Y', 'B']))
@@ -1103,22 +1251,29 @@ def pretty_set(s):
     """
     return 'set(%r)' % sorted(s, key=repr)
 
+
 def pp(x):
     print((pretty(x)))
+
 
 def ppsubst(s):
     """Pretty-print substitution s"""
     ppdict(s)
 
+
 def ppdict(d):
     print((pretty_dict(d)))
+
 
 def ppset(s):
     print((pretty_set(s)))
 
 #________________________________________________________________________
 
-class logicTest: """
+
+class logicTest:
+
+    """
 ### PropKB
 >>> kb = PropKB()
 >>> kb.tell(A & B)

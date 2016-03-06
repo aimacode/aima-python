@@ -4,4 +4,9 @@
 
 from utils import *
 import agents
-import math, random, sys, time, bisect, string
+import math
+import random
+import sys
+import time
+import bisect
+import string

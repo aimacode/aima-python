@@ -3,11 +3,12 @@
 
 from utils import *
 from logic import extend
-import random 
+import random
 from collections import defaultdict
 from functools import reduce
 
 #______________________________________________________________________________
+
 
 def DTAgentProgram(belief_state):
     "A decision-theoretic agent. [Fig. 13.1]"
@@ -21,7 +22,9 @@ def DTAgentProgram(belief_state):
 
 #______________________________________________________________________________
 
+
 class ProbDist:
+
     """A discrete probability distribution.  You name the random variable
     in the constructor, then assign and query probability of values.
     >>> P = ProbDist('Flip'); P['H'], P['T'] = 0.25, 0.75; P['H']
@@ -30,6 +33,7 @@ class ProbDist:
     >>> P['lo'], P['med'], P['hi']
     (0.125, 0.375, 0.5)
     """
+
     def __init__(self, varname='?', freqs=None):
         """If freqs is given, it is a dictionary of value: frequency pairs,
         and the ProbDist then is normalized."""
@@ -41,8 +45,10 @@ class ProbDist:
 
     def __getitem__(self, val):
         "Given a value, return P(value)."
-        try: return self.prob[val]
-        except KeyError: return 0
+        try:
+            return self.prob[val]
+        except KeyError:
+            return 0
 
     def __setitem__(self, val, p):
         "Set P(val) = p."
@@ -73,7 +79,9 @@ class ProbDist:
 
 epsilon = 0.001
 
+
 class JointProbDist(ProbDist):
+
     """A discrete probability distribute over a set of variables.
     >>> P = JointProbDist(['X', 'Y']); P[1, 1] = 0.25
     >>> P[1, 1]
@@ -81,6 +89,7 @@ class JointProbDist(ProbDist):
     >>> P[dict(X=0, Y=1)] = 0.5
     >>> P[dict(X=0, Y=1)]
     0.5"""
+
     def __init__(self, variables):
         update(self, prob={}, variables=variables, vals=defaultdict(list))
 
@@ -106,6 +115,7 @@ class JointProbDist(ProbDist):
     def __repr__(self):
         return "P(%s)" % self.variables
 
+
 def event_values(event, vars):
     """Return a tuple of the values of variables vars in event.
     >>> event_values ({'A': 10, 'B': 9, 'C': 8}, ['C', 'A'])
@@ -120,6 +130,7 @@ def event_values(event, vars):
 
 #______________________________________________________________________________
 
+
 def enumerate_joint_ask(X, e, P):
     """Return a probability distribution over the values of the variable X,
     given the {var:val} observations e, in the JointProbDist P. [Section 13.3]
@@ -129,11 +140,12 @@ def enumerate_joint_ask(X, e, P):
     '0: 0.667, 1: 0.167, 2: 0.167'
     """
     assert X not in e, "Query variable must be distinct from evidence"
-    Q = ProbDist(X) # probability distribution for X, initially empty
-    Y = [v for v in P.variables if v != X and v not in e] # hidden vars.
+    Q = ProbDist(X)  # probability distribution for X, initially empty
+    Y = [v for v in P.variables if v != X and v not in e]  # hidden vars.
     for xi in P.values(X):
         Q[xi] = enumerate_joint(Y, extend(e, X, xi), P)
     return Q.normalize()
+
 
 def enumerate_joint(vars, e, P):
     """Return the sum of those entries in P consistent with e,
@@ -146,7 +158,9 @@ def enumerate_joint(vars, e, P):
 
 #______________________________________________________________________________
 
+
 class BayesNet:
+
     "Bayesian network containing only boolean-variable nodes."
 
     def __init__(self, node_specs=[]):
@@ -182,7 +196,9 @@ class BayesNet:
     def __repr__(self):
         return 'BayesNet(%r)' % self.nodes
 
+
 class BayesNode:
+
     """A conditional probability distribution for a boolean variable,
     P(X | parents). Part of a BayesNet."""
 
@@ -210,13 +226,15 @@ class BayesNode:
         >>> Z = BayesNode('Z', 'P Q',
         ...    {(T, T): 0.2, (T, F): 0.3, (F, T): 0.5, (F, F): 0.7})
         """
-        if isinstance(parents, str): parents = parents.split()
+        if isinstance(parents, str):
+            parents = parents.split()
 
         # We store the table always in the third form above.
-        if isinstance(cpt, (float, int)): # no parents, 0-tuple
+        if isinstance(cpt, (float, int)):  # no parents, 0-tuple
             cpt = {(): cpt}
         elif isinstance(cpt, dict):
-            if cpt and isinstance(list(cpt.keys())[0], bool): # one parent, 1-tuple
+            # one parent, 1-tuple
+            if cpt and isinstance(list(cpt.keys())[0], bool):
                 cpt = dict(((v,), p) for v, p in list(cpt.items()))
 
         assert isinstance(cpt, dict)
@@ -257,12 +275,13 @@ burglary = BayesNet([
     ('Burglary', '', 0.001),
     ('Earthquake', '', 0.002),
     ('Alarm', 'Burglary Earthquake',
-         {(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001}),
+     {(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001}),
     ('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
     ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})
-    ])
+])
 
 #______________________________________________________________________________
+
 
 def enumeration_ask(X, e, bn):
     """Return the conditional probability distribution of variable X
@@ -275,6 +294,7 @@ def enumeration_ask(X, e, bn):
     for xi in bn.variable_values(X):
         Q[xi] = enumerate_all(bn.vars, extend(e, X, xi), bn)
     return Q.normalize()
+
 
 def enumerate_all(vars, e, bn):
     """Return the sum of those entries in P(vars | e{others})
@@ -293,6 +313,7 @@ def enumerate_all(vars, e, bn):
 
 #______________________________________________________________________________
 
+
 def elimination_ask(X, e, bn):
     """Compute bn's P(X|e) by variable elimination. [Fig. 14.11]
     >>> elimination_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary
@@ -306,9 +327,11 @@ def elimination_ask(X, e, bn):
             factors = sum_out(var, factors, bn)
     return pointwise_product(factors, bn).normalize()
 
+
 def is_hidden(var, X, e):
     "Is var a hidden variable when querying P(X|e)?"
     return var != X and var not in e
+
 
 def make_factor(var, e, bn):
     """Return the factor for var in bn's joint distribution given e.
@@ -320,8 +343,10 @@ def make_factor(var, e, bn):
                for e1 in all_events(vars, bn, e))
     return Factor(vars, cpt)
 
+
 def pointwise_product(factors, bn):
     return reduce(lambda f, g: f.pointwise_product(g, bn), factors)
+
 
 def sum_out(var, factors, bn):
     "Eliminate var from all factors by summing over its values."
@@ -331,7 +356,9 @@ def sum_out(var, factors, bn):
     result.append(pointwise_product(var_factors, bn).sum_out(var, bn))
     return result
 
+
 class Factor:
+
     "A factor in a joint distribution."
 
     def __init__(self, vars, cpt):
@@ -363,6 +390,7 @@ class Factor:
         "Look up my value tabulated for e."
         return self.cpt[event_values(e, self.vars)]
 
+
 def all_events(vars, bn, e):
     "Yield every way of extending e with values for all vars."
     if not vars:
@@ -382,9 +410,10 @@ sprinkler = BayesNet([
     ('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
     ('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
     ('WetGrass', 'Sprinkler Rain',
-         {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
+     {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
 
 #______________________________________________________________________________
+
 
 def prior_sample(bn):
     """Randomly sample from bn's full joint distribution. The result
@@ -394,7 +423,8 @@ def prior_sample(bn):
         event[node.variable] = node.sample(event)
     return event
 
-#_______________________________________________________________________________
+#_________________________________________________________________________
+
 
 def rejection_sampling(X, e, bn, N):
     """Estimate the probability distribution of variable X given
@@ -406,19 +436,22 @@ def rejection_sampling(X, e, bn, N):
     ...   burglary, 10000).show_approx()
     'False: 0.7, True: 0.3'
     """
-    counts = dict((x, 0) for x in bn.variable_values(X)) # bold N in Fig. 14.14
+    counts = dict((x, 0)
+                  for x in bn.variable_values(X))  # bold N in Fig. 14.14
     for j in range(N):
-        sample = prior_sample(bn) # boldface x in Fig. 14.14
+        sample = prior_sample(bn)  # boldface x in Fig. 14.14
         if consistent_with(sample, e):
             counts[sample[X]] += 1
     return ProbDist(X, counts)
+
 
 def consistent_with(event, evidence):
     "Is event consistent with the given evidence?"
     return all(evidence.get(k, v) == v
                for k, v in list(event.items()))
 
-#_______________________________________________________________________________
+#_________________________________________________________________________
+
 
 def likelihood_weighting(X, e, bn, N):
     """Estimate the probability distribution of variable X given
@@ -430,16 +463,17 @@ def likelihood_weighting(X, e, bn, N):
     """
     W = dict((x, 0) for x in bn.variable_values(X))
     for j in range(N):
-        sample, weight = weighted_sample(bn, e) # boldface x, w in Fig. 14.15
+        sample, weight = weighted_sample(bn, e)  # boldface x, w in Fig. 14.15
         W[sample[X]] += weight
     return ProbDist(X, W)
+
 
 def weighted_sample(bn, e):
     """Sample an event from bn that's consistent with the evidence e;
     return the event and its weight, the likelihood that the event
     accords to the evidence."""
     w = 1
-    event = dict(e) # boldface x in Fig. 14.15
+    event = dict(e)  # boldface x in Fig. 14.15
     for node in bn.nodes:
         Xi = node.variable
         if Xi in e:
@@ -448,7 +482,8 @@ def weighted_sample(bn, e):
             event[Xi] = node.sample(event)
     return event, w
 
-#_______________________________________________________________________________
+#_________________________________________________________________________
+
 
 def gibbs_ask(X, e, bn, N):
     """[Fig. 14.16]
@@ -458,9 +493,10 @@ def gibbs_ask(X, e, bn, N):
     'False: 0.738, True: 0.262'
     """
     assert X not in e, "Query variable must be distinct from evidence"
-    counts = dict((x, 0) for x in bn.variable_values(X)) # bold N in Fig. 14.16
+    counts = dict((x, 0)
+                  for x in bn.variable_values(X))  # bold N in Fig. 14.16
     Z = [var for var in bn.vars if var not in e]
-    state = dict(e) # boldface x in Fig. 14.16
+    state = dict(e)  # boldface x in Fig. 14.16
     for Zi in Z:
         state[Zi] = random.choice(bn.variable_values(Zi))
     for j in range(N):
@@ -468,6 +504,7 @@ def gibbs_ask(X, e, bn, N):
             state[Zi] = markov_blanket_sample(Zi, state, bn)
             counts[state[X]] += 1
     return ProbDist(X, counts)
+
 
 def markov_blanket_sample(X, e, bn):
     """Return a sample from P(X | mb) where mb denotes that the
@@ -481,23 +518,27 @@ def markov_blanket_sample(X, e, bn):
         # [Equation 14.12:]
         Q[xi] = Xnode.p(xi, e) * product(Yj.p(ei[Yj.variable], ei)
                                          for Yj in Xnode.children)
-    return probability(Q.normalize()[True]) # (assuming a Boolean variable here)
+    # (assuming a Boolean variable here)
+    return probability(Q.normalize()[True])
 
-#_______________________________________________________________________________
+#_________________________________________________________________________
+
 
 def forward_backward(ev, prior):
     """[Fig. 15.4]"""
     unimplemented()
 
+
 def fixed_lag_smoothing(e_t, hmm, d):
     """[Fig. 15.6]"""
     unimplemented()
+
 
 def particle_filtering(e, N, dbn):
     """[Fig. 15.17]"""
     unimplemented()
 
-#_______________________________________________________________________________
+#_________________________________________________________________________
 __doc__ += """
 # We can build up a probability distribution like this (p. 469):
 >>> P = ProbDist()

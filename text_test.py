@@ -5,6 +5,7 @@ from text import *
 from random import choice
 from math import isclose
 
+
 def test_unigram_text_model():
     flatland = DataFile("EN-text/flatland.txt").read()
     wordseq = words(flatland)
@@ -12,12 +13,15 @@ def test_unigram_text_model():
 
     s, p = viterbi_segment('itiseasytoreadwordswithoutspaces', P)
 
-    assert s == ['it', 'is', 'easy', 'to', 'read', 'words', 'without', 'spaces']
+    assert s == [
+        'it', 'is', 'easy', 'to', 'read', 'words', 'without', 'spaces']
+
 
 def test_shift_encoding():
     code = shift_encode("This is a secret message.", 17)
 
     assert code == 'Kyzj zj r jvtivk dvjjrxv.'
+
 
 def test_shift_decoding():
     flatland = DataFile("EN-text/flatland.txt").read()
@@ -26,12 +30,14 @@ def test_shift_decoding():
 
     assert msg == 'This is a secret message.'
 
+
 def test_rot13_decoding():
     flatland = DataFile("EN-text/flatland.txt").read()
     ring = ShiftDecoder(flatland)
     msg = ring.decode(rot13('Hello, world!'))
 
     assert msg == 'Hello, world!'
+
 
 def test_counting_probability_distribution():
     D = CountingProbDist()
@@ -43,6 +49,7 @@ def test_counting_probability_distribution():
 
     assert 1/7 <= min(ps) <= max(ps) <= 1/5
 
+
 def test_ngram_models():
     flatland = DataFile("EN-text/flatland.txt").read()
     wordseq = words(flatland)
@@ -50,20 +57,23 @@ def test_ngram_models():
     P2 = NgramTextModel(2, wordseq)
     P3 = NgramTextModel(3, wordseq)
 
-    ## The most frequent entries in each model
-    assert P1.top(10) == [(2081, 'the'), (1479, 'of'), (1021, 'and'), (1008, 'to'), (850, 'a'), 
-                            (722, 'i'), (640, 'in'), (478, 'that'), (399, 'is'), (348, 'you')]
+    # The most frequent entries in each model
+    assert P1.top(10) == [(2081, 'the'), (1479, 'of'), (1021, 'and'), (1008, 'to'), (850, 'a'),
+                          (722, 'i'), (640, 'in'), (478, 'that'), (399, 'is'), (348, 'you')]
 
-    assert P2.top(10) == [(368, ('of', 'the')), (152, ('to', 'the')), (152, ('in', 'the')), (86, ('of', 'a')), 
-                            (80, ('it', 'is'   )), (71, ('by', 'the' )), (68, ('for', 'the'  )),
-                            (68, ('and', 'the' )), (62, ('on', 'the' )), (60, ('to', 'be'))]
+    assert P2.top(10) == [(368, ('of', 'the')), (152, ('to', 'the')), (152, ('in', 'the')), (86, ('of', 'a')),
+                          (80, ('it', 'is')), (71,
+                                               ('by', 'the')), (68, ('for', 'the')),
+                          (68, ('and', 'the')), (62, ('on', 'the')), (60, ('to', 'be'))]
 
-    assert P3.top(10) == [(30, ('a', 'straight', 'line')), (19, ('of', 'three', 'dimensions')), 
-                            (16, ('the', 'sense', 'of'         )), (13, ('by', 'the', 'sense'   )),
-                            (13, ('as', 'well', 'as'           )), (12, ('of', 'the', 'circles' )),
-                            (12, ('of', 'sight', 'recognition' )), (11, ('the', 'number', 'of'  )),
-                            (11, ('that', 'i', 'had'           )), (11, ('so', 'as', 'to'))]
-
+    assert P3.top(10) == [(30, ('a', 'straight', 'line')), (19, ('of', 'three', 'dimensions')),
+                          (16, ('the', 'sense', 'of')), (13,
+                                                         ('by', 'the', 'sense')),
+                          (13, ('as', 'well', 'as')), (12,
+                                                       ('of', 'the', 'circles')),
+                          (12, ('of', 'sight', 'recognition')
+                           ), (11, ('the', 'number', 'of')),
+                          (11, ('that', 'i', 'had')), (11, ('so', 'as', 'to'))]
 
     assert isclose(P1['the'], 0.0611, rel_tol=0.001)
 
@@ -75,7 +85,8 @@ def test_ngram_models():
 
     assert P2.cond_prob.get(('went',)) is None
 
-    assert P3.cond_prob['in','order'].dictionary == {'to': 6}
+    assert P3.cond_prob['in', 'order'].dictionary == {'to': 6}
+
 
 def test_ir_system():
     from collections import namedtuple
@@ -87,10 +98,12 @@ def test_ir_system():
         assert len(expected) == len(query)
 
         for expected, (score, d) in zip(expected, query):
-            print(expected.url, "{0:.2f}".format(expected.score), "{0:.2f}".format(score * 100))
+            print(expected.url, "{0:.2f}".format(
+                expected.score), "{0:.2f}".format(score * 100))
             doc = uc.documents[d]
             print(doc.url)
-            assert "{0:.2f}".format(expected.score) == "{0:.2f}".format(score * 100)
+            assert "{0:.2f}".format(
+                expected.score) == "{0:.2f}".format(score * 100)
             assert expected.url == doc.url
 
         return True
