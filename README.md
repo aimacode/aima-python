@@ -1,4 +1,4 @@
-# ![](https://github.com/aimacode/aima-java/blob/gh-pages/aima3e/images/aima3e.jpg)`aima-python` (Python 3.5)
+# ![](https://github.com/aimacode/aima-java/blob/gh-pages/aima3e/images/aima3e.jpg)`aima-python` (Python 3.5) [![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python)
 
 
 Python code for the book *Artificial Intelligence: A Modern Approach.* We're loooking for one student sponsored by Google Summer of Code (GSoC) to work on this project; if you want to be that student, make some good contributions here (by looking throush the "Issues" and resolving some), and submit an application. (And we're always looking for solid contributors who are not affiliated with GSoC.)
