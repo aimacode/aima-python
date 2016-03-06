@@ -38,6 +38,7 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 from utils import *
 import random
 import copy
+import collections
 
 #______________________________________________________________________________
 
@@ -80,8 +81,8 @@ class Agent(Thing):
         self.bump = False
         if program is None:
             def program(percept):
-                return input('Percept={}; action? ' .format(percept))
-        assert callable(program)
+                return eval(input('Percept={}; action? ' .format(percept)))
+        assert isinstance(program, collections.Callable)
         self.program = program
 
     def can_grab(self, thing):
@@ -95,7 +96,7 @@ def TraceAgent(agent):
     old_program = agent.program
     def new_program(percept):
         action = old_program(percept)
-        print('{} perceives {} and does {}'.format(agent, percept, action))
+        print(('{} perceives {} and does {}'.format(agent, percept, action)))
         return action
     agent.program = new_program
     return agent
@@ -280,9 +281,9 @@ class Environment(object):
         except(ValueError, e):
             print(e)
             print("  in Environment delete_thing")
-            print("  Thing to be removed: {} at {}" .format(thing, thing.location))
-            print("  from list: {}" .format([(thing, thing.location)
-                                       for thing in self.things]))
+            print(("  Thing to be removed: {} at {}" .format(thing, thing.location)))
+            print(("  from list: {}" .format([(thing, thing.location)
+                                       for thing in self.things])))
         if thing in self.agents:
             self.agents.remove(thing)
 
@@ -504,7 +505,7 @@ def test_agent(AgentFactory, steps, envs):
         env.add_thing(agent)
         env.run(steps)
         return agent.performance
-    return mean(map(score, envs))
+    return mean(list(map(score, envs)))
 
 #_________________________________________________________________________
 

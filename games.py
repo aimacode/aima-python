@@ -1,6 +1,7 @@
 """Games, or Adversarial Search. (Chapter 5)
 """
 
+
 from utils import *
 import random
 
@@ -111,7 +112,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 def query_player(game, state):
     "Make a move by querying standard input."
     game.display(state)
-    return num_or_str(raw_input('Your move? '))
+    return num_or_str(eval(input('Your move? ')))
 
 def random_player(game, state):
     "A player that chooses a legal move at random."
@@ -147,15 +148,15 @@ class Game:
 
     def actions(self, state):
         "Return a list of the allowable moves at this point."
-         raise NotImplementedError
+        raise NotImplementedError
 
     def result(self, state, move):
         "Return the state that results from making a move from a state."
-         raise NotImplementedError
+        raise NotImplementedError
 
     def utility(self, state, player):
         "Return the value of this final state to player."
-         raise NotImplementedError
+        raise NotImplementedError
 
     def terminal_test(self, state):
         "Return True if this is a final state for the game."
@@ -167,7 +168,7 @@ class Game:
 
     def display(self, state):
         "Print or otherwise display the state."
-        print state
+        print(state)
 
     def __repr__(self):
         return '<%s>' % self.__class__.__name__
@@ -190,7 +191,7 @@ class Fig52Game(Game):
     initial = 'A'
 
     def actions(self, state):
-        return self.succs.get(state, {}).keys()
+        return list(self.succs.get(state, {}).keys())
 
     def result(self, state, move):
         return self.succs[state][move]
@@ -243,8 +244,8 @@ class TicTacToe(Game):
         board = state.board
         for x in range(1, self.h+1):
             for y in range(1, self.v+1):
-                print board.get((x, y), '.'),
-            print
+                print(board.get((x, y), '.'), end=' ')
+            print()
 
     def compute_utility(self, board, move, player):
         "If X wins with this move, return 1; if O return -1; else return 0."
@@ -256,8 +257,9 @@ class TicTacToe(Game):
         else:
             return 0
 
-    def k_in_row(self, board, move, player, (delta_x, delta_y)):
+    def k_in_row(self, board, move, player, xxx_todo_changeme):
         "Return true if there is a line through move on board for player."
+        (delta_x, delta_y) = xxx_todo_changeme
         x, y = move
         n = 0 # n is number of moves in row
         while board.get((x, y)) == player:

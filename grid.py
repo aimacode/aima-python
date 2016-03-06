@@ -49,4 +49,4 @@ def vector_clip(vector, lowest, highest):
     >>> vector_clip((-1, 10), (0, 0), (9, 9))
     (0, 9)
     """
-    return type(vector)(map(clip, vector, lowest, highest))
+    return type(vector)(list(map(clip, vector, lowest, highest)))

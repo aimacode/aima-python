@@ -33,7 +33,7 @@ class Struct:
 
     def __repr__(self):
         args = ['{!s}={!s}'.format(k, repr(v))
-                    for (k, v) in vars(self).items()]
+                    for (k, v) in list(vars(self).items())]
 
 def update(x, **entries):
     """Update a dict or an object with slots according to entries."""
@@ -69,7 +69,7 @@ def product(numbers):
 
 def count_if(predicate, seq):
     """Count the number of elements of seq for which the predicate is true."""
-    return sum(map(lambda x: bool(predicate(x)), seq))
+    return sum([bool(predicate(x)) for x in seq])
 
 def find_if(predicate, seq):
     """If there is an element of seq that satisfies predicate; return it."""
@@ -153,14 +153,14 @@ def histogram(values, mode=0, bin_function=None):
     Sorted by increasing value, or if mode=1, by decreasing count.
     If bin_function is given, map it over values first."""
     if bin_function:
-        values = map(bin_function, values)
+        values = list(map(bin_function, values))
 
     bins = {}
     for val in values:
         bins[val] = bins.get(val, 0) + 1
 
     if mode:
-        return sorted(bins.items(), key=lambda x: (x[1],x[0]), reverse=True)
+        return sorted(list(bins.items()), key=lambda x: (x[1],x[0]), reverse=True)
     else:
         return sorted(bins.items())
 
@@ -256,7 +256,7 @@ def vector_clip(vector, lowest, highest):
     value of lowest or more than the corresponding value of highest, clip to
     those values.
     """
-    return type(vector)(map(clip, vector, lowest, highest))
+    return type(vector)(list(map(clip, vector, lowest, highest)))
 
 #______________________________________________________________________________
 # Misc Functions
@@ -264,7 +264,7 @@ def vector_clip(vector, lowest, highest):
 def printf(format_str, *args):
     """Format args with the first argument as format string, and write.
     Return the last arg, or format itself if there are no args."""
-    print(str(format_str).format(*args, end=''))
+    print((str(format_str).format(*args, end='')))
 
     return args[-1] if args else format_str
 
@@ -289,7 +289,7 @@ def memoize(fn, slot=None):
                 return val
     else:
         def memoized_fn(*args):
-            if not memoized_fn.cache.has_key(args):
+            if args not in memoized_fn.cache:
                 memoized_fn.cache[args] = fn(*args)
             return memoized_fn.cache[args]
 
@@ -326,13 +326,13 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
     table = [[numfmt.format(x) if isnumber(x) else x for x in row]
                 for row in table]
 
-    maxlen = lambda seq: max(map(len, seq))
+    maxlen = lambda seq: max(list(map(len, seq)))
 
-    sizes = map(maxlen, zip(*[map(str, row) for row in table]))
+    sizes = list(map(maxlen, list(zip(*[list(map(str, row)) for row in table]))))
 
     for row in table:
-        print(sep.join(getattr(str(x), j)(size)
-                for (j, size, x) in zip(justs, sizes, row)))
+        print((sep.join(getattr(str(x), j)(size)
+                for (j, size, x) in zip(justs, sizes, row))))
 
 def AIMAFile(components, mode='r'):
     "Open a file based at the AIMA root directory."

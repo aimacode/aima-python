@@ -6,6 +6,7 @@ as a dictionary of {state:action} pairs, and a Utility function as a
 dictionary of {state:number} pairs.  We then define the value_iteration
 and policy_iteration algorithms."""
 
+
 from utils import *
 
 class MDP:
@@ -34,7 +35,7 @@ class MDP:
     def T(self, state, action):
         """Transition model.  From a state and an action, return a list
         of (probability, result-state) pairs."""
-         raise NotImplementedError
+        raise NotImplementedError
 
     def actions(self, state):
         """Set of actions that can be performed in this state.  By default, a
@@ -84,7 +85,7 @@ class GridMDP(MDP):
 
     def to_arrows(self, policy):
         chars = {(1, 0):'>', (0, 1):'^', (-1, 0):'<', (0, -1):'v', None: '.'}
-        return self.to_grid(dict([(s, chars[a]) for (s, a) in policy.items()]))
+        return self.to_grid(dict([(s, chars[a]) for (s, a) in list(policy.items())]))
 
 #______________________________________________________________________________
 

@@ -34,7 +34,7 @@ def test_unique():
 
 def test_product():
     assert product([1,2,3,4]) == 24
-    assert product(range(1, 11)) == 3628800
+    assert product(list(range(1, 11))) == 3628800
 
 def test_find_if():
     assert find_if(callable, [1, 2, 3]) == None
