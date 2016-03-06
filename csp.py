@@ -460,13 +460,13 @@ class NQueensCSP(CSP):
                 if assignment.get(var,'') == val: ch = 'Q'
                 elif (var+val) % 2 == 0: ch = '.'
                 else: ch = '-'
-                print ch,
+                print (ch),
             print '    ',
             for var in range(n):
                 if assignment.get(var,'') == val: ch = '*'
                 else: ch = ' '
-                print str(self.nconflicts(var, val, assignment))+ch,
-            print
+                print ((str(self.nconflicts(var, val, assignment))+ch),)
+            print ()
 
 #______________________________________________________________________________
 # Sudoku
@@ -541,8 +541,8 @@ class Sudoku(CSP):
         def show_box(box): return [' '.join(map(show_cell, row)) for row in box]
         def show_cell(cell): return str(assignment.get(cell, '.'))
         def abut(lines1, lines2): return map(' | '.join, zip(lines1, lines2))
-        print '\n------+-------+------\n'.join(
-            '\n'.join(reduce(abut, map(show_box, brow))) for brow in self.bgrid)
+        print ('\n------+-------+------\n'.join(
+            '\n'.join(reduce(abut, map(show_box, brow))) for brow in self.bgrid))
 
 #______________________________________________________________________________
 # The Zebra Puzzle
@@ -599,10 +599,10 @@ def solve_zebra(algorithm=min_conflicts, **args):
     z = Zebra()
     ans = algorithm(z, **args)
     for h in range(1, 6):
-        print 'House', h,
+        print ('House', h,)
         for (var, val) in ans.items():
             if val == h: print var,
-        print
+        print ()
     return ans['Zebra'], ans['Water'], z.nassigns, ans
 
 
