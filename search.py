@@ -253,7 +253,7 @@ def depth_limited_search(problem, limit=50):
 
 def iterative_deepening_search(problem):
     "[Fig. 3.18]"
-    for depth in xrange(sys.maxint):
+    for depth in range(sys.maxint):
         result = depth_limited_search(problem, depth)
         if result != 'cutoff':
             return result
@@ -326,7 +326,7 @@ def exp_schedule(k=20, lam=0.005, limit=100):
 def simulated_annealing(problem, schedule=exp_schedule()):
     "[Fig. 4.5]"
     current = Node(problem.initial)
-    for t in xrange(sys.maxint):
+    for t in range(sys.maxint):
         T = schedule(t)
         if T == 0:
             return current
@@ -817,7 +817,7 @@ def compare_searchers(problems, header,
 def compare_graph_searchers():
     """Prints a table of results like this:
 >>> compare_graph_searchers()
-Searcher                      Romania(A, B)        Romania(O, N)         Australia          
+Searcher                      Romania(A, B)        Romania(O, N)         Australia
 breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>    <   7/   8/  22/WA>
 breadth_first_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/   6/   8/WA>
 depth_first_graph_search      <   8/   9/  20/B>   <  16/  17/  38/N>    <   4/   5/  11/WA>
@@ -852,9 +852,9 @@ __doc__ += """
 
 >>> board = list('SARTELNID')
 >>> print_boggle(board)
-S  A  R 
-T  E  L 
-N  I  D 
+S  A  R
+T  E  L
+N  I  D
 >>> f = BoggleFinder(board)
 >>> len(f)
 206
