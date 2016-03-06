@@ -215,7 +215,7 @@ class BayesNode:
         if isinstance(cpt, (float, int)): # no parents, 0-tuple
             cpt = {(): cpt}
         elif isinstance(cpt, dict):
-            if cpt and isinstance(cpt.keys()[0], bool): # one parent, 1-tuple
+            if cpt and isinstance(list(cpt.keys())[0], bool): # one parent, 1-tuple
                 cpt = dict(((v,), p) for v, p in cpt.items())
 
         assert isinstance(cpt, dict)
