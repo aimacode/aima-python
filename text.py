@@ -18,7 +18,7 @@ class UnigramTextModel(CountingProbDist):
 
     def samples(self, n):
         "Return a string of n words, random according to the model."
-        return ' '.join([self.sample() for i in range(n)])
+        return ' '.join(self.sample() for i in range(n))
 
 class NgramTextModel(CountingProbDist):
     """This is a discrete probability distribution over n-tuples of words.
@@ -93,6 +93,7 @@ def viterbi_segment(text, P):
 #______________________________________________________________________________
 
 
+# TODO(tmrts): Expose raw index
 class IRSystem:
     """A very simple Information Retrieval System, as discussed in Sect. 23.2.
     The constructor s = IRSystem('the a') builds an empty system with two
@@ -149,8 +150,7 @@ class IRSystem:
         "Present the results as a list."
         for (score, d) in results:
             doc = self.documents[d]
-            print ("%5.2f|%25s | %s"
-                   % (100 * score, doc.url, doc.title[:45].expandtabs()))
+            print ("{:5.2}|{:25} | {}".format(100 * score, doc.url, doc.title[:45].expandtabs()))
 
     def present_results(self, query_text, n=10):
         "Get results for the query and present them."
@@ -161,7 +161,7 @@ class UnixConsultant(IRSystem):
     def __init__(self):
         IRSystem.__init__(self, stopwords="how do i the a of")
         import os
-        mandir = '../data/MAN/'
+        mandir = '../aima-data/MAN/'
         man_files = [mandir + f for f in os.listdir(mandir)
                      if f.endswith('.txt')]
         self.index_collection(man_files)
@@ -194,6 +194,8 @@ def canonicalize(text):
 ## A shift cipher is a rotation of the letters in the alphabet,
 ## such as the famous rot13, which maps A to N, B to M, etc.
 
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
+
 #### Encoding
 
 def shift_encode(plaintext, n):
@@ -216,9 +218,8 @@ def encode(plaintext, code):
     "Encodes text, using a code which is a permutation of the alphabet."
     from string import maketrans
     trans = maketrans(alphabet + alphabet.upper(), code + code.upper())
-    return plaintext.translate(trans)
 
-alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    return plaintext.translate(trans)
 
 def bigrams(text):
     """Return a list of pairs in text (a sequence of letters or words).
@@ -241,18 +242,22 @@ class ShiftDecoder:
 
     def score(self, plaintext):
         "Return a score for text based on how common letters pairs are."
+
         s = 1.0
         for bi in bigrams(plaintext):
             s = s * self.P2[bi]
+
         return s
 
     def decode(self, ciphertext):
         "Return the shift decoding of text with the best score."
-        return argmax(all_shifts(ciphertext), self.score)
+
+        return max(all_shifts(ciphertext), self.score)
 
 def all_shifts(text):
     "Return a list of all 26 possible encodings of text by a shift cipher."
-    return [shift_encode(text, n) for n in range(len(alphabet))]
+
+    yield from (shift_encode(text, i) for i, _ in enumerate(alphabet))
 
 #### Decoding a General Permutation Cipher
 
@@ -309,61 +314,7 @@ class PermutationDecoderProblem(search.Problem):
 
 #______________________________________________________________________________
 
-__doc__ += """
-## Create a Unigram text model from the words in the book "Flatland".
->>> flatland = DataFile("EN-text/flatland.txt").read()
->>> wordseq = words(flatland)
->>> P = UnigramTextModel(wordseq)
-
-## Now do segmentation, using the text model as a prior.
->>> s, p = viterbi_segment('itiseasytoreadwordswithoutspaces', P)
->>> s
-['it', 'is', 'easy', 'to', 'read', 'words', 'without', 'spaces']
->>> 1e-30 < p < 1e-20
-True
->>> s, p = viterbi_segment('wheninthecourseofhumaneventsitbecomesnecessary', P)
->>> s
-['when', 'in', 'the', 'course', 'of', 'human', 'events', 'it', 'becomes', 'necessary']
-
-## Test the decoding system
->>> shift_encode("This is a secret message.", 17)
-'Kyzj zj r jvtivk dvjjrxv.'
-
->>> ring = ShiftDecoder(flatland)
->>> ring.decode('Kyzj zj r jvtivk dvjjrxv.')
-'This is a secret message.'
->>> ring.decode(rot13('Hello, world!'))
-'Hello, world!'
-
-## CountingProbDist
-## Add a thousand samples of a roll of a die to D.
->>> D = CountingProbDist()
->>> for i in range(10000):
-...     D.add(random.choice('123456'))
->>> ps = [D[n] for n in '123456']
->>> 1./7. <= min(ps) <= max(ps) <= 1./5.
-True
-"""
-
-__doc__ += ("""
-## Compare 1-, 2-, and 3-gram word models of the same text.
->>> flatland = DataFile("EN-text/flatland.txt").read()
->>> wordseq = words(flatland)
->>> P1 = UnigramTextModel(wordseq)
->>> P2 = NgramTextModel(2, wordseq)
->>> P3 = NgramTextModel(3, wordseq)
-
-## The most frequent entries in each model
->>> P1.top(10)
-[(2081, 'the'), (1479, 'of'), (1021, 'and'), (1008, 'to'), (850, 'a'), (722, 'i'), (640, 'in'), (478, 'that'), (399, 'is'), (348, 'you')]
-
->>> P2.top(10)
-[(368, ('of', 'the')), (152, ('to', 'the')), (152, ('in', 'the')), (86, ('of', 'a')), (80, ('it', 'is')), (71, ('by', 'the')), (68, ('for', 'the')), (68, ('and', 'the')), (62, ('on', 'the')), (60, ('to', 'be'))]
-
->>> P3.top(10)
-[(30, ('a', 'straight', 'line')), (19, ('of', 'three', 'dimensions')), (16, ('the', 'sense', 'of')), (13, ('by', 'the', 'sense')), (13, ('as', 'well', 'as')), (12, ('of', 'the', 'circles')), (12, ('of', 'sight', 'recognition')), (11, ('the', 'number', 'of')), (11, ('that', 'i', 'had')), (11, ('so', 'as', 'to'))]
-""")
-
+# TODO(tmrts): Set RNG seed to test random functions
 __doc__ += random_tests("""
 ## Generate random text from the N-gram models
 >>> P1.samples(20)
@@ -375,66 +326,3 @@ __doc__ += random_tests("""
 >>> P3.samples(20)
 'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
 """)
-__doc__ += """
-
-## Probabilities of some common n-grams
->>> P1['the']               #doctest:+ELLIPSIS
-0.0611...
-
->>> P2[('of', 'the')]       #doctest:+ELLIPSIS
-0.0108...
-
->>> P3[('', '', 'but')]
-0.0
-
->>> P3[('so', 'as', 'to')]  #doctest:+ELLIPSIS
-0.000323...
-
-## Distributions given the previous n-1 words
->>> P2.cond_prob['went',].dictionary
-{}
->>> P3.cond_prob['in', 'order'].dictionary
-{'to': 6}
-
-
-## Build and test an IR System
->>> uc = UnixConsultant()
->>> uc.present_results("how do I remove a file")
-76.83|       ../data/MAN/rm.txt | RM(1)                          FSF                          RM(1)
-67.83|      ../data/MAN/tar.txt | TAR(1)                                                                  TAR(1)
-67.79|       ../data/MAN/cp.txt | CP(1)                          FSF                          CP(1)
-66.58|      ../data/MAN/zip.txt | ZIP(1L)                                                   ZIP(1L)
-64.58|     ../data/MAN/gzip.txt | GZIP(1)                                                                GZIP(1)
-63.74|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
-62.95|    ../data/MAN/shred.txt | SHRED(1)                       FSF                       SHRED(1)
-57.46|     ../data/MAN/pico.txt | pico(1)                                                   pico(1)
-43.38|    ../data/MAN/login.txt | LOGIN(1)                   Linux Programmer's Manual                 
-41.93|       ../data/MAN/ln.txt | LN(1)                          FSF                          LN(1)
-
->>> uc.present_results("how do I delete a file")
-75.47|     ../data/MAN/diff.txt | DIFF(1)                            GNU Tools                           DIFF(1)
-69.12|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
-63.56|      ../data/MAN/tar.txt | TAR(1)                                                                  TAR(1)
-60.63|      ../data/MAN/zip.txt | ZIP(1L)                                                   ZIP(1L)
-57.46|     ../data/MAN/pico.txt | pico(1)                                                   pico(1)
-51.28|    ../data/MAN/shred.txt | SHRED(1)                       FSF                       SHRED(1)
-26.72|       ../data/MAN/tr.txt | TR(1)                     User Commands                     TR(1)
-
->>> uc.present_results("email")
-18.39|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
-12.01|     ../data/MAN/info.txt | INFO(1)                        FSF                        INFO(1)
- 9.89|     ../data/MAN/pico.txt | pico(1)                                                   pico(1)
- 8.73|     ../data/MAN/grep.txt | GREP(1)                                                                GREP(1)
- 8.07|      ../data/MAN/zip.txt | ZIP(1L)                                                   ZIP(1L)
-
->>> uc.present_results("word counts for files")
-112.38|     ../data/MAN/grep.txt | GREP(1)                                                                GREP(1)
-101.84|       ../data/MAN/wc.txt | WC(1)                     User Commands                     WC(1)
-82.46|     ../data/MAN/find.txt | FIND(1L)                                                              FIND(1L)
-74.64|       ../data/MAN/du.txt | DU(1)                          FSF                          DU(1)
-
->>> uc.present_results("learn: date")
->>> uc.present_results("2003")
-14.58|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
-11.62|      ../data/MAN/jar.txt | FASTJAR(1)                            GNU                           FASTJAR(1)
-"""
