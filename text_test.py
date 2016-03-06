@@ -5,8 +5,8 @@ from text import *
 from random import choice
 from math import isclose
 
-def  test_unigram_text_model():
-    flatland = DataFile("aima-data/EN-text/flatland.txt").read()
+def test_unigram_text_model():
+    flatland = DataFile("EN-text/flatland.txt").read()
     wordseq = words(flatland)
     P = UnigramTextModel(wordseq)
 
@@ -20,14 +20,15 @@ def test_shift_encoding():
     assert code == 'Kyzj zj r jvtivk dvjjrxv.'
 
 def test_shift_decoding():
-    code = shift_encode("This is a secret message.", 17)
-
+    flatland = DataFile("EN-text/flatland.txt").read()
     ring = ShiftDecoder(flatland)
     msg = ring.decode('Kyzj zj r jvtivk dvjjrxv.')
 
     assert msg == 'This is a secret message.'
 
 def test_rot13_decoding():
+    flatland = DataFile("EN-text/flatland.txt").read()
+    ring = ShiftDecoder(flatland)
     msg = ring.decode(rot13('Hello, world!'))
 
     assert msg == 'Hello, world!'
@@ -43,7 +44,7 @@ def test_counting_probability_distribution():
     assert 1/7 <= min(ps) <= max(ps) <= 1/5
 
 def test_ngram_models():
-    flatland = DataFile("aima-data/EN-text/flatland.txt").read()
+    flatland = DataFile("EN-text/flatland.txt").read()
     wordseq = words(flatland)
     P1 = UnigramTextModel(wordseq)
     P2 = NgramTextModel(2, wordseq)
@@ -64,15 +65,15 @@ def test_ngram_models():
                             (11, ('that', 'i', 'had'           )), (11, ('so', 'as', 'to'))]
 
 
-    assert isclose(P1['the'], 0.0611)
+    assert isclose(P1['the'], 0.0611, rel_tol=0.001)
 
-    assert isclose(P2['of', 'the'], 0.0108)
+    assert isclose(P2['of', 'the'], 0.0108, rel_tol=0.01)
 
-    assert isclose(P3['', '', 'but'], 0.0)
-    assert isclose(P3['', '', 'but'], 0.0)
-    assert isclose(P3['so', 'as', 'to'], 0.000323)
+    assert isclose(P3['', '', 'but'], 0.0, rel_tol=0.001)
+    assert isclose(P3['', '', 'but'], 0.0, rel_tol=0.001)
+    assert isclose(P3['so', 'as', 'to'], 0.000323, rel_tol=0.001)
 
-    assert not P2.cond_prob['went',].dictionary
+    assert P2.cond_prob.get(('went',)) is None
 
     assert P3.cond_prob['in','order'].dictionary == {'to': 6}
 
@@ -86,51 +87,57 @@ def test_ir_system():
         assert len(expected) == len(query)
 
         for expected, (score, d) in zip(expected, query):
+            print(expected.url, "{0:.2f}".format(expected.score), "{0:.2f}".format(score * 100))
             doc = uc.documents[d]
-
-            assert expected.score == score * 100
+            print(doc.url)
+            assert "{0:.2f}".format(expected.score) == "{0:.2f}".format(score * 100)
             assert expected.url == doc.url
+
+        return True
 
     q1 = uc.query("how do I remove a file")
     assert verify_query(q1, [
-        Results(76.83, "../aima-data/MAN/rm.txt"),
-        Results(67.83, "../aima-data/MAN/tar.txt"),
-        Results(67.79, "../aima-data/MAN/cp.txt"),
-        Results(66.58, "../aima-data/MAN/zip.txt"),
-        Results(64.58, "../aima-data/MAN/gzip.txt"),
-        Results(63.74, "../aima-data/MAN/pine.txt"),
-        Results(62.95, "../aima-data/MAN/shred.txt"),
-        Results(57.46, "../aima-data/MAN/pico.txt"),
-        Results(43.38, "../aima-data/MAN/login.txt"),
-        Results(41.93, "../aima-data/MAN/ln.txt"),
+        Results(76.83, "aima-data/MAN/rm.txt"),
+        Results(67.83, "aima-data/MAN/tar.txt"),
+        Results(67.79, "aima-data/MAN/cp.txt"),
+        Results(66.58, "aima-data/MAN/zip.txt"),
+        Results(64.58, "aima-data/MAN/gzip.txt"),
+        Results(63.74, "aima-data/MAN/pine.txt"),
+        Results(62.95, "aima-data/MAN/shred.txt"),
+        Results(57.46, "aima-data/MAN/pico.txt"),
+        Results(43.38, "aima-data/MAN/login.txt"),
+        Results(41.93, "aima-data/MAN/ln.txt"),
     ])
 
     q2 = uc.query("how do I delete a file")
     assert verify_query(q2, [
-        Results(75.47, "../aima-data/MAN/diff.txt"),
-        Results(69.12, "../aima-data/MAN/pine.txt"),
-        Results(63.56, "../aima-data/MAN/tar.txt"),
-        Results(60.63, "../aima-data/MAN/zip.txt"),
-        Results(57.46, "../aima-data/MAN/pico.txt"),
-        Results(51.28, "../aima-data/MAN/shred.txt"),
-        Results(26.72, "../aima-data/MAN/tr.txt"),
+        Results(75.47, "aima-data/MAN/diff.txt"),
+        Results(69.12, "aima-data/MAN/pine.txt"),
+        Results(63.56, "aima-data/MAN/tar.txt"),
+        Results(60.63, "aima-data/MAN/zip.txt"),
+        Results(57.46, "aima-data/MAN/pico.txt"),
+        Results(51.28, "aima-data/MAN/shred.txt"),
+        Results(26.72, "aima-data/MAN/tr.txt"),
     ])
 
     q3 = uc.query("email")
     assert verify_query(q3, [
-        Results(18.39, "../aima-data/MAN/pine.txt"),
-        Results(12.01, "../aima-data/MAN/info.txt"),
-        Results(9.89, "../aima-data/MAN/pico.txt"),
-        Results(8.73, "../aima-data/MAN/grep.txt"),
-        Results(8.07, "../aima-data/MAN/zip.txt"),
+        Results(18.39, "aima-data/MAN/pine.txt"),
+        Results(12.01, "aima-data/MAN/info.txt"),
+        Results(9.89, "aima-data/MAN/pico.txt"),
+        Results(8.73, "aima-data/MAN/grep.txt"),
+        Results(8.07, "aima-data/MAN/zip.txt"),
     ])
 
-    q4 = uc.query("word countrs for files")
+    q4 = uc.query("word count for files")
     assert verify_query(q4, [
-        Results(112.38, "../aima-data/MAN/grep.txt"),
-        Results(101.84, "../aima-data/MAN/wc.txt"),
-        Results(82.46, "../aima-data/MAN/find.txt"),
-        Results(74.64, "../aima-data/MAN/du.txt"),
+        Results(128.15, "aima-data/MAN/grep.txt"),
+        Results(94.20, "aima-data/MAN/find.txt"),
+        Results(81.71, "aima-data/MAN/du.txt"),
+        Results(55.45, "aima-data/MAN/ps.txt"),
+        Results(53.42, "aima-data/MAN/more.txt"),
+        Results(42.00, "aima-data/MAN/dd.txt"),
+        Results(12.85, "aima-data/MAN/who.txt"),
     ])
 
     q5 = uc.query("learn: date")
@@ -138,8 +145,8 @@ def test_ir_system():
 
     q6 = uc.query("2003")
     assert verify_query(q6, [
-        Results(14.58, "../aima-data/MAN/pine.txt"),
-        Results(11.62, "../aima-data/MAN/jar.txt"),
+        Results(14.58, "aima-data/MAN/pine.txt"),
+        Results(11.62, "aima-data/MAN/jar.txt"),
     ])
 
 if __name__ == '__main__':

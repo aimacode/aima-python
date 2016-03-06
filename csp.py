@@ -673,9 +673,10 @@ def solve_zebra(algorithm=min_conflicts, **args):
     return ans['Zebra'], ans['Water'], z.nassigns, ans
 
 
-__doc__ += random_tests("""
+__doc__ += """
+Random tests:
 >>> min_conflicts(australia)
 {'WA': 'B', 'Q': 'B', 'T': 'G', 'V': 'B', 'SA': 'R', 'NT': 'G', 'NSW': 'G'}
 >>> min_conflicts(NQueensCSP(8), max_steps=10000)
 {0: 5, 1: 0, 2: 4, 3: 1, 4: 7, 5: 2, 6: 6, 7: 3}
-""")
+"""

@@ -30,7 +30,7 @@ class NgramTextModel(CountingProbDist):
         ## mapping from (w1, ..., wn-1) to P(wn | w1, ... wn-1)
         CountingProbDist.__init__(self)
         self.n = n
-        self.cond_prob = defaultdict(CountingProbDist())
+        self.cond_prob = defaultdict()
         self.add_sequence(observation_sequence)
 
     ## __getitem__, top, sample inherited from CountingProbDist
@@ -39,6 +39,8 @@ class NgramTextModel(CountingProbDist):
     def add(self, ngram):
         """Count 1 for P[(w1, ..., wn)] and for P(wn | (w1, ..., wn-1)"""
         CountingProbDist.add(self, ngram)
+        if ngram[:-1] not in self.cond_prob:
+            self.cond_prob[ngram[:-1]] = CountingProbDist()
         self.cond_prob[ngram[:-1]].add(ngram[-1])
 
     def add_sequence(self, words):
@@ -161,7 +163,7 @@ class UnixConsultant(IRSystem):
     def __init__(self):
         IRSystem.__init__(self, stopwords="how do i the a of")
         import os
-        mandir = '../aima-data/MAN/'
+        mandir = 'aima-data/MAN/'
         man_files = [mandir + f for f in os.listdir(mandir)
                      if f.endswith('.txt')]
         self.index_collection(man_files)
@@ -214,12 +216,26 @@ def rot13(plaintext):
     """
     return shift_encode(plaintext, 13)
 
+def translate(plaintext, function):
+    """Translate chars of a plaintext with the given function."""
+    result = ""
+    for char in plaintext:
+        result += function(char)
+    return result
+
+def maketrans(from_, to_):
+    """Create a translation table and return the proper function."""
+    trans_table = {}
+    for n, char in enumerate(from_):
+        trans_table[char] = to_[n]
+
+    return lambda char: trans_table.get(char, char)
+
 def encode(plaintext, code):
     "Encodes text, using a code which is a permutation of the alphabet."
-    from string import maketrans
     trans = maketrans(alphabet + alphabet.upper(), code + code.upper())
 
-    return plaintext.translate(trans)
+    return translate(plaintext, trans)
 
 def bigrams(text):
     """Return a list of pairs in text (a sequence of letters or words).
@@ -252,7 +268,8 @@ class ShiftDecoder:
     def decode(self, ciphertext):
         "Return the shift decoding of text with the best score."
 
-        return max(all_shifts(ciphertext), self.score)
+        list_ = [(self.score(shift), shift) for shift in all_shifts(ciphertext)] 
+        return max(list_, key=lambda elm: elm[0])[1]
 
 def all_shifts(text):
     "Return a list of all 26 possible encodings of text by a shift cipher."
@@ -315,7 +332,8 @@ class PermutationDecoderProblem(search.Problem):
 #______________________________________________________________________________
 
 # TODO(tmrts): Set RNG seed to test random functions
-__doc__ += random_tests("""
+__doc__ += """
+Random tests:
 ## Generate random text from the N-gram models
 >>> P1.samples(20)
 'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
@@ -325,4 +343,4 @@ __doc__ += random_tests("""
 
 >>> P3.samples(20)
 'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
-""")
+"""
