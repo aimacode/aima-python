@@ -79,7 +79,10 @@ def product(numbers):
     >>> product([1,2,3,4])
     24
     """
-    return reduce(operator.mul, numbers, 1)
+    result=1
+    for i in numbers:
+        result=result*i
+    return result
 
 def count_if(predicate, seq):
     """Count the number of elements of seq for which the predicate is true.
