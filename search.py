@@ -605,8 +605,8 @@ def print_boggle(board):
     n2 = len(board); n = exact_sqrt(n2)
     for i in range(n2):
         if i % n == 0 and i > 0: print
-        if board[i] == 'Q': print 'Qu',
-        else: print str(board[i]) + ' ',
+        if board[i] == 'Q': print ('Qu')
+        else: print(str(board[i]) + ' ')
     print
 
 def boggle_neighbors(n2, cache={}):
@@ -748,7 +748,7 @@ def boggle_hill_climbing(board=None, ntimes=100, verbose=True):
         new = len(finder.set_board(board))
         if new > best:
             best = new
-            if verbose: print best, _, board
+            if verbose: print(best, _, board)
         else:
             board[i] = oldc ## Change back
     if verbose:

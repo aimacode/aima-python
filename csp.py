@@ -72,7 +72,7 @@ class CSP(search.Problem):
     def display(self, assignment):
         "Show a human-readable representation of the CSP."
         # Subclasses can print in a prettier way, or display with a GUI
-        print 'CSP:', self, 'with assignment:', assignment
+        print('CSP:', self, 'with assignment:', assignment)
 
     ## These methods are for the tree- and graph-search interface:
 
@@ -87,7 +87,8 @@ class CSP(search.Problem):
             return [(var, val) for val in self.domains[var]
                     if self.nconflicts(var, val, assignment) == 0]
 
-    def result(self, state, (var, val)):
+    def result(self, state, var_val):
+        var, val = var_val
         "Perform an action and return the new state."
         return state + ((var, val),)
 
@@ -459,13 +460,13 @@ class NQueensCSP(CSP):
                 if assignment.get(var,'') == val: ch = 'Q'
                 elif (var+val) % 2 == 0: ch = '.'
                 else: ch = '-'
-                print ch,
-            print '    ',
+                print(ch)
+            print('    ')
             for var in range(n):
                 if assignment.get(var,'') == val: ch = '*'
                 else: ch = ' '
-                print str(self.nconflicts(var, val, assignment))+ch,
-            print
+                print(str(self.nconflicts(var, val, assignment))+ch)
+            
 
 #______________________________________________________________________________
 # Sudoku
@@ -540,8 +541,8 @@ class Sudoku(CSP):
         def show_box(box): return [' '.join(map(show_cell, row)) for row in box]
         def show_cell(cell): return str(assignment.get(cell, '.'))
         def abut(lines1, lines2): return map(' | '.join, zip(lines1, lines2))
-        print '\n------+-------+------\n'.join(
-            '\n'.join(reduce(abut, map(show_box, brow))) for brow in self.bgrid)
+        print('\n------+-------+------\n'.join(
+            '\n'.join(reduce(abut, map(show_box, brow))) for brow in self.bgrid))
 
 #______________________________________________________________________________
 # The Zebra Puzzle
@@ -598,10 +599,9 @@ def solve_zebra(algorithm=min_conflicts, **args):
     z = Zebra()
     ans = algorithm(z, **args)
     for h in range(1, 6):
-        print 'House', h,
+        print('House', h)
         for (var, val) in ans.items():
-            if val == h: print var,
-        print
+            if val == h: print( var)
     return ans['Zebra'], ans['Water'], z.nassigns, ans
 
 
