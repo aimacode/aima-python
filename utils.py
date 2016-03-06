@@ -75,11 +75,11 @@ def unique(seq):
     return list(set(seq))
 
 def product(numbers):
-    """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
-    result = 1
-    for x in numbers:
-        result *= x
-    return result
+    """Return the product of the numbers.
+    >>> product([1,2,3,4])
+    24
+    """
+    return reduce(operator.mul, numbers, 1)
 
 def count_if(predicate, seq):
     """Count the number of elements of seq for which the predicate is true.
@@ -149,7 +149,7 @@ def argmin_list(seq, fn):
     """
     smallest_score = min(seq, key=fn)
 
-    return [elem for elem in seq if fn(elem) == smallest_score]
+    return [elem for elem in seq if fn(elem) == fn(smallest_score)]
 
 def argmin_gen(seq, fn):
     """Return a generator of elements of seq[i] with the lowest fn(seq[i]) scores.
@@ -159,7 +159,7 @@ def argmin_gen(seq, fn):
 
     smallest_score = min(seq, key=fn)
 
-    yield from (elem for elem in seq if fn(elem) == smallest_score)
+    yield from (elem for elem in seq if fn(elem) == fn(smallest_score))
 
 def argmin_random_tie(seq, fn):
     """Return an element with lowest fn(seq[i]) score; break ties at random.
@@ -293,26 +293,17 @@ def turn_right(heading):
 def turn_left(heading):
     return turn_heading(heading, +1)
 
-def Point(x, y):
-    return (x, y)
-
-def point_x(point):
-    return point[0]
-
-def point_y(point):
-    return point[1]
-
 def distance(a, b):
     "The distance between two (x, y) points."
-    ax, ay = a
-    bx, by = b
-    return math.hypot((ax - bx), (ay - by))
+    return math.hypot((a.x - b.x), (a.y - b.y))
+
+def distance_squared(a, b):
+    "The distance between two (x, y) points."
+    return (a.x - b.x)**2 + (a.y - b.y)**2
 
 def distance2(a, b):
     "The square of the distance between two (x, y) points."
-    ax, ay = a
-    bx, by = b
-    return (ax - bx)**2 + (ay - by)**2
+    return distance_squared(a, b)
 
 def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
