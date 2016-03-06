@@ -21,6 +21,8 @@ class MDP:
         self.init=init
         self.actlist=actlist
         self.terminals=terminals
+        if not (0 <= gamma < 1):
+            raise ValueError("An MDP must have 0 <= gamma < 1")
         self.gamma=gamma
         self.states=set()
         self.reward={}
