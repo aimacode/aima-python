@@ -73,7 +73,7 @@ class CSP(search.Problem):
     def display(self, assignment):
         "Show a human-readable representation of the CSP."
         # Subclasses can print in a prettier way, or display with a GUI
-        print 'CSP:', self, 'with assignment:', assignment
+        print ('CSP:', self, 'with assignment:', assignment)
 
     ## These methods are for the tree- and graph-search interface:
 
@@ -461,7 +461,7 @@ class NQueensCSP(CSP):
                 elif (var+val) % 2 == 0: ch = '.'
                 else: ch = '-'
                 print (ch),
-            print '    ',
+            print ('    ',)
             for var in range(n):
                 if assignment.get(var,'') == val: ch = '*'
                 else: ch = ' '
@@ -601,7 +601,7 @@ def solve_zebra(algorithm=min_conflicts, **args):
     for h in range(1, 6):
         print ('House', h,)
         for (var, val) in ans.items():
-            if val == h: print var,
+            if val == h: print (var,)
         print ()
     return ans['Zebra'], ans['Water'], z.nassigns, ans
 
