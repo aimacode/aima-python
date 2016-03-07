@@ -8,4 +8,4 @@ import os
 import sys
 
 cwd = os.getcwd()
-sys.path.insert(0, cwd.rstrip('iPython Notebooks'))
+sys.path.insert(0, cwd.rstrip('iPythonNotebooks')+"aimaPy/")
