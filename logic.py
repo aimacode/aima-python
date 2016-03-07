@@ -178,11 +178,11 @@ class Expr:
         if not self.args:         # Constant or proposition with arity 0
             return str(self.op)
         elif is_symbol(self.op):  # Functional or propositional operator
-            return '%s(%s)' % (self.op, ', '.join(map(repr, self.args)))
+            return '{}({})' .format(self.op, ', '.join(map(repr, self.args)))
         elif len(self.args) == 1: # Prefix operator
             return self.op + repr(self.args[0])
         else:                     # Infix operator
-            return '(%s)' % (' '+self.op+' ').join(map(repr, self.args))
+            return '({})' .format(' '+self.op+' ').join(map(repr, self.args))
 
     def __eq__(self, other):
         """x and y are equal iff their ops and args are equal."""
@@ -918,7 +918,7 @@ class FolKB(KB):
         if is_definite_clause(sentence):
             self.clauses.append(sentence)
         else:
-            raise Exception("Not a definite clause: %s" % sentence)
+            raise Exception("Not a definite clause: {}" .format(sentence))
 
     def ask_generator(self, query):
         return fol_bc_ask(self, query)
@@ -1029,7 +1029,7 @@ def diff(y, x):
         elif op == '**': return (v * u ** (v - 1) * diff(u, x)
                                  + u ** v * Expr('log')(u) * diff(v, x))
         elif op == 'log': return diff(u, x) / u
-        else: raise ValueError("Unknown op: %s in diff(%s, %s)" % (op, y, x))
+        else: raise ValueError("Unknown op: {} in diff({}, {})" .format(op, y, x))
 
 def simp(x):
     if not x.args: return x
