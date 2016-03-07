@@ -1,11 +1,13 @@
 """Games, or Adversarial Search. (Chapter 5)
 """
 
-from utils import *
+
+from . utils import *
 import random
 
 #______________________________________________________________________________
 # Minimax Search
+
 
 def minimax_decision(state, game):
     """Given a state in a game, calculate the best move by searching
@@ -35,13 +37,14 @@ def minimax_decision(state, game):
 
 #______________________________________________________________________________
 
+
 def alphabeta_full_search(state, game):
     """Search game to determine best action; use alpha-beta pruning.
     As in [Fig. 5.7], this version searches all the way to the leaves."""
 
     player = game.to_move(state)
 
-    #Functions used by alphabeta
+    # Functions used by alphabeta
     def max_value(state, alpha, beta):
         if game.terminal_test(state):
             return game.utility(state, player)
@@ -67,13 +70,14 @@ def alphabeta_full_search(state, game):
     # Body of alphabeta_search:
     return max_value(state, -infinity, infinity)
 
+
 def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     """Search game to determine best action; use alpha-beta pruning.
     This version cuts off search and uses an evaluation function."""
 
     player = game.to_move(state)
 
-    #Functions used by alphabeta
+    # Functions used by alphabeta
     def max_value(state, alpha, beta, depth):
         if cutoff_test(state, depth):
             return eval_fn(state)
@@ -101,24 +105,28 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     # Body of alphabeta_search starts here:
     # The default test cuts off at depth d or at a terminal state
     cutoff_test = (cutoff_test or
-                   (lambda state,depth: depth>d or game.terminal_test(state)))
+                   (lambda state, depth: depth > d or game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
     return max_value(state, -infinity, infinity, 0)
 
 #______________________________________________________________________________
 # Players for Games
 
+
 def query_player(game, state):
     "Make a move by querying standard input."
     game.display(state)
-    return num_or_str(raw_input('Your move? '))
+    return num_or_str(eval(input('Your move? ')))
+
 
 def random_player(game, state):
     "A player that chooses a legal move at random."
     return random.choice(game.actions(state))
 
+
 def alphabeta_player(game, state):
     return alphabeta_search(state, game)
+
 
 def play_game(game, *players):
     """Play an n-person, move-alternating game.
@@ -136,7 +144,9 @@ def play_game(game, *players):
 #______________________________________________________________________________
 # Some Sample Games
 
+
 class Game:
+
     """A game is similar to a problem, but it has a utility for each
     state and a terminal test instead of a path cost and a goal
     test. To create a game, subclass this class and implement actions,
@@ -147,15 +157,15 @@ class Game:
 
     def actions(self, state):
         "Return a list of the allowable moves at this point."
-         raise NotImplementedError
+        raise NotImplementedError
 
     def result(self, state, move):
         "Return the state that results from making a move from a state."
-         raise NotImplementedError
+        raise NotImplementedError
 
     def utility(self, state, player):
         "Return the value of this final state to player."
-         raise NotImplementedError
+        raise NotImplementedError
 
     def terminal_test(self, state):
         "Return True if this is a final state for the game."
@@ -167,12 +177,14 @@ class Game:
 
     def display(self, state):
         "Print or otherwise display the state."
-        print state
+        print(state)
 
     def __repr__(self):
         return '<%s>' % self.__class__.__name__
 
+
 class Fig52Game(Game):
+
     """The game represented in [Fig. 5.2]. Serves as a simple test case.
     >>> g = Fig52Game()
     >>> minimax_decision('A', g)
@@ -190,7 +202,7 @@ class Fig52Game(Game):
     initial = 'A'
 
     def actions(self, state):
-        return self.succs.get(state, {}).keys()
+        return list(self.succs.get(state, {}).keys())
 
     def result(self, state, move):
         return self.succs[state][move]
@@ -207,11 +219,14 @@ class Fig52Game(Game):
     def to_move(self, state):
         return ('MIN' if state in 'BCD' else 'MAX')
 
+
 class TicTacToe(Game):
+
     """Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move, a cached utility, a list of moves in
     the form of a list of (x, y) positions, and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
+
     def __init__(self, h=3, v=3, k=3):
         update(self, h=h, v=v, k=k)
         moves = [(x, y) for x in range(1, h+1)
@@ -224,9 +239,11 @@ class TicTacToe(Game):
 
     def result(self, state, move):
         if move not in state.moves:
-            return state # Illegal move has no effect
-        board = state.board.copy(); board[move] = state.to_move
-        moves = list(state.moves); moves.remove(move)
+            return state  # Illegal move has no effect
+        board = state.board.copy()
+        board[move] = state.to_move
+        moves = list(state.moves)
+        moves.remove(move)
         return Struct(to_move=('O' if state.to_move == 'X' else 'X'),
                       utility=self.compute_utility(board, move, state.to_move),
                       board=board, moves=moves)
@@ -243,23 +260,24 @@ class TicTacToe(Game):
         board = state.board
         for x in range(1, self.h+1):
             for y in range(1, self.v+1):
-                print board.get((x, y), '.'),
-            print
+                print(board.get((x, y), '.'), end=' ')
+            print()
 
     def compute_utility(self, board, move, player):
         "If X wins with this move, return 1; if O return -1; else return 0."
         if (self.k_in_row(board, move, player, (0, 1)) or
-            self.k_in_row(board, move, player, (1, 0)) or
-            self.k_in_row(board, move, player, (1, -1)) or
-            self.k_in_row(board, move, player, (1, 1))):
+                self.k_in_row(board, move, player, (1, 0)) or
+                self.k_in_row(board, move, player, (1, -1)) or
+                self.k_in_row(board, move, player, (1, 1))):
             return (+1 if player == 'X' else -1)
         else:
             return 0
 
-    def k_in_row(self, board, move, player, (delta_x, delta_y)):
+    def k_in_row(self, board, move, player, xxx_todo_changeme):
         "Return true if there is a line through move on board for player."
+        (delta_x, delta_y) = xxx_todo_changeme
         x, y = move
-        n = 0 # n is number of moves in row
+        n = 0  # n is number of moves in row
         while board.get((x, y)) == player:
             n += 1
             x, y = x + delta_x, y + delta_y
@@ -267,10 +285,12 @@ class TicTacToe(Game):
         while board.get((x, y)) == player:
             n += 1
             x, y = x - delta_x, y - delta_y
-        n -= 1 # Because we counted move itself twice
+        n -= 1  # Because we counted move itself twice
         return n >= self.k
 
+
 class ConnectFour(TicTacToe):
+
     """A TicTacToe-like game in which you can only make a move on the bottom
     row, or in a square directly above an occupied square.  Traditionally
     played on a 7x6 board and requiring 4 in a row."""
@@ -282,9 +302,10 @@ class ConnectFour(TicTacToe):
         return [(x, y) for (x, y) in state.moves
                 if y == 1 or (x, y-1) in state.board]
 
-__doc__ += random_tests("""
+__doc__ += """
+Random tests:
 >>> play_game(Fig52Game(), random_player, random_player)
 6
 >>> play_game(TicTacToe(), random_player, random_player)
 0
-""")
+"""
