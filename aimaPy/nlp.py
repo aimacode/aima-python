@@ -3,31 +3,35 @@
 # (Written for the second edition of AIMA; expect some discrepanciecs
 # from the third edition until this gets reviewed.)
 
-from utils import *
+from . utils import *
 from collections import defaultdict
 
 #______________________________________________________________________________
 # Grammars and Lexicons
+
 
 def Rules(**rules):
     """Create a dictionary mapping symbols to alternative sequences.
     >>> Rules(A = "B C | D E")
     {'A': [['B', 'C'], ['D', 'E']]}
     """
-    for (lhs, rhs) in rules.items():
+    for (lhs, rhs) in list(rules.items()):
         rules[lhs] = [alt.strip().split() for alt in rhs.split('|')]
     return rules
+
 
 def Lexicon(**rules):
     """Create a dictionary mapping symbols to alternative words.
     >>> Lexicon(Art = "the | a | an")
     {'Art': ['the', 'a', 'an']}
     """
-    for (lhs, rhs) in rules.items():
+    for (lhs, rhs) in list(rules.items()):
         rules[lhs] = [word.strip() for word in rhs.split('|')]
     return rules
 
+
 class Grammar:
+
     def __init__(self, name, rules, lexicon):
         "A grammar has a set of rules and a lexicon."
         update(self, name=name, rules=rules, lexicon=lexicon)
@@ -48,44 +52,45 @@ class Grammar:
         return '<Grammar %s>' % self.name
 
 E0 = Grammar('E0',
-    Rules( # Grammar for E_0 [Fig. 22.4]
-    S = 'NP VP | S Conjunction S',
-    NP = 'Pronoun | Name | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',
-    VP = 'Verb | VP NP | VP Adjective | VP PP | VP Adverb',
-    PP = 'Preposition NP',
-    RelClause = 'That VP'),
+             Rules(  # Grammar for E_0 [Fig. 22.4]
+                 S='NP VP | S Conjunction S',
+                 NP='Pronoun | Name | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',
+                 VP='Verb | VP NP | VP Adjective | VP PP | VP Adverb',
+                 PP='Preposition NP',
+                 RelClause='That VP'),
 
-    Lexicon( # Lexicon for E_0 [Fig. 22.3]
-    Noun = "stench | breeze | glitter | nothing | wumpus | pit | pits | gold | east",
-    Verb = "is | see | smell | shoot | fell | stinks | go | grab | carry | kill | turn | feel",
-    Adjective = "right | left | east | south | back | smelly",
-    Adverb = "here | there | nearby | ahead | right | left | east | south | back",
-    Pronoun = "me | you | I | it",
-    Name = "John | Mary | Boston | Aristotle",
-    Article = "the | a | an",
-    Preposition = "to | in | on | near",
-    Conjunction = "and | or | but",
-    Digit = "0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9",
-    That = "that"
-    ))
+             Lexicon(  # Lexicon for E_0 [Fig. 22.3]
+                 Noun="stench | breeze | glitter | nothing | wumpus | pit | pits | gold | east",
+                 Verb="is | see | smell | shoot | fell | stinks | go | grab | carry | kill | turn | feel",
+                 Adjective="right | left | east | south | back | smelly",
+                 Adverb="here | there | nearby | ahead | right | left | east | south | back",
+                 Pronoun="me | you | I | it",
+                 Name="John | Mary | Boston | Aristotle",
+                 Article="the | a | an",
+                 Preposition="to | in | on | near",
+                 Conjunction="and | or | but",
+                 Digit="0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9",
+                 That="that"
+             ))
 
-E_ = Grammar('E_', # Trivial Grammar and lexicon for testing
-    Rules(
-    S = 'NP VP',
-    NP = 'Art N | Pronoun',
-    VP = 'V NP'),
+E_ = Grammar('E_',  # Trivial Grammar and lexicon for testing
+             Rules(
+                 S='NP VP',
+                 NP='Art N | Pronoun',
+                 VP='V NP'),
 
-    Lexicon(
-    Art = 'the | a',
-    N = 'man | woman | table | shoelace | saw',
-    Pronoun = 'I | you | it',
-    V = 'saw | liked | feel'
-    ))
+             Lexicon(
+                 Art='the | a',
+                 N='man | woman | table | shoelace | saw',
+                 Pronoun='I | you | it',
+                 V='saw | liked | feel'
+             ))
 
-E_NP_ = Grammar('E_NP_', # another trivial grammar for testing
-              Rules(NP = 'Adj NP | N'),
-              Lexicon(Adj = 'happy | handsome | hairy',
-                      N = 'man'))
+E_NP_ = Grammar('E_NP_',  # another trivial grammar for testing
+                Rules(NP='Adj NP | N'),
+                Lexicon(Adj='happy | handsome | hairy',
+                        N='man'))
+
 
 def generate_random(grammar=E_, s='S'):
     """Replace each token in s by a random entry in grammar (recursively).
@@ -109,6 +114,7 @@ def generate_random(grammar=E_, s='S'):
 
 
 class Chart:
+
     """Class for parsing sentences using a chart data structure. [Fig 22.7]
     >>> chart = Chart(E0);
     >>> len(chart.parses('the stench is in 2 2'))
@@ -152,7 +158,7 @@ class Chart:
         if edge not in self.chart[end]:
             self.chart[end].append(edge)
             if self.trace:
-                print '%10s: added %s' % (caller(2), edge)
+                print('%10s: added %s' % (caller(2), edge))
             if not expects:
                 self.extender(edge)
             else:
@@ -164,8 +170,9 @@ class Chart:
             if Bb and self.grammar.isa(word, Bb[0]):
                 self.add_edge([i, j+1, A, alpha + [(Bb[0], word)], Bb[1:]])
 
-    def predictor(self, (i, j, A, alpha, Bb)):
+    def predictor(self, xxx_todo_changeme):
         "Add to chart any rules for B that could help extend this edge."
+        (i, j, A, alpha, Bb) = xxx_todo_changeme
         B = Bb[0]
         if B in self.grammar.rules:
             for rhs in self.grammar.rewrites_for(B):
@@ -179,10 +186,9 @@ class Chart:
                 self.add_edge([i, k, A, alpha + [edge], B1b[1:]])
 
 
-
-#### TODO:
-#### 1. Parsing with augmentations -- requires unification, etc.
-#### 2. Sequitor
+# TODO:
+# 1. Parsing with augmentations -- requires unification, etc.
+# 2. Sequitor
 
 __doc__ += """
 >>> chart = Chart(E0)
