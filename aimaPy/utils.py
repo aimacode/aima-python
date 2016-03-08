@@ -102,12 +102,12 @@ def some(predicate, seq):
 
     return predicate(elem) or False
 
-# TODO: rename to is_in or possibily add 'identity' to function name to
+# TODO[COMPLETED]: rename to is_in or possibily add 'identity' to function name to
 # clarify intent
 
 
-def isin(elt, seq):
-    """Like (elt in seq), but compares with is, not ==."""
+def is_in(elt, seq):
+    """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
 #______________________________________________________________________________

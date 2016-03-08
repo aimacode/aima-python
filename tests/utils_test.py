@@ -68,10 +68,10 @@ def test_some():
     assert some(callable, [2, 3]) == 0
 
 
-def test_isin():
+def test_is_in():
     e = []
-    assert isin(e, [1, e, 3]) == True
-    assert isin(e, [1, [], 3]) == False
+    assert is_in(e, [1, e, 3]) == True
+    assert is_in(e, [1, [], 3]) == False
 
 
 def test_argmin():
