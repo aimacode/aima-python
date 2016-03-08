@@ -13,6 +13,7 @@ import os.path
 import bisect
 import re
 from functools import reduce
+from . grid import *
 
 #______________________________________________________________________________
 # Simple Data Structures: infinity, Dict, Struct
@@ -245,58 +246,6 @@ def clip(x, lowest, highest):
     """Return x clipped to the range [lowest..highest]."""
     return max(lowest, min(x, highest))
 
-#______________________________________________________________________________
-# OK, the following are not as widely useful utilities as some of the other
-# functions here, but they do show up wherever we have 2D grids: Wumpus and
-# Vacuum worlds, TicTacToe and Checkers, and markov decision Processes.
-
-orientations = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-
-
-def turn_heading(heading, inc, headings=orientations):
-    return headings[(headings.index(heading) + inc) % len(headings)]
-
-
-def turn_right(heading):
-    return turn_heading(heading, -1)
-
-
-def turn_left(heading):
-    return turn_heading(heading, +1)
-
-
-def Point(x, y):
-    return (x, y)
-
-
-def point_x(point):
-    return point[0]
-
-
-def point_y(point):
-    return point[1]
-
-
-def distance(a, b):
-    "The distance between two (x, y) points."
-    ax, ay = a
-    bx, by = b
-    return math.hypot((ax - bx), (ay - by))
-
-
-def distance2(a, b):
-    "The square of the distance between two (x, y) points."
-    ax, ay = a
-    bx, by = b
-    return (ax - bx)**2 + (ay - by)**2
-
-
-def vector_clip(vector, lowest, highest):
-    """Return vector, except if any element is less than the corresponding
-    value of lowest or more than the corresponding value of highest, clip to
-    those values.
-    """
-    return type(vector)(list(map(clip, vector, lowest, highest)))
 
 #______________________________________________________________________________
 # Misc Functions
