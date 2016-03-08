@@ -1,7 +1,7 @@
 import pytest
 from aimaPy.grid import *
 
-compare = lambda x, y: all([elm_x == y[i] for i, elm_x in enumerate(x)])
+compare_list = lambda x, y: all([elm_x == y[i] for i, elm_x in enumerate(x)])
 
 
 def test_distance():
@@ -16,7 +16,7 @@ def test_clip():
     list_ = [clip(x, 0, 1) for x in [-1, 0.5, 10]]
     res = [0, 0.5, 1]
 
-    assert compare(list_, res)
+    assert compare_list(list_, res)
 
 
 def test_vector_clip():
