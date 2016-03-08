@@ -101,15 +101,9 @@ def test_argmax_gen():
     assert argmax_list(['one', 'three', 'seven'], len) == ['three', 'seven']
 
 
-def test_histogram_no_function():
+def test_histogram():
     assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1]) == [(1, 2), (2, 3), (4, 2), (5, 1), (7, 1), (9, 1)]
-
-
-def test_histogram_with_function():
     assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 0, lambda x: x*x) == [(1, 2), (4, 3), (16, 2), (25, 1), (49, 1), (81, 1)]
-
-
-def test_histogram_with_mode_one():
     assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 1) == [(2, 3), (4, 2), (1, 2), (9, 1), (7, 1), (5, 1)]
 
 
