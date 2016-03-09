@@ -68,10 +68,10 @@ def test_some():
     assert some(callable, [2, 3]) == 0
 
 
-def test_isin():
+def test_is_in():
     e = []
-    assert isin(e, [1, e, 3]) == True
-    assert isin(e, [1, [], 3]) == False
+    assert is_in(e, [1, e, 3]) == True
+    assert is_in(e, [1, [], 3]) == False
 
 
 def test_argmin():
@@ -99,6 +99,12 @@ def test_argmax_list():
 
 def test_argmax_gen():
     assert argmax_list(['one', 'three', 'seven'], len) == ['three', 'seven']
+
+
+def test_histogram():
+    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1]) == [(1, 2), (2, 3), (4, 2), (5, 1), (7, 1), (9, 1)]
+    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 0, lambda x: x*x) == [(1, 2), (4, 3), (16, 2), (25, 1), (49, 1), (81, 1)]
+    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 1) == [(2, 3), (4, 2), (1, 2), (9, 1), (7, 1), (5, 1)]
 
 
 def test_dotproduct():
