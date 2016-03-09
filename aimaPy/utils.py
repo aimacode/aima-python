@@ -102,12 +102,12 @@ def some(predicate, seq):
 
     return predicate(elem) or False
 
-# TODO: rename to is_in or possibily add 'identity' to function name to
+# TODO[COMPLETED]: rename to is_in or possibily add 'identity' to function name to
 # clarify intent
 
 
-def isin(elt, seq):
-    """Like (elt in seq), but compares with is, not ==."""
+def is_in(elt, seq):
+    """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
 #______________________________________________________________________________
@@ -125,7 +125,7 @@ def argmin(seq, fn):
 
 def argmin_list(seq, fn):
     """Return a list of elements of seq[i] with the lowest fn(seq[i]) scores.’"""
-    smallest_score = len(min(seq, key=fn))
+    smallest_score = fn(min(seq, key=fn))
 
     return [elem for elem in seq if fn(elem) == smallest_score]
 
@@ -133,7 +133,7 @@ def argmin_list(seq, fn):
 def argmin_gen(seq, fn):
     """Return a generator of elements of seq[i] with the lowest fn(seq[i]) scores."""
 
-    smallest_score = len(min(seq, key=fn))
+    smallest_score = fn(min(seq, key=fn))
 
     yield from (elem for elem in seq if fn(elem) == smallest_score)
 
@@ -152,14 +152,14 @@ def argmax(seq, fn):
 def argmax_list(seq, fn):
     """Return a list of elements of seq[i] with the highest fn(seq[i]) scores.
     Not good to use 'argmin_list(seq, lambda x: -fn(x))' as method breaks if fn is len"""
-    largest_score = len(max(seq, key=fn))
+    largest_score = fn(max(seq, key=fn))
 
     return [elem for elem in seq if fn(elem) == largest_score]
 
 
 def argmax_gen(seq, fn):
     """Return a generator of elements of seq[i] with the highest fn(seq[i]) scores."""
-    largest_score = len(min(seq, key=fn))
+    largest_score = fn(min(seq, key=fn))
 
     yield from (elem for elem in seq if fn(elem) == largest_score)
 
