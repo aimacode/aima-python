@@ -1,8 +1,12 @@
 """Reinforcement Learning (Chapter 21)
 """
 
-from . utils import *
-from . import agents
+if __name__ == "aimaPy.rl":
+    from . utils import *
+    from . import agents
+else:
+    from utils import *
+    import agents
 
 
 class PassiveADPAgent(agents.Agent):

@@ -7,7 +7,10 @@ dictionary of {state:number} pairs.  We then define the value_iteration
 and policy_iteration algorithms."""
 
 
-from . utils import *
+if __name__ == "aimaPy.mdp":
+    from . utils import *
+else:
+    from utils import *
 
 
 class MDP:

@@ -6,6 +6,11 @@ TODO: Create a separate grid.py file for 2D grid environments; move headings, et
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
 
+if __name__ == "aimaPy.utils":
+    from . grid import *
+else:
+    from grid import *
+
 import operator
 import math
 import random
@@ -13,7 +18,6 @@ import os.path
 import bisect
 import re
 from functools import reduce
-from . grid import *
 
 #______________________________________________________________________________
 # Simple Data Structures: infinity, Dict, Struct
