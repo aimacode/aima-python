@@ -589,3 +589,4 @@ True
 >>> 0.5 < testv(RandomVacuumAgent) < 3
 True
 """
+

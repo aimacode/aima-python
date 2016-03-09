@@ -596,8 +596,7 @@ class Sudoku(CSP):
         def abut(lines1, lines2): return list(
             map(' | '.join, list(zip(lines1, lines2))))
         print('\n------+-------+------\n'.join(
-            '\n'.join(reduce(abut, list(map(show_box, brow)))) for brow in self.bgrid))
-
+            '\n'.join(reduce(abut, list(map(show_box, brow)))) for brow in self.bgri))
 #______________________________________________________________________________
 # The Zebra Puzzle
 
