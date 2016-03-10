@@ -1,11 +1,7 @@
 """Games, or Adversarial Search. (Chapter 5)
 """
 
-
-if __name__ == "aimaPy.games":
-    from . utils import *
-else:
-    from utils import *
+from utils import *
 
 import random
 

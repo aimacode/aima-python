@@ -1,12 +1,7 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
 
-
-if __name__ == "aimaPy.csp":
-    from . utils import *
-    from . import search
-else:
-    from utils import *
-    import search
+from utils import *
+import search
 
 from collections import defaultdict
 from functools import reduce

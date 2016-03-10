@@ -6,10 +6,7 @@ TODO: Create a separate grid.py file for 2D grid environments; move headings, et
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
 
-if __name__ == "aimaPy.utils":
-    from . grid import *
-else:
-    from grid import *
+from grid import *
 
 import operator
 import math

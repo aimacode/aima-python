@@ -1,5 +1,5 @@
 import pytest
-from aimaPy.utils import *
+from utils import *
 
 
 def test_struct_initialization():

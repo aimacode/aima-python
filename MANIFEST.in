@@ -1,3 +1,0 @@
-graft aimaPy/aima-data
-graft aimaPy/images
-include aimaPy/*.ipynb

@@ -1,12 +1,8 @@
 """Probability models. (Chapter 13-15)
 """
 
-if __name__ == "aimaPy.probability":
-    from . utils import *
-    from . logic import extend
-else:
-    from utils import *
-    from logic import extend
+from utils import *
+from logic import extend
 
 import random
 from collections import defaultdict
