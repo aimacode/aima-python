@@ -2,7 +2,6 @@ import pytest
 
 from aimaPy.text import *
 
-from random import choice
 from math import isclose
 
 
@@ -47,7 +46,7 @@ def test_counting_probability_distribution():
 
     ps = [D[n] for n in '123456']
 
-    assert 1/7 <= min(ps) <= max(ps) <= 1/5
+    assert 1 / 7 <= min(ps) <= max(ps) <= 1 / 5
 
 
 def test_ngram_models():
