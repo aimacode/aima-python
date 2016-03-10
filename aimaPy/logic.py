@@ -24,10 +24,15 @@ And a few other functions:
     diff, simp       Symbolic differentiation and simplification
 """
 
+if __name__ == "aimaPy.logic":
+    from . utils import *
+    from . import agents
+else:
+    from utils import *
+    import agents
+
 import itertools
 import re
-from . import agents
-from . utils import *
 from collections import defaultdict
 
 #______________________________________________________________________________

@@ -3,7 +3,11 @@
 # (Written for the second edition of AIMA; expect some discrepanciecs
 # from the third edition until this gets reviewed.)
 
-from . utils import *
+if __name__ == "aimaPy.nlp":
+    from . utils import *
+else:
+    from utils import *
+
 from collections import defaultdict
 
 #______________________________________________________________________________

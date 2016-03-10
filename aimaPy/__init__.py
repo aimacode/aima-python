@@ -1,14 +1,15 @@
-from . import agents
-from . import csp
-from . import games
-from . import grid
-from . import learning
-from . import logic
-from . import mdp
-from . import nlp
-from . import planning
-from . import probability
-from . import rl
-from . import search
-from . import text
-from . import utils
+if __name__ == 'aimaPy':
+    from . import agents
+    from . import csp
+    from . import games
+    from . import grid
+    from . import learning
+    from . import logic
+    from . import mdp
+    from . import nlp
+    from . import planning
+    from . import probability
+    from . import rl
+    from . import search
+    from . import text
+    from . import utils

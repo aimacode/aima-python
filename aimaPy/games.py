@@ -2,7 +2,11 @@
 """
 
 
-from . utils import *
+if __name__ == "aimaPy.games":
+    from . utils import *
+else:
+    from utils import *
+
 import random
 
 #______________________________________________________________________________

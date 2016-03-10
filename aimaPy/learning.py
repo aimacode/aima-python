@@ -1,7 +1,10 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
+if __name__ == "aimaPy.learning":
+    from . utils import *
+else:
+    from utils import *
 
-from . utils import *
 import copy
 import heapq
 import math
