@@ -35,10 +35,7 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 #
 # Speed control in GUI does not have any effect -- fix it.
 
-if __name__ == "aimaPy.agents":
-    from . utils import *
-else:
-    from utils import *
+from utils import *
 
 import random
 import copy

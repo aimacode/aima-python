@@ -1,6 +1,6 @@
 import pytest
 
-from aimaPy.text import *
+from text import *
 
 from random import choice
 from math import isclose

@@ -1,5 +1,5 @@
 import pytest
-from aimaPy.grid import *
+from grid import *
 
 compare_list = lambda x, y: all([elm_x == y[i] for i, elm_x in enumerate(x)])
 

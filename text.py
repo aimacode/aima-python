@@ -4,14 +4,9 @@ and show the Viterbi algorithm for segmentatioon of letters into words.
 Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
-if __name__ == "aimaPy.text":
-    from . utils import *
-    from . learning import CountingProbDist
-    from . import search
-else:
-    from utils import *
-    from learning import CountingProbDist
-    import search
+from utils import *
+from learning import CountingProbDist
+import search
 
 from math import log, exp
 from collections import defaultdict

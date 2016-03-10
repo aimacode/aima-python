@@ -6,11 +6,7 @@ as a dictionary of {state:action} pairs, and a Utility function as a
 dictionary of {state:number} pairs.  We then define the value_iteration
 and policy_iteration algorithms."""
 
-
-if __name__ == "aimaPy.mdp":
-    from . utils import *
-else:
-    from utils import *
+from utils import *
 
 
 class MDP:
