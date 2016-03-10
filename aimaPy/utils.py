@@ -250,6 +250,14 @@ def clip(x, lowest, highest):
     """Return x clipped to the range [lowest..highest]."""
     return max(lowest, min(x, highest))
 
+def sigmoid(x):
+    """Return activation value of x with sigmoid function"""
+    return 1/(1 + math.exp(-x))
+
+
+def sign(x):
+    """Return activation value of x with sign function"""
+    return 1 if x >= 0 else 0
 
 #______________________________________________________________________________
 # Misc Functions
