@@ -18,7 +18,6 @@ from collections import defaultdict
 import re
 
 
-
 class UnigramTextModel(CountingProbDist):
 
     """This is a discrete probability distribution over words, so you
@@ -58,25 +57,25 @@ class NgramTextModel(CountingProbDist):
         """Add each of the tuple words[i:i+n], using a sliding window.
         Prefix some copies of the empty word, '', to make the start work."""
         n = self.n
-        words = ['', ] * (n-1) + words
-        for i in range(len(words)-n):
-            self.add(tuple(words[i:i+n]))
+        words = ['', ] * (n - 1) + words
+        for i in range(len(words) - n):
+            self.add(tuple(words[i:i + n]))
 
     def samples(self, nwords):
         """Build up a random sample of text nwords words long, using
         the conditional probability given the n-1 preceding words."""
         n = self.n
-        nminus1gram = ('',) * (n-1)
+        nminus1gram = ('',) * (n - 1)
         output = []
         for i in range(nwords):
             if nminus1gram not in self.cond_prob:
-                nminus1gram = ('',) * (n-1)  # Cannot continue, so restart.
+                nminus1gram = ('',) * (n - 1)  # Cannot continue, so restart.
             wn = self.cond_prob[nminus1gram].sample()
             output.append(wn)
             nminus1gram = nminus1gram[1:] + (wn,)
         return ' '.join(output)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def viterbi_segment(text, P):
@@ -88,7 +87,7 @@ def viterbi_segment(text, P):
     words = [''] + list(text)
     best = [1.0] + [0.0] * n
     # Fill in the vectors best, words via dynamic programming
-    for i in range(n+1):
+    for i in range(n + 1):
         for j in range(0, i):
             w = text[j:i]
             if P[w] * best[i - len(w)] >= best[i]:
@@ -96,7 +95,7 @@ def viterbi_segment(text, P):
                 words[i] = w
     # Now recover the sequence of best words
     sequence = []
-    i = len(words)-1
+    i = len(words) - 1
     while i > 0:
         sequence[0:0] = [words[i]]
         i = i - len(words[i])
@@ -104,7 +103,7 @@ def viterbi_segment(text, P):
     return sequence, best[-1]
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 # TODO(tmrts): Expose raw index
@@ -160,8 +159,8 @@ class IRSystem:
     def score(self, word, docid):
         "Compute a score for this word on this docid."
         # There are many options; here we take a very simple approach
-        return (math.log(1 + self.index[word][docid])
-                / math.log(1 + self.documents[docid].nwords))
+        return (math.log(1 + self.index[word][docid]) /
+                math.log(1 + self.documents[docid].nwords))
 
     def present(self, results):
         "Present the results as a list."
@@ -214,7 +213,7 @@ def canonicalize(text):
     return ' '.join(words(text))
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 # Example application (not in book): decode a cipher.
 # A cipher is a code that substitutes one character for another.
@@ -275,7 +274,7 @@ def bigrams(text):
     >>> bigrams(['this', 'is', 'a', 'test'])
     [['this', 'is'], ['is', 'a'], ['a', 'test']]
     """
-    return [text[i:i+2] for i in range(len(text) - 1)]
+    return [text[i:i + 2] for i in range(len(text) - 1)]
 
 # Decoding a Shift (or Caesar) Cipher
 
@@ -363,14 +362,14 @@ class PermutationDecoderProblem(search.Problem):
         # Find the best
         p, plainchar = max([(self.decoder.P1[c], c)
                             for c in alphabet if c not in state])
-        succs = [extend(state, plainchar, cipherchar)]  # ????
+        succs = [extend(state, plainchar, cipherchar)]  # ???? # noqa
 
     def goal_test(self, state):
         "We're done when we get all 26 letters assigned."
         return len(state) >= 26
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 # TODO(tmrts): Set RNG seed to test random functions
 __doc__ += """

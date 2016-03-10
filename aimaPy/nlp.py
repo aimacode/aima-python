@@ -10,7 +10,7 @@ else:
 
 from collections import defaultdict
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Grammars and Lexicons
 
 
@@ -113,7 +113,7 @@ def generate_random(grammar=E_, s='S'):
 
     return ' '.join(rewrite(s.split(), []))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Chart Parsing
 
 
@@ -150,7 +150,7 @@ class Chart:
     def parse(self, words, S='S'):
         """Parse a list of words; according to the grammar.
         Leave results in the chart."""
-        self.chart = [[] for i in range(len(words)+1)]
+        self.chart = [[] for i in range(len(words) + 1)]
         self.add_edge([0, 0, 'S_', [], [S]])
         for i in range(len(words)):
             self.scanner(i, words[i])
@@ -172,7 +172,7 @@ class Chart:
         "For each edge expecting a word of this category here, extend the edge."
         for (i, j, A, alpha, Bb) in self.chart[j]:
             if Bb and self.grammar.isa(word, Bb[0]):
-                self.add_edge([i, j+1, A, alpha + [(Bb[0], word)], Bb[1:]])
+                self.add_edge([i, j + 1, A, alpha + [(Bb[0], word)], Bb[1:]])
 
     def predictor(self, xxx_todo_changeme):
         "Add to chart any rules for B that could help extend this edge."
@@ -198,7 +198,10 @@ __doc__ += """
 >>> chart = Chart(E0)
 
 >>> chart.parses('the wumpus that is smelly is near 2 2')
-[[0, 9, 'S', [[0, 5, 'NP', [[0, 2, 'NP', [('Article', 'the'), ('Noun', 'wumpus')], []], [2, 5, 'RelClause', [('That', 'that'), [3, 5, 'VP', [[3, 4, 'VP', [('Verb', 'is')], []], ('Adjective', 'smelly')], []]], []]], []], [5, 9, 'VP', [[5, 6, 'VP', [('Verb', 'is')], []], [6, 9, 'PP', [('Preposition', 'near'), [7, 9, 'NP', [('Digit', '2'), ('Digit', '2')], []]], []]], []]], []]]
+[[0, 9, 'S', [[0, 5, 'NP', [[0, 2, 'NP', [('Article', 'the'), ('Noun', 'wumpus')], []],
+ [2, 5, 'RelClause', [('That', 'that'), [3, 5, 'VP', [[3, 4, 'VP', [('Verb', 'is')], []],
+ ('Adjective', 'smelly')], []]], []]], []], [5, 9, 'VP', [[5, 6, 'VP', [('Verb', 'is')], []],
+ [6, 9, 'PP', [('Preposition', 'near'), [7, 9, 'NP', [('Digit', '2'), ('Digit', '2')], []]], []]], []]], []]]
 
 ### There is a built-in trace facility (compare [Fig. 22.9])
 >>> Chart(E_, trace=True).parses('I feel it')
@@ -215,6 +218,8 @@ __doc__ += """
    scanner: added [2, 3, 'NP', [('Pronoun', 'it')], []]
   extender: added [1, 3, 'VP', [('V', 'feel'), [2, 3, 'NP', [('Pronoun', 'it')], []]], []]
   extender: added [0, 3, 'S', [[0, 1, 'NP', [('Pronoun', 'I')], []], [1, 3, 'VP', [('V', 'feel'), [2, 3, 'NP', [('Pronoun', 'it')], []]], []]], []]
-  extender: added [0, 3, 'S_', [[0, 3, 'S', [[0, 1, 'NP', [('Pronoun', 'I')], []], [1, 3, 'VP', [('V', 'feel'), [2, 3, 'NP', [('Pronoun', 'it')], []]], []]], []]], []]
-[[0, 3, 'S', [[0, 1, 'NP', [('Pronoun', 'I')], []], [1, 3, 'VP', [('V', 'feel'), [2, 3, 'NP', [('Pronoun', 'it')], []]], []]], []]]
+  extender: added [0, 3, 'S_', [[0, 3, 'S', [[0, 1, 'NP', [('Pronoun', 'I')], []], [1, 3, 'VP',
+ [('V', 'feel'), [2, 3, 'NP', [('Pronoun', 'it')], []]], []]], []]], []]
+[[0, 3, 'S', [[0, 1, 'NP', [('Pronoun', 'I')], []], [1, 3, 'VP', [('V', 'feel'), [2, 3, 'NP',
+[('Pronoun', 'it')], []]], []]], []]]
 """

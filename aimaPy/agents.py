@@ -44,7 +44,7 @@ import random
 import copy
 import collections
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class Thing(object):
@@ -111,7 +111,7 @@ def TraceAgent(agent):
     agent.program = new_program
     return agent
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def TableDrivenAgentProgram(table):
@@ -132,7 +132,7 @@ def RandomAgentProgram(actions):
     "An agent that chooses an action at random, ignoring all percepts."
     return lambda percept: random.choice(actions)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def SimpleReflexAgentProgram(rules, interpret_input):
@@ -162,7 +162,7 @@ def rule_match(state, rules):
         if rule.matches(state):
             return rule
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 loc_A, loc_B = (0, 0), (1, 0)  # The two locations for the Vacuum world
 
@@ -217,7 +217,7 @@ def ModelBasedVacuumAgent():
             return 'Left'
     return Agent(program)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class Environment(object):
@@ -393,10 +393,10 @@ class XYEnvironment(Environment):
         "Put walls around the entire perimeter of the grid."
         for x in range(self.width):
             self.add_thing(Wall(), (x, 0))
-            self.add_thing(Wall(), (x, self.height-1))
+            self.add_thing(Wall(), (x, self.height - 1))
         for y in range(self.height):
             self.add_thing(Wall(), (0, y))
-            self.add_thing(Wall(), (self.width-1, y))
+            self.add_thing(Wall(), (self.width - 1, y))
 
     def add_observer(self, observer):
         """Adds an observer to the list of observers.
@@ -422,7 +422,7 @@ class Obstacle(Thing):
 class Wall(Obstacle):
     pass
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Vacuum environment
 
 
@@ -505,7 +505,7 @@ class TrivialVacuumEnvironment(Environment):
         "Agents start in either location at random."
         return random.choice([loc_A, loc_B])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # The Wumpus World
 
 
@@ -541,7 +541,7 @@ class WumpusEnvironment(XYEnvironment):
     # Needs a lot of work ...
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
     """See how well each of several agents do in n instances of an environment.
@@ -562,7 +562,7 @@ def test_agent(AgentFactory, steps, envs):
         return agent.performance
     return mean(list(map(score, envs)))
 
-#_________________________________________________________________________
+# _________________________________________________________________________
 
 __doc__ += """
 >>> a = ReflexVacuumAgent()
@@ -593,4 +593,3 @@ True
 >>> 0.5 < testv(RandomVacuumAgent) < 3
 True
 """
-

@@ -11,7 +11,7 @@ import math
 import random
 from collections import defaultdict
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def rms_error(predictions, targets):
@@ -29,7 +29,7 @@ def mean_error(predictions, targets):
 def mean_boolean_error(predictions, targets):
     return mean([(p != t) for p, t in zip(predictions, targets)])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class DataSet:
@@ -71,7 +71,7 @@ class DataSet:
         if isinstance(examples, str):
             self.examples = parse_csv(examples)
         elif examples is None:
-            self.examples = parse_csv(DataFile(name+'.csv').read())
+            self.examples = parse_csv(DataFile(name + '.csv').read())
         else:
             self.examples = examples
         # Attrs are the indices of examples, unless otherwise stated.
@@ -141,7 +141,7 @@ class DataSet:
         return '<DataSet(%s): %d examples, %d attributes>' % (
             self.name, len(self.examples), len(self.attrs))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def parse_csv(input, delim=','):
@@ -155,7 +155,7 @@ def parse_csv(input, delim=','):
     lines = [line for line in input.splitlines() if line.strip()]
     return [list(map(num_or_str, line.split(delim))) for line in lines]
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class CountingProbDist:
@@ -208,7 +208,7 @@ class CountingProbDist:
                                             list(self.dictionary.values()))
         return self.sampler()
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def PluralityLearner(dataset):
@@ -221,7 +221,7 @@ def PluralityLearner(dataset):
         return most_popular
     return predict
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def NaiveBayesLearner(dataset):
@@ -244,14 +244,14 @@ def NaiveBayesLearner(dataset):
         """Predict the target value for example. Consider each possible value,
         and pick the most likely by looking at each attribute independently."""
         def class_probability(targetval):
-            return (target_dist[targetval]
-                    * product(attr_dists[targetval, attr][example[attr]]
-                              for attr in dataset.inputs))
+            return (target_dist[targetval] *
+                    product(attr_dists[targetval, attr][example[attr]]
+                            for attr in dataset.inputs))
         return argmax(targetvals, class_probability)
 
     return predict
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def NearestNeighborLearner(dataset, k=1):
@@ -263,13 +263,13 @@ def NearestNeighborLearner(dataset, k=1):
         return mode(e[dataset.target] for (d, e) in best)
     return predict
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class DecisionFork:
 
-    """A fork of a decision tree holds an attribute to test, and a dict 
-    of branches, one for each of the attribute's values."""
+    """A fork of a decision tree holds an attribute to test, and a dict
+       of branches, one for each of the attribute's values."""
 
     def __init__(self, attr, attrname=None, branches=None):
         "Initialize by saying what attribute this node tests."
@@ -289,8 +289,8 @@ class DecisionFork:
         name = self.attrname
         print('Test', name)
         for (val, subtree) in list(self.branches.items()):
-            print(' '*4*indent, name, '=', val, '==>', end=' ')
-            subtree.display(indent+1)
+            print(' ' * 4 * indent, name, '=', val, '==>', end=' ')
+            subtree.display(indent + 1)
 
     def __repr__(self):
         return ('DecisionFork(%r, %r, %r)'
@@ -313,7 +313,7 @@ class DecisionLeaf:
     def __repr__(self):
         return repr(self.result)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def DecisionTreeLearner(dataset):
@@ -380,7 +380,7 @@ def information_content(values):
     probabilities = normalize(removeall(0, values))
     return sum(-p * log2(p) for p in probabilities)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 # A decision list is implemented as a list of (test, value) pairs.
 
@@ -414,14 +414,14 @@ def DecisionListLearner(dataset):
 
     return predict
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def NeuralNetLearner(dataset, sizes):
     """Layered feed-forward network."""
 
-    activations = [[0.0 for i in range(n)] for n in sizes]
-    weights = []
+    activations = [[0.0 for i in range(n)] for n in sizes]  # noqa
+    weights = []  # noqa
 
     def predict(example):
         unimplemented()
@@ -441,13 +441,13 @@ def PerceptronLearner(dataset, sizes):
     def predict(example):
         return sum([])
     unimplemented()
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def Linearlearner(dataset):
     """Fit a linear model to the data."""
     unimplemented()
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def EnsembleLearner(learners):
@@ -460,7 +460,7 @@ def EnsembleLearner(learners):
         return predict
     return train
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def AdaBoost(L, K):
@@ -468,8 +468,8 @@ def AdaBoost(L, K):
     def train(dataset):
         examples, target = dataset.examples, dataset.target
         N = len(examples)
-        epsilon = 1./(2*N)
-        w = [1./N] * N
+        epsilon = 1. / (2 * N)
+        w = [1. / N] * N
         h, z = [], []
         for k in range(K):
             h_k = L(dataset, w)
@@ -477,7 +477,7 @@ def AdaBoost(L, K):
             error = sum(weight for example, weight in zip(examples, w)
                         if example[target] != h_k(example))
             # Avoid divide-by-0 from either 0% or 100% error rates:
-            error = clip(error, epsilon, 1-epsilon)
+            error = clip(error, epsilon, 1 - epsilon)
             for j, example in enumerate(examples):
                 if example[target] == h_k(example):
                     w[j] *= error / (1. - error)
@@ -504,7 +504,7 @@ def weighted_mode(values, weights):
         totals[v] += w
     return max(list(totals.keys()), key=totals.get)
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # Adapting an unweighted learner for AdaBoost
 
 
@@ -532,15 +532,15 @@ def weighted_replicate(seq, weights, n):
     ['A', 'B', 'B', 'C']"""
     assert len(seq) == len(weights)
     weights = normalize(weights)
-    wholes = [int(w*n) for w in weights]
-    fractions = [(w*n) % 1 for w in weights]
-    return (flatten([x] * nx for x, nx in zip(seq, wholes))
-            + weighted_sample_with_replacement(seq, fractions, n - sum(wholes)))
+    wholes = [int(w * n) for w in weights]
+    fractions = [(w * n) % 1 for w in weights]
+    return (flatten([x] * nx for x, nx in zip(seq, wholes)) +
+            weighted_sample_with_replacement(seq, fractions, n - sum(wholes)))
 
 
 def flatten(seqs): return sum(seqs, [])
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # Functions for testing learners on examples
 
 
@@ -587,7 +587,7 @@ def cross_validation(learner, dataset, k=10, trials=1):
     else:
         n = len(dataset.examples)
         random.shuffle(dataset.examples)
-        return mean([train_and_test(learner, dataset, i*(n/k), (i+1)*(n/k))
+        return mean([train_and_test(learner, dataset, i * (n / k), (i + 1) * (n / k))
                      for i in range(k)])
 
 
@@ -598,7 +598,7 @@ def leave1out(learner, dataset):
 
 def learningcurve(learner, dataset, trials=10, sizes=None):
     if sizes is None:
-        sizes = list(range(2, len(dataset.examples)-10, 2))
+        sizes = list(range(2, len(dataset.examples) - 10, 2))
 
     def score(learner, size):
         random.shuffle(dataset.examples)
@@ -606,7 +606,7 @@ def learningcurve(learner, dataset, trials=10, sizes=None):
     return [(size, mean([score(learner, size) for t in range(trials)]))
             for size in sizes]
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # The rest of this file gives datasets for machine learning problems.
 
 orings = DataSet(name='orings', target='Distressed',
@@ -622,15 +622,15 @@ zoo = DataSet(name='zoo', target='type', exclude=['name'],
 iris = DataSet(name="iris", target="class",
                attrnames="sepal-len sepal-width petal-len petal-width class")
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # The Restaurant example from Fig. 18.2
 
 
 def RestaurantDataSet(examples=None):
     "Build a DataSet of Restaurant waiting examples. [Fig. 18.3]"
     return DataSet(name='restaurant', target='Wait', examples=examples,
-                   attrnames='Alternate Bar Fri/Sat Hungry Patrons Price '
-                   + 'Raining Reservation Type WaitEstimate Wait')
+                   attrnames='Alternate Bar Fri/Sat Hungry Patrons Price ' +
+                   'Raining Reservation Type WaitEstimate Wait')
 
 restaurant = RestaurantDataSet()
 
@@ -686,7 +686,7 @@ def SyntheticRestaurant(n=20):
         return example
     return RestaurantDataSet([gen() for i in range(n)])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Artificial, generated datasets.
 
 
@@ -696,7 +696,7 @@ def Majority(k, n):
     examples = []
     for i in range(n):
         bits = [random.choice([0, 1]) for i in range(k)]
-        bits.append(int(sum(bits) > k/2))
+        bits.append(int(sum(bits) > k / 2))
         examples.append(bits)
     return DataSet(name="majority", examples=examples)
 
@@ -725,7 +725,7 @@ def ContinuousXor(n):
         examples.append([x, y, int(x) != int(y)])
     return DataSet(name="continuous xor", examples=examples)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def compare(algorithms=[PluralityLearner, NaiveBayesLearner,
