@@ -1,6 +1,8 @@
 import pytest
 from aimaPy.utils import *
 
+eps = 0.001
+
 
 def test_struct_initialization():
     s = Struct(a=1, b=2)
@@ -47,13 +49,16 @@ def test_product():
 
 
 def test_find_if():
-    assert find_if(callable, [1, 2, 3]) == None
+    assert find_if(callable, [1, 2, 3]) is None
     assert find_if(callable, [3, min, max]) == min
 
 
 def test_count_if():
     assert count_if(callable, [42, None, max, min]) == 2
-    is_odd = lambda x: x % 2
+
+    def is_odd(x):
+        return x % 2
+
     assert count_if(is_odd, []) == 0
     assert count_if(is_odd, [1, 2, 3, 4, 5]) == 3
 
@@ -70,8 +75,8 @@ def test_some():
 
 def test_is_in():
     e = []
-    assert is_in(e, [1, e, 3]) == True
-    assert is_in(e, [1, [], 3]) == False
+    assert is_in(e, [1, e, 3]) is True
+    assert is_in(e, [1, [], 3]) is False
 
 
 def test_argmin():
@@ -115,6 +120,10 @@ def test_vector_add():
     assert vector_add((0, 1), (8, 9)) == (8, 10)
 
 
+def test_scalar_vector_product():
+    assert scalar_vector_product(2, [1, 2, 3] == [2, 4, 6])
+
+
 def test_num_or_str():
     assert num_or_str('42') == 42
     assert num_or_str(' 42x ') == '42x'
@@ -134,6 +143,18 @@ def test_caller():
     def f():
         return caller()
     assert f() == 'f'
+
+
+def test_sigmoid():
+    assert 0.5-eps <= sigmoid(0) <= 0.5+eps
+    assert 0.731-eps <= sigmoid(1) <= 0.731+eps
+    assert 0.269-eps <= sigmoid(-1) <= 0.269+eps
+
+
+def test_sign():
+    assert sign(1) == 1
+    assert sign(0) == 1
+    assert sign(-1) == 0
 
 
 if __name__ == '__main__':
