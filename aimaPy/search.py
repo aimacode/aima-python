@@ -374,8 +374,35 @@ def simulated_annealing(problem, schedule=exp_schedule()):
 
 
 def and_or_graph_search(problem):
+    """Used when the environment is  nondeterministic and completely observable
+    Contains OR nodes where the agent is free to choose any action
+    After every action there is an AND node which contains all possible states the agent may reach due to stochastic nature of environment
+    The agent must be able to handle all possible states of the AND node(as it may end up in any of them)
+    returns a conditional plan to reach goal state, or failure if the former is not possible"""
     "[Fig. 4.11]"
-    unimplemented()
+
+    #functions used by and_or_search
+    def or_search(state, problem, path):
+        if problem.goal_test(state):
+            return {}
+        if state in path:
+            return None
+        for action in problem.action(state):
+            plan = and_search(problem.result(state, action), problem, path + [state,])
+            if not plan == None:
+                return [action, plan]
+
+    def and_search(states, problem, path):
+        "returns plan in form of dictionary where we take action plan[s] if we reach state s"
+        plan=dict()
+        for s in states:
+            plan[s] = or_search(s, problem, path)
+            if plan[s] == None:
+                return None
+        return plan
+
+    #body of and or search
+    return or_search(problem.initial, problem, [])
 
 
 def online_dfs_agent(s1):
