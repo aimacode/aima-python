@@ -206,6 +206,11 @@ def vector_add(a, b):
     return tuple(map(operator.add, a, b))
 
 
+def scalar_vector_product(X, Y):
+    """Return vector as a product of a scalar and a vector"""
+    return [X*y for y in Y]
+
+
 def probability(p):
     "Return true with probability p."
     return p > random.uniform(0.0, 1.0)
