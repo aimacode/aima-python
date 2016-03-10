@@ -9,7 +9,7 @@ else:
 
 import random
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Minimax Search
 
 
@@ -39,7 +39,7 @@ def minimax_decision(state, game):
     return argmax(game.actions(state),
                   lambda a: min_value(game.result(state, a)))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def alphabeta_full_search(state, game):
@@ -88,7 +88,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         v = -infinity
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a),
-                                 alpha, beta, depth+1))
+                                 alpha, beta, depth + 1))
             if v >= beta:
                 return v
             alpha = max(alpha, v)
@@ -100,7 +100,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         v = infinity
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a),
-                                 alpha, beta, depth+1))
+                                 alpha, beta, depth + 1))
             if v <= alpha:
                 return v
             beta = min(beta, v)
@@ -113,7 +113,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
     return max_value(state, -infinity, infinity, 0)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Players for Games
 
 
@@ -145,7 +145,7 @@ def play_game(game, *players):
             if game.terminal_test(state):
                 return game.utility(state, game.to_move(game.initial))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Some Sample Games
 
 
@@ -233,8 +233,8 @@ class TicTacToe(Game):
 
     def __init__(self, h=3, v=3, k=3):
         update(self, h=h, v=v, k=k)
-        moves = [(x, y) for x in range(1, h+1)
-                 for y in range(1, v+1)]
+        moves = [(x, y) for x in range(1, h + 1)
+                 for y in range(1, v + 1)]
         self.initial = Struct(to_move='X', utility=0, board={}, moves=moves)
 
     def actions(self, state):
@@ -262,8 +262,8 @@ class TicTacToe(Game):
 
     def display(self, state):
         board = state.board
-        for x in range(1, self.h+1):
-            for y in range(1, self.v+1):
+        for x in range(1, self.h + 1):
+            for y in range(1, self.v + 1):
                 print(board.get((x, y), '.'), end=' ')
             print()
 
@@ -304,7 +304,7 @@ class ConnectFour(TicTacToe):
 
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
-                if y == 1 or (x, y-1) in state.board]
+                if y == 1 or (x, y - 1) in state.board]
 
 __doc__ += """
 Random tests:

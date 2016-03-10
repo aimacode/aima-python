@@ -12,14 +12,13 @@ else:
     from grid import *
 
 import operator
-import math
 import random
 import os.path
 import bisect
-import re
-from functools import reduce
 
-#______________________________________________________________________________
+from . grid import *
+
+# ______________________________________________________________________________
 # Simple Data Structures: infinity, Dict, Struct
 
 infinity = float('inf')
@@ -40,7 +39,7 @@ class Struct:
             return self.__dict__ == other
 
     def __repr__(self):
-        args = ['{!s}={!s}'.format(k, repr(v))
+        return ['{!s}={!s}'.format(k, repr(v))
                 for (k, v) in list(vars(self).items())]
 
 
@@ -53,7 +52,7 @@ def update(x, **entries):
 
     return x
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Functions on Sequences (mostly inspired by Common Lisp)
 # NOTE: Sequence functions (count_if, find_if, every, some) take function
 # argument first (like reduce, filter, and map).
@@ -114,7 +113,7 @@ def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Functions on sequences of numbers
 # NOTE: these take the sequence argument first, like min and max,
 # and like standard math notation: \sigma (i = 1..n) fn(i)
@@ -128,7 +127,7 @@ def argmin(seq, fn):
 
 
 def argmin_list(seq, fn):
-    """Return a list of elements of seq[i] with the lowest fn(seq[i]) scores.’"""
+    """Return a list of elements of seq[i] with the lowest fn(seq[i]) scores."""
     smallest_score = fn(min(seq, key=fn))
 
     return [elem for elem in seq if fn(elem) == smallest_score]
@@ -172,7 +171,7 @@ def argmax_random_tie(seq, fn):
     "Return an element with highest fn(seq[i]) score; break ties at random."
     return argmin_random_tie(seq, lambda x: -fn(x))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Statistical and mathematical functions
 
 
@@ -191,9 +190,6 @@ def histogram(values, mode=0, bin_function=None):
         return sorted(list(bins.items()), key=lambda x: (x[1], x[0]), reverse=True)
     else:
         return sorted(bins.items())
-
-from math import log2
-from statistics import mode, median, mean, stdev
 
 
 def dotproduct(X, Y):
@@ -251,7 +247,7 @@ def clip(x, lowest, highest):
     return max(lowest, min(x, highest))
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Misc Functions
 
 
@@ -297,9 +293,9 @@ def memoize(fn, slot=None):
 
 def name(obj):
     "Try to find some reasonable name for the object."
-    return (getattr(obj, 'name', 0) or getattr(obj, '__name__', 0)
-            or getattr(getattr(obj, '__class__', 0), '__name__', 0)
-            or str(obj))
+    return (getattr(obj, 'name', 0) or getattr(obj, '__name__', 0) or
+            getattr(getattr(obj, '__class__', 0), '__name__', 0) or
+            str(obj))
 
 
 def isnumber(x):
@@ -326,14 +322,14 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
     table = [[numfmt.format(x) if isnumber(x) else x for x in row]
              for row in table]
 
-    maxlen = lambda seq: max(list(map(len, seq)))
+    def maxlen(seq): max(list(map(len, seq)))
 
     sizes = list(
         map(maxlen, list(zip(*[list(map(str, row)) for row in table]))))
 
     for row in table:
         print(sep.join(getattr(str(x), j)(size)
-                        for (j, size, x) in zip(justs, sizes, row)))
+                       for (j, size, x) in zip(justs, sizes, row)))
 
 
 def AIMAFile(components, mode='r'):
@@ -354,7 +350,7 @@ def unimplemented():
     "Use this as a stub for not-yet-implemented functions."
     raise NotImplementedError
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
 
 # TODO: Use queue.Queue
@@ -408,7 +404,7 @@ class FIFOQueue(Queue):
     def pop(self):
         e = self.A[self.start]
         self.start += 1
-        if self.start > 5 and self.start > len(self.A)/2:
+        if self.start > 5 and self.start > len(self.A) / 2:
             self.A = self.A[self.start:]
             self.start = 0
         return e

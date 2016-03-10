@@ -11,6 +11,9 @@ else:
 from collections import defaultdict
 from functools import reduce
 
+import itertools
+import re
+
 
 class CSP(search.Problem):
 
@@ -75,8 +78,8 @@ class CSP(search.Problem):
         "Return the number of conflicts var=val has with other variables."
         # Subclasses may implement this more efficiently
         def conflict(var2):
-            return (var2 in assignment
-                    and not self.constraints(var, val, var2, assignment[var2]))
+            return (var2 in assignment and
+                    not self.constraints(var, val, var2, assignment[var2]))
         return count_if(conflict, self.neighbors[var])
 
     def display(self, assignment):
@@ -154,7 +157,7 @@ class CSP(search.Problem):
         return [var for var in self.vars
                 if self.nconflicts(var, current[var], current) > 0]
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Constraint Propagation with AC-3
 
 
@@ -185,7 +188,7 @@ def revise(csp, Xi, Xj, removals):
             revised = True
     return revised
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # CSP Backtracking Search
 
 # Variable ordering
@@ -290,7 +293,7 @@ def backtracking_search(csp,
     assert result is None or csp.goal_test(result)
     return result
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Min-conflicts hillclimbing search for CSPs
 
 
@@ -318,12 +321,11 @@ def min_conflicts_value(csp, var, current):
     return argmin_random_tie(csp.domains[var],
                              lambda val: csp.nconflicts(var, val, current))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def tree_csp_solver(csp):
     "[Fig. 6.11]"
-    n = len(csp.vars)
     assignment = {}
     root = csp.vars[0]
     X, parent = topological_sort(csp.vars, root)
@@ -344,7 +346,7 @@ def topological_sort(xs, x):
 def make_arc_consistent(Xj, Xk, csp):
     unimplemented()
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Map-Coloring Problems
 
 
@@ -422,7 +424,7 @@ france = MapColoringCSP(list('RGBY'),
         PI; PA: LR RA; PC: PL CE LI AQ; PI: NH NO CA IF; PL: BR NB CE PC; RA:
         AU BO FC PA LR""")
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # n-Queens Problem
 
 
@@ -457,14 +459,14 @@ class NQueensCSP(CSP):
         """Initialize data structures for n Queens."""
         CSP.__init__(self, list(range(n)), UniversalDict(list(range(n))),
                      UniversalDict(list(range(n))), queen_constraint)
-        update(self, rows=[0]*n, ups=[0]*(2*n - 1), downs=[0]*(2*n - 1))
+        update(self, rows=[0] * n, ups=[0] * (2 * n - 1), downs=[0] * (2 * n - 1))
 
     def nconflicts(self, var, val, assignment):
         """The number of conflicts, as recorded with each assignment.
         Count conflicts in row and in up, down diagonals. If there
         is a queen there, it can't conflict with itself, so subtract 3."""
         n = len(self.vars)
-        c = self.rows[val] + self.downs[var+val] + self.ups[var-val+n-1]
+        c = self.rows[val] + self.downs[var + val] + self.ups[var - val + n - 1]
         if assignment.get(var, None) == val:
             c -= 3
         return c
@@ -498,7 +500,7 @@ class NQueensCSP(CSP):
             for var in range(n):
                 if assignment.get(var, '') == val:
                     ch = 'Q'
-                elif (var+val) % 2 == 0:
+                elif (var + val) % 2 == 0:
                     ch = '.'
                 else:
                     ch = '-'
@@ -509,14 +511,11 @@ class NQueensCSP(CSP):
                     ch = '*'
                 else:
                     ch = ' '
-                print(str(self.nconflicts(var, val, assignment))+ch, end=' ')
+                print(str(self.nconflicts(var, val, assignment)) + ch, end=' ')
             print()
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Sudoku
-
-import itertools
-import re
 
 
 def flatten(seqs): return sum(seqs, [])
@@ -535,6 +534,7 @@ _NEIGHBORS = dict([(v, set()) for v in flatten(_ROWS)])
 for unit in map(set, _BOXES + _ROWS + _COLS):
     for v in unit:
         _NEIGHBORS[v].update(unit - set([v]))
+
 
 class Sudoku(CSP):
 
@@ -602,7 +602,7 @@ class Sudoku(CSP):
             map(' | '.join, list(zip(lines1, lines2))))
         print('\n------+-------+------\n'.join(
             '\n'.join(reduce(abut, list(map(show_box, brow)))) for brow in self.bgrid))
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # The Zebra Puzzle
 
 

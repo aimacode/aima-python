@@ -35,7 +35,7 @@ import itertools
 import re
 from collections import defaultdict
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class KB:
@@ -97,7 +97,7 @@ class PropKB(KB):
             if c in self.clauses:
                 self.clauses.remove(c)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def KB_AgentProgram(KB):
@@ -122,7 +122,7 @@ def KB_AgentProgram(KB):
 
     return program
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class Expr:
@@ -193,12 +193,12 @@ class Expr:
         elif len(self.args) == 1:  # Prefix operator
             return self.op + repr(self.args[0])
         else:                     # Infix operator
-            return '(%s)' % (' '+self.op+' ').join(map(repr, self.args))
+            return '(%s)' % (' ' + self.op + ' ').join(map(repr, self.args))
 
     def __eq__(self, other):
         """x and y are equal iff their ops and args are equal."""
-        return (other is self) or (isinstance(other, Expr)
-                                   and self.op == other.op and self.args == other.args)
+        return (other is self) or (isinstance(other, Expr) and
+                                   self.op == other.op and self.args == other.args)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -209,41 +209,41 @@ class Expr:
 
     # See http://www.python.org/doc/current/lib/module-operator.html
     # Not implemented: not, abs, pos, concat, contains, *item, *slice
-    def __lt__(self, other): return Expr('<',  self, other)
+    def __lt__(self, other): return Expr('<', self, other)
 
     def __le__(self, other): return Expr('<=', self, other)
 
     def __ge__(self, other): return Expr('>=', self, other)
 
-    def __gt__(self, other): return Expr('>',  self, other)
+    def __gt__(self, other): return Expr('>', self, other)
 
-    def __add__(self, other): return Expr('+',  self, other)
+    def __add__(self, other): return Expr('+', self, other)
 
-    def __sub__(self, other): return Expr('-',  self, other)
+    def __sub__(self, other): return Expr('-', self, other)
 
-    def __and__(self, other): return Expr('&',  self, other)
+    def __and__(self, other): return Expr('&', self, other)
 
-    def __div__(self, other): return Expr('/',  self, other)
+    def __div__(self, other): return Expr('/', self, other)
 
-    def __truediv__(self, other): return Expr('/',  self, other)
+    def __truediv__(self, other): return Expr('/', self, other)
 
-    def __invert__(self): return Expr('~',  self)
+    def __invert__(self): return Expr('~', self)
 
     def __lshift__(self, other): return Expr('<<', self, other)
 
     def __rshift__(self, other): return Expr('>>', self, other)
 
-    def __mul__(self, other): return Expr('*',  self, other)
+    def __mul__(self, other): return Expr('*', self, other)
 
-    def __neg__(self): return Expr('-',  self)
+    def __neg__(self): return Expr('-', self)
 
-    def __or__(self, other): return Expr('|',  self, other)
+    def __or__(self, other): return Expr('|', self, other)
 
     def __pow__(self, other): return Expr('**', self, other)
 
-    def __xor__(self, other): return Expr('^',  self, other)
+    def __xor__(self, other): return Expr('^', self, other)
 
-    def __mod__(self, other): return Expr('<=>',  self, other)
+    def __mod__(self, other): return Expr('<=>', self, other)
 
 
 def expr(s):
@@ -330,8 +330,8 @@ def is_definite_clause(s):
         return True
     elif s.op == '>>':
         antecedent, consequent = s.args
-        return (is_symbol(consequent.op)
-                and every(lambda arg: is_symbol(arg.op), conjuncts(antecedent)))
+        return (is_symbol(consequent.op) and
+                every(lambda arg: is_symbol(arg.op), conjuncts(antecedent)))
     else:
         return False
 
@@ -349,7 +349,7 @@ def parse_definite_clause(s):
 TRUE, FALSE, ZERO, ONE, TWO = list(map(Expr, ['TRUE', 'FALSE', 0, 1, 2]))
 A, B, C, D, E, F, G, P, Q, x, y, z = list(map(Expr, 'ABCDEFGPQxyz'))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def tt_entails(kb, alpha):
@@ -451,7 +451,7 @@ def pl_true(exp, model={}):
     else:
         raise ValueError("illegal operator in logic expression" + str(exp))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 # Convert to Conjunctive Normal Form (CNF)
 
@@ -513,15 +513,19 @@ def move_not_inwards(s):
     ((A | ~B) & ~C)
     """
     if s.op == '~':
-        NOT = lambda b: move_not_inwards(~b)
+        def NOT(b): move_not_inwards(~b)
         a = s.args[0]
         if a.op == '~':
             return move_not_inwards(a.args[0])  # ~~A ==> A
-        if a.op == '&':
-            return associate('|', list(map(NOT, a.args)))
-        if a.op == '|':
-            return associate('&', list(map(NOT, a.args)))
+        else:
+            arg_list = list(map(lambda b: move_not_inwards(~b), a.args))
+
+            if a.op == '&':
+                return associate('|', arg_list)
+            if a.op == '|':
+                return associate('&', arg_list)
         return s
+
     elif is_symbol(s.op) or not s.args:
         return s
     else:
@@ -609,7 +613,7 @@ def disjuncts(s):
     """
     return dissociate('|', [s])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def pl_resolution(KB, alpha):
@@ -619,7 +623,7 @@ def pl_resolution(KB, alpha):
     while True:
         n = len(clauses)
         pairs = [(clauses[i], clauses[j])
-                 for i in range(n) for j in range(i+1, n)]
+                 for i in range(n) for j in range(i + 1, n)]
         for (ci, cj) in pairs:
             resolvents = pl_resolve(ci, cj)
             if FALSE in resolvents:
@@ -648,7 +652,7 @@ def pl_resolve(ci, cj):
                 clauses.append(associate('|', dnew))
     return clauses
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class PropDefiniteKB(PropKB):
@@ -705,7 +709,7 @@ Fig[7, 15] = PropDefiniteKB()
 for s in "P>>Q   (L&M)>>P   (B&L)>>M   (A&P)>>L   (A&B)>>L   A   B".split():
     Fig[7, 15].tell(expr(s))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # DPLL-Satisfiable [Fig. 7.17]
 
 
@@ -730,9 +734,9 @@ def dpll(clauses, symbols, model):
     unknown_clauses = []  # clauses with an unknown truth value
     for c in clauses:
         val = pl_true(c, model)
-        if val == False:
+        if val is False:
             return False
-        if val != True:
+        if val is not True:
             unknown_clauses.append(c)
     if not unknown_clauses:
         return model
@@ -816,7 +820,7 @@ def inspect_literal(literal):
     else:
         return literal, True
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Walk-SAT [Fig. 7.18]
 
 
@@ -840,7 +844,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
             raise NotImplementedError
         model[sym] = not model[sym]
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class HybridWumpusAgent(agents.Agent):
@@ -854,7 +858,7 @@ class HybridWumpusAgent(agents.Agent):
 def plan_route(current, goals, allowed):
     unimplemented()
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
@@ -874,7 +878,7 @@ def translate_to_SAT(init, transition, goal, t):
 def extract_solution(model):
     unimplemented()
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def unify(x, y, s):
@@ -966,7 +970,6 @@ def fol_fc_ask(KB, alpha):
     """Inefficient forward chaining for first-order logic. [Fig. 9.3]
     KB is a FolKB and alpha must be an atomic sentence."""
     while True:
-        new = {}
         for r in KB.clauses:
             ps, q = parse_definite_clause(standardize_variables(r))
             raise NotImplementedError
@@ -999,7 +1002,7 @@ def standardize_variables(sentence, dic=None):
 
 standardize_variables.counter = itertools.count()
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class FolKB(KB):
@@ -1055,7 +1058,7 @@ test_kb = FolKB(
                     '(Farmer(f)) ==> Human(f)',
                     # Note that this order of conjuncts
                     # would result in infinite recursion:
-                    #'(Human(h) & Mother(m, h)) ==> Human(m)'
+                    # '(Human(h) & Mother(m, h)) ==> Human(m)'
                     '(Mother(m, h) & Human(h)) ==> Human(m)'
                     ]))
 )
@@ -1111,7 +1114,7 @@ def fol_bc_and(KB, goals, theta):
             for theta2 in fol_bc_and(KB, rest, theta1):
                 yield theta2
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 # Example application (not in the book).
 # You can use the Expr class to do symbolic differentiation.  This used to be
@@ -1141,12 +1144,12 @@ def diff(y, x):
         elif op == '*':
             return u * diff(v, x) + v * diff(u, x)
         elif op == '/':
-            return (v*diff(u, x) - u*diff(v, x)) / (v * v)
+            return (v * diff(u, x) - u * diff(v, x)) / (v * v)
         elif op == '**' and isnumber(x.op):
             return (v * u ** (v - 1) * diff(u, x))
         elif op == '**':
-            return (v * u ** (v - 1) * diff(u, x)
-                    + u ** v * Expr('log')(u) * diff(v, x))
+            return (v * u ** (v - 1) * diff(u, x) +
+                    u ** v * Expr('log')(u) * diff(v, x))
         elif op == 'log':
             return diff(u, x) / u
         else:
@@ -1219,7 +1222,7 @@ def d(y, x):
     "Differentiate and then simplify."
     return simp(diff(y, x))
 
-#_________________________________________________________________________
+# _________________________________________________________________________
 
 # Utilities for doctest cases
 # These functions print their arguments in a standard order
@@ -1273,7 +1276,7 @@ def ppdict(d):
 def ppset(s):
     print(pretty_set(s))
 
-#________________________________________________________________________
+# ________________________________________________________________________
 
 
 class logicTest:

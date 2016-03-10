@@ -4,7 +4,6 @@ from aimaPy.probability import *
 
 def tests():
     cpt = burglary.variable_node('Alarm')
-    parents = ['Burglary', 'Earthquake']
     event = {'Burglary': True, 'Earthquake': True}
     assert cpt.p(True, event) == 0.95
     event = {'Burglary': False, 'Earthquake': True}
