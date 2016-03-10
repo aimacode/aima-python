@@ -128,10 +128,6 @@ def test_clip():
     assert [clip(x, 0, 1) for x in [-1, 0.5, 10]] == [0, 0.5, 1]
 
 
-def test_vector_clip():
-    assert vector_clip((-1, 10), (0, 0), (9, 9)) == (0, 9)
-
-
 def test_caller():
     assert caller(0) == 'caller'
 
