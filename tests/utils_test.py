@@ -121,7 +121,7 @@ def test_vector_add():
 
 
 def test_scalar_vector_product():
-    assert scalar_vector_product(2, [1, 2, 3] == [2, 4, 6])
+    assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
 
 
 def test_num_or_str():

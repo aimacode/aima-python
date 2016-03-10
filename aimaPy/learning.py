@@ -417,24 +417,131 @@ def DecisionListLearner(dataset):
 #______________________________________________________________________________
 
 
-def NeuralNetLearner(dataset, sizes):
-    """Layered feed-forward network."""
+def NeuralNetLearner(dataset, hidden_layer_sizes=[3], learning_rate=0.01, epoches=100):
+    """
+    Layered feed-forward network.
+    hidden_layer_sizes: List of number of hidden units per hidden layer
+    learning_rate: Learning rate of gradient decent
+    epoches: Number of passes over the dataset
+    """    
+    
+    examples = dataset.examples
+    input_units = len(dataset.inputs)
+    output_units = 1
 
-    activations = [[0.0 for i in range(n)] for n in sizes]
-    weights = []
-
+    # construct a network
+    raw_net = network(input_units, hidden_layer_sizes, output_units)
+    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epoches )
+    
     def predict(example):
-        unimplemented()
+        # Forward pass
+        for layer in learned_net[1:]:
+            for node in layer:
+                incoming = [n.value for n in node.inputs]
+                in_val = dotproduct(incoming, node.weights)
+                node.value = node.activation(in_val)
+        output_nodes = learned_net[-1]
+        outputs = [output_nodes[i].value for i in range(output_units)]
+        return outputs
 
     return predict
 
 
 class NNUnit:
+    """
+    Single Unit of Multiple Layer Neural Network
+    inputs: Incoming connections
+    weights: weights to incoming connections
+    """
 
-    """Unit of a neural net."""
+    def __init__(self, weights=None, inputs=None):
+        self.weights = []
+        self.inputs = []
+        self.value = None
+        self.activation = sigmoid
 
-    def __init__(self):
-        unimplemented()
+
+def network(input_units, hidden_layer_sizes, output_units):
+    """
+    Create of Directed Acyclic Network of given number layers
+    hidden_layers_sizes : list number of neuron units in each hidden layer excluding input and output layers
+    """
+    layers_sizes = [input_units] + hidden_layer + [output_units]
+    net = [[NNUnit() for n in range(size)]
+           for size in layers_sizes]
+    n_layers = len(net)
+    
+    # MAKE CONNECTIONS
+    for i in range(1, n_layers):
+        for n in net[i]:
+            for k in net[i-1]:
+                n.inputs.append(k)
+                n.weights.append(0)
+    return net
+
+def BackPropagationLearner(dataset, network, learning_rate, epoches):
+    "[Fig. 18.23] The back-propagation algorithm for multilayer network" 
+    # Initialise weights
+    for layer in network:
+        for node in layer:
+            n.weights = [random.uniform(-0.5, 0.5) for i in range(len(node.weights))]    
+
+    examples = dataset.examples
+    # As of now dataset.target gives an int, Changing dataset class will have effect on all the learners. Will be taken care of later
+    targets = [dataset.target]
+    inputs = dataset.inputs
+    n_layers = len(network)
+    output_nodes = network[-1]
+    input_nodes = network[0]
+    
+    for epoch in range(epoches):
+        # iterate over each example
+        for example in examples:
+            input_val = [example[i] for i in inputs]
+            target_val = [example[i] for i in targets]
+            # Activate input layer
+            for e, n in zip(input_val, input_nodes):
+                n.value = e
+
+            # Forward pass
+            for layer in network[1:]:
+                for node in layer:
+                    incoming = [n.value for n in node.inputs]
+                    in_val = dotproduct(incoming, node.weights)
+                    node.value = node.activation(in_val)
+
+            # Initialize delta
+            delta = [[] for i in range(n_layers)]
+
+            # Compute outer layer delta
+            output_units = len(output_nodes)
+            error = [target_val[i] - output_nodes[i].value for i in range(output_units)]
+            delta[-1] = [(output_nodes[i].value)*(1 - output_nodes[i].value)*(error[i])
+                         for i in range(output_units)]
+
+            # Backward pass
+            hidden_layer = n_layers - 2
+            for l in range(hidden_layer, 0, -1):
+                layer = network[l]
+                hidden_units = len(layer)
+                next_layer = network[l+1]
+                w = [[node.weights[i] for node in next_layer]
+                     for i in range(hidden_units)]
+                delta[l] = [(layer[j].value)*(1 - layer[j].value) * dotproduct(w[j], delta[l+1])
+                            for j in range(hidden_units)]
+
+            #  Update weights
+            for i in range(1, n_layers):
+                current_layer = network[i]
+                current_delta = delta[i]
+                previous_layer_activation = [node.value for node in network[i-1]]
+                units = len(current_layer)
+                for j in range(units):
+                    current_layer[j].weights = vector_add(current_layer[j].weights,
+                                                          scalar_vector_product(learning_rate,
+                                                          scalar_vector_product(delta[i][j], previous_layer_activation)))
+
+    return network
 
 
 def PerceptronLearner(dataset, sizes):
