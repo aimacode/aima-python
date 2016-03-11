@@ -1,11 +1,11 @@
 # ![](https://github.com/aimacode/aima-java/blob/gh-pages/aima3e/images/aima3e.jpg)`aima-python`[![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python)
 
 
-Python code for the book *Artificial Intelligence: A Modern Approach.* We're loooking for one student sponsored by Google Summer of Code (GSoC) to work on this project; if you want to be that student, make some good contributions here (by looking throush the "Issues" and resolving some), and submit an application. And we're always looking for solid contributors who are not affiliated with GSoC. A big thank you to everyone who has contributed!
+Python code for the book *Artificial Intelligence: A Modern Approach.* We're loooking for one student sponsored by Google Summer of Code ([GSoC](https://summerofcode.withgoogle.com/)) to work on this project; if you want to be that student, make some good contributions here (by looking through the [Issues](https://github.com/aimacode/aima-python/issues) and resolving some), and submit an [application](https://summerofcode.withgoogle.com/terms/student). (However, be warned that we've had over 150 students express interest, so competition will be tough.) And we're always looking for solid contributors who are not affiliated with GSoC. A big thank you to everyone who has contributed!
 
 ## Python 3.5
 
-This code is in Python 3.5. (I believe any version from 3.4 on will work.) You can [install the latest version](https://www.python.org/downloads), and if that doesn't work, use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+This code is in Python 3.5. (I believe any version from 3.4 on will work.) You can [install the latest Python version](https://www.python.org/downloads), and if that doesn't work, use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
 
 ## Structure of the Project
 
@@ -25,10 +25,10 @@ Until we get there, we will support a legacy branch, `aima3python2` (for the thi
 
 ## New and Improved Algorithms
 
-- Implement functions that were in the third edition of the book but were not yet implemented in the code. Check the [list of pseudocode algorithms (pdf)](http://aima.cs.berkeley.edu/algorithms.pdf) to see what's missing.
+- Implement functions that were in the third edition of the book but were not yet implemented in the code. Check the [list of pseudocode algorithms (pdf)](https://github.com/aimacode/pseudocode/blob/master/algorithms.pdf) to see what's missing.
 - As we finish chapters for the new fourth edition, we will share the new pseudocode in the [`aima-pseudocode`](https://github.com/aimacode/aima-pseudocode) repository, and describe what changes are necessary.
 We hope to have a `algorithm-name.md` file for each algorithm, eventually; it would be great if contributors could add some for the existing algorithms.
-- Create a `.ipynb` notebook, and give examples of how to use the code.
+- Give examples of how to use the code in the `.ipynb` file.
 
 # Style Guide
 
