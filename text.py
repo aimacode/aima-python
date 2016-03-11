@@ -4,14 +4,13 @@ and show the Viterbi algorithm for segmentatioon of letters into words.
 Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
-from utils import *
+from utils import *  # noqa
 from learning import CountingProbDist
 import search
 
 from math import log, exp
 from collections import defaultdict
 import re
-
 
 
 class UnigramTextModel(CountingProbDist):
@@ -71,7 +70,7 @@ class NgramTextModel(CountingProbDist):
             nminus1gram = nminus1gram[1:] + (wn,)
         return ' '.join(output)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def viterbi_segment(text, P):
@@ -99,7 +98,7 @@ def viterbi_segment(text, P):
     return sequence, best[-1]
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 # TODO(tmrts): Expose raw index
@@ -124,7 +123,8 @@ class IRSystem:
         "Index a whole collection of files."
         prefix = os.path.dirname(__file__)
         for filename in filenames:
-            self.index_document(open(filename).read(), os.path.relpath(filename, prefix))
+            self.index_document(open(filename).read(),
+                                os.path.relpath(filename, prefix))
 
     def index_document(self, text, url):
         "Index the text of a document."
@@ -155,15 +155,16 @@ class IRSystem:
     def score(self, word, docid):
         "Compute a score for this word on this docid."
         # There are many options; here we take a very simple approach
-        return (math.log(1 + self.index[word][docid])
-                / math.log(1 + self.documents[docid].nwords))
+        return (math.log(1 + self.index[word][docid]) /
+                math.log(1 + self.documents[docid].nwords))
 
     def present(self, results):
         "Present the results as a list."
         for (score, d) in results:
             doc = self.documents[d]
             print(
-                ("{:5.2}|{:25} | {}".format(100 * score, doc.url, doc.title[:45].expandtabs())))
+                ("{:5.2}|{:25} | {}".format(100 * score, doc.url,
+                                            doc.title[:45].expandtabs())))
 
     def present_results(self, query_text, n=10):
         "Get results for the query and present them."
@@ -209,7 +210,7 @@ def canonicalize(text):
     return ' '.join(words(text))
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 # Example application (not in book): decode a cipher.
 # A cipher is a code that substitutes one character for another.
@@ -358,19 +359,19 @@ class PermutationDecoderProblem(search.Problem):
         # Find the best
         p, plainchar = max([(self.decoder.P1[c], c)
                             for c in alphabet if c not in state])
-        succs = [extend(state, plainchar, cipherchar)]  # ????
+        succs = [extend(state, plainchar, cipherchar)]  # ???? # noqa
 
     def goal_test(self, state):
         "We're done when we get all 26 letters assigned."
         return len(state) >= 26
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 # TODO(tmrts): Set RNG seed to test random functions
 __doc__ += """
 Random tests:
-## Generate random text from the N-gram models
+## Generate random text from the N-gram models  # noqa
 >>> P1.samples(20)
 'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
 

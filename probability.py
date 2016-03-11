@@ -1,14 +1,14 @@
 """Probability models. (Chapter 13-15)
 """
 
-from utils import *
+from utils import *  # noqa
 from logic import extend
 
 import random
 from collections import defaultdict
 from functools import reduce
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def DTAgentProgram(belief_state):
@@ -21,7 +21,7 @@ def DTAgentProgram(belief_state):
     program.action = None
     return program
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class ProbDist:
@@ -129,7 +129,7 @@ def event_values(event, vars):
     else:
         return tuple([event[var] for var in vars])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def enumerate_joint_ask(X, e, P):
@@ -157,7 +157,7 @@ def enumerate_joint(vars, e, P):
     return sum([enumerate_joint(rest, extend(e, Y, y), P)
                 for y in P.values(Y)])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class BayesNet:
@@ -281,7 +281,7 @@ burglary = BayesNet([
     ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})
 ])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def enumeration_ask(X, e, bn):
@@ -312,7 +312,7 @@ def enumerate_all(vars, e, bn):
         return sum(Ynode.p(y, e) * enumerate_all(rest, extend(e, Y, y), bn)
                    for y in bn.variable_values(Y))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def elimination_ask(X, e, bn):
@@ -402,7 +402,7 @@ def all_events(vars, bn, e):
             for x in bn.variable_values(X):
                 yield extend(e1, X, x)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 # Fig. 14.12a: sprinkler network
 
@@ -413,7 +413,7 @@ sprinkler = BayesNet([
     ('WetGrass', 'Sprinkler Rain',
      {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def prior_sample(bn):
@@ -424,7 +424,7 @@ def prior_sample(bn):
         event[node.variable] = node.sample(event)
     return event
 
-#_________________________________________________________________________
+# _________________________________________________________________________
 
 
 def rejection_sampling(X, e, bn, N):
@@ -451,7 +451,7 @@ def consistent_with(event, evidence):
     return all(evidence.get(k, v) == v
                for k, v in list(event.items()))
 
-#_________________________________________________________________________
+# _________________________________________________________________________
 
 
 def likelihood_weighting(X, e, bn, N):
@@ -483,7 +483,7 @@ def weighted_sample(bn, e):
             event[Xi] = node.sample(event)
     return event, w
 
-#_________________________________________________________________________
+# _________________________________________________________________________
 
 
 def gibbs_ask(X, e, bn, N):
@@ -522,7 +522,7 @@ def markov_blanket_sample(X, e, bn):
     # (assuming a Boolean variable here)
     return probability(Q.normalize()[True])
 
-#_________________________________________________________________________
+# _________________________________________________________________________
 
 
 def forward_backward(ev, prior):
@@ -539,7 +539,7 @@ def particle_filtering(e, N, dbn):
     """[Fig. 15.17]"""
     unimplemented()
 
-#_________________________________________________________________________
+# _________________________________________________________________________
 __doc__ += """
 # We can build up a probability distribution like this (p. 469):
 >>> P = ProbDist()
@@ -553,7 +553,7 @@ __doc__ += """
 >>> P['rain']               #doctest:+ELLIPSIS
 0.2...
 
-# A Joint Probability Distribution is dealt with like this (Fig. 13.3):
+# A Joint Probability Distribution is dealt with like this (Fig. 13.3):  # noqa
 >>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
 >>> T, F = True, False
 >>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008

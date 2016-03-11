@@ -1,6 +1,8 @@
 """Planning (Chapters 10-11)
 """
 
+# flake8: noqa
+
 from utils import *
 import agents
 

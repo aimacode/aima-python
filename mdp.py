@@ -6,7 +6,7 @@ as a dictionary of {state:action} pairs, and a Utility function as a
 dictionary of {state:number} pairs.  We then define the value_iteration
 and policy_iteration algorithms."""
 
-from utils import *
+from utils import *  # noqa
 
 
 class MDP:
@@ -15,9 +15,9 @@ class MDP:
     and reward function. We also keep track of a gamma value, for use by
     algorithms. The transition model is represented somewhat differently from
     the text.  Instead of P(s' | s, a) being a probability number for each
-    state/state/action triplet, we instead have T(s, a) return a list of (p, s')
-    pairs.  We also keep track of the possible states, terminal states, and
-    actions for each state. [page 646]"""
+    state/state/action triplet, we instead have T(s, a) return a
+    list of (p, s') pairs.  We also keep track of the possible states,
+    terminal states, and actions for each state. [page 646]"""
 
     def __init__(self, init, actlist, terminals, gamma=.9):
         self.init = init
@@ -90,16 +90,17 @@ class GridMDP(MDP):
     def to_arrows(self, policy):
         chars = {
             (1, 0): '>', (0, 1): '^', (-1, 0): '<', (0, -1): 'v', None: '.'}
-        return self.to_grid(dict([(s, chars[a]) for (s, a) in list(policy.items())]))
+        return self.to_grid(
+                dict([(s, chars[a]) for (s, a) in list(policy.items())]))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 Fig[17, 1] = GridMDP([[-0.04, -0.04, -0.04, +1],
                       [-0.04, None,  -0.04, -1],
                       [-0.04, -0.04, -0.04, -0.04]],
                      terminals=[(3, 2), (3, 1)])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def value_iteration(mdp, epsilon=0.001):
@@ -131,7 +132,7 @@ def expected_utility(a, s, U, mdp):
     "The expected utility of doing a in state s, according to the MDP and U."
     return sum([p * U[s1] for (p, s1) in mdp.T(s, a)])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def policy_iteration(mdp):
@@ -180,12 +181,20 @@ __doc__ += """
 __doc__ += """
 Random tests:
 >>> pi
-{(3, 2): None, (3, 1): None, (3, 0): (-1, 0), (2, 1): (0, 1), (0, 2): (1, 0), (1, 0): (1, 0), (0, 0): (0, 1), (1, 2): (1, 0), (2, 0): (0, 1), (0, 1): (0, 1), (2, 2): (1, 0)}
+{(3, 2): None, (3, 1): None, (3, 0): (-1, 0), (2, 1): (0, 1), (0, 2): (1, 0),
+ (1, 0): (1, 0), (0, 0): (0, 1), (1, 2): (1, 0), (2, 0): (0, 1),
+ (0, 1): (0, 1), (2, 2): (1, 0)}
 
 >>> value_iteration(Fig[17,1], .01)
-{(3, 2): 1.0, (3, 1): -1.0, (3, 0): 0.12958868267972745, (0, 1): 0.39810203830605462, (0, 2): 0.50928545646220924, (1, 0): 0.25348746162470537, (0, 0): 0.29543540628363629, (1, 2): 0.64958064617168676, (2, 0): 0.34461306281476806, (2, 1): 0.48643676237737926, (2, 2): 0.79536093684710951}
+{(3, 2): 1.0, (3, 1): -1.0, (3, 0): 0.12958868267972745,
+ (0, 1): 0.39810203830605462, (0, 2): 0.50928545646220924,
+ (1, 0): 0.25348746162470537, (0, 0): 0.29543540628363629,
+ (1, 2): 0.64958064617168676, (2, 0): 0.34461306281476806,
+ (2, 1): 0.48643676237737926, (2, 2): 0.79536093684710951}
 
 >>> policy_iteration(Fig[17,1])
-{(3, 2): None, (3, 1): None, (3, 0): (0, -1), (2, 1): (-1, 0), (0, 2): (1, 0), (1, 0): (1, 0), (0, 0): (1, 0), (1, 2): (1, 0), (2, 0): (1, 0), (0, 1): (1, 0), (2, 2): (1, 0)}
+{(3, 2): None, (3, 1): None, (3, 0): (0, -1), (2, 1): (-1, 0), (0, 2): (1, 0),
+ (1, 0): (1, 0), (0, 0): (1, 0), (1, 2): (1, 0), (2, 0): (1, 0),
+ (0, 1): (1, 0), (2, 2): (1, 0)}
 
 """

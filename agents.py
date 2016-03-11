@@ -35,13 +35,13 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 #
 # Speed control in GUI does not have any effect -- fix it.
 
-from utils import *
+from utils import *  # noqa
 
 import random
 import copy
 import collections
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class Thing(object):
@@ -51,7 +51,8 @@ class Thing(object):
     .__name__  slot (used for output only)."""
 
     def __repr__(self):
-        return '<{}>'.format(getattr(self, '__name__', self.__class__.__name__))
+        return '<{}>'.format(getattr(self, '__name__',
+                                     self.__class__.__name__))
 
     def is_alive(self):
         "Things that are 'alive' should return true."
@@ -108,7 +109,7 @@ def TraceAgent(agent):
     agent.program = new_program
     return agent
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def TableDrivenAgentProgram(table):
@@ -129,7 +130,7 @@ def RandomAgentProgram(actions):
     "An agent that chooses an action at random, ignoring all percepts."
     return lambda percept: random.choice(actions)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def SimpleReflexAgentProgram(rules, interpret_input):
@@ -159,7 +160,7 @@ def rule_match(state, rules):
         if rule.matches(state):
             return rule
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 loc_A, loc_B = (0, 0), (1, 0)  # The two locations for the Vacuum world
 
@@ -214,7 +215,7 @@ def ModelBasedVacuumAgent():
             return 'Left'
     return Agent(program)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class Environment(object):
@@ -237,7 +238,10 @@ class Environment(object):
         return []  # List of classes that can go into environment
 
     def percept(self, agent):
-        "Return the percept that the agent sees at this point. (Implement this.)"
+        '''
+            Return the percept that the agent sees at this point.
+            (Implement this.)
+        '''
         raise NotImplementedError
 
     def execute_action(self, agent, action):
@@ -305,7 +309,8 @@ class Environment(object):
         except(ValueError, e):
             print(e)
             print("  in Environment delete_thing")
-            print("  Thing to be removed: {} at {}" .format(thing, thing.location))
+            print("  Thing to be removed: {} at {}" .format(thing,
+                                                            thing.location))
             print("  from list: {}" .format([(thing, thing.location)
                                              for thing in self.things]))
         if thing in self.agents:
@@ -419,7 +424,7 @@ class Obstacle(Thing):
 class Wall(Obstacle):
     pass
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Vacuum environment
 
 
@@ -502,7 +507,7 @@ class TrivialVacuumEnvironment(Environment):
         "Agents start in either location at random."
         return random.choice([loc_A, loc_B])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # The Wumpus World
 
 
@@ -538,7 +543,7 @@ class WumpusEnvironment(XYEnvironment):
     # Needs a lot of work ...
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
     """See how well each of several agents do in n instances of an environment.
@@ -559,7 +564,7 @@ def test_agent(AgentFactory, steps, envs):
         return agent.performance
     return mean(list(map(score, envs)))
 
-#_________________________________________________________________________
+# _________________________________________________________________________
 
 __doc__ += """
 >>> a = ReflexVacuumAgent()
@@ -590,4 +595,3 @@ True
 >>> 0.5 < testv(RandomVacuumAgent) < 3
 True
 """
-

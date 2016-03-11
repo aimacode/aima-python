@@ -1,7 +1,7 @@
 """Reinforcement Learning (Chapter 21)
 """
 
-from utils import *
+from utils import *  # noqa
 import agents
 
 

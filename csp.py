@@ -1,10 +1,13 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
 
-from utils import *
+from utils import *  # noqa
 import search
 
 from collections import defaultdict
 from functools import reduce
+
+import itertools
+import re
 
 
 class CSP(search.Problem):
@@ -44,7 +47,8 @@ class CSP(search.Problem):
         display(a)              Print a human-readable representation
 
     >>> search.depth_first_graph_search(australia)
-    <Node (('WA', 'B'), ('Q', 'B'), ('T', 'B'), ('V', 'B'), ('SA', 'G'), ('NT', 'R'), ('NSW', 'R'))>
+    <Node (('WA', 'B'), ('Q', 'B'), ('T', 'B'), ('V', 'B'), ('SA', 'G'),
+           ('NT', 'R'), ('NSW', 'R'))>
     """
 
     def __init__(self, vars, domains, neighbors, constraints):
@@ -70,8 +74,8 @@ class CSP(search.Problem):
         "Return the number of conflicts var=val has with other variables."
         # Subclasses may implement this more efficiently
         def conflict(var2):
-            return (var2 in assignment
-                    and not self.constraints(var, val, var2, assignment[var2]))
+            return (var2 in assignment and
+                    not self.constraints(var, val, var2, assignment[var2]))
         return count_if(conflict, self.neighbors[var])
 
     def display(self, assignment):
@@ -149,7 +153,7 @@ class CSP(search.Problem):
         return [var for var in self.vars
                 if self.nconflicts(var, current[var], current) > 0]
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Constraint Propagation with AC-3
 
 
@@ -180,7 +184,7 @@ def revise(csp, Xi, Xj, removals):
             revised = True
     return revised
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # CSP Backtracking Search
 
 # Variable ordering
@@ -251,17 +255,21 @@ def backtracking_search(csp,
     """[Fig. 6.5]
     >>> backtracking_search(australia) is not None
     True
-    >>> backtracking_search(australia, select_unassigned_variable=mrv) is not None
+    >>> backtracking_search(australia,
+    >>>                     select_unassigned_variable=mrv) is not None
     True
-    >>> backtracking_search(australia, order_domain_values=lcv) is not None
+    >>> backtracking_search(australia,
+    >>>                     order_domain_values=lcv) is not None
     True
-    >>> backtracking_search(australia, select_unassigned_variable=mrv, order_domain_values=lcv) is not None
+    >>> backtracking_search(australia, select_unassigned_variable=mrv,
+    >>>                     order_domain_values=lcv) is not None
     True
     >>> backtracking_search(australia, inference=forward_checking) is not None
     True
     >>> backtracking_search(australia, inference=mac) is not None
     True
-    >>> backtracking_search(usa, select_unassigned_variable=mrv, order_domain_values=lcv, inference=mac) is not None
+    >>> backtracking_search(usa, select_unassigned_variable=mrv,
+    >>>                     order_domain_values=lcv, inference=mac) is not None
     True
     """
 
@@ -285,7 +293,7 @@ def backtracking_search(csp,
     assert result is None or csp.goal_test(result)
     return result
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Min-conflicts hillclimbing search for CSPs
 
 
@@ -313,12 +321,11 @@ def min_conflicts_value(csp, var, current):
     return argmin_random_tie(csp.domains[var],
                              lambda val: csp.nconflicts(var, val, current))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def tree_csp_solver(csp):
     "[Fig. 6.11]"
-    n = len(csp.vars)
     assignment = {}
     root = csp.vars[0]
     X, parent = topological_sort(csp.vars, root)
@@ -339,7 +346,7 @@ def topological_sort(xs, x):
 def make_arc_consistent(Xj, Xk, csp):
     unimplemented()
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Map-Coloring Problems
 
 
@@ -417,7 +424,7 @@ france = MapColoringCSP(list('RGBY'),
         PI; PA: LR RA; PC: PL CE LI AQ; PI: NH NO CA IF; PL: BR NB CE PC; RA:
         AU BO FC PA LR""")
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # n-Queens Problem
 
 
@@ -507,17 +514,14 @@ class NQueensCSP(CSP):
                 print(str(self.nconflicts(var, val, assignment))+ch, end=' ')
             print()
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Sudoku
-
-import itertools
-import re
 
 
 def flatten(seqs): return sum(seqs, [])
 
-easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'
-harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
+easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'  # noqa
+harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'  # noqa
 
 _R3 = list(range(3))
 _CELL = itertools.count().__next__
@@ -530,6 +534,7 @@ _NEIGHBORS = dict([(v, set()) for v in flatten(_ROWS)])
 for unit in map(set, _BOXES + _ROWS + _COLS):
     for v in unit:
         _NEIGHBORS[v].update(unit - set([v]))
+
 
 class Sudoku(CSP):
 
@@ -564,7 +569,8 @@ class Sudoku(CSP):
     8 1 4 | 2 5 3 | 7 6 9
     6 9 5 | 4 1 7 | 3 8 2
     >>> h = Sudoku(harder1)
-    >>> None != backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking)
+    >>> None != backtracking_search(h, select_unassigned_variable=mrv,
+    >>>                             inference=forward_checking)
     True
     """
     R3 = _R3
@@ -596,8 +602,9 @@ class Sudoku(CSP):
         def abut(lines1, lines2): return list(
             map(' | '.join, list(zip(lines1, lines2))))
         print('\n------+-------+------\n'.join(
-            '\n'.join(reduce(abut, list(map(show_box, brow)))) for brow in self.bgrid))
-#______________________________________________________________________________
+            '\n'.join(reduce(
+                abut, list(map(show_box, brow)))) for brow in self.bgrid))
+# ______________________________________________________________________________
 # The Zebra Puzzle
 
 
