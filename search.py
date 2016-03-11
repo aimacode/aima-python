@@ -419,10 +419,7 @@ class OnlineDFSAgent:
         self.unbacktracked = defaultdict(list)
         self.result = {}
 
-    def update_state(self, percept):
-        raise NotImplementedError
-
-    def run(self, percept):
+    def __call__(self, percept):
         current_state = self.update_state(percept)
         if self.problem.goal_test(current_state):
             self.a = None
@@ -449,6 +446,8 @@ class OnlineDFSAgent:
         self.s = current_state
         return self.a
 
+    def update_state(self, percept):
+        raise NotImplementedError
 
 def lrta_star_agent(s1):
     "[Fig. 4.24]"
