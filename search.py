@@ -571,6 +571,7 @@ Fig[3, 2].locations = dict(
     Oradea=(131, 571),    Pitesti=(320, 368),    Rimnicu=(233, 410),   Sibiu=(207, 457),
     Timisoara=(94, 410),    Urziceni=(456, 350),    Vaslui=(509, 444),   Zerind=(108, 531))
 
+#Principal states and territories of Australia
 Fig[6, 1] = UndirectedGraph(dict(
     T=dict(),
     SA=dict(WA=1, NT=1, Q=1, NSW=1, V=1),
@@ -945,22 +946,22 @@ recursive_best_first_search   <   5/   6/  15/B>   <5887/5888/16532/N>   <  11/ 
 #______________________________________________________________________________
 
 __doc__ += """
->>> ab = GraphProblem('Arad', 'Bucharest', Fig[3, 2])
->>> breadth_first_tree_search(ab).solution()
+>>> romania = GraphProblem('Arad', 'Bucharest', Fig[3, 2])
+>>> breadth_first_tree_search(romania).solution()
 ['Sibiu', 'Fagaras', 'Bucharest']
->>> breadth_first_search(ab).solution()
+>>> breadth_first_search(romania).solution()
 ['Sibiu', 'Fagaras', 'Bucharest']
->>> uniform_cost_search(ab).solution()
+>>> uniform_cost_search(romania).solution()
 ['Sibiu', 'Rimnicu', 'Pitesi', 'Bucharest']
->>> depth_first_graph_search(ab).solution()
+>>> depth_first_graph_search(romania).solution()
 ['Timisoara', 'Lugoj', 'Mehadia', 'Drobeta', 'Craiova', 'Pitesi', 'Bucharest']
->>> iterative_deepening_search(ab).solution()
+>>> iterative_deepening_search(romania).solution()
 ['Sibiu', 'Fagaras', 'Bucharest']
->>> len(depth_limited_search(ab).solution())
+>>> len(depth_limited_search(romania).solution())
 50
->>> astar_search(ab).solution()
+>>> astar_search(romania).solution()
 ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
->>> recursive_best_first_search(ab).solution()
+>>> recursive_best_first_search(romania).solution()
 ['Sibiu', 'Rimnicu', 'Pitesi', 'Bucharest']
 
 >>> board = list('SARTELNID')
