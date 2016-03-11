@@ -5,7 +5,7 @@ Python code for the book *Artificial Intelligence: A Modern Approach.* We're loo
 
 ## Python 3.5
 
-This code is in Pythoin 3.5. If you don't have that version, you should [install it](https://www.python.org/downloads), and if you can't install it, use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+This code is in Python 3.5. (I believe any version from 3.4 on will work.) You can [install the latest version](https://www.python.org/downloads), and if that doesn't work, use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
 
 ## Structure of the Project
 
@@ -21,14 +21,13 @@ Until we get there, we will support a legacy branch, `aima3python2` (for the thi
 
 - Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formating to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
 - Replace old Lisp-based idioms with proper Python idioms. For example, we have many functions that were taken directly from Common Lisp, such as the `every` function: `every(callable, items)` returns true if every element of `items` is callable. This is good Lisp style, but good Python style would be to use `all` and a generator expression: `all(callable(f) for f in items)`. Eventually, fix all calls to these legacy Lisp functions and then remove the functions.
-- Create a `_test.py` file, and define functions that use `assert` to make tests. Remove any old `doctest` tests.
-In other words, replace the ">>> 2 + 2 \n 4"  in a docstring with "assert 2 + 2 == 4" in `filename_test.py`.
+- Add more tests in `_test.py` files. Strive for terseness; it is ok to group multiple asserts into one `def test_something():` function. Move most tests to `_test.py`, but it is fine to have a single `doctest` example in the docstring of a function in the `.py` file, if the purpose of the doctest is to explain how to use the function, rather than test the implementation.
 
 ## New and Improved Algorithms
 
 - Implement functions that were in the third edition of the book but were not yet implemented in the code. Check the [list of pseudocode algorithms (pdf)](http://aima.cs.berkeley.edu/algorithms.pdf) to see what's missing.
-- As we finish chapters for the new fourth edition, we will share the new pseudocode, and describe what changes are necessary.
-
+- As we finish chapters for the new fourth edition, we will share the new pseudocode in the [`aima-pseudocode`](https://github.com/aimacode/aima-pseudocode) repository, and describe what changes are necessary.
+We hope to have a `algorithm-name.md` file for each algorithm, eventually; it would be great if contributors could add some for the existing algorithms.
 - Create a `.ipynb` notebook, and give examples of how to use the code.
 
 # Style Guide
@@ -46,11 +45,8 @@ Beyond the above rules, we use [Pep 8](https://www.python.org/dev/peps/pep-0008)
 - Strunk and White is [not a good guide for English](http://chronicle.com/article/50-Years-of-Stupid-Grammar/25497).
 - I prefer more concise docstrings; I don't follow [Pep 257](https://www.python.org/dev/peps/pep-0257/).
 - Not all constants have to be UPPERCASE.
-- [Pep 484](https://www.python.org/dev/peps/pep-0484/) type annotations are allowed but not required. If your
-  parameter name is already suggestive of the name of a type, such as `url` below, then i don't think the type annotation is useful.
-  Return type annotations, such as `-> None` below, can be very useful.
-
-        def retry(url: Url) -> None:
+- At some point I may add [Pep 484](https://www.python.org/dev/peps/pep-0484/) type annotations, but I think I'll hold off for now;
+  I want to get more experience with them, and some people may still be in Python 3.4.
 
 # Index of Code #
 
@@ -171,4 +167,4 @@ various dates. However, I don't have much confidence in these figures...
 
 # Acknowledgements
 
-Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is in Githib, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are actively improving the project. Thanks!
+Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is in Githib, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Thanks to all!
