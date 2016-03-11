@@ -1,8 +1,7 @@
 import pytest
 
-from text import *
+from text import *  # noqa
 
-from random import choice
 from math import isclose
 
 
@@ -58,21 +57,25 @@ def test_ngram_models():
     P3 = NgramTextModel(3, wordseq)
 
     # The most frequent entries in each model
-    assert P1.top(10) == [(2081, 'the'), (1479, 'of'), (1021, 'and'), (1008, 'to'), (850, 'a'),
-                          (722, 'i'), (640, 'in'), (478, 'that'), (399, 'is'), (348, 'you')]
+    assert P1.top(10) == [(2081, 'the'), (1479, 'of'), (1021, 'and'),
+                          (1008, 'to'), (850, 'a'), (722, 'i'), (640, 'in'),
+                          (478, 'that'), (399, 'is'), (348, 'you')]
 
-    assert P2.top(10) == [(368, ('of', 'the')), (152, ('to', 'the')), (152, ('in', 'the')), (86, ('of', 'a')),
-                          (80, ('it', 'is')), (71,
-                                               ('by', 'the')), (68, ('for', 'the')),
-                          (68, ('and', 'the')), (62, ('on', 'the')), (60, ('to', 'be'))]
+    assert P2.top(10) == [(368, ('of', 'the')), (152, ('to', 'the')),
+                          (152, ('in', 'the')), (86, ('of', 'a')),
+                          (80, ('it', 'is')),
+                          (71, ('by', 'the')), (68, ('for', 'the')),
+                          (68, ('and', 'the')), (62, ('on', 'the')),
+                          (60, ('to', 'be'))]
 
-    assert P3.top(10) == [(30, ('a', 'straight', 'line')), (19, ('of', 'three', 'dimensions')),
-                          (16, ('the', 'sense', 'of')), (13,
-                                                         ('by', 'the', 'sense')),
-                          (13, ('as', 'well', 'as')), (12,
-                                                       ('of', 'the', 'circles')),
-                          (12, ('of', 'sight', 'recognition')
-                           ), (11, ('the', 'number', 'of')),
+    assert P3.top(10) == [(30, ('a', 'straight', 'line')),
+                          (19, ('of', 'three', 'dimensions')),
+                          (16, ('the', 'sense', 'of')),
+                          (13, ('by', 'the', 'sense')),
+                          (13, ('as', 'well', 'as')),
+                          (12, ('of', 'the', 'circles')),
+                          (12, ('of', 'sight', 'recognition')),
+                          (11, ('the', 'number', 'of')),
                           (11, ('that', 'i', 'had')), (11, ('so', 'as', 'to'))]
 
     assert isclose(P1['the'], 0.0611, rel_tol=0.001)

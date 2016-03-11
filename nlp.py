@@ -3,11 +3,11 @@
 # (Written for the second edition of AIMA; expect some discrepanciecs
 # from the third edition until this gets reviewed.)
 
-from utils import *
+from utils import *  # noqa
 
 from collections import defaultdict
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Grammars and Lexicons
 
 
@@ -55,16 +55,16 @@ class Grammar:
 E0 = Grammar('E0',
              Rules(  # Grammar for E_0 [Fig. 22.4]
                  S='NP VP | S Conjunction S',
-                 NP='Pronoun | Name | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',
+                 NP='Pronoun | Name | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',  # noqa
                  VP='Verb | VP NP | VP Adjective | VP PP | VP Adverb',
                  PP='Preposition NP',
                  RelClause='That VP'),
 
              Lexicon(  # Lexicon for E_0 [Fig. 22.3]
-                 Noun="stench | breeze | glitter | nothing | wumpus | pit | pits | gold | east",
-                 Verb="is | see | smell | shoot | fell | stinks | go | grab | carry | kill | turn | feel",
+                 Noun="stench | breeze | glitter | nothing | wumpus | pit | pits | gold | east",  # noqa
+                 Verb="is | see | smell | shoot | fell | stinks | go | grab | carry | kill | turn | feel",  # noqa
                  Adjective="right | left | east | south | back | smelly",
-                 Adverb="here | there | nearby | ahead | right | left | east | south | back",
+                 Adverb="here | there | nearby | ahead | right | left | east | south | back",  # noqa
                  Pronoun="me | you | I | it",
                  Name="John | Mary | Boston | Aristotle",
                  Article="the | a | an",
@@ -110,7 +110,7 @@ def generate_random(grammar=E_, s='S'):
 
     return ' '.join(rewrite(s.split(), []))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Chart Parsing
 
 
@@ -132,7 +132,8 @@ class Chart:
         """Return a list of parses; words can be a list or string.
         >>> chart = Chart(E_NP_)
         >>> chart.parses('happy man', 'NP')
-        [[0, 2, 'NP', [('Adj', 'happy'), [1, 2, 'NP', [('N', 'man')], []]], []]]
+        [[0, 2, 'NP', [('Adj', 'happy'),
+         [1, 2, 'NP', [('N', 'man')], []]], []]]
         """
         if isinstance(words, str):
             words = words.split()
@@ -166,7 +167,7 @@ class Chart:
                 self.predictor(edge)
 
     def scanner(self, j, word):
-        "For each edge expecting a word of this category here, extend the edge."
+        "For each edge expecting a word of this category here, extend the edge."  # noqa
         for (i, j, A, alpha, Bb) in self.chart[j]:
             if Bb and self.grammar.isa(word, Bb[0]):
                 self.add_edge([i, j+1, A, alpha + [(Bb[0], word)], Bb[1:]])
@@ -195,9 +196,15 @@ __doc__ += """
 >>> chart = Chart(E0)
 
 >>> chart.parses('the wumpus that is smelly is near 2 2')
-[[0, 9, 'S', [[0, 5, 'NP', [[0, 2, 'NP', [('Article', 'the'), ('Noun', 'wumpus')], []], [2, 5, 'RelClause', [('That', 'that'), [3, 5, 'VP', [[3, 4, 'VP', [('Verb', 'is')], []], ('Adjective', 'smelly')], []]], []]], []], [5, 9, 'VP', [[5, 6, 'VP', [('Verb', 'is')], []], [6, 9, 'PP', [('Preposition', 'near'), [7, 9, 'NP', [('Digit', '2'), ('Digit', '2')], []]], []]], []]], []]]
+[[0, 9, 'S', [[0, 5, 'NP', [[0, 2, 'NP',
+ [('Article', 'the'), ('Noun', 'wumpus')], []],
+ [2, 5, 'RelClause', [('That', 'that'), [3, 5, 'VP',
+ [[3, 4, 'VP', [('Verb', 'is')], []], ('Adjective', 'smelly')], []]],
+ []]], []], [5, 9, 'VP', [[5, 6, 'VP', [('Verb', 'is')], []],
+ [6, 9, 'PP', [('Preposition', 'near'), [7, 9, 'NP', [('Digit', '2'),
+ ('Digit', '2')], []]], []]], []]], []]]
 
-### There is a built-in trace facility (compare [Fig. 22.9])
+### There is a built-in trace facility (compare [Fig. 22.9])  # noqa
 >>> Chart(E_, trace=True).parses('I feel it')
      parse: added [0, 0, 'S_', [], ['S']]
  predictor: added [0, 0, 'S', [], ['NP', 'VP']]

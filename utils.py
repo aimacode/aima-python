@@ -1,4 +1,4 @@
-"""Provide some widely useful utilities. Safe for "from utils import *".
+"""Provide some widely useful utilities. Safe for "from utils import *".  # noqa
 
 TODO[COMPLETED]: Let's take the >>> doctest examples out of the docstrings, and put them in utils_test.py
 TODO: count_if and the like are leftovers from Common Lisp; let's make replace thenm with Pythonic alternatives.
@@ -6,17 +6,14 @@ TODO: Create a separate grid.py file for 2D grid environments; move headings, et
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
 
-from grid import *
+from grid import *  # noqa
 
 import operator
-import math
 import random
 import os.path
 import bisect
-import re
-from functools import reduce
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Simple Data Structures: infinity, Dict, Struct
 
 infinity = float('inf')
@@ -37,7 +34,7 @@ class Struct:
             return self.__dict__ == other
 
     def __repr__(self):
-        args = ['{!s}={!s}'.format(k, repr(v))
+        return ['{!s}={!s}'.format(k, repr(v))
                 for (k, v) in list(vars(self).items())]
 
 
@@ -50,7 +47,7 @@ def update(x, **entries):
 
     return x
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Functions on Sequences (mostly inspired by Common Lisp)
 # NOTE: Sequence functions (count_if, find_if, every, some) take function
 # argument first (like reduce, filter, and map).
@@ -101,17 +98,17 @@ def some(predicate, seq):
     """If some element x of seq satisfies predicate(x), return predicate(x)."""
     elem = find_if(predicate, seq)
 
-    return predicate(elem) or False
+    return predicate(elem) if elem is not None else False
 
-# TODO[COMPLETED]: rename to is_in or possibily add 'identity' to function name to
-# clarify intent
+# TODO[COMPLETED]: rename to is_in or possibily add 'identity' to function
+# name to clarify intent
 
 
 def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Functions on sequences of numbers
 # NOTE: these take the sequence argument first, like min and max,
 # and like standard math notation: \sigma (i = 1..n) fn(i)
@@ -125,14 +122,18 @@ def argmin(seq, fn):
 
 
 def argmin_list(seq, fn):
-    """Return a list of elements of seq[i] with the lowest fn(seq[i]) scores.’"""
+    """Return a list of elements of seq[i] with
+       the lowest fn(seq[i]) scores.’
+    """
     smallest_score = fn(min(seq, key=fn))
 
     return [elem for elem in seq if fn(elem) == smallest_score]
 
 
 def argmin_gen(seq, fn):
-    """Return a generator of elements of seq[i] with the lowest fn(seq[i]) scores."""
+    """Return a generator of elements of seq[i] with the
+       lowest fn(seq[i]) scores.
+    """
 
     smallest_score = fn(min(seq, key=fn))
 
@@ -146,20 +147,26 @@ def argmin_random_tie(seq, fn):
 
 
 def argmax(seq, fn):
-    """Return an element with highest fn(seq[i]) score; tie goes to first one."""
+    """Return an element with highest fn(seq[i]) score;
+       tie goes to first one.
+    """
     return max(seq, key=fn)
 
 
 def argmax_list(seq, fn):
     """Return a list of elements of seq[i] with the highest fn(seq[i]) scores.
-    Not good to use 'argmin_list(seq, lambda x: -fn(x))' as method breaks if fn is len"""
+       Not good to use 'argmin_list(seq, lambda x: -fn(x))' as method
+       breaks if fn is len
+    """
     largest_score = fn(max(seq, key=fn))
 
     return [elem for elem in seq if fn(elem) == largest_score]
 
 
 def argmax_gen(seq, fn):
-    """Return a generator of elements of seq[i] with the highest fn(seq[i]) scores."""
+    """Return a generator of elements of seq[i] with
+       the highest fn(seq[i]) scores.
+        """
     largest_score = fn(min(seq, key=fn))
 
     yield from (elem for elem in seq if fn(elem) == largest_score)
@@ -169,7 +176,7 @@ def argmax_random_tie(seq, fn):
     "Return an element with highest fn(seq[i]) score; break ties at random."
     return argmin_random_tie(seq, lambda x: -fn(x))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Statistical and mathematical functions
 
 
@@ -185,12 +192,10 @@ def histogram(values, mode=0, bin_function=None):
         bins[val] = bins.get(val, 0) + 1
 
     if mode:
-        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]), reverse=True)
+        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]),
+                      reverse=True)
     else:
         return sorted(bins.items())
-
-from math import log2
-from statistics import mode, median, mean, stdev
 
 
 def dotproduct(X, Y):
@@ -227,7 +232,9 @@ def weighted_sampler(seq, weights):
 
 
 def num_or_str(x):
-    """The argument is a string; convert to a number if possible, or strip it."""
+    """The argument is a string; convert to a number if
+       possible, or strip it.
+    """
     try:
         return int(x)
     except ValueError:
@@ -248,7 +255,7 @@ def clip(x, lowest, highest):
     return max(lowest, min(x, highest))
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Misc Functions
 
 
@@ -261,7 +268,9 @@ def printf(format_str, *args):
 
 
 def caller(n=1):
-    """Return the name of the calling function n levels up in the frame stack."""
+    """Return the name of the calling function n levels up
+       in the frame stack.
+    """
     import inspect
 
     return inspect.getouterframes(inspect.currentframe())[n][3]
@@ -294,9 +303,9 @@ def memoize(fn, slot=None):
 
 def name(obj):
     "Try to find some reasonable name for the object."
-    return (getattr(obj, 'name', 0) or getattr(obj, '__name__', 0)
-            or getattr(getattr(obj, '__class__', 0), '__name__', 0)
-            or str(obj))
+    return (getattr(obj, 'name', 0) or getattr(obj, '__name__', 0) or
+            getattr(getattr(obj, '__class__', 0), '__name__', 0) or
+            str(obj))
 
 
 def isnumber(x):
@@ -313,8 +322,8 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
     """Print a list of lists as a table, so that columns line up nicely.
     header, if specified, will be printed as the first row.
     numfmt is the format for all numbers; you might want e.g. '%6.2f'.
-    (If you want different formats in different columns, don't use print_table.)
-    sep is the separator between columns."""
+    (If you want different formats in different columns,
+    don't use print_table.) sep is the separator between columns."""
     justs = ['rjust' if isnumber(x) else 'ljust' for x in table[0]]
 
     if header:
@@ -323,14 +332,13 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
     table = [[numfmt.format(x) if isnumber(x) else x for x in row]
              for row in table]
 
-    maxlen = lambda seq: max(list(map(len, seq)))
-
     sizes = list(
-        map(maxlen, list(zip(*[list(map(str, row)) for row in table]))))
+            map(lambda seq: max(list(map(len, seq))),
+                list(zip(*[list(map(str, row)) for row in table]))))
 
     for row in table:
-        print(sep.join(getattr(str(x), j)(size)
-                        for (j, size, x) in zip(justs, sizes, row)))
+        print(sep.join(getattr(
+            str(x), j)(size) for (j, size, x) in zip(justs, sizes, row)))
 
 
 def AIMAFile(components, mode='r'):
@@ -351,7 +359,7 @@ def unimplemented():
     "Use this as a stub for not-yet-implemented functions."
     raise NotImplementedError
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
 
 # TODO: Use queue.Queue
@@ -439,7 +447,7 @@ class PriorityQueue(Queue):
             return self.A.pop()[1]
 
     def __contains__(self, item):
-        return some(lambda _, x: x == item, self.A)
+        return some(lambda x: x == item, self.A)
 
     def __getitem__(self, key):
         for _, item in self.A:

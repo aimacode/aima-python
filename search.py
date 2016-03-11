@@ -4,16 +4,14 @@ The way to use this code is to subclass Problem to create a class of problems,
 then create problem instances and solve them with calls to the various search
 functions."""
 
-from utils import *
+from utils import *  # noqa
 
 import math
 import random
 import sys
-import time
 import bisect
-import string
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class Problem(object):
@@ -61,7 +59,7 @@ class Problem(object):
         """For optimization problems, each state has a value.  Hill-climbing
         and related algorithms try to maximize this value."""
         raise NotImplementedError
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class Node:
@@ -94,7 +92,8 @@ class Node:
         "Fig. 3.10"
         next = problem.result(self.state, action)
         return Node(next, self, action,
-                    problem.path_cost(self.path_cost, self.state, action, next))
+                    problem.path_cost(self.path_cost, self.state,
+                                      action, next))
 
     def solution(self):
         "Return the sequence of actions to go from the root to this node."
@@ -119,7 +118,7 @@ class Node:
     def __hash__(self):
         return hash(self.state)
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class SimpleProblemSolvingAgentProgram:
@@ -151,7 +150,7 @@ class SimpleProblemSolvingAgentProgram:
     def search(self, problem):
         raise NotImplementedError
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Uninformed Search algorithms
 
 
@@ -180,8 +179,8 @@ def graph_search(problem, frontier):
             return node
         explored.add(node.state)
         frontier.extend(child for child in node.expand(problem)
-                        if child.state not in explored
-                        and child not in frontier)
+                        if child.state not in explored and
+                        child not in frontier)
     return None
 
 
@@ -283,7 +282,7 @@ def iterative_deepening_search(problem):
         if result != 'cutoff':
             return result
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Informed (Heuristic) Search
 
 greedy_best_first_graph_search = best_first_graph_search
@@ -297,7 +296,7 @@ def astar_search(problem, h=None):
     h = memoize(h or problem.h, 'h')
     return best_first_graph_search(problem, lambda n: n.path_cost + h(n))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Other search algorithms
 
 
@@ -373,45 +372,89 @@ def simulated_annealing(problem, schedule=exp_schedule()):
 def and_or_graph_search(problem):
     """Used when the environment is  nondeterministic and completely observable
     Contains OR nodes where the agent is free to choose any action
-    After every action there is an AND node which contains all possible states the agent may reach due to stochastic nature of environment
-    The agent must be able to handle all possible states of the AND node(as it may end up in any of them)
-    returns a conditional plan to reach goal state, or failure if the former is not possible"""
+    After every action there is an AND node which contains all possible states
+    the agent may reach due to stochastic nature of environment
+    The agent must be able to handle all possible states of the AND node(as it
+    may end up in any of them) returns a conditional plan to reach goal state,
+    or failure if the former is not possible"""
     "[Fig. 4.11]"
 
-    #functions used by and_or_search
+    # functions used by and_or_search
     def or_search(state, problem, path):
         if problem.goal_test(state):
             return {}
         if state in path:
             return None
         for action in problem.action(state):
-            plan = and_search(problem.result(state, action), problem, path + [state,])
-            if not plan == None:
+            plan = and_search(problem.result(state, action),
+                              problem, path + [state, ])
+            if plan is not None:
                 return [action, plan]
 
     def and_search(states, problem, path):
-        "returns plan in form of dictionary where we take action plan[s] if we reach state s"
-        plan=dict()
+        "returns plan in form of dictionary where we take action plan[s] if we reach state s"  # noqa
+        plan = dict()
         for s in states:
             plan[s] = or_search(s, problem, path)
-            if plan[s] == None:
+            if plan[s] is None:
                 return None
         return plan
 
-    #body of and or search
+    # body of and or search
     return or_search(problem.initial, problem, [])
 
 
-def online_dfs_agent(s1):
-    "[Fig. 4.21]"
-    unimplemented()
+class OnlineDFSAgent:
+
+    """The abstract class for an OnlineDFSAgent. Override update_state
+    method to convert percept to state. While initilizing the subclass
+    a problem needs to be provided which is an instance of a subclass
+    of the Problem Class. [Fig. 4.21] """
+
+    def __init__(self, problem):
+        self.problem = problem
+        self.s = None
+        self.a = None
+        self.untried = defaultdict(list)
+        self.unbacktracked = defaultdict(list)
+        self.result = {}
+
+    def update_state(self, percept):
+        raise NotImplementedError
+
+    def run(self, percept):
+        current_state = self.update_state(percept)
+        if self.problem.goal_test(current_state):
+            self.a = None
+        else:
+            if current_state not in self.untried.keys():
+                self.untried[current_state] = self.problem.actions(
+                                                current_state)
+            if self.s is not None:
+                if current_state != self.result[(self.s, self.a)]:
+                    self.result[(self.s, self.a)] = current_state
+                    unbacktracked[current_state].insert(0, self.s)
+            if len(self.untried[current_state]) == 0:
+                if len(self.unbacktracked[current_state]) == 0:
+                    self.a = None
+                else:
+                    # else a <- an action b such that result[s', b] = POP(unbacktracked[s'])  # noqa
+                    unbacktracked_pop = self.unbacktracked[current_state].pop(0)  # noqa
+                    for (s, b) in self.result.keys():
+                        if self.result[(s, b)] == unbacktracked_pop:
+                            self.a = b
+                            break
+            else:
+                self.a = self.untried[current_state].pop(0)
+        self.s = current_state
+        return self.a
 
 
 def lrta_star_agent(s1):
     "[Fig. 4.24]"
     unimplemented()
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Genetic Algorithm
 
 
@@ -456,10 +499,10 @@ class GAState:
         "Change a few of my genes."
         raise NotImplementedError
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Graphs and Graph Problems
 
 
@@ -549,34 +592,40 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
                 g.connect(node, neighbor, int(d))
     return g
 
-romania = UndirectedGraph(dict(
-    A=dict(Z=75, S=140, T=118),
-    B=dict(U=85, P=101, G=90, F=211),
-    C=dict(D=120, R=146, P=138),
-    D=dict(M=75),
-    E=dict(H=86),
-    F=dict(S=99),
-    H=dict(U=98),
-    I=dict(V=92, N=87),
-    L=dict(T=111, M=70),
-    O=dict(Z=71, S=151),
-    P=dict(R=97),
-    R=dict(S=80),
-    U=dict(V=142)))
-romania.locations = dict(
-    A=(91, 492),    B=(400, 327),    C=(253, 288),   D=(165, 299),
-    E=(562, 293),    F=(305, 449),    G=(375, 270),   H=(534, 350),
-    I=(473, 506),    L=(165, 379),    M=(168, 339),   N=(406, 537),
-    O=(131, 571),    P=(320, 368),    R=(233, 410),   S=(207, 457),
-    T=(94, 410),    U=(456, 350),    V=(509, 444),   Z=(108, 531))
+# Simplified road map of Romania
+Fig[3, 2] = UndirectedGraph(dict(
+    Arad=dict(Zerind=75, Sibiu=140, Timisoara=118),
+    Bucharest=dict(Urziceni=85, Pitesti=101, Giurgiu=90, Fagaras=211),
+    Craiova=dict(Drobeta=120, Rimnicu=146, Pitesti=138),
+    Drobeta=dict(Mehadia=75),
+    Eforie=dict(Hirsova=86),
+    Fagaras=dict(Sibiu=99),
+    Hirsova=dict(Urziceni=98),
+    Iasi=dict(Vaslui=92, Neamt=87),
+    Lugoj=dict(Timisoara=111, Mehadia=70),
+    Oradea=dict(Zerind=71, Sibiu=151),
+    Pitesti=dict(Rimnicu=97),
+    Rimnicu=dict(Sibiu=80),
+    Urziceni=dict(Vaslui=142)))
+Fig[3, 2].locations = dict(
+    Arad=(91, 492), Bucharest=(400, 327), Craiova=(253, 288),
+    Drobeta=(165, 299), Eforie=(562, 293), Fagaras=(305, 449),
+    Giurgiu=(375, 270), Hirsova=(534, 350), Iasi=(473, 506),
+    Lugoj=(165, 379), Mehadia=(168, 339), Neamt=(406, 537),
+    Oradea=(131, 571), Pitesti=(320, 368), Rimnicu=(233, 410),
+    Sibiu=(207, 457), Timisoara=(94, 410), Urziceni=(456, 350),
+    Vaslui=(509, 444), Zerind=(108, 531))
 
-australia = UndirectedGraph(dict(
+# Principal states and territories of Australia
+Fig[6, 1] = UndirectedGraph(dict(
     T=dict(),
     SA=dict(WA=1, NT=1, Q=1, NSW=1, V=1),
     NT=dict(WA=1, Q=1),
     NSW=dict(Q=1, V=1)))
-australia.locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
-                           Q=(145, 20), NSW=(145, 32), T=(145, 42), V=(145, 37))
+
+Fig[6, 1].locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
+                           Q=(145, 20), NSW=(145, 32), T=(145, 42),
+                           V=(145, 37))
 
 
 class GraphProblem(Problem):
@@ -606,7 +655,7 @@ class GraphProblem(Problem):
         else:
             return infinity
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 class NQueensProblem(Problem):
@@ -647,10 +696,10 @@ class NQueensProblem(Problem):
 
     def conflict(self, row1, col1, row2, col2):
         "Would putting two queens in (row1, col1) and (row2, col2) conflict?"
-        return (row1 == row2  # same row
-                or col1 == col2  # same column
-                or row1-col1 == row2-col2  # same \ diagonal
-                or row1+col1 == row2+col2)  # same / diagonal
+        return (row1 == row2 or  # same row
+                col1 == col2 or  # same column
+                row1-col1 == row2-col2 or  # same \ diagonal
+                row1+col1 == row2+col2)   # same / diagonal
 
     def goal_test(self, state):
         "Check if all columns filled, no conflicts."
@@ -659,7 +708,7 @@ class NQueensProblem(Problem):
         return not any(self.conflicted(state, state[col], col)
                        for col in range(len(state)))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Inverse Boggle: Search for a high-scoring Boggle board. A good domain for
 # iterative-repair and related search techniques, as suggested by Justin Boyan.
 
@@ -738,7 +787,7 @@ def exact_sqrt(n2):
     assert n * n == n2
     return n
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 
 
 class Wordlist:
@@ -777,7 +826,7 @@ class Wordlist:
     def __len__(self):
         return len(self.words)
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 
 
 class BoggleFinder:
@@ -838,7 +887,7 @@ class BoggleFinder:
         "The number of words found."
         return len(self.found)
 
-#_____________________________________________________________________________
+# _____________________________________________________________________________
 
 
 def boggle_hill_climbing(board=None, ntimes=100, verbose=True):
@@ -869,7 +918,7 @@ def mutate_boggle(board):
     board[i] = random.choice(random.choice(cubes16))
     return i, oldc
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 # Code to compare searchers on various problems.
 
@@ -914,7 +963,8 @@ class InstrumentedProblem(Problem):
 
 def compare_searchers(problems, header,
                       searchers=[breadth_first_tree_search,
-                                 breadth_first_search, depth_first_graph_search,
+                                 breadth_first_search,
+                                 depth_first_graph_search,
                                  iterative_deepening_search,
                                  depth_limited_search,
                                  recursive_best_first_search]):
@@ -929,44 +979,45 @@ def compare_searchers(problems, header,
 def compare_graph_searchers():
     """Prints a table of results like this:
 >>> compare_graph_searchers()
-Searcher                      Romania(A, B)        Romania(O, N)         Australia          
+Searcher                      Fig[3, 2](A, B)        Fig[3, 2](O, N)         Fig[6, 1]          
 breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>    <   7/   8/  22/WA>
 breadth_first_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/   6/   8/WA>
 depth_first_graph_search      <   8/   9/  20/B>   <  16/  17/  38/N>    <   4/   5/  11/WA>
 iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>    <   3/  11/  11/WA>
 depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>    <  50/  54/ 200/WA>
-recursive_best_first_search   <   5/   6/  15/B>   <5887/5888/16532/N>   <  11/  12/  43/WA>"""
-    compare_searchers(problems=[GraphProblem('A', 'B', romania),
-                                GraphProblem('O', 'N', romania),
-                                GraphProblem('Q', 'WA', australia)],
-                      header=['Searcher', 'Romania(A, B)', 'Romania(O, N)', 'Australia'])
+recursive_best_first_search   <   5/   6/  15/B>   <5887/5888/16532/N>   <  11/12/  43/WA>"""  # noqa
+    compare_searchers(problems=[GraphProblem('Arad', 'Bucharest', Fig[3, 2]),
+                                GraphProblem('Oradea', 'Neamt', Fig[3, 2]),
+                                GraphProblem('Q', 'WA', Fig[6, 1])],
+                      header=['Searcher', 'Fig[3, 2](Arad, Bucharest)',
+                              'Fig[3, 2](Oradea, Neamt)', 'Fig[6, 1]'])
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 __doc__ += """
->>> ab = GraphProblem('A', 'B', romania)
->>> breadth_first_tree_search(ab).solution()
-['S', 'F', 'B']
->>> breadth_first_search(ab).solution()
-['S', 'F', 'B']
->>> uniform_cost_search(ab).solution()
-['S', 'R', 'P', 'B']
->>> depth_first_graph_search(ab).solution()
-['T', 'L', 'M', 'D', 'C', 'P', 'B']
->>> iterative_deepening_search(ab).solution()
-['S', 'F', 'B']
->>> len(depth_limited_search(ab).solution())
+>>> romania = GraphProblem('Arad', 'Bucharest', Fig[3, 2])
+>>> breadth_first_tree_search(romania).solution()
+['Sibiu', 'Fagaras', 'Bucharest']
+>>> breadth_first_search(romania).solution()
+['Sibiu', 'Fagaras', 'Bucharest']
+>>> uniform_cost_search(romania).solution()
+['Sibiu', 'Rimnicu', 'Pitesi', 'Bucharest']
+>>> depth_first_graph_search(romania).solution()
+['Timisoara', 'Lugoj', 'Mehadia', 'Drobeta', 'Craiova', 'Pitesi', 'Bucharest']
+>>> iterative_deepening_search(romania).solution()
+['Sibiu', 'Fagaras', 'Bucharest']
+>>> len(depth_limited_search(romania).solution())
 50
->>> astar_search(ab).solution()
-['S', 'R', 'P', 'B']
->>> recursive_best_first_search(ab).solution()
-['S', 'R', 'P', 'B']
+>>> astar_search(romania).solution()
+['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+>>> recursive_best_first_search(romania).solution()
+['Sibiu', 'Rimnicu', 'Pitesi', 'Bucharest']
 
 >>> board = list('SARTELNID')
 >>> print_boggle(board)
-S  A  R 
-T  E  L 
-N  I  D 
+S  A  R
+T  E  L
+N  I  D
 >>> f = BoggleFinder(board)
 >>> len(f)
 206
@@ -975,7 +1026,20 @@ N  I  D
 __doc__ += """
 Random tests
 >>> ' '.join(f.words())
-'LID LARES DEAL LIE DIETS LIN LINT TIL TIN RATED ERAS LATEN DEAR TIE LINE INTER STEAL LATED LAST TAR SAL DITES RALES SAE RETS TAE RAT RAS SAT IDLE TILDES LEAST IDEAS LITE SATED TINED LEST LIT RASE RENTS TINEA EDIT EDITS NITES ALES LATE LETS RELIT TINES LEI LAT ELINT LATI SENT TARED DINE STAR SEAR NEST LITAS TIED SEAT SERAL RATE DINT DEL DEN SEAL TIER TIES NET SALINE DILATE EAST TIDES LINTER NEAR LITS ELINTS DENI RASED SERA TILE NEAT DERAT IDLEST NIDE LIEN STARED LIER LIES SETA NITS TINE DITAS ALINE SATIN TAS ASTER LEAS TSAR LAR NITE RALE LAS REAL NITER ATE RES RATEL IDEA RET IDEAL REI RATS STALE DENT RED IDES ALIEN SET TEL SER TEN TEA TED SALE TALE STILE ARES SEA TILDE SEN SEL ALINES SEI LASE DINES ILEA LINES ELD TIDE RENT DIEL STELA TAEL STALED EARL LEA TILES TILER LED ETA TALI ALE LASED TELA LET IDLER REIN ALIT ITS NIDES DIN DIE DENTS STIED LINER LASTED RATINE ERA IDLES DIT RENTAL DINER SENTI TINEAL DEIL TEAR LITER LINTS TEAL DIES EAR EAT ARLES SATE STARE DITS DELI DENTAL REST DITE DENTIL DINTS DITA DIET LENT NETS NIL NIT SETAL LATS TARE ARE SATI'
+'LID LARES DEAL LIE DIETS LIN LINT TIL TIN RATED ERAS LATEN DEAR TIE LINE INTER
+STEAL LATED LAST TAR SAL DITES RALES SAE RETS TAE RAT RAS SAT IDLE TILDES LEAST
+IDEAS LITE SATED TINED LEST LIT RASE RENTS TINEA EDIT EDITS NITES ALES LATE
+LETS RELIT TINES LEI LAT ELINT LATI SENT TARED DINE STAR SEAR NEST LITAS TIED
+SEAT SERAL RATE DINT DEL DEN SEAL TIER TIES NET SALINE DILATE EAST TIDES LINTER
+NEAR LITS ELINTS DENI RASED SERA TILE NEAT DERAT IDLEST NIDE LIEN STARED LIER
+LIES SETA NITS TINE DITAS ALINE SATIN TAS ASTER LEAS TSAR LAR NITE RALE LAS
+REAL NITER ATE RES RATEL IDEA RET IDEAL REI RATS STALE DENT RED IDES ALIEN SET
+TEL SER TEN TEA TED SALE TALE STILE ARES SEA TILDE SEN SEL ALINES SEI LASE
+DINES ILEA LINES ELD TIDE RENT DIEL STELA TAEL STALED EARL LEA TILES TILER LED
+ETA TALI ALE LASED TELA LET IDLER REIN ALIT ITS NIDES DIN DIE DENTS STIED LINER
+LASTED RATINE ERA IDLES DIT RENTAL DINER SENTI TINEAL DEIL TEAR LITER LINTS
+TEAL DIES EAR EAT ARLES SATE STARE DITS DELI DENTAL REST DITE DENTIL DINTS DITA
+DIET LENT NETS NIL NIT SETAL LATS TARE ARE SATI'
 
 >>> boggle_hill_climbing(list('ABCDEFGHI'), verbose=False)
 (['E', 'P', 'R', 'D', 'O', 'A', 'G', 'S', 'T'], 123)

@@ -1,7 +1,9 @@
 import pytest
-from grid import *
+from grid import *  # noqa
 
-compare_list = lambda x, y: all([elm_x == y[i] for i, elm_x in enumerate(x)])
+
+def compare_list(x, y):
+    return all([elm_x == y[i] for i, elm_x in enumerate(x)])
 
 
 def test_distance():

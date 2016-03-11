@@ -1,11 +1,11 @@
 """Games, or Adversarial Search. (Chapter 5)
 """
 
-from utils import *
+from utils import *  # noqa
 
 import random
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Minimax Search
 
 
@@ -35,7 +35,7 @@ def minimax_decision(state, game):
     return argmax(game.actions(state),
                   lambda a: min_value(game.result(state, a)))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def alphabeta_full_search(state, game):
@@ -68,7 +68,14 @@ def alphabeta_full_search(state, game):
         return v
 
     # Body of alphabeta_search:
-    return max_value(state, -infinity, infinity)
+    best_score = -infinity
+    best_action = None
+    for a in game.actions(state):
+        v = min_value(game.result(state, a), best_score, beta)
+        if v > best_score:
+            best_score = v
+            best_action = a
+    return best_action
 
 
 def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
@@ -105,11 +112,19 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     # Body of alphabeta_search starts here:
     # The default test cuts off at depth d or at a terminal state
     cutoff_test = (cutoff_test or
-                   (lambda state, depth: depth > d or game.terminal_test(state)))
+                   (lambda state, depth: depth > d or
+                    game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
-    return max_value(state, -infinity, infinity, 0)
+    best_score = -infinity
+    best_action = None
+    for a in game.actions(state):
+        v = min_value(game.result(state, a), best_score, beta, 1)
+        if v > best_score:
+            best_score = v
+            best_action = a
+    return best_action
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Players for Games
 
 
@@ -141,7 +156,7 @@ def play_game(game, *players):
             if game.terminal_test(state):
                 return game.utility(state, game.to_move(game.initial))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Some Sample Games
 
 
