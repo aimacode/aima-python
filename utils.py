@@ -1,7 +1,7 @@
 """Provide some widely useful utilities. Safe for "from utils import *".
 
 TODO[COMPLETED]: Let's take the >>> doctest examples out of the docstrings, and put them in utils_test.py
-TODO: count_if and the like are leftovers from COmmon Lisp; let's make replace thenm with Pythonic alternatives.
+TODO: count_if and the like are leftovers from Common Lisp; let's make replace thenm with Pythonic alternatives.
 TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
