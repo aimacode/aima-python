@@ -4,7 +4,7 @@ The [Subversion checkout](http://code.google.com/p/aima-python/source/checkout) 
 
 # Index of Code #
 
-| **Fig** | **Page** | **Name (in book)** | **Code** |
+| **Fig** | **Page** | **Name (in Third edition)** | **Code** |
 |:--------|:---------|:-------------------|:---------|
 | 2       |  32      | Environment        | [Environment](../master/aimaPy/agents.py) |
 | 2.1     |  33      | Agent              | [Agent](../master/aimaPy/agents.py) |
@@ -52,19 +52,19 @@ The [Subversion checkout](http://code.google.com/p/aima-python/source/checkout) 
 | 9.3     | 282      | FOL-FC-Ask         | [fol\_fc\_ask](../master/aimaPy/logic.py) |
 | 9.6     | 288      | FOL-BC-Ask         | [fol\_bc\_ask](../master/aimaPy/logic.py) |
 | 9.14    | 307      | Otter              |          |
-| 11.2    | 380      | Airport-problem    |          |
-| 11.3    | 381      | Spare-Tire-Problem |          |
-| 11.4    | 383      | Three-Block-Tower  |          |
+| 10.1    | 376      | Air-Cargo-Transport    |          |
+| 10.2    | 377      | Spare-Tire-Problem |          |
+| 10.3    | 378      | Three-Block-Tower  |          |
 | 11      | 390      | Partial-Order-Planner |          |
-| 11.11   | 396      | Cake-Problem       |          |
-| 11.13   | 399      | Graphplan          |          |
+| 10.7    | 387      | Cake-Problem       |          |
+| 10.9    | 390      | Graphplan          |          |
 | 11.15   | 403      | SATPlan            |          |
 | 12.1    | 418      | Job-Shop-Problem   |          |
-| 12.3    | 421      | Job-Shop-Problem-With-Resources |          |
+| 11.1    | 409      | Job-Shop-Problem-With-Resources |          |
 | 12.6    | 424      | House-Building-Problem |          |
 | 12.10   | 435      | And-Or-Graph-Search |          |
 | 12.22   | 449      | Continuous-POP-Agent |          |
-| 12.23   | 450      | Doubles-tennis     |          |
+| 11.10   | 434      | Doubles-tennis     |          |
 | 13.1    | 466      | DT-Agent           | [DTAgent](../master/aimaPy/probability.py) |
 | 13      | 469      | Discrete Probability Distribution | [DiscreteProbDist](../master/aimaPy/probability.py) |
 | 13.4    | 477      | Enumerate-Joint-Ask |          |
