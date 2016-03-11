@@ -1,5 +1,5 @@
 import pytest
-from utils import *
+from utils import *  # noqa
 
 
 def test_struct_initialization():
@@ -47,15 +47,14 @@ def test_product():
 
 
 def test_find_if():
-    assert find_if(callable, [1, 2, 3]) == None
+    assert find_if(callable, [1, 2, 3]) is None
     assert find_if(callable, [3, min, max]) == min
 
 
 def test_count_if():
     assert count_if(callable, [42, None, max, min]) == 2
-    is_odd = lambda x: x % 2
-    assert count_if(is_odd, []) == 0
-    assert count_if(is_odd, [1, 2, 3, 4, 5]) == 3
+    assert count_if(lambda x: x, []) == 0
+    assert count_if(lambda x: x % 2, [1, 2, 3, 4, 5]) == 3
 
 
 def test_every():
@@ -70,8 +69,8 @@ def test_some():
 
 def test_is_in():
     e = []
-    assert is_in(e, [1, e, 3]) == True
-    assert is_in(e, [1, [], 3]) == False
+    assert is_in(e, [1, e, 3]) is True
+    assert is_in(e, [1, [], 3]) is False
 
 
 def test_argmin():
@@ -102,9 +101,15 @@ def test_argmax_gen():
 
 
 def test_histogram():
-    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1]) == [(1, 2), (2, 3), (4, 2), (5, 1), (7, 1), (9, 1)]
-    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 0, lambda x: x*x) == [(1, 2), (4, 3), (16, 2), (25, 1), (49, 1), (81, 1)]
-    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 1) == [(2, 3), (4, 2), (1, 2), (9, 1), (7, 1), (5, 1)]
+    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1]) == [(1, 2), (2, 3),
+                                                         (4, 2), (5, 1),
+                                                         (7, 1), (9, 1)]
+    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 0,
+                     lambda x: x*x) == [(1, 2), (4, 3), (16, 2), (25, 1),
+                                        (49, 1), (81, 1)]
+    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 1) == [(2, 3), (4, 2),
+                                                            (1, 2), (9, 1),
+                                                            (7, 1), (5, 1)]
 
 
 def test_dotproduct():

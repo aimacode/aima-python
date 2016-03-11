@@ -1,11 +1,11 @@
 """Games, or Adversarial Search. (Chapter 5)
 """
 
-from utils import *
+from utils import *  # noqa
 
 import random
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Minimax Search
 
 
@@ -35,7 +35,7 @@ def minimax_decision(state, game):
     return argmax(game.actions(state),
                   lambda a: min_value(game.result(state, a)))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 
 
 def alphabeta_full_search(state, game):
@@ -112,7 +112,8 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     # Body of alphabeta_search starts here:
     # The default test cuts off at depth d or at a terminal state
     cutoff_test = (cutoff_test or
-                   (lambda state, depth: depth > d or game.terminal_test(state)))
+                   (lambda state, depth: depth > d or
+                    game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
     best_score = -infinity
     best_action = None
@@ -123,7 +124,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
             best_action = a
     return best_action
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Players for Games
 
 
@@ -155,7 +156,7 @@ def play_game(game, *players):
             if game.terminal_test(state):
                 return game.utility(state, game.to_move(game.initial))
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Some Sample Games
 
 
