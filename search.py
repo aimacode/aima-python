@@ -45,9 +45,12 @@ class Problem(object):
 
     def goal_test(self, state):
         """Return True if the state is a goal. The default method compares the
-        state to self.goal, as specified in the constructor. Override this
+        state to self.goal or checks for state in self.goal if it is a list, as specified in the constructor. Override this
         method if checking against a single self.goal is not enough."""
-        return state == self.goal
+        if isinstance(self.goal, list):
+            return is_in(state, self.goal)
+        else:
+            return state == self.goal
 
     def path_cost(self, c, state1, action, state2):
         """Return the cost of a solution path that arrives at state2 from
@@ -381,12 +384,12 @@ def and_or_graph_search(problem):
     #functions used by and_or_search
     def or_search(state, problem, path):
         if problem.goal_test(state):
-            return {}
+            return []
         if state in path:
             return None
-        for action in problem.action(state):
+        for action in problem.actions(state):
             plan = and_search(problem.result(state, action), problem, path + [state,])
-            if not plan == None:
+            if plan is not None:
                 return [action, plan]
 
     def and_search(states, problem, path):
@@ -394,7 +397,7 @@ def and_or_graph_search(problem):
         plan=dict()
         for s in states:
             plan[s] = or_search(s, problem, path)
-            if plan[s] == None:
+            if plan[s] is None:
                 return None
         return plan
 
@@ -611,6 +614,29 @@ Fig[3, 2].locations = dict(
     Oradea=(131, 571),    Pitesti=(320, 368),    Rimnicu=(233, 410),   Sibiu=(207, 457),
     Timisoara=(94, 410),    Urziceni=(456, 350),    Vaslui=(509, 444),   Zerind=(108, 531))
 
+"""
+Eight possible states of the vacumm world
+Each state is represented as "State if the left room" "State of the right room" "Room in which the agent is present"
+1 Dirty Dirty Left - DDL
+2 Dirty Dirty Right - DDR
+3 Dirty Clean Left - DCL
+4 Dirty Clean Right - DCR
+5 Clean Dirty Left - CDL
+6 Clean Dirty Right - CDR
+7 Clean Clean Left - CCL
+8 Clean Clean Right - CCR
+"""
+Fig[4, 9] = Graph(dict(
+    State_1 = dict(Suck = ['State_7', 'State_5'], Right = ['State_2']),
+    State_2 = dict(Suck = ['State_8', 'State_4'], Left = ['State_2']),
+    State_3 = dict(Suck = ['State_7'], Right = ['State_4']),
+    State_4 = dict(Suck = ['State_4', 'State_2'], Left = ['State_3']),
+    State_5 = dict(Suck = ['State_5', 'State_1'], Right = ['State_6']),
+    State_6 = dict(Suck = ['State_8'], Left = ['State_5']),
+    State_7 = dict(Suck = ['State_7', 'State_3'], Right = ['State_8']),
+    State_8 = dict(Suck = ['State_8', 'State_6'], Left = ['State_7'])
+))
+
 #Principal states and territories of Australia
 Fig[6, 1] = UndirectedGraph(dict(
     T=dict(),
@@ -647,6 +673,20 @@ class GraphProblem(Problem):
             return int(distance(locs[node.state], locs[self.goal]))
         else:
             return infinity
+
+
+class GraphProblemStochastic(GraphProblem):
+    """
+    A version of Graph Problem where an action can lead to undeterministic output i.e. multiple possible states
+    Define the graph as dict(A = dict(Action = [[<Result 1>, <Result 2>, ...],<cost>], ...), ...)
+    A the dictionary format is different, make sure the graph is created as a directed graph
+    """
+    
+    def result(self, state, action):
+        return self.graph.get(state, action)
+
+    def path_cost():
+        raise NotImplementedError
 
 #______________________________________________________________________________
 
