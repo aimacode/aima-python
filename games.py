@@ -68,16 +68,13 @@ def alphabeta_full_search(state, game):
         return v
 
     # Body of alphabeta_search:
-    v = -infinity
+    best_score = -infinity
     best_action = None
     for a in game.actions(state):
-        val = min_value(game.result(state, a), alpha, beta)
-        if val > v:
-            v = val
+        v = min_value(game.result(state, a), best_score, beta)
+        if v > best_score:
+            best_score = v
             best_action = a
-        if v >= beta:
-            break
-        alpha = max(alpha, v)
     return best_action
 
 
@@ -117,16 +114,13 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     cutoff_test = (cutoff_test or
                    (lambda state, depth: depth > d or game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
-    v = -infinity
+    best_score = -infinity
     best_action = None
     for a in game.actions(state):
-        val = min_value(game.result(state, a), alpha, beta, 1)
-        if val > v:
-            v = val
+        v = min_value(game.result(state, a), best_score, beta, 1)
+        if v > best_score:
+            best_score = v
             best_action = a
-        if v >= beta:
-            break
-        alpha = max(alpha, v)
     return best_action
 
 #______________________________________________________________________________
