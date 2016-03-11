@@ -101,7 +101,7 @@ def some(predicate, seq):
     """If some element x of seq satisfies predicate(x), return predicate(x)."""
     elem = find_if(predicate, seq)
 
-    return predicate(elem) or False
+    return predicate(elem) if elem is not None else False
 
 # TODO[COMPLETED]: rename to is_in or possibily add 'identity' to function name to
 # clarify intent
@@ -439,7 +439,7 @@ class PriorityQueue(Queue):
             return self.A.pop()[1]
 
     def __contains__(self, item):
-        return some(lambda _, x: x == item, self.A)
+        return some(lambda x: x == item, self.A)
 
     def __getitem__(self, key):
         for _, item in self.A:

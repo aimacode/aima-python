@@ -549,33 +549,35 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
                 g.connect(node, neighbor, int(d))
     return g
 
-romania = UndirectedGraph(dict(
-    A=dict(Z=75, S=140, T=118),
-    B=dict(U=85, P=101, G=90, F=211),
-    C=dict(D=120, R=146, P=138),
-    D=dict(M=75),
-    E=dict(H=86),
-    F=dict(S=99),
-    H=dict(U=98),
-    I=dict(V=92, N=87),
-    L=dict(T=111, M=70),
-    O=dict(Z=71, S=151),
-    P=dict(R=97),
-    R=dict(S=80),
-    U=dict(V=142)))
-romania.locations = dict(
-    A=(91, 492),    B=(400, 327),    C=(253, 288),   D=(165, 299),
-    E=(562, 293),    F=(305, 449),    G=(375, 270),   H=(534, 350),
-    I=(473, 506),    L=(165, 379),    M=(168, 339),   N=(406, 537),
-    O=(131, 571),    P=(320, 368),    R=(233, 410),   S=(207, 457),
-    T=(94, 410),    U=(456, 350),    V=(509, 444),   Z=(108, 531))
+#Simplified road map of Romania
+Fig[3, 2] = UndirectedGraph(dict(
+    Arad=dict(Zerind=75, Sibiu=140, Timisoara=118),
+    Bucharest=dict(Urziceni=85, Pitesti=101, Giurgiu=90, Fagaras=211),
+    Craiova=dict(Drobeta=120, Rimnicu=146, Pitesti=138),
+    Drobeta=dict(Mehadia=75),
+    Eforie=dict(Hirsova=86),
+    Fagaras=dict(Sibiu=99),
+    Hirsova=dict(Urziceni=98),
+    Iasi=dict(Vaslui=92, Neamt=87),
+    Lugoj=dict(Timisoara=111, Mehadia=70),
+    Oradea=dict(Zerind=71, Sibiu=151),
+    Pitesti=dict(Rimnicu=97),
+    Rimnicu=dict(Sibiu=80),
+    Urziceni=dict(Vaslui=142)))
+Fig[3, 2].locations = dict(
+    Arad=(91, 492),    Bucharest=(400, 327),    Craiova=(253, 288),   Drobeta=(165, 299),
+    Eforie=(562, 293),    Fagaras=(305, 449),    Giurgiu=(375, 270),   Hirsova=(534, 350),
+    Iasi=(473, 506),    Lugoj=(165, 379),    Mehadia=(168, 339),   Neamt=(406, 537),
+    Oradea=(131, 571),    Pitesti=(320, 368),    Rimnicu=(233, 410),   Sibiu=(207, 457),
+    Timisoara=(94, 410),    Urziceni=(456, 350),    Vaslui=(509, 444),   Zerind=(108, 531))
 
-australia = UndirectedGraph(dict(
+#Principal states and territories of Australia
+Fig[6, 1] = UndirectedGraph(dict(
     T=dict(),
     SA=dict(WA=1, NT=1, Q=1, NSW=1, V=1),
     NT=dict(WA=1, Q=1),
     NSW=dict(Q=1, V=1)))
-australia.locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
+Fig[6, 1].locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
                            Q=(145, 20), NSW=(145, 32), T=(145, 42), V=(145, 37))
 
 
@@ -929,38 +931,38 @@ def compare_searchers(problems, header,
 def compare_graph_searchers():
     """Prints a table of results like this:
 >>> compare_graph_searchers()
-Searcher                      Romania(A, B)        Romania(O, N)         Australia          
+Searcher                      Fig[3, 2](A, B)        Fig[3, 2](O, N)         Fig[6, 1]          
 breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>    <   7/   8/  22/WA>
 breadth_first_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/   6/   8/WA>
 depth_first_graph_search      <   8/   9/  20/B>   <  16/  17/  38/N>    <   4/   5/  11/WA>
 iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>    <   3/  11/  11/WA>
 depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>    <  50/  54/ 200/WA>
 recursive_best_first_search   <   5/   6/  15/B>   <5887/5888/16532/N>   <  11/  12/  43/WA>"""
-    compare_searchers(problems=[GraphProblem('A', 'B', romania),
-                                GraphProblem('O', 'N', romania),
-                                GraphProblem('Q', 'WA', australia)],
-                      header=['Searcher', 'Romania(A, B)', 'Romania(O, N)', 'Australia'])
+    compare_searchers(problems=[GraphProblem('Arad', 'Bucharest', Fig[3, 2]),
+                                GraphProblem('Oradea', 'Neamt', Fig[3, 2]),
+                                GraphProblem('Q', 'WA', Fig[6, 1])],
+                      header=['Searcher', 'Fig[3, 2](Arad, Bucharest)', 'Fig[3, 2](Oradea, Neamt)', 'Fig[6, 1]'])
 
 #______________________________________________________________________________
 
 __doc__ += """
->>> ab = GraphProblem('A', 'B', romania)
->>> breadth_first_tree_search(ab).solution()
-['S', 'F', 'B']
->>> breadth_first_search(ab).solution()
-['S', 'F', 'B']
->>> uniform_cost_search(ab).solution()
-['S', 'R', 'P', 'B']
->>> depth_first_graph_search(ab).solution()
-['T', 'L', 'M', 'D', 'C', 'P', 'B']
->>> iterative_deepening_search(ab).solution()
-['S', 'F', 'B']
->>> len(depth_limited_search(ab).solution())
+>>> romania = GraphProblem('Arad', 'Bucharest', Fig[3, 2])
+>>> breadth_first_tree_search(romania).solution()
+['Sibiu', 'Fagaras', 'Bucharest']
+>>> breadth_first_search(romania).solution()
+['Sibiu', 'Fagaras', 'Bucharest']
+>>> uniform_cost_search(romania).solution()
+['Sibiu', 'Rimnicu', 'Pitesi', 'Bucharest']
+>>> depth_first_graph_search(romania).solution()
+['Timisoara', 'Lugoj', 'Mehadia', 'Drobeta', 'Craiova', 'Pitesi', 'Bucharest']
+>>> iterative_deepening_search(romania).solution()
+['Sibiu', 'Fagaras', 'Bucharest']
+>>> len(depth_limited_search(romania).solution())
 50
->>> astar_search(ab).solution()
-['S', 'R', 'P', 'B']
->>> recursive_best_first_search(ab).solution()
-['S', 'R', 'P', 'B']
+>>> astar_search(romania).solution()
+['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+>>> recursive_best_first_search(romania).solution()
+['Sibiu', 'Rimnicu', 'Pitesi', 'Bucharest']
 
 >>> board = list('SARTELNID')
 >>> print_boggle(board)
