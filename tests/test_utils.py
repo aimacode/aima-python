@@ -20,8 +20,8 @@ def test_update_dict():
 
 
 def test_update_struct():
-    assert update(Struct(a=1), a=30, b=20).__cmp__(Struct(a=30, b=20))
-    assert update(Struct(), a=10).__cmp__(Struct(a=10))
+    assert update(Struct(a=1), a=30, b=20) == (Struct(a=30, b=20))
+    assert update(Struct(), a=10) == (Struct(a=10))
 
 
 def test_removeall_list():
