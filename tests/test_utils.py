@@ -31,11 +31,12 @@ def test_product():
 
 def test_first():
     assert first('word') == 'w'
-    assert first('') == None
+    assert first('') is None
     assert first('', 'empty') == 'empty'
     assert first(range(10)) == 0
-    assert first(x for x in range(10) if x  > 3) == 4
-    assert first(x for x in range(10) if x  > 100) == None
+    assert first(x for x in range(10) if x > 3) == 4
+    assert first(x for x in range(10) if x > 100) is None
+
 
 def test_is_in():
     e = []
@@ -90,6 +91,10 @@ def test_vector_add():
     assert vector_add((0, 1), (8, 9)) == (8, 10)
 
 
+def test_scalar_vector_product():
+    assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
+
+
 def test_num_or_str():
     assert num_or_str('42') == 42
     assert num_or_str(' 42x ') == '42x'
@@ -109,6 +114,18 @@ def test_caller():
     def f():
         return caller()
     assert f() == 'f'
+
+
+def test_sigmoid():
+    assert math.isclose(0.5, sigmoid(0)) is True
+    assert math.isclose(0.7310585786300049, sigmoid(1)) is True
+    assert math.isclose(0.2689414213699951, sigmoid(-1)) is True
+
+
+def test_step():
+    assert step(1) == 1
+    assert step(0) == 1
+    assert step(-1) == 0
 
 
 if __name__ == '__main__':
