@@ -169,6 +169,11 @@ def vector_add(a, b):
     return tuple(map(operator.add, a, b))
 
 
+def scalar_vector_product(X, Y):
+    """Return vector as a product of a scalar and a vector"""
+    return [X*y for y in Y]
+
+
 def probability(p):
     "Return true with probability p."
     return p > random.uniform(0.0, 1.0)
@@ -215,6 +220,15 @@ def clip(x, lowest, highest):
     """Return x clipped to the range [lowest..highest]."""
     return max(lowest, min(x, highest))
 
+
+def sigmoid(x):
+    """Return activation value of x with sigmoid function"""
+    return 1/(1 + math.exp(-x))
+
+
+def step(x):
+    """Return activation value of x with sign function"""
+    return 1 if x >= 0 else 0
 
 # ______________________________________________________________________________
 # Misc Functions
