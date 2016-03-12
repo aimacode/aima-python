@@ -1,7 +1,7 @@
 """Provide some widely useful utilities. Safe for "from utils import *".  # noqa
 
 TODO[COMPLETED]: Let's take the >>> doctest examples out of the docstrings, and put them in utils_test.py
-TODO: count_if and the like are leftovers from Common Lisp; let's make replace thenm with Pythonic alternatives.
+TODO: count_if and the like are leftovers from Common Lisp; let's make replace them with Pythonic alternatives.
 TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
@@ -27,15 +27,12 @@ class Struct:
     def __init__(self, **entries):
         self.__dict__.update(entries)
 
-    def __cmp__(self, other):
-        if isinstance(other, Struct):
-            return self.__dict__ == other.__dict__
-        else:
-            return self.__dict__ == other
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
     def __repr__(self):
-        return ['{!s}={!s}'.format(k, repr(v))
-                for (k, v) in list(vars(self).items())]
+        return str(['{!s}={!s}'.format(k, repr(v))
+                for (k, v) in list(vars(self).items())])
 
 
 def update(x, **entries):
