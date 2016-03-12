@@ -2,26 +2,9 @@ import pytest
 from utils import *  # noqa
 
 
-def test_struct_initialization():
-    s = Struct(a=1, b=2)
-    assert s.a == 1
-    assert s.b == 2
-
-
-def test_struct_assignment():
-    s = Struct(a=1)
-    s.a = 3
-    assert s.a == 3
-
-
 def test_update_dict():
     assert update({'a': 1}, a=10, b=20) == {'a': 10, 'b': 20}
     assert update({}, a=5) == {'a': 5}
-
-
-def test_update_struct():
-    assert update(Struct(a=1), a=30, b=20).__cmp__(Struct(a=30, b=20))
-    assert update(Struct(), a=10).__cmp__(Struct(a=10))
 
 
 def test_removeall_list():
@@ -46,26 +29,13 @@ def test_product():
     assert product(list(range(1, 11))) == 3628800
 
 
-def test_find_if():
-    assert find_if(callable, [1, 2, 3]) is None
-    assert find_if(callable, [3, min, max]) == min
-
-
-def test_count_if():
-    assert count_if(callable, [42, None, max, min]) == 2
-    assert count_if(lambda x: x, []) == 0
-    assert count_if(lambda x: x % 2, [1, 2, 3, 4, 5]) == 3
-
-
-def test_every():
-    assert every(callable, [min, max]) == 1
-    assert every(callable, [min, 3]) == 0
-
-
-def test_some():
-    assert some(callable, [min, 3]) == 1
-    assert some(callable, [2, 3]) == 0
-
+def test_first():
+    assert first('word') == 'w'
+    assert first('') == None
+    assert first('', 'empty') == 'empty'
+    assert first(range(10)) == 0
+    assert first(x for x in range(10) if x  > 3) == 4
+    assert first(x for x in range(10) if x  > 100) == None
 
 def test_is_in():
     e = []

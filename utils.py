@@ -1,7 +1,6 @@
 """Provide some widely useful utilities. Safe for "from utils import *".  # noqa
 
 TODO[COMPLETED]: Let's take the >>> doctest examples out of the docstrings, and put them in utils_test.py
-TODO: count_if and the like are leftovers from COmmon Lisp; let's make replace thenm with Pythonic alternatives.
 TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
@@ -12,31 +11,6 @@ import operator
 import random
 import os.path
 import bisect
-
-# ______________________________________________________________________________
-# Simple Data Structures: infinity, Dict, Struct
-
-infinity = float('inf')
-
-
-class Struct:
-
-    """Create an instance with argument=value slots.
-    This is for making a lightweight object whose class doesn't matter."""
-
-    def __init__(self, **entries):
-        self.__dict__.update(entries)
-
-    def __cmp__(self, other):
-        if isinstance(other, Struct):
-            return self.__dict__ == other.__dict__
-        else:
-            return self.__dict__ == other
-
-    def __repr__(self):
-        return ['{!s}={!s}'.format(k, repr(v))
-                for (k, v) in list(vars(self).items())]
-
 
 def update(x, **entries):
     """Update a dict or an object with slots according to entries."""
@@ -49,8 +23,6 @@ def update(x, **entries):
 
 # ______________________________________________________________________________
 # Functions on Sequences (mostly inspired by Common Lisp)
-# NOTE: Sequence functions (count_if, find_if, every, some) take function
-# argument first (like reduce, filter, and map).
 
 
 def removeall(item, seq):
@@ -65,6 +37,10 @@ def unique(seq):
     """Remove duplicate elements from seq. Assumes hashable elements."""
     return list(set(seq))
 
+def count(seq):
+    """Count the number of items in sequence that are interpreted as true."""
+    return sum(bool(x) for x in seq)
+
 
 def product(numbers):
     """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
@@ -73,35 +49,20 @@ def product(numbers):
         result *= x
     return result
 
-
-def count_if(predicate, seq):
-    """Count the number of elements of seq for which the predicate is true."""
-    return sum([bool(predicate(x)) for x in seq])
-
-
-def find_if(predicate, seq):
-    """If there is an element of seq that satisfies predicate; return it."""
-    for x in seq:
-        if predicate(x):
-            return x
-
-    return None
+def first(iterable, default=None):
+    "Return the first element of an iterable or sequence; or default."
+    try:
+        return iterable[0]
+    except IndexError:
+        return default
+    except TypeError:
+        return next(iterable, default)
 
 
 def every(predicate, seq):
     """True if every element of seq satisfies predicate."""
 
     return all(predicate(x) for x in seq)
-
-
-def some(predicate, seq):
-    """If some element x of seq satisfies predicate(x), return predicate(x)."""
-    elem = find_if(predicate, seq)
-
-    return predicate(elem) if elem is not None else False
-
-# TODO[COMPLETED]: rename to is_in or possibily add 'identity' to function
-# name to clarify intent
 
 
 def is_in(elt, seq):
@@ -200,7 +161,7 @@ def histogram(values, mode=0, bin_function=None):
 
 def dotproduct(X, Y):
     """Return the sum of the element-wise product of vectors x and y."""
-    return sum([x * y for x, y in zip(X, Y)])
+    return sum(x * y for x, y in zip(X, Y))
 
 
 def vector_add(a, b):
@@ -447,7 +408,7 @@ class PriorityQueue(Queue):
             return self.A.pop()[1]
 
     def __contains__(self, item):
-        return some(lambda x: x == item, self.A)
+        return any(item == pair[1] for pair in self.A)
 
     def __getitem__(self, key):
         for _, item in self.A:

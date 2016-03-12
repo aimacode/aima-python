@@ -234,6 +234,7 @@ class Fig52Game(Game):
     def to_move(self, state):
         return ('MIN' if state in 'BCD' else 'MAX')
 
+GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves')
 
 class TicTacToe(Game):
 
@@ -246,7 +247,7 @@ class TicTacToe(Game):
         update(self, h=h, v=v, k=k)
         moves = [(x, y) for x in range(1, h+1)
                  for y in range(1, v+1)]
-        self.initial = Struct(to_move='X', utility=0, board={}, moves=moves)
+        self.initial = GameState(to_move='X', utility=0, board={}, moves=moves)
 
     def actions(self, state):
         "Legal moves are any square not yet taken."
@@ -259,9 +260,9 @@ class TicTacToe(Game):
         board[move] = state.to_move
         moves = list(state.moves)
         moves.remove(move)
-        return Struct(to_move=('O' if state.to_move == 'X' else 'X'),
-                      utility=self.compute_utility(board, move, state.to_move),
-                      board=board, moves=moves)
+        return GameState(to_move=('O' if state.to_move == 'X' else 'X'),
+                         utility=self.compute_utility(board, move, state.to_move),
+                         board=board, moves=moves)
 
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
