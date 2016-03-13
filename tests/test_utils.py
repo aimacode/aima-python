@@ -117,9 +117,9 @@ def test_caller():
 
 
 def test_sigmoid():
-    assert math.isclose(0.5, sigmoid(0)) is True
-    assert math.isclose(0.7310585786300049, sigmoid(1)) is True
-    assert math.isclose(0.2689414213699951, sigmoid(-1)) is True
+    assert isclose(0.5, sigmoid(0)) 
+    assert isclose(0.7310585786300049, sigmoid(1)) 
+    assert isclose(0.2689414213699951, sigmoid(-1)) 
 
 
 def test_step():
