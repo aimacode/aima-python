@@ -1,9 +1,13 @@
 import pytest
+import collections
+import math
 from games import *
 
 # Creating the games
 f52 = Fig52Game()
 ttt = TicTacToe()
+
+GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves')
 
 # State generating function for TicTacToe
 def gen_state(to_move='X', x_positions=[], o_positions=[], h=3, v=3, k=3):
@@ -15,7 +19,7 @@ def gen_state(to_move='X', x_positions=[], o_positions=[], h=3, v=3, k=3):
 		board[pos] = 'X'
 	for pos in o_positions:
 		board[pos] = 'O'
-	return Struct(to_move=to_move, utility=0, board=board, moves=moves)
+	return GameState(to_move=to_move, utility=0, board=board, moves=moves)
 
 def test_minimax_decision():
 	assert minimax_decision('A', f52) == 'a1'
@@ -54,3 +58,6 @@ def test_random_tests():
 	# The player 'X' (one who plays first) in TicTacToe never loses:
 	for i in range(10):
 		assert play_game(ttt, alphabeta_player, random_player) >= 0
+
+if __name__ == '__main__':
+    pytest.main()

@@ -1,9 +1,13 @@
 """Games, or Adversarial Search. (Chapter 5)
 """
 
+import collections
+import math
+import random
+
 from utils import *  # noqa
 
-import random
+infinity = math.inf
 
 # ______________________________________________________________________________
 # Minimax Search
@@ -236,7 +240,9 @@ class TicTacToe(Game):
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
     def __init__(self, h=3, v=3, k=3):
-        update(self, h=h, v=v, k=k)
+        self.h = h
+        self.v = v
+        self.k = k
         moves = [(x, y) for x in range(1, h+1)
                  for y in range(1, v+1)]
         self.initial = GameState(to_move='X', utility=0, board={}, moves=moves)
