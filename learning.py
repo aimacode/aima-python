@@ -559,7 +559,8 @@ def BackPropagationLearner(dataset, network, learning_rate, epoches):
                 units = len(layer)
                 for j in range(units):
                     layer[j].weights = vector_add(layer[j].weights,
-                                                  scalar_vector_product(learning_rate * delta[i][j], inc))
+                                                  scalar_vector_product(
+                                                  learning_rate * delta[i][j], inc))
 
     return network
 
@@ -671,8 +672,8 @@ def flatten(seqs): return sum(seqs, [])
 # Functions for testing learners on examples
 
 
-def test(predict, dataset, examples=None, verbose=0):
-    "Return the proportion of the examples that are correctly predicted."
+def test(predict, dataset, examples, verbose=0):
+    "Return the proportion of the examples that are NOT correctly predicted."
     if examples is None:
         examples = dataset.examples
     if len(examples) == 0:
@@ -688,40 +689,80 @@ def test(predict, dataset, examples=None, verbose=0):
         elif verbose:
             print('WRONG: got %s, expected %s for %s' % (
                 output, desired, example))
-    return right / len(examples)
+    return 1 - (right / len(examples))
 
 
-def train_and_test(learner, dataset, start, end):
-    """Reserve dataset.examples[start:end] for test; train on the remainder.
-    Return the proportion of examples correct on the test examples."""
+def train_and_test(dataset, start, end):
+    """Reserve dataset.examples[start:end] for test; train on the remainder."""
+    start = int(start)
+    end = int(end) 
     examples = dataset.examples
-    try:
-        dataset.examples = examples[:start] + examples[end:]
-        return test(learner(dataset), dataset, examples[start:end])
-    finally:
-        dataset.examples = examples
+    train = examples[:start] + examples[end:]
+    val = examples[start:end]
+    return train, val
 
 
-def cross_validation(learner, dataset, k=10, trials=1):
+def cross_validation(learner, size, dataset, k=10, trials=1):
     """Do k-fold cross_validate and return their mean.
     That is, keep out 1/k of the examples for testing on each of k runs.
-    Shuffle the examples first; If trials>1, average over several shuffles."""
+    Shuffle the examples first; If trials>1, average over several shuffles.
+    Returns Training error, Validataion error"""
     if k is None:
         k = len(dataset.examples)
     if trials > 1:
-        return mean([cross_validation(learner, dataset, k, trials=1)
-                     for t in range(trials)])
+        trial_errT = 0
+        trial_errV = 0
+        for t in range(trials):
+            errT, errV = cross_validation(learner, size, dataset,
+                                          k=10, trials=1)
+            trial_errT += errT
+            trial_errV += errV
+        return trial_errT/trials, trial_errV/trials
     else:
+        fold_errT = 0
+        fold_errV = 0
         n = len(dataset.examples)
-        random.shuffle(dataset.examples)
-        return mean(
-                [train_and_test(learner, dataset, i * (n / k),
-                                (i + 1) * (n / k)) for i in range(k)])
+        examples = dataset.examples
+        for fold in range(k):
+            random.shuffle(dataset.examples)
+            train_data, val_data = train_and_test(dataset, fold * (n/k),
+                                                  (fold + 1) * (n/k))
+            dataset.examples = train_data
+            h = learner(dataset, size)
+            fold_errT += test(h, dataset, train_data)
+            fold_errV += test(h, dataset, val_data)
+            # Reverting back to original once test is completed
+            dataset.examples = examples
+        return fold_errT/k, fold_errV/k
 
 
-def leave1out(learner, dataset):
+def cross_validation_wrapper(learner, dataset, k=10, trials=1):
+    """
+    Fig 18.8
+    Return the optimal value of size having minimum error
+    on validataion set
+    err_train: a training error array, indexed by size
+    err_val: a validataion error array, indexed by size
+    """
+    err_val = []
+    err_train = []
+    size = 1
+    while True:
+        errT, errV = cross_validation(learner, size, dataset, k)
+        # Check for convergence provided err_val is not empty
+        if (err_val and math.isclose(err_val[-1], errV, rel_tol=1e-6)):
+            best_size = size
+            return learner(dataset, best_size)
+
+        err_val.append(errV)
+        err_train.append(errT)
+        print(err_val)
+        size += 1
+
+
+def leave_one_out(learner, dataset):
     "Leave one out cross-validation over the dataset."
-    return cross_validation(learner, dataset, k=len(dataset.examples))
+    return cross_validation(learner, size, dataset, k=len(dataset.examples))
 
 
 def learningcurve(learner, dataset, trials=10, sizes=None):
