@@ -7,7 +7,7 @@ import random
 
 from utils import *  # noqa
 
-infinity = math.inf
+infinity = float('inf')
 
 # ______________________________________________________________________________
 # Minimax Search

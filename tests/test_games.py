@@ -1,6 +1,5 @@
 import pytest
 import collections
-import math
 from games import *
 
 # Creating the games
