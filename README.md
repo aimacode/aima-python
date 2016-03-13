@@ -12,18 +12,9 @@ This code is in Python 3.4. (Of course, the current version, Python 3.5, also wo
 When complete, this project will have Python code for all the pseudocode algorithms in the book. For each major topic, such as `logic`, we will have the following three files in the main branch:
 
 - `logic.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
-- `logic.ipynb`: A Jupyter notebook, with examples of usage. Does a `from logic import *` to get the code.
+- `logic.ipynb`: A Jupyter notebook that explains and gives examples of how to use the code. 
 - `tests/logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/).
 
-Until we get there, we will support a legacy branch, `aima3python2` (for the third edition of the textbook and for Python 2 code). To prepare code for the new master branch, the following two steps should be taken:
-
-
-## New and Improved Algorithms
-
-- Implement functions that were in the third edition of the book but were not yet implemented in the code. Check the [list of pseudocode algorithms (pdf)](https://github.com/aimacode/pseudocode/blob/master/algorithms.pdf) to see what's missing.
-- As we finish chapters for the new fourth edition, we will share the new pseudocode in the [`aima-pseudocode`](https://github.com/aimacode/aima-pseudocode) repository, and describe what changes are necessary.
-We hope to have a `algorithm-name.md` file for each algorithm, eventually; it would be great if contributors could add some for the existing algorithms.
-- Give examples of how to use the code in the `.ipynb` file.
 
 
 # Index of Code #
