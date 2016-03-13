@@ -1,4 +1,5 @@
-"""Games, or Adversarial Search. (Chapter 5)"""
+"""Games, or Adversarial Search. (Chapter 5)
+"""
 
 from utils import *  # noqa
 
@@ -76,6 +77,7 @@ def alphabeta_full_search(state, game):
             best_score = v
             best_action = a
     return best_action
+
 
 def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     """Search game to determine best action; use alpha-beta pruning.
@@ -234,7 +236,7 @@ class TicTacToe(Game):
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
     def __init__(self, h=3, v=3, k=3):
-        update(self, h=h, v=v, k=k) # What is this exactly?
+        update(self, h=h, v=v, k=k)
         moves = [(x, y) for x in range(1, h+1)
                  for y in range(1, v+1)]
         self.initial = GameState(to_move='X', utility=0, board={}, moves=moves)
