@@ -1,9 +1,13 @@
 """Games, or Adversarial Search. (Chapter 5)
 """
 
+import collections
+import math
+import random
+
 from utils import *  # noqa
 
-import random
+infinity = float('inf')
 
 # ______________________________________________________________________________
 # Minimax Search
@@ -69,6 +73,7 @@ def alphabeta_full_search(state, game):
 
     # Body of alphabeta_search:
     best_score = -infinity
+    beta = infinity
     best_action = None
     for a in game.actions(state):
         v = min_value(game.result(state, a), best_score, beta)
@@ -116,6 +121,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
                     game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
     best_score = -infinity
+    beta = infinity
     best_action = None
     for a in game.actions(state):
         v = min_value(game.result(state, a), best_score, beta, 1)
@@ -131,7 +137,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 def query_player(game, state):
     "Make a move by querying standard input."
     game.display(state)
-    return num_or_str(eval(input('Your move? ')))
+    return eval(input('Your move? '))
 
 
 def random_player(game, state):
@@ -140,14 +146,12 @@ def random_player(game, state):
 
 
 def alphabeta_player(game, state):
-    return alphabeta_search(state, game)
+    return alphabeta_full_search(state, game)
 
 
 def play_game(game, *players):
-    """Play an n-person, move-alternating game.
-    >>> play_game(Fig52Game(), alphabeta_player, alphabeta_player)
-    3
-    """
+    """Play an n-person, move-alternating game."""
+    
     state = game.initial
     while True:
         for player in players:
@@ -199,16 +203,8 @@ class Game:
 
 
 class Fig52Game(Game):
+    """The game represented in [Fig. 5.2]. Serves as a simple test case."""
 
-    """The game represented in [Fig. 5.2]. Serves as a simple test case.
-    >>> g = Fig52Game()
-    >>> minimax_decision('A', g)
-    'a1'
-    >>> alphabeta_full_search('A', g)
-    'a1'
-    >>> alphabeta_search('A', g)
-    'a1'
-    """
     succs = dict(A=dict(a1='B', a2='C', a3='D'),
                  B=dict(b1='B1', b2='B2', b3='B3'),
                  C=dict(c1='C1', c2='C2', c3='C3'),
@@ -244,7 +240,9 @@ class TicTacToe(Game):
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
     def __init__(self, h=3, v=3, k=3):
-        update(self, h=h, v=v, k=k)
+        self.h = h
+        self.v = v
+        self.k = k
         moves = [(x, y) for x in range(1, h+1)
                  for y in range(1, v+1)]
         self.initial = GameState(to_move='X', utility=0, board={}, moves=moves)
@@ -317,11 +315,3 @@ class ConnectFour(TicTacToe):
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
                 if y == 1 or (x, y-1) in state.board]
-
-__doc__ += """
-Random tests:
->>> play_game(Fig52Game(), random_player, random_player)
-6
->>> play_game(TicTacToe(), random_player, random_player)
-0
-"""
