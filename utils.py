@@ -229,6 +229,13 @@ def sigmoid(x):
 def step(x):
     """Return activation value of x with sign function"""
     return 1 if x >= 0 else 0
+    
+try: # math.isclose was added in Python 3.5; 
+    from math import isclose
+except ImportError:
+    def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+        "Return true if numbers a and b are close to each other."
+        return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 # ______________________________________________________________________________
 # Misc Functions
