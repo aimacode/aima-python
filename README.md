@@ -3,9 +3,9 @@
 
 Python code for the book *Artificial Intelligence: A Modern Approach.* We're loooking for one student sponsored by Google Summer of Code ([GSoC](https://summerofcode.withgoogle.com/)) to work on this project; if you want to be that student, make some good contributions here (by looking through the [Issues](https://github.com/aimacode/aima-python/issues) and resolving some), and submit an [application](https://summerofcode.withgoogle.com/terms/student). (However, be warned that we've had over 150 students express interest, so competition will be tough.) And we're always looking for solid contributors who are not affiliated with GSoC. A big thank you to everyone who has contributed!
 
-## Python 3.5
+## Python 3.4
 
-This code is in Python 3.5. (I believe any version from 3.4 on will work.) You can [install the latest Python version](https://www.python.org/downloads), and if that doesn't work, use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+This code is in Python 3.4. (Of course, the current version, Python 3.5, also works.) You can [install the latest Python version](https://www.python.org/downloads), and if that doesn't work, use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
 
 ## Structure of the Project
 
@@ -40,7 +40,7 @@ There are a few style rules that are unique to this project:
 
 Beyond the above rules, we use [Pep 8](https://www.python.org/dev/peps/pep-0008), with a few minor exceptions:
 
-- I'm not too worried about an occasional line longer than 79 characters.
+- I have set `--max-line-length 100`, not 79.
 - You don't need two spaces after a sentence-ending period.
 - Strunk and White is [not a good guide for English](http://chronicle.com/article/50-Years-of-Stupid-Grammar/25497).
 - I prefer more concise docstrings; I don't follow [Pep 257](https://www.python.org/dev/peps/pep-0257/).
