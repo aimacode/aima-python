@@ -1,8 +1,6 @@
 import pytest
-
 from text import *  # noqa
-
-from math import isclose
+from utils import isclose
 
 
 def test_unigram_text_model():
