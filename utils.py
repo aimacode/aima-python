@@ -1,10 +1,6 @@
 """Provide some widely useful utilities. Safe for "from utils import *".  # noqa
 
 TODO[COMPLETED]: Let's take the >>> doctest examples out of the docstrings, and put them in utils_test.py
-<<<<<<< HEAD
-TODO: count_if and the like are leftovers from Common Lisp; let's make replace them with Pythonic alternatives.
-=======
->>>>>>> master
 TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
 TODO: Priority queues may not belong here -- see treatment in search.py
 """
@@ -16,31 +12,6 @@ import random
 import os.path
 import bisect
 
-<<<<<<< HEAD
-# ______________________________________________________________________________
-# Simple Data Structures: infinity, Dict, Struct
-
-infinity = float('inf')
-
-
-class Struct:
-
-    """Create an instance with argument=value slots.
-    This is for making a lightweight object whose class doesn't matter."""
-
-    def __init__(self, **entries):
-        self.__dict__.update(entries)
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-    def __repr__(self):
-        return str(['{!s}={!s}'.format(k, repr(v))
-                for (k, v) in list(vars(self).items())])
-
-
-=======
->>>>>>> master
 def update(x, **entries):
     """Update a dict or an object with slots according to entries."""
     if isinstance(x, dict):
