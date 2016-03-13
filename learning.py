@@ -245,7 +245,7 @@ def NearestNeighborLearner(dataset, k=1):
 #______________________________________________________________________________
 
 class DecisionFork:
-    """A fork of a decision tree holds an attribute to test, and a dict 
+    """A fork of a decision tree holds an attribute to test, and a dict
     of branches, one for each of the attribute's values."""
 
     def __init__(self, attr, attrname=None, branches=None):
@@ -272,7 +272,7 @@ class DecisionFork:
     def __repr__(self):
         return ('DecisionFork(%r, %r, %r)'
                 % (self.attr, self.attrname, self.branches))
-    
+
 class DecisionLeaf:
     "A leaf of a decision tree holds just a result."
 
@@ -287,7 +287,7 @@ class DecisionLeaf:
 
     def __repr__(self):
         return repr(self.result)
-    
+
 #______________________________________________________________________________
 
 def DecisionTreeLearner(dataset):
@@ -404,10 +404,110 @@ class NNUnit:
    def __init__(self):
        unimplemented()
 
-def PerceptronLearner(dataset, sizes):
-   def predict(example):
-      return sum([])
-   unimplemented()
+def PerceptronLearner(dataset, classes):
+
+   def generateWeights(size):
+       weight = list()
+       [weight.append(random.randrange(0,10)/10.0) for i in range(size)]
+       return weight
+
+   def netOut(weight, input, inputRange):
+       return sum([weight[i] * input[i] for i in inputRange])
+
+   def predict(example, weights, inputs=dataset.inputs):
+      return (1 if netOut(weights, example, inputs)>=0 else -1)
+
+   def generateTargetList(targets, classes, index=dataset.target):
+    #    generates a list of lists every list contains target outputs from each perceptron
+       targetList = list()
+       [targetList.append(list()) for i in range(len(classes))]
+       for target in targets:
+           for i in range(len(classes)):
+               if (target[index] == classes[i]):
+                   targetList[i].append(1)
+               else:
+                   targetList[i].append(-1)
+       return targetList
+
+   def cost(predictions, targets):
+       difference = list()
+       grad = list()
+       cost = list()
+       count = 0
+       for predictList, targetList in zip(predictions, targets):
+           difference.append([])
+           cost.append(ms_error(predictList, targetList))
+           for p, t in zip(predictList, targetList):
+               difference[count].append(p - t)
+           count+=1
+
+       for perceptronNum in range(len(difference)):
+           grad.append([])
+           weightIndex = 0
+           for featureNum in dataset.inputs:
+               grad[perceptronNum].append(0)
+               for exampleNum in range(len(dataset.examples)):
+                   x = int(dataset.examples[exampleNum][featureNum])
+                   diff = difference[perceptronNum][exampleNum]
+                   grad[perceptronNum][featureNum] = grad[perceptronNum][featureNum] + diff * x
+       return [cost, grad]
+
+   def updateWeights(weights, grad, eta):
+       numPercept = len(weights)
+       numFeatures = len(weights[0])
+       for p in range(numPercept):
+           for f in range(numFeatures):
+               weights[p][f] = weights[p][f] - eta * grad[p][f]
+       return weights
+
+   def computeAccurecy(weights, inputs, targets):
+
+      numSamples = len(dataset.examples)
+      predictions = list()
+      for i in range(len(classes)):
+          predictions.append([])
+          for j in range(numSamples):
+              predictions[i].append( predict(dataset.examples[j], weights[i], dataset.inputs) )
+      count = 0
+      isCorrect = True
+      for i in range(numSamples):
+          isCorrect = True
+          for j in range(len(classes)):
+              if (predictions[j][i] != targets[j][i]):
+                  isCorrect = False
+          if(isCorrect):
+            count+=1
+      return (1.0*count/numSamples)*100.0
+
+
+   def gradientDescient(epochs=1000, eta=.01):
+       numSamples = len(dataset.examples)
+       numFeatures = len(dataset.examples[0]) - 1
+
+       # convert targets from labels to 1, -1
+       targets = generateTargetList(dataset.examples, classes)
+
+       # Generate weights for every classsifier
+       weights = list()
+       [weights.append(generateWeights(numFeatures)) for i in range(len(classes))]
+       for i in range(epochs):
+           # Compute predictions depending on the inputs and weights computed
+           predictions = list()
+           for i in range(len(classes)):
+               predictions.append([])
+               for j in range(numSamples):
+                   predictions[i].append( predict(dataset.examples[j], weights[i], dataset.inputs) )
+           [c, grad] = cost(predictions, targets)
+           weights = updateWeights(weights, grad, eta)
+        #    print "------"
+        #    print weights
+        #    print grad
+        #    print c
+       accuracy = computeAccurecy(weights, dataset.examples, targets)
+       print  str(accuracy) + "%"
+       return "Done"
+
+   return gradientDescient
 #______________________________________________________________________________
 
 def Linearlearner(dataset):
@@ -622,6 +722,12 @@ Test Patrons
          Type = Italian ==> RESULT = No
      Hungry = No ==> RESULT = No
  Patrons = Some ==> RESULT = Yes
+"""
+
+__doc__ += """
+>>> PerceptronLearner(iris, ['setosa', 'versicolor', 'virginica'])()
+61.3333333333%
+Done
 """
 
 def SyntheticRestaurant(n=20):
