@@ -453,7 +453,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
         # Hypothesis
         o_nodes = learned_net[-1]
         pred = [o_nodes[i].value for i in range(o_units)]
-        return pred[0]
+        return 1 if pred[0] >= 0.5 else 0
 
     return predict
 
@@ -478,7 +478,12 @@ def network(input_units, hidden_layer_sizes, output_units):
     hidden_layers_sizes : list number of neuron units in each hidden layer
     excluding input and output layers.
     """
-    layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
+    # Check for PerceptronLearner
+    if hidden_layer_sizes:
+        layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
+    else:
+        layers_sizes = [input_units] + [output_units]
+
     net = [[NNUnit() for n in range(size)]
            for size in layers_sizes]
     n_layers = len(net)
@@ -492,10 +497,10 @@ def network(input_units, hidden_layer_sizes, output_units):
     return net
 
 
-def BackPropagationLearner(dataset, network, learning_rate, epoches):
+def BackPropagationLearner(dataset, net, learning_rate, epoches):
     "[Fig. 18.23] The back-propagation algorithm for multilayer network"
     # Initialise weights
-    for layer in network:
+    for layer in net:
         for node in layer:
             node.weights = [random.uniform(-0.5, 0.5)
                             for i in range(len(node.weights))]
@@ -508,9 +513,9 @@ def BackPropagationLearner(dataset, network, learning_rate, epoches):
     '''
     idx_t = [dataset.target]
     idx_i = dataset.inputs
-    n_layers = len(network)
-    o_nodes = network[-1]
-    i_nodes = network[0]
+    n_layers = len(net)
+    o_nodes = net[-1]
+    i_nodes = net[0]
 
     for epoch in range(epoches):
         # Iterate over each example
@@ -522,7 +527,7 @@ def BackPropagationLearner(dataset, network, learning_rate, epoches):
                 n.value = v
 
             # Forward pass
-            for layer in network[1:]:
+            for layer in net[1:]:
                 for node in layer:
                     inc = [n.value for n in node.inputs]
                     in_val = dotproduct(inc, node.weights)
@@ -541,9 +546,9 @@ def BackPropagationLearner(dataset, network, learning_rate, epoches):
             # Backward pass
             h_layers = n_layers - 2
             for i in range(h_layers, 0, -1):
-                layer = network[i]
+                layer = net[i]
                 h_units = len(layer)
-                nx_layer = network[i+1]
+                nx_layer = net[i+1]
                 # weights from each ith layer node to each i + 1th layer node
                 w = [[node.weights[k] for node in nx_layer]
                      for k in range(h_units)]
@@ -554,21 +559,47 @@ def BackPropagationLearner(dataset, network, learning_rate, epoches):
 
             #  Update weights
             for i in range(1, n_layers):
-                layer = network[i]
-                inc = [node.value for node in network[i-1]]
+                layer = net[i]
+                inc = [node.value for node in net[i-1]]
                 units = len(layer)
                 for j in range(units):
                     layer[j].weights = vector_add(layer[j].weights,
                                                   scalar_vector_product(
                                                   learning_rate * delta[i][j], inc))
 
-    return network
+    return net
 
 
-def PerceptronLearner(dataset, sizes):
+def PerceptronLearner(dataset, learning_rate=0.01, epoches=100):
+    """Logistic Regression, NO hidden layer"""
+    examples = dataset.examples
+    i_units = len(dataset.inputs)
+    o_units = 1  # As of now, dataset.target gives only one index.
+    hidden_layer_sizes = []
+    raw_net = network(i_units, hidden_layer_sizes, o_units)
+    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epoches)
+
     def predict(example):
-        return sum([])
-    unimplemented()
+        # Input nodes
+        i_nodes = learned_net[0]
+
+        # Activate input layer
+        for v, n in zip(example, i_nodes):
+            n.value = v
+
+        # Forward pass
+        for layer in learned_net[1:]:
+            for node in layer:
+                inc = [n.value for n in node.inputs]
+                in_val = dotproduct(inc, node.weights)
+                node.value = node.activation(in_val)
+
+        # Hypothesis
+        o_nodes = learned_net[-1]
+        pred = [o_nodes[i].value for i in range(o_units)]
+        return 1 if pred[0] >= 0.5 else 0
+
+    return predict
 # ______________________________________________________________________________
 
 
@@ -672,7 +703,7 @@ def flatten(seqs): return sum(seqs, [])
 # Functions for testing learners on examples
 
 
-def test(predict, dataset, examples, verbose=0):
+def test(predict, dataset, examples=None, verbose=0):
     "Return the proportion of the examples that are NOT correctly predicted."
     if examples is None:
         examples = dataset.examples
@@ -695,7 +726,7 @@ def test(predict, dataset, examples, verbose=0):
 def train_and_test(dataset, start, end):
     """Reserve dataset.examples[start:end] for test; train on the remainder."""
     start = int(start)
-    end = int(end) 
+    end = int(end)
     examples = dataset.examples
     train = examples[:start] + examples[end:]
     val = examples[start:end]
