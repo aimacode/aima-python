@@ -39,8 +39,8 @@ def test_and_or_graph_search():
             return True
         if len(plan) is not 2:
             return False
-        next_state = choice(problem.result(state, plan[0]))
-        return run_plan(next_state, problem, plan[1][next_state])
+        predicate = lambda x : run_plan(x, problem, plan[1][x])
+        return all(predicate(r) for r in problem.result(state, plan[0]))
     plan = and_or_graph_search(vacumm_world)
     assert run_plan('State_1', vacumm_world, plan)
 

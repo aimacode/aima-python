@@ -343,7 +343,8 @@ def DecisionTreeLearner(dataset):
         return DecisionLeaf(popular)
 
     def count(attr, val, examples):
-        return count_if(lambda e: e[attr] == val, examples)
+        "Count the number of examples that have attr = val."
+        return count(e[attr] == val for e in examples)
 
     def all_same_class(examples):
         "Are all these examples in the same target class?"
@@ -415,24 +416,152 @@ def DecisionListLearner(dataset):
 # ______________________________________________________________________________
 
 
-def NeuralNetLearner(dataset, sizes):
-    """Layered feed-forward network."""
+def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
+                     learning_rate=0.01, epoches=100):
+    """
+    Layered feed-forward network.
+    hidden_layer_sizes: List of number of hidden units per hidden layer
+    learning_rate: Learning rate of gradient decent
+    epoches: Number of passes over the dataset
+    """
 
-    activations = [[0.0 for i in range(n)] for n in sizes]  # noqa
-    weights = []  # noqa
+    examples = dataset.examples
+    i_units = len(dataset.inputs)
+    o_units = 1  # As of now, dataset.target gives only one index.
+
+    # construct a network
+    raw_net = network(i_units, hidden_layer_sizes, o_units)
+    learned_net = BackPropagationLearner(dataset, raw_net,
+                                         learning_rate, epoches)
 
     def predict(example):
-        unimplemented()
+
+        # Input nodes
+        i_nodes = learned_net[0]
+
+        # Activate input layer
+        for v, n in zip(example, i_nodes):
+            n.value = v
+
+        # Forward pass
+        for layer in learned_net[1:]:
+            for node in layer:
+                inc = [n.value for n in node.inputs]
+                in_val = dotproduct(inc, node.weights)
+                node.value = node.activation(in_val)
+
+        # Hypothesis
+        o_nodes = learned_net[-1]
+        pred = [o_nodes[i].value for i in range(o_units)]
+        return pred[0]
 
     return predict
 
 
 class NNUnit:
+    """
+    Single Unit of Multiple Layer Neural Network
+    inputs: Incoming connections
+    weights: weights to incoming connections
+    """
 
-    """Unit of a neural net."""
+    def __init__(self, weights=None, inputs=None):
+        self.weights = []
+        self.inputs = []
+        self.value = None
+        self.activation = sigmoid
 
-    def __init__(self):
-        unimplemented()
+
+def network(input_units, hidden_layer_sizes, output_units):
+    """
+    Create of Directed Acyclic Network of given number layers
+    hidden_layers_sizes : list number of neuron units in each hidden layer
+    excluding input and output layers.
+    """
+    layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
+    net = [[NNUnit() for n in range(size)]
+           for size in layers_sizes]
+    n_layers = len(net)
+
+    # Make Connection
+    for i in range(1, n_layers):
+        for n in net[i]:
+            for k in net[i-1]:
+                n.inputs.append(k)
+                n.weights.append(0)
+    return net
+
+
+def BackPropagationLearner(dataset, network, learning_rate, epoches):
+    "[Fig. 18.23] The back-propagation algorithm for multilayer network"
+    # Initialise weights
+    for layer in network:
+        for node in layer:
+            node.weights = [random.uniform(-0.5, 0.5)
+                            for i in range(len(node.weights))]
+
+    examples = dataset.examples
+    '''
+    As of now dataset.target gives an int instead of list,
+    Changing dataset class will have effect on all the learners.
+    Will be taken care of later
+    '''
+    idx_t = [dataset.target]
+    idx_i = dataset.inputs
+    n_layers = len(network)
+    o_nodes = network[-1]
+    i_nodes = network[0]
+
+    for epoch in range(epoches):
+        # Iterate over each example
+        for e in examples:
+            i_val = [e[i] for i in idx_i]
+            t_val = [e[i] for i in idx_t]
+            # Activate input layer
+            for v, n in zip(i_val, i_nodes):
+                n.value = v
+
+            # Forward pass
+            for layer in network[1:]:
+                for node in layer:
+                    inc = [n.value for n in node.inputs]
+                    in_val = dotproduct(inc, node.weights)
+                    node.value = node.activation(in_val)
+
+            # Initialize delta
+            delta = [[] for i in range(n_layers)]
+
+            # Compute outer layer delta
+            o_units = len(o_nodes)
+            err = [t_val[i] - o_nodes[i].value
+                   for i in range(o_units)]
+            delta[-1] = [(o_nodes[i].value)*(1 - o_nodes[i].value) *
+                         (err[i]) for i in range(o_units)]
+
+            # Backward pass
+            h_layers = n_layers - 2
+            for i in range(h_layers, 0, -1):
+                layer = network[i]
+                h_units = len(layer)
+                nx_layer = network[i+1]
+                # weights from each ith layer node to each i + 1th layer node
+                w = [[node.weights[k] for node in nx_layer]
+                     for k in range(h_units)]
+
+                delta[i] = [(layer[j].value) * (1 - layer[j].value) *
+                            dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+
+            #  Update weights
+            for i in range(1, n_layers):
+                layer = network[i]
+                inc = [node.value for node in network[i-1]]
+                units = len(layer)
+                for j in range(units):
+                    layer[j].weights = vector_add(layer[j].weights,
+                                                  scalar_vector_product(learning_rate * delta[i][j], inc))
+
+    return network
 
 
 def PerceptronLearner(dataset, sizes):

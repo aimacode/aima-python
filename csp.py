@@ -76,7 +76,7 @@ class CSP(search.Problem):
         def conflict(var2):
             return (var2 in assignment and
                     not self.constraints(var, val, var2, assignment[var2]))
-        return count_if(conflict, self.neighbors[var])
+        return count(conflict(v) for v in self.neighbors[var])
 
     def display(self, assignment):
         "Show a human-readable representation of the CSP."
@@ -92,7 +92,7 @@ class CSP(search.Problem):
             return []
         else:
             assignment = dict(state)
-            var = find_if(lambda v: v not in assignment, self.vars)
+            var = first(v for v in self.vars if v not in assignment)
             return [(var, val) for val in self.domains[var]
                     if self.nconflicts(var, val, assignment) == 0]
 
@@ -206,8 +206,8 @@ def num_legal_values(csp, var, assignment):
     if csp.curr_domains:
         return len(csp.curr_domains[var])
     else:
-        return count_if(lambda val: csp.nconflicts(var, val, assignment) == 0,
-                        csp.domains[var])
+        return count(csp.nconflicts(var, val, assignment) == 0
+                     for val in csp.domains[var])
 
 # Value ordering
 

@@ -2,28 +2,19 @@ import pytest
 from utils import *  # noqa
 
 
-def test_struct_initialization():
-    s = Struct(a=1, b=2)
-    assert s.a == 1
-    assert s.b == 2
-
-
-def test_struct_assignment():
-    s = Struct(a=1)
-    s.a = 3
-    assert s.a == 3
-
-
 def test_update_dict():
     assert update({'a': 1}, a=10, b=20) == {'a': 10, 'b': 20}
     assert update({}, a=5) == {'a': 5}
 
 
+<<<<<<< HEAD
 def test_update_struct():
     assert update(Struct(a=1), a=30, b=20) == (Struct(a=30, b=20))
     assert update(Struct(), a=10) == (Struct(a=10))
 
 
+=======
+>>>>>>> master
 def test_removeall_list():
     assert removeall(4, []) == []
     assert removeall(4, [1, 2, 3, 4]) == [1, 2, 3]
@@ -46,25 +37,13 @@ def test_product():
     assert product(list(range(1, 11))) == 3628800
 
 
-def test_find_if():
-    assert find_if(callable, [1, 2, 3]) is None
-    assert find_if(callable, [3, min, max]) == min
-
-
-def test_count_if():
-    assert count_if(callable, [42, None, max, min]) == 2
-    assert count_if(lambda x: x, []) == 0
-    assert count_if(lambda x: x % 2, [1, 2, 3, 4, 5]) == 3
-
-
-def test_every():
-    assert every(callable, [min, max]) == 1
-    assert every(callable, [min, 3]) == 0
-
-
-def test_some():
-    assert some(callable, [min, 3]) == 1
-    assert some(callable, [2, 3]) == 0
+def test_first():
+    assert first('word') == 'w'
+    assert first('') is None
+    assert first('', 'empty') == 'empty'
+    assert first(range(10)) == 0
+    assert first(x for x in range(10) if x > 3) == 4
+    assert first(x for x in range(10) if x > 100) is None
 
 
 def test_is_in():
@@ -120,6 +99,10 @@ def test_vector_add():
     assert vector_add((0, 1), (8, 9)) == (8, 10)
 
 
+def test_scalar_vector_product():
+    assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
+
+
 def test_num_or_str():
     assert num_or_str('42') == 42
     assert num_or_str(' 42x ') == '42x'
@@ -139,6 +122,18 @@ def test_caller():
     def f():
         return caller()
     assert f() == 'f'
+
+
+def test_sigmoid():
+    assert isclose(0.5, sigmoid(0)) 
+    assert isclose(0.7310585786300049, sigmoid(1)) 
+    assert isclose(0.2689414213699951, sigmoid(-1)) 
+
+
+def test_step():
+    assert step(1) == 1
+    assert step(0) == 1
+    assert step(-1) == 0
 
 
 if __name__ == '__main__':

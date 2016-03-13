@@ -2,7 +2,7 @@ language:
   - python
 
 python:
-  - "3.5"
+  - "3.4"
 
 before_install:
   - git submodule update --remote
@@ -15,7 +15,7 @@ script:
   - py.test
 
 after_success:
-  - flake8 .
+  - flake8 --max-line-length 100 .
 
 notifications:
   email: false
