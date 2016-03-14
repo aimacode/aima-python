@@ -1,4 +1,5 @@
 import pytest
+import os
 from text import *  # noqa
 from utils import isclose
 
