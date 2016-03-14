@@ -405,22 +405,27 @@ class NNUnit:
        unimplemented()
 
 def PerceptronLearner(dataset, classes):
-
+    # this is a simple perceptron Learner
+    # num of perceptrons equal to num of classes we want to classify
    def generateWeights(size):
+    #    generates list of small random weights. num of weights equal to num of features
        weight = list()
        [weight.append(random.randrange(0,10)/10.0) for i in range(size)]
        return weight
 
    def netOut(weight, input, inputRange):
+    #    computes the output of the perceptron corresponding to a specific input sequance.
        return sum([weight[i] * input[i] for i in inputRange])
 
    def predict(example, weights, inputs=dataset.inputs):
+    #    does the threshold on the output. so it is either 1 or -1
       return (1 if netOut(weights, example, inputs)>=0 else -1)
 
    def generateTargetList(targets, classes, index=dataset.target):
     #    generates a list of lists every list contains target outputs from each perceptron
        targetList = list()
        [targetList.append(list()) for i in range(len(classes))]
+    #    checks every output and puts 1 in the perceptron that represents the class and -1 in other perceptrons
        for target in targets:
            for i in range(len(classes)):
                if (target[index] == classes[i]):
@@ -430,17 +435,20 @@ def PerceptronLearner(dataset, classes):
        return targetList
 
    def cost(predictions, targets):
+    #    computes the error (cost) and the gradients
        difference = list()
        grad = list()
        cost = list()
        count = 0
        for predictList, targetList in zip(predictions, targets):
            difference.append([])
+        #    gets the mean squared error for the output
            cost.append(ms_error(predictList, targetList))
+        #    gets the difference between the predictions and targets
            for p, t in zip(predictList, targetList):
                difference[count].append(p - t)
            count+=1
-
+        #    computes the gradient by the given formela grad = Sum( (predict^i-target^i) * x^i )
        for perceptronNum in range(len(difference)):
            grad.append([])
            weightIndex = 0
@@ -453,6 +461,7 @@ def PerceptronLearner(dataset, classes):
        return [cost, grad]
 
    def updateWeights(weights, grad, eta):
+    #    update the weights using the given gradient. weight = weight - learningRate * gradient
        numPercept = len(weights)
        numFeatures = len(weights[0])
        for p in range(numPercept):
@@ -461,7 +470,7 @@ def PerceptronLearner(dataset, classes):
        return weights
 
    def computeAccurecy(weights, inputs, targets):
-
+    #    gets the prediction and compares it with target and counts the true predictions and get a precentage
       numSamples = len(dataset.examples)
       predictions = list()
       for i in range(len(classes)):
@@ -477,10 +486,13 @@ def PerceptronLearner(dataset, classes):
                   isCorrect = False
           if(isCorrect):
             count+=1
-      return (1.0*count/numSamples)*100.0
-
+      accuracy = (1.0*count/numSamples)*100.0
+      print  str(accuracy) + "%"
+      return accuracy
 
    def gradientDescient(epochs=1000, eta=.01):
+    #    Gradient descient algorithm. runs for a specific number of epochs and gets the final weights that
+    #    gives the best decision boundary
        numSamples = len(dataset.examples)
        numFeatures = len(dataset.examples[0]) - 1
 
@@ -504,7 +516,6 @@ def PerceptronLearner(dataset, classes):
         #    print grad
         #    print c
        accuracy = computeAccurecy(weights, dataset.examples, targets)
-       print  str(accuracy) + "%"
        return "Done"
 
    return gradientDescient
