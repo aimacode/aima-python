@@ -102,7 +102,7 @@ def test_ir_system():
             doc = uc.documents[d]
             assert "{0:.2f}".format(
                 expected.score) == "{0:.2f}".format(score * 100)
-            assert expected.url == doc.url
+            assert os.path.basename(expected.url) == os.path.basename(doc.url)
 
         return True
 
