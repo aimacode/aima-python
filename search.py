@@ -86,6 +86,9 @@ class Node:
     def __repr__(self):
         return "<Node %s>" % (self.state,)
 
+    def __lt__(self, node):
+        return self.state < node.state
+
     def expand(self, problem):
         "List the nodes reachable in one step from this node."
         return [self.child_node(problem, action)
