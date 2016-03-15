@@ -1,16 +1,17 @@
-"""Provide some widely useful utilities. Safe for "from utils import *".  # noqa
+"""Provides some utilities widely used by other modules"""
 
-TODO[COMPLETED]: Let's take the >>> doctest examples out of the docstrings, and put them in utils_test.py
-TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
-TODO: Priority queues may not belong here -- see treatment in search.py
-"""
+# This module is safe for: from utils import *
 
-from grid import *  # noqa
+# TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
+# TODO: Priority queues may not belong here -- see treatment in search.py
 
 import operator
 import random
 import os.path
 import bisect
+
+from grid import *  # noqa
+
 
 def update(x, **entries):
     """Update a dict or an object with slots according to entries."""
@@ -37,6 +38,7 @@ def unique(seq):
     """Remove duplicate elements from seq. Assumes hashable elements."""
     return list(set(seq))
 
+
 def count(seq):
     """Count the number of items in sequence that are interpreted as true."""
     return sum(bool(x) for x in seq)
@@ -48,6 +50,7 @@ def product(numbers):
     for x in numbers:
         result *= x
     return result
+
 
 def first(iterable, default=None):
     "Return the first element of an iterable or sequence; or default."
@@ -229,8 +232,8 @@ def sigmoid(x):
 def step(x):
     """Return activation value of x with sign function"""
     return 1 if x >= 0 else 0
-    
-try: # math.isclose was added in Python 3.5; 
+
+try:  # math.isclose was added in Python 3.5
     from math import isclose
 except ImportError:
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):

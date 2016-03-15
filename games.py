@@ -1,13 +1,12 @@
-"""Games, or Adversarial Search. (Chapter 5)
-"""
+"""Games, or Adversarial Search (Chapter 5)"""
 
 import collections
-import math
 import random
 
 from utils import *  # noqa
 
 infinity = float('inf')
+GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves')
 
 # ______________________________________________________________________________
 # Minimax Search
@@ -156,7 +155,7 @@ def alphabeta_player(game, state):
 
 def play_game(game, *players):
     """Play an n-person, move-alternating game."""
-    
+
     state = game.initial
     while True:
         for player in players:
@@ -170,7 +169,6 @@ def play_game(game, *players):
 
 
 class Game:
-
     """A game is similar to a problem, but it has a utility for each
     state and a terminal test instead of a path cost and a goal
     test. To create a game, subclass this class and implement actions,
@@ -235,10 +233,8 @@ class Fig52Game(Game):
     def to_move(self, state):
         return ('MIN' if state in 'BCD' else 'MAX')
 
-GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves')
 
 class TicTacToe(Game):
-
     """Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move, a cached utility, a list of moves in
     the form of a list of (x, y) positions, and a board, in the form of
