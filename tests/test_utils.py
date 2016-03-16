@@ -83,8 +83,8 @@ def test_histogram():
                                                             (7, 1), (5, 1)]
 
 
-def test_dotproduct():
-    assert dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
+def test_sum_dotproduct():
+    assert sum_dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
 
 
 def test_vector_add():
@@ -117,9 +117,9 @@ def test_caller():
 
 
 def test_sigmoid():
-    assert isclose(0.5, sigmoid(0)) 
-    assert isclose(0.7310585786300049, sigmoid(1)) 
-    assert isclose(0.2689414213699951, sigmoid(-1)) 
+    assert isclose(0.5, sigmoid(0))
+    assert isclose(0.7310585786300049, sigmoid(1))
+    assert isclose(0.2689414213699951, sigmoid(-1))
 
 
 def test_step():

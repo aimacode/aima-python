@@ -162,9 +162,15 @@ def histogram(values, mode=0, bin_function=None):
         return sorted(bins.items())
 
 
-def dotproduct(X, Y):
+def sum_dotproduct(X, Y):
     """Return the sum of the element-wise product of vectors x and y."""
     return sum(x * y for x, y in zip(X, Y))
+
+
+def dotproduct(X, Y):
+    """Return element-wise product of vectors x and y"""
+    assert len(X) == len(Y)
+    return(list(x * y for x, y in zip(X, Y)))
 
 
 def vector_add(a, b):

@@ -447,7 +447,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
         for layer in learned_net[1:]:
             for node in layer:
                 inc = [n.value for n in node.inputs]
-                in_val = dotproduct(inc, node.weights)
+                in_val = sum_dotproduct(inc, node.weights)
                 node.value = node.activation(in_val)
 
         # Hypothesis
@@ -530,7 +530,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epoches):
             for layer in net[1:]:
                 for node in layer:
                     inc = [n.value for n in node.inputs]
-                    in_val = dotproduct(inc, node.weights)
+                    in_val = sum_dotproduct(inc, node.weights)
                     node.value = node.activation(in_val)
 
             # Initialize delta
@@ -554,7 +554,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epoches):
                      for k in range(h_units)]
 
                 delta[i] = [(layer[j].value) * (1 - layer[j].value) *
-                            dotproduct(w[j], delta[i+1])
+                            sum_dotproduct(w[j], delta[i+1])
                             for j in range(h_units)]
 
             #  Update weights
@@ -591,7 +591,7 @@ def PerceptronLearner(dataset, learning_rate=0.01, epoches=100):
         for layer in learned_net[1:]:
             for node in layer:
                 inc = [n.value for n in node.inputs]
-                in_val = dotproduct(inc, node.weights)
+                in_val = sum_dotproduct(inc, node.weights)
                 node.value = node.activation(in_val)
 
         # Hypothesis
