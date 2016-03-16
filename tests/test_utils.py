@@ -83,8 +83,8 @@ def test_histogram():
                                                             (7, 1), (5, 1)]
 
 
-def test_sum_dotproduct():
-    assert sum_dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
+def test_dotproduct():
+    assert dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
 
 
 def test_vector_add():

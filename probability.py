@@ -557,11 +557,11 @@ def forward(HMM, fv, ev):
                                 scalar_vector_product(fv[1], HMM.transition_model[1]))
     sensor_dist = HMM.sensor_dist(ev)
 
-    return(normalize(dotproduct(sensor_dist, prediction)))
+    return(normalize(element_wise_product(sensor_dist, prediction)))
 
 def backward(HMM, b, ev):
     sensor_dist = HMM.sensor_dist(ev)
-    prediction = dotproduct(sensor_dist, b)
+    prediction = element_wise_product(sensor_dist, b)
 
     return(normalize(vector_add(scalar_vector_product(prediction[0], HMM.transition_model[0]),
                                  scalar_vector_product(prediction[1], HMM.transition_model[1]))))
@@ -582,7 +582,7 @@ def forward_backward(HMM, ev, prior):
     for i in range(1, t+ 1):
         fv[i] = forward(HMM, fv[i- 1], ev[i])
     for i in range(t, -1, -1):
-        sv[i- 1] = normalize(dotproduct(fv[i], b))
+        sv[i- 1] = normalize(element_wise_product(fv[i], b))
         b = backward(HMM, b, ev[i])
         bv.append(b)
 
