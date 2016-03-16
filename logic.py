@@ -842,7 +842,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 
 class HybridWumpusAgent(agents.Agent):
 
-    "An agent for the wumpus world that does logical inference. [Fig. 7.19]"""
+    "An agent for the wumpus world that does logical inference. [Fig. 7.20]"""
 
     def __init__(self):
         unimplemented()
