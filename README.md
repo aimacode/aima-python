@@ -22,7 +22,7 @@ When complete, this project will have Python code for all the pseudocode algorit
 Here is a table of algorithms, the figure and page where they appear in the book, and the file where they appear in the code. Unfortuately, this chart was made for the old second edition; and has only been partially upfdated to third edition, and not at all to fourth edition. We could use help fixing up the table, based on the figures in [algorithms.pdf](https://github.com/aimacode/aima-pseudocode/blob/master/algorithms.pdf). Empty implementations are a good place for contributors to look for an iassue.
 
 
-| **Fig** | **Page** | **Name (in 3<sup>rd<sup> edition)** | **Name (in code)** | **File**
+| **Fig** | **Page** | **Name (in 3<sup>rd</sup> edition)** | **Name (in code)** | **File**
 |:--------|:---------|:-------------------|:---------|:-----------|
 | 2.1     |  36      | Environment        | `Environment` | [`agents.py`](../master/agents.py) |
 | 2.1     |  36      | Agent              | `Agent` | [`agents.py`](../master/agents.py) |
