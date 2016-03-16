@@ -31,75 +31,79 @@ Here is a table of algorithms, the figure and page where they appear in the book
 | 2.8     | Reflex-Vacuum-Agent | `ReflexVacuumAgent` | [`agents.py`](../master/agents.py) |
 | 2.10    | Simple-Reflex-Agent | `SimpleReflexAgent` | [`agents.py`](../master/agents.py) |
 | 2.12    | Model-Based-Reflex-Agent | `ReflexAgentWithState` | [`agents.py`](../master/agents.py) |
-| 3.1     | Simple-Problem-Solving-Agent | `SimpleProblemSolvingAgent` | [`search.py`](../master/search.py) |
 | 3       | Problem            | `Problem` | [`search.py`](../master/search.py) |
-| 3.2     | Romania            | `romania` | [`search.py`](../master/search.py) |
 | 3       | Node               | `Node` | [`search.py`](../master/search.py) |
 | 3       | Queue              | `Queue` | [`utils.py`](../master/utils.py) |
+| 3.1     | Simple-Problem-Solving-Agent | `SimpleProblemSolvingAgent` | [`search.py`](../master/search.py) |
+| 3.2     | Romania            | `romania` | [`search.py`](../master/search.py) |
 | 3.7     | Tree-Search        | `tree_search` | [`search.py`](../master/search.py) |
 | 3.7     | Graph-Search        | `graph_search` | [`search.py`](../master/search.py) |
 | 3.11    | Breadth-First-Search        | `breadth_first_search` | [`search.py`](../master/search.py) |
 | 3.14    | Uniform-Cost-Search        | `uniform_cost_search` | [`search.py`](../master/search.py) |
 | 3.17    | Depth-Limited-Search | `depth_limited_search` | [`search.py`](../master/search.py) |
 | 3.18    | Iterative-Deepening-Search | `iterative_deepening_search` | [`search.py`](../master/search.py) |
-| 3.19    | Graph-Search       | `graph_search` | [`search.py`](../master/search.py) |
-| 4       | Best-First-Search  | `best_first_graph_search` | [`search.py`](../master/search.py) |
-| 4       | A\*-Search        | `astar_search` | [`search.py`](../master/search.py) |
+| 3.22    | Best-First-Search  | `best_first_graph_search` | [`search.py`](../master/search.py) |
+| 3.24    | A\*-Search        | `astar_search` | [`search.py`](../master/search.py) |
 | 3.26    | Recursive-Best-First-Search | `recursive_best_first_search` | [`search.py`](../master/search.py) |
 | 4.2     | Hill-Climbing      | `hill_climbing` | [`search.py`](../master/search.py) |
 | 4.5     | Simulated-Annealing | `simulated_annealing` | [`search.py`](../master/search.py) |
 | 4.8     | Genetic-Algorithm  | `genetic_algorithm` | [`search.py`](../master/search.py) |
+| 4.11    | And-Or-Graph-Search | `and_or_graph_search` | [`search.py`](../master/search.py)  |
 | 4.21    | Online-DFS-Agent   | `online_dfs_agent` | [`search.py`](../master/search.py) |
-| 4.24    | LRTA\*-Agent      | `lrta_star_agent` | [`search.py`](../master/search.py) |
-| 5       | CSP                | `CSP` | [`csp.py`](../master/csp.py) |
+| 4.24    | LRTA\*-Agent       | `lrta_star_agent` | [`search.py`](../master/search.py) |
 | 5.3     | Minimax-Decision   | `minimax_decision` | [`games.py`](../master/games.py) |
 | 5.7     | Alpha-Beta-Search  | `alphabeta_search` | [`games.py`](../master/games.py) |
+| 6       | CSP                | `CSP` | [`csp.py`](../master/csp.py) |
+| 6.3     | AC-3               | `AC3` | [`csp.py`](../master/csp.py) |
+| 6.5     | Backtracking-Search | `backtracking_search` | [`csp.py`](../master/csp.py) |
+| 6.8     | Min-Conflicts      | `min_conflicts` | [`csp.py`](../master/csp.py) |
+| 6.11    | Tree-CSP-Solver    | `tree_csp_solver` | [`csp.py`](../master/csp.py) |
 | 7       | KB                 | `KB` | [`logic.py`](../master/logic.py) |
-| 6.1     | KB-Agent           | `KB_Agent` | [`logic.py`](../master/logic.py) |
-| 6.7     | Propositional Logic Sentence | `Expr` | [`logic.py`](../master/logic.py) |
-| 6.10    | TT-Entails         | `tt_entials` | [`logic.py`](../master/logic.py) |
-| 7       | Convert to CNF     | `to_cnf` | [`logic.py`](../master/logic.py) |
-| 6.12    | PL-Resolution      | `pl_resolution` | [`logic.py`](../master/logic.py) |
-| 6.15    | PL-FC-Entails?     | `pl_fc_resolution` | [`logic.py`](../master/logic.py) |
-| 6.17    | DPLL-Satisfiable?  | `dpll_satisfiable` | [`logic.py`](../master/logic.py) |
-| 6.18    | WalkSAT            | `WalkSAT` | [`logic.py`](../master/logic.py) |
-| 6.20    | Hybrid-Wumpus-Agent    | `HybridWumpusAgent` | [`logic.py`](../master/logic.py) |
-| 6.22    | SATPlan            |          |
-| 7.3     | AC-3               | `AC3` | [`csp.py`](../master/csp.py) |
-| 7.5     | Backtracking-Search | `backtracking_search` | [`csp.py`](../master/csp.py) |
-| 7.8     | Min-Conflicts      | `min_conflicts` | [`csp.py`](../master/csp.py) |
+| 7.1     | KB-Agent           | `KB_Agent` | [`logic.py`](../master/logic.py) |
+| 7.7     | Propositional Logic Sentence | `Expr` | [`logic.py`](../master/logic.py) |
+| 7.10    | TT-Entails         | `tt_entials` | [`logic.py`](../master/logic.py) |
+| 7.12    | PL-Resolution      | `pl_resolution` | [`logic.py`](../master/logic.py) |
+| 7.14    | Convert to CNF     | `to_cnf` | [`logic.py`](../master/logic.py) |
+| 7.15    | PL-FC-Entails?     | `pl_fc_resolution` | [`logic.py`](../master/logic.py) |
+| 7.17    | DPLL-Satisfiable?  | `dpll_satisfiable` | [`logic.py`](../master/logic.py) |
+| 7.18    | WalkSAT            | `WalkSAT` | [`logic.py`](../master/logic.py) |
+| 7.20    | Hybrid-Wumpus-Agent    | `HybridWumpusAgent` | [`logic.py`](../master/logic.py) |
+| 7.22    | SATPlan            |          |
 | 9       | Subst              | `subst` | [`logic.py`](../master/logic.py) |
 | 9.1     | Unify              | `unify` | [`logic.py`](../master/logic.py) |
 | 9.3     | FOL-FC-Ask         | `fol_fc_ask` | [`logic.py`](../master/logic.py) |
 | 9.6     | FOL-BC-Ask         | `fol_bc_ask` | [`logic.py`](../master/logic.py) |
-| 9.14    | Otter              |          |
+| 9.8     | Append             |            |              |
 | 10.1    | Air-Cargo-problem    |          |
 | 10.2    | Spare-Tire-Problem |          |
 | 10.3    | Three-Block-Tower  |          |
-| 11      | Partial-Order-Planner |          |
 | 10.7    | Cake-Problem       |          |
 | 10.9    | Graphplan          |          |
-| 12.1    | Job-Shop-Problem   |          |
+| 10.13   | Partial-Order-Planner |          |
 | 11.1    | Job-Shop-Problem-With-Resources |          |
-| 12.6    | House-Building-Problem |          |
-| 12.10   | And-Or-Graph-Search | `and_or_graph_search` | [`search.py`](../master/search.py)  |
-| 12.22   | Continuous-POP-Agent |          |
-| 12.23   | Doubles-tennis     |          |
-| 13.1    | DT-Agent           | `DTAgent` | [`probability.py`](../master/probability.py) |
+| 11.5    | Hierarchical-Search |          |
+| 11.8    | Angelic-Search   |          |
+| \*12.6    | House-Building-Problem |          |
+| \*12.22   | Continuous-POP-Agent |          |
+| 11.10   | Doubles-tennis     |          |
 | 13      | Discrete Probability Distribution | `DiscreteProbDist` | [`probability.py`](../master/probability.py) |
-| 13.4    | Enumerate-Joint-Ask | `enumerate_joint_ask` | [`probability.py`](../master/probability.py) |
+| 13.1    | DT-Agent           | `DTAgent` | [`probability.py`](../master/probability.py) |
+| \*13.4    | Enumerate-Joint-Ask | `enumerate_joint_ask` | [`probability.py`](../master/probability.py) |
+| 14.9    | Enumeration-Ask    | `enumeration_ask` | [`probability.py`](../master/probability.py) |
 | 14.11   | Elimination-Ask    | `elimination_ask` | [`probability.py`](../master/probability.py) |
 | 14.13   | Prior-Sample       | `prior_sample` | [`probability.py`](../master/probability.py) |
 | 14.14   | Rejection-Sampling | `rejection_sampling` | [`probability.py`](../master/probability.py) |
 | 14.15   | Likelihood-Weighting | `likelihood_weighting` | [`probability.py`](../master/probability.py) |
-| 14.15   | MCMC-Ask           |          |
+| 14.16   | Gibbs-Ask           |          |
 | 15.4    | Forward-Backward   | `forward_backward` | [`probability.py`](../master/probability.py) |
 | 15.6    | Fixed-Lag-Smoothing | `fixed_lag_smoothing` | [`probability.py`](../master/probability.py) |
 | 15.17   | Particle-Filtering | `particle_filtering` | [`probability.py`](../master/probability.py) |
 | 16.9    | Information-Gathering-Agent |          |
 | 17.4    | Value-Iteration    | `value_iteration` | [`mdp.py`](../master/mdp.py) |
 | 17.7    | Policy-Iteration   | `policy_iteration` | [`mdp.py`](../master/mdp.py) |
+| 17.7    | POMDP-Value-Iteration  |           |        |
 | 18.5    | Decision-Tree-Learning | `DecisionTreeLearner` | [`learning.py`](../master/learning.py) |
+| 18.8    | Cross-Validation   | `cross_validation` | [`learning.py`](../master/learning.py) |
 | 18.11   | Decision-List-Learning |          |
 | 18.24   | Back-Prop-Learning |          |
 | 18.34   | AdaBoost           | `AdaBoost` | [`learning.py`](../master/learning.py) |
@@ -107,14 +111,15 @@ Here is a table of algorithms, the figure and page where they appear in the book
 | 19.3    | Version-Space-Learning |          |
 | 19.8    | Minimal-Consistent-Det |          |
 | 19.12   | FOIL               |          |
-| 20.21   | Perceptron-Learning | `PerceptronLearner` | [`learning.py`](../master/learning.py) |
-| 22.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`](../master/rl.py) |
-| 22.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`](../master/rl.py) |
-| 22.8    | Q-Learning-Agent   |          |
-| 22.2    | Naive-Communicating-Agent |          |
-| 22.7    | Chart-Parse        | `Chart` | [`nlp.py`](../master/nlp.py) |
-| 23.1    | Viterbi-Segmentation | `viterbi_segment` | [`text.py`](../master/text.py) |
-| 24.21   | Align              |          |
+| 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`](../master/rl.py) |
+| 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`](../master/rl.py) |
+| 21.8    | Q-Learning-Agent   |          |
+| \*21.2    | Naive-Communicating-Agent |          |
+| 22.1    | HITS               |         |         |
+| 23      | Chart-Parse        | `Chart` | [`nlp.py`](../master/nlp.py) |
+| 23.5    | CYK-Parse          |         |         |
+| \*23.1    | Viterbi-Segmentation | `viterbi_segment` | [`text.py`](../master/text.py) |
+| \*24.21   | Align              |          |
 | 25.9    | Monte-Carlo-Localization|       |
 
 
