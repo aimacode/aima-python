@@ -15,8 +15,7 @@ def test_removeall_list():
 
 def test_removeall_string():
     assert removeall('s', '') == ''
-    assert removeall(
-        's', 'This is a test. Was a test.') == 'Thi i a tet. Wa a tet.'
+    assert removeall('s', 'This is a test. Was a test.') == 'Thi i a tet. Wa a tet.'
 
 
 def test_unique():
@@ -85,6 +84,10 @@ def test_histogram():
 
 def test_dotproduct():
     assert dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
+
+def test_element_wise_product():
+    assert element_wise_product([1, 2, 5], [7, 10, 0]) == [7, 20, 0]
+    assert element_wise_product([1, 6, 3, 0], [9, 12, 0, 0]) == [9, 72, 0, 0]
 
 
 def test_vector_add():

@@ -524,15 +524,7 @@ def markov_blanket_sample(X, e, bn):
 
 # _________________________________________________________________________
 
-"""
-umbrella_evidence = [T, T, F, T, T]
-umbrella_prior = [0.5, 0.5]
-umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
-umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
-umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
-
-print(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior))
-"""
+# Umbrella Example [Fig. 15.2]
 
 class HiddenMarkovModel:
 
@@ -568,7 +560,19 @@ def backward(HMM, b, ev):
 
 
 def forward_backward(HMM, ev, prior):
-    """[Fig. 15.4]"""
+    """[Fig. 15.4]
+    Forward-Backward algorithm for smoothing. Computes posterior probabilities
+    of a sequence of states given a sequence of observations.
+
+    umbrella_evidence = [T, T, F, T, T]
+    umbrella_prior = [0.5, 0.5]
+    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
+    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
+    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
+
+    >>> forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)
+    [[0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]]
+    """
     t = len(ev)
     ev.insert(0, None)  # to make the code look similar to pseudo code
 
@@ -587,6 +591,7 @@ def forward_backward(HMM, ev, prior):
         bv.append(b)
 
     sv = sv[::-1]
+    # to have only 4 digits after decimal point
     for i in range(len(sv)):
         for j in range(len(sv[i])):
             sv[i][j] = float("{0:.4f}".format(sv[i][j]))
