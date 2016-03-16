@@ -51,8 +51,7 @@ class Thing(object):
     .__name__  slot (used for output only)."""
 
     def __repr__(self):
-        return '<{}>'.format(getattr(self, '__name__',
-                                     self.__class__.__name__))
+        return '<{}>'.format(getattr(self, '__name__', self.__class__.__name__))
 
     def is_alive(self):
         "Things that are 'alive' should return true."
@@ -309,10 +308,8 @@ class Environment(object):
         except(ValueError, e):
             print(e)
             print("  in Environment delete_thing")
-            print("  Thing to be removed: {} at {}" .format(thing,
-                                                            thing.location))
-            print("  from list: {}" .format([(thing, thing.location)
-                                             for thing in self.things]))
+            print("  Thing to be removed: {} at {}" .format(thing, thing.location))
+            print("  from list: {}" .format([(thing, thing.location) for thing in self.things]))
         if thing in self.agents:
             self.agents.remove(thing)
 
