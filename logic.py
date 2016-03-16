@@ -111,7 +111,7 @@ def KB_AgentProgram(KB):
         return Expr("Percept")(percept, t)
 
     def make_action_query(self, t):
-        return expr("ShouldDo(action, %d)" % t)
+        return expr("ShouldDo(action, {})".format(t))
 
     def make_action_sentence(self, action, t):
         return Expr("Did")(action[expr('action')], t)
@@ -185,11 +185,11 @@ class Expr:
         if not self.args:         # Constant or proposition with arity 0
             return str(self.op)
         elif is_symbol(self.op):  # Functional or propositional operator
-            return '%s(%s)' % (self.op, ', '.join(map(repr, self.args)))
+            return '{}({})'.format(self.op, ', '.join(map(repr, self.args)))
         elif len(self.args) == 1:  # Prefix operator
             return self.op + repr(self.args[0])
         else:                     # Infix operator
-            return '(%s)' % (' '+self.op+' ').join(map(repr, self.args))
+            return '({})'.format((' '+self.op+' ').join(map(repr, self.args)))
 
     def __eq__(self, other):
         """x and y are equal iff their ops and args are equal."""
@@ -986,7 +986,7 @@ def standardize_variables(sentence, dic=None):
         if sentence in dic:
             return dic[sentence]
         else:
-            v = Expr('v_%d' % next(standardize_variables.counter))
+            v = Expr('v_{}'.format(next(standardize_variables.counter)))
             dic[sentence] = v
             return v
     else:
@@ -1020,7 +1020,7 @@ class FolKB(KB):
         if is_definite_clause(sentence):
             self.clauses.append(sentence)
         else:
-            raise Exception("Not a definite clause: %s" % sentence)
+            raise Exception("Not a definite clause: {}".format(sentence))
 
     def ask_generator(self, query):
         return fol_bc_ask(self, query)
@@ -1037,7 +1037,7 @@ def test_ask(query, kb=None):
     vars = variables(q)
     answers = fol_bc_ask(kb or test_kb, q)
     return sorted(
-            [pretty(dict((x, v) for x, v in list(a.items()) if x in vars))
+            [dict((x, v) for x, v in list(a.items()) if x in vars)
              for a in answers],  key=repr)
 
 test_kb = FolKB(
@@ -1146,7 +1146,7 @@ def diff(y, x):
         elif op == 'log':
             return diff(u, x) / u
         else:
-            raise ValueError("Unknown op: %s in diff(%s, %s)" % (op, y, x))
+            raise ValueError("Unknown op: {} in diff({}, {})".format(op, y, x))
 
 
 def simp(x):
@@ -1222,52 +1222,9 @@ def d(y, x):
 # to compensate for the random order in the standard representation
 
 
-def pretty(x):
-    t = type(x)
-    if t is dict:
-        return pretty_dict(x)
-    elif t is set:
-        return pretty_set(x)
-    else:
-        return repr(x)
 
 
-def pretty_dict(d):
-    """Return dictionary d's repr but with the items sorted.
-    >>> pretty_dict({'m': 'M', 'a': 'A', 'r': 'R', 'k': 'K'})
-    "{'a': 'A', 'k': 'K', 'm': 'M', 'r': 'R'}"
-    >>> pretty_dict({z: C, y: B, x: A})
-    '{x: A, y: B, z: C}'
-    """
-    return '{%s}' % ', '.join('%r: %r' % (k, v)
-                              for k, v in sorted(list(d.items()), key=repr))
 
-
-def pretty_set(s):
-    """Return set s's repr but with the items sorted.
-    >>> pretty_set(set(['A', 'Q', 'F', 'K', 'Y', 'B']))
-    "set(['A', 'B', 'F', 'K', 'Q', 'Y'])"
-    >>> pretty_set(set([z, y, x]))
-    'set([x, y, z])'
-    """
-    return 'set(%r)' % sorted(s, key=repr)
-
-
-def pp(x):
-    print(pretty(x))
-
-
-def ppsubst(s):
-    """Pretty-print substitution s"""
-    ppdict(s)
-
-
-def ppdict(d):
-    print(pretty_dict(d))
-
-
-def ppset(s):
-    print(pretty_set(s))
 
 # ________________________________________________________________________
 
