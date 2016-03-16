@@ -1,6 +1,5 @@
 import pytest
 from search import *  # noqa
-from random import choice #noqa
 
 
 romania = GraphProblem('Arad', 'Bucharest', Fig[3, 2])

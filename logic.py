@@ -160,12 +160,6 @@ class Expr:
         (3) (x % y) and (x ^ y).
             It is very ugly to have (x % y) mean (x <=> y), but we need
             SOME operator to make (2) work, and this seems the best choice.
-
-    WARNING: if x is an Expr, then so is x + 1, because the int 1 gets
-    coerced to an Expr by the constructor.  But 1 + x is an error, because
-    1 doesn't know how to add an Expr.  (Adding an __radd__ method to Expr
-    wouldn't help, because int.__add__ is still called first.) Therefore,
-    you should use Expr(1) + x instead, or ONE + x, or expr('1 + x').
     """
 
     def __init__(self, op, *args):
@@ -216,6 +210,8 @@ class Expr:
 
     def __add__(self, other): return Expr('+',  self, other)
 
+    def __radd__(self, other): return Expr('+', other, self)
+
     def __sub__(self, other): return Expr('-',  self, other)
 
     def __and__(self, other): return Expr('&',  self, other)
@@ -253,10 +249,6 @@ def expr(s):
       'x =/= y'   parses as   (x ^ y)     # Logical disequality (xor)
     But BE CAREFUL; precedence of implication is wrong. expr('P & Q ==> R & S')
     is ((P & (Q >> R)) & S); so you must use expr('(P & Q) ==> (R & S)').
-    >>> expr('P <=> Q(1)')
-    (P <=> Q(1))
-    >>> expr('P & Q | ~R(x, F(x))')
-    ((P & Q) | ~R(x, F(x)))
     """
     if isinstance(s, Expr):
         return s
@@ -539,7 +531,7 @@ def distribute_and_over_or(s):
             return FALSE
         if len(s.args) == 1:
             return distribute_and_over_or(s.args[0])
-        conj = find_if((lambda d: d.op == '&'), s.args)
+        conj = first(arg for arg in s.args if arg.op == '&')
         if not conj:
             return s
         others = [a for a in s.args if a is not conj]
@@ -1031,7 +1023,7 @@ class FolKB(KB):
     def fetch_rules_for_goal(self, goal):
         return self.clauses
 
-
+"""  TODO Rename test_ask to remove test from the name(or tell pytest to ignore it)
 def test_ask(query, kb=None):
     q = expr(query)
     vars = variables(q)
@@ -1039,6 +1031,7 @@ def test_ask(query, kb=None):
     return sorted(
             [dict((x, v) for x, v in list(a.items()) if x in vars)
              for a in answers],  key=repr)
+"""
 
 test_kb = FolKB(
     list(map(expr, ['Farmer(Mac)',
@@ -1229,88 +1222,3 @@ def d(y, x):
 # ________________________________________________________________________
 
 
-class logicTest:
-
-    """
-### PropKB
->>> kb = PropKB()
->>> kb.tell(A & B)
->>> kb.tell(B >> C)
->>> kb.ask(C) ## The result {} means true, with no substitutions
-{}
->>> kb.ask(P)
-False
->>> kb.retract(B)
->>> kb.ask(C)
-False
-
->>> pl_true(P, {})
->>> pl_true(P | Q, {P: True})
-True
-
-# Notice that the function pl_true cannot reason by cases:
->>> pl_true(P | ~P)
-
-# However, tt_true can:
->>> tt_true(P | ~P)
-True
-
-# The following are tautologies from [Fig. 7.11]:
->>> tt_true("(A & B) <=> (B & A)")
-True
->>> tt_true("(A | B) <=> (B | A)")
-True
->>> tt_true("((A & B) & C) <=> (A & (B & C))")
-True
->>> tt_true("((A | B) | C) <=> (A | (B | C))")
-True
->>> tt_true("~~A <=> A")
-True
->>> tt_true("(A >> B) <=> (~B >> ~A)")
-True
->>> tt_true("(A >> B) <=> (~A | B)")
-True
->>> tt_true("(A <=> B) <=> ((A >> B) & (B >> A))")
-True
->>> tt_true("~(A & B) <=> (~A | ~B)")
-True
->>> tt_true("~(A | B) <=> (~A & ~B)")
-True
->>> tt_true("(A & (B | C)) <=> ((A & B) | (A & C))")
-True
->>> tt_true("(A | (B & C)) <=> ((A | B) & (A | C))")
-True
-
-# The following are not tautologies:
->>> tt_true(A & ~A)
-False
->>> tt_true(A & B)
-False
-
-### An earlier version of the code failed on this:
->>> dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F) & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D))  # noqa
-{B: False, C: True, A: True, F: False, D: True, E: False}
-
-### [Fig. 7.13]
->>> alpha = expr("~P12")
->>> to_cnf(Fig[7,13] & ~alpha)
-((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)
->>> tt_entails(Fig[7,13], alpha)
-True
->>> pl_resolution(PropKB(Fig[7,13]), alpha)
-True
-
-### [Fig. 7.15]
->>> pl_fc_entails(Fig[7,15], expr('SomethingSilly'))
-False
-
-### Unification:
->>> unify(x, x, {})
-{}
->>> unify(x, 3, {})
-{x: 3}
-
-
->>> to_cnf((P&Q) | (~P & ~Q))
-((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))
-"""
