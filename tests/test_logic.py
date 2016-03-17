@@ -65,7 +65,10 @@ def test_tt_entails():
     assert tt_entails(P & Q, Q)
     assert not tt_entails(P | Q, Q)
     assert tt_entails(A & (B | C) & E & F & ~(P | Q), A & E & F & ~P & ~Q)
-    assert tt_entails(Fig[7,13], alpha)
+
+def test_eliminate_implications():
+    assert repr(eliminate_implications(A >> (~B << C))) == '((~B | ~C) | ~A)'
+    assert repr(eliminate_implications(A ^ B)) == '((A & ~B) | (~A & B))'
 
 
 if __name__ == '__main__':

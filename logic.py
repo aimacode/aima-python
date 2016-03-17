@@ -54,7 +54,7 @@ class KB:
         raise NotImplementedError
 
     def ask(self, query):
-        """Return ma substitution that makes the query true, or,
+        """Return a substitution that makes the query true, or,
         failing that, return False."""
         for result in self.ask_generator(query):
             return result
@@ -130,7 +130,7 @@ class Expr:
         A number, representing the number itself.  (e.g. Expr(42) => 42)
         A symbol, representing a variable or constant (e.g. Expr('F') => F)
       Unary (1 arg) op:
-         '~', '-', representing NOT, negation (e.g. Expr('~', Expr('P')) => ~P)
+        '~', '-', representing NOT, negation (e.g. Expr('~', Expr('P')) => ~P)
       Binary (2 arg) op:
         '>>', '<<', representing forward and backward implication
         '+', '-', '*', '/', '**', representing arithmetic operators
