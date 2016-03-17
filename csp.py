@@ -105,9 +105,7 @@ class CSP(search.Problem):
         "The goal is to assign all vars, with all constraints satisfied."
         assignment = dict(state)
         return (len(assignment) == len(self.vars) and
-                every(lambda var: self.nconflicts(var, assignment[var],
-                                                  assignment) == 0,
-                      self.vars))
+                every(lambda x: self.nconflicts(x, assignment[x], assignment) == 0, self.x))
 
     # These are for constraint propagation
 
@@ -115,8 +113,7 @@ class CSP(search.Problem):
         """Make sure we can prune values from domains. (We want to pay
         for this only if we use it.)"""
         if self.curr_domains is None:
-            self.curr_domains = dict((v, list(self.domains[v]))
-                                     for v in self.vars)
+            self.curr_domains = dict((v, list(self.domains[v])) for v in self.vars)
 
     def suppose(self, var, value):
         "Start accumulating inferences from assuming var=value."
@@ -590,12 +587,10 @@ class Sudoku(CSP):
                        for var, ch in zip(flatten(self.rows), squares))
         for _ in squares:
             raise ValueError("Not a Sudoku grid", grid)  # Too many squares
-        CSP.__init__(self, None, domains, self.neighbors,
-                     different_values_constraint)
+        CSP.__init__(self, None, domains, self.neighbors, different_values_constraint)
 
     def display(self, assignment):
-        def show_box(box): return [
-            ' '.join(map(show_cell, row)) for row in box]
+        def show_box(box): return [' '.join(map(show_cell, row)) for row in box]
 
         def show_cell(cell): return str(assignment.get(cell, '.'))
 
