@@ -524,11 +524,81 @@ def markov_blanket_sample(X, e, bn):
 
 # _________________________________________________________________________
 
+# Umbrella Example [Fig. 15.2]
 
-def forward_backward(ev, prior):
-    """[Fig. 15.4]"""
-    unimplemented()
+class HiddenMarkovModel:
 
+    """ A Hidden markov model which takes Transition model and Sensor model as inputs"""
+
+    def __init__(self, transition_model, sensor_model):
+        self.transition_model = transition_model
+        self.sensor_model = sensor_model
+
+    def transition_model(self):
+        return self.transition_model
+
+    def sensor_dist(self, ev):
+        if ev is True:
+            return self.sensor_model[0]
+        else:
+            return self.sensor_model[1]
+
+
+def forward(HMM, fv, ev):
+    prediction = vector_add(scalar_vector_product(fv[0], HMM.transition_model[0]),
+                                scalar_vector_product(fv[1], HMM.transition_model[1]))
+    sensor_dist = HMM.sensor_dist(ev)
+
+    return(normalize(element_wise_product(sensor_dist, prediction)))
+
+def backward(HMM, b, ev):
+    sensor_dist = HMM.sensor_dist(ev)
+    prediction = element_wise_product(sensor_dist, b)
+
+    return(normalize(vector_add(scalar_vector_product(prediction[0], HMM.transition_model[0]),
+                                 scalar_vector_product(prediction[1], HMM.transition_model[1]))))
+
+
+def forward_backward(HMM, ev, prior):
+    """[Fig. 15.4]
+    Forward-Backward algorithm for smoothing. Computes posterior probabilities
+    of a sequence of states given a sequence of observations.
+
+    umbrella_evidence = [T, T, F, T, T]
+    umbrella_prior = [0.5, 0.5]
+    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
+    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
+    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
+
+    >>> forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)
+    [[0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]]
+    """
+    t = len(ev)
+    ev.insert(0, None)  # to make the code look similar to pseudo code
+
+    fv = [[0.0, 0.0] for i in range(len(ev))]
+    b = [1.0, 1.0]
+    bv = [b]    # we don't need bv; but we will have a list of all backward messages here
+    sv = [[0, 0] for i in range(len(ev))]
+
+    fv[0] = prior
+
+    for i in range(1, t+ 1):
+        fv[i] = forward(HMM, fv[i- 1], ev[i])
+    for i in range(t, -1, -1):
+        sv[i- 1] = normalize(element_wise_product(fv[i], b))
+        b = backward(HMM, b, ev[i])
+        bv.append(b)
+
+    sv = sv[::-1]
+    # to have only 4 digits after decimal point
+    for i in range(len(sv)):
+        for j in range(len(sv[i])):
+            sv[i][j] = float("{0:.4f}".format(sv[i][j]))
+
+    return(sv)
+
+# _________________________________________________________________________
 
 def fixed_lag_smoothing(e_t, hmm, d):
     """[Fig. 15.6]"""

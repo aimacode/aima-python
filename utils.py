@@ -167,6 +167,12 @@ def dotproduct(X, Y):
     return sum(x * y for x, y in zip(X, Y))
 
 
+def element_wise_product(X, Y):
+    """Return vector as an element-wise product of vectors x and y"""
+    assert len(X) == len(Y)
+    return(list(x * y for x, y in zip(X, Y)))
+
+
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
     return tuple(map(operator.add, a, b))
