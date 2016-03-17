@@ -603,9 +603,45 @@ def PerceptronLearner(dataset, learning_rate=0.01, epoches=100):
 # ______________________________________________________________________________
 
 
-def Linearlearner(dataset):
-    """Fit a linear model to the data."""
-    unimplemented()
+def Linearlearner(dataset, learning_rate=0.01, epochs=100):
+    """
+    >>> learner = Linearlearner(data)
+    >>> learner(x)
+    y
+    """
+    idx_i = dataset.inputs
+    idx_t = dataset.target     # As of now, dataset.target gives only one index.
+    examples = dataset.examples
+
+    # X transpose
+    X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
+
+    # Add dummy
+    ones = [1 for i in range(len(examples))]
+    X_col = ones + X_col
+
+    # Initialize random weigts
+    w = [random(-0.5, 0.5) for i in range(len(idx_i) + 1)]
+
+    for epoch in range(epochs):
+        err = []
+        # Pass over all examples
+        for example in examples:
+            x = [example[i] for i in range(idx_i)]
+            x = [1] + x
+            y = dotproduct(w, x)
+            t = example[idx_t]
+            err.append(t - y)
+
+        # update weights
+        for i in range(len(w)):
+            w[i] = w[i] - dotproduct(err, X_col[i])
+
+    def predict(example):
+        x = [1] + example
+        return dotproduct(w, x)
+    return predict
+
 # ______________________________________________________________________________
 
 
