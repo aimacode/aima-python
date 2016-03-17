@@ -61,7 +61,7 @@ def test_pl_fc_entails():
     assert pl_fc_entails(Fig[7,15], expr('Q'))
     assert not pl_fc_entails(Fig[7,15], expr('SomethingSilly'))
 
-def tt_entails():
+def test_tt_entails():
     assert tt_entails(P & Q, Q)
     assert not tt_entails(P | Q, Q)
     assert tt_entails(A & (B | C) & E & F & ~(P | Q), A & E & F & ~P & ~Q)
