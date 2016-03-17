@@ -605,9 +605,72 @@ def fixed_lag_smoothing(e_t, hmm, d):
     unimplemented()
 
 
-def particle_filtering(e, N, dbn):
-    """[Fig. 15.17]"""
-    unimplemented()
+def particle_filtering(e, N, HMM):
+    """
+    Particle filtering considering two states variables
+    N = 10
+    umbrella_evidence = T
+    umbrella_prior = [0.5, 0.5]
+    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
+    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
+    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
+
+    >>> particle_filtering(umbrella_evidence, N, umbrellaHMM)
+    ['A', 'A', 'A', 'B', 'A', 'A', 'B', 'A', 'A', 'A', 'B']
+    
+    NOTE: Output is an probabilistic answer, therfore can vary
+    """
+    s = []
+    dist = [0.5, 0.5]
+    # State Initialization
+    s = ['A' if probability(dist[0]) else 'B' for i in range(N)]
+    # Weight Initialization
+    w = [0 for i in range(N)]
+    # STEP 1
+    # Propagate one step using transition model given prior state
+    dist = vector_add(scalar_vector_product(dist[0], HMM.transition_model[0]),
+                                scalar_vector_product(dist[1], HMM.transition_model[1]))
+    # Assign state according to probability
+    s = ['A' if probability(dist[0]) else 'B' for i in range(N)]    
+    w_tot = 0
+    # Calculate importance weight given evidence e
+    for i in range(N):
+        if s[i] == 'A':
+            # P(U|A)*P(A)
+            w_i = HMM.sensor_dist(e)[0]*dist[0]
+        if s[i] == 'B':
+            # P(U|B)*P(B)
+            w_i = HMM.sensor_dist(e)[1]*dist[1]
+        w[i] = w_i
+        w_tot += w_i
+    
+    # Normalize all the weights
+    for i in range(N):
+        w[i] = w[i]/w_tot
+
+    # Limit weights to 4 digits
+    for i in range(N):
+        w[i] = float("{0:.4f}".format(w[i]))
+
+    # STEP 2
+    s = weighted_sample_with_replacement(N, s, w)
+    return s
+
+    
+def weighted_sample_with_replacement(N, s, w):
+    """
+    Performs Weighted sampling over the paricles given weights of each particle.
+    We keep on picking random states unitll we fill N number states in new distribution
+    """
+    s_wtd = []
+    cnt = 0    
+    while (cnt <= N):
+        # Generate a random number from 0 to N-1
+        i = random.randint(0, N-1)
+        if (probability(w[i])):
+            s_wtd.append(s[i])
+            cnt += 1
+    return s_wtd
 
 # _________________________________________________________________________
 __doc__ += """
