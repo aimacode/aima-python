@@ -526,6 +526,7 @@ def markov_blanket_sample(X, e, bn):
 
 # Umbrella Example [Fig. 15.2]
 
+
 class HiddenMarkovModel:
 
     """ A Hidden markov model which takes Transition model and Sensor model as inputs"""
@@ -546,17 +547,18 @@ class HiddenMarkovModel:
 
 def forward(HMM, fv, ev):
     prediction = vector_add(scalar_vector_product(fv[0], HMM.transition_model[0]),
-                                scalar_vector_product(fv[1], HMM.transition_model[1]))
+                            scalar_vector_product(fv[1], HMM.transition_model[1]))
     sensor_dist = HMM.sensor_dist(ev)
 
     return(normalize(element_wise_product(sensor_dist, prediction)))
+
 
 def backward(HMM, b, ev):
     sensor_dist = HMM.sensor_dist(ev)
     prediction = element_wise_product(sensor_dist, b)
 
     return(normalize(vector_add(scalar_vector_product(prediction[0], HMM.transition_model[0]),
-                                 scalar_vector_product(prediction[1], HMM.transition_model[1]))))
+                                scalar_vector_product(prediction[1], HMM.transition_model[1]))))
 
 
 def forward_backward(HMM, ev, prior):
@@ -571,7 +573,8 @@ def forward_backward(HMM, ev, prior):
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     >>> forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)
-    [[0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]]
+    [[0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796],
+     [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]]
     """
     t = len(ev)
     ev.insert(0, None)  # to make the code look similar to pseudo code
@@ -583,10 +586,10 @@ def forward_backward(HMM, ev, prior):
 
     fv[0] = prior
 
-    for i in range(1, t+ 1):
-        fv[i] = forward(HMM, fv[i- 1], ev[i])
+    for i in range(1, t + 1):
+        fv[i] = forward(HMM, fv[i - 1], ev[i])
     for i in range(t, -1, -1):
-        sv[i- 1] = normalize(element_wise_product(fv[i], b))
+        sv[i - 1] = normalize(element_wise_product(fv[i], b))
         b = backward(HMM, b, ev[i])
         bv.append(b)
 
@@ -599,6 +602,7 @@ def forward_backward(HMM, ev, prior):
     return(sv)
 
 # _________________________________________________________________________
+
 
 def fixed_lag_smoothing(e_t, hmm, d):
     """[Fig. 15.6]"""
@@ -617,7 +621,7 @@ def particle_filtering(e, N, HMM):
 
     >>> particle_filtering(umbrella_evidence, N, umbrellaHMM)
     ['A', 'A', 'A', 'B', 'A', 'A', 'B', 'A', 'A', 'A', 'B']
-    
+
     NOTE: Output is an probabilistic answer, therfore can vary
     """
     s = []
@@ -629,9 +633,9 @@ def particle_filtering(e, N, HMM):
     # STEP 1
     # Propagate one step using transition model given prior state
     dist = vector_add(scalar_vector_product(dist[0], HMM.transition_model[0]),
-                                scalar_vector_product(dist[1], HMM.transition_model[1]))
+                      scalar_vector_product(dist[1], HMM.transition_model[1]))
     # Assign state according to probability
-    s = ['A' if probability(dist[0]) else 'B' for i in range(N)]    
+    s = ['A' if probability(dist[0]) else 'B' for i in range(N)]
     w_tot = 0
     # Calculate importance weight given evidence e
     for i in range(N):
@@ -643,7 +647,7 @@ def particle_filtering(e, N, HMM):
             w_i = HMM.sensor_dist(e)[1]*dist[1]
         w[i] = w_i
         w_tot += w_i
-    
+
     # Normalize all the weights
     for i in range(N):
         w[i] = w[i]/w_tot
@@ -656,14 +660,14 @@ def particle_filtering(e, N, HMM):
     s = weighted_sample_with_replacement(N, s, w)
     return s
 
-    
+
 def weighted_sample_with_replacement(N, s, w):
     """
     Performs Weighted sampling over the paricles given weights of each particle.
     We keep on picking random states unitll we fill N number states in new distribution
     """
     s_wtd = []
-    cnt = 0    
+    cnt = 0
     while (cnt <= N):
         # Generate a random number from 0 to N-1
         i = random.randint(0, N-1)
