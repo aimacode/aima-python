@@ -52,11 +52,6 @@ def test_unify():
     assert unify(x, x, {}) == {}
     assert unify(x, 3, {}) == {x: 3}
 
-def test_to_cnf():
-    #assert to_cnf(Fig[7, 13] & ~expr('~P12')) BUG - FAILING THIS TEST DUE TO AN ERROR
-    assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
-    pass
-
 def test_pl_fc_entails():
     assert pl_fc_entails(Fig[7,15], expr('Q'))
     assert not pl_fc_entails(Fig[7,15], expr('SomethingSilly'))
@@ -69,6 +64,20 @@ def test_tt_entails():
 def test_eliminate_implications():
     assert repr(eliminate_implications(A >> (~B << C))) == '((~B | ~C) | ~A)'
     assert repr(eliminate_implications(A ^ B)) == '((A & ~B) | (~A & B))'
+    assert repr(eliminate_implications(A & B | C & ~D)) == '((A & B) | (C & ~D))'
+
+def test_associate():
+    assert repr(associate('&', [(A&B),(B|C),(B&C)])) == '(A & B & (B | C) & B & C)'
+    assert repr(associate('|', [A|(B|(C|(A&B)))])) == '(A | B | C | (A & B))'
+
+def test_move_not_inwards():
+    assert repr(move_not_inwards(~(A | B))) == '(~A & ~B)'
+    assert repr(move_not_inwards(~(A & B))) == '(~A | ~B)'
+    assert repr(move_not_inwards(~(~(A | ~B) | ~~C))) == '((A | ~B) & ~C)'
+
+def test_to_cnf():
+    assert repr(to_cnf(Fig[7, 13] & ~expr('~P12'))) == '((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)'
+    assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
 
 
 if __name__ == '__main__':

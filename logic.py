@@ -504,7 +504,7 @@ def move_not_inwards(s):
     ((A | ~B) & ~C)
     """
     if s.op == '~':
-        def NOT(b): move_not_inwards(~b)  # noqa
+        def NOT(b): return move_not_inwards(~b)  # noqa
         a = s.args[0]
         if a.op == '~':
             return move_not_inwards(a.args[0])  # ~~A ==> A
