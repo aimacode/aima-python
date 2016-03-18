@@ -920,7 +920,7 @@ def occur_check(var, x, s):
         return (occur_check(var, x.op, s) or
                 occur_check(var, x.args, s))
     elif isinstance(x, (list, tuple)):
-        return some(lambda element: occur_check(var, element, s), x)
+        return first([e for e in x if occur_check(var, e, s)])
     else:
         return False
 
@@ -1025,15 +1025,6 @@ class FolKB(KB):
     def fetch_rules_for_goal(self, goal):
         return self.clauses
 
-"""  TODO Rename test_ask to remove test from the name(or tell pytest to ignore it)
-def test_ask(query, kb=None):
-    q = expr(query)
-    vars = variables(q)
-    answers = fol_bc_ask(kb or test_kb, q)
-    return sorted(
-            [dict((x, v) for x, v in list(a.items()) if x in vars)
-             for a in answers],  key=repr)
-"""
 
 test_kb = FolKB(
     list(map(expr, ['Farmer(Mac)',
