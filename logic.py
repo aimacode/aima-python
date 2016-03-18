@@ -214,6 +214,8 @@ class Expr:
 
     def __sub__(self, other): return Expr('-',  self, other)
 
+    def __rsub__(self, other): return Expr('-',  other, self)
+
     def __and__(self, other): return Expr('&',  self, other)
 
     def __div__(self, other): return Expr('/',  self, other)
@@ -502,7 +504,7 @@ def move_not_inwards(s):
     ((A | ~B) & ~C)
     """
     if s.op == '~':
-        def NOT(b): move_not_inwards(~b)  # noqa
+        def NOT(b): return move_not_inwards(~b)  # noqa
         a = s.args[0]
         if a.op == '~':
             return move_not_inwards(a.args[0])  # ~~A ==> A
@@ -918,7 +920,7 @@ def occur_check(var, x, s):
         return (occur_check(var, x.op, s) or
                 occur_check(var, x.args, s))
     elif isinstance(x, (list, tuple)):
-        return some(lambda element: occur_check(var, element, s), x)
+        return first([e for e in x if occur_check(var, e, s)])
     else:
         return False
 
@@ -1023,15 +1025,6 @@ class FolKB(KB):
     def fetch_rules_for_goal(self, goal):
         return self.clauses
 
-"""  TODO Rename test_ask to remove test from the name(or tell pytest to ignore it)
-def test_ask(query, kb=None):
-    q = expr(query)
-    vars = variables(q)
-    answers = fol_bc_ask(kb or test_kb, q)
-    return sorted(
-            [dict((x, v) for x, v in list(a.items()) if x in vars)
-             for a in answers],  key=repr)
-"""
 
 test_kb = FolKB(
     list(map(expr, ['Farmer(Mac)',

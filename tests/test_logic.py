@@ -52,20 +52,51 @@ def test_unify():
     assert unify(x, x, {}) == {}
     assert unify(x, 3, {}) == {x: 3}
 
-def test_to_cnf():
-    #assert to_cnf(Fig[7, 13] & ~expr('~P12')) BUG - FAILING THIS TEST DUE TO AN ERROR
-    assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
-    pass
-
 def test_pl_fc_entails():
     assert pl_fc_entails(Fig[7,15], expr('Q'))
     assert not pl_fc_entails(Fig[7,15], expr('SomethingSilly'))
 
-def tt_entails():
+def test_tt_entails():
     assert tt_entails(P & Q, Q)
     assert not tt_entails(P | Q, Q)
     assert tt_entails(A & (B | C) & E & F & ~(P | Q), A & E & F & ~P & ~Q)
-    assert tt_entails(Fig[7,13], alpha)
+
+def test_eliminate_implications():
+    assert repr(eliminate_implications(A >> (~B << C))) == '((~B | ~C) | ~A)'
+    assert repr(eliminate_implications(A ^ B)) == '((A & ~B) | (~A & B))'
+    assert repr(eliminate_implications(A & B | C & ~D)) == '((A & B) | (C & ~D))'
+
+def test_dissociate():
+    assert dissociate('&', [A & B]) == [A, B]
+    assert dissociate('|', [A, B, C & D, P | Q]) == [A, B, C & D, P, Q]
+    assert dissociate('&', [A, B, C & D, P | Q]) == [A, B, C, D, P | Q]
+
+def test_associate():
+    assert repr(associate('&', [(A&B),(B|C),(B&C)])) == '(A & B & (B | C) & B & C)'
+    assert repr(associate('|', [A|(B|(C|(A&B)))])) == '(A | B | C | (A & B))'
+
+def test_move_not_inwards():
+    assert repr(move_not_inwards(~(A | B))) == '(~A & ~B)'
+    assert repr(move_not_inwards(~(A & B))) == '(~A | ~B)'
+    assert repr(move_not_inwards(~(~(A | ~B) | ~~C))) == '((A | ~B) & ~C)'
+
+def test_to_cnf():
+    assert repr(to_cnf(Fig[7, 13] & ~expr('~P12'))) == \
+        "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)"
+    assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
+
+def test_fol_bc_ask():    
+    def test_ask(query, kb=None):
+        q = expr(query)
+        vars = variables(q)
+        answers = fol_bc_ask(kb or test_kb, q)
+        return sorted(
+            [dict((x, v) for x, v in list(a.items()) if x in vars)
+             for a in answers],  key=repr)
+    assert repr(test_ask('Farmer(x)')) == '[{x: Mac}]'
+    assert repr(test_ask('Human(x)')) == '[{x: Mac}, {x: MrsMac}]'
+    assert repr(test_ask('Rabbit(x)')) == '[{x: MrsRabbit}, {x: Pete}]'
+    assert repr(test_ask('Criminal(x)', crime_kb)) == '[{x: West}]'
 
 
 if __name__ == '__main__':
