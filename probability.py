@@ -524,16 +524,15 @@ def markov_blanket_sample(X, e, bn):
 
 # _________________________________________________________________________
 
-# Umbrella Example [Fig. 15.2]
-
 
 class HiddenMarkovModel:
 
     """ A Hidden markov model which takes Transition model and Sensor model as inputs"""
 
-    def __init__(self, transition_model, sensor_model):
+    def __init__(self, transition_model, sensor_model, prior= [0.5, 0.5]):
         self.transition_model = transition_model
         self.sensor_model = sensor_model
+        self.prior = prior
 
     def transition_model(self):
         return self.transition_model
@@ -550,15 +549,16 @@ def forward(HMM, fv, ev):
                             scalar_vector_product(fv[1], HMM.transition_model[1]))
     sensor_dist = HMM.sensor_dist(ev)
 
-    return(normalize(element_wise_product(sensor_dist, prediction)))
+    return([float("{0:.4f}".format(i)) for i in normalize(element_wise_product(sensor_dist, prediction))])
 
 
 def backward(HMM, b, ev):
     sensor_dist = HMM.sensor_dist(ev)
     prediction = element_wise_product(sensor_dist, b)
 
-    return(normalize(vector_add(scalar_vector_product(prediction[0], HMM.transition_model[0]),
-                                scalar_vector_product(prediction[1], HMM.transition_model[1]))))
+    return([float("{0:.4f}".format(i)) for i in normalize(vector_add(
+                                scalar_vector_product(prediction[0], HMM.transition_model[0]),
+                                scalar_vector_product(prediction[1], HMM.transition_model[1])))])
 
 
 def forward_backward(HMM, ev, prior):
@@ -604,9 +604,46 @@ def forward_backward(HMM, ev, prior):
 # _________________________________________________________________________
 
 
-def fixed_lag_smoothing(e_t, hmm, d):
-    """[Fig. 15.6]"""
-    unimplemented()
+def fixed_lag_smoothing(e_t, HMM, d, ev, t):
+    """[Fig. 15.6]
+    Smoothing algorithm with a fixed time lag of 'd' steps.
+    Online algorithm that outputs the new smoothed estimate if observation
+    for new time step is given.
+
+    umbrella_evidence = [T, T, F, T, T]
+    e_t = T
+    t = 4
+    d = 3
+    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
+    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
+    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
+
+    >>> fixed_lag_smoothing(T, umbrellaHMM, d)
+    """
+    ev.insert(0, None)
+
+    T_model = HMM.transition_model
+    f = HMM.prior
+    B = [[1, 0], [0, 1]]
+    evidence = []
+
+    evidence.append(e_t)
+    O_t = vector_to_diagonal(HMM.sensor_dist(e_t))
+    if t > d:
+        f = forward(HMM, f, e_t)
+        O_tmd = vector_to_diagonal(HMM.sensor_dist(ev[t- d]))
+        B = matrix_multiplication(inverse_matrix(O_tmd), inverse_matrix(T_model), B, T_model, O_t)
+    else:
+        B = matrix_multiplication(B, T_model, O_t)
+    t = t + 1
+
+    if t > d:
+        # always returns a 1x2 matrix
+        return([normalize(i) for i in matrix_multiplication([f], B)][0])
+    else:
+        return None
+
+# _________________________________________________________________________
 
 
 def particle_filtering(e, N, HMM):
