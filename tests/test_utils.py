@@ -105,6 +105,9 @@ def test_matrix_multiplication():
                                   [3,4],
                                   [5,6],
                                   [1,2]]) == [[132, 176], [224, 296]]
+def test_vector_to_diagonal():
+  assert vector_to_diagonal([1, 2, 3]) == [[1, 0, 0], [0, 2, 0], [0, 0, 3]]
+  assert vector_to_diagonal([0, 3, 6]) == [[0, 0, 0], [0, 3, 0], [0, 0, 6]]
 
 
 def test_vector_add():
@@ -114,6 +117,15 @@ def test_vector_add():
 def test_scalar_vector_product():
     assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
 
+def test_scalar_matrix_product():
+  assert scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]]) == [[-5, -10], [-15, -20], [0, -30]]
+  assert scalar_matrix_product(0.2, [[1, 2], [2, 3]]) == [[0.2, 0.4], [0.4, 0.6]]
+
+
+def test_inverse_matrix():
+  assert inverse_matrix([[1, 0], [0, 1]]) == [[1, 0], [0, 1]]
+  assert inverse_matrix([[2, 1], [4, 3]]) == [[1.5, -0.5], [-2.0, 1.0]]
+  assert inverse_matrix([[4, 7], [2, 6]]) == [[0.6, -0.7], [-0.2, 0.4]]
 
 def test_num_or_str():
     assert num_or_str('42') == 42

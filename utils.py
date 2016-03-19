@@ -198,8 +198,16 @@ def matrix_multiplication(X_M, *Y_M):
     for Y in Y_M:
         result = _mat_mult(result, Y)
 
-    return(result)
+    return([[float("{0:.4f}".format(i)) for i in row] for row in result])
 
+def vector_to_diagonal(v):
+    """Converts a vector to a diagonal matrix with vector elements
+    as the diagonal elements of the matrix"""
+    diag_matrix = [[0 for i in range(len(v))] for j in range(len(v))]
+    for i in range(len(v)):
+        diag_matrix[i][i] = v[i]
+
+    return diag_matrix
 
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
@@ -209,6 +217,19 @@ def vector_add(a, b):
 def scalar_vector_product(X, Y):
     """Return vector as a product of a scalar and a vector"""
     return [X*y for y in Y]
+
+def scalar_matrix_product(X, Y):
+    return([[float("{0:.4f}".format(i)) for i in scalar_vector_product(X, y)] for y in Y])
+
+def inverse_matrix(X):
+    """Inverse a given square matrix of size 2x2"""
+    assert len(X) == 2
+    assert len(X[0]) == 2
+    det = X[0][0] * X[1][1] - X[0][1] * X[1][0]
+    assert det != 0
+    inv_mat = scalar_matrix_product(1.0/det, [[X[1][1], -X[0][1]], [-X[1][0], X[0][0]]])
+
+    return([[float("{0:.4f}".format(i)) for i in row] for row in inv_mat])
 
 
 def probability(p):
@@ -250,7 +271,7 @@ def num_or_str(x):
 def normalize(numbers):
     """Multiply each number by a constant such that the sum is 1.0"""
     total = float(sum(numbers))
-    return [n / total for n in numbers]
+    return([float("{0:.4f}".format(n / total)) for n in numbers])
 
 
 def clip(x, lowest, highest):
