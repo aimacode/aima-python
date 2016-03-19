@@ -172,28 +172,28 @@ def element_wise_product(X, Y):
     assert len(X) == len(Y)
     return(list(x * y for x, y in zip(X, Y)))
 
-def _mat_mult(X_M, Y_M):
-    """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
-    >>> matrix_multiplication([[1, 2, 3],
-                               [2, 3, 4]],
-                               [[3, 4],
-                                [1, 2],
-                                [1, 0]])
-    [[8, 8],[13, 14]]
-    """
-    assert len(X_M[0]) == len(Y_M)
-
-    result = [[0 for i in range(len(Y_M[0]))] for j in range(len(X_M))]
-    for i in range(len(X_M)):
-        for j in range(len(Y_M[0])):
-            for k in range(len(Y_M)):
-                result[i][j] += X_M[i][k] * Y_M[k][j]
-
-    return(result)
-
 
 def matrix_multiplication(X_M, *Y_M):
     """Return a matrix as a matrix-multiplication of X_M and arbitary number of matrices *Y_M"""
+
+    def _mat_mult(X_M, Y_M):
+        """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
+        >>> matrix_multiplication([[1, 2, 3],
+                                   [2, 3, 4]],
+                                   [[3, 4],
+                                    [1, 2],
+                                    [1, 0]])
+        [[8, 8],[13, 14]]
+        """
+        assert len(X_M[0]) == len(Y_M)
+
+        result = [[0 for i in range(len(Y_M[0]))] for j in range(len(X_M))]
+        for i in range(len(X_M)):
+            for j in range(len(Y_M[0])):
+                for k in range(len(Y_M)):
+                    result[i][j] += X_M[i][k] * Y_M[k][j]
+        return(result)
+
     result = X_M
     for Y in Y_M:
         result = _mat_mult(result, Y)
