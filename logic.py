@@ -56,7 +56,7 @@ class KB:
     def ask(self, query):
         """Return a substitution that makes the query true, or,
         failing that, return False."""
-        for first(self.ask_generator(query), default=False)
+        return first(self.ask_generator(query), default=False)
 
     def ask_generator(self, query):
         "Yield all the substitutions that make query true."
