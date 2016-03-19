@@ -56,7 +56,9 @@ class KB:
     def ask(self, query):
         """Return a substitution that makes the query true, or,
         failing that, return False."""
-        for first(self.ask_generator(query), default=False)
+        for result in self.ask_generator(query):
+            return result
+        return False
 
     def ask_generator(self, query):
         "Yield all the substitutions that make query true."
@@ -918,7 +920,7 @@ def occur_check(var, x, s):
         return (occur_check(var, x.op, s) or
                 occur_check(var, x.args, s))
     elif isinstance(x, (list, tuple)):
-        return first(e for e in x if occur_check(var, e, s))
+        return first([e for e in x if occur_check(var, e, s)])
     else:
         return False
 
