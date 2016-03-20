@@ -2,7 +2,6 @@
 
 # This module is safe for: from utils import *
 
-# TODO: Create a separate grid.py file for 2D grid environments; move headings, etc there.
 # TODO: Priority queues may not belong here -- see treatment in search.py
 
 import operator
@@ -170,7 +169,7 @@ def dotproduct(X, Y):
 def element_wise_product(X, Y):
     """Return vector as an element-wise product of vectors X and Y"""
     assert len(X) == len(Y)
-    return(list(x * y for x, y in zip(X, Y)))
+    return [x * y for x, y in zip(X, Y)]
 
 
 def matrix_multiplication(X_M, *Y_M):
