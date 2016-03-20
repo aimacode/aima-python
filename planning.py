@@ -1,6 +1,6 @@
 """Planning (Chapters 10-11)
 """
-from logic import Expr
+from logic import *
 from utils import *
 import agents
 from search import *
