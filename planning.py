@@ -16,7 +16,7 @@ import string
 class Action(Expr):
     """Subclasses Expr class to define an Action class that can refer
     to actions of an existing Node or a HLA"""
-    def __init__(self,):
+    def __init__(self,*args):
         self.args = list(map(expr, args))  # Coerce args to Exprs
 
     def isNull(self):
