@@ -163,15 +163,51 @@ def histogram(values, mode=0, bin_function=None):
 
 
 def dotproduct(X, Y):
-    """Return the sum of the element-wise product of vectors x and y."""
+    """Return the sum of the element-wise product of vectors X and Y."""
     return sum(x * y for x, y in zip(X, Y))
 
 
 def element_wise_product(X, Y):
-    """Return vector as an element-wise product of vectors x and y"""
+    """Return vector as an element-wise product of vectors X and Y"""
     assert len(X) == len(Y)
     return(list(x * y for x, y in zip(X, Y)))
 
+
+def matrix_multiplication(X_M, *Y_M):
+    """Return a matrix as a matrix-multiplication of X_M and arbitary number of matrices *Y_M"""
+
+    def _mat_mult(X_M, Y_M):
+        """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
+        >>> matrix_multiplication([[1, 2, 3],
+                                   [2, 3, 4]],
+                                   [[3, 4],
+                                    [1, 2],
+                                    [1, 0]])
+        [[8, 8],[13, 14]]
+        """
+        assert len(X_M[0]) == len(Y_M)
+
+        result = [[0 for i in range(len(Y_M[0]))] for j in range(len(X_M))]
+        for i in range(len(X_M)):
+            for j in range(len(Y_M[0])):
+                for k in range(len(Y_M)):
+                    result[i][j] += X_M[i][k] * Y_M[k][j]
+        return(result)
+
+    result = X_M
+    for Y in Y_M:
+        result = _mat_mult(result, Y)
+
+    return([[float("{0:.4f}".format(i)) for i in row] for row in result])
+
+def vector_to_diagonal(v):
+    """Converts a vector to a diagonal matrix with vector elements
+    as the diagonal elements of the matrix"""
+    diag_matrix = [[0 for i in range(len(v))] for j in range(len(v))]
+    for i in range(len(v)):
+        diag_matrix[i][i] = v[i]
+
+    return diag_matrix
 
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
@@ -181,6 +217,19 @@ def vector_add(a, b):
 def scalar_vector_product(X, Y):
     """Return vector as a product of a scalar and a vector"""
     return [X*y for y in Y]
+
+def scalar_matrix_product(X, Y):
+    return([[float("{0:.4f}".format(i)) for i in scalar_vector_product(X, y)] for y in Y])
+
+def inverse_matrix(X):
+    """Inverse a given square matrix of size 2x2"""
+    assert len(X) == 2
+    assert len(X[0]) == 2
+    det = X[0][0] * X[1][1] - X[0][1] * X[1][0]
+    assert det != 0
+    inv_mat = scalar_matrix_product(1.0/det, [[X[1][1], -X[0][1]], [-X[1][0], X[0][0]]])
+
+    return([[float("{0:.4f}".format(i)) for i in row] for row in inv_mat])
 
 
 def probability(p):
@@ -222,7 +271,7 @@ def num_or_str(x):
 def normalize(numbers):
     """Multiply each number by a constant such that the sum is 1.0"""
     total = float(sum(numbers))
-    return [n / total for n in numbers]
+    return([float("{0:.4f}".format(n / total)) for n in numbers])
 
 
 def clip(x, lowest, highest):

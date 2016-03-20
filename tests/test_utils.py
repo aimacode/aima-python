@@ -89,6 +89,26 @@ def test_element_wise_product():
     assert element_wise_product([1, 2, 5], [7, 10, 0]) == [7, 20, 0]
     assert element_wise_product([1, 6, 3, 0], [9, 12, 0, 0]) == [9, 72, 0, 0]
 
+def test_matrix_multiplication():
+    assert matrix_multiplication([[1, 2, 3],
+                                  [2, 3, 4]],
+                                 [[3, 4],
+                                  [1, 2],
+                                  [1, 0]]) == [[8, 8],[13, 14]]
+
+    assert matrix_multiplication([[1, 2, 3],
+                                  [2, 3, 4]],
+                                 [[3, 4, 8, 1],
+                                  [1, 2, 5, 0],
+                                  [1, 0, 0, 3]],
+                                 [[1,2],
+                                  [3,4],
+                                  [5,6],
+                                  [1,2]]) == [[132, 176], [224, 296]]
+def test_vector_to_diagonal():
+  assert vector_to_diagonal([1, 2, 3]) == [[1, 0, 0], [0, 2, 0], [0, 0, 3]]
+  assert vector_to_diagonal([0, 3, 6]) == [[0, 0, 0], [0, 3, 0], [0, 0, 6]]
+
 
 def test_vector_add():
     assert vector_add((0, 1), (8, 9)) == (8, 10)
@@ -97,6 +117,15 @@ def test_vector_add():
 def test_scalar_vector_product():
     assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
 
+def test_scalar_matrix_product():
+  assert scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]]) == [[-5, -10], [-15, -20], [0, -30]]
+  assert scalar_matrix_product(0.2, [[1, 2], [2, 3]]) == [[0.2, 0.4], [0.4, 0.6]]
+
+
+def test_inverse_matrix():
+  assert inverse_matrix([[1, 0], [0, 1]]) == [[1, 0], [0, 1]]
+  assert inverse_matrix([[2, 1], [4, 3]]) == [[1.5, -0.5], [-2.0, 1.0]]
+  assert inverse_matrix([[4, 7], [2, 6]]) == [[0.6, -0.7], [-0.2, 0.4]]
 
 def test_num_or_str():
     assert num_or_str('42') == 42
