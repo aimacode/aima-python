@@ -17,29 +17,17 @@ class Action(Expr):
     """Subclasses Expr class to define an Action class that can refer
     to actions of an existing Node or a HLA"""
     def __init__(self,*args):
-        self.args = list(map(expr, args))  # Coerce args to Exprs
-
-    def isNull(self):
-        """Returns True if the HLA is Empty"""
-        if self == None:
-            return True
-        else:
-            return False
+        self.args = list(map(expr, str(args)))  # Coerce args to Exprs
         
     def Refinements(self,outcome,frontier):
         """Refinement function on HLA using frontier and outcome
         Steps = frontier    Precondition = outcome"""
-        X=Node(self).path()
+        X = Node(self).path()
         R = []
         for each in X:
             if each.state == outcome:
                 R.append(each.action)        
-        for each in R:
-            R.append(prefix)
-            R.append(suffix)
-            for each in R:
-                n = Node.__init__(plan,state, plan.parent,plan.action)
-                frontier.append(n)
+        return R
               
 #_____________________________________________________________________________#
 
@@ -70,17 +58,22 @@ def hierarchicalSearch(problem):
     frontier.append(current)
     while True:
         if not frontier:
-            return failure()
+            return None
         plan = frontier.pop()
         hla = Action(plan.action)
         prefix = Action(plan.parent.action)
         suffix = Action(Node.child_node(plan,problem,hla))
         outcome = problem.result(problem.initial,prefix)
-        if hla.isNull():
+        if hla is None:
             if problem.goal_test(outcome):
                 return success(plan)
         else:
-            hla.Refinements(outcome,frontier)
+            actionSequence = hla.Refinements(outcome,frontier)
+            actionSequence.append(prefix)
+            actionSequence.append(suffix)
+            for actions in actionSequence :
+                n = Node.__init__(plan.state, plan.parent, actions, plan.path_cost)
+                frontier.append(n)
             
 #_____________________________________________________________________________#
 
@@ -90,13 +83,7 @@ def success(plan):
     k = []
     k.append(plan.action)
     return k
-
-def failure():
-    """Returns an empty list to signify failure"""
-    k = []
-    return k
-
-
+    
 #_____________________________________________________________________________#
 
 
