@@ -250,24 +250,6 @@ def backtracking_search(csp,
                         order_domain_values=unordered_domain_values,
                         inference=no_inference):
     """[Fig. 6.5]
-    >>> backtracking_search(australia) is not None
-    True
-    >>> backtracking_search(australia,
-    >>>                     select_unassigned_variable=mrv) is not None
-    True
-    >>> backtracking_search(australia,
-    >>>                     order_domain_values=lcv) is not None
-    True
-    >>> backtracking_search(australia, select_unassigned_variable=mrv,
-    >>>                     order_domain_values=lcv) is not None
-    True
-    >>> backtracking_search(australia, inference=forward_checking) is not None
-    True
-    >>> backtracking_search(australia, inference=mac) is not None
-    True
-    >>> backtracking_search(usa, select_unassigned_variable=mrv,
-    >>>                     order_domain_values=lcv, inference=mac) is not None
-    True
     """
 
     def backtrack(assignment):
