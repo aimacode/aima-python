@@ -19,8 +19,6 @@ def test_universal_dict():
 def test_parse_neighbours():
     assert parse_neighbors('X: Y Z; Y: Z') == {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
 
-def test_sudoku():
-
 
 
 if __name__ == "__main__":
