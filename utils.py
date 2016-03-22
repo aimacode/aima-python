@@ -52,7 +52,7 @@ def product(numbers):
 
 
 def first(iterable, default=None):
-    "Return the first element of an iterable or sequence; or default."
+    "Return the first element of an iterable or the next element of a generator; or default."
     try:
         return iterable[0]
     except IndexError:
