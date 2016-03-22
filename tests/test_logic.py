@@ -8,14 +8,54 @@ def test_expr():
 
 def test_PropKB():
     kb = PropKB()
-    assert count(kb.ask(expr) for expr in [A, B, C, P, Q]) is 0
-    kb.tell(A & B)
-    assert kb.ask(A) == kb.ask(B) == {}
-    kb.tell(B >> C)
+    assert count(kb.ask(expr) for expr in [A, C, D, E, Q]) is 0
+    kb.tell(A & E)
+    assert kb.ask(A) == kb.ask(E) == {}
+    kb.tell(E >> C)
     assert kb.ask(C) == {}
-    kb.retract(B)
-    assert kb.ask(B) is False
+    kb.retract(E)
+    assert kb.ask(E) is False
     assert kb.ask(C) is False
+
+    # A simple KB that defines the relevant conditions of the Wumpus World as in Fig 7.4.
+    # See Sec. 7.4.3
+    kb_wumpus = PropKB()
+
+    # Creating the relevant expressions
+    P = {}
+    B = {}
+    P[1,1] = Expr("P[1,1]")
+    P[1,2] = Expr("P[1,2]")
+    P[2,1] = Expr("P[2,1]")
+    P[2,2] = Expr("P[2,2]")
+    P[3,1] = Expr("P[3,1]")
+    B[1,1] = Expr("B[1,1]")
+    B[2,1] = Expr("B[2,1]")
+
+    kb_wumpus.tell(~P[1,1])
+    kb_wumpus.tell(B[1,1] % ((P[1,2] | P[2,1])))
+    kb_wumpus.tell(B[2,1] % ((P[1,1] | P[2,2] | P[3,1])))
+    kb_wumpus.tell(~B[1,1])
+    kb_wumpus.tell(B[2,1])
+
+    # Statement: There is no pit in [1,1].
+    assert kb_wumpus.ask(~P[1,1]) == {}
+
+    # Statement: There is no pit in [1,2].
+    assert kb_wumpus.ask(~P[1,2]) == {}
+
+    # Statement: There is a pit in [2,2].
+    assert kb_wumpus.ask(P[2,2]) == False
+
+    # Statement: There is a pit in [3,1].
+    assert kb_wumpus.ask(P[3,1]) == False
+
+    # Statement: Neither [1,2] nor [2,1] contains a pit.
+    assert kb_wumpus.ask(~P[1,2] & ~P[2,1]) == {}
+
+    # Statement: There is a pit in either [2,2] or [3,1].
+    assert kb_wumpus.ask(P[2,2] | P[3,1]) == {}
+
 
 def test_pl_true():
     assert pl_true(P, {}) is None
