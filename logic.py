@@ -31,6 +31,8 @@ import itertools
 import re
 from collections import defaultdict
 
+# TODO: Fix the precedence of connectives in expr()
+
 # ______________________________________________________________________________
 
 
@@ -54,8 +56,7 @@ class KB:
         raise NotImplementedError
 
     def ask(self, query):
-        """Return a substitution that makes the query true, or,
-        failing that, return False."""
+        """Return a substitution that makes the query true, or, failing that, return False."""
         return first(self.ask_generator(query), default=False)
 
     def ask_generator(self, query):
@@ -81,9 +82,16 @@ class PropKB(KB):
         self.clauses.extend(conjuncts(to_cnf(sentence)))
 
     def ask_generator(self, query):
-        "Yield the empty substitution if KB implies query; else nothing."
+        "Return the empty substitution {} if KB entails query; else return None."
         if tt_entails(Expr('&', *self.clauses), query):
             yield {}
+
+    def ask_if_true(self, query):
+        "Return True if the KB entails query, else return False."
+        if self.ask_generator(query) == {}:
+            return True
+        else:
+            return False
 
     def retract(self, sentence):
         "Remove the sentence's clauses from the KB."
@@ -152,7 +160,7 @@ class Expr:
     equalities and disequalities.  We concentrate on logical equality (or
     equivalence) and logical disequality (or XOR).  You have 3 choices:
         (1) Expr('<=>', x, y) and Expr('^', x, y)
-            Note that ^ is bitwose XOR in Python (and Java and C++)
+            Note that ^ is bitwise XOR in Python (and Java and C++)
         (2) expr('x <=> y') and expr('x =/= y').
             See the doc string for the function expr.
         (3) (x % y) and (x ^ y).
@@ -343,7 +351,8 @@ A, B, C, D, E, F, G, P, Q, x, y, z = list(map(Expr, 'ABCDEFGPQxyz'))
 
 def tt_entails(kb, alpha):
     """Does kb entail the sentence alpha? Use truth tables. For propositional
-    kb's and sentences. [Fig. 7.10]
+    kb's and sentences. [Fig. 7.10]. Note that the 'kb' that has to be passed should actually be an
+    Expr which is a conjunction of clauses.
     >>> tt_entails(expr('P & Q'), expr('Q'))
     True
     """
