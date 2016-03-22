@@ -106,7 +106,7 @@ def argmin_gen(seq, fn):
 def argmin_random_tie(seq, fn):
     """Return an element with lowest fn(seq[i]) score; break ties at random.
     Thus, for all s,f: argmin_random_tie(s, f) in argmin_list(s, f)"""
-    return random.choice(argmin_gen(seq, fn))
+    return random.choice(argmin_list(seq, fn))
 
 
 def argmax(seq, fn):
