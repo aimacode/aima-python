@@ -53,12 +53,12 @@ class KB:
         "Add the sentence to the KB."
         raise NotImplementedError
 
-    def ask(self, query):
+    def ask(self, query):  # not sure what this means or does
         """Return a substitution that makes the query true, or,
         failing that, return False."""
         return first(self.ask_generator(query), default=False)
 
-    def ask_generator(self, query):
+    def ask_generator(self, query):  # Still not sure what this means or does
         "Yield all the substitutions that make query true."
         raise NotImplementedError
 
@@ -152,7 +152,7 @@ class Expr:
     equalities and disequalities.  We concentrate on logical equality (or
     equivalence) and logical disequality (or XOR).  You have 3 choices:
         (1) Expr('<=>', x, y) and Expr('^', x, y)
-            Note that ^ is bitwose XOR in Python (and Java and C++)
+            Note that ^ is bitwise XOR in Python (and Java and C++)
         (2) expr('x <=> y') and expr('x =/= y').
             See the doc string for the function expr.
         (3) (x % y) and (x ^ y).
@@ -239,6 +239,7 @@ class Expr:
     def __mod__(self, other): return Expr('<=>',  self, other)
 
 
+# TODO: Fix the precedence of connectives
 def expr(s):
     """Create an Expr representing a logic expression by parsing the input
     string. Symbols and numbers are automatically converted to Exprs.
