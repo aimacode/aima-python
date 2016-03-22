@@ -31,6 +31,8 @@ import itertools
 import re
 from collections import defaultdict
 
+# TODO: Fix the precedence of connectives in expr()
+
 # ______________________________________________________________________________
 
 
@@ -53,12 +55,11 @@ class KB:
         "Add the sentence to the KB."
         raise NotImplementedError
 
-    def ask(self, query):  # not sure what this means or does
-        """Return a substitution that makes the query true, or,
-        failing that, return False."""
+    def ask(self, query):
+        """Return a substitution that makes the query true, or, failing that, return False."""
         return first(self.ask_generator(query), default=False)
 
-    def ask_generator(self, query):  # Still not sure what this means or does
+    def ask_generator(self, query):
         "Yield all the substitutions that make query true."
         raise NotImplementedError
 
@@ -81,9 +82,10 @@ class PropKB(KB):
         self.clauses.extend(conjuncts(to_cnf(sentence)))
 
     def ask_generator(self, query):
-        "Yield the empty substitution if KB implies query; else nothing."
+        "Return the empty substitution {} if KB entails query; else return False."
         if tt_entails(Expr('&', *self.clauses), query):
-            yield {}
+            yield {}  # Why use yield when you are not returning a generator?
+                      # Or for that purpose, not even an iterable.
 
     def retract(self, sentence):
         "Remove the sentence's clauses from the KB."
@@ -239,7 +241,6 @@ class Expr:
     def __mod__(self, other): return Expr('<=>',  self, other)
 
 
-# TODO: Fix the precedence of connectives
 def expr(s):
     """Create an Expr representing a logic expression by parsing the input
     string. Symbols and numbers are automatically converted to Exprs.
@@ -344,7 +345,8 @@ A, B, C, D, E, F, G, P, Q, x, y, z = list(map(Expr, 'ABCDEFGPQxyz'))
 
 def tt_entails(kb, alpha):
     """Does kb entail the sentence alpha? Use truth tables. For propositional
-    kb's and sentences. [Fig. 7.10]
+    kb's and sentences. [Fig. 7.10]. Note that the 'kb' that has to be passed should actually be an
+    Expr which is a conjunction of clauses.
     >>> tt_entails(expr('P & Q'), expr('Q'))
     True
     """
