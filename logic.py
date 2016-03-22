@@ -82,10 +82,16 @@ class PropKB(KB):
         self.clauses.extend(conjuncts(to_cnf(sentence)))
 
     def ask_generator(self, query):
-        "Return the empty substitution {} if KB entails query; else return False."
+        "Return the empty substitution {} if KB entails query; else return None."
         if tt_entails(Expr('&', *self.clauses), query):
-            yield {}  # Why use yield when you are not returning a generator?
-                      # Or for that purpose, not even an iterable.
+            yield {}
+
+    def ask_if_true(self, query):
+        "Return True if the KB entails query, else return False."
+        if self.ask_generator(query) == {}:
+            return True
+        else:
+            return False
 
     def retract(self, sentence):
         "Remove the sentence's clauses from the KB."
