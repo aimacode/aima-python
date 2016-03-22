@@ -689,7 +689,7 @@ class GraphProblemStochastic(GraphProblem):
     Define the graph as dict(A = dict(Action = [[<Result 1>, <Result 2>, ...],<cost>], ...), ...)
     A the dictionary format is different, make sure the graph is created as a directed graph
     """
-    
+
     def result(self, state, action):
         return self.graph.get(state, action)
 
@@ -1021,7 +1021,7 @@ def compare_searchers(problems, header,
 def compare_graph_searchers():
     """Prints a table of results like this:
 >>> compare_graph_searchers()
-Searcher                      Fig[3, 2](A, B)        Fig[3, 2](O, N)         Fig[6, 1]          
+Searcher                      Fig[3, 2](A, B)        Fig[3, 2](O, N)         Fig[6, 1]
 breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>    <   7/   8/  22/WA>
 breadth_first_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/   6/   8/WA>
 depth_first_graph_search      <   8/   9/  20/B>   <  16/  17/  38/N>    <   4/   5/  11/WA>

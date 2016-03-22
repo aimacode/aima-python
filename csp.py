@@ -14,7 +14,7 @@ class CSP(search.Problem):
 
     """This class describes finite-domain Constraint Satisfaction Problems.
     A CSP is specified by the following inputs:
-        vars        A list of variables; each is atomic (e.g. int or string).
+        variables        A list of variables; each is atomic (e.g. int or string).
         domains     A dict of {var:[possible_value, ...]} entries.
         neighbors   A dict of {var:[var,...]} that for each variable lists
                     the other variables that participate in constraints.
@@ -51,10 +51,10 @@ class CSP(search.Problem):
            ('NT', 'R'), ('NSW', 'R'))>
     """
 
-    def __init__(self, vars, domains, neighbors, constraints):
-        "Construct a CSP problem. If vars is empty, it becomes domains.keys()."
-        vars = vars or list(domains.keys())
-        update(self, vars=vars, domains=domains,
+    def __init__(self, variables, domains, neighbors, constraints):
+        "Construct a CSP problem. If variables is empty, it becomes domains.keys()."
+        variables = variables or list(domains.keys())
+        update(self, variables=variables, domains=domains,
                neighbors=neighbors, constraints=constraints,
                initial=(), curr_domains=None, nassigns=0)
 
@@ -88,11 +88,11 @@ class CSP(search.Problem):
     def actions(self, state):
         """Return a list of applicable actions: nonconflicting
         assignments to an unassigned variable."""
-        if len(state) == len(self.vars):
+        if len(state) == len(self.variables):
             return []
         else:
             assignment = dict(state)
-            var = first(v for v in self.vars if v not in assignment)
+            var = first([v for v in self.variables if v not in assignment])
             return [(var, val) for val in self.domains[var]
                     if self.nconflicts(var, val, assignment) == 0]
 
@@ -102,10 +102,10 @@ class CSP(search.Problem):
         return state + ((var, val),)
 
     def goal_test(self, state):
-        "The goal is to assign all vars, with all constraints satisfied."
+        "The goal is to assign all variables, with all constraints satisfied."
         assignment = dict(state)
-        return (len(assignment) == len(self.vars) and
-                every(lambda x: self.nconflicts(x, assignment[x], assignment) == 0, self.x))
+        return (len(assignment) == len(self.variables) and
+                every(lambda variables: self.nconflicts(variables, assignment[variables], assignment) == 0, self.variables))
 
     # These are for constraint propagation
 
@@ -113,7 +113,7 @@ class CSP(search.Problem):
         """Make sure we can prune values from domains. (We want to pay
         for this only if we use it.)"""
         if self.curr_domains is None:
-            self.curr_domains = dict((v, list(self.domains[v])) for v in self.vars)
+            self.curr_domains = dict((v, list(self.domains[v])) for v in self.variables)
 
     def suppose(self, var, value):
         "Start accumulating inferences from assuming var=value."
@@ -136,7 +136,7 @@ class CSP(search.Problem):
         "Return the partial assignment implied by the current inferences."
         self.support_pruning()
         return dict((v, self.curr_domains[v][0])
-                    for v in self.vars if 1 == len(self.curr_domains[v]))
+                    for v in self.variables if 1 == len(self.curr_domains[v]))
 
     def restore(self, removals):
         "Undo a supposition and all inferences from it."
@@ -147,7 +147,7 @@ class CSP(search.Problem):
 
     def conflicted_vars(self, current):
         "Return a list of variables in current assignment that are in conflict"
-        return [var for var in self.vars
+        return [var for var in self.variables
                 if self.nconflicts(var, current[var], current) > 0]
 
 # ______________________________________________________________________________
@@ -157,7 +157,7 @@ class CSP(search.Problem):
 def AC3(csp, queue=None, removals=None):
     """[Fig. 6.3]"""
     if queue is None:
-        queue = [(Xi, Xk) for Xi in csp.vars for Xk in csp.neighbors[Xi]]
+        queue = [(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]]
     csp.support_pruning()
     while queue:
         (Xi, Xj) = queue.pop()
@@ -189,13 +189,13 @@ def revise(csp, Xi, Xj, removals):
 
 def first_unassigned_variable(assignment, csp):
     "The default variable order."
-    return find_if(lambda var: var not in assignment, csp.vars)
+    return first([var for var in csp.variables if var not in assignment])
 
 
 def mrv(assignment, csp):
     "Minimum-remaining-values heuristic."
     return argmin_random_tie(
-        [v for v in csp.vars if v not in assignment],
+        [v for v in csp.variables if v not in assignment],
         lambda var: num_legal_values(csp, var, assignment))
 
 
@@ -250,28 +250,10 @@ def backtracking_search(csp,
                         order_domain_values=unordered_domain_values,
                         inference=no_inference):
     """[Fig. 6.5]
-    >>> backtracking_search(australia) is not None
-    True
-    >>> backtracking_search(australia,
-    >>>                     select_unassigned_variable=mrv) is not None
-    True
-    >>> backtracking_search(australia,
-    >>>                     order_domain_values=lcv) is not None
-    True
-    >>> backtracking_search(australia, select_unassigned_variable=mrv,
-    >>>                     order_domain_values=lcv) is not None
-    True
-    >>> backtracking_search(australia, inference=forward_checking) is not None
-    True
-    >>> backtracking_search(australia, inference=mac) is not None
-    True
-    >>> backtracking_search(usa, select_unassigned_variable=mrv,
-    >>>                     order_domain_values=lcv, inference=mac) is not None
-    True
     """
 
     def backtrack(assignment):
-        if len(assignment) == len(csp.vars):
+        if len(assignment) == len(csp.variables):
             return assignment
         var = select_unassigned_variable(assignment, csp)
         for value in order_domain_values(var, assignment, csp):
@@ -296,9 +278,9 @@ def backtracking_search(csp,
 
 def min_conflicts(csp, max_steps=100000):
     """Solve a CSP by stochastic hillclimbing on the number of conflicts."""
-    # Generate a complete assignment for all vars (probably with conflicts)
+    # Generate a complete assignment for all variables (probably with conflicts)
     csp.current = current = {}
-    for var in csp.vars:
+    for var in csp.variables:
         val = min_conflicts_value(csp, var, current)
         csp.assign(var, val, current)
     # Now repeatedly choose a random conflicted variable and change it
@@ -324,8 +306,8 @@ def min_conflicts_value(csp, var, current):
 def tree_csp_solver(csp):
     "[Fig. 6.11]"
     assignment = {}
-    root = csp.vars[0]
-    X, parent = topological_sort(csp.vars, root)
+    root = csp.variables[0]
+    X, parent = topological_sort(csp.variables, root)
     for Xj in reversed(X):
         if not make_arc_consistent(parent[Xj], Xj, csp):
             return None
@@ -350,7 +332,7 @@ def make_arc_consistent(Xj, Xk, csp):
 class UniversalDict:
 
     """A universal dict maps any key to the same value. We use it here
-    as the domains dict for CSPs in which all vars have the same domain.
+    as the domains dict for CSPs in which all variables have the same domain.
     >>> d = UniversalDict(42)
     >>> d['life']
     42
@@ -379,7 +361,7 @@ def MapColoringCSP(colors, neighbors):
                different_values_constraint)
 
 
-def parse_neighbors(neighbors, vars=[]):
+def parse_neighbors(neighbors, variables=[]):
     """Convert a string of the form 'X: Y Z; Y: Z' into a dict mapping
     regions to neighbors.  The syntax is a region name followed by a ':'
     followed by zero or more region names, followed by ';', repeated for
@@ -388,7 +370,7 @@ def parse_neighbors(neighbors, vars=[]):
     {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
     """
     dict = defaultdict(list)
-    for var in vars:
+    for var in variables:
         dict[var] = []
     specs = [spec.split(':') for spec in neighbors.split(';')]
     for (A, Aneighbors) in specs:
@@ -446,7 +428,7 @@ class NQueensCSP(CSP):
     We increment/decrement these counts each time a queen is placed/moved from
     a row/diagonal. So moving is O(1), as is nconflicts.  But choosing
     a variable, and a best value for the variable, are each O(n).
-    If you want, you can keep track of conflicted vars, then variable
+    If you want, you can keep track of conflicted variables, then variable
     selection will also be O(1).
     >>> len(backtracking_search(NQueensCSP(8)))
     8
@@ -462,7 +444,7 @@ class NQueensCSP(CSP):
         """The number of conflicts, as recorded with each assignment.
         Count conflicts in row and in up, down diagonals. If there
         is a queen there, it can't conflict with itself, so subtract 3."""
-        n = len(self.vars)
+        n = len(self.variables)
         c = self.rows[val] + self.downs[var+val] + self.ups[var-val+n-1]
         if assignment.get(var, None) == val:
             c -= 3
@@ -485,14 +467,14 @@ class NQueensCSP(CSP):
 
     def record_conflict(self, assignment, var, val, delta):
         "Record conflicts caused by addition or deletion of a Queen."
-        n = len(self.vars)
+        n = len(self.variables)
         self.rows[val] += delta
         self.downs[var + val] += delta
         self.ups[var - val + n - 1] += delta
 
     def display(self, assignment):
         "Print the queens and the nconflicts values (for debugging)."
-        n = len(self.vars)
+        n = len(self.variables)
         for val in range(n):
             for var in range(n):
                 if assignment.get(var, '') == val:
@@ -610,9 +592,9 @@ def Zebra():
     Drinks = 'OJ Tea Coffee Milk Water'.split()
     Countries = 'Englishman Spaniard Norwegian Ukranian Japanese'.split()
     Smokes = 'Kools Chesterfields Winston LuckyStrike Parliaments'.split()
-    vars = Colors + Pets + Drinks + Countries + Smokes
+    variables = Colors + Pets + Drinks + Countries + Smokes
     domains = {}
-    for var in vars:
+    for var in variables:
         domains[var] = list(range(1, 6))
     domains['Norwegian'] = [1]
     domains['Milk'] = [3]
@@ -620,7 +602,7 @@ def Zebra():
                 Spaniard: Dog; Kools: Yellow; Chesterfields: Fox;
                 Norwegian: Blue; Winston: Snails; LuckyStrike: OJ;
                 Ukranian: Tea; Japanese: Parliaments; Kools: Horse;
-                Coffee: Green; Green: Ivory""", vars)
+                Coffee: Green; Green: Ivory""", variables)
     for type in [Colors, Pets, Drinks, Countries, Smokes]:
         for A in type:
             for B in type:
@@ -666,7 +648,7 @@ def Zebra():
                 (A in Smokes and B in Smokes)):
             return not same
         raise Exception('error')
-    return CSP(vars, domains, neighbors, zebra_constraint)
+    return CSP(variables, domains, neighbors, zebra_constraint)
 
 
 def solve_zebra(algorithm=min_conflicts, **args):
