@@ -313,6 +313,46 @@ class Environment(object):
         if thing in self.agents:
             self.agents.remove(thing)
 
+class Direction():
+    '''A direction class for agents that want to move in a 2D plane
+        Usage:
+            d = Direction("Down")
+            To change directions:
+            d = d + "right" or d = d + Direction.R #Both do the same thing
+            Note that the argument to __add__ must be a string and not a Direction object.
+            Also, it (the argument) can only be right or left. '''
+    
+    R = "right"
+    L = "left"
+    U = "up"
+    D = "down"
+    
+    def __init__(self, direction):
+        self.direction = direction
+        
+    def __add__(self, heading):
+        print(heading, self.direction, heading == self.direction)
+        if self.direction == self.R:
+            return{
+                self.R: Direction(self.D),
+                self.L: Direction(self.U),
+            }.get(heading, None)
+        elif self.direction == self.L:
+            return{
+                self.R: Direction(U),
+                self.L: Direction(L),
+            }.get(heading, None)
+        elif self.direction == self.U:
+            return{
+                self.R: Direction(R),
+                self.L: Direction(L),
+            }.get(heading, None)
+        elif self.direction == self.D:
+            return{
+                self.R: Direction(self.L),
+                self.L: Direction(self.R),
+            }.get(heading, None)
+        
 
 class XYEnvironment(Environment):
 
@@ -327,7 +367,8 @@ class XYEnvironment(Environment):
     def __init__(self, width=10, height=10):
         super(XYEnvironment, self).__init__()
         update(self, width=width, height=height, observers=[])
-
+        
+    perceptible_distance = 1
     def things_near(self, location, radius=None):
         "Return all things within radius of location."
         if radius is None:
@@ -335,8 +376,6 @@ class XYEnvironment(Environment):
         radius2 = radius * radius
         return [thing for thing in self.things
                 if distance2(location, thing.location) <= radius2]
-
-    perceptible_distance = 1
 
     def percept(self, agent):
         "By default, agent perceives things within a default radius."
@@ -387,7 +426,8 @@ class XYEnvironment(Environment):
         # Any more to do?  Thing holding anything or being held?
         for obs in self.observers:
             obs.thing_deleted(thing)
-
+    
+    has_walls = False
     def add_walls(self):
         "Put walls around the entire perimeter of the grid."
         for x in range(self.width):
@@ -396,6 +436,7 @@ class XYEnvironment(Environment):
         for y in range(self.height):
             self.add_thing(Wall(), (0, y))
             self.add_thing(Wall(), (self.width-1, y))
+        self.has_walls = True
 
     def add_observer(self, observer):
         """Adds an observer to the list of observers.
@@ -515,6 +556,9 @@ class Gold(Thing):
 class Pit(Thing):
     pass
 
+class Breeze(Thing):
+    pass
+
 
 class Arrow(Thing):
     pass
@@ -523,17 +567,78 @@ class Arrow(Thing):
 class Wumpus(Agent):
     pass
 
+class Stench(Thing):
+    pass
 
 class Explorer(Agent):
-    pass
+    direction = Direction("right")
 
 
 class WumpusEnvironment(XYEnvironment):
-
+    pit_probability = 0.2 #Probability to spawn a pit in a location
+    
     def __init__(self, width=10, height=10):
         super(WumpusEnvironment, self).__init__(width, height)
         self.add_walls()
-
+        self.init_world()
+        
+    def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items = True):
+        '''Adds thing to the world'''
+        if (isinstance(thing, Wall) or self.is_inbounds(location)):
+            if (exclude_duplicate_class_items and 
+                any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):
+                    return
+            super(WumpusEnvironment, self).add_thing(thing, location)
+            
+    def init_world(self):
+        '''Spawn items to the world based on probabilities from the book'''
+        "PITS"
+        for x in range(self.width):
+            for y in range(self.height):
+                if random.random() < self.pit_probability:
+                    self.add_thing(Pit(), (x,y))
+                    self.add_thing(Breeze(), (x - 1,y))
+                    self.add_thing(Breeze(), (x,y - 1))
+                    self.add_thing(Breeze(), (x + 1,y))
+                    self.add_thing(Breeze(), (x,y + 1))
+        
+        "WUMPUS"
+        w_x, w_y = self.random_location(exclude = (1,1))
+        self.add_thing(Wumpus(), (w_x, w_y))
+        self.add_thing(Stench(), (w_x - 1, w_y))
+        self.add_thing(Stench(), (w_x + 1, w_y))
+        self.add_thing(Stench(), (w_x, w_y - 1))
+        self.add_thing(Stench(), (w_x, w_y + 1))
+        
+        "GOLD"
+        self.add_thing(Gold(), self.random_location(exclude = (1,1)))
+                       
+        "AGENT"
+        self.add_thing(Explorer(), (1,1))
+                       
+    def is_inbounds(self, location):
+        '''Checks to make sure that the location is inbounds (within walls)'''
+        x,y = location
+        return not (x < 0 or x >= self.width or y < 0 or y >= self.height)
+                           
+    def random_location(self, exclude = None):
+        '''Returns a random location that is inbounds'''
+        location = (random.randint(1, self.width), random.randint(1, self.height))
+        if exclude is not None:
+            while(location == exclude):
+                location = (random.randint(1, self.width), random.randint(1, self.height))
+        return location
+    
+    def print_world(self, show_walls = False):
+        '''Prints the world'''
+        x_start,y_start = (1,1) if not show_walls else (0,0)
+        x_end,y_end = (self.width-1, self.height-1) if not show_walls else (self.width, self.height)
+        for x in range(x_start, x_end):
+            for y in range(y_start, y_end):
+                print(self.list_things_at((x,y)), end = "")
+            print()
+            
+        
     def thing_classes(self):
         return [Wall, Gold, Pit, Arrow, Wumpus, Explorer]
 
