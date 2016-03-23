@@ -11,13 +11,14 @@ def test_value_iteration():
 
 
 def test_policy_iteration():
-    assert policy_iteration(Fig[17, 1]) == {(0, 1): (0, 1), (1, 2): (1, 0), (3, 2): None,
-                                            (0, 0): (0, 1), (2, 0): (0, 1), (3, 0): (-1, 0),
-                                            (1, 0): (1, 0), (3, 1): None, (2, 2): (1, 0),
-                                            (2, 1): (0, 1), (0, 2): (1, 0)}
+    assert policy_iteration(Fig[17, 1]) == {(0, 0): (0, 1),  (0, 1): (0, 1), (0, 2): (1, 0),
+                                            (1, 0): (1, 0),                  (1, 2): (1, 0),
+                                            (2, 0): (0, 1),  (2, 1): (0, 1), (2, 2): (1, 0),
+                                            (3, 0): (-1, 0), (3, 1): None,   (3, 2): None}
 
 
 def test_best_policy():
     pi = best_policy(Fig[17, 1], value_iteration(Fig[17, 1], .01))
-    assert Fig[17, 1].to_arrows(pi) == [['>', '>', '>', '.'], ['^', None, '^', '.'],
+    assert Fig[17, 1].to_arrows(pi) == [['>', '>', '>', '.'], 
+                                        ['^', None, '^', '.'],
                                         ['^', '>', '^', '<']]
