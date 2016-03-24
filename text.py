@@ -115,7 +115,7 @@ class IRSystem:
 
     def __init__(self, stopwords='the a of'):
         """Create an IR System. Optionally specify stopwords."""
-        # index is a map of {word: {docid: count}}, where docid is an int,
+        # index is a map of {word: {doc: count}}, where doc is an int,
         # indicating the index into the documents list.
         update(self, index=defaultdict(lambda: defaultdict(int)),
                stopwords=set(words(stopwords)), documents=[])
@@ -139,7 +139,7 @@ class IRSystem:
                 self.index[word][doc] += 1
 
     def query(self, query_text, n=10):
-        """Return a list of n (score, docid) pairs for the best matches.
+        """Return a list of n (score, doc) pairs for the best matches.
         Also handle the special syntax for 'learn: command'."""
         if query_text.startswith("learn:"):
             doctext = os.popen(query_text[len("learn:"):], 'r').read()
