@@ -148,7 +148,7 @@ class IRSystem:
         qwords = [w for w in words(query_text) if w not in self.stopwords]
         shortest = argmin(qwords, lambda w: len(self.index[w]))
         docs = self.index[shortest]
-        return heapq.nlargest(n, ((total_score(qwords, doc), doc) for doc in docs))
+        return heapq.nlargest(n, ((self.total_score(qwords, doc), doc) for doc in docs))
 
     def score(self, word, doc):
         "Compute a score for this word on this doc."
