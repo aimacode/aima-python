@@ -157,7 +157,7 @@ class IRSystem:
                 math.log(1 + self.documents[doc].nwords))
 
     def total_score(self, words, doc):
-        "Compute the sum of the scores of the queried words on this doc."
+        "Compute the sum of the scores of these words on this doc."
         return sum(self.score(word, doc) for word in words)
 
     def present(self, results):
