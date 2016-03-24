@@ -373,11 +373,14 @@ __doc__ += """
 Random tests:
 ## Generate random text from the N-gram models  # noqa
 >>> P1.samples(20)
-'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
+'''you thought known but were insides of see in depend by us dodecahedrons just but
+ i words are instead degrees'''
 
 >>> P2.samples(20)
-'flatland well then can anything else more into the total destruction and circles teach others confine women must be added'
+'''flatland well then can anything else more into the total destruction and circles teach others
+confine women must be added'
 
 >>> P3.samples(20)
-'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
+'''flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving 
+the equal sided triangle'''
 """
