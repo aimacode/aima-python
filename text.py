@@ -10,6 +10,7 @@ import search
 
 from math import log, exp
 from collections import defaultdict
+import heapq
 import re
 
 
