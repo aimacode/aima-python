@@ -131,11 +131,11 @@ class IRSystem:
         # For now, use first line for title
         title = text[:text.index('\n')].strip()
         docwords = words(text)
-        docid = len(self.documents)
+        doc = len(self.documents)
         self.documents.append(Document(title, url, len(docwords)))
         for word in docwords:
             if word not in self.stopwords:
-                self.index[word][docid] += 1
+                self.index[word][doc] += 1
 
     def query(self, query_text, n=10):
         """Return a list of n (score, docid) pairs for the best matches.
@@ -150,7 +150,7 @@ class IRSystem:
         return heapq.nlargest(n, ((total_score(qwords, doc), doc) for doc in docs))
 
     def score(self, word, doc):
-        "Compute a score for this word on this docid."
+        "Compute a score for this word on this doc."
         # There are many options; here we take a very simple approach
         return (math.log(1 + self.index[word][doc]) /
                 math.log(1 + self.documents[doc].nwords))
