@@ -147,15 +147,17 @@ class IRSystem:
         qwords = [w for w in words(query_text) if w not in self.stopwords]
         shortest = argmin(qwords, lambda w: len(self.index[w]))
         docs = self.index[shortest]
-        results = sorted([(sum([self.score(w, d) for w in qwords]), d) for d in docs])
-        results.reverse()
-        return results[:n]
+        return heapq.nlargest(n, ((total_score(qwords, doc), doc) for doc in docs))
 
-    def score(self, word, docid):
+    def score(self, word, doc):
         "Compute a score for this word on this docid."
         # There are many options; here we take a very simple approach
-        return (math.log(1 + self.index[word][docid]) /
-                math.log(1 + self.documents[docid].nwords))
+        return (math.log(1 + self.index[word][doc]) /
+                math.log(1 + self.documents[doc].nwords))
+
+    def total_score(qwords, doc):
+        "Compute the sum of the scores of the queried words on this doc."
+        return sum(self.score(qword, doc) for qword in qwords)
 
     def present(self, results):
         "Present the results as a list."
