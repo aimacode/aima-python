@@ -26,7 +26,7 @@ class MDP:
         if not (0 <= gamma < 1):
             raise ValueError("An MDP must have 0 <= gamma < 1")
         self.gamma = gamma
-        self.states = set()
+        self.states = {}
         self.reward = {}
 
     def R(self, state):

@@ -44,4 +44,4 @@ def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
     value of lowest or more than the corresponding value of highest, clip to
     those values."""
-    return type(vector)(map(clip, vector, lowest, highest))
+    return type(vector)(list(map(clip, vector, lowest, highest)))

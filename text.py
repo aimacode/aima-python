@@ -147,8 +147,7 @@ class IRSystem:
         qwords = [w for w in words(query_text) if w not in self.stopwords]
         shortest = argmin(qwords, lambda w: len(self.index[w]))
         docs = self.index[shortest]
-        results = [(sum([self.score(w, d) for w in qwords]), d) for d in docs]
-        results.sort()
+        results = sorted([(sum([self.score(w, d) for w in qwords]), d) for d in docs])
         results.reverse()
         return results[:n]
 
