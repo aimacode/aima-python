@@ -212,7 +212,7 @@ def breadth_first_search(problem):
         return node
     frontier = FIFOQueue()
     frontier.append(node)
-    explored = {}
+    explored = set()
     while frontier:
         node = frontier.pop()
         explored.add(node.state)
@@ -238,7 +238,7 @@ def best_first_graph_search(problem, f):
         return node
     frontier = PriorityQueue(min, f)
     frontier.append(node)
-    explored = {}
+    explored = set()
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
