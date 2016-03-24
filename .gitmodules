@@ -1,0 +1,3 @@
+[submodule "aima-data"]
+	path = aima-data
+	url = https://github.com/aimacode/aima-data.git
