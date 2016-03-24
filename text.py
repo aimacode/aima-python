@@ -115,7 +115,7 @@ class IRSystem:
 
     def __init__(self, stopwords='the a of'):
         """Create an IR System. Optionally specify stopwords."""
-        # index is a map of {word: {doc: count}}, where doc is an int,
+        # index is a map of {word: {docid: count}}, where docid is an int,
         # indicating the index into the documents list.
         update(self, index=defaultdict(lambda: defaultdict(int)),
                stopwords=set(words(stopwords)), documents=[])
@@ -132,14 +132,14 @@ class IRSystem:
         # For now, use first line for title
         title = text[:text.index('\n')].strip()
         docwords = words(text)
-        doc = len(self.documents)
+        docid = len(self.documents)
         self.documents.append(Document(title, url, len(docwords)))
         for word in docwords:
             if word not in self.stopwords:
-                self.index[word][doc] += 1
+                self.index[word][docid] += 1
 
     def query(self, query_text, n=10):
-        """Return a list of n (score, doc) pairs for the best matches.
+        """Return a list of n (score, docid) pairs for the best matches.
         Also handle the special syntax for 'learn: command'."""
         if query_text.startswith("learn:"):
             doctext = os.popen(query_text[len("learn:"):], 'r').read()
@@ -147,23 +147,23 @@ class IRSystem:
             return []
         qwords = [w for w in words(query_text) if w not in self.stopwords]
         shortest = argmin(qwords, lambda w: len(self.index[w]))
-        docs = self.index[shortest]
-        return heapq.nlargest(n, ((self.total_score(qwords, doc), doc) for doc in docs))
+        docids = self.index[shortest]
+        return heapq.nlargest(n, ((self.total_score(qwords, docid), docid) for docid in docids))
 
-    def score(self, word, doc):
-        "Compute a score for this word on this doc."
+    def score(self, word, docid):
+        "Compute a score for this word on the document with this docid."
         # There are many options; here we take a very simple approach
-        return (math.log(1 + self.index[word][doc]) /
-                math.log(1 + self.documents[doc].nwords))
+        return (math.log(1 + self.index[word][docid]) /
+                math.log(1 + self.documents[docid].nwords))
 
-    def total_score(self, words, doc):
-        "Compute the sum of the scores of these words on this doc."
-        return sum(self.score(word, doc) for word in words)
+    def total_score(self, words, docid):
+        "Compute the sum of the scores of these words on the doccument with this docid."
+        return sum(self.score(word, docid) for word in words)
 
     def present(self, results):
         "Present the results as a list."
-        for (score, d) in results:
-            doc = self.documents[d]
+        for (score, docid) in results:
+            doc = self.documents[docid]
             print(
                 ("{:5.2}|{:25} | {}".format(100 * score, doc.url,
                                             doc.title[:45].expandtabs())))
