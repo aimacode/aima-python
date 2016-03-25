@@ -4,6 +4,7 @@ import collections
 import random
 
 from utils import *  # noqa
+from canvas import Canvas  #noqa
 
 infinity = float('inf')
 GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves')
@@ -135,7 +136,6 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
 def query_player(game, state):
     "Make a move by querying standard input."
-    # game.display(state)
     move_string = input('Your move? ')
     try:
         move = eval(move_string)
@@ -157,17 +157,11 @@ def play_game(game, *players):
     """Play an n-person, move-alternating game."""
 
     state = game.initial
-    print("Initial state:")
-    game.display(state)
     while True:
         for player in players:
             move = player(game, state)
             state = game.result(state, move)
-            print("State after %s's move:" % player.__name__)
-            game.display(state)
             if game.terminal_test(state):
-                print("\nGame's over!")
-                print("Final state:")
                 game.display(state)
                 return game.utility(state, game.to_move(game.initial))
 
