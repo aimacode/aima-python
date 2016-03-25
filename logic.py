@@ -169,7 +169,7 @@ class Expr:
     """
 
     def __init__(self, op, *args):
-        "Op is a string or number; args are Exprs (or are coerced to Exprs)."
+        "op is a string or number; args are Exprs (or are coerced to Exprs)."
         assert isinstance(op, str) or (isnumber(op) and not args)
         self.op = num_or_str(op)
         self.args = list(map(expr, args))  # Coerce args to Exprs
