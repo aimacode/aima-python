@@ -4,7 +4,6 @@ import collections
 import random
 
 from utils import *  # noqa
-from canvas import Canvas  #noqa
 
 infinity = float('inf')
 GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves')
