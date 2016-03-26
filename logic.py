@@ -843,6 +843,8 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
                 return count
             sym = argmax(prop_symbols(clause), sat_count)
         model[sym] = not model[sym]
+    #If no solution is found within the flip limit, we return failure
+    return None
 
 # ______________________________________________________________________________
 
