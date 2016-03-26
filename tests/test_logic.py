@@ -138,6 +138,25 @@ def test_fol_bc_ask():
     assert repr(test_ask('Rabbit(x)')) == '[{x: MrsRabbit}, {x: Pete}]'
     assert repr(test_ask('Criminal(x)', crime_kb)) == '[{x: West}]'
 
+def test_WalkSAT():
+    def check_SAT(clauses, single_solution = {}):
+        #Make sure the solution is correct if it is returned by WalkSat
+        #Sometimes WalkSat may run out of flips before finding a solution
+        soln = WalkSAT(clauses)
+        if soln:
+            assert every(lambda x: pl_true(x, soln), clauses)
+            if single_solution:  #Cross check the solution if only one exists
+                assert every(lambda x: pl_true(x, single_solution), clauses)
+                assert soln == single_solution
+    #Test WalkSat for problems with solution
+    check_SAT([A & B, A & C])
+    check_SAT([A | B, P & Q, P & B])
+    check_SAT([A & B, C | D, ~(D | P)], {A: True, B: True, C: True, D: False, P: False})
+    #Test WalkSat for problems without solution
+    assert WalkSAT([A & ~A], 0.5, 100) is None
+    assert WalkSAT([A | B, ~A, ~(B | C), C | D, P | Q], 0.5, 100) is None
+    assert WalkSAT([A | B, B & C, C | D, D & A, P, ~P], 0.5, 100) is None
+
 
 if __name__ == '__main__':
     pytest.main()
