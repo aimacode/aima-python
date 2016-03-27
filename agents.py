@@ -267,8 +267,12 @@ class Environment(object):
         do.  If there are interactions between them, you'll need to
         override this method."""
         if not self.is_done():
-            actions = [agent.program(self.percept(agent))
-                       for agent in self.agents if agent.alive]
+            actions = []
+            for agent in self.agents:
+                if agent.alive:
+                    actions.append(agent.program(self.percept(agent)))
+                else:
+                    actions.append("")
             for (agent, action) in zip(self.agents, actions):
                 self.execute_action(agent, action)
             self.exogenous_change()
@@ -462,8 +466,14 @@ class XYEnvironment(Environment):
         return location
 
     def delete_thing(self, thing):
+        '''Deletes thing, and everything it is holding (if thing is an agent)'''
+        if isinstance(thing, Agent):
+            for obj in thing.holding:
+                super(XYEnvironment, self).delete_thing(obj)
+                for obs in self.observers:
+                    obs.thing_deleted(obj)
+        
         super(XYEnvironment, self).delete_thing(thing)
-        # Any more to do?  Thing holding anything or being held?
         for obs in self.observers:
             obs.thing_deleted(thing)
             
@@ -618,7 +628,8 @@ class Scream(Thing):
     pass
 
 
-class Wumpus(Thing):
+class Wumpus(Agent):
+    screamed = False
     pass
 
 class Stench(Thing):
@@ -626,7 +637,7 @@ class Stench(Thing):
 
 class Explorer(Agent):
     holding = []
-    arrow_count = 1
+    has_arrow = True
     killed_by = ""
     direction = Direction("right")
     
@@ -660,7 +671,7 @@ class WumpusEnvironment(XYEnvironment):
         
         "WUMPUS"
         w_x, w_y = self.random_location_inbounds(exclude = (1,1))
-        self.add_thing(Wumpus(), (w_x, w_y), True)
+        self.add_thing(Wumpus(lambda x: ""), (w_x, w_y), True)
         self.add_thing(Stench(), (w_x - 1, w_y), True)
         self.add_thing(Stench(), (w_x + 1, w_y), True)
         self.add_thing(Stench(), (w_x, w_y - 1), True)
@@ -700,6 +711,7 @@ class WumpusEnvironment(XYEnvironment):
         if location != agent.location:
             thing_percepts[Gold] = None
             
+            
         result = [thing_percepts.get(thing.__class__, thing) for thing in self.things
                 if thing.location == location and isinstance(thing, tclass)]
         return result if len(result) else [None]
@@ -714,12 +726,22 @@ class WumpusEnvironment(XYEnvironment):
         result.append(self.percepts_from(agent, (x,y - 1)))
         result.append(self.percepts_from(agent, (x,y + 1)))
         result.append(self.percepts_from(agent, (x,y)))
+        
+        '''The wumpus gives out a a loud scream once it's killed.'''
+        wumpus = [thing for thing in self.things if isinstance(thing, Wumpus)]
+        if len(wumpus) and not wumpus[0].alive and not wumpus[0].screamed:
+            result[-1].append(Scream())
+            wumpus[0].screamed = True
+            
         return result
         
     def execute_action(self, agent, action):
         '''Modify the state of the environment based on the agent's actions
             Performance score taken directly out of the book'''
         
+        if isinstance(agent, Explorer) and self.in_danger(agent):
+            return
+            
         agent.bump = False
         if action == 'TurnRight':
             agent.direction = agent.direction + Direction.R
@@ -733,21 +755,37 @@ class WumpusEnvironment(XYEnvironment):
         elif action == 'Grab':
             things = [thing for thing in self.list_things_at(agent.location)
                     if agent.can_grab(thing)]
-            print("Grabbing", things[0].__class__.__name__)
             if len(things):
-                agent.holding.append(things[0])
+                print("Grabbing", things[0].__class__.__name__)
+                if len(things):
+                    agent.holding.append(things[0])
             agent.performance -= 1
         elif action == 'Climb':
             if agent.location == (1,1): #Agent can only climb out of (1,1)
                 agent.performance += 1000 if Gold() in agent.holding else 0
                 self.delete_thing(agent)
-                       
-        '''Check if agent is in danger, if he is, kill him'''
+        elif action == 'Shoot':
+            '''The arrow travels straight down the path the agent is facing'''
+            if agent.has_arrow:
+                arrow_travel = agent.direction.move_forward(agent.location)
+                while(self.is_inbounds(arrow_travel)):
+                    wumpus = [thing for thing in self.list_things_at(arrow_travel)
+                              if isinstance(thing, Wumpus)]
+                    if len(wumpus):
+                        wumpus[0].alive = False
+                        break
+                    arrow_travel = agent.direction.move_forward(agent.location)
+                agent.has_arrow = False
+                
+    def in_danger(self, agent):
+        '''Checks if Explorer is in danger (Pit or Wumpus), if he is, kill him'''
         for thing in self.list_things_at(agent.location):
-            if isinstance(thing, Wumpus) or isinstance(thing, Pit):
+            if isinstance(thing, Pit) or (isinstance(thing, Wumpus) and thing.alive):
                 agent.alive = False
                 agent.performance -= 1000
                 agent.killed_by = thing.__class__.__name__
+                return True
+        return False
                        
     def is_done(self):
         '''The game is over when the Explorer is killed
