@@ -1,9 +1,9 @@
 from IPython.display import HTML, display, clear_output
 
 _canvas = """
-<script type="text/javascript" src="./canvas.js" />
+<script type="text/javascript" src="./canvas.js"></script>
 <div>
-<canvas id="{0}" width="{1}" height="{2}" style="background:rgba(158, 167, 184, 0.2);" onclick='click_callback(this, event, "{3}")'/>
+<canvas id="{0}" width="{1}" height="{2}" style="background:rgba(158, 167, 184, 0.2);" onclick='click_callback(this, event, "{3}")'></canvas>
 </div>
 
 <script> var {0}_canvas_object = new Canvas("{0}");</script>
