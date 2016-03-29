@@ -354,7 +354,7 @@ class XYEnvironment(Environment):
 #         elif action == 'Grab':
 #             things = [thing for thing in self.list_things_at(agent.location)
 #                     if agent.can_grab(thing)]
-#             if things:
+#                if things:
 #                 agent.holding.append(things[0])
         elif action == 'Release':
             if agent.holding:

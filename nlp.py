@@ -55,16 +55,16 @@ class Grammar:
 E0 = Grammar('E0',
              Rules(  # Grammar for E_0 [Fig. 22.4]
                  S='NP VP | S Conjunction S',
-                 NP='Pronoun | Name | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',  # noqa
+                 NP='Pronoun | Name | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',
                  VP='Verb | VP NP | VP Adjective | VP PP | VP Adverb',
                  PP='Preposition NP',
                  RelClause='That VP'),
 
              Lexicon(  # Lexicon for E_0 [Fig. 22.3]
-                 Noun="stench | breeze | glitter | nothing | wumpus | pit | pits | gold | east",  # noqa
+                 Noun="stench | breeze | glitter | nothing | wumpus | pit | pits | gold | east",
                  Verb="is | see | smell | shoot | fell | stinks | go | grab | carry | kill | turn | feel",  # noqa
                  Adjective="right | left | east | south | back | smelly",
-                 Adverb="here | there | nearby | ahead | right | left | east | south | back",  # noqa
+                 Adverb="here | there | nearby | ahead | right | left | east | south | back",
                  Pronoun="me | you | I | it",
                  Name="John | Mary | Boston | Aristotle",
                  Article="the | a | an",
@@ -167,7 +167,7 @@ class Chart:
                 self.predictor(edge)
 
     def scanner(self, j, word):
-        "For each edge expecting a word of this category here, extend the edge."  # noqa
+        "For each edge expecting a word of this category here, extend the edge."  
         for (i, j, A, alpha, Bb) in self.chart[j]:
             if Bb and self.grammar.isa(word, Bb[0]):
                 self.add_edge([i, j+1, A, alpha + [(Bb[0], word)], Bb[1:]])

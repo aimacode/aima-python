@@ -43,7 +43,8 @@ class Problem(object):
 
     def goal_test(self, state):
         """Return True if the state is a goal. The default method compares the
-        state to self.goal or checks for state in self.goal if it is a list, as specified in the constructor. Override this
+        state to self.goal or checks for state in self.goal if it is a list, 
+        as specified in the constructor. Override this
         method if checking against a single self.goal is not enough."""
         if isinstance(self.goal, list):
             return is_in(state, self.goal)
@@ -398,7 +399,7 @@ def and_or_graph_search(problem):
                 return [action, plan]
 
     def and_search(states, problem, path):
-        "returns plan in form of dictionary where we take action plan[s] if we reach state s"  # noqa
+        "returns plan in form of dictionary where we take action plan[s] if we reach state s"
         plan = dict()
         for s in states:
             plan[s] = or_search(s, problem, path)
@@ -441,8 +442,7 @@ class OnlineDFSAgent:
                 if len(self.unbacktracked[current_state]) == 0:
                     self.a = None
                 else:
-                    # else a <- an action b such that result[s', b] = POP(unbacktracked[s'])  # noqa
-                    unbacktracked_pop = self.unbacktracked[current_state].pop(0)  # noqa
+                    unbacktracked_pop = self.unbacktracked[current_state].pop(0)
                     for (s, b) in self.result.keys():
                         if self.result[(s, b)] == unbacktracked_pop:
                             self.a = b
@@ -477,7 +477,8 @@ def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
     "[Fig. 4.8]"
     for i in range(ngen):
         new_population = []
-        for i in len(population):
+        len_population = len(population)
+        for i in len_population:
             fitnesses = list(map(fitness_fn, population))
             p1, p2 = weighted_sample_with_replacement(population, fitnesses, 2)
             child = p1.mate(p2)
@@ -623,7 +624,8 @@ Fig[3, 2].locations = dict(
 
 """
 Eight possible states of the vacumm world
-Each state is represented as "State if the left room" "State of the right room" "Room in which the agent is present"
+Each state is represented as "State if the left room" "State of the right room" 
+"Room in which the agent is present"
 1 Dirty Dirty Left - DDL
 2 Dirty Dirty Right - DDR
 3 Dirty Clean Left - DCL
@@ -685,7 +687,8 @@ class GraphProblem(Problem):
 
 class GraphProblemStochastic(GraphProblem):
     """
-    A version of Graph Problem where an action can lead to undeterministic output i.e. multiple possible states
+    A version of Graph Problem where an action can lead to undeterministic output 
+    i.e. multiple possible states
     Define the graph as dict(A = dict(Action = [[<Result 1>, <Result 2>, ...],<cost>], ...), ...)
     A the dictionary format is different, make sure the graph is created as a directed graph
     """
@@ -1027,7 +1030,7 @@ breadth_first_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/ 
 depth_first_graph_search      <   8/   9/  20/B>   <  16/  17/  38/N>    <   4/   5/  11/WA>
 iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>    <   3/  11/  11/WA>
 depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>    <  50/  54/ 200/WA>
-recursive_best_first_search   <   5/   6/  15/B>   <5887/5888/16532/N>   <  11/12/  43/WA>"""  # noqa
+recursive_best_first_search   <   5/   6/  15/B>   <5887/5888/16532/N>   <  11/12/  43/WA>""" 
     compare_searchers(problems=[GraphProblem('Arad', 'Bucharest', Fig[3, 2]),
                                 GraphProblem('Oradea', 'Neamt', Fig[3, 2]),
                                 GraphProblem('Q', 'WA', Fig[6, 1])],
