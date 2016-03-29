@@ -50,7 +50,7 @@ Here is a table of algorithms, the figure and page where they appear in the book
 | 4.8     | Genetic-Algorithm  | `genetic_algorithm` | [`search.py`](../master/search.py) |
 | 4.11    | And-Or-Graph-Search | `and_or_graph_search` | [`search.py`](../master/search.py)  |
 | 4.21    | Online-DFS-Agent   | `online_dfs_agent` | [`search.py`](../master/search.py) |
-| 4.24    | LRTA\*-Agent       | `lrta_star_agent` | [`search.py`](../master/search.py) |
+| 4.24    | LRTA\*-Agent       |        |        |
 | 5.3     | Minimax-Decision   | `minimax_decision` | [`games.py`](../master/games.py) |
 | 5.7     | Alpha-Beta-Search  | `alphabeta_search` | [`games.py`](../master/games.py) |
 | 6       | CSP                | `CSP` | [`csp.py`](../master/csp.py) |
@@ -67,7 +67,7 @@ Here is a table of algorithms, the figure and page where they appear in the book
 | 7.15    | PL-FC-Entails?     | `pl_fc_resolution` | [`logic.py`](../master/logic.py) |
 | 7.17    | DPLL-Satisfiable?  | `dpll_satisfiable` | [`logic.py`](../master/logic.py) |
 | 7.18    | WalkSAT            | `WalkSAT` | [`logic.py`](../master/logic.py) |
-| 7.20    | Hybrid-Wumpus-Agent    | `HybridWumpusAgent` | [`logic.py`](../master/logic.py) |
+| 7.20    | Hybrid-Wumpus-Agent    |         |           |
 | 7.22    | SATPlan            |          |
 | 9       | Subst              | `subst` | [`logic.py`](../master/logic.py) |
 | 9.1     | Unify              | `unify` | [`logic.py`](../master/logic.py) |
@@ -83,12 +83,12 @@ Here is a table of algorithms, the figure and page where they appear in the book
 | 11.1    | Job-Shop-Problem-With-Resources |          |
 | 11.5    | Hierarchical-Search |          |
 | 11.8    | Angelic-Search   |          |
-| \*12.6    | House-Building-Problem |          |
-| \*12.22   | Continuous-POP-Agent |          |
+| \* 12.6    | House-Building-Problem |          |
+| \* 12.22   | Continuous-POP-Agent |          |
 | 11.10   | Doubles-tennis     |          |
-| 13      | Discrete Probability Distribution | `DiscreteProbDist` | [`probability.py`](../master/probability.py) |
+| 13      | Discrete Probability Distribution | `ProbDist` | [`probability.py`](../master/probability.py) |
 | 13.1    | DT-Agent           | `DTAgent` | [`probability.py`](../master/probability.py) |
-| \*13.4    | Enumerate-Joint-Ask | `enumerate_joint_ask` | [`probability.py`](../master/probability.py) |
+| \* 13.4    | Enumerate-Joint-Ask | `enumerate_joint_ask` | [`probability.py`](../master/probability.py) |
 | 14.9    | Enumeration-Ask    | `enumeration_ask` | [`probability.py`](../master/probability.py) |
 | 14.11   | Elimination-Ask    | `elimination_ask` | [`probability.py`](../master/probability.py) |
 | 14.13   | Prior-Sample       | `prior_sample` | [`probability.py`](../master/probability.py) |
@@ -114,12 +114,12 @@ Here is a table of algorithms, the figure and page where they appear in the book
 | 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`](../master/rl.py) |
 | 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`](../master/rl.py) |
 | 21.8    | Q-Learning-Agent   |          |
-| \*21.2    | Naive-Communicating-Agent |          |
+| \* 21.2    | Naive-Communicating-Agent |          |
 | 22.1    | HITS               |         |         |
 | 23      | Chart-Parse        | `Chart` | [`nlp.py`](../master/nlp.py) |
 | 23.5    | CYK-Parse          |         |         |
-| \*23.1    | Viterbi-Segmentation | `viterbi_segment` | [`text.py`](../master/text.py) |
-| \*24.21   | Align              |          |
+| \* 23.1    | Viterbi-Segmentation | `viterbi_segment` | [`text.py`](../master/text.py) |
+| \* 24.21   | Align              |          |
 | 25.9    | Monte-Carlo-Localization|       |
 
 
