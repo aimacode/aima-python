@@ -66,8 +66,7 @@ def test_random_tests():
     assert play_game(ttt, alphabeta_player, alphabeta_player) >= 0
 
     # The player 'X' (one who plays first) in TicTacToe never loses:
-    for i in range(10):
-        assert play_game(ttt, alphabeta_player, random_player) >= 0
+    assert play_game(ttt, alphabeta_player, random_player) >= 0
 
 
 if __name__ == '__main__':
