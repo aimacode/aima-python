@@ -51,7 +51,9 @@ class PassiveTDAgent:
         return self.a
 
     def update_state(self, percept):
-        raise NotImplementedError
+        ''' To be overriden in most cases. The default case
+        assumes th percept to be of type (state, reward)'''
+        return percept
 
 
 def run_single_trial(agent_program, mdp):
