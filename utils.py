@@ -197,7 +197,7 @@ def matrix_multiplication(X_M, *Y_M):
     for Y in Y_M:
         result = _mat_mult(result, Y)
 
-    return([[float("{0:.4f}".format(i)) for i in row] for row in result])
+    return(result)
 
 def vector_to_diagonal(v):
     """Converts a vector to a diagonal matrix with vector elements
@@ -218,7 +218,7 @@ def scalar_vector_product(X, Y):
     return [X*y for y in Y]
 
 def scalar_matrix_product(X, Y):
-    return([[float("{0:.4f}".format(i)) for i in scalar_vector_product(X, y)] for y in Y])
+    return([scalar_vector_product(X, y) for y in Y])
 
 def inverse_matrix(X):
     """Inverse a given square matrix of size 2x2"""
@@ -228,7 +228,7 @@ def inverse_matrix(X):
     assert det != 0
     inv_mat = scalar_matrix_product(1.0/det, [[X[1][1], -X[0][1]], [-X[1][0], X[0][0]]])
 
-    return([[float("{0:.4f}".format(i)) for i in row] for row in inv_mat])
+    return(inv_mat)
 
 
 def probability(p):
@@ -253,6 +253,16 @@ def weighted_sampler(seq, weights):
 
     return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
 
+def truncate(x, n = 4):
+    """Truncates floats, vectors, matrices to n decimal values"""
+    if isinstance(x, float):
+        return(float("{0:.{1}f}".format(x, n)))
+    elif isinstance(x, list) and not isinstance(x[0], list):
+        return([float("{0:.{1}f}".format(i, n)) for i in x])
+    elif isinstance(x, list) and isinstance(x[0], list):
+        return([[float("{0:.{1}f}".format(i, n)) for i in row] for row in x])
+    else:
+        return x
 
 def num_or_str(x):
     """The argument is a string; convert to a number if
@@ -270,7 +280,7 @@ def num_or_str(x):
 def normalize(numbers):
     """Multiply each number by a constant such that the sum is 1.0"""
     total = float(sum(numbers))
-    return([float("{0:.4f}".format(n / total)) for n in numbers])
+    return([(n / total) for n in numbers])
 
 
 def clip(x, lowest, highest):
