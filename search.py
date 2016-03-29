@@ -320,7 +320,7 @@ def recursive_best_first_search(problem, h=None):
             s.f = max(s.path_cost + h(s), node.f)
         while True:
             # Order by lowest f value
-            successors.sort(lambda x, y: cmp(x.f, y.f))
+            successors.sort(key=lambda x: x.f)
             best = successors[0]
             if best.f > flimit:
                 return None, best.f

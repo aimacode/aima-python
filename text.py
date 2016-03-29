@@ -10,6 +10,7 @@ import search
 
 from math import log, exp
 from collections import defaultdict
+import heapq
 import re
 
 
@@ -146,22 +147,23 @@ class IRSystem:
             return []
         qwords = [w for w in words(query_text) if w not in self.stopwords]
         shortest = argmin(qwords, lambda w: len(self.index[w]))
-        docs = self.index[shortest]
-        results = [(sum([self.score(w, d) for w in qwords]), d) for d in docs]
-        results.sort()
-        results.reverse()
-        return results[:n]
+        docids = self.index[shortest]
+        return heapq.nlargest(n, ((self.total_score(qwords, docid), docid) for docid in docids))
 
     def score(self, word, docid):
-        "Compute a score for this word on this docid."
+        "Compute a score for this word on the document with this docid."
         # There are many options; here we take a very simple approach
         return (math.log(1 + self.index[word][docid]) /
                 math.log(1 + self.documents[docid].nwords))
 
+    def total_score(self, words, docid):
+        "Compute the sum of the scores of these words on the document with this docid."
+        return sum(self.score(word, docid) for word in words)
+
     def present(self, results):
         "Present the results as a list."
-        for (score, d) in results:
-            doc = self.documents[d]
+        for (score, docid) in results:
+            doc = self.documents[docid]
             print(
                 ("{:5.2}|{:25} | {}".format(100 * score, doc.url,
                                             doc.title[:45].expandtabs())))
