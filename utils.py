@@ -11,16 +11,6 @@ import bisect
 
 from grid import *  # noqa
 
-
-def update(x, **entries):
-    """Update a dict or an object with slots according to entries."""
-    if isinstance(x, dict):
-        x.update(entries)
-    else:
-        x.__dict__.update(entries)
-
-    return x
-
 # ______________________________________________________________________________
 # Functions on Sequences (mostly inspired by Common Lisp)
 
@@ -481,7 +471,9 @@ class PriorityQueue(Queue):
     Also supports dict-like lookup."""
 
     def __init__(self, order=min, f=lambda x: x):
-        update(self, A=[], order=order, f=f)
+        self.A = []
+        self.order = order
+        self.f = f
 
     def append(self, item):
         bisect.insort(self.A, (self.f(item), item))

@@ -2,11 +2,6 @@ import pytest
 from utils import *  # noqa
 
 
-def test_update_dict():
-    assert update({'a': 1}, a=10, b=20) == {'a': 10, 'b': 20}
-    assert update({}, a=5) == {'a': 5}
-
-
 def test_removeall_list():
     assert removeall(4, []) == []
     assert removeall(4, [1, 2, 3, 4]) == [1, 2, 3]

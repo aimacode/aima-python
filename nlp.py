@@ -35,7 +35,9 @@ class Grammar:
 
     def __init__(self, name, rules, lexicon):
         "A grammar has a set of rules and a lexicon."
-        update(self, name=name, rules=rules, lexicon=lexicon)
+        self.name = name
+        self.rules = rules
+        self.lexicon = lexicon
         self.categories = defaultdict(list)
         for lhs in lexicon:
             for word in lexicon[lhs]:
@@ -126,7 +128,8 @@ class Chart:
         """A datastructure for parsing a string; and methods to do the parse.
         self.chart[i] holds the edges that end just before the i'th word.
         Edges are 5-element lists of [start, end, lhs, [found], [expects]]."""
-        update(self, grammar=grammar, trace=trace)
+        self.grammar = grammar
+        self.trace = trace
 
     def parses(self, words, S='S'):
         """Return a list of parses; words can be a list or string.

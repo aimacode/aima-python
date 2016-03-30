@@ -38,7 +38,9 @@ class ProbDist:
     def __init__(self, varname='?', freqs=None):
         """If freqs is given, it is a dictionary of value: frequency pairs,
         and the ProbDist then is normalized."""
-        update(self, prob={}, varname=varname, values=[])
+        self.prob = {}
+        self.varname = varname
+        self.values = []
         if freqs:
             for (v, p) in list(freqs.items()):
                 self[v] = p
@@ -92,7 +94,9 @@ class JointProbDist(ProbDist):
     0.5"""
 
     def __init__(self, variables):
-        update(self, prob={}, variables=variables, vals=defaultdict(list))
+        self.prob = {}
+        self.variables = variables
+        self.vals = defaultdict(list)
 
     def __getitem__(self, values):
         "Given a tuple or dict of values, return P(values)."
@@ -166,7 +170,8 @@ class BayesNet:
 
     def __init__(self, node_specs=[]):
         "nodes must be ordered with parents before children."
-        update(self, nodes=[], vars=[])
+        self.nodes = []
+        self.vars = []
         for node_spec in node_specs:
             self.add(node_spec)
 
@@ -244,7 +249,10 @@ class BayesNode:
             assert every(lambda v: isinstance(v, bool), vs)
             assert 0 <= p <= 1
 
-        update(self, variable=X, parents=parents, cpt=cpt, children=[])
+        self.variable = X
+        self.parents = parents
+        self.cpt = cpt
+        self.children = []
 
     def p(self, value, event):
         """Return the conditional probability
@@ -363,7 +371,8 @@ class Factor:
     "A factor in a joint distribution."
 
     def __init__(self, vars, cpt):
-        update(self, vars=vars, cpt=cpt)
+        self.vars = vars
+        self.cpt = cpt
 
     def pointwise_product(self, other, bn):
         "Multiply two factors, combining their variables."
