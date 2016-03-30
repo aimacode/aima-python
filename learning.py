@@ -62,8 +62,11 @@ class DataSet:
         >>> DataSet(examples='1, 2, 3')
         <DataSet(): 1 examples, 3 attributes>
         """
-        update(self, name=name, source=source,
-               values=values, distance=distance)
+        self.name = name
+        self.source = source
+        self.values = values
+        self.distance = distance
+
         # Initialize .examples from string or list or data directory
         if isinstance(examples, str):
             self.examples = parse_csv(examples)
@@ -168,7 +171,11 @@ class CountingProbDist:
         """Create a distribution, and optionally add in some observations.
         By default this is an unsmoothed distribution, but saying default=1,
         for example, gives you add-one smoothing."""
-        update(self, dictionary={}, n_obs=0.0, default=default, sampler=None)
+        self.dictionary = {}
+        self.n_obs = 0.0
+        self.default = default
+        self.sampler = None
+
         for o in observations:
             self.add(o)
 
@@ -271,8 +278,10 @@ class DecisionFork:
 
     def __init__(self, attr, attrname=None, branches=None):
         "Initialize by saying what attribute this node tests."
-        update(self, attr=attr, attrname=attrname or attr,
-               branches=branches or {})
+        self.attr = attr
+        self.attrname = attrname or attr
+        self.branches = branches or {}
+
 
     def __call__(self, example):
         "Given an example, classify it using the attribute and the branches."

@@ -78,8 +78,11 @@ class Node:
 
     def __init__(self, state, parent=None, action=None, path_cost=0):
         "Create a search tree Node, derived from a parent by an action."
-        update(self, state=state, parent=parent, action=action,
-               path_cost=path_cost, depth=0)
+        self.state = state
+        self.parent = parent
+        self.action = action
+        self.path_cost = path_cost
+        self.depth = 0
         if parent:
             self.depth = parent.depth + 1
 
@@ -132,7 +135,8 @@ class SimpleProblemSolvingAgentProgram:
     """Abstract framework for a problem-solving agent. [Fig. 3.1]"""
 
     def __init__(self, initial_state=None):
-        update(self, state=initial_state, seq=[])
+        self.state = initial_state
+        self.seq = []
 
     def __call__(self, percept):
         self.state = self.update_state(self.state, percept)

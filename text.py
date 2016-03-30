@@ -117,8 +117,9 @@ class IRSystem:
         """Create an IR System. Optionally specify stopwords."""
         # index is a map of {word: {docid: count}}, where docid is an int,
         # indicating the index into the documents list.
-        update(self, index=defaultdict(lambda: defaultdict(int)),
-               stopwords=set(words(stopwords)), documents=[])
+        self.index = defaultdict(lambda: defaultdict(int))
+        self.stopwords = set(words(stopwords))
+        self.documents = []
 
     def index_collection(self, filenames):
         "Index a whole collection of files."
@@ -192,8 +193,9 @@ class Document:
     """Metadata for a document: title and url; maybe add others later."""
 
     def __init__(self, title, url, nwords):
-        update(self, title=title, url=url, nwords=nwords)
-
+        self.title = title
+        self.url = url
+        self.nwords = nwords
 
 def words(text, reg=re.compile('[a-z0-9]+')):
     """Return a list of the words in text, ignoring punctuation and
