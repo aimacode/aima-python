@@ -125,13 +125,13 @@ def test_to_cnf():
         "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)"
     assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
 
-def test_fol_bc_ask():    
+def test_fol_bc_ask():
     def test_ask(query, kb=None):
         q = expr(query)
-        vars = variables(q)
+        test_variables = variables(q)
         answers = fol_bc_ask(kb or test_kb, q)
         return sorted(
-            [dict((x, v) for x, v in list(a.items()) if x in vars)
+            [dict((x, v) for x, v in list(a.items()) if x in test_variables)
              for a in answers],  key=repr)
     assert repr(test_ask('Farmer(x)')) == '[{x: Mac}]'
     assert repr(test_ask('Human(x)')) == '[{x: Mac}, {x: MrsMac}]'
