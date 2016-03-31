@@ -247,9 +247,9 @@ def truncate(x, n = 4):
     """Truncates floats, vectors, matrices to n decimal values"""
     if isinstance(x, float):
         return(float("{0:.{1}f}".format(x, n)))
-    elif isinstance(x, list) and not isinstance(x[0], list):
+    elif isinstance(x, list) and isinstance(x[0], float):
         return([float("{0:.{1}f}".format(i, n)) for i in x])
-    elif isinstance(x, list) and isinstance(x[0], list):
+    elif isinstance(x, list) and isinstance(x[0], list) and isinstance(x[0][0], float):
         return([[float("{0:.{1}f}".format(i, n)) for i in row] for row in x])
     else:
         return x
