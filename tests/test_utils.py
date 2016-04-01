@@ -113,20 +113,20 @@ def test_scalar_vector_product():
     assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
 
 def test_scalar_matrix_product():
-  assert truncate(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20], [0, -30]]
-  assert truncate(scalar_matrix_product(0.2, [[1, 2], [2, 3]])) == [[0.2, 0.4], [0.4, 0.6]]
+  assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20], [0, -30]]
+  assert rounder(scalar_matrix_product(0.2, [[1, 2], [2, 3]])) == [[0.2, 0.4], [0.4, 0.6]]
 
 
 def test_inverse_matrix():
-  assert truncate(inverse_matrix([[1, 0], [0, 1]])) == [[1, 0], [0, 1]]
-  assert truncate(inverse_matrix([[2, 1], [4, 3]])) == [[1.5, -0.5], [-2.0, 1.0]]
-  assert truncate(inverse_matrix([[4, 7], [2, 6]])) == [[0.6, -0.7], [-0.2, 0.4]]
+  assert rounder(inverse_matrix([[1, 0], [0, 1]])) == [[1, 0], [0, 1]]
+  assert rounder(inverse_matrix([[2, 1], [4, 3]])) == [[1.5, -0.5], [-2.0, 1.0]]
+  assert rounder(inverse_matrix([[4, 7], [2, 6]])) == [[0.6, -0.7], [-0.2, 0.4]]
 
-def test_truncate():
-  assert truncate(5.3330000300330) == 5.3330
-  assert truncate(10.234566) == 10.2346
-  assert truncate([1.234566, 0.555555, 6.010101]) == [1.2346, 0.5556, 6.0101]
-  assert truncate([[1.234566, 0.555555, 6.010101],
+def test_rounder():
+  assert rounder(5.3330000300330) == 5.3330
+  assert rounder(10.234566) == 10.2346
+  assert rounder([1.234566, 0.555555, 6.010101]) == [1.2346, 0.5556, 6.0101]
+  assert rounder([[1.234566, 0.555555, 6.010101],
                    [10.505050, 12.121212, 6.030303]]) == [[1.2346, 0.5556, 6.0101],
                                                           [10.5051, 12.1212, 6.0303]]
 
