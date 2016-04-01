@@ -243,16 +243,13 @@ def weighted_sampler(seq, weights):
 
     return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
 
-def truncate(x, n = 4):
-    """Truncates floats, vectors, matrices to n decimal values"""
-    if isinstance(x, float):
-        return(float("{0:.{1}f}".format(x, n)))
-    elif isinstance(x, list) and isinstance(x[0], float):
-        return([float("{0:.{1}f}".format(i, n)) for i in x])
-    elif isinstance(x, list) and isinstance(x[0], list) and isinstance(x[0][0], float):
-        return([[float("{0:.{1}f}".format(i, n)) for i in row] for row in x])
+def rounder(numbers, d = 4):
+    "Round a single number, or sequence of numbers, to d decimal places."
+    if isinstance(numbers, (int, float)):
+        return round(numbers, d)
     else:
-        return x
+        constructor = type(numbers)     # Can be list, set, tuple, etc.
+        return constructor(rounder(n, d) for n in numbers)
 
 def num_or_str(x):
     """The argument is a string; convert to a number if
