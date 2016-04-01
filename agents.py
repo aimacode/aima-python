@@ -531,6 +531,13 @@ class ContinuousWorld(Environment):
     def add_obstacle(self, coordinates):
         self.things.append(PolygonObstacle(coordinates))
 
+
+class PolygonObstacle(Obstacle):
+    def __init__(self, coordinates):
+        """ Coordinates is a list of tuples. """
+        super(PolygonObstacle, self).__init__()
+        self.coordinates = coordinates
+
 # ______________________________________________________________________________
 # Vacuum environment
 
