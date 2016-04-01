@@ -110,11 +110,11 @@ def test_forward_backward():
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     umbrella_evidence = [T, T, F, T, T]
-    assert truncate(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [[0.6469, 0.3531],
+    assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [[0.6469, 0.3531],
                 [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]]
 
     umbrella_evidence = [T, F, T, F, T]
-    assert truncate(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [[0.5871, 0.4129],
+    assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [[0.5871, 0.4129],
                  [0.7177, 0.2823], [0.2324, 0.7676], [0.6072, 0.3928], [0.2324, 0.7676], [0.7177, 0.2823]]
 
 def test_fixed_lag_smoothing():
@@ -126,16 +126,16 @@ def test_fixed_lag_smoothing():
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     d = 2
-    assert truncate(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.1111, 0.8889]
+    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.1111, 0.8889]
     d = 5
-    assert truncate(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) is None
+    assert fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t) is None
 
     umbrella_evidence = [T, T, F, T, T]
     # t = 4
     e_t = T
 
     d = 1
-    assert truncate(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.9939, 0.0061]
+    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.9939, 0.0061]
 
 
 if __name__ == '__main__':
