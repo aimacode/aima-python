@@ -413,21 +413,36 @@ def and_or_graph_search(problem):
     # body of and or search
     return or_search(problem.initial, problem, [])
 
+# ______________________________________________________________________________
+
+class MazeProblem(Problem):
+    """ Fig. [4.19]
+    """
+    def __init__(self):
+        raise NotImplementedError
+
+    def update_state(self, percept):
+        raise NotImplementedError
+
 
 class OnlineDFSAgent:
 
-    """The abstract class for an OnlineDFSAgent. Override update_state
+    """ [Fig. 4.21]
+    The abstract class for an OnlineDFSAgent. Override update_state
     method to convert percept to state. While initilizing the subclass
     a problem needs to be provided which is an instance of a subclass
-    of the Problem Class. [Fig. 4.21] """
+    of the Problem Class.
+
+    Takes a MazeProblem Fig. [4.19] as problem
+    """
 
     def __init__(self, problem):
         self.problem = problem
-        self.s = None
-        self.a = None
+        self.result = {}
         self.untried = defaultdict(list)
         self.unbacktracked = defaultdict(list)
-        self.result = {}
+        self.s = None
+        self.a = None
 
     def __call__(self, percept):
         current_state = self.update_state(percept)
@@ -456,8 +471,6 @@ class OnlineDFSAgent:
         self.s = current_state
         return self.a
 
-    def update_state(self, percept):
-        raise NotImplementedError
 
 class LRTAStarAgent:
 
