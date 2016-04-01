@@ -18,3 +18,5 @@ var all_polygons = {3};
 {4}
 </script>
 '''
+with open('js/continuousworld.js', 'r') as js_file:
+    _JS_CONTINUOUS_WORLD = js_file.read()
