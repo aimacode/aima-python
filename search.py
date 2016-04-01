@@ -459,9 +459,52 @@ class OnlineDFSAgent:
     def update_state(self, percept):
         raise NotImplementedError
 
-def lrta_star_agent(s1):
-    "[Fig. 4.24]"
-    unimplemented()
+class LRTAStarAgent:
+
+    """Fig. [4.24]
+    Abstract class for LRTA*-Agent. A problem needs to be
+    provided which is an instanace of a subclass of Problem Class.
+
+    Takes a OneDimStateSpaceProblem Fig. [4.23] as a problem
+    """
+
+    def __init__(self, problem):
+        self.problem = problem
+        self.result = {}
+        self.H = {}
+        self.s = None
+        self.a = None
+
+    def __call__(self, s1):
+        current_state = self.update_state(s1)
+        if self.problem.goal_test(current_state):
+            self.a = None
+        else:
+            if current_state not in H:
+                H[current_state] = h(current_state)
+            if s is not None:
+                self.result[(self.s, self.a)] = current_state
+                # minimum cost for action b in problem.actions(s)
+                H[s] = min([LRTA_cost(s, b, self.result[(self.s, b)], H) for b in self.problem.actions(s)])
+
+            # costs for action b in problem.actions(current_state)
+            costs = [LRTA_cost(current_state, b, result[(current_state, b)], H)
+                                    for b in self.problem.actions(current_state)]
+            # an action b in problem.actions(current_state) that minimizes costs
+            self.a = self.problem.actions(current_state)[costs.index(min(costs))]
+
+            s = current_state
+            return a
+
+    def LRTA_cost(s, a, s1, H):
+        """
+        returns cost to move from state 's' to state 's1' plus
+        estimated cost to get to goal from s1
+        """
+        if s1 is None:
+            return(h(s))
+        else:
+            return(c(s, a, s1) + H[s1])
 
 # ______________________________________________________________________________
 # Genetic Algorithm
