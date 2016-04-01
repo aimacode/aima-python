@@ -471,6 +471,30 @@ class OnlineDFSAgent:
         self.s = current_state
         return self.a
 
+# ______________________________________________________________________________
+
+class OneDimStateSpaceProblem(Problem):
+    """ Fig. [4.23]
+    """
+    def __init__(self):
+        raise NotImplementedError
+
+    def h(self, state):
+        """
+        returns least possible cost for the given state
+        """
+        raise NotImplementedError
+
+    def c(self, s, a, s1):
+        """
+        returns a cost estimate to move from state 's' to state 's1'
+        """
+        raise NotImplementedError
+
+
+    def update_state(self, percept):
+        raise NotImplementedError
+
 
 class LRTAStarAgent:
 
