@@ -10,9 +10,14 @@ _canvas = """
 """
 
 class Canvas:
-    """Use this to manage the HTML canvas element in jupyter notebooks"""
+    """Inherit from this class to manage the HTML canvas element in jupyter notebooks.
+    To create an object of this class any_name_xyz = Canvas("any_name_xyz")
+    The first argument given must be the name of the object being create
+    IPython must be able to refernce the variable name that is being passed
+    """
 
     def __init__(self, varname, id=None, width=800, height=600):
+        """"""
         self.name = varname
         self.id = id or varname
         self.width = width
@@ -22,36 +27,54 @@ class Canvas:
         display(HTML(self.html))
 
     def mouse_click(self, x, y):
+        "Override this method to handle mouse click at position (x, y)"
         raise NotImplementedError
 
     def mouse_move(self, x, y):
         raise NotImplementedError
 
+    def exec(self, exec_str):
+        "Stores the command to be exectued to a list which is used later during update()"
+        if not isinstance(exec_str, str):
+            print("Invalid execution argument:",exec_str)
+            self.alert("Recieved invalid execution command format")
+        prefix = "{0}_canvas_object.".format(self.id)
+        self.exec_list.append(prefix + exec_str + ';')
+
     def fill(self, r, g, b):
-        self.exec_list.append("{0}_canvas_object.fill({1}, {2}, {3});".format(self.id, r, g, b))
+        "Changes the fill color to a color in rgb format"
+        self.exec("fill({0}, {1}, {2})".format(r, g, b))
 
     def stroke(self, r, g, b):
-        self.exec_list.append("{0}_canvas_object.stroke({1}, {2}, {3});".format(self.id, r, g, b))
+        "Changes the colors of line/strokes to rgb"
+        self.exec("stroke({0}, {1}, {2})".format(r, g, b))
 
     def strokeWidth(self, w):
-        self.exec_list.append("{0}_canvas_object.strokeWidth({1});".format(self.id, w))
+        "Changes the width of lines/strokes to 'w' pixels"
+        self.exec("strokeWidth({0})".format(w))
 
     def rect(self, x, y, w, h):
-        self.exec_list.append("{0}_canvas_object.rect({1}, {2}, {3}, {4});".format(self.id, x*self.width, y*self.height, w*self.width, h*self.height))   
+        "Draw a rectangle with 'w' width, 'h' height and (x, y) as the top-left corner"
+        self.exec("rect({0}, {1}, {2}, {3})".format(x, y, w, h))
 
     def line(self, x1, y1, x2, y2):
-        self.exec_list.append("{0}_canvas_object.line({1}, {2}, {3}, {4});".format(self.id, x1*self.width, y1*self.height, x2*self.width, y2*self.height))
+        "Draw a line from (x1, y1) to (x, y2)"
+        self.exec("line({0}, {1}, {2}, {3})".format(x1, y1, x2, y2))
 
     def arc(self, x, y, r, start, stop):
-        self.exec_list.append("{0}_canvas_object.arc({1}, {2}, {3}, {4}, {5});".format(self.id, x*self.width, y*self.height, r*min(self.width, self.height), start, stop))
+        "Draw an arc with (x, y) as centre, 'r' as radius from angles 'start' to 'stop'"
+        self.exec("arc({0}, {1}, {2}, {3}, {4})".format(x, y, r, start, stop))
 
     def clear(self):
-        self.exec_list.append("{0}_canvas_object.clear();".format(self.id))
+        "Clear the HTML canvas"
+        self.exec("clear()")
 
     def alert(self, message):
+        "Immediately display an alert"
         display(HTML('<script>alert("{0}")</script>'.format(message)))
 
-    def update(self):        
+    def update(self):
+        "Execute the JS code to execute the commands queued by exec()"
         exec_code = "<script>\n"+'\n'.join(self.exec_list)+"\n</script>"
         self.exec_list = []
         display(HTML(exec_code))

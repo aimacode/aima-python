@@ -1,3 +1,10 @@
+/*
+  JavaScript functions that are executed by running the corresponding methods of a Canvas object
+  Donot use these functions by making a js file. Instead use the python Canvas class.
+  See canvas.py for help on how to use the Canvas class to draw on the HTML Canvas
+*/
+
+//Manages the output of code executed in IPython kernel
 function output_callback(out, block){
     console.log(out);
     script = out.content.data['text/html'];
@@ -7,6 +14,7 @@ function output_callback(out, block){
     eval(script)
 }
 
+//Handles mouse click by calling mouse_click of Canvas object with the co-ordinates as arguments
 function click_callback(element, event, varname){
     var rect = element.getBoundingClientRect();
     var x = event.clientX - rect.left;
@@ -20,8 +28,7 @@ function click_callback(element, event, varname){
 function rgbToHex(r,g,b){
     var hexValue=(r<<16) + (g<<8) + (b<<0);
     var hexString=hexValue.toString(16);
-    //Add 0 padding
-    hexString ='#' + Array(7-hexString.length).join('0') + hexString;
+    hexString ='#' + Array(7-hexString.length).join('0') + hexString;  //Add 0 padding
     return hexString;
 }
 
@@ -38,25 +45,27 @@ function Canvas(id){
     this.MOUSE = {x:0,y:0};
 }
 
+//Sets the fill color with which shapes are filled
 Canvas.prototype.fill = function(r, g, b){
-    //Sets the fill color
     this.ctx.fillStyle = rgbToHex(r,g,b);
 }
 
+//Set the stroke color
 Canvas.prototype.stroke = function(r, g, b){
-    //Set the stroke color
     this.ctx.strokeStyle = rgbToHex(r,g,b);
 }
 
+//Set width of the lines/strokes
 Canvas.prototype.strokeWidth = function(w){
-    //Set width of the line
     this.ctx.lineWidth = w;
 }
 
+//Draw a rectangle with top left at (x,y) with 'w' width and 'h' height
 Canvas.prototype.rect = function(x, y, w, h){
     this.ctx.fillRect(x,y,w,h);
 }
 
+//Draw a line with (x1, y1) and (x2, y2) as end points
 Canvas.prototype.line = function(x1, y1, x2, y2){
     this.ctx.beginPath();
     this.ctx.moveTo(x1, y1);
@@ -64,16 +73,19 @@ Canvas.prototype.line = function(x1, y1, x2, y2){
     this.ctx.stroke();
 }
 
+//Draw an arc with (x, y) as centre, 'r' as radius from angles start to stop
 Canvas.prototype.arc = function(x, y, r, start, stop){
     this.ctx.beginPath();
     this.ctx.arc(x, y, r, toRad(start), toRad(stop));
     this.ctx.stroke();
 }
 
+//Clear the HTML canvas
 Canvas.prototype.clear = function(){
     this.ctx.clearRect(0, 0, this.WIDTH, this.HEIGHT);
 }
 
+//Test if the canvas functions are working
 Canvas.prototype.test_run = function(){
     var dbg = false;
     if(dbg)
