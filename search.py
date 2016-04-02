@@ -413,21 +413,36 @@ def and_or_graph_search(problem):
     # body of and or search
     return or_search(problem.initial, problem, [])
 
+# ______________________________________________________________________________
+
+class MazeProblem(Problem):
+    """ Fig. [4.19]
+    """
+    def __init__(self):
+        raise NotImplementedError
+
+    def update_state(self, percept):
+        raise NotImplementedError
+
 
 class OnlineDFSAgent:
 
-    """The abstract class for an OnlineDFSAgent. Override update_state
+    """ [Fig. 4.21]
+    The abstract class for an OnlineDFSAgent. Override update_state
     method to convert percept to state. While initilizing the subclass
     a problem needs to be provided which is an instance of a subclass
-    of the Problem Class. [Fig. 4.21] """
+    of the Problem Class.
+
+    Takes a MazeProblem Fig. [4.19] as problem
+    """
 
     def __init__(self, problem):
         self.problem = problem
-        self.s = None
-        self.a = None
+        self.result = {}
         self.untried = defaultdict(list)
         self.unbacktracked = defaultdict(list)
-        self.result = {}
+        self.s = None
+        self.a = None
 
     def __call__(self, percept):
         current_state = self.update_state(percept)
@@ -456,12 +471,77 @@ class OnlineDFSAgent:
         self.s = current_state
         return self.a
 
+# ______________________________________________________________________________
+
+class OneDimStateSpaceProblem(Problem):
+    """ Fig. [4.23]
+    """
+    def __init__(self):
+        raise NotImplementedError
+
+    def h(self, state):
+        """
+        returns least possible cost for the given state
+        """
+        raise NotImplementedError
+
+    def c(self, s, a, s1):
+        """
+        returns a cost estimate to move from state 's' to state 's1'
+        """
+        raise NotImplementedError
+
+
     def update_state(self, percept):
         raise NotImplementedError
 
-def lrta_star_agent(s1):
-    "[Fig. 4.24]"
-    unimplemented()
+
+class LRTAStarAgent:
+
+    """Fig. [4.24]
+    Abstract class for LRTA*-Agent. A problem needs to be
+    provided which is an instanace of a subclass of Problem Class.
+
+    Takes a OneDimStateSpaceProblem Fig. [4.23] as a problem
+    """
+
+    def __init__(self, problem):
+        self.problem = problem
+        self.result = {}
+        self.H = {}
+        self.s = None
+        self.a = None
+
+    def __call__(self, s1):
+        current_state = self.update_state(s1)
+        if self.problem.goal_test(current_state):
+            self.a = None
+        else:
+            if current_state not in H:
+                H[current_state] = h(current_state)
+            if s is not None:
+                self.result[(self.s, self.a)] = current_state
+                # minimum cost for action b in problem.actions(s)
+                H[s] = min([LRTA_cost(s, b, self.result[(self.s, b)], H) for b in self.problem.actions(s)])
+
+            # costs for action b in problem.actions(current_state)
+            costs = [LRTA_cost(current_state, b, result[(current_state, b)], H)
+                                    for b in self.problem.actions(current_state)]
+            # an action b in problem.actions(current_state) that minimizes costs
+            self.a = self.problem.actions(current_state)[costs.index(min(costs))]
+
+            s = current_state
+            return a
+
+    def LRTA_cost(s, a, s1, H):
+        """
+        returns cost to move from state 's' to state 's1' plus
+        estimated cost to get to goal from s1
+        """
+        if s1 is None:
+            return(h(s))
+        else:
+            return(c(s, a, s1) + H[s1])
 
 # ______________________________________________________________________________
 # Genetic Algorithm
