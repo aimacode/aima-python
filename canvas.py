@@ -57,13 +57,38 @@ class Canvas:
         "Draw a rectangle with 'w' width, 'h' height and (x, y) as the top-left corner"
         self.exec("rect({0}, {1}, {2}, {3})".format(x, y, w, h))
 
+    def rect_n(self, xn, yn, wn, hn):
+        "Similar to rect(), but the dimensions are normalized to fall between 0 and 1"
+        x = xn * self.width
+        y = yn * self.height
+        w = wn * self.width
+        h = hn * self.height
+        self.rect(x, y, w, h)
+
     def line(self, x1, y1, x2, y2):
         "Draw a line from (x1, y1) to (x, y2)"
         self.exec("line({0}, {1}, {2}, {3})".format(x1, y1, x2, y2))
 
+    def line_n(self, x1n, y1n, x2n, y2n):
+        "Similar to line(), but the dimensions are normalized to fall between 0 and 1"
+        x1 = x1n * self.width
+        y1 = y1n * self.height
+        x2 = x2n * self.width
+        y2 = y2n * self.height
+        self.line(x1, y1, x2, y2)
+
     def arc(self, x, y, r, start, stop):
         "Draw an arc with (x, y) as centre, 'r' as radius from angles 'start' to 'stop'"
         self.exec("arc({0}, {1}, {2}, {3}, {4})".format(x, y, r, start, stop))
+
+    def arc_n(self, xn ,yn, rn, start, stop):
+        """Similar to arc(), but the dimensions are normalized to fall between 0 and 1
+        The normalizing factor for radius is selected between width and height by seeing which is smaller
+        """
+        x = xn * self.width
+        y = yn * self.height
+        r = rn * min(self.width, self.height)
+        self.arc(x, y, r, start, stop)
 
     def clear(self):
         "Clear the HTML canvas"
