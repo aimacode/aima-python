@@ -85,6 +85,22 @@ Canvas.prototype.clear = function(){
     this.ctx.clearRect(0, 0, this.WIDTH, this.HEIGHT);
 }
 
+//Change font, size and style
+Canvas.prototype.font = function(font_str){
+    this.ctx.font = font_str;
+}
+
+//Draws "filled" text on the canvas
+Canvas.prototype.fill_text = function(text, x, y){
+    this.ctx.fillText(text, x, y);
+}
+
+//Write text on the canvas
+Canvas.prototype.stroke_text = function(text, x, y){
+    this.ctx.strokeText(text, x, y);
+}
+
+
 //Test if the canvas functions are working
 Canvas.prototype.test_run = function(){
     var dbg = false;

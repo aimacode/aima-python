@@ -94,6 +94,23 @@ class Canvas:
         "Clear the HTML canvas"
         self.exec("clear()")
 
+    def font(self, font):
+        "Changes the font of text"
+        self.exec('font("{0}")'.format(font))
+
+    def text(self, txt, x, y, fill = True):
+        "Display a text at (x, y)"
+        if fill:
+            self.exec('fill_text("{0}", {1}, {2})'.format(txt, x, y))
+        else:
+            self.exec('stroke_text("{0}", {1}, {2})'.format(txt, x, y))
+
+    def text_n(self, txt, xn, yn, fill = True):
+        "Similar to text(), but with normalized coordinates"
+        x = xn * self.width
+        y = yn * self.height
+        self.text(text, x, y, fill)
+
     def alert(self, message):
         "Immediately display an alert"
         display(HTML('<script>alert("{0}")</script>'.format(message)))
