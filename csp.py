@@ -54,9 +54,14 @@ class CSP(search.Problem):
     def __init__(self, variables, domains, neighbors, constraints):
         "Construct a CSP problem. If variables is empty, it becomes domains.keys()."
         variables = variables or list(domains.keys())
-        update(self, variables=variables, domains=domains,
-               neighbors=neighbors, constraints=constraints,
-               initial=(), curr_domains=None, nassigns=0)
+
+        self.variables = variables
+        self.domains = domains
+        self.neighbors = neighbors
+        self.constraints = constraints
+        self.initial = ()
+        self.curr_domains = None
+        self.nassigns = 0
 
     def assign(self, var, val, assignment):
         "Add {var: val} to assignment; Discard the old value if any."
@@ -438,7 +443,10 @@ class NQueensCSP(CSP):
         """Initialize data structures for n Queens."""
         CSP.__init__(self, list(range(n)), UniversalDict(list(range(n))),
                      UniversalDict(list(range(n))), queen_constraint)
-        update(self, rows=[0]*n, ups=[0]*(2*n - 1), downs=[0]*(2*n - 1))
+
+        self.rows = [0]*n
+        self.ups = [0]*(2*n - 1)
+        self.downs = [0]*(2*n - 1)
 
     def nconflicts(self, var, val, assignment):
         """The number of conflicts, as recorded with each assignment.

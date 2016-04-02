@@ -125,18 +125,37 @@ def test_to_cnf():
         "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)"
     assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
 
-def test_fol_bc_ask():    
+def test_fol_bc_ask():
     def test_ask(query, kb=None):
         q = expr(query)
-        vars = variables(q)
+        test_variables = variables(q)
         answers = fol_bc_ask(kb or test_kb, q)
         return sorted(
-            [dict((x, v) for x, v in list(a.items()) if x in vars)
+            [dict((x, v) for x, v in list(a.items()) if x in test_variables)
              for a in answers],  key=repr)
     assert repr(test_ask('Farmer(x)')) == '[{x: Mac}]'
     assert repr(test_ask('Human(x)')) == '[{x: Mac}, {x: MrsMac}]'
     assert repr(test_ask('Rabbit(x)')) == '[{x: MrsRabbit}, {x: Pete}]'
     assert repr(test_ask('Criminal(x)', crime_kb)) == '[{x: West}]'
+
+def test_WalkSAT():
+    def check_SAT(clauses, single_solution = {}):
+        #Make sure the solution is correct if it is returned by WalkSat
+        #Sometimes WalkSat may run out of flips before finding a solution
+        soln = WalkSAT(clauses)
+        if soln:
+            assert every(lambda x: pl_true(x, soln), clauses)
+            if single_solution:  #Cross check the solution if only one exists
+                assert every(lambda x: pl_true(x, single_solution), clauses)
+                assert soln == single_solution
+    #Test WalkSat for problems with solution
+    check_SAT([A & B, A & C])
+    check_SAT([A | B, P & Q, P & B])
+    check_SAT([A & B, C | D, ~(D | P)], {A: True, B: True, C: True, D: False, P: False})
+    #Test WalkSat for problems without solution
+    assert WalkSAT([A & ~A], 0.5, 100) is None
+    assert WalkSAT([A | B, ~A, ~(B | C), C | D, P | Q], 0.5, 100) is None
+    assert WalkSAT([A | B, B & C, C | D, D & A, P, ~P], 0.5, 100) is None
 
 
 if __name__ == '__main__':

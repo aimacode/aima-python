@@ -84,6 +84,8 @@ class Agent(Thing):
     def __init__(self, program=None):
         self.alive = True
         self.bump = False
+        self.holding = []
+        self.performance = 0
         if program is None:
             def program(percept):
                 return eval(input('Percept={}; action? ' .format(percept)))
@@ -265,8 +267,12 @@ class Environment(object):
         do.  If there are interactions between them, you'll need to
         override this method."""
         if not self.is_done():
-            actions = [agent.program(self.percept(agent))
-                       for agent in self.agents]
+            actions = []
+            for agent in self.agents:
+                if agent.alive:
+                    actions.append(agent.program(self.percept(agent)))
+                else:
+                    actions.append("")
             for (agent, action) in zip(self.agents, actions):
                 self.execute_action(agent, action)
             self.exogenous_change()
@@ -313,6 +319,56 @@ class Environment(object):
         if thing in self.agents:
             self.agents.remove(thing)
 
+class Direction():
+    '''A direction class for agents that want to move in a 2D plane
+        Usage:
+            d = Direction("Down")
+            To change directions:
+            d = d + "right" or d = d + Direction.R #Both do the same thing
+            Note that the argument to __add__ must be a string and not a Direction object.
+            Also, it (the argument) can only be right or left. '''
+
+    R = "right"
+    L = "left"
+    U = "up"
+    D = "down"
+
+    def __init__(self, direction):
+        self.direction = direction
+
+    def __add__(self, heading):
+        if self.direction == self.R:
+            return{
+                self.R: Direction(self.D),
+                self.L: Direction(self.U),
+            }.get(heading, None)
+        elif self.direction == self.L:
+            return{
+                self.R: Direction(self.U),
+                self.L: Direction(self.L),
+            }.get(heading, None)
+        elif self.direction == self.U:
+            return{
+                self.R: Direction(self.R),
+                self.L: Direction(self.L),
+            }.get(heading, None)
+        elif self.direction == self.D:
+            return{
+                self.R: Direction(self.L),
+                self.L: Direction(self.R),
+            }.get(heading, None)
+
+    def move_forward(self, from_location):
+        x,y = from_location
+        if self.direction == self.R:
+            return (x+1, y)
+        elif self.direction == self.L:
+            return (x-1, y)
+        elif self.direction == self.U:
+            return (x, y-1)
+        elif self.direction == self.D:
+            return (x, y+1)
+
 
 class XYEnvironment(Environment):
 
@@ -326,31 +382,35 @@ class XYEnvironment(Environment):
 
     def __init__(self, width=10, height=10):
         super(XYEnvironment, self).__init__()
-        update(self, width=width, height=height, observers=[])
 
+        self.width = width
+        self.height = height
+        self.observers = []
+        #Sets iteration start and end (no walls).
+        self.x_start,self.y_start = (0,0)
+        self.x_end,self.y_end = (self.width, self.height)
+
+    perceptible_distance = 1
     def things_near(self, location, radius=None):
         "Return all things within radius of location."
         if radius is None:
             radius = self.perceptible_distance
         radius2 = radius * radius
-        return [thing for thing in self.things
+        return [(thing, radius2 - distance2(location, thing.location)) for thing in self.things
                 if distance2(location, thing.location) <= radius2]
 
-    perceptible_distance = 1
-
     def percept(self, agent):
-        "By default, agent perceives things within a default radius."
-        return [self.thing_percept(thing, agent)
-                for thing in self.things_near(agent.location)]
+        '''By default, agent perceives things within a default radius.'''
+        return self.things_near(agent.location)
 
     def execute_action(self, agent, action):
         agent.bump = False
         if action == 'TurnRight':
-            agent.heading = self.turn_heading(agent.heading, -1)
+            agent.direction = agent.direction + Direction.R
         elif action == 'TurnLeft':
-            agent.heading = self.turn_heading(agent.heading, +1)
+            agent.direction = agent.direction + Direction.L
         elif action == 'Forward':
-            self.move_to(agent, vector_add(agent.heading, agent.location))
+            agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
 #         elif action == 'Grab':
 #             things = [thing for thing in self.list_things_at(agent.location)
 #                     if agent.can_grab(thing)]
@@ -360,42 +420,77 @@ class XYEnvironment(Environment):
             if agent.holding:
                 agent.holding.pop()
 
-    def thing_percept(self, thing, agent):  # ??? Should go to thing?
-        "Return the percept for this thing."
-        return thing.__class__.__name__
-
     def default_location(self, thing):
         return (random.choice(self.width), random.choice(self.height))
 
     def move_to(self, thing, destination):
-        "Move a thing to a new location."
+        '''Move a thing to a new location. Returns True on success or False if there is an Obstacle
+            If thing is grabbing anything, they move with him '''
         thing.bump = self.some_things_at(destination, Obstacle)
         if not thing.bump:
             thing.location = destination
             for o in self.observers:
                 o.thing_moved(thing)
+            for t in thing.holding:
+                self.delete_thing(t)
+                self.add_thing(t, destination)
+                t.location = destination
+        return thing.bump
 
-    def add_thing(self, thing, location=(1, 1)):
-        super(XYEnvironment, self).add_thing(thing, location)
-        thing.holding = []
-        thing.held = None
-        for obs in self.observers:
-            obs.thing_added(thing)
+    # def add_thing(self, thing, location=(1, 1)):
+    #     super(XYEnvironment, self).add_thing(thing, location)
+    #     thing.holding = []
+    #     thing.held = None
+    #     for obs in self.observers:
+    #         obs.thing_added(thing)
+
+    def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items = False):
+        '''Adds things to the world.
+            If (exclude_duplicate_class_items) then the item won't be added if the location
+            has at least one item of the same class'''
+        if (self.is_inbounds(location)):
+            if (exclude_duplicate_class_items and
+                any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):
+                    return
+            super(XYEnvironment, self).add_thing(thing, location)
+
+    def is_inbounds(self, location):
+        '''Checks to make sure that the location is inbounds (within walls if we have walls)'''
+        x,y = location
+        return not (x < self.x_start or x >= self.x_end or y < self.y_start or y >= self.y_end)
+
+    def random_location_inbounds(self, exclude = None):
+        '''Returns a random location that is inbounds (within walls if we have walls)'''
+        location = (random.randint(self.x_start, self.x_end), random.randint(self.y_start, self.y_end))
+        if exclude is not None:
+            while(location == exclude):
+                location = (random.randint(self.x_start, self.x_end), random.randint(self.y_start, self.y_end))
+        return location
 
     def delete_thing(self, thing):
+        '''Deletes thing, and everything it is holding (if thing is an agent)'''
+        if isinstance(thing, Agent):
+            for obj in thing.holding:
+                super(XYEnvironment, self).delete_thing(obj)
+                for obs in self.observers:
+                    obs.thing_deleted(obj)
+
         super(XYEnvironment, self).delete_thing(thing)
-        # Any more to do?  Thing holding anything or being held?
         for obs in self.observers:
             obs.thing_deleted(thing)
 
     def add_walls(self):
-        "Put walls around the entire perimeter of the grid."
+        '''Put walls around the entire perimeter of the grid.'''
         for x in range(self.width):
             self.add_thing(Wall(), (x, 0))
             self.add_thing(Wall(), (x, self.height-1))
         for y in range(self.height):
             self.add_thing(Wall(), (0, y))
             self.add_thing(Wall(), (self.width-1, y))
+
+        #Updates iteration start and end (with walls).
+        self.x_start,self.y_start = (1,1)
+        self.x_end,self.y_end = (self.width-1, self.height-1)
 
     def add_observer(self, observer):
         """Adds an observer to the list of observers.
@@ -420,6 +515,28 @@ class Obstacle(Thing):
 
 class Wall(Obstacle):
     pass
+
+
+
+# ______________________________________________________________________________
+# Continuous environment
+
+class ContinuousWorld(Environment):
+    """ Model for Continuous World. """
+    def __init__(self, width=10, height=10):
+        super(ContinuousWorld, self).__init__()
+        self.width = width
+        self.height = height
+
+    def add_obstacle(self, coordinates):
+        self.things.append(PolygonObstacle(coordinates))
+
+
+class PolygonObstacle(Obstacle):
+    def __init__(self, coordinates):
+        """ Coordinates is a list of tuples. """
+        super(PolygonObstacle, self).__init__()
+        self.coordinates = coordinates
 
 # ______________________________________________________________________________
 # Vacuum environment
@@ -509,37 +626,206 @@ class TrivialVacuumEnvironment(Environment):
 
 
 class Gold(Thing):
+
+    def __eq__(self, rhs):
+        '''All Gold are equal'''
+        return rhs.__class__ == Gold
     pass
 
+class Bump(Thing):
+    pass
+
+class Glitter(Thing):
+    pass
 
 class Pit(Thing):
+    pass
+
+class Breeze(Thing):
     pass
 
 
 class Arrow(Thing):
     pass
 
+class Scream(Thing):
+    pass
+
 
 class Wumpus(Agent):
+    screamed = False
     pass
 
+class Stench(Thing):
+    pass
 
 class Explorer(Agent):
-    pass
+    holding = []
+    has_arrow = True
+    killed_by = ""
+    direction = Direction("right")
+
+    def can_grab(self, thing):
+        '''Explorer can only grab gold'''
+        return thing.__class__ == Gold
 
 
 class WumpusEnvironment(XYEnvironment):
-
-    def __init__(self, width=10, height=10):
+    pit_probability = 0.2 #Probability to spawn a pit in a location. (From Chapter 7.2)
+    #Room should be 4x4 grid of rooms. The extra 2 for walls
+    def __init__(self, agent_program, width=6, height=6):
         super(WumpusEnvironment, self).__init__(width, height)
+        self.init_world(agent_program)
+
+    def init_world(self, program):
+        '''Spawn items to the world based on probabilities from the book'''
+
+        "WALLS"
         self.add_walls()
 
-    def thing_classes(self):
-        return [Wall, Gold, Pit, Arrow, Wumpus, Explorer]
+        "PITS"
+        for x in range(self.x_start, self.x_end):
+            for y in range(self.y_start, self.y_end):
+                if random.random() < self.pit_probability:
+                    self.add_thing(Pit(), (x,y), True)
+                    self.add_thing(Breeze(), (x - 1,y), True)
+                    self.add_thing(Breeze(), (x,y - 1), True)
+                    self.add_thing(Breeze(), (x + 1,y), True)
+                    self.add_thing(Breeze(), (x,y + 1), True)
 
-    # Needs a lot of work ...
+        "WUMPUS"
+        w_x, w_y = self.random_location_inbounds(exclude = (1,1))
+        self.add_thing(Wumpus(lambda x: ""), (w_x, w_y), True)
+        self.add_thing(Stench(), (w_x - 1, w_y), True)
+        self.add_thing(Stench(), (w_x + 1, w_y), True)
+        self.add_thing(Stench(), (w_x, w_y - 1), True)
+        self.add_thing(Stench(), (w_x, w_y + 1), True)
+
+        "GOLD"
+        self.add_thing(Gold(), self.random_location_inbounds(exclude = (1,1)), True)
+        #self.add_thing(Gold(), (2,1), True)  Making debugging a whole lot easier
+
+        "AGENT"
+        self.add_thing(Explorer(program), (1,1), True)
+
+    def get_world(self, show_walls = True):
+        '''returns the items in the world'''
+        result = []
+        x_start,y_start = (0,0)  if show_walls else (1,1)
+        x_end,y_end = (self.width, self.height) if show_walls else (self.width - 1, self.height - 1)
+        for x in range(x_start, x_end):
+            row = []
+            for y in range(y_start, y_end):
+                row.append(self.list_things_at((x,y)))
+            result.append(row)
+        return result
+
+    def percepts_from(self, agent, location, tclass = Thing):
+        '''Returns percepts from a given location, and replaces some items with percepts from chapter 7.'''
+        thing_percepts = {
+            Gold: Glitter(),
+            Wall: Bump(),
+            Wumpus: Stench(),
+            Pit: Breeze()
+            }
+        '''Agents don't need to get their percepts'''
+        thing_percepts[agent.__class__] = None
+
+        '''Gold only glitters in its cell'''
+        if location != agent.location:
+            thing_percepts[Gold] = None
 
 
+        result = [thing_percepts.get(thing.__class__, thing) for thing in self.things
+                if thing.location == location and isinstance(thing, tclass)]
+        return result if len(result) else [None]
+
+    def percept(self, agent):
+        '''Returns things in adjacent (not diagonal) cells of the agent.
+            Result format: [Left, Right, Up, Down, Center / Current location]'''
+        x,y = agent.location
+        result = []
+        result.append(self.percepts_from(agent, (x - 1,y)))
+        result.append(self.percepts_from(agent, (x + 1,y)))
+        result.append(self.percepts_from(agent, (x,y - 1)))
+        result.append(self.percepts_from(agent, (x,y + 1)))
+        result.append(self.percepts_from(agent, (x,y)))
+
+        '''The wumpus gives out a a loud scream once it's killed.'''
+        wumpus = [thing for thing in self.things if isinstance(thing, Wumpus)]
+        if len(wumpus) and not wumpus[0].alive and not wumpus[0].screamed:
+            result[-1].append(Scream())
+            wumpus[0].screamed = True
+
+        return result
+
+    def execute_action(self, agent, action):
+        '''Modify the state of the environment based on the agent's actions
+            Performance score taken directly out of the book'''
+
+        if isinstance(agent, Explorer) and self.in_danger(agent):
+            return
+
+        agent.bump = False
+        if action == 'TurnRight':
+            agent.direction = agent.direction + Direction.R
+            agent.performance -= 1
+        elif action == 'TurnLeft':
+            agent.direction = agent.direction + Direction.L
+            agent.performance -= 1
+        elif action == 'Forward':
+            agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
+            agent.performance -= 1
+        elif action == 'Grab':
+            things = [thing for thing in self.list_things_at(agent.location)
+                    if agent.can_grab(thing)]
+            if len(things):
+                print("Grabbing", things[0].__class__.__name__)
+                if len(things):
+                    agent.holding.append(things[0])
+            agent.performance -= 1
+        elif action == 'Climb':
+            if agent.location == (1,1): #Agent can only climb out of (1,1)
+                agent.performance += 1000 if Gold() in agent.holding else 0
+                self.delete_thing(agent)
+        elif action == 'Shoot':
+            '''The arrow travels straight down the path the agent is facing'''
+            if agent.has_arrow:
+                arrow_travel = agent.direction.move_forward(agent.location)
+                while(self.is_inbounds(arrow_travel)):
+                    wumpus = [thing for thing in self.list_things_at(arrow_travel)
+                              if isinstance(thing, Wumpus)]
+                    if len(wumpus):
+                        wumpus[0].alive = False
+                        break
+                    arrow_travel = agent.direction.move_forward(agent.location)
+                agent.has_arrow = False
+
+    def in_danger(self, agent):
+        '''Checks if Explorer is in danger (Pit or Wumpus), if he is, kill him'''
+        for thing in self.list_things_at(agent.location):
+            if isinstance(thing, Pit) or (isinstance(thing, Wumpus) and thing.alive):
+                agent.alive = False
+                agent.performance -= 1000
+                agent.killed_by = thing.__class__.__name__
+                return True
+        return False
+
+    def is_done(self):
+        '''The game is over when the Explorer is killed
+            or if he climbs out of the cave only at (1,1)'''
+        explorer = [agent for agent in self.agents if isinstance(agent, Explorer) ]
+        if len(explorer):
+                if explorer[0].alive:
+                       return False
+                else:
+                    print("Death by {} [-1000].".format(explorer[0].killed_by))
+        else:
+            print("Explorer climbed out {}."
+                  .format("with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"))
+        return True
+
+    #Almost done. Arrow needs to be implemented
 # ______________________________________________________________________________
 
 def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):

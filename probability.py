@@ -38,7 +38,9 @@ class ProbDist:
     def __init__(self, varname='?', freqs=None):
         """If freqs is given, it is a dictionary of value: frequency pairs,
         and the ProbDist then is normalized."""
-        update(self, prob={}, varname=varname, values=[])
+        self.prob = {}
+        self.varname = varname
+        self.values = []
         if freqs:
             for (v, p) in list(freqs.items()):
                 self[v] = p
@@ -92,7 +94,9 @@ class JointProbDist(ProbDist):
     0.5"""
 
     def __init__(self, variables):
-        update(self, prob={}, variables=variables, vals=defaultdict(list))
+        self.prob = {}
+        self.variables = variables
+        self.vals = defaultdict(list)
 
     def __getitem__(self, values):
         "Given a tuple or dict of values, return P(values)."
@@ -117,17 +121,17 @@ class JointProbDist(ProbDist):
         return "P(%s)" % self.variables
 
 
-def event_values(event, vars):
-    """Return a tuple of the values of variables vars in event.
+def event_values(event, variables):
+    """Return a tuple of the values of variables variables in event.
     >>> event_values ({'A': 10, 'B': 9, 'C': 8}, ['C', 'A'])
     (8, 10)
     >>> event_values ((1, 2), ['C', 'A'])
     (1, 2)
     """
-    if isinstance(event, tuple) and len(event) == len(vars):
+    if isinstance(event, tuple) and len(event) == len(variables):
         return event
     else:
-        return tuple([event[var] for var in vars])
+        return tuple([event[var] for var in variables])
 
 # ______________________________________________________________________________
 
@@ -142,18 +146,18 @@ def enumerate_joint_ask(X, e, P):
     """
     assert X not in e, "Query variable must be distinct from evidence"
     Q = ProbDist(X)  # probability distribution for X, initially empty
-    Y = [v for v in P.variables if v != X and v not in e]  # hidden vars.
+    Y = [v for v in P.variables if v != X and v not in e]  # hidden variables.
     for xi in P.values(X):
         Q[xi] = enumerate_joint(Y, extend(e, X, xi), P)
     return Q.normalize()
 
 
-def enumerate_joint(vars, e, P):
+def enumerate_joint(variables, e, P):
     """Return the sum of those entries in P consistent with e,
-    provided vars is P's remaining variables (the ones not in e)."""
-    if not vars:
+    provided variables is P's remaining variables (the ones not in e)."""
+    if not variables:
         return P[e]
-    Y, rest = vars[0], vars[1:]
+    Y, rest = variables[0], variables[1:]
     return sum([enumerate_joint(rest, extend(e, Y, y), P)
                 for y in P.values(Y)])
 
@@ -166,7 +170,8 @@ class BayesNet:
 
     def __init__(self, node_specs=[]):
         "nodes must be ordered with parents before children."
-        update(self, nodes=[], vars=[])
+        self.nodes = []
+        self.variables = []
         for node_spec in node_specs:
             self.add(node_spec)
 
@@ -174,10 +179,10 @@ class BayesNet:
         """Add a node to the net. Its parents must already be in the
         net, and its variable must not."""
         node = BayesNode(*node_spec)
-        assert node.variable not in self.vars
-        assert every(lambda parent: parent in self.vars, node.parents)
+        assert node.variable not in self.variables
+        assert every(lambda parent: parent in self.variables, node.parents)
         self.nodes.append(node)
-        self.vars.append(node.variable)
+        self.variables.append(node.variable)
         for parent in node.parents:
             self.variable_node(parent).children.append(node)
 
@@ -244,7 +249,10 @@ class BayesNode:
             assert every(lambda v: isinstance(v, bool), vs)
             assert 0 <= p <= 1
 
-        update(self, variable=X, parents=parents, cpt=cpt, children=[])
+        self.variable = X
+        self.parents = parents
+        self.cpt = cpt
+        self.children = []
 
     def p(self, value, event):
         """Return the conditional probability
@@ -260,7 +268,7 @@ class BayesNode:
 
     def sample(self, event):
         """Sample from the distribution for this variable conditioned
-        on event's values for parent_vars. That is, return True/False
+        on event's values for parent_variables. That is, return True/False
         at random according with the conditional probability given the
         parents."""
         return probability(self.p(True, event))
@@ -293,18 +301,18 @@ def enumeration_ask(X, e, bn):
     assert X not in e, "Query variable must be distinct from evidence"
     Q = ProbDist(X)
     for xi in bn.variable_values(X):
-        Q[xi] = enumerate_all(bn.vars, extend(e, X, xi), bn)
+        Q[xi] = enumerate_all(bn.variables, extend(e, X, xi), bn)
     return Q.normalize()
 
 
-def enumerate_all(vars, e, bn):
-    """Return the sum of those entries in P(vars | e{others})
+def enumerate_all(variables, e, bn):
+    """Return the sum of those entries in P(variables | e{others})
     consistent with e, where P is the joint distribution represented
     by bn, and e{others} means e restricted to bn's other variables
-    (the ones other than vars). Parents must precede children in vars."""
-    if not vars:
+    (the ones other than variables). Parents must precede children in variables."""
+    if not variables:
         return 1.0
-    Y, rest = vars[0], vars[1:]
+    Y, rest = variables[0], variables[1:]
     Ynode = bn.variable_node(Y)
     if Y in e:
         return Ynode.p(e[Y], e) * enumerate_all(rest, e, bn)
@@ -322,7 +330,7 @@ def elimination_ask(X, e, bn):
     'False: 0.716, True: 0.284'"""
     assert X not in e, "Query variable must be distinct from evidence"
     factors = []
-    for var in reversed(bn.vars):
+    for var in reversed(bn.variables):
         factors.append(make_factor(var, e, bn))
         if is_hidden(var, X, e):
             factors = sum_out(var, factors, bn)
@@ -339,10 +347,10 @@ def make_factor(var, e, bn):
     That is, bn's full joint distribution, projected to accord with e,
     is the pointwise product of these factors for bn's variables."""
     node = bn.variable_node(var)
-    vars = [X for X in [var] + node.parents if X not in e]
-    cpt = dict((event_values(e1, vars), node.p(e1[var], e1))
-               for e1 in all_events(vars, bn, e))
-    return Factor(vars, cpt)
+    variables = [X for X in [var] + node.parents if X not in e]
+    cpt = dict((event_values(e1, variables), node.p(e1[var], e1))
+               for e1 in all_events(variables, bn, e))
+    return Factor(variables, cpt)
 
 
 def pointwise_product(factors, bn):
@@ -353,7 +361,7 @@ def sum_out(var, factors, bn):
     "Eliminate var from all factors by summing over its values."
     result, var_factors = [], []
     for f in factors:
-        (var_factors if var in f.vars else result).append(f)
+        (var_factors if var in f.variables else result).append(f)
     result.append(pointwise_product(var_factors, bn).sum_out(var, bn))
     return result
 
@@ -362,42 +370,43 @@ class Factor:
 
     "A factor in a joint distribution."
 
-    def __init__(self, vars, cpt):
-        update(self, vars=vars, cpt=cpt)
+    def __init__(self, variables, cpt):
+        self.variables = variables
+        self.cpt = cpt
 
     def pointwise_product(self, other, bn):
         "Multiply two factors, combining their variables."
-        vars = list(set(self.vars) | set(other.vars))
-        cpt = dict((event_values(e, vars), self.p(e) * other.p(e))
-                   for e in all_events(vars, bn, {}))
-        return Factor(vars, cpt)
+        variables = list(set(self.variables) | set(other.variables))
+        cpt = dict((event_values(e, variables), self.p(e) * other.p(e))
+                   for e in all_events(variables, bn, {}))
+        return Factor(variables, cpt)
 
     def sum_out(self, var, bn):
         "Make a factor eliminating var by summing over its values."
-        vars = [X for X in self.vars if X != var]
-        cpt = dict((event_values(e, vars),
+        variables = [X for X in self.variables if X != var]
+        cpt = dict((event_values(e, variables),
                     sum(self.p(extend(e, var, val))
                         for val in bn.variable_values(var)))
-                   for e in all_events(vars, bn, {}))
-        return Factor(vars, cpt)
+                   for e in all_events(variables, bn, {}))
+        return Factor(variables, cpt)
 
     def normalize(self):
         "Return my probabilities; must be down to one variable."
-        assert len(self.vars) == 1
-        return ProbDist(self.vars[0],
+        assert len(self.variables) == 1
+        return ProbDist(self.variables[0],
                         dict((k, v) for ((k,), v) in list(self.cpt.items())))
 
     def p(self, e):
         "Look up my value tabulated for e."
-        return self.cpt[event_values(e, self.vars)]
+        return self.cpt[event_values(e, self.variables)]
 
 
-def all_events(vars, bn, e):
-    "Yield every way of extending e with values for all vars."
-    if not vars:
+def all_events(variables, bn, e):
+    "Yield every way of extending e with values for all variables."
+    if not variables:
         yield e
     else:
-        X, rest = vars[0], vars[1:]
+        X, rest = variables[0], variables[1:]
         for e1 in all_events(rest, bn, e):
             for x in bn.variable_values(X):
                 yield extend(e1, X, x)
@@ -496,7 +505,7 @@ def gibbs_ask(X, e, bn, N):
     assert X not in e, "Query variable must be distinct from evidence"
     counts = dict((x, 0)
                   for x in bn.variable_values(X))  # bold N in Fig. 14.16
-    Z = [var for var in bn.vars if var not in e]
+    Z = [var for var in bn.variables if var not in e]
     state = dict(e)  # boldface x in Fig. 14.16
     for Zi in Z:
         state[Zi] = random.choice(bn.variable_values(Zi))
@@ -549,16 +558,15 @@ def forward(HMM, fv, ev):
                             scalar_vector_product(fv[1], HMM.transition_model[1]))
     sensor_dist = HMM.sensor_dist(ev)
 
-    return([float("{0:.4f}".format(i)) for i in normalize(element_wise_product(sensor_dist, prediction))])
+    return(normalize(element_wise_product(sensor_dist, prediction)))
 
 
 def backward(HMM, b, ev):
     sensor_dist = HMM.sensor_dist(ev)
     prediction = element_wise_product(sensor_dist, b)
 
-    return([float("{0:.4f}".format(i)) for i in normalize(vector_add(
-                                scalar_vector_product(prediction[0], HMM.transition_model[0]),
-                                scalar_vector_product(prediction[1], HMM.transition_model[1])))])
+    return(normalize(vector_add(scalar_vector_product(prediction[0], HMM.transition_model[0]),
+                                scalar_vector_product(prediction[1], HMM.transition_model[1]))))
 
 
 def forward_backward(HMM, ev, prior):
@@ -594,10 +602,6 @@ def forward_backward(HMM, ev, prior):
         bv.append(b)
 
     sv = sv[::-1]
-    # to have only 4 digits after decimal point
-    for i in range(len(sv)):
-        for j in range(len(sv[i])):
-            sv[i][j] = float("{0:.4f}".format(sv[i][j]))
 
     return(sv)
 

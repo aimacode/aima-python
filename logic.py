@@ -15,7 +15,7 @@ Then we implement various functions for doing logical inference:
     tt_entails       Say if a statement is entailed by a KB
     pl_resolution    Do resolution on propositional sentences
     dpll_satisfiable See if a propositional sentence is satisfiable
-    WalkSAT          (not yet implemented)
+    WalkSAT          Try to find a solution for a set of clauses
 
 And a few other functions:
 
@@ -169,7 +169,7 @@ class Expr:
     """
 
     def __init__(self, op, *args):
-        "Op is a string or number; args are Exprs (or are coerced to Exprs)."
+        "op is a string or number; args are Exprs (or are coerced to Exprs)."
         assert isinstance(op, str) or (isnumber(op) and not args)
         self.op = num_or_str(op)
         self.args = list(map(expr, args))  # Coerce args to Exprs
@@ -382,8 +382,7 @@ def prop_symbols(x):
     elif is_prop_symbol(x.op):
         return [x]
     else:
-        return list(set(symbol for arg in x.args
-                        for symbol in prop_symbols(arg)))
+        return list(set(symbol for arg in x.args for symbol in prop_symbols(arg)))
 
 
 def tt_true(alpha):
@@ -819,15 +818,16 @@ def inspect_literal(literal):
 
 
 def WalkSAT(clauses, p=0.5, max_flips=10000):
+    """Checks for satisfiability of all clauses by randomly flipping values of variables
+    """
+    # set of all symbols in all clauses
+    symbols = set(sym for clause in clauses for sym in prop_symbols(clause))
     # model is a random assignment of true/false to the symbols in clauses
-    # See ~/aima1e/print1/manual/knowledge+logic-answers.tex ???
-    model = dict([(s, random.choice([True, False]))
-                  for s in prop_symbols(clauses)])
+    model = dict([(s, random.choice([True, False])) for s in symbols])
     for i in range(max_flips):
         satisfied, unsatisfied = [], []
         for clause in clauses:
-            (satisfied if pl_true(clause, model) else unsatisfied).append(
-                clause)
+            (satisfied if pl_true(clause, model) else unsatisfied).append(clause)
         if not unsatisfied:  # if model satisfies all the clauses
             return model
         clause = random.choice(unsatisfied)
@@ -835,8 +835,16 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
             sym = random.choice(prop_symbols(clause))
         else:
             # Flip the symbol in clause that maximizes number of sat. clauses
-            raise NotImplementedError
+            def sat_count(sym):
+                #returns the the number of clauses satisfied after flipping the symbol
+                model[sym] = not model[sym]
+                count = len([clause for clause in clauses if pl_true(clause, model)])
+                model[sym] = not model[sym]
+                return count
+            sym = argmax(prop_symbols(clause), sat_count)
         model[sym] = not model[sym]
+    #If no solution is found within the flip limit, we return failure
+    return None
 
 # ______________________________________________________________________________
 

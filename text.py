@@ -10,6 +10,7 @@ import search
 
 from math import log, exp
 from collections import defaultdict
+import heapq
 import re
 
 
@@ -116,8 +117,9 @@ class IRSystem:
         """Create an IR System. Optionally specify stopwords."""
         # index is a map of {word: {docid: count}}, where docid is an int,
         # indicating the index into the documents list.
-        update(self, index=defaultdict(lambda: defaultdict(int)),
-               stopwords=set(words(stopwords)), documents=[])
+        self.index = defaultdict(lambda: defaultdict(int))
+        self.stopwords = set(words(stopwords))
+        self.documents = []
 
     def index_collection(self, filenames):
         "Index a whole collection of files."
@@ -146,22 +148,23 @@ class IRSystem:
             return []
         qwords = [w for w in words(query_text) if w not in self.stopwords]
         shortest = argmin(qwords, lambda w: len(self.index[w]))
-        docs = self.index[shortest]
-        results = [(sum([self.score(w, d) for w in qwords]), d) for d in docs]
-        results.sort()
-        results.reverse()
-        return results[:n]
+        docids = self.index[shortest]
+        return heapq.nlargest(n, ((self.total_score(qwords, docid), docid) for docid in docids))
 
     def score(self, word, docid):
-        "Compute a score for this word on this docid."
+        "Compute a score for this word on the document with this docid."
         # There are many options; here we take a very simple approach
         return (math.log(1 + self.index[word][docid]) /
                 math.log(1 + self.documents[docid].nwords))
 
+    def total_score(self, words, docid):
+        "Compute the sum of the scores of these words on the document with this docid."
+        return sum(self.score(word, docid) for word in words)
+
     def present(self, results):
         "Present the results as a list."
-        for (score, d) in results:
-            doc = self.documents[d]
+        for (score, docid) in results:
+            doc = self.documents[docid]
             print(
                 ("{:5.2}|{:25} | {}".format(100 * score, doc.url,
                                             doc.title[:45].expandtabs())))
@@ -190,8 +193,9 @@ class Document:
     """Metadata for a document: title and url; maybe add others later."""
 
     def __init__(self, title, url, nwords):
-        update(self, title=title, url=url, nwords=nwords)
-
+        self.title = title
+        self.url = url
+        self.nwords = nwords
 
 def words(text, reg=re.compile('[a-z0-9]+')):
     """Return a list of the words in text, ignoring punctuation and
