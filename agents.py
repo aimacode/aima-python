@@ -516,6 +516,28 @@ class Obstacle(Thing):
 class Wall(Obstacle):
     pass
 
+
+
+# ______________________________________________________________________________
+# Continuous environment
+
+class ContinuousWorld(Environment):
+    """ Model for Continuous World. """
+    def __init__(self, width=10, height=10):
+        super(ContinuousWorld, self).__init__()
+        self.width = width
+        self.height = height
+
+    def add_obstacle(self, coordinates):
+        self.things.append(PolygonObstacle(coordinates))
+
+
+class PolygonObstacle(Obstacle):
+    def __init__(self, coordinates):
+        """ Coordinates is a list of tuples. """
+        super(PolygonObstacle, self).__init__()
+        self.coordinates = coordinates
+
 # ______________________________________________________________________________
 # Vacuum environment
 
