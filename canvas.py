@@ -59,10 +59,10 @@ class Canvas:
 
     def rect_n(self, xn, yn, wn, hn):
         "Similar to rect(), but the dimensions are normalized to fall between 0 and 1"
-        x = xn * self.width
-        y = yn * self.height
-        w = wn * self.width
-        h = hn * self.height
+        x = round(xn * self.width)
+        y = round(yn * self.height)
+        w = round(wn * self.width)
+        h = round(hn * self.height)
         self.rect(x, y, w, h)
 
     def line(self, x1, y1, x2, y2):
@@ -71,10 +71,10 @@ class Canvas:
 
     def line_n(self, x1n, y1n, x2n, y2n):
         "Similar to line(), but the dimensions are normalized to fall between 0 and 1"
-        x1 = x1n * self.width
-        y1 = y1n * self.height
-        x2 = x2n * self.width
-        y2 = y2n * self.height
+        x1 = round(x1n * self.width)
+        y1 = round(y1n * self.height)
+        x2 = round(x2n * self.width)
+        y2 = round(y2n * self.height)
         self.line(x1, y1, x2, y2)
 
     def arc(self, x, y, r, start, stop):
@@ -85,9 +85,9 @@ class Canvas:
         """Similar to arc(), but the dimensions are normalized to fall between 0 and 1
         The normalizing factor for radius is selected between width and height by seeing which is smaller
         """
-        x = xn * self.width
-        y = yn * self.height
-        r = rn * min(self.width, self.height)
+        x = round(xn * self.width)
+        y = round(yn * self.height)
+        r = round(rn * min(self.width, self.height))
         self.arc(x, y, r, start, stop)
 
     def clear(self):
@@ -107,8 +107,8 @@ class Canvas:
 
     def text_n(self, txt, xn, yn, fill = True):
         "Similar to text(), but with normalized coordinates"
-        x = xn * self.width
-        y = yn * self.height
+        x = round(xn * self.width)
+        y = round(yn * self.height)
         self.text(text, x, y, fill)
 
     def alert(self, message):
