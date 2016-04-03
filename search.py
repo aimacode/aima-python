@@ -459,9 +459,6 @@ class OnlineDFSAgent:
     def update_state(self, percept):
         raise NotImplementedError
 
-def lrta_star_agent(s1):
-    "[Fig. 4.24]"
-    unimplemented()
 
 # ______________________________________________________________________________
 # Genetic Algorithm
@@ -646,7 +643,32 @@ Fig[4, 9] = Graph(dict(
     State_6 = dict(Suck = ['State_8'], Left = ['State_5']),
     State_7 = dict(Suck = ['State_7', 'State_3'], Right = ['State_8']),
     State_8 = dict(Suck = ['State_8', 'State_6'], Left = ['State_7'])
-))
+    ))
+
+"""
+Fig. [4.23]
+One-dimensional state space Graph
+
+"""
+
+# TODO: It's better to use some meaningful names rather
+# than Fig[4, 9] to represent graphs in figures
+
+Fig[4, 23] = Graph(dict(
+    State_1 = dict(Right = ['State_2']),
+    State_2 = dict(Right = ['State_3'], Left = ['State_1']),
+    State_3 = dict(Right = ['State_4'], Left = ['State_2']),
+    State_4 = dict(Right = ['State_5'], Left = ['State_3']),
+    State_5 = dict(Right = ['State_6'], Left = ['State_4']),
+    State_6 = dict(Left = ['State_5'])
+    ))
+Fig[4, 23].least_costs = dict(
+    State_1 = 8,
+    State_2 = 9,
+    State_3 = 2,
+    State_4 = 2,
+    State_5 = 4,
+    State_6 = 3)
 
 # Principal states and territories of Australia
 Fig[6, 1] = UndirectedGraph(dict(
@@ -654,7 +676,6 @@ Fig[6, 1] = UndirectedGraph(dict(
     SA=dict(WA=1, NT=1, Q=1, NSW=1, V=1),
     NT=dict(WA=1, Q=1),
     NSW=dict(Q=1, V=1)))
-
 Fig[6, 1].locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
                            Q=(145, 20), NSW=(145, 32), T=(145, 42),
                            V=(145, 37))
