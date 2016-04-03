@@ -461,6 +461,39 @@ class OnlineDFSAgent:
 
 # ______________________________________________________________________________
 
+class OnlineSearchProblem(Problem):
+    """ Fig. [4.23]
+    """
+    def __init__(self, initial, goal, graph):
+        self.initial = initial
+        self.goal = goal
+        self.graph = graph
+
+    def actions(self, state):
+        return self.graph.dict[state].keys()
+
+    def output(self, state, action):
+        return self.graph.dict[state][action]
+
+    def h(self, state):
+        """
+        returns least possible cost for the given state
+        """
+        return self.graph.least_costs[state]
+
+    def c(self, s, a, s1):
+        """
+        returns a cost estimate to move from state 's' to state 's1'
+        """
+        return 1
+
+    def update_state(self, percept):
+        raise NotImplementedError
+
+    def goal_test(self, state):
+        if state == self.goal:
+            return True
+        return False
 
 
 class LRTAStarAgent:
@@ -474,41 +507,49 @@ class LRTAStarAgent:
 
     def __init__(self, problem):
         self.problem = problem
-        self.result = {}
+        # self.result = {}      # no need as we are using problem.result
         self.H = {}
         self.s = None
         self.a = None
 
-    def __call__(self, s1):
-        current_state = self.update_state(s1)
-        if self.problem.goal_test(current_state):
+    def __call__(self, s1):     # as of now s1 is a state rather than a percept
+        if self.problem.goal_test(s1):
             self.a = None
+            return(self.a)
         else:
-            if current_state not in H:
-                H[current_state] = h(current_state)
-            if s is not None:
-                self.result[(self.s, self.a)] = current_state
+            if s1 not in self.H:
+                self.H[s1] = self.problem.h(s1)
+            if self.s is not None:
+                # self.result[(self.s, self.a)] = s1    # no need as we are using problem.output
+
                 # minimum cost for action b in problem.actions(s)
-                H[s] = min([LRTA_cost(s, b, self.result[(self.s, b)], H) for b in self.problem.actions(s)])
+                self.H[self.s] = min([self.LRTA_cost(self.s, b, self.problem.output(self.s, b), self.H)
+                                    for b in self.problem.actions(self.s)])
 
-            # costs for action b in problem.actions(current_state)
-            costs = [LRTA_cost(current_state, b, result[(current_state, b)], H)
-                                    for b in self.problem.actions(current_state)]
-            # an action b in problem.actions(current_state) that minimizes costs
-            self.a = self.problem.actions(current_state)[costs.index(min(costs))]
+            # costs for action b in problem.actions(s1)
+            costs = [self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H)
+                        for b in self.problem.actions(s1)]
+            # an action b in problem.actions(s1) that minimizes costs
+            self.a = list(self.problem.actions(s1))[costs.index(min(costs))]
 
-            s = current_state
-            return a
+            self.s = s1
+            return self.a
 
-    def LRTA_cost(s, a, s1, H):
+    def LRTA_cost(self, s, a, s1, H):
         """
         returns cost to move from state 's' to state 's1' plus
         estimated cost to get to goal from s1
         """
+        print(s, a, s1)
         if s1 is None:
-            return(h(s))
+            return(self.problem.h(s))
         else:
-            return(c(s, a, s1) + H[s1])
+            # sometimes we need to get H[s1] which we haven't yet added to H
+            # to replace this try, except: we can initialize H with values from problem.h
+            try:
+                return(self.problem.c(s, a, s1) + self.H[s1])
+            except:
+                return(self.problem.c(s, a, s1) + self.problem.h(s1))
 
 # ______________________________________________________________________________
 # Genetic Algorithm
@@ -702,17 +743,17 @@ One-dimensional state space Graph
 """
 
 # TODO: It's better to use some meaningful names rather
-# than Fig[4, 9] to represent graphs in figures
+# than Fig[4, 9] or Fig[6, 1] to represent graphs in figures
 
-Fig[4, 23] = Graph(dict(
-    State_1 = dict(Right = ['State_2']),
-    State_2 = dict(Right = ['State_3'], Left = ['State_1']),
-    State_3 = dict(Right = ['State_4'], Left = ['State_2']),
-    State_4 = dict(Right = ['State_5'], Left = ['State_3']),
-    State_5 = dict(Right = ['State_6'], Left = ['State_4']),
-    State_6 = dict(Left = ['State_5'])
+one_dim_state_space = Graph(dict(
+    State_1 = dict(Right = 'State_2'),
+    State_2 = dict(Right = 'State_3', Left = 'State_1'),
+    State_3 = dict(Right = 'State_4', Left = 'State_2'),
+    State_4 = dict(Right = 'State_5', Left = 'State_3'),
+    State_5 = dict(Right = 'State_6', Left = 'State_4'),
+    State_6 = dict(Left = 'State_5')
     ))
-Fig[4, 23].least_costs = dict(
+one_dim_state_space.least_costs = dict(
     State_1 = 8,
     State_2 = 9,
     State_3 = 2,
