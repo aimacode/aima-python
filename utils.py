@@ -387,7 +387,7 @@ def AIMAFile(components, mode='r'):
 
 
 def DataFile(name, mode='r'):
-    "Return a file in the AIMA /data directory."
+    "Return a file in the AIMA /aima-data directory."
     return AIMAFile(['aima-data', name], mode)
 
 
