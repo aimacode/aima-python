@@ -11,6 +11,8 @@ import random
 import sys
 import bisect
 
+infinity = float('inf')
+
 # ______________________________________________________________________________
 
 
@@ -98,7 +100,7 @@ class Node:
                 for action in problem.actions(self.state)]
 
     def child_node(self, problem, action):
-        "Fig. 3.10"
+        "[Fig. 3.10]"
         next = problem.result(self.state, action)
         return Node(next, self, action,
                     problem.path_cost(self.path_cost, self.state,
@@ -462,7 +464,10 @@ class OnlineDFSAgent:
 # ______________________________________________________________________________
 
 class OnlineSearchProblem(Problem):
-    """ Fig. [4.23]
+    """
+    A problem which is solved by an agent executing
+    actions, rather than by just computation.
+    Carried in a deterministic and a fully observable environment.
     """
     def __init__(self, initial, goal, graph):
         self.initial = initial
@@ -477,13 +482,13 @@ class OnlineSearchProblem(Problem):
 
     def h(self, state):
         """
-        returns least possible cost for the given state
+        Returns least possible cost to reach a goal for the given state.
         """
         return self.graph.least_costs[state]
 
     def c(self, s, a, s1):
         """
-        returns a cost estimate to move from state 's' to state 's1'
+        Returns a cost estimate for an agent to move from state 's' to state 's1'
         """
         return 1
 
@@ -498,11 +503,11 @@ class OnlineSearchProblem(Problem):
 
 class LRTAStarAgent:
 
-    """Fig. [4.24]
+    """ [Fig. 4.24]
     Abstract class for LRTA*-Agent. A problem needs to be
     provided which is an instanace of a subclass of Problem Class.
 
-    Takes a OneDimStateSpaceProblem Fig. [4.23] as a problem
+    Takes a OnlineSearchProblem [Fig. 4.23] as a problem
     """
 
     def __init__(self, problem):
@@ -537,7 +542,7 @@ class LRTAStarAgent:
 
     def LRTA_cost(self, s, a, s1, H):
         """
-        returns cost to move from state 's' to state 's1' plus
+        Returns cost to move from state 's' to state 's1' plus
         estimated cost to get to goal from s1
         """
         print(s, a, s1)
@@ -556,7 +561,8 @@ class LRTAStarAgent:
 
 
 def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
-    """Call genetic_algorithm on the appropriate parts of a problem.
+    """
+    Call genetic_algorithm on the appropriate parts of a problem.
     This requires the problem to have states that can mate and mutate,
     plus a value method that scores states."""
     s = problem.initial_state
@@ -689,8 +695,10 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
                 g.connect(node, neighbor, int(d))
     return g
 
-# Simplified road map of Romania
-Fig[3, 2] = UndirectedGraph(dict(
+""" [Fig. 3.2]
+Simplified road map of Romania
+"""
+romania_map = UndirectedGraph(dict(
     Arad=dict(Zerind=75, Sibiu=140, Timisoara=118),
     Bucharest=dict(Urziceni=85, Pitesti=101, Giurgiu=90, Fagaras=211),
     Craiova=dict(Drobeta=120, Rimnicu=146, Pitesti=138),
@@ -704,7 +712,7 @@ Fig[3, 2] = UndirectedGraph(dict(
     Pitesti=dict(Rimnicu=97),
     Rimnicu=dict(Sibiu=80),
     Urziceni=dict(Vaslui=142)))
-Fig[3, 2].locations = dict(
+romania_map.locations = dict(
     Arad=(91, 492), Bucharest=(400, 327), Craiova=(253, 288),
     Drobeta=(165, 299), Eforie=(562, 293), Fagaras=(305, 449),
     Giurgiu=(375, 270), Hirsova=(534, 350), Iasi=(473, 506),
@@ -713,19 +721,20 @@ Fig[3, 2].locations = dict(
     Sibiu=(207, 457), Timisoara=(94, 410), Urziceni=(456, 350),
     Vaslui=(509, 444), Zerind=(108, 531))
 
-"""
+""" [Fig. 4.9]
 Eight possible states of the vacumm world
-Each state is represented as "State if the left room" "State of the right room" "Room in which the agent is present"
-1 Dirty Dirty Left - DDL
-2 Dirty Dirty Right - DDR
-3 Dirty Clean Left - DCL
-4 Dirty Clean Right - DCR
-5 Clean Dirty Left - CDL
-6 Clean Dirty Right - CDR
-7 Clean Clean Left - CCL
-8 Clean Clean Right - CCR
+Each state is represented as
+   *       "State of the left room"      "State of the right room"   "Room in which the agent is present"
+1 - DDL     Dirty                         Dirty                       Left
+2 - DDR     Dirty                         Dirty                       Right
+3 - DCL     Dirty                         Clean                       Left
+4 - DCR     Dirty                         Clean                       Right
+5 - CDL     Clean                         Dirty                       Left
+6 - CDR     Clean                         Dirty                       Right
+7 - CCL     Clean                         Clean                       Left
+8 - CCR     Clean                         Clean                       Right
 """
-Fig[4, 9] = Graph(dict(
+vacumm_world = Graph(dict(
     State_1 = dict(Suck = ['State_7', 'State_5'], Right = ['State_2']),
     State_2 = dict(Suck = ['State_8', 'State_4'], Left = ['State_2']),
     State_3 = dict(Suck = ['State_7'], Right = ['State_4']),
@@ -736,15 +745,10 @@ Fig[4, 9] = Graph(dict(
     State_8 = dict(Suck = ['State_8', 'State_6'], Left = ['State_7'])
     ))
 
-"""
-Fig. [4.23]
+""" [Fig. 4.23]
 One-dimensional state space Graph
 
 """
-
-# TODO: It's better to use some meaningful names rather
-# than Fig[4, 9] or Fig[6, 1] to represent graphs in figures
-
 one_dim_state_space = Graph(dict(
     State_1 = dict(Right = 'State_2'),
     State_2 = dict(Right = 'State_3', Left = 'State_1'),
@@ -762,12 +766,12 @@ one_dim_state_space.least_costs = dict(
     State_6 = 3)
 
 # Principal states and territories of Australia
-Fig[6, 1] = UndirectedGraph(dict(
+australia_map = UndirectedGraph(dict(
     T=dict(),
     SA=dict(WA=1, NT=1, Q=1, NSW=1, V=1),
     NT=dict(WA=1, Q=1),
     NSW=dict(Q=1, V=1)))
-Fig[6, 1].locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
+australia_map.locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
                            Q=(145, 20), NSW=(145, 32), T=(145, 42),
                            V=(145, 37))
 
@@ -954,8 +958,8 @@ class Wordlist:
     to check if a word is in the list, or wordlist.lookup(prefix)
     to see if prefix starts any of the words in the list."""
 
-    def __init__(self, filename, min_len=3):
-        lines = open(filename).read().upper().split()
+    def __init__(self, file, min_len=3):
+        lines = file.read().upper().split()
         self.words = [word for word in lines if len(word) >= min_len]
         self.words.sort()
         self.bounds = {}
@@ -995,7 +999,7 @@ class BoggleFinder:
 
     def __init__(self, board=None):
         if BoggleFinder.wordlist is None:
-            BoggleFinder.wordlist = Wordlist("../data/EN-text/wordlist")
+            BoggleFinder.wordlist = Wordlist(DataFile("EN-text/wordlist"))
         self.found = {}
         if board:
             self.set_board(board)
@@ -1135,51 +1139,24 @@ def compare_searchers(problems, header,
 
 
 def compare_graph_searchers():
-    """Prints a table of results like this:
->>> compare_graph_searchers()
-Searcher                      Fig[3, 2](A, B)        Fig[3, 2](O, N)         Fig[6, 1]
-breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>    <   7/   8/  22/WA>
-breadth_first_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/   6/   8/WA>
-depth_first_graph_search      <   8/   9/  20/B>   <  16/  17/  38/N>    <   4/   5/  11/WA>
-iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>    <   3/  11/  11/WA>
-depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>    <  50/  54/ 200/WA>
-recursive_best_first_search   <   5/   6/  15/B>   <5887/5888/16532/N>   <  11/12/  43/WA>"""  # noqa
-    compare_searchers(problems=[GraphProblem('Arad', 'Bucharest', Fig[3, 2]),
-                                GraphProblem('Oradea', 'Neamt', Fig[3, 2]),
-                                GraphProblem('Q', 'WA', Fig[6, 1])],
-                      header=['Searcher', 'Fig[3, 2](Arad, Bucharest)',
-                              'Fig[3, 2](Oradea, Neamt)', 'Fig[6, 1]'])
+    """
+    Prints a table of results like this:
+    >>> compare_graph_searchers()
+    Searcher                      romania_map(A, B)        romania_map(O, N)         australia_map
+    breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>    <   7/   8/  22/WA>
+    breadth_first_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/   6/   8/WA>
+    depth_first_graph_search      <   8/   9/  20/B>   <  16/  17/  38/N>    <   4/   5/  11/WA>
+    iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>    <   3/  11/  11/WA>
+    depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>    <  50/  54/ 200/WA>
+    recursive_best_first_search   <   5/   6/  15/B>   <5887/5888/16532/N>   <  11/12/  43/WA>
+    """  # noqa
+    compare_searchers(problems=[GraphProblem('Arad', 'Bucharest', romania_map),
+                                GraphProblem('Oradea', 'Neamt', romania_map),
+                                GraphProblem('Q', 'WA', australia_map)],
+                      header=['Searcher', 'romania_map(Arad, Bucharest)',
+                              'romania_map(Oradea, Neamt)', 'australia_map'])
 
 # ______________________________________________________________________________
-
-__doc__ += """
->>> romania = GraphProblem('Arad', 'Bucharest', Fig[3, 2])
->>> breadth_first_tree_search(romania).solution()
-['Sibiu', 'Fagaras', 'Bucharest']
->>> breadth_first_search(romania).solution()
-['Sibiu', 'Fagaras', 'Bucharest']
->>> uniform_cost_search(romania).solution()
-['Sibiu', 'Rimnicu', 'Pitesi', 'Bucharest']
->>> depth_first_graph_search(romania).solution()
-['Timisoara', 'Lugoj', 'Mehadia', 'Drobeta', 'Craiova', 'Pitesi', 'Bucharest']
->>> iterative_deepening_search(romania).solution()
-['Sibiu', 'Fagaras', 'Bucharest']
->>> len(depth_limited_search(romania).solution())
-50
->>> astar_search(romania).solution()
-['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
->>> recursive_best_first_search(romania).solution()
-['Sibiu', 'Rimnicu', 'Pitesi', 'Bucharest']
-
->>> board = list('SARTELNID')
->>> print_boggle(board)
-S  A  R
-T  E  L
-N  I  D
->>> f = BoggleFinder(board)
->>> len(f)
-206
-"""
 
 __doc__ += """
 Random tests
