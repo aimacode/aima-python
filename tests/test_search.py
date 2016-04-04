@@ -4,6 +4,7 @@ from search import *  # noqa
 
 romania = GraphProblem('Arad', 'Bucharest', Fig[3, 2])
 vacumm_world = GraphProblemStochastic('State_1', ['State_7', 'State_8'], Fig[4, 9])
+LRTA_world = OnlineSearchProblem('State_3', 'State_5', one_dim_state_space)
 
 
 def test_breadth_first_tree_search():
@@ -37,6 +38,19 @@ def test_and_or_graph_search():
     plan = and_or_graph_search(vacumm_world)
     assert run_plan('State_1', vacumm_world, plan)
 
+def test_LRTAStarAgent():
+    my_agent = LRTAStarAgent(LRTA_world)
+    assert my_agent('State_3') == 'Right'
+    assert my_agent('State_4') == 'Left'
+    assert my_agent('State_3') == 'Right'
+    assert my_agent('State_4') == 'Right'
+    assert my_agent('State_5') is None
+
+    my_agent = LRTAStarAgent(LRTA_world)
+    assert my_agent('State_4') == 'Left'
+
+    my_agent = LRTAStarAgent(LRTA_world)
+    assert my_agent('State_5') is None
 
 if __name__ == '__main__':
     pytest.main()
