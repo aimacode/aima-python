@@ -45,10 +45,6 @@ class CSP(search.Problem):
     The following are just for debugging purposes:
         nassigns                Slot: tracks the number of assignments made
         display(a)              Print a human-readable representation
-
-    >>> search.depth_first_graph_search(australia)
-    <Node (('WA', 'B'), ('Q', 'B'), ('T', 'B'), ('V', 'B'), ('SA', 'G'),
-           ('NT', 'R'), ('NSW', 'R'))>
     """
 
     def __init__(self, variables, domains, neighbors, constraints):
@@ -201,7 +197,7 @@ def mrv(assignment, csp):
     "Minimum-remaining-values heuristic."
     return argmin_random_tie(
         [v for v in csp.variables if v not in assignment],
-        lambda var: num_legal_values(csp, var, assignment))
+        key=lambda var: num_legal_values(csp, var, assignment))
 
 
 def num_legal_values(csp, var, assignment):
@@ -303,7 +299,7 @@ def min_conflicts_value(csp, var, current):
     """Return the value that will give var the least number of conflicts.
     If there is a tie, choose at random."""
     return argmin_random_tie(csp.domains[var],
-                             lambda val: csp.nconflicts(var, val, current))
+                             key=lambda val: csp.nconflicts(var, val, current))
 
 # ______________________________________________________________________________
 
@@ -371,20 +367,19 @@ def parse_neighbors(neighbors, variables=[]):
     regions to neighbors.  The syntax is a region name followed by a ':'
     followed by zero or more region names, followed by ';', repeated for
     each region name.  If you say 'X: Y' you don't need 'Y: X'.
-    >>> parse_neighbors('X: Y Z; Y: Z')
-    {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
+    >>> parse_neighbors('X: Y Z; Y: Z') == {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
+    True
     """
-    dict = defaultdict(list)
+    dic = defaultdict(list)
     for var in variables:
-        dict[var] = []
+        dic[var] = []
     specs = [spec.split(':') for spec in neighbors.split(';')]
     for (A, Aneighbors) in specs:
         A = A.strip()
-        dict.setdefault(A, [])
         for B in Aneighbors.split():
-            dict[A].append(B)
-            dict[B].append(A)
-    return dict
+            dic[A].append(B)
+            dic[B].append(A)
+    return dic
 
 australia = MapColoringCSP(list('RGB'),
                            'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
@@ -556,8 +551,7 @@ class Sudoku(CSP):
     8 1 4 | 2 5 3 | 7 6 9
     6 9 5 | 4 1 7 | 3 8 2
     >>> h = Sudoku(harder1)
-    >>> None != backtracking_search(h, select_unassigned_variable=mrv,
-    >>>                             inference=forward_checking)
+    >>> backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking) is not None
     True
     """
     R3 = _R3
@@ -670,11 +664,3 @@ def solve_zebra(algorithm=min_conflicts, **args):
         print()
     return ans['Zebra'], ans['Water'], z.nassigns, ans
 
-
-__doc__ += """
-Random tests:
->>> min_conflicts(australia)
-{'WA': 'B', 'Q': 'B', 'T': 'G', 'V': 'B', 'SA': 'R', 'NT': 'G', 'NSW': 'G'}
->>> min_conflicts(NQueensCSP(8), max_steps=10000)
-{0: 5, 1: 0, 2: 4, 3: 1, 4: 7, 5: 2, 6: 6, 7: 3}
-"""

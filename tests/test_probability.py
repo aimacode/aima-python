@@ -110,8 +110,8 @@ def test_forward_backward():
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     umbrella_evidence = [T, T, F, T, T]
-    assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [[0.6469, 0.3531],
-                [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]]
+    assert (rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) ==
+            [[0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]])
 
     umbrella_evidence = [T, F, T, F, T]
     assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [[0.5871, 0.4129],
@@ -136,7 +136,53 @@ def test_fixed_lag_smoothing():
 
     d = 1
     assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.9939, 0.0061]
+    
 
+def test_particle_filtering():
+    N = 10
+    umbrella_evidence = T
+    umbrella_prior = [0.5, 0.5]
+    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
+    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
+    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
+
+    assert particle_filtering(umbrella_evidence, N, umbrellaHMM)
+
+# The following should probably go in .ipynb:
+
+"""
+# We can build up a probability distribution like this (p. 469):
+>>> P = ProbDist()
+>>> P['sunny'] = 0.7
+>>> P['rain'] = 0.2
+>>> P['cloudy'] = 0.08
+>>> P['snow'] = 0.02
+
+# and query it like this:  (Never mind this ELLIPSIS option
+#                           added to make the doctest portable.)
+>>> P['rain']               #doctest:+ELLIPSIS
+0.2...
+
+# A Joint Probability Distribution is dealt with like this (Fig. 13.3):  # noqa
+>>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
+>>> T, F = True, False
+>>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008
+>>> P[T, F, T] = 0.016; P[T, F, F] = 0.064; P[F, F, T] = 0.144; P[F, F, F] = 0.576
+
+>>> P[T, T, T]
+0.108
+
+# Ask for P(Cavity|Toothache=T)
+>>> PC = enumerate_joint_ask('Cavity', {'Toothache': T}, P)
+>>> PC.show_approx()
+'False: 0.4, True: 0.6'
+
+>>> 0.6-epsilon < PC[T] < 0.6+epsilon
+True
+
+>>> 0.4-epsilon < PC[F] < 0.4+epsilon
+True
+"""
 
 if __name__ == '__main__':
     pytest.main()

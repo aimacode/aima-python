@@ -161,5 +161,18 @@ def test_ir_system():
         Results(11.62, "aima-data/MAN/jar.txt"),
     ])
 
+# TODO: for .ipynb
+"""
+
+>>> P1.samples(20)
+'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
+
+>>> P2.samples(20)
+'flatland well then can anything else more into the total destruction and circles teach others confine women must be added'
+
+>>> P3.samples(20)
+'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
+"""
+
 if __name__ == '__main__':
     pytest.main()

@@ -123,8 +123,7 @@ def best_policy(mdp, U):
     as a mapping from state to action. (Equation 17.4)"""
     pi = {}
     for s in mdp.states:
-        pi[s] = argmax(
-            mdp.actions(s), lambda a: expected_utility(a, s, U, mdp))
+        pi[s] = argmax(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
     return pi
 
 
@@ -143,8 +142,7 @@ def policy_iteration(mdp):
         U = policy_evaluation(pi, U, mdp)
         unchanged = True
         for s in mdp.states:
-            a = argmax(
-                mdp.actions(s), lambda a: expected_utility(a, s, U, mdp))
+            a = argmax(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
             if a != pi[s]:
                 pi[s] = a
                 unchanged = False
