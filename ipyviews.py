@@ -1,7 +1,4 @@
-try:
-    from IPython.display import HTML, display, clear_output
-except ImportError:
-    print('IPython not available.')
+from IPython.display import HTML, display, clear_output
 
 from agents import PolygonObstacle
 import time
