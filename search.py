@@ -999,7 +999,7 @@ class BoggleFinder:
 
     def __init__(self, board=None):
         if BoggleFinder.wordlist is None:
-            BoggleFinder.wordlist = Wordlist(DataFile("EN-text/wordlist"))
+            BoggleFinder.wordlist = Wordlist(DataFile("EN-text/wordlist.txt"))
         self.found = {}
         if board:
             self.set_board(board)
