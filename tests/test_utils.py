@@ -38,31 +38,11 @@ def test_is_in():
     assert is_in(e, [1, [], 3]) is False
 
 
-def test_argmin():
-    assert argmin([-2, 1], lambda x: x**2) == 1
+def test_argminmax():
+    assert argmin([-2, 1], key=abs) == 1
+    assert argmax([-2, 1], key=abs) == -2
+    assert argmax(['one', 'to', 'three'], key=len) == 'three'
 
-
-def test_argmin_list():
-    assert argmin_list(['one', 'to', 'three', 'or'], len) == ['to', 'or']
-
-
-def test_argmin_gen():
-    assert [i for i in argmin_gen(['one', 'to', 'three', 'or'], len)] == [
-        'to', 'or']
-
-
-def test_argmax():
-    assert argmax([-2, 1], lambda x: x**2) == -2
-    assert argmax(['one', 'to', 'three'], len) == 'three'
-
-
-def test_argmax_list():
-    assert argmax_list(['one', 'three', 'seven'], lambda x: len(x)) == [
-        'three', 'seven']
-
-
-def test_argmax_gen():
-    assert argmax_list(['one', 'three', 'seven'], len) == ['three', 'seven']
 
 
 def test_histogram():
@@ -141,14 +121,6 @@ def test_normalize():
 
 def test_clip():
     assert [clip(x, 0, 1) for x in [-1, 0.5, 10]] == [0, 0.5, 1]
-
-
-def test_caller():
-    assert caller(0) == 'caller'
-
-    def f():
-        return caller()
-    assert f() == 'f'
 
 
 def test_sigmoid():

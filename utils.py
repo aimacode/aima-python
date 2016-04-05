@@ -1,13 +1,12 @@
 """Provides some utilities widely used by other modules"""
 
-# This module is safe for: from utils import *
-
 # TODO: Priority queues may not belong here -- see treatment in search.py
 
 import operator
 import random
 import os.path
 import bisect
+import collections.abc
 
 from grid import *  # noqa
 
@@ -61,73 +60,29 @@ def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
-# ______________________________________________________________________________
-# Functions on sequences of numbers
-# NOTE: these take the sequence argument first, like min and max,
-# and like standard math notation: \sigma (i = 1..n) fn(i)
-# A lot of programing is finding the best value that satisfies some condition;
-# so there are three versions of argmin/argmax, depending on what you want to
-# do with ties: return the first one, return them all, or pick at random.
+identity = lambda x: x
 
+argmin = min
+argmax = max
 
-def argmin(seq, fn):
-    return min(seq, key=fn)
+def argmin_random_tie(seq, key=identity):
+    """Return a minimum element of seq; break ties at random."""
+    return argmin(shuffled(seq), key=key)
 
-
-def argmin_list(seq, fn):
-    """Return a list of elements of seq[i] with
-       the lowest fn(seq[i]) scores.’
-    """
-    smallest_score = fn(min(seq, key=fn))
-
-    return [elem for elem in seq if fn(elem) == smallest_score]
-
-
-def argmin_gen(seq, fn):
-    """Return a generator of elements of seq[i] with the
-       lowest fn(seq[i]) scores.
-    """
-
-    smallest_score = fn(min(seq, key=fn))
-
-    yield from (elem for elem in seq if fn(elem) == smallest_score)
-
-
-def argmin_random_tie(seq, fn):
-    """Return an element with lowest fn(seq[i]) score; break ties at random.
-    Thus, for all s,f: argmin_random_tie(s, f) in argmin_list(s, f)"""
-    return random.choice(argmin_list(seq, fn))
-
-
-def argmax(seq, fn):
-    """Return an element with highest fn(seq[i]) score;
-       tie goes to first one.
-    """
-    return max(seq, key=fn)
-
-
-def argmax_list(seq, fn):
-    """Return a list of elements of seq[i] with the highest fn(seq[i]) scores.
-       Not good to use 'argmin_list(seq, lambda x: -fn(x))' as method
-       breaks if fn is len
-    """
-    largest_score = fn(max(seq, key=fn))
-
-    return [elem for elem in seq if fn(elem) == largest_score]
-
-
-def argmax_gen(seq, fn):
-    """Return a generator of elements of seq[i] with
-       the highest fn(seq[i]) scores.
-        """
-    largest_score = fn(min(seq, key=fn))
-
-    yield from (elem for elem in seq if fn(elem) == largest_score)
-
-
-def argmax_random_tie(seq, fn):
+def argmax_random_tie(seq, key=identity):
     "Return an element with highest fn(seq[i]) score; break ties at random."
-    return argmin_random_tie(seq, lambda x: -fn(x))
+    return argmax(shuffled(seq), key=key)
+
+def shuffled(iterable):
+    "Randomly shuffle a copy of iterable."
+    items = list(iterable)
+    random.shuffle(items)
+    return items    
+
+def sequence(iterable):
+    "Coerce iterable to sequence, if it is not already one."
+    return (iterable if isinstance(iterable, collections.abc.Sequence)
+            else tuple(iterable))
 
 # ______________________________________________________________________________
 # Statistical and mathematical functions
@@ -149,6 +104,11 @@ def histogram(values, mode=0, bin_function=None):
                       reverse=True)
     else:
         return sorted(bins.items())
+
+def mean(numbers):
+    "The mean or average of numbers."
+    numbers = sequence(numbers)
+    return sum(numbers) / len(numbers)
 
 
 def dotproduct(X, Y):
@@ -263,7 +223,6 @@ def num_or_str(x):
         except ValueError:
             return str(x).strip()
 
-
 def normalize(numbers):
     """Multiply each number by a constant such that the sum is 1.0"""
     total = float(sum(numbers))
@@ -294,22 +253,6 @@ except ImportError:
 # ______________________________________________________________________________
 # Misc Functions
 
-
-def printf(format_str, *args):
-    """Format args with the first argument as format string, and write.
-    Return the last arg, or format itself if there are no args."""
-    print(str(format_str).format(*args, end=''))
-
-    return args[-1] if args else format_str
-
-
-def caller(n=1):
-    """Return the name of the calling function n levels up
-       in the frame stack.
-    """
-    import inspect
-
-    return inspect.getouterframes(inspect.currentframe())[n][3]
 
 # TODO: Use functools.lru_cache memoization decorator
 
@@ -343,15 +286,14 @@ def name(obj):
             getattr(getattr(obj, '__class__', 0), '__name__', 0) or
             str(obj))
 
-
 def isnumber(x):
-    "Is x a number? We say it is if it has a __int__ method."
+    "Is x a number?"
     return hasattr(x, '__int__')
 
 
 def issequence(x):
-    "Is x a sequence? We say it is if it has a __getitem__ method."
-    return hasattr(x, '__getitem__')
+    "Is x a sequence?"
+    return isinstance(x, collections.abc.Sequence)
 
 
 def print_table(table, header=None, sep='   ', numfmt='%g'):
@@ -497,7 +439,8 @@ class PriorityQueue(Queue):
             if item == key:
                 self.A.pop(i)
 
-# Fig: The idea is we can define things like Fig[3,10] later.
-# Alas, it is Fig[3,10] not Fig[3.10], because that would be the same
-# as Fig[3.1]
+# Fig: The idea is we can define things like Fig[3,10] = ...
+# TODO: However, this is deprecated, let's remove it,
+# and instead have a comment like # Figure 3.10
+
 Fig = {}

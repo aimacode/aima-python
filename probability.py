@@ -16,7 +16,7 @@ def DTAgentProgram(belief_state):
     def program(percept):
         belief_state.observe(program.action, percept)
         program.action = argmax(belief_state.actions(),
-                                belief_state.expected_outcome_utility)
+                                key=belief_state.expected_outcome_utility)
         return program.action
     program.action = None
     return program
@@ -62,14 +62,9 @@ class ProbDist:
     def normalize(self):
         """Make sure the probabilities of all values sum to 1.
         Returns the normalized distribution.
-        Raises a ZeroDivisionError if the sum of the values is 0.
-        >>> P = ProbDist('Flip'); P['H'], P['T'] = 35, 65
-        >>> P = P.normalize()
-        >>> print '%5.3f %5.3f' % (P.prob['H'], P.prob['T'])
-        0.350 0.650
-        """
-        total = float(sum(self.prob.values()))
-        if not (1.0-epsilon < total < 1.0+epsilon):
+        Raises a ZeroDivisionError if the sum of the values is 0."""
+        total = sum(self.prob.values())
+        if not isclose(total, 1.0):
             for val in self.prob:
                 self.prob[val] /= total
         return self
@@ -80,11 +75,8 @@ class ProbDist:
         return ', '.join([('%s: ' + numfmt) % (v, p)
                           for (v, p) in sorted(self.prob.items())])
 
-epsilon = 0.001
-
 
 class JointProbDist(ProbDist):
-
     """A discrete probability distribute over a set of variables.
     >>> P = JointProbDist(['X', 'Y']); P[1, 1] = 0.25
     >>> P[1, 1]
@@ -496,15 +488,9 @@ def weighted_sample(bn, e):
 
 
 def gibbs_ask(X, e, bn, N):
-    """[Fig. 14.16]
-    >>> random.seed(1017)
-    >>> gibbs_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary, 1000
-    ...  ).show_approx()
-    'False: 0.738, True: 0.262'
-    """
+    """[Fig. 14.16]"""
     assert X not in e, "Query variable must be distinct from evidence"
-    counts = dict((x, 0)
-                  for x in bn.variable_values(X))  # bold N in Fig. 14.16
+    counts = {x: 0 for x in bn.variable_values(X)}  # bold N in Fig. 14.16
     Z = [var for var in bn.variables if var not in e]
     state = dict(e)  # boldface x in Fig. 14.16
     for Zi in Z:
@@ -572,18 +558,7 @@ def backward(HMM, b, ev):
 def forward_backward(HMM, ev, prior):
     """[Fig. 15.4]
     Forward-Backward algorithm for smoothing. Computes posterior probabilities
-    of a sequence of states given a sequence of observations.
-
-    umbrella_evidence = [T, T, F, T, T]
-    umbrella_prior = [0.5, 0.5]
-    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
-    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
-    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
-
-    >>> forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)
-    [[0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796],
-     [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]]
-    """
+    of a sequence of states given a sequence of observations."""
     t = len(ev)
     ev.insert(0, None)  # to make the code look similar to pseudo code
 
@@ -612,18 +587,7 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
     """[Fig. 15.6]
     Smoothing algorithm with a fixed time lag of 'd' steps.
     Online algorithm that outputs the new smoothed estimate if observation
-    for new time step is given.
-
-    umbrella_evidence = [T, T, F, T, T]
-    e_t = T
-    t = 4
-    d = 3
-    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
-    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
-    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
-
-    >>> fixed_lag_smoothing(T, umbrellaHMM, d)
-    """
+    for new time step is given."""
     ev.insert(0, None)
 
     T_model = HMM.transition_model
@@ -651,20 +615,7 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
 
 
 def particle_filtering(e, N, HMM):
-    """
-    Particle filtering considering two states variables
-    N = 10
-    umbrella_evidence = T
-    umbrella_prior = [0.5, 0.5]
-    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
-    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
-    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
-
-    >>> particle_filtering(umbrella_evidence, N, umbrellaHMM)
-    ['A', 'A', 'A', 'B', 'A', 'A', 'B', 'A', 'A', 'A', 'B']
-
-    NOTE: Output is an probabilistic answer, therfore can vary
-    """
+    """Particle filtering considering two states variables."""
     s = []
     dist = [0.5, 0.5]
     # State Initialization
@@ -717,37 +668,4 @@ def weighted_sample_with_replacement(N, s, w):
             cnt += 1
     return s_wtd
 
-# _________________________________________________________________________
-__doc__ += """
-# We can build up a probability distribution like this (p. 469):
->>> P = ProbDist()
->>> P['sunny'] = 0.7
->>> P['rain'] = 0.2
->>> P['cloudy'] = 0.08
->>> P['snow'] = 0.02
 
-# and query it like this:  (Never mind this ELLIPSIS option
-#                           added to make the doctest portable.)
->>> P['rain']               #doctest:+ELLIPSIS
-0.2...
-
-# A Joint Probability Distribution is dealt with like this (Fig. 13.3):  # noqa
->>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
->>> T, F = True, False
->>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008
->>> P[T, F, T] = 0.016; P[T, F, F] = 0.064; P[F, F, T] = 0.144; P[F, F, F] = 0.576
-
->>> P[T, T, T]
-0.108
-
-# Ask for P(Cavity|Toothache=T)
->>> PC = enumerate_joint_ask('Cavity', {'Toothache': T}, P)
->>> PC.show_approx()
-'False: 0.4, True: 0.6'
-
->>> 0.6-epsilon < PC[T] < 0.6+epsilon
-True
-
->>> 0.4-epsilon < PC[F] < 0.4+epsilon
-True
-"""

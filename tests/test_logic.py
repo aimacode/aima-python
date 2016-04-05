@@ -6,6 +6,9 @@ def test_expr():
     assert repr(expr('P <=> Q(1)')) == '(P <=> Q(1))'
     assert repr(expr('P & Q | ~R(x, F(x))')) == '((P & Q) | ~R(x, F(x)))'
 
+def test_extend():
+    assert extend({x: 1}, y, 2) == {x: 1, y: 2}
+
 def test_PropKB():
     kb = PropKB()
     assert count(kb.ask(expr) for expr in [A, C, D, E, Q]) is 0
@@ -56,6 +59,12 @@ def test_PropKB():
     # Statement: There is a pit in either [2,2] or [3,1].
     assert kb_wumpus.ask(P[2,2] | P[3,1]) == {}
 
+# TODO: resolve >> vs ==>
+#def test_definite_clause():
+#    assert not is_definite_clause(expr('~Farmer(Mac)'))
+#    assert is_definite_clause(expr('(Farmer(f) & Rabbit(r)) >> Hates(f, r)'))
+#    assert not is_definite_clause(expr('(Farmer(f) & ~Rabbit(r)) >> Hates(f, r)'))
+#    assert is_definite_clause(expr('(Farmer(f) | Rabbit(r)) >> Hates(f, r)'))
 
 def test_pl_true():
     assert pl_true(P, {}) is None
@@ -86,7 +95,12 @@ def test_tt_true():
     assert tt_true('(A | (B & C)) <=> ((A | B) & (A | C))')
 
 def test_dpll():
-    assert  dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F) & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D)) == {B: False, C: True, A: True, F: False, D: True, E: False}  #noqa
+    assert (dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F)
+                             & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D))
+            == {B: False, C: True, A: True, F: False, D: True, E: False})
+    assert dpll_satisfiable(A&~B) == {A: True, B: False}
+    assert dpll_satisfiable(P&~P) == False
+    
 
 def test_unify():
     assert unify(x, x, {}) == {}
@@ -121,9 +135,19 @@ def test_move_not_inwards():
     assert repr(move_not_inwards(~(~(A | ~B) | ~~C))) == '((A | ~B) & ~C)'
 
 def test_to_cnf():
-    assert repr(to_cnf(Fig[7, 13] & ~expr('~P12'))) == \
-        "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)"
+    assert (repr(to_cnf(Fig[7, 13] & ~expr('~P12'))) == 
+            "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)")
     assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
+    assert repr(to_cnf("B <=> (P1|P2)")) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
+    assert repr(to_cnf("a | (b & c) | d")) == '((b | a | d) & (c | a | d))'
+    assert repr(to_cnf("A & (B | (D & E))")) == '(A & (D | B) & (E | B))'
+    assert repr(to_cnf("A | (B | (C | (D & E)))")) == '((D | A | B | C) & (E | A | B | C))'
+
+def test_standardize_variables():
+    e = expr('F(a, b, c) & G(c, A, 23)')
+    assert len(variables(standardize_variables(e))) == 3
+    #assert variables(e).intersection(variables(standardize_variables(e))) == {}
+    assert is_variable(standardize_variables(expr('x')))
 
 def test_fol_bc_ask():
     def test_ask(query, kb=None):
@@ -140,19 +164,19 @@ def test_fol_bc_ask():
 
 def test_WalkSAT():
     def check_SAT(clauses, single_solution = {}):
-        #Make sure the solution is correct if it is returned by WalkSat
-        #Sometimes WalkSat may run out of flips before finding a solution
+        # Make sure the solution is correct if it is returned by WalkSat
+        # Sometimes WalkSat may run out of flips before finding a solution
         soln = WalkSAT(clauses)
         if soln:
             assert every(lambda x: pl_true(x, soln), clauses)
             if single_solution:  #Cross check the solution if only one exists
                 assert every(lambda x: pl_true(x, single_solution), clauses)
                 assert soln == single_solution
-    #Test WalkSat for problems with solution
+    # Test WalkSat for problems with solution
     check_SAT([A & B, A & C])
     check_SAT([A | B, P & Q, P & B])
     check_SAT([A & B, C | D, ~(D | P)], {A: True, B: True, C: True, D: False, P: False})
-    #Test WalkSat for problems without solution
+    # Test WalkSat for problems without solution
     assert WalkSAT([A & ~A], 0.5, 100) is None
     assert WalkSAT([A | B, ~A, ~(B | C), C | D, P | Q], 0.5, 100) is None
     assert WalkSAT([A | B, B & C, C | D, D & A, P, ~P], 0.5, 100) is None

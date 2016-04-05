@@ -289,12 +289,8 @@ def is_prop_symbol(s):
 
 def variables(s):
     """Return a set of the variables in expression s.
-    >>> ppset(variables(F(x, A, y)))
-    set([x, y])
-    >>> ppset(variables(F(G(x), z)))
-    set([x, z])
-    >>> ppset(variables(expr('F(x, x) & G(x, y) & H(y, z) & R(A, z, z)')))
-    set([x, y, z])
+    >>> variables(expr('F(x, x) & G(x, y) & H(y, z) & R(A, z, z)')) == {x, y, z}
+    True
     """
     result = set([])
 
@@ -314,14 +310,6 @@ def is_definite_clause(s):
     ~A | ~B | ... | ~C | D, where exactly one clause is positive.
     >>> is_definite_clause(expr('Farmer(Mac)'))
     True
-    >>> is_definite_clause(expr('~Farmer(Mac)'))
-    False
-    >>> is_definite_clause(expr('(Farmer(f) & Rabbit(r)) ==> Hates(f, r)'))
-    True
-    >>> is_definite_clause(expr('(Farmer(f) & ~Rabbit(r)) ==> Hates(f, r)'))
-    False
-    >>> is_definite_clause(expr('(Farmer(f) | Rabbit(r)) ==> Hates(f, r)'))
-    False
     """
     if is_symbol(s.op):
         return True
@@ -343,15 +331,16 @@ def parse_definite_clause(s):
         return conjuncts(antecedent), consequent
 
 # Useful constant Exprs used in examples and code:
-TRUE, FALSE, ZERO, ONE, TWO = list(map(Expr, ['TRUE', 'FALSE', 0, 1, 2]))
-A, B, C, D, E, F, G, P, Q, x, y, z = list(map(Expr, 'ABCDEFGPQxyz'))
+TRUE, FALSE = Expr('TRUE'), Expr('FALSE')
+ZERO, ONE, TWO = 0, 1, 2
+A, B, C, D, E, F, G, P, Q, x, y, z = map(Expr, 'ABCDEFGPQxyz')
 
 # ______________________________________________________________________________
 
 
 def tt_entails(kb, alpha):
     """Does kb entail the sentence alpha? Use truth tables. For propositional
-    kb's and sentences. [Fig. 7.10]. Note that the 'kb' that has to be passed should actually be an
+    kb's and sentences. [Fig. 7.10]. Note that the 'kb' should be an
     Expr which is a conjunction of clauses.
     >>> tt_entails(expr('P & Q'), expr('Q'))
     True
@@ -458,14 +447,6 @@ def to_cnf(s):
     That is, to the form ((A | ~B | ...) & (B | C | ...) & ...) [p. 253]
     >>> to_cnf("~(B|C)")
     (~B & ~C)
-    >>> to_cnf("B <=> (P1|P2)")
-    ((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))
-    >>> to_cnf("a | (b & c) | d")
-    ((b | a | d) & (c | a | d))
-    >>> to_cnf("A & (B | (D & E))")
-    (A & (D | B) & (E | B))
-    >>> to_cnf("A | (B | (C | (D & E)))")
-    ((D | A | B | C) & (E | A | B | C))
     """
     if isinstance(s, str):
         s = expr(s)
@@ -475,24 +456,18 @@ def to_cnf(s):
 
 
 def eliminate_implications(s):
-    """Change >>, <<, and <=> into &, |, and ~. That is, return an Expr
-    that is equivalent to s, but has only &, |, and ~ as logical operators.
-    >>> eliminate_implications(A >> (~B << C))
-    ((~B | ~C) | ~A)
-    >>> eliminate_implications(A ^ B)
-    ((A & ~B) | (~A & B))
-    """
+    "Change implications into equivalent form with only &, |, and ~ as logical operators."
     if not s.args or is_symbol(s.op):
-        return s  # (Atoms are unchanged.)
+        return s  # Atoms are unchanged.
     args = list(map(eliminate_implications, s.args))
     a, b = args[0], args[-1]
-    if s.op == '>>':
+    if s.op == '>>' or s.op == '==>':
         return (b | ~a)
-    elif s.op == '<<':
+    elif s.op == '<<' or s.op == '<==':
         return (a | ~b)
     elif s.op == '<=>':
         return (a | ~b) & (b | ~a)
-    elif s.op == '^':
+    elif s.op == '^' or s.op == '<=/=>':
         assert len(args) == 2  # TODO: relax this restriction
         return (a & ~b) | (~a & b)
     else:
@@ -503,12 +478,7 @@ def eliminate_implications(s):
 def move_not_inwards(s):
     """Rewrite sentence s by moving negation sign inward.
     >>> move_not_inwards(~(A | B))
-    (~A & ~B)
-    >>> move_not_inwards(~(A & B))
-    (~A | ~B)
-    >>> move_not_inwards(~(~(A | ~B) | ~~C))
-    ((A | ~B) & ~C)
-    """
+    (~A & ~B)"""
     if s.op == '~':
         def NOT(b): return move_not_inwards(~b)  # noqa
         a = s.args[0]
@@ -630,12 +600,7 @@ def pl_resolution(KB, alpha):
 
 
 def pl_resolve(ci, cj):
-    """Return all clauses that can be obtained by resolving clauses ci and cj.
-    >>> for res in pl_resolve(to_cnf(A|B|C), to_cnf(~B|~C|F)):
-    ...    ppset(disjuncts(res))
-    set([A, C, F, ~C])
-    set([A, B, F, ~B])
-    """
+    """Return all clauses that can be obtained by resolving clauses ci and cj."""
     clauses = []
     for di in disjuncts(ci):
         for dj in disjuncts(cj):
@@ -711,12 +676,7 @@ def dpll_satisfiable(s):
     This differs from the book code in two ways: (1) it returns a model
     rather than True when it succeeds; this is more useful. (2) The
     function find_pure_symbol is passed a list of unknown clauses, rather
-    than a list of all clauses and the model; this is more efficient.
-    >>> ppsubst(dpll_satisfiable(A&~B))
-    {A: True, B: False}
-    >>> dpll_satisfiable(P&~P)
-    False
-    """
+    than a list of all clauses and the model; this is more efficient."""
     clauses = conjuncts(to_cnf(s))
     symbols = prop_symbols(s)
     return dpll(clauses, symbols, {})
@@ -841,7 +801,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
                 count = len([clause for clause in clauses if pl_true(clause, model)])
                 model[sym] = not model[sym]
                 return count
-            sym = argmax(prop_symbols(clause), sat_count)
+            sym = argmax(prop_symbols(clause), key=sat_count)
         model[sym] = not model[sym]
     #If no solution is found within the flip limit, we return failure
     return None
@@ -886,10 +846,7 @@ def extract_solution(model):
 def unify(x, y, s):
     """Unify expressions x,y with substitution s; return a substitution that
     would make x,y equal, or None if x,y can not unify. x and y can be
-    variables (e.g. Expr('x')), constants, lists, or Exprs. [Fig. 9.1]
-    >>> ppsubst(unify(x + y, y + C, {}))
-    {x: y, y: C}
-    """
+    variables (e.g. Expr('x')), constants, lists, or Exprs. [Fig. 9.1]"""
     if s is None:
         return None
     elif x == y:
@@ -941,11 +898,7 @@ def occur_check(var, x, s):
 
 
 def extend(s, var, val):
-    """Copy the substitution s and extend it by setting var to val;
-    return copy.
-    >>> ppsubst(extend({x: 1}, y, 2))
-    {x: 1, y: 2}
-    """
+    "Copy the substitution s and extend it by setting var to val; return copy."
     s2 = s.copy()
     s2[var] = val
     return s2
@@ -978,15 +931,7 @@ def fol_fc_ask(KB, alpha):
 
 
 def standardize_variables(sentence, dic=None):
-    """Replace all the variables in sentence with new variables.
-    >>> e = expr('F(a, b, c) & G(c, A, 23)')
-    >>> len(variables(standardize_variables(e)))
-    3
-    >>> variables(e).intersection(variables(standardize_variables(e)))
-    set([])
-    >>> is_variable(standardize_variables(expr('x')))
-    True
-    """
+    """Replace all the variables in sentence with new variables."""
     if dic is None:
         dic = {}
     if not isinstance(sentence, Expr):
@@ -1073,20 +1018,7 @@ crime_kb = FolKB(
 
 def fol_bc_ask(KB, query):
     """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
-    KB should be an instance of FolKB, and goals a list of literals.
-    >>> test_ask('Farmer(x)')
-    ['{x: Mac}']
-    >>> test_ask('Human(x)')
-    ['{x: Mac}', '{x: MrsMac}']
-    >>> test_ask('Hates(x, y)')
-    ['{x: Mac, y: MrsRabbit}', '{x: Mac, y: Pete}']
-    >>> test_ask('Loves(x, y)')
-    ['{x: MrsMac, y: Mac}', '{x: MrsRabbit, y: Pete}']
-    >>> test_ask('Rabbit(x)')
-    ['{x: MrsRabbit}', '{x: Pete}']
-    >>> test_ask('Criminal(x)', crime_kb)
-    ['{x: West}']
-    """
+    KB should be an instance of FolKB, and goals a list of literals. """
     return fol_bc_or(KB, query, {})
 
 
@@ -1120,8 +1052,6 @@ def diff(y, x):
     However, you probably want to simplify the results with simp.
     >>> diff(x * x, x)
     ((x * 1) + (x * 1))
-    >>> simp(diff(x * x, x))
-    (2 * x)
     """
     if y == x:
         return ONE
@@ -1151,6 +1081,7 @@ def diff(y, x):
 
 
 def simp(x):
+    "Simplify the expression x."
     if not x.args:
         return x
     args = list(map(simp, x.args))

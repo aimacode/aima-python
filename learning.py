@@ -252,7 +252,7 @@ def NaiveBayesLearner(dataset):
             return (target_dist[targetval] *
                     product(attr_dists[targetval, attr][example[attr]]
                             for attr in dataset.inputs))
-        return argmax(targetvals, class_probability)
+        return argmax(targetvals, key=class_probability)
 
     return predict
 
@@ -348,7 +348,7 @@ def DecisionTreeLearner(dataset):
         """Return the most popular target value for this set of examples.
         (If target is binary, this is the majority; otherwise plurality.)"""
         popular = argmax_random_tie(values[target],
-                                    lambda v: count(target, v, examples))
+                                    key=lambda v: count(target, v, examples))
         return DecisionLeaf(popular)
 
     def count(attr, val, examples):
@@ -363,7 +363,7 @@ def DecisionTreeLearner(dataset):
     def choose_attribute(attrs, examples):
         "Choose the attribute with the highest information gain."
         return argmax_random_tie(attrs,
-                                 lambda a: information_gain(a, examples))
+                                 key=lambda a: information_gain(a, examples))
 
     def information_gain(attr, examples):
         "Return the expected reduction in entropy from splitting by attr."
@@ -613,11 +613,7 @@ def PerceptronLearner(dataset, learning_rate=0.01, epoches=100):
 
 
 def Linearlearner(dataset, learning_rate=0.01, epochs=100):
-    """
-    >>> learner = Linearlearner(data)
-    >>> learner(x)
-    y
-    """
+    """Define with learner = Linearlearner(data); infer with learner(x)."""
     idx_i = dataset.inputs
     idx_t = dataset.target     # As of now, dataset.target gives only one index.
     examples = dataset.examples
@@ -904,25 +900,6 @@ Fig[18, 2] = T('Patrons',
                                   {'No': 'Yes', 'Yes':
                                    T('Raining', {'No': 'No', 'Yes': 'Yes'})
                                    })})})})
-
-__doc__ += """
-[Fig. 18.6]
->>> random.seed(437)
->>> restaurant_tree = DecisionTreeLearner(restaurant)
->>> restaurant_tree.display()
-Test Patrons
- Patrons = None ==> RESULT = No
- Patrons = Full ==> Test Hungry
-     Hungry = Yes ==> Test Type
-         Type = Burger ==> RESULT = Yes
-         Type = Thai ==> Test Fri/Sat
-             Fri/Sat = Yes ==> RESULT = Yes
-             Fri/Sat = No ==> RESULT = No
-         Type = French ==> RESULT = Yes
-         Type = Italian ==> RESULT = No
-     Hungry = No ==> RESULT = No
- Patrons = Some ==> RESULT = Yes
-"""
 
 
 def SyntheticRestaurant(n=20):

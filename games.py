@@ -36,7 +36,7 @@ def minimax_decision(state, game):
 
     # Body of minimax_decision:
     return argmax(game.actions(state),
-                  lambda a: min_value(game.result(state, a)))
+                  key=lambda a: min_value(game.result(state, a)))
 
 # ______________________________________________________________________________
 

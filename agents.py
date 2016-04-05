@@ -189,7 +189,8 @@ def TableDrivenVacuumAgent():
 
 def ReflexVacuumAgent():
     "A reflex agent for the two-state vacuum environment. [Fig. 2.8]"
-    def program(location, status):
+    def program(percept):
+        location, status = percept
         if status == 'Dirty':
             return 'Suck'
         elif location == loc_A:
@@ -203,8 +204,9 @@ def ModelBasedVacuumAgent():
     "An agent that keeps track of what locations are clean or dirty."
     model = {loc_A: None, loc_B: None}
 
-    def program(location, status):
+    def program(percept):
         "Same as ReflexVacuumAgent, except if everything is clean, do NoOp."
+        location, status = percept
         model[location] = status  # Update the model here
         if model[loc_A] == model[loc_B] == 'Clean':
             return 'NoOp'
@@ -864,17 +866,4 @@ __doc__ += """
 >>> e.add_thing(ModelBasedVacuumAgent())
 >>> e.run(5)
 
-## Environments, and some agents, are randomized, so the best we can
-## give is a range of expected scores.  If this test fails, it does
-## not necessarily mean something is wrong.
->>> envs = [TrivialVacuumEnvironment() for i in range(100)]
->>> def testv(A): return test_agent(A, 4, copy.deepcopy(envs))
->>> 7 < testv(ModelBasedVacuumAgent) < 11
-True
->>> 5 < testv(ReflexVacuumAgent) < 9
-True
->>> 2 < testv(TableDrivenVacuumAgent) < 6
-True
->>> 0.5 < testv(RandomVacuumAgent) < 3
-True
 """

@@ -147,7 +147,7 @@ class IRSystem:
             self.index_document(doctext, query_text)
             return []
         qwords = [w for w in words(query_text) if w not in self.stopwords]
-        shortest = argmin(qwords, lambda w: len(self.index[w]))
+        shortest = argmin(qwords, key=lambda w: len(self.index[w]))
         docids = self.index[shortest]
         return heapq.nlargest(n, ((self.total_score(qwords, docid), docid) for docid in docids))
 
@@ -370,18 +370,4 @@ class PermutationDecoderProblem(search.Problem):
         return len(state) >= 26
 
 
-# ______________________________________________________________________________
 
-# TODO(tmrts): Set RNG seed to test random functions
-__doc__ += """
-Random tests:
-## Generate random text from the N-gram models  # noqa
->>> P1.samples(20)
-'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
-
->>> P2.samples(20)
-'flatland well then can anything else more into the total destruction and circles teach others confine women must be added'
-
->>> P3.samples(20)
-'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
-"""
