@@ -922,12 +922,7 @@ def subst(s, x):
 
 
 def fol_fc_ask(KB, alpha):
-    """Inefficient forward chaining for first-order logic. [Fig. 9.3]
-    KB is a FolKB and alpha must be an atomic sentence."""
-    while True:
-        for r in KB.clauses:
-            ps, q = parse_definite_clause(standardize_variables(r))
-            raise NotImplementedError
+    unimplemented()
 
 
 def standardize_variables(sentence, dic=None):
@@ -1018,7 +1013,7 @@ crime_kb = FolKB(
 
 def fol_bc_ask(KB, query):
     """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
-    KB should be an instance of FolKB, and goals a list of literals. """
+    KB should be an instance of FolKB, and query an atomic sentence. """
     return fol_bc_or(KB, query, {})
 
 
