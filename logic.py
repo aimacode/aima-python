@@ -899,9 +899,6 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     #Body of SAT_plan algorithm
     for t in range(t_max):
         cnf = translate_to_SAT(init, transition, goal, t)
-        print("AT",t)
-        print(cnf)
-        print()
         model = SAT_solver(cnf)
         if model is not False:
             return extract_solution(model)
