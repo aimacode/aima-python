@@ -5,6 +5,8 @@ from logic import *
 def test_expr():
     assert repr(expr('P <=> Q(1)')) == '(P <=> Q(1))'
     assert repr(expr('P & Q | ~R(x, F(x))')) == '((P & Q) | ~R(x, F(x)))'
+    assert (expr_handle_infix_ops('P & Q ==> R & ~S')
+            == "P & Q |InfixOp('==>', None)| R & ~S")
 
 def test_extend():
     assert extend({x: 1}, y, 2) == {x: 1, y: 2}
@@ -14,30 +16,33 @@ def test_PropKB():
     assert count(kb.ask(expr) for expr in [A, C, D, E, Q]) is 0
     kb.tell(A & E)
     assert kb.ask(A) == kb.ask(E) == {}
-    kb.tell(E >> C)
+    kb.tell(E |implies| C)
     assert kb.ask(C) == {}
     kb.retract(E)
     assert kb.ask(E) is False
     assert kb.ask(C) is False
 
+
+def test_KB_wumpus():
     # A simple KB that defines the relevant conditions of the Wumpus World as in Fig 7.4.
     # See Sec. 7.4.3
     kb_wumpus = PropKB()
 
     # Creating the relevant expressions
+    # TODO: Let's just use P11, P12, ... = symbols('P11, P12, ...')
     P = {}
     B = {}
-    P[1,1] = Expr("P[1,1]")
-    P[1,2] = Expr("P[1,2]")
-    P[2,1] = Expr("P[2,1]")
-    P[2,2] = Expr("P[2,2]")
-    P[3,1] = Expr("P[3,1]")
-    B[1,1] = Expr("B[1,1]")
-    B[2,1] = Expr("B[2,1]")
+    P[1,1] = Symbol("P[1,1]")
+    P[1,2] = Symbol("P[1,2]")
+    P[2,1] = Symbol("P[2,1]")
+    P[2,2] = Symbol("P[2,2]")
+    P[3,1] = Symbol("P[3,1]")
+    B[1,1] = Symbol("B[1,1]")
+    B[2,1] = Symbol("B[2,1]")
 
     kb_wumpus.tell(~P[1,1])
-    kb_wumpus.tell(B[1,1] % ((P[1,2] | P[2,1])))
-    kb_wumpus.tell(B[2,1] % ((P[1,1] | P[2,2] | P[3,1])))
+    kb_wumpus.tell(B[1,1] |equiv| ((P[1,2] | P[2,1])))
+    kb_wumpus.tell(B[2,1] |equiv| ((P[1,1] | P[2,2] | P[3,1])))
     kb_wumpus.tell(~B[1,1])
     kb_wumpus.tell(B[2,1])
 
@@ -59,12 +64,15 @@ def test_PropKB():
     # Statement: There is a pit in either [2,2] or [3,1].
     assert kb_wumpus.ask(P[2,2] | P[3,1]) == {}
 
-# TODO: resolve >> vs ==>
-#def test_definite_clause():
-#    assert not is_definite_clause(expr('~Farmer(Mac)'))
-#    assert is_definite_clause(expr('(Farmer(f) & Rabbit(r)) >> Hates(f, r)'))
-#    assert not is_definite_clause(expr('(Farmer(f) & ~Rabbit(r)) >> Hates(f, r)'))
-#    assert is_definite_clause(expr('(Farmer(f) | Rabbit(r)) >> Hates(f, r)'))
+
+def test_definite_clause():
+    assert     is_definite_clause(expr('A & B & C & D ==> E'))
+    assert     is_definite_clause(expr('Farmer(Mac)'))
+    assert not is_definite_clause(expr('~Farmer(Mac)'))
+    assert     is_definite_clause(expr('(Farmer(f) & Rabbit(r)) ==> Hates(f, r)'))
+    assert not is_definite_clause(expr('(Farmer(f) & ~Rabbit(r)) ==> Hates(f, r)'))
+    assert not is_definite_clause(expr('(Farmer(f) | Rabbit(r)) ==> Hates(f, r)'))
+
 
 def test_pl_true():
     assert pl_true(P, {}) is None
@@ -79,16 +87,16 @@ def test_pl_true():
 def test_tt_true():
     assert tt_true(P | ~P)
     assert tt_true('~~P <=> P')
-    assert not tt_true('(P | ~Q)&(~P | Q)')
+    assert not tt_true((P | ~Q) & (~P | Q))
     assert not tt_true(P & ~P)
     assert not tt_true(P & Q)
-    assert tt_true('(P | ~Q)|(~P | Q)')
+    assert tt_true((P | ~Q) | (~P | Q))
     assert tt_true('(A & B) ==> (A | B)')
     assert tt_true('((A & B) & C) <=> (A & (B & C))')
     assert tt_true('((A | B) | C) <=> (A | (B | C))')
-    assert tt_true('(A >> B) <=> (~B >> ~A)')
-    assert tt_true('(A >> B) <=> (~A | B)')
-    assert tt_true('(A <=> B) <=> ((A >> B) & (B >> A))')
+    assert tt_true('(A ==> B) <=> (~B ==> ~A)')
+    assert tt_true('(A ==> B) <=> (~A | B)')
+    assert tt_true('(A <=> B) <=> ((A ==> B) & (B ==> A))')
     assert tt_true('~(A & B) <=> (~A | ~B)')
     assert tt_true('~(A | B) <=> (~A & ~B)')
     assert tt_true('(A & (B | C)) <=> ((A & B) | (A & C))')
@@ -116,7 +124,7 @@ def test_tt_entails():
     assert tt_entails(A & (B | C) & E & F & ~(P | Q), A & E & F & ~P & ~Q)
 
 def test_eliminate_implications():
-    assert repr(eliminate_implications(A >> (~B << C))) == '((~B | ~C) | ~A)'
+    assert repr(eliminate_implications('A ==> (~B <== C)')) == '((~B | ~C) | ~A)'
     assert repr(eliminate_implications(A ^ B)) == '((A & ~B) | (~A & B))'
     assert repr(eliminate_implications(A & B | C & ~D)) == '((A & B) | (C & ~D))'
 
@@ -126,8 +134,10 @@ def test_dissociate():
     assert dissociate('&', [A, B, C & D, P | Q]) == [A, B, C, D, P | Q]
 
 def test_associate():
-    assert repr(associate('&', [(A&B),(B|C),(B&C)])) == '(A & B & (B | C) & B & C)'
-    assert repr(associate('|', [A|(B|(C|(A&B)))])) == '(A | B | C | (A & B))'
+    assert (repr(associate('&', [(A & B), (B | C), (B & C)]))
+            == '(A & B & (B | C) & B & C)')
+    assert (repr(associate('|', [A | (B | (C | (A & B)))]))
+            == '(A | B | C | (A & B))')
 
 def test_move_not_inwards():
     assert repr(move_not_inwards(~(A | B))) == '(~A & ~B)'
@@ -138,7 +148,7 @@ def test_to_cnf():
     assert (repr(to_cnf(Fig[7, 13] & ~expr('~P12'))) == 
             "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)")
     assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
-    assert repr(to_cnf("B <=> (P1|P2)")) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
+    assert repr(to_cnf("B <=> (P1 | P2)")) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
     assert repr(to_cnf("a | (b & c) | d")) == '((b | a | d) & (c | a | d))'
     assert repr(to_cnf("A & (B | (D & E))")) == '(A & (D | B) & (E | B))'
     assert repr(to_cnf("A | (B | (C | (D & E)))")) == '((D | A | B | C) & (E | A | B | C))'
