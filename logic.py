@@ -825,8 +825,10 @@ def plan_route(current, goals, allowed):
 
 def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
+    TODO : Currently it fails if '_' character is used in transition. Change the expression names
     [Fig. 7.22]"""
-    
+
+    #Functions used by SAT_plan
     def translate_to_SAT(init, transition, goal, time):
         action_sym = "State_{0}_{1}"
         clauses = []
@@ -849,40 +851,57 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
         for s in states:
             for action in transition[s]:
                 s_ = transition[s][action]
-                for t in range(time-1):
+                for t in range(time):
                     #Action 'action' taken from state 's' at time 't' to reach 's_'
                     action_sym[(s, action, t)] = Expr("Act_{0}_{1}_{2}".format(s, action, t))
 
                     # Change the state from s to s_
-                    clauses.append(action_sym[s, action_sym, t] >> state_sym[s, t])
-                    clauses.append(action_sym[s, action_sym, t] >> state_sym[s_, t + 1])
+                    clauses.append(action_sym[s, action, t] >> state_sym[s, t])
+                    clauses.append(action_sym[s, action, t] >> state_sym[s_, t + 1])
 
         #Allow only one state at any time
         for t in range(time+1):
+            #must be a state at any time
+            clauses.append(associate('|', [ state_sym[s, t] for s in states ]))
+
             for s in states:
-                for s_ in states:
-                    if s != s_:
-                        #For each pair of states s, s_ only one is possible at time t
-                        clauses.append((~state_sym[s, t]) | (~state_sym[_s, t]))
+                for s_ in states[states.index(s)+1:]:
+                    #for each pair of states s, s_ only one is possible at time t
+                    clauses.append((~state_sym[s, t]) | (~state_sym[s_, t]))
 
         #Restrict to one transition per timestep
         for t in range(time):
             #list of possible transitions at time t
             transitions_t = [tr for tr in action_sym if tr[2] == t]
+
+            #make sure atleast one of the transition happens
+            clauses.append(associate('|', [ action_sym[tr] for tr in transitions_t ]))
+
             for tr in transitions_t:
-                for tr_ in transitions_t:
-                    if tr != tr_:
-                        #There cannot be two transitions tr and tr_ at time t
-                        clauses.append((~action_sym[tr]) | (~action_sym[tr_]))
+                for tr_ in transitions_t[transitions_t.index(tr) + 1 :]:
+                    #there cannot be two transitions tr and tr_ at time t
+                    clauses.append((~action_sym[tr]) | (~action_sym[tr_]))
 
         #Combine the clauses to form the cnf
         return associate('&', clauses)
 
     def extract_solution(model):
-        unimplemented()
+        true_syms = [ sym.__repr__() for sym in model if model[sym] ]
+        true_transitions = [ sym for sym in true_syms if sym.startswith('Act_')]
+        solution = []
+        for sym in true_transitions:
+            # Extract time and action from 'Act_state_action_time'
+            solution.append((int(sym.split('_')[-1]), sym.split('_')[2]))
+        #Sort the actions based on time
+        solution.sort()
+        return [ action for time,action in solution ]
 
+    #Body of SAT_plan algorithm
     for t in range(t_max):
         cnf = translate_to_SAT(init, transition, goal, t)
+        print("AT",t)
+        print(cnf)
+        print()
         model = SAT_solver(cnf)
         if model is not False:
             return extract_solution(model)
