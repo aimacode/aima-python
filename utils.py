@@ -1,18 +1,24 @@
 """Provides some utilities widely used by other modules"""
 
-# TODO: Priority queues may not belong here -- see treatment in search.py
-
-import operator
-import random
-import os.path
 import bisect
+import collections
 import collections.abc
+import functools
+import operator
+import os.path
+import random
+import re
 
 from grid import *  # noqa
 
 # ______________________________________________________________________________
-# Functions on Sequences (mostly inspired by Common Lisp)
+# Functions on Sequences and Iterables
 
+
+def sequence(iterable):
+    "Coerce iterable to sequence, if it is not already one."
+    return (iterable if isinstance(iterable, collections.abc.Sequence)
+            else tuple(iterable))
 
 def removeall(item, seq):
     """Return a copy of seq (or string) with all occurences of item removed."""
@@ -21,16 +27,13 @@ def removeall(item, seq):
     else:
         return [x for x in seq if x != item]
 
-
-def unique(seq):
+def unique(seq): # TODO: replace with set
     """Remove duplicate elements from seq. Assumes hashable elements."""
     return list(set(seq))
-
 
 def count(seq):
     """Count the number of items in sequence that are interpreted as true."""
     return sum(bool(x) for x in seq)
-
 
 def product(numbers):
     """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
@@ -38,7 +41,6 @@ def product(numbers):
     for x in numbers:
         result *= x
     return result
-
 
 def first(iterable, default=None):
     "Return the first element of an iterable or the next element of a generator; or default."
@@ -50,7 +52,7 @@ def first(iterable, default=None):
         return next(iterable, default)
 
 
-def every(predicate, seq):
+def every(predicate, seq): # TODO: replace with all
     """True if every element of seq satisfies predicate."""
 
     return all(predicate(x) for x in seq)
@@ -59,6 +61,9 @@ def every(predicate, seq):
 def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
+
+# ______________________________________________________________________________
+# argmin and argmax
 
 identity = lambda x: x
 
@@ -79,10 +84,7 @@ def shuffled(iterable):
     random.shuffle(items)
     return items    
 
-def sequence(iterable):
-    "Coerce iterable to sequence, if it is not already one."
-    return (iterable if isinstance(iterable, collections.abc.Sequence)
-            else tuple(iterable))
+
 
 # ______________________________________________________________________________
 # Statistical and mathematical functions
@@ -243,7 +245,7 @@ def step(x):
     """Return activation value of x with sign function"""
     return 1 if x >= 0 else 0
 
-try:  # math.isclose was added in Python 3.5
+try:  # math.isclose was added in Python 3.5; but we might be in 3.4
     from math import isclose
 except ImportError:
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
@@ -337,10 +339,171 @@ def unimplemented():
     "Use this as a stub for not-yet-implemented functions."
     raise NotImplementedError
 
+
+# ______________________________________________________________________________
+# Expressions
+
+# See https://docs.python.org/3/reference/expressions.html#operator-precedence
+# See https://docs.python.org/3/reference/datamodel.html#special-method-names
+
+class Expr(object): 
+    """A mathematical expression with an operator and 0 or more arguments.
+    op is a str like '+' or 'sin'; args are Expressions.
+    Expr('x') or Symbol('x') creates a symbol (a nullary Expr).
+    Expr('-', x) creates a unary; Expr('+', x, 1) creates a binary."""
+    
+    def __init__(self, op, *args): 
+        self.op = str(op)
+        self.args = args
+        
+    # Operator overloads
+    def __neg__(self):        return Expr('-', self)
+    def __pos__(self):        return Expr('+', self)
+    def __invert__(self):     return Expr('~', self)
+    def __add__(self, other): return Expr('+',  self, other)
+    def __sub__(self, other): return Expr('-',  self, other)
+    def __mul__(self, other): return Expr('*',  self, other)
+    def __pow__(self, other): return Expr('**', self, other)
+    def __mod__(self, other): return Expr('%',  self, other)
+    def __and__(self, other): return Expr('&',  self, other)
+    def __xor__(self, other): return Expr('^',  self, other)
+    def __rshift__(self, other):   return Expr('>>',  self, other)
+    def __lshift__(self, other):   return Expr('<<',  self, other)
+    def __truediv__(self, other):  return Expr('/',  self, other)
+    def __floordiv__(self, other): return Expr('//',  self, other)
+    def __matmul__(self, other):   return Expr('@', self, other)
+    
+    # Reverse operator overloads
+    def __radd__(self, other): return Expr('+',  other, self)
+    def __rsub__(self, other): return Expr('-',  other, self)
+    def __rmul__(self, other): return Expr('*',  other, self)
+    def __rdiv__(self, other): return Expr('/',  other, self)
+    def __rpow__(self, other): return Expr('**', other, self)
+    def __rmod__(self, other): return Expr('%',  other, self)
+    def __rand__(self, other): return Expr('&',  other, self)
+    def __rxor__(self, other): return Expr('^',  other, self)
+    def __ror__(self, other):  return Expr('|',  other, self)
+    def __rrshift__(self, other):   return Expr('>>',  other, self)
+    def __rlshift__(self, other):   return Expr('<<',  other, self)
+    def __rtruediv__(self, other):  return Expr('/',  other, self)
+    def __rfloordiv__(self, other): return Expr('//',  other, self)
+    def __rmatmul__(self, other):   return Expr('@', other, self)
+    
+    def __call__(self, *args): 
+        "Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."
+        return Expr(self.op, *args)
+    
+    # Allow infix operators
+    def __or__(self, other):  
+        "Allow 'P |implies| Q', where P, Q are Exprs and implies is an InfixOp."
+        if isinstance(other, InfixOp):
+            return InfixOp(other.op, lhs=self)
+        else: # Allow 'P | Q' also
+            return Expr('|',  self, other)
+
+    # Equality and repr
+    def __eq__(self, other):   
+        "'x == y' evaluates to True or False; does not build an Expr."
+        return (isinstance(other, Expr) 
+                and self.op == other.op 
+                and self.args == other.args)
+    
+    def __hash__(self): return hash(self.op) ^ hash(self.args)
+    
+    def __repr__(self):
+        op   = self.op
+        args = [str(arg) for arg in self.args]
+        if op.isidentifier():       # f(x) or f(x, y)
+            return '{}({})'.format(op, ', '.join(args)) if args else op
+        elif len(args) == 1:        # -x or -(x + 1)
+            return op + args[0]
+        else:                       # (x - y)
+            opp = (' ' + op + ' ')
+            return '(' + opp.join(args) + ')'
+
+# An 'Expression' is either an Expr or a Number.
+# Symbol is not an explicit type; it is any Expr with 0 args.
+
+Number     = (int, float, complex)
+Expression = (Expr, Number)
+
+def Symbol(name):
+    "A Symbol is just an Expr with no args."
+    return Expr(name)
+
+def symbols(names):
+    "Return a tuple of Symbols; names is a comma/whitespace delimited str."
+    return tuple(Symbol(name) for name in names.replace(',', ' ').split())
+
+def subexpressions(x):
+    "Yield the subexpressions of an Expression (including x itself)."
+    yield x
+    if isinstance(x, Expr):
+        for arg in x.args:
+            yield from subexpressions(arg)
+
+def arity(expression):
+    "The number of sub-expressions in this expression."
+    if isinstance(expression, Expr):
+        return len(expression.args)
+    else: # expression is a number
+        return 0
+
+# For operators that are not defined in Python, we allow new InfixOps:
+
+class InfixOp:
+    """Allow 'P |implies| Q, where P, Q are Exprs and implies is an InfixOp,
+    defined with implies = InfixOp('==>')."""
+    def __init__(self, op, lhs=None):
+        self.op = op
+        self.lhs = lhs
+    def __or__(self, other):
+        return Expr(self.op, self.lhs, other)
+    def __call__(self, lhs, rhs):
+        return Expr(self.op, lhs, rhs)
+    def __repr__(self): 
+        return "InfixOp('{}', {})".format(self.op, self.lhs)
+
+infix_ops = (implies, rimplies, equiv) = [InfixOp(o) for o in ['==>', '<==', '<=>']]
+
+def expr(x):
+    """Shortcut to create an Expression. x is a str in which:
+    - identifiers are automatically defined as Symbols.
+    - '==>' is treated as an infix |implies|, as are all infix_ops
+    If x is already an Expression, it is returned unchanged. Example:
+    >>> expr('P & Q ==> Q')
+    ((P & Q) ==> Q)
+    """
+    if isinstance(x, str):
+        return eval(expr_handle_infix_ops(x),
+                    defaultkeydict(Symbol, InfixOp=InfixOp))
+    else:
+        return x
+
+def expr_handle_infix_ops(x):
+    """Given a str, return a new str with '==>' replaced by |InfixOp('==>')|, etc.
+    >>> expr_handle_infix_ops('P ==> Q')
+    "P |InfixOp('==>', None)| Q"
+    """
+    for op in infix_ops:
+        x = x.replace(op.op, '|' + str(op) + '|')
+    return x
+
+class defaultkeydict(collections.defaultdict):
+    """Like defaultdict, but the default_factory is a function of the key.
+    >>> d = defaultkeydict(len); d['four']
+    4
+    """
+    def __missing__(self, key):
+        self[key] = result = self.default_factory(key)
+        return result
+            
+
 # ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
 
-# TODO: Use queue.Queue
+# TODO: Possibly use queue.Queue, queue.PriorityQueue
+# TODO: Priority queues may not belong here -- see treatment in search.py
 
 
 class Queue:
@@ -398,8 +561,6 @@ class FIFOQueue(Queue):
 
     def __contains__(self, item):
         return item in self.A[self.start:]
-
-# TODO: Use queue.PriorityQueue
 
 
 class PriorityQueue(Queue):

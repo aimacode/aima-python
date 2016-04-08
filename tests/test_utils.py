@@ -130,10 +130,45 @@ def test_sigmoid():
 
 
 def test_step():
-    assert step(1) == 1
+    assert step(1) == step(0.5) == 1
     assert step(0) == 1
-    assert step(-1) == 0
+    assert step(-1) == step(-0.5) == 0
 
+    
+def test_Expr():
+    A, B, C = symbols('A, B, C')
+    assert symbols('A, B, C') == (Symbol('A'), Symbol('B'), Symbol('C'))
+    assert A.op == repr(A) == 'A'
+    assert arity(A) == 0 and A.args == ()
+    
+    b = Expr('+', A, 1)
+    assert arity(b) == 2 and b.op == '+' and b.args == (A, 1)
+    
+    u = Expr('-', b)
+    assert arity(u) == 1 and u.op == '-' and u.args == (b,)
+    
+    assert (b ** u) == (b ** u)
+    assert (b ** u) != (u ** b)
+    
+    assert A + b * C ** 2 == A + (b * (C ** 2))
+
+    ex = C + 1 / (A % 1)
+    assert list(subexpressions(ex)) == [(C + (1 / (A % 1))), C, (1 / (A % 1)), 1, (A % 1), A, 1]
+    assert A in subexpressions(ex)
+    assert B not in subexpressions(ex)
+
+    
+def test_expr():
+    P, Q, x, y, z, GP = symbols('P, Q, x, y, z, GP')
+    assert (expr(y + 2 * x)
+            == expr('y + 2 * x') 
+            == Expr('+', y, Expr('*', 2, x)))
+    assert expr('P & Q ==> P') == Expr('==>', P & Q, P)
+    assert expr('P & Q <=> Q & P') == Expr('<=>', (P & Q), (Q & P))
+    assert expr('P(x) | P(y) & Q(z)') == (P(x) | (P(y) & Q(z)))
+    # x is grandparent of z if x is parent of y and y is parent of z:
+    assert (expr('GP(x, z) <== P(x, y) & P(y, z)')
+            == Expr('<==', GP(x, z), P(x, y) & P(y, z)))
 
 if __name__ == '__main__':
     pytest.main()
