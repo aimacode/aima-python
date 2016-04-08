@@ -181,6 +181,20 @@ def test_WalkSAT():
     assert WalkSAT([A | B, ~A, ~(B | C), C | D, P | Q], 0.5, 100) is None
     assert WalkSAT([A | B, B & C, C | D, D & A, P, ~P], 0.5, 100) is None
 
+def test_SAT_plan():
+    transition = {'A':{'Left': 'A', 'Right': 'B'},
+                  'B':{'Left': 'A', 'Right': 'C'},
+                  'C':{'Left': 'B', 'Right': 'C'}}
+    assert SAT_plan('A', transition, 'C', 2) is None
+    assert SAT_plan('A', transition, 'B', 3) == ['Right']
+    assert SAT_plan('C', transition, 'A', 3) == ['Left', 'Left']
+
+    transition = {(0, 0):{'Right': (0, 1), 'Down': (1, 0)},
+                  (0, 1):{'Left': (1, 0), 'Down': (1, 1)},
+                  (1, 0):{'Right': (1, 0), 'Up': (1, 0), 'Left': (1, 0), 'Down': (1, 0)},
+                  (1, 1):{'Left': (1, 0), 'Up': (0, 1)}} 
+    assert SAT_plan((0, 0), transition, (1, 1), 2000) == ['Right', 'Down']
+
 
 if __name__ == '__main__':
     pytest.main()
