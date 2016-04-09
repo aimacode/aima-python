@@ -357,49 +357,45 @@ class Expr(object):
         self.args = args
         
     # Operator overloads
-    def __neg__(self):        return Expr('-', self)
-    def __pos__(self):        return Expr('+', self)
-    def __invert__(self):     return Expr('~', self)
-    def __add__(self, other): return Expr('+',  self, other)
-    def __sub__(self, other): return Expr('-',  self, other)
-    def __mul__(self, other): return Expr('*',  self, other)
-    def __pow__(self, other): return Expr('**', self, other)
-    def __mod__(self, other): return Expr('%',  self, other)
-    def __and__(self, other): return Expr('&',  self, other)
-    def __xor__(self, other): return Expr('^',  self, other)
-    def __rshift__(self, other):   return Expr('>>',  self, other)
-    def __lshift__(self, other):   return Expr('<<',  self, other)
-    def __truediv__(self, other):  return Expr('/',  self, other)
-    def __floordiv__(self, other): return Expr('//',  self, other)
-    def __matmul__(self, other):   return Expr('@', self, other)
+    def __neg__(self):      return Expr('-', self)
+    def __pos__(self):      return Expr('+', self)
+    def __invert__(self):   return Expr('~', self)
+    def __add__(self, rhs): return Expr('+', self, rhs)
+    def __sub__(self, rhs): return Expr('-', self, rhs)
+    def __mul__(self, rhs): return Expr('*', self, rhs)
+    def __pow__(self, rhs): return Expr('**',self, rhs)
+    def __mod__(self, rhs): return Expr('%', self, rhs)
+    def __and__(self, rhs): return Expr('&', self, rhs)
+    def __xor__(self, rhs): return Expr('^', self, rhs)
+    def __rshift__(self, rhs):   return Expr('>>', self, rhs)
+    def __lshift__(self, rhs):   return Expr('<<', self, rhs)
+    def __truediv__(self, rhs):  return Expr('/',  self, rhs)
+    def __floordiv__(self, rhs): return Expr('//', self, rhs)
+    def __matmul__(self, rhs):   return Expr('@',  self, rhs)
+    def __or__(self, rhs):
+        if isinstance(rhs, Expression) :
+            return Expr('|',  self, rhs) 
+        else return NotImplemented # So that InfixOp can handle it
     
     # Reverse operator overloads
-    def __radd__(self, other): return Expr('+',  other, self)
-    def __rsub__(self, other): return Expr('-',  other, self)
-    def __rmul__(self, other): return Expr('*',  other, self)
-    def __rdiv__(self, other): return Expr('/',  other, self)
-    def __rpow__(self, other): return Expr('**', other, self)
-    def __rmod__(self, other): return Expr('%',  other, self)
-    def __rand__(self, other): return Expr('&',  other, self)
-    def __rxor__(self, other): return Expr('^',  other, self)
-    def __ror__(self, other):  return Expr('|',  other, self)
-    def __rrshift__(self, other):   return Expr('>>',  other, self)
-    def __rlshift__(self, other):   return Expr('<<',  other, self)
-    def __rtruediv__(self, other):  return Expr('/',  other, self)
-    def __rfloordiv__(self, other): return Expr('//',  other, self)
-    def __rmatmul__(self, other):   return Expr('@', other, self)
+    def __radd__(self, lhs): return Expr('+',  lhs, self)
+    def __rsub__(self, lhs): return Expr('-',  lhs, self)
+    def __rmul__(self, lhs): return Expr('*',  lhs, self)
+    def __rdiv__(self, lhs): return Expr('/',  lhs, self)
+    def __rpow__(self, lhs): return Expr('**', lhs, self)
+    def __rmod__(self, lhs): return Expr('%',  lhs, self)
+    def __rand__(self, lhs): return Expr('&',  lhs, self)
+    def __rxor__(self, lhs): return Expr('^',  lhs, self)
+    def __ror__(self, lhs):  return Expr('|',  lhs, self)
+    def __rrshift__(self, lhs):   return Expr('>>',  lhs, self)
+    def __rlshift__(self, lhs):   return Expr('<<',  lhs, self)
+    def __rtruediv__(self, lhs):  return Expr('/',  lhs, self)
+    def __rfloordiv__(self, lhs): return Expr('//',  lhs, self)
+    def __rmatmul__(self, lhs):   return Expr('@', lhs, self)
     
     def __call__(self, *args): 
         "Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."
         return Expr(self.op, *args)
-    
-    # Allow infix operators
-    def __or__(self, other):  
-        "Allow 'P |implies| Q', where P, Q are Exprs and implies is an InfixOp."
-        if isinstance(other, InfixOp):
-            return InfixOp(other.op, lhs=self)
-        else: # Allow 'P | Q' also
-            return Expr('|',  self, other)
 
     # Equality and repr
     def __eq__(self, other):   
@@ -452,17 +448,12 @@ def arity(expression):
 # For operators that are not defined in Python, we allow new InfixOps:
 
 class InfixOp:
-    """Allow 'P |implies| Q, where P, Q are Exprs and implies is an InfixOp,
-    defined with implies = InfixOp('==>')."""
-    def __init__(self, op, lhs=None):
-        self.op = op
-        self.lhs = lhs
-    def __or__(self, other):
-        return Expr(self.op, self.lhs, other)
-    def __call__(self, lhs, rhs):
-        return Expr(self.op, lhs, rhs)
-    def __repr__(self): 
-        return "InfixOp('{}', {})".format(self.op, self.lhs)
+    """Allow 'P |implies| Q, where P, Q are Exprs and implies is an InfixOp."""
+    def __init__(self, op, lhs=None): self.op, self.lhs = op, lhs      
+    def __call__(self, lhs, rhs):     return Expr(self.op, lhs, rhs)
+    def __or__(self, rhs):            return Expr(self.op, self.lhs, rhs)
+    def __ror__(self, lhs):           return InfixOp(self.op, lhs)
+    def __repr__(self):               return "InfixOp('{}', {})".format(self.op, self.lhs)
 
 infix_ops = (implies, rimplies, equiv) = [InfixOp(o) for o in ['==>', '<==', '<=>']]
 
