@@ -1,5 +1,6 @@
 import pytest
 from logic import *
+from utils import InfixOp, expr_handle_infix_ops, Fig, count, implies, equiv
 
 
 def test_expr():

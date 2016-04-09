@@ -1,7 +1,11 @@
 """Probability models. (Chapter 13-15)
 """
 
-from utils import *  # noqa
+from utils import (
+    product, every, argmax, element_wise_product, matrix_multiplication,
+    vector_to_diagonal, vector_add, scalar_vector_product, inverse_matrix,
+    weighted_sample_with_replacement, rounder, isclose, probability, normalize
+)
 from logic import extend
 
 import random

@@ -1,4 +1,5 @@
 import pytest
+import random
 from probability import *  # noqa
 
 

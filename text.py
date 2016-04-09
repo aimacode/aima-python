@@ -4,7 +4,7 @@ and show the Viterbi algorithm for segmentatioon of letters into words.
 Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
-from utils import *  # noqa
+from utils import argmin
 from learning import CountingProbDist
 import search
 
@@ -12,6 +12,7 @@ from math import log, exp
 from collections import defaultdict
 import heapq
 import re
+import os
 
 
 class UnigramTextModel(CountingProbDist):
