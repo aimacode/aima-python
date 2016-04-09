@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import (
-    removeall, unique, product, argmax, argmax_random_tie, mean,
+    removeall, unique, product, argmax, argmax_random_tie, mean, isclose,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile, Fig
 )
@@ -826,7 +826,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     while True:
         errT, errV = cross_validation(learner, size, dataset, k)
         # Check for convergence provided err_val is not empty
-        if (err_val and math.isclose(err_val[-1], errV, rel_tol=1e-6)):
+        if (err_val and isclose(err_val[-1], errV, rel_tol=1e-6)):
             best_size = size
             return learner(dataset, best_size)
 

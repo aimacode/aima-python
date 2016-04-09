@@ -69,9 +69,9 @@ def run_single_trial(agent_program, mdp):
         '''
         x = random.uniform(0, 1)
         cumulative_probability = 0.0
-        for probabilty_state in mdp.T(s, a):
-            probabilty, state = probabilty_state
-            cumulative_probability += probabilty
+        for probability_state in mdp.T(s, a):
+            probability, state = probability_state
+            cumulative_probability += probability
             if x < cumulative_probability:
                 break
         return state
