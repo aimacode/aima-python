@@ -1,8 +1,9 @@
 """Reinforcement Learning (Chapter 21)
 """
 
-from utils import *  # noqa
 import agents
+
+import random
 
 
 class PassiveADPAgent(agents.Agent):

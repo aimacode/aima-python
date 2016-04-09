@@ -1,6 +1,6 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
 
-from utils import *  # noqa
+from utils import count, first, every, argmin_random_tie
 import search
 
 from collections import defaultdict
@@ -8,6 +8,7 @@ from functools import reduce
 
 import itertools
 import re
+import random
 
 
 class CSP(search.Problem):

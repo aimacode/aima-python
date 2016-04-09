@@ -3,8 +3,6 @@
 # (Written for the second edition of AIMA; expect some discrepanciecs
 # from the third edition until this gets reviewed.)
 
-from utils import *  # noqa
-
 from collections import defaultdict
 
 # ______________________________________________________________________________

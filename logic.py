@@ -31,11 +31,15 @@ And a few other functions:
     diff, simp       Symbolic differentiation and simplification
 """
 
-from utils import *  # noqa
+from utils import (
+    removeall, unique, first, every, argmax, probability, num_or_str,
+    isnumber, issequence, Symbol, Expr, expr, subexpressions, Fig
+)
 import agents
 
 import itertools
 import re
+import random
 from collections import defaultdict
 
 # ______________________________________________________________________________

@@ -3,7 +3,7 @@
 import collections
 import random
 
-from utils import *  # noqa
+from utils import argmax
 
 infinity = float('inf')
 GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves')

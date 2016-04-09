@@ -35,7 +35,8 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 #
 # Speed control in GUI does not have any effect -- fix it.
 
-from utils import *  # noqa
+from utils import mean
+from grid import distance2
 
 import random
 import copy
