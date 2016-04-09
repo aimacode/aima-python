@@ -33,7 +33,7 @@ And a few other functions:
 
 from utils import (
     removeall, unique, first, every, argmax, probability, num_or_str,
-    isnumber, issequence, Symbol, Expr, expr, subexpressions, Fig
+    isnumber, issequence, Symbol, Expr, expr, subexpressions, implies, Fig
 )
 import agents
 
