@@ -313,9 +313,9 @@ def eliminate_implications(s):
         return s  # Atoms are unchanged.
     args = list(map(eliminate_implications, s.args))
     a, b = args[0], args[-1]
-    if s.op == '==>':
+    if s.op in ('==>', '>>'):
         return (b | ~a)
-    elif s.op == '<==':
+    elif s.op in ('<==', '<<'):
         return (a | ~b)
     elif s.op == '<=>':
         return (a | ~b) & (b | ~a)
