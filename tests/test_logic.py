@@ -203,7 +203,7 @@ def test_SAT_plan():
                   (0, 1):{'Left': (1, 0), 'Down': (1, 1)},
                   (1, 0):{'Right': (1, 0), 'Up': (1, 0), 'Left': (1, 0), 'Down': (1, 0)},
                   (1, 1):{'Left': (1, 0), 'Up': (0, 1)}} 
-    #assert SAT_plan((0, 0), transition, (1, 1), 2000) == ['Right', 'Down']
+    #assert SAT_plan((0, 0), transition, (1, 1), 4) == ['Right', 'Down']
 
 
 if __name__ == '__main__':

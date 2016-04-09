@@ -711,8 +711,8 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
                     action_sym[(s, action, t)] = Expr("Act_{0}_{1}_{2}".format(s, action, t))
 
                     # Change the state from s to s_
-                    clauses.append(action_sym[s, action, t] >> state_sym[s, t])
-                    clauses.append(action_sym[s, action, t] >> state_sym[s_, t + 1])
+                    clauses.append(action_sym[s, action, t] |implies| state_sym[s, t])
+                    clauses.append(action_sym[s, action, t] |implies| state_sym[s_, t + 1])
 
         #Allow only one state at any time
         for t in range(time+1):
@@ -754,6 +754,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     #Body of SAT_plan algorithm
     for t in range(t_max):
         cnf = translate_to_SAT(init, transition, goal, t)
+        print(cnf)
         model = SAT_solver(cnf)
         if model is not False:
             return extract_solution(model)
