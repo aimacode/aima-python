@@ -25,14 +25,9 @@ def distance(a, b):
     return math.hypot((a[0] - b[0]), (a[1] - b[1]))
 
 
-def distance_squared(a, b):
-    """The square of the distance between two (x, y) points."""
-    return (a[0] - b[0])**2 + (a[1] - b[1])**2
-
-
 def distance2(a, b):
     "The square of the distance between two (x, y) points."
-    return distance_squared(a, b)
+    return (a[0] - b[0])**2 + (a[1] - b[1])**2
 
 
 def clip(x, lowest, highest):

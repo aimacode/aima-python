@@ -10,10 +10,6 @@ def test_distance():
     assert distance((1, 2), (5, 5)) == 5.0
 
 
-def test_distance_squared():
-    assert distance_squared((1, 2), (5, 5)) == 25.0
-
-
 def test_clip():
     list_ = [clip(x, 0, 1) for x in [-1, 0.5, 10]]
     res = [0, 0.5, 1]
