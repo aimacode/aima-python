@@ -8,8 +8,7 @@ import operator
 import os.path
 import random
 import re
-
-from grid import *  # noqa
+import math
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
