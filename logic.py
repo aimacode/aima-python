@@ -142,7 +142,7 @@ def is_var_symbol(s):
 
 def is_prop_symbol(s):
     """A proposition logic symbol is an initial-uppercase string other than
-`    TRUE or FALSE."""
+    TRUE or FALSE."""
     return is_symbol(s) and s[0].isupper() and s != 'TRUE' and s != 'FALSE'
 
 
@@ -313,9 +313,9 @@ def eliminate_implications(s):
         return s  # Atoms are unchanged.
     args = list(map(eliminate_implications, s.args))
     a, b = args[0], args[-1]
-    if s.op in ('==>', '>>'):
+    if s.op == '==>':
         return (b | ~a)
-    elif s.op in ('<==', '<<'):
+    elif s.op == '<==':
         return (a | ~b)
     elif s.op == '<=>':
         return (a | ~b) & (b | ~a)
@@ -333,7 +333,8 @@ def move_not_inwards(s):
     (~A & ~B)"""
     s = expr(s)
     if s.op == '~':
-        def NOT(b): return move_not_inwards(~b)  # noqa
+        def NOT(b):
+            return move_not_inwards(~b)
         a = s.args[0]
         if a.op == '~':
             return move_not_inwards(a.args[0])  # ~~A ==> A
