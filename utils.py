@@ -372,10 +372,12 @@ class Expr(object):
     def __truediv__(self, rhs):  return Expr('/',  self, rhs)
     def __floordiv__(self, rhs): return Expr('//', self, rhs)
     def __matmul__(self, rhs):   return Expr('@',  self, rhs)
+
     def __or__(self, rhs):
         if isinstance(rhs, Expression) :
             return Expr('|',  self, rhs) 
-        else return NotImplemented # So that InfixOp can handle it
+        else:
+            return NotImplemented # So that InfixOp can handle it
     
     # Reverse operator overloads
     def __radd__(self, lhs): return Expr('+',  lhs, self)
