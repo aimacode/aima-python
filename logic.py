@@ -142,7 +142,7 @@ def is_var_symbol(s):
 
 def is_prop_symbol(s):
     """A proposition logic symbol is an initial-uppercase string other than
-`    TRUE or FALSE."""
+    TRUE or FALSE."""
     return is_symbol(s) and s[0].isupper() and s != 'TRUE' and s != 'FALSE'
 
 
@@ -333,7 +333,8 @@ def move_not_inwards(s):
     (~A & ~B)"""
     s = expr(s)
     if s.op == '~':
-        def NOT(b): return move_not_inwards(~b)  # noqa
+        def NOT(b):
+            return move_not_inwards(~b)
         a = s.args[0]
         if a.op == '~':
             return move_not_inwards(a.args[0])  # ~~A ==> A
@@ -679,20 +680,18 @@ def plan_route(current, goals, allowed):
 
 def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
-    TODO : Currently it fails if '_' character is used in transition. Change the expression names
     [Fig. 7.22]"""
 
     #Functions used by SAT_plan
     def translate_to_SAT(init, transition, goal, time):
-        action_sym = "State_{0}_{1}"
         clauses = []
         states = [state for state in transition]
         
         #Symbol claiming state s at time t
-        state_sym = {}
+        state_counter = itertools.count()
         for s in states:
             for t in range(time+1):
-                state_sym[(s, t)] = Expr("In_{0}_at_{1}".format(s, t))
+                state_sym[(s, t)] = Expr("State_{}".format(next(state_counter)))
 
         #Add initial state axiom
         clauses.append(state_sym[init, 0])
@@ -701,17 +700,17 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
         clauses.append(state_sym[goal, time])
 
         #All possible transitions
-        action_sym = {}
+        transition_counter = itertools.count()
         for s in states:
             for action in transition[s]:
                 s_ = transition[s][action]
                 for t in range(time):
                     #Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[(s, action, t)] = Expr("Act_{0}_{1}_{2}".format(s, action, t))
+                    action_sym[(s, action, t)] = Expr("Transition_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
-                    clauses.append(action_sym[s, action, t] >> state_sym[s, t])
-                    clauses.append(action_sym[s, action, t] >> state_sym[s_, t + 1])
+                    clauses.append(action_sym[s, action, t] |implies| state_sym[s, t])
+                    clauses.append(action_sym[s, action, t] |implies| state_sym[s_, t + 1])
 
         #Allow only one state at any time
         for t in range(time+1):
@@ -740,18 +739,17 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
         return associate('&', clauses)
 
     def extract_solution(model):
-        true_syms = [ sym.__repr__() for sym in model if model[sym] ]
-        true_transitions = [ sym for sym in true_syms if sym.startswith('Act_')]
-        solution = []
-        for sym in true_transitions:
-            # Extract time and action from 'Act_state_action_time'
-            solution.append((int(sym.split('_')[-1]), sym.split('_')[2]))
-        #Sort the actions based on time
-        solution.sort()
-        return [ action for time,action in solution ]
+        true_transitions = [ t for t in action_sym if model[action_sym[t]]]
+        #Sort transitions based on time which is the 3rd element of the tuple
+        true_transitions.sort(key = lambda x: x[2])
+        return [ action for s, action, time in true_transitions ]
 
     #Body of SAT_plan algorithm
     for t in range(t_max):
+        #dcitionaries to help extract the solution from model
+        state_sym = {}
+        action_sym = {}
+
         cnf = translate_to_SAT(init, transition, goal, t)
         model = SAT_solver(cnf)
         if model is not False:
