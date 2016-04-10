@@ -66,7 +66,7 @@ class Canvas:
         self.rect(x, y, w, h)
 
     def line(self, x1, y1, x2, y2):
-        "Draw a line from (x1, y1) to (x, y2)"
+        "Draw a line from (x1, y1) to (x2, y2)"
         self.exec("line({0}, {1}, {2}, {3})".format(x1, y1, x2, y2))
 
     def line_n(self, x1n, y1n, x2n, y2n):
