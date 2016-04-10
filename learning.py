@@ -3,7 +3,7 @@
 from utils import (
     removeall, unique, product, argmax, argmax_random_tie, mean, isclose,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
-    weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile, Fig
+    weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile
 )
 
 import copy
@@ -886,7 +886,11 @@ def T(attrname, branches):
                     for value, child in list(branches.items()))
     return DecisionFork(restaurant.attrnum(attrname), attrname, branches)
 
-Fig[18, 2] = T('Patrons',
+""" [Figure 18.2]
+A decision tree for deciding whether to wait for a table at a hotel.
+"""
+
+waiting_decision_tree = T('Patrons',
                {'None': 'No', 'Some': 'Yes', 'Full':
                 T('WaitEstimate',
                   {'>60': 'No', '0-10': 'Yes',
@@ -910,7 +914,7 @@ def SyntheticRestaurant(n=20):
     "Generate a DataSet with n examples."
     def gen():
         example = list(map(random.choice, restaurant.values))
-        example[restaurant.target] = Fig[18, 2](example)
+        example[restaurant.target] = waiting_decision_tree(example)
         return example
     return RestaurantDataSet([gen() for i in range(n)])
 

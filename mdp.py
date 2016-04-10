@@ -6,7 +6,7 @@ as a dictionary of {state:action} pairs, and a Utility function as a
 dictionary of {state:number} pairs.  We then define the value_iteration
 and policy_iteration algorithms."""
 
-from utils import argmax, vector_add, print_table, Fig
+from utils import argmax, vector_add, print_table
 from grid import orientations, turn_right, turn_left
 
 import random
@@ -97,8 +97,10 @@ class GridMDP(MDP):
                 dict([(s, chars[a]) for (s, a) in list(policy.items())]))
 
 # ______________________________________________________________________________
-
-Fig[17, 1] = GridMDP([[-0.04, -0.04, -0.04, +1],
+""" [Figure 17.1]
+A 4x3 grid environment that presents the agent with a sequential decision problem.
+"""
+sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
                       [-0.04, None,  -0.04, -1],
                       [-0.04, -0.04, -0.04, -0.04]],
                      terminals=[(3, 2), (3, 1)])
@@ -163,17 +165,17 @@ def policy_evaluation(pi, U, mdp, k=20):
     return U
 
 __doc__ += """
->>> pi = best_policy(Fig[17,1], value_iteration(Fig[17,1], .01))
+>>> pi = best_policy(sequential_decision_environment, value_iteration(sequential_decision_environment, .01))
 
->>> Fig[17,1].to_arrows(pi)
+>>> sequential_decision_environment.to_arrows(pi)
 [['>', '>', '>', '.'], ['^', None, '^', '.'], ['^', '>', '^', '<']]
 
->>> print_table(Fig[17,1].to_arrows(pi))
+>>> print_table(sequential_decision_environment.to_arrows(pi))
 >   >      >   .
 ^   None   ^   .
 ^   >      ^   <
 
->>> print_table(Fig[17,1].to_arrows(policy_iteration(Fig[17,1])))
+>>> print_table(sequential_decision_environment.to_arrows(policy_iteration(sequential_decision_environment)))
 >   >      >   .
 ^   None   ^   .
 ^   >      ^   <
