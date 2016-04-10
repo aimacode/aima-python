@@ -1,7 +1,7 @@
 from IPython.display import HTML, display, clear_output
 
 _canvas = """
-<script type="text/javascript" src="./canvas.js"></script>
+<script type="text/javascript" src="./js/canvas.js"></script>
 <div>
 <canvas id="{0}" width="{1}" height="{2}" style="background:rgba(158, 167, 184, 0.2);" onclick='click_callback(this, event, "{3}")'></canvas>
 </div>
@@ -109,7 +109,7 @@ class Canvas:
         "Similar to text(), but with normalized coordinates"
         x = round(xn * self.width)
         y = round(yn * self.height)
-        self.text(text, x, y, fill)
+        self.text(txt, x, y, fill)
 
     def alert(self, message):
         "Immediately display an alert"

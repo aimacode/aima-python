@@ -4,13 +4,18 @@
   See canvas.py for help on how to use the Canvas class to draw on the HTML Canvas
 */
 
+
 //Manages the output of code executed in IPython kernel
 function output_callback(out, block){
     console.log(out);
+    //Handle error in python
+    if(out.msg_type == "error"){
+	console.log("Error in python script!");
+	console.log(out.content);
+	return ;
+    }
     script = out.content.data['text/html'];
-    console.log(script);
     script = script.substr(8, script.length - 17);
-    console.log(script);
     eval(script)
 }
 
