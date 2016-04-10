@@ -320,6 +320,7 @@ class ConnectFour(TicTacToe):
 
 class Canvas_TicTacToe(Canvas):
     """Play a 3x3 TicTacToe game on HTML canvas
+    TODO: Add restart button
     """
     def __init__(self, varname, player_1='human', player_2='random', id=None, width=800, height=600):
         valid_players = ('human', 'random', 'alphabeta')
@@ -370,10 +371,13 @@ class Canvas_TicTacToe(Canvas):
         #End game message
         if self.ttt.terminal_test(self.state):
             utility = self.ttt.utility(self.state, self.ttt.to_move(self.ttt.initial))
-            self.text_n('Player {} wins!'.format(1 if utility>0 else 2), 0.1, 0.1)
+            if utility == 0:
+                self.text_n('Game Draw!', 0.1, 0.1)
+            else:
+                self.text_n('Player {} wins!'.format(1 if utility>0 else 2), 0.1, 0.1)
         else:  #print which player's turn it is
-            self.text_n("Player {}'s move".format(self.turn+1), 0.1, 0.1)
-            
+            self.text_n("Player {}'s move({})".format(self.turn+1, self.players[self.turn]), 0.1, 0.1)
+
         self.update()
     
     def draw_x(self, position):
