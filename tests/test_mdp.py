@@ -2,7 +2,7 @@ import pytest
 from mdp import *  # noqa
 
 def test_value_iteration():
-    assert value_iteration(Fig[17, 1], .01) == {(3, 2): 1.0, (3, 1): -1.0,
+    assert value_iteration(sequential_decision_environment, .01) == {(3, 2): 1.0, (3, 1): -1.0,
                                         (3, 0): 0.12958868267972745, (0, 1): 0.39810203830605462,
                                         (0, 2): 0.50928545646220924, (1, 0): 0.25348746162470537,
                                         (0, 0): 0.29543540628363629, (1, 2): 0.64958064617168676,
@@ -11,14 +11,14 @@ def test_value_iteration():
 
 
 def test_policy_iteration():
-    assert policy_iteration(Fig[17, 1]) == {(0, 0): (0, 1),  (0, 1): (0, 1), (0, 2): (1, 0),
+    assert policy_iteration(sequential_decision_environment) == {(0, 0): (0, 1),  (0, 1): (0, 1), (0, 2): (1, 0),
                                             (1, 0): (1, 0),                  (1, 2): (1, 0),
                                             (2, 0): (0, 1),  (2, 1): (0, 1), (2, 2): (1, 0),
                                             (3, 0): (-1, 0), (3, 1): None,   (3, 2): None}
 
 
 def test_best_policy():
-    pi = best_policy(Fig[17, 1], value_iteration(Fig[17, 1], .01))
-    assert Fig[17, 1].to_arrows(pi) == [['>', '>', '>', '.'], 
+    pi = best_policy(sequential_decision_environment, value_iteration(sequential_decision_environment, .01))
+    assert sequential_decision_environment.to_arrows(pi) == [['>', '>', '>', '.'],
                                         ['^', None, '^', '.'],
                                         ['^', '>', '^', '<']]

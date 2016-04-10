@@ -1,6 +1,6 @@
 import pytest
 from logic import *
-from utils import InfixOp, expr_handle_infix_ops, Fig, count, implies, equiv
+from utils import InfixOp, expr_handle_infix_ops, count, implies, equiv
 
 
 def test_expr():
@@ -109,15 +109,15 @@ def test_dpll():
             == {B: False, C: True, A: True, F: False, D: True, E: False})
     assert dpll_satisfiable(A&~B) == {A: True, B: False}
     assert dpll_satisfiable(P&~P) == False
-    
+
 
 def test_unify():
     assert unify(x, x, {}) == {}
     assert unify(x, 3, {}) == {x: 3}
 
 def test_pl_fc_entails():
-    assert pl_fc_entails(Fig[7,15], expr('Q'))
-    assert not pl_fc_entails(Fig[7,15], expr('SomethingSilly'))
+    assert pl_fc_entails(horn_clauses_KB, expr('Q'))
+    assert not pl_fc_entails(horn_clauses_KB, expr('SomethingSilly'))
 
 def test_tt_entails():
     assert tt_entails(P & Q, Q)
@@ -146,7 +146,7 @@ def test_move_not_inwards():
     assert repr(move_not_inwards(~(~(A | ~B) | ~~C))) == '((A | ~B) & ~C)'
 
 def test_to_cnf():
-    assert (repr(to_cnf(Fig[7, 13] & ~expr('~P12'))) == 
+    assert (repr(to_cnf(wumpus_world_inference & ~expr('~P12'))) ==
             "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)")
     assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
     assert repr(to_cnf("B <=> (P1 | P2)")) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
@@ -203,7 +203,7 @@ def test_SAT_plan():
     transition = {(0, 0):{'Right': (0, 1), 'Down': (1, 0)},
                   (0, 1):{'Left': (1, 0), 'Down': (1, 1)},
                   (1, 0):{'Right': (1, 0), 'Up': (1, 0), 'Left': (1, 0), 'Down': (1, 0)},
-                  (1, 1):{'Left': (1, 0), 'Up': (0, 1)}} 
+                  (1, 1):{'Left': (1, 0), 'Up': (0, 1)}}
     assert SAT_plan((0, 0), transition, (1, 1), 4) == ['Right', 'Down']
 
 

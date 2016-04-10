@@ -33,7 +33,7 @@ And a few other functions:
 
 from utils import (
     removeall, unique, first, every, argmax, probability, num_or_str,
-    isnumber, issequence, Symbol, Expr, expr, subexpressions, implies, Fig
+    isnumber, issequence, Symbol, Expr, expr, subexpressions, implies
 )
 import agents
 
@@ -499,7 +499,7 @@ class PropDefiniteKB(PropKB):
 def pl_fc_entails(KB, q):
     """Use forward chaining to see if a PropDefiniteKB entails symbol q.
     [Fig. 7.15]
-    >>> pl_fc_entails(Fig[7,15], expr('Q'))
+    >>> pl_fc_entails(horn_clauses_KB, expr('Q'))
     True
     """
     count = dict([(c, len(conjuncts(c.args[0]))) for c in KB.clauses
@@ -518,13 +518,18 @@ def pl_fc_entails(KB, q):
                     agenda.append(c.args[1])
     return False
 
-# Wumpus World example [Fig. 7.13]
-Fig[7, 13] = expr("(B11 <=> (P12 | P21))  &  ~B11")
+""" [Figure 7.13]
+Simple inference in a wumpus world example
+"""
+wumpus_world_inference = expr("(B11 <=> (P12 | P21))  &  ~B11")
 
-# Propositional Logic Forward Chaining example [Fig. 7.16]
-Fig[7, 15] = PropDefiniteKB()
+
+""" [Figure 7.16]
+Propositional Logic Forward Chaining example
+"""
+horn_clauses_KB = PropDefiniteKB()
 for s in "P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B".split(';'):
-    Fig[7, 15].tell(expr(s))
+    horn_clauses_KB.tell(expr(s))
 
 # ______________________________________________________________________________
 # DPLL-Satisfiable [Fig. 7.17]
@@ -690,7 +695,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     def translate_to_SAT(init, transition, goal, time):
         clauses = []
         states = [state for state in transition]
-        
+
         #Symbol claiming state s at time t
         state_counter = itertools.count()
         for s in states:

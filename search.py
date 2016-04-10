@@ -700,7 +700,7 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
                 g.connect(node, neighbor, int(d))
     return g
 
-""" [Fig. 3.2]
+""" [Figure 3.2]
 Simplified road map of Romania
 """
 romania_map = UndirectedGraph(dict(
@@ -726,7 +726,7 @@ romania_map.locations = dict(
     Sibiu=(207, 457), Timisoara=(94, 410), Urziceni=(456, 350),
     Vaslui=(509, 444), Zerind=(108, 531))
 
-""" [Fig. 4.9]
+""" [Figure 4.9]
 Eight possible states of the vacumm world
 Each state is represented as
    *       "State of the left room"      "State of the right room"   "Room in which the agent is present"
@@ -750,9 +750,8 @@ vacumm_world = Graph(dict(
     State_8 = dict(Suck = ['State_8', 'State_6'], Left = ['State_7'])
     ))
 
-""" [Fig. 4.23]
+""" [Figure 4.23]
 One-dimensional state space Graph
-
 """
 one_dim_state_space = Graph(dict(
     State_1 = dict(Right = 'State_2'),
@@ -770,7 +769,9 @@ one_dim_state_space.least_costs = dict(
     State_5 = 4,
     State_6 = 3)
 
-# Principal states and territories of Australia
+""" [Figure 6.1]
+Principal states and territories of Australia
+"""
 australia_map = UndirectedGraph(dict(
     T=dict(),
     SA=dict(WA=1, NT=1, Q=1, NSW=1, V=1),
