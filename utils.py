@@ -81,7 +81,7 @@ def shuffled(iterable):
     "Randomly shuffle a copy of iterable."
     items = list(iterable)
     random.shuffle(items)
-    return items    
+    return items
 
 
 
@@ -345,16 +345,16 @@ def unimplemented():
 # See https://docs.python.org/3/reference/expressions.html#operator-precedence
 # See https://docs.python.org/3/reference/datamodel.html#special-method-names
 
-class Expr(object): 
+class Expr(object):
     """A mathematical expression with an operator and 0 or more arguments.
     op is a str like '+' or 'sin'; args are Expressions.
     Expr('x') or Symbol('x') creates a symbol (a nullary Expr).
     Expr('-', x) creates a unary; Expr('+', x, 1) creates a binary."""
-    
-    def __init__(self, op, *args): 
+
+    def __init__(self, op, *args):
         self.op = str(op)
         self.args = args
-        
+
     # Operator overloads
     def __neg__(self):      return Expr('-', self)
     def __pos__(self):      return Expr('+', self)
@@ -374,10 +374,10 @@ class Expr(object):
 
     def __or__(self, rhs):
         if isinstance(rhs, Expression) :
-            return Expr('|',  self, rhs) 
+            return Expr('|',  self, rhs)
         else:
             return NotImplemented # So that InfixOp can handle it
-    
+
     # Reverse operator overloads
     def __radd__(self, lhs): return Expr('+',  lhs, self)
     def __rsub__(self, lhs): return Expr('-',  lhs, self)
@@ -393,20 +393,20 @@ class Expr(object):
     def __rtruediv__(self, lhs):  return Expr('/',  lhs, self)
     def __rfloordiv__(self, lhs): return Expr('//',  lhs, self)
     def __rmatmul__(self, lhs):   return Expr('@', lhs, self)
-    
-    def __call__(self, *args): 
+
+    def __call__(self, *args):
         "Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."
         return Expr(self.op, *args)
 
     # Equality and repr
-    def __eq__(self, other):   
+    def __eq__(self, other):
         "'x == y' evaluates to True or False; does not build an Expr."
-        return (isinstance(other, Expr) 
-                and self.op == other.op 
+        return (isinstance(other, Expr)
+                and self.op == other.op
                 and self.args == other.args)
-    
+
     def __hash__(self): return hash(self.op) ^ hash(self.args)
-    
+
     def __repr__(self):
         op   = self.op
         args = [str(arg) for arg in self.args]
@@ -450,7 +450,7 @@ def arity(expression):
 
 class InfixOp:
     """Allow 'P |implies| Q, where P, Q are Exprs and implies is an InfixOp."""
-    def __init__(self, op, lhs=None): self.op, self.lhs = op, lhs      
+    def __init__(self, op, lhs=None): self.op, self.lhs = op, lhs
     def __call__(self, lhs, rhs):     return Expr(self.op, lhs, rhs)
     def __or__(self, rhs):            return Expr(self.op, self.lhs, rhs)
     def __ror__(self, lhs):           return InfixOp(self.op, lhs)
@@ -489,7 +489,7 @@ class defaultkeydict(collections.defaultdict):
     def __missing__(self, key):
         self[key] = result = self.default_factory(key)
         return result
-            
+
 
 # ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
@@ -591,9 +591,3 @@ class PriorityQueue(Queue):
         for i, (value, item) in enumerate(self.A):
             if item == key:
                 self.A.pop(i)
-
-# Fig: The idea is we can define things like Fig[3,10] = ...
-# TODO: However, this is deprecated, let's remove it,
-# and instead have a comment like # Figure 3.10
-
-Fig = {}
