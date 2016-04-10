@@ -15,9 +15,7 @@ function output_callback(out, block){
 	return ;
     }
     script = out.content.data['text/html'];
-    console.log(script);
     script = script.substr(8, script.length - 17);
-    console.log(script);
     eval(script)
 }
 
