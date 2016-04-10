@@ -30,6 +30,11 @@ def test_shift_decoding():
 
     assert msg == 'This is a secret message.'
 
+def test_rot13_encoding():
+    code = rot13('Hello, world!')
+
+    assert code == 'Uryyb, jbeyq!'
+
 
 def test_rot13_decoding():
     flatland = DataFile("EN-text/flatland.txt").read()
@@ -162,6 +167,27 @@ def test_ir_system():
         Results(14.58, "aima-data/MAN/pine.txt"),
         Results(11.62, "aima-data/MAN/jar.txt"),
     ])
+
+
+def test_words():
+    assert words("``EGAD!'' Edgar cried.") == ['egad', 'edgar', 'cried']
+
+
+def test_canonicalize():
+    assert canonicalize("``EGAD!'' Edgar cried.") == 'egad edgar cried'
+
+
+def test_translate():
+    text = 'orange apple lemon '
+    func = lambda x: ('s ' + x) if x==' ' else x
+
+    assert translate(text, func) == 'oranges  apples  lemons  ' 
+
+
+def test_bigrams():
+    assert bigrams('this') == ['th', 'hi', 'is']
+    assert bigrams(['this', 'is', 'a', 'test']) == [['this', 'is'], ['is', 'a'], ['a', 'test']]
+
 
 # TODO: for .ipynb
 """
