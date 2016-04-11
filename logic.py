@@ -144,9 +144,8 @@ def is_var_symbol(s):
 
 
 def is_prop_symbol(s):
-    """A proposition logic symbol is an initial-uppercase string other than
-    TRUE or FALSE."""
-    return is_symbol(s) and s[0].isupper() and s != 'TRUE' and s != 'FALSE'
+    """A proposition logic symbol is an initial-uppercase string."""
+    return is_symbol(s) and s[0].isupper()
 
 
 def variables(s):
@@ -184,7 +183,6 @@ def parse_definite_clause(s):
         return conjuncts(antecedent), consequent
 
 # Useful constant Exprs used in examples and code:
-TRUE, FALSE = Symbol('TRUE'), Symbol('FALSE')
 A, B, C, D, E, F, G, P, Q, x, y, z = map(Expr, 'ABCDEFGPQxyz')
 
 
@@ -233,7 +231,7 @@ def tt_true(s):
     True
     """
     s = expr(s)
-    return tt_entails(TRUE, s)
+    return tt_entails(True, s)
 
 
 def pl_true(exp, model={}):
@@ -241,12 +239,10 @@ def pl_true(exp, model={}):
     and False if it is false. If the model does not specify the value for
     every proposition, this may return None to indicate 'not obvious';
     this may happen even when the expression is tautological."""
+    if exp == True or exp == False:
+        return exp
     op, args = exp.op, exp.args
-    if exp == TRUE:
-        return True
-    elif exp == FALSE:
-        return False
-    elif is_prop_symbol(op):
+    if is_prop_symbol(op):
         return model.get(exp)
     elif op == '~':
         p = pl_true(args[0], model)
@@ -364,7 +360,7 @@ def distribute_and_over_or(s):
         if s.op != '|':
             return distribute_and_over_or(s)
         if len(s.args) == 0:
-            return FALSE
+            return False
         if len(s.args) == 1:
             return distribute_and_over_or(s.args[0])
         conj = first(arg for arg in s.args if arg.op == '&')
@@ -397,7 +393,7 @@ def associate(op, args):
     else:
         return Expr(op, *args)
 
-_op_identity = {'&': TRUE, '|': FALSE, '+': 0, '*': 1}
+_op_identity = {'&': True, '|': False, '+': 0, '*': 1}
 
 
 def dissociate(op, args):
@@ -447,7 +443,7 @@ def pl_resolution(KB, alpha):
                  for i in range(n) for j in range(i+1, n)]
         for (ci, cj) in pairs:
             resolvents = pl_resolve(ci, cj)
-            if FALSE in resolvents:
+            if False in resolvents:
                 return True
             new = new.union(set(resolvents))
         if new.issubset(set(clauses)):
