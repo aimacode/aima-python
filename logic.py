@@ -97,10 +97,9 @@ class PropKB(KB):
 
     def ask_if_true(self, query):
         "Return True if the KB entails query, else return False."
-        if self.ask_generator(query) == {}:
+        for _ in self.ask_generator(query):
             return True
-        else:
-            return False
+        return False
 
     def retract(self, sentence):
         "Remove the sentence's clauses from the KB."
