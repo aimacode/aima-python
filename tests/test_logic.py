@@ -1,13 +1,13 @@
 import pytest
 from logic import *
-from utils import InfixOp, expr_handle_infix_ops, count, implies, equiv
+from utils import expr_handle_infix_ops, count
 
 
 def test_expr():
     assert repr(expr('P <=> Q(1)')) == '(P <=> Q(1))'
     assert repr(expr('P & Q | ~R(x, F(x))')) == '((P & Q) | ~R(x, F(x)))'
     assert (expr_handle_infix_ops('P & Q ==> R & ~S')
-            == "P & Q |InfixOp('==>', None)| R & ~S")
+            == "P & Q |'==>'| R & ~S")
 
 def test_extend():
     assert extend({x: 1}, y, 2) == {x: 1, y: 2}
@@ -17,7 +17,7 @@ def test_PropKB():
     assert count(kb.ask(expr) for expr in [A, C, D, E, Q]) is 0
     kb.tell(A & E)
     assert kb.ask(A) == kb.ask(E) == {}
-    kb.tell(E |implies| C)
+    kb.tell(E |'==>'| C)
     assert kb.ask(C) == {}
     kb.retract(E)
     assert kb.ask(E) is False
@@ -42,8 +42,8 @@ def test_KB_wumpus():
     B[2,1] = Symbol("B[2,1]")
 
     kb_wumpus.tell(~P[1,1])
-    kb_wumpus.tell(B[1,1] |equiv| ((P[1,2] | P[2,1])))
-    kb_wumpus.tell(B[2,1] |equiv| ((P[1,1] | P[2,2] | P[3,1])))
+    kb_wumpus.tell(B[1,1] |'<=>'| ((P[1,2] | P[2,1])))
+    kb_wumpus.tell(B[2,1] |'<=>'| ((P[1,1] | P[2,2] | P[3,1])))
     kb_wumpus.tell(~B[1,1])
     kb_wumpus.tell(B[2,1])
 

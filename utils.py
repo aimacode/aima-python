@@ -373,10 +373,11 @@ class Expr(object):
     def __matmul__(self, rhs):   return Expr('@',  self, rhs)
 
     def __or__(self, rhs):
+        "Allow both P | Q, and P |'==>'| Q."
         if isinstance(rhs, Expression) :
             return Expr('|',  self, rhs)
         else:
-            return NotImplemented # So that InfixOp can handle it
+            return PartialExpr(rhs, self)
 
     # Reverse operator overloads
     def __radd__(self, lhs): return Expr('+',  lhs, self)
@@ -451,37 +452,34 @@ def arity(expression):
 
 # For operators that are not defined in Python, we allow new InfixOps:
 
-class InfixOp:
-    """Allow 'P |implies| Q, where P, Q are Exprs and implies is an InfixOp."""
-    def __init__(self, op, lhs=None): self.op, self.lhs = op, lhs
-    def __call__(self, lhs, rhs):     return Expr(self.op, lhs, rhs)
-    def __or__(self, rhs):            return Expr(self.op, self.lhs, rhs)
-    def __ror__(self, lhs):           return InfixOp(self.op, lhs)
-    def __repr__(self):               return "InfixOp('{}', {})".format(self.op, self.lhs)
-
-infix_ops = (implies, rimplies, equiv) = [InfixOp(o) for o in ['==>', '<==', '<=>']]
+class PartialExpr:
+    """Given 'P |'==>'| Q, first form PartialExpr('==>', P), then combine with Q."""
+    def __init__(self, op, lhs): self.op, self.lhs = op, lhs
+    def __or__(self, rhs):       return Expr(self.op, self.lhs, rhs)
+    def __repr__(self):          return "PartialExpr('{}', {})".format(self.op, self.lhs)
 
 def expr(x):
     """Shortcut to create an Expression. x is a str in which:
     - identifiers are automatically defined as Symbols.
-    - '==>' is treated as an infix |implies|, as are all infix_ops
+    - ==> is treated as an infix |'==>'|, as are <== and <=>.
     If x is already an Expression, it is returned unchanged. Example:
     >>> expr('P & Q ==> Q')
     ((P & Q) ==> Q)
     """
     if isinstance(x, str):
-        return eval(expr_handle_infix_ops(x),
-                    defaultkeydict(Symbol, InfixOp=InfixOp))
+        return eval(expr_handle_infix_ops(x), defaultkeydict(Symbol))
     else:
         return x
 
+infix_ops = '==> <== <=>'.split()
+
 def expr_handle_infix_ops(x):
-    """Given a str, return a new str with '==>' replaced by |InfixOp('==>')|, etc.
+    """Given a str, return a new str with ==> replaced by |'==>'|, etc.
     >>> expr_handle_infix_ops('P ==> Q')
-    "P |InfixOp('==>', None)| Q"
+    "P |'==>'| Q"
     """
     for op in infix_ops:
-        x = x.replace(op.op, '|' + str(op) + '|')
+        x = x.replace(op, '|' + repr(op) + '|')
     return x
 
 class defaultkeydict(collections.defaultdict):

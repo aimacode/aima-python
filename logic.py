@@ -33,7 +33,7 @@ And a few other functions:
 
 from utils import (
     removeall, unique, first, every, argmax, probability, num_or_str,
-    isnumber, issequence, Symbol, Expr, expr, subexpressions, implies
+    isnumber, issequence, Symbol, Expr, expr, subexpressions
 )
 import agents
 
@@ -713,8 +713,8 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
                     action_sym[(s, action, t)] = Expr("Transition_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
-                    clauses.append(action_sym[s, action, t] |implies| state_sym[s, t])
-                    clauses.append(action_sym[s, action, t] |implies| state_sym[s_, t + 1])
+                    clauses.append(action_sym[s, action, t] |'==>'| state_sym[s, t])
+                    clauses.append(action_sym[s, action, t] |'==>'| state_sym[s_, t + 1])
 
         #Allow only one state at any time
         for t in range(time+1):
