@@ -91,7 +91,7 @@ class PropKB(KB):
         self.clauses.extend(conjuncts(to_cnf(sentence)))
 
     def ask_generator(self, query):
-        "Return the empty substitution {} if KB entails query; else return None."
+        "Yield the empty substitution {} if KB entails query; else no results."
         if tt_entails(Expr('&', *self.clauses), query):
             yield {}
 
