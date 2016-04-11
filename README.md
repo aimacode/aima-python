@@ -113,7 +113,7 @@ Here is a table of algorithms, the figure and page where they appear in the book
 | 19.12   | FOIL               |          |
 | 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`](../master/rl.py) |
 | 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`](../master/rl.py) |
-| 21.8    | Q-Learning-Agent   |          |
+| 21.8    | Q-Learning-Agent   | `QLearningAgent` | [`rl.py`](../master/rl.py) |
 | \* 21.2    | Naive-Communicating-Agent |          |
 | 22.1    | HITS               |         |         |
 | 23      | Chart-Parse        | `Chart` | [`nlp.py`](../master/nlp.py) |
