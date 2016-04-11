@@ -61,7 +61,7 @@ Patch Rules
   clearly under which circumstances the bug happens. Make sure the test fails
   without your patch.
 
-- Follw the style guidelines described above.
+- Follow the style guidelines described above.
 
 Running the Test-Suite
 =====================
