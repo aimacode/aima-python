@@ -396,7 +396,10 @@ class Expr(object):
 
     def __call__(self, *args):
         "Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."
-        return Expr(self.op, *args)
+        if self.args:
+            raise ValueError('can only do a call for a Symbol, not an Expr')
+        else:
+            return Expr(self.op, *args)
 
     # Equality and repr
     def __eq__(self, other):
