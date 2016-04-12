@@ -98,9 +98,9 @@ class CSP(search.Problem):
             return [(var, val) for val in self.domains[var]
                     if self.nconflicts(var, val, assignment) == 0]
 
-    def result(self, state, xxx_todo_changeme):
+    def result(self, state, action):
         "Perform an action and return the new state."
-        (var, val) = xxx_todo_changeme
+        (var, val) = action
         return state + ((var, val),)
 
     def goal_test(self, state):
