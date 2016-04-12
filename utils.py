@@ -106,11 +106,6 @@ def histogram(values, mode=0, bin_function=None):
     else:
         return sorted(bins.items())
 
-def mean(numbers):
-    "The mean or average of numbers."
-    numbers = sequence(numbers)
-    return sum(numbers) / len(numbers)
-
 
 def dotproduct(X, Y):
     """Return the sum of the element-wise product of vectors X and Y."""
