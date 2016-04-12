@@ -50,13 +50,6 @@ def first(iterable, default=None):
     except TypeError:
         return next(iterable, default)
 
-
-def every(predicate, seq): # TODO: replace with all
-    """True if every element of seq satisfies predicate."""
-
-    return all(predicate(x) for x in seq)
-
-
 def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)

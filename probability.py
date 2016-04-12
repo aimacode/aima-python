@@ -2,7 +2,7 @@
 """
 
 from utils import (
-    product, every, argmax, element_wise_product, matrix_multiplication,
+    product, argmax, element_wise_product, matrix_multiplication,
     vector_to_diagonal, vector_add, scalar_vector_product, inverse_matrix,
     weighted_sample_with_replacement, rounder, isclose, probability, normalize
 )
@@ -176,7 +176,7 @@ class BayesNet:
         net, and its variable must not."""
         node = BayesNode(*node_spec)
         assert node.variable not in self.variables
-        assert every(lambda parent: parent in self.variables, node.parents)
+        assert all((parent in self.variables) for parent in node.parents)
         self.nodes.append(node)
         self.variables.append(node.variable)
         for parent in node.parents:
@@ -242,7 +242,7 @@ class BayesNode:
         assert isinstance(cpt, dict)
         for vs, p in list(cpt.items()):
             assert isinstance(vs, tuple) and len(vs) == len(parents)
-            assert every(lambda v: isinstance(v, bool), vs)
+            assert all(isinstance(v, bool) for v in vs)
             assert 0 <= p <= 1
 
         self.variable = X

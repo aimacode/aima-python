@@ -1,6 +1,6 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
 
-from utils import count, first, every, argmin_random_tie
+from utils import count, first, argmin_random_tie
 import search
 
 from collections import defaultdict
@@ -107,7 +107,7 @@ class CSP(search.Problem):
         "The goal is to assign all variables, with all constraints satisfied."
         assignment = dict(state)
         return (len(assignment) == len(self.variables) and
-                every(lambda variables: self.nconflicts(variables, assignment[variables], assignment) == 0, self.variables))
+                all(self.nconflicts(variables, assignment[variables], assignment) == 0 for variables in  self.variables))
 
     # These are for constraint propagation
 
@@ -177,8 +177,7 @@ def revise(csp, Xi, Xj, removals):
     revised = False
     for x in csp.curr_domains[Xi][:]:
         # If Xi=x conflicts with Xj=y for every possible y, eliminate Xi=x
-        if every(lambda y: not csp.constraints(Xi, x, Xj, y),
-                 csp.curr_domains[Xj]):
+        if all(not csp.constraints(Xi, x, Xj, y) for y in csp.curr_domains[Xj]):
             csp.prune(Xi, x, removals)
             revised = True
     return revised

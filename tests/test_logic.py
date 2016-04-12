@@ -179,9 +179,9 @@ def test_WalkSAT():
         # Sometimes WalkSat may run out of flips before finding a solution
         soln = WalkSAT(clauses)
         if soln:
-            assert every(lambda x: pl_true(x, soln), clauses)
+            assert all(pl_true(x, soln) for x in clauses)
             if single_solution:  #Cross check the solution if only one exists
-                assert every(lambda x: pl_true(x, single_solution), clauses)
+                assert all(pl_true(x, single_solution) for x in clauses)
                 assert soln == single_solution
     # Test WalkSat for problems with solution
     check_SAT([A & B, A & C])
