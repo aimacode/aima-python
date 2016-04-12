@@ -39,18 +39,18 @@ class PassiveTDAgent:
             self.alpha = lambda n: 1./(1+n)  # udacity video
 
     def __call__(self, percept):
-        s_prime, r_prime = self.update_state(percept)
+        s1, r1 = self.update_state(percept)
         pi, U, Ns, s, a, r = self.pi, self.U, self.Ns, self.s, self.a, self.r
         alpha, gamma, terminals = self.alpha, self.gamma, self.terminals
-        if not Ns[s_prime]:
-            U[s_prime] = r_prime
+        if not Ns[s1]:
+            U[s1] = r1
         if s is not None:
             Ns[s] += 1
-            U[s] += alpha(Ns[s]) * (r + gamma * U[s_prime] - U[s])
-        if s_prime in terminals:
+            U[s] += alpha(Ns[s]) * (r + gamma * U[s1] - U[s])
+        if s1 in terminals:
             self.s = self.a = self.r = None
         else:
-            self.s, self.a, self.r = s_prime, pi[s_prime], r_prime
+            self.s, self.a, self.r = s1, pi[s1], r1
         return self.a
 
     def update_state(self, percept):
