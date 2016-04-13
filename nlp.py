@@ -168,9 +168,9 @@ class Chart:
             if Bb and self.grammar.isa(word, Bb[0]):
                 self.add_edge([i, j+1, A, alpha + [(Bb[0], word)], Bb[1:]])
 
-    def predictor(self, xxx_todo_changeme):
+    def predictor(self, edge):
         "Add to chart any rules for B that could help extend this edge."
-        (i, j, A, alpha, Bb) = xxx_todo_changeme
+        (i, j, A, alpha, Bb) = edge
         B = Bb[0]
         if B in self.grammar.rules:
             for rhs in self.grammar.rewrites_for(B):
