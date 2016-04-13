@@ -11,7 +11,7 @@ import random
 class PassiveADPAgent(agents.Agent):
 
     """Passive (non-learning) agent that uses adaptive dynamic programming
-    on a given MDP and policy. [Fig. 21.2]"""
+    on a given MDP and policy. [Figure 21.2]"""
     NotImplemented
 
 
@@ -19,7 +19,7 @@ class PassiveTDAgent:
     """The abstract class for a Passive (non-learning) agent that uses
     temporal differences to learn utility estimates. Override update_state
     method to convert percept to state and reward. The mdp being probided
-    should be an instance of a subclass of the MDP Class.[Fig. 21.4]
+    should be an instance of a subclass of the MDP Class.[Figure 21.4]
     """
 
     def __init__(self, pi, mdp, alpha=None):
@@ -62,7 +62,7 @@ class PassiveTDAgent:
 class QLearningAgent:
     """ An exploratory Q-learning agent. It avoids having to learn the transition
         model because the Q-value of a state can be related directly to those of
-        its neighbors. [Fig. 21.8]
+        its neighbors. [Figure 21.8]
     """
     def __init__(self, mdp, Ne, Rplus, alpha=None):
 

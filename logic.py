@@ -111,7 +111,7 @@ class PropKB(KB):
 
 
 def KB_AgentProgram(KB):
-    """A generic logical knowledge-based agent program. [Fig. 7.1]"""
+    """A generic logical knowledge-based agent program. [Figure 7.1]"""
     steps = itertools.count()
 
     def program(percept):
@@ -191,7 +191,7 @@ A, B, C, D, E, F, G, P, Q, x, y, z = map(Expr, 'ABCDEFGPQxyz')
 
 def tt_entails(kb, alpha):
     """Does kb entail the sentence alpha? Use truth tables. For propositional
-    kb's and sentences. [Fig. 7.10]. Note that the 'kb' should be an
+    kb's and sentences. [Figure 7.10]. Note that the 'kb' should be an
     Expr which is a conjunction of clauses.
     >>> tt_entails(expr('P & Q'), expr('Q'))
     True
@@ -434,7 +434,7 @@ def disjuncts(s):
 
 
 def pl_resolution(KB, alpha):
-    "Propositional-logic resolution: say if alpha follows from KB. [Fig. 7.12]"
+    "Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]"
     clauses = KB.clauses + conjuncts(to_cnf(~alpha))
     new = set()
     while True:
@@ -493,7 +493,7 @@ class PropDefiniteKB(PropKB):
 
 def pl_fc_entails(KB, q):
     """Use forward chaining to see if a PropDefiniteKB entails symbol q.
-    [Fig. 7.15]
+    [Figure 7.15]
     >>> pl_fc_entails(horn_clauses_KB, expr('Q'))
     True
     """
@@ -527,7 +527,7 @@ for s in "P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B".split(';'):
     horn_clauses_KB.tell(expr(s))
 
 # ______________________________________________________________________________
-# DPLL-Satisfiable [Fig. 7.17]
+# DPLL-Satisfiable [Figure 7.17]
 
 
 def dpll_satisfiable(s):
@@ -633,7 +633,7 @@ def inspect_literal(literal):
         return literal, True
 
 # ______________________________________________________________________________
-# Walk-SAT [Fig. 7.18]
+# Walk-SAT [Figure 7.18]
 
 
 def WalkSAT(clauses, p=0.5, max_flips=10000):
@@ -670,7 +670,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 
 class HybridWumpusAgent(agents.Agent):
 
-    "An agent for the wumpus world that does logical inference. [Fig. 7.20]"""
+    "An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
     def __init__(self):
         unimplemented()
@@ -684,7 +684,7 @@ def plan_route(current, goals, allowed):
 
 def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
-    [Fig. 7.22]"""
+    [Figure 7.22]"""
 
     #Functions used by SAT_plan
     def translate_to_SAT(init, transition, goal, time):
@@ -767,7 +767,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
 def unify(x, y, s):
     """Unify expressions x,y with substitution s; return a substitution that
     would make x,y equal, or None if x,y can not unify. x and y can be
-    variables (e.g. Expr('x')), constants, lists, or Exprs. [Fig. 9.1]"""
+    variables (e.g. Expr('x')), constants, lists, or Exprs. [Figure 9.1]"""
     if s is None:
         return None
     elif x == y:
@@ -933,7 +933,7 @@ crime_kb = FolKB(
 
 
 def fol_bc_ask(KB, query):
-    """A simple backward-chaining algorithm for first-order logic. [Fig. 9.6]
+    """A simple backward-chaining algorithm for first-order logic. [Figure 9.6]
     KB should be an instance of FolKB, and query an atomic sentence. """
     return fol_bc_or(KB, query, {})
 

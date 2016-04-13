@@ -328,7 +328,7 @@ class DecisionLeaf:
 
 
 def DecisionTreeLearner(dataset):
-    "[Fig. 18.5]"
+    "[Figure 18.5]"
 
     target, values = dataset.target, dataset.values
 
@@ -398,7 +398,7 @@ def information_content(values):
 
 
 def DecisionListLearner(dataset):
-    """[Fig. 18.11]"""
+    """[Figure 18.11]"""
 
     def decision_list_learning(examples):
         if not examples:
@@ -511,7 +511,7 @@ def network(input_units, hidden_layer_sizes, output_units):
 
 
 def BackPropagationLearner(dataset, net, learning_rate, epoches):
-    "[Fig. 18.23] The back-propagation algorithm for multilayer network"
+    "[Figure 18.23] The back-propagation algorithm for multilayer network"
     # Initialise weights
     for layer in net:
         for node in layer:
@@ -668,7 +668,7 @@ def EnsembleLearner(learners):
 
 
 def AdaBoost(L, K):
-    """[Fig. 18.34]"""
+    """[Figure 18.34]"""
     def train(dataset):
         examples, target = dataset.examples, dataset.target
         N = len(examples)
@@ -868,11 +868,11 @@ iris = DataSet(name="iris", target="class",
                attrnames="sepal-len sepal-width petal-len petal-width class")
 
 # ______________________________________________________________________________
-# The Restaurant example from Fig. 18.2
+# The Restaurant example from [Figure 18.2]
 
 
 def RestaurantDataSet(examples=None):
-    "Build a DataSet of Restaurant waiting examples. [Fig. 18.3]"
+    "Build a DataSet of Restaurant waiting examples. [Figure 18.3]"
     return DataSet(name='restaurant', target='Wait', examples=examples,
                    attrnames='Alternate Bar Fri/Sat Hungry Patrons Price ' +
                    'Raining Reservation Type WaitEstimate Wait')

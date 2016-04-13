@@ -15,7 +15,7 @@ GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves'
 
 def minimax_decision(state, game):
     """Given a state in a game, calculate the best move by searching
-    forward all the way to the terminal states. [Fig. 5.3]"""
+    forward all the way to the terminal states. [Figure 5.3]"""
 
     player = game.to_move(state)
 
@@ -44,7 +44,7 @@ def minimax_decision(state, game):
 
 def alphabeta_full_search(state, game):
     """Search game to determine best action; use alpha-beta pruning.
-    As in [Fig. 5.7], this version searches all the way to the leaves."""
+    As in [Figure 5.7], this version searches all the way to the leaves."""
 
     player = game.to_move(state)
 
@@ -207,7 +207,7 @@ class Game:
 
 
 class Fig52Game(Game):
-    """The game represented in [Fig. 5.2]. Serves as a simple test case."""
+    """The game represented in [Figure 5.2]. Serves as a simple test case."""
 
     succs = dict(A=dict(a1='B', a2='C', a3='D'),
                  B=dict(b1='B1', b2='B2', b3='B3'),
@@ -334,12 +334,12 @@ class Canvas_TicTacToe(Canvas):
         self.players = (player_1, player_2)
         self.draw_board()
         self.font("Ariel 30px")
-        
+
     def mouse_click(self, x, y):
         player = self.players[self.turn]
         if self.ttt.terminal_test(self.state):
             return
-            
+
         if player == 'human':
             x, y = int(3*x/self.width) + 1, int(3*y/self.height) + 1
             if (x, y) not in self.ttt.actions(self.state):
@@ -379,7 +379,7 @@ class Canvas_TicTacToe(Canvas):
             self.text_n("Player {}'s move({})".format(self.turn+1, self.players[self.turn]), 0.1, 0.1)
 
         self.update()
-    
+
     def draw_x(self, position):
         self.stroke(0, 255, 0)
         x, y = [i-1 for i in position]

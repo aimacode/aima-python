@@ -105,7 +105,7 @@ class Node:
                 for action in problem.actions(self.state)]
 
     def child_node(self, problem, action):
-        "[Fig. 3.10]"
+        "[Figure 3.10]"
         next = problem.result(self.state, action)
         return Node(next, self, action,
                     problem.path_cost(self.path_cost, self.state,
@@ -139,7 +139,7 @@ class Node:
 
 class SimpleProblemSolvingAgentProgram:
 
-    """Abstract framework for a problem-solving agent. [Fig. 3.1]"""
+    """Abstract framework for a problem-solving agent. [Figure 3.1]"""
 
     def __init__(self, initial_state=None):
         self.state = initial_state
@@ -174,7 +174,7 @@ class SimpleProblemSolvingAgentProgram:
 def tree_search(problem, frontier):
     """Search through the successors of a problem to find a goal.
     The argument frontier should be an empty queue.
-    Don't worry about repeated paths to a state. [Fig. 3.7]"""
+    Don't worry about repeated paths to a state. [Figure 3.7]"""
     frontier.append(Node(problem.initial))
     while frontier:
         node = frontier.pop()
@@ -187,7 +187,7 @@ def tree_search(problem, frontier):
 def graph_search(problem, frontier):
     """Search through the successors of a problem to find a goal.
     The argument frontier should be an empty queue.
-    If two paths reach a state, only use the first one. [Fig. 3.7]"""
+    If two paths reach a state, only use the first one. [Figure 3.7]"""
     frontier.append(Node(problem.initial))
     explored = set()
     while frontier:
@@ -217,7 +217,7 @@ def depth_first_graph_search(problem):
 
 
 def breadth_first_search(problem):
-    "[Fig. 3.11]"
+    "[Figure 3.11]"
     node = Node(problem.initial)
     if problem.goal_test(node.state):
         return node
@@ -267,12 +267,12 @@ def best_first_graph_search(problem, f):
 
 
 def uniform_cost_search(problem):
-    "[Fig. 3.14]"
+    "[Figure 3.14]"
     return best_first_graph_search(problem, lambda node: node.path_cost)
 
 
 def depth_limited_search(problem, limit=50):
-    "[Fig. 3.17]"
+    "[Figure 3.17]"
     def recursive_dls(node, problem, limit):
         if problem.goal_test(node.state):
             return node
@@ -293,7 +293,7 @@ def depth_limited_search(problem, limit=50):
 
 
 def iterative_deepening_search(problem):
-    "[Fig. 3.18]"
+    "[Figure 3.18]"
     for depth in range(sys.maxsize):
         result = depth_limited_search(problem, depth)
         if result != 'cutoff':
@@ -318,7 +318,7 @@ def astar_search(problem, h=None):
 
 
 def recursive_best_first_search(problem, h=None):
-    "[Fig. 3.26]"
+    "[Figure 3.26]"
     h = memoize(h or problem.h, 'h')
 
     def RBFS(problem, node, flimit):
@@ -351,7 +351,7 @@ def recursive_best_first_search(problem, h=None):
 
 def hill_climbing(problem):
     """From the initial node, keep choosing the neighbor with highest value,
-    stopping when no neighbor is better. [Fig. 4.2]"""
+    stopping when no neighbor is better. [Figure 4.2]"""
     current = Node(problem.initial)
     while True:
         neighbors = current.expand(problem)
@@ -371,7 +371,7 @@ def exp_schedule(k=20, lam=0.005, limit=100):
 
 
 def simulated_annealing(problem, schedule=exp_schedule()):
-    "[Fig. 4.5]"
+    "[Figure 4.5]"
     current = Node(problem.initial)
     for t in range(sys.maxsize):
         T = schedule(t)
@@ -394,7 +394,7 @@ def and_or_graph_search(problem):
     The agent must be able to handle all possible states of the AND node(as it
     may end up in any of them) returns a conditional plan to reach goal state,
     or failure if the former is not possible"""
-    "[Fig. 4.11]"
+    "[Figure 4.11]"
 
     # functions used by and_or_search
     def or_search(state, problem, path):
@@ -426,7 +426,7 @@ class OnlineDFSAgent:
     """The abstract class for an OnlineDFSAgent. Override update_state
     method to convert percept to state. While initilizing the subclass
     a problem needs to be provided which is an instance of a subclass
-    of the Problem Class. [Fig. 4.21] """
+    of the Problem Class. [Figure 4.21] """
 
     def __init__(self, problem):
         self.problem = problem
@@ -509,11 +509,11 @@ class OnlineSearchProblem(Problem):
 
 class LRTAStarAgent:
 
-    """ [Fig. 4.24]
+    """ [Figure 4.24]
     Abstract class for LRTA*-Agent. A problem needs to be
     provided which is an instanace of a subclass of Problem Class.
 
-    Takes a OnlineSearchProblem [Fig. 4.23] as a problem
+    Takes a OnlineSearchProblem [Figure 4.23] as a problem
     """
 
     def __init__(self, problem):
@@ -578,7 +578,7 @@ def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
 
 
 def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
-    "[Fig. 4.8]"
+    "[Figure 4.8]"
     for i in range(ngen):
         new_population = []
         for i in len(population):

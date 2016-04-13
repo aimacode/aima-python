@@ -137,7 +137,7 @@ def test_fixed_lag_smoothing():
 
     d = 1
     assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.9939, 0.0061]
-    
+
 
 def test_particle_filtering():
     N = 10
@@ -164,7 +164,7 @@ def test_particle_filtering():
 >>> P['rain']               #doctest:+ELLIPSIS
 0.2...
 
-# A Joint Probability Distribution is dealt with like this (Fig. 13.3):  # noqa
+# A Joint Probability Distribution is dealt with like this [Figure 13.3]:  # noqa
 >>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
 >>> T, F = True, False
 >>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008

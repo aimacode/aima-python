@@ -118,7 +118,7 @@ def TableDrivenAgentProgram(table):
     """This agent selects an action based on the percept sequence.
     It is practical only for tiny domains.
     To customize it, provide as table a dictionary of all
-    {percept_sequence:action} pairs. [Fig. 2.7]"""
+    {percept_sequence:action} pairs. [Figure 2.7]"""
     percepts = []
 
     def program(percept):
@@ -136,7 +136,7 @@ def RandomAgentProgram(actions):
 
 
 def SimpleReflexAgentProgram(rules, interpret_input):
-    "This agent takes action based solely on the percept. [Fig. 2.10]"
+    "This agent takes action based solely on the percept. [Figure 2.10]"
     def program(percept):
         state = interpret_input(percept)
         rule = rule_match(state, rules)
@@ -146,7 +146,7 @@ def SimpleReflexAgentProgram(rules, interpret_input):
 
 
 def ModelBasedReflexAgentProgram(rules, update_state):
-    "This agent takes action based on the percept and state. [Fig. 2.12]"
+    "This agent takes action based on the percept and state. [Figure 2.12]"
     def program(percept):
         program.state = update_state(program.state, program.action, percept)
         rule = rule_match(program.state, rules)
@@ -173,7 +173,7 @@ def RandomVacuumAgent():
 
 
 def TableDrivenVacuumAgent():
-    "[Fig. 2.3]"
+    "[Figure 2.3]"
     table = {((loc_A, 'Clean'),): 'Right',
              ((loc_A, 'Dirty'),): 'Suck',
              ((loc_B, 'Clean'),): 'Left',
@@ -189,7 +189,7 @@ def TableDrivenVacuumAgent():
 
 
 def ReflexVacuumAgent():
-    "A reflex agent for the two-state vacuum environment. [Fig. 2.8]"
+    "A reflex agent for the two-state vacuum environment. [Figure 2.8]"
     def program(percept):
         location, status = percept
         if status == 'Dirty':
