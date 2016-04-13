@@ -53,14 +53,14 @@ class Grammar:
         return '<Grammar %s>' % self.name
 
 E0 = Grammar('E0',
-             Rules(  # Grammar for E_0 [Fig. 22.4]
+             Rules(  # Grammar for E_0 [Figure 22.4]
                  S='NP VP | S Conjunction S',
                  NP='Pronoun | Name | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',  # noqa
                  VP='Verb | VP NP | VP Adjective | VP PP | VP Adverb',
                  PP='Preposition NP',
                  RelClause='That VP'),
 
-             Lexicon(  # Lexicon for E_0 [Fig. 22.3]
+             Lexicon(  # Lexicon for E_0 [Figure 22.3]
                  Noun="stench | breeze | glitter | nothing | wumpus | pit | pits | gold | east",  # noqa
                  Verb="is | see | smell | shoot | fell | stinks | go | grab | carry | kill | turn | feel",  # noqa
                  Adjective="right | left | east | south | back | smelly",
@@ -116,7 +116,7 @@ def generate_random(grammar=E_, s='S'):
 
 class Chart:
 
-    """Class for parsing sentences using a chart data structure. [Fig 22.7]
+    """Class for parsing sentences using a chart data structure. [Figure 22.7]
     >>> chart = Chart(E0);
     >>> len(chart.parses('the stench is in 2 2'))
     1

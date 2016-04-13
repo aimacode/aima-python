@@ -157,7 +157,7 @@ class CSP(search.Problem):
 
 
 def AC3(csp, queue=None, removals=None):
-    """[Fig. 6.3]"""
+    """[Figure 6.3]"""
     if queue is None:
         queue = [(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]]
     csp.support_pruning()
@@ -251,7 +251,7 @@ def backtracking_search(csp,
                         select_unassigned_variable=first_unassigned_variable,
                         order_domain_values=unordered_domain_values,
                         inference=no_inference):
-    """[Fig. 6.5]
+    """[Figure 6.5]
     """
 
     def backtrack(assignment):
@@ -306,7 +306,7 @@ def min_conflicts_value(csp, var, current):
 
 
 def tree_csp_solver(csp):
-    "[Fig. 6.11]"
+    "[Figure 6.11]"
     assignment = {}
     root = csp.variables[0]
     X, parent = topological_sort(csp.variables, root)

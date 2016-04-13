@@ -16,7 +16,7 @@ from functools import reduce
 
 
 def DTAgentProgram(belief_state):
-    "A decision-theoretic agent. [Fig. 13.1]"
+    "A decision-theoretic agent. [Figure 13.1]"
     def program(percept):
         belief_state.observe(program.action, percept)
         program.action = argmax(belief_state.actions(),
@@ -272,7 +272,7 @@ class BayesNode:
     def __repr__(self):
         return repr((self.variable, ' '.join(self.parents)))
 
-# Burglary example [Fig. 14.2]
+# Burglary example [Figure 14.2]
 
 T, F = True, False
 
@@ -290,7 +290,7 @@ burglary = BayesNet([
 
 def enumeration_ask(X, e, bn):
     """Return the conditional probability distribution of variable X
-    given evidence e, from BayesNet bn. [Fig. 14.9]
+    given evidence e, from BayesNet bn. [Figure 14.9]
     >>> enumeration_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary
     ...  ).show_approx()
     'False: 0.716, True: 0.284'"""
@@ -320,7 +320,7 @@ def enumerate_all(variables, e, bn):
 
 
 def elimination_ask(X, e, bn):
-    """Compute bn's P(X|e) by variable elimination. [Fig. 14.11]
+    """Compute bn's P(X|e) by variable elimination. [Figure 14.11]
     >>> elimination_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary
     ...  ).show_approx()
     'False: 0.716, True: 0.284'"""
@@ -409,7 +409,7 @@ def all_events(variables, bn, e):
 
 # ______________________________________________________________________________
 
-# Fig. 14.12a: sprinkler network
+# [Figure 14.12a]: sprinkler network
 
 sprinkler = BayesNet([
     ('Cloudy', '', 0.5),
@@ -423,7 +423,7 @@ sprinkler = BayesNet([
 
 def prior_sample(bn):
     """Randomly sample from bn's full joint distribution. The result
-    is a {variable: value} dict. [Fig. 14.13]"""
+    is a {variable: value} dict. [Figure 14.13]"""
     event = {}
     for node in bn.nodes:
         event[node.variable] = node.sample(event)
@@ -434,7 +434,7 @@ def prior_sample(bn):
 
 def rejection_sampling(X, e, bn, N):
     """Estimate the probability distribution of variable X given
-    evidence e in BayesNet bn, using N samples.  [Fig. 14.14]
+    evidence e in BayesNet bn, using N samples.  [Figure 14.14]
     Raises a ZeroDivisionError if all the N samples are rejected,
     i.e., inconsistent with e.
     >>> random.seed(47)
@@ -443,9 +443,9 @@ def rejection_sampling(X, e, bn, N):
     'False: 0.7, True: 0.3'
     """
     counts = dict((x, 0)
-                  for x in bn.variable_values(X))  # bold N in Fig. 14.14
+                  for x in bn.variable_values(X))  # bold N in [Figure 14.14]
     for j in range(N):
-        sample = prior_sample(bn)  # boldface x in Fig. 14.14
+        sample = prior_sample(bn)  # boldface x in [Figure 14.14]
         if consistent_with(sample, e):
             counts[sample[X]] += 1
     return ProbDist(X, counts)
@@ -461,7 +461,7 @@ def consistent_with(event, evidence):
 
 def likelihood_weighting(X, e, bn, N):
     """Estimate the probability distribution of variable X given
-    evidence e in BayesNet bn.  [Fig. 14.15]
+    evidence e in BayesNet bn.  [Figure 14.15]
     >>> random.seed(1017)
     >>> likelihood_weighting('Burglary', dict(JohnCalls=T, MaryCalls=T),
     ...   burglary, 10000).show_approx()
@@ -469,7 +469,7 @@ def likelihood_weighting(X, e, bn, N):
     """
     W = dict((x, 0) for x in bn.variable_values(X))
     for j in range(N):
-        sample, weight = weighted_sample(bn, e)  # boldface x, w in Fig. 14.15
+        sample, weight = weighted_sample(bn, e)  # boldface x, w in [Figure 14.15]
         W[sample[X]] += weight
     return ProbDist(X, W)
 
@@ -479,7 +479,7 @@ def weighted_sample(bn, e):
     return the event and its weight, the likelihood that the event
     accords to the evidence."""
     w = 1
-    event = dict(e)  # boldface x in Fig. 14.15
+    event = dict(e)  # boldface x in [Figure 14.15]
     for node in bn.nodes:
         Xi = node.variable
         if Xi in e:
@@ -492,11 +492,11 @@ def weighted_sample(bn, e):
 
 
 def gibbs_ask(X, e, bn, N):
-    """[Fig. 14.16]"""
+    """[Figure 14.16]"""
     assert X not in e, "Query variable must be distinct from evidence"
-    counts = {x: 0 for x in bn.variable_values(X)}  # bold N in Fig. 14.16
+    counts = {x: 0 for x in bn.variable_values(X)}  # bold N in [Figure 14.16]
     Z = [var for var in bn.variables if var not in e]
-    state = dict(e)  # boldface x in Fig. 14.16
+    state = dict(e)  # boldface x in [Figure 14.16]
     for Zi in Z:
         state[Zi] = random.choice(bn.variable_values(Zi))
     for j in range(N):
@@ -560,7 +560,7 @@ def backward(HMM, b, ev):
 
 
 def forward_backward(HMM, ev, prior):
-    """[Fig. 15.4]
+    """[Figure 15.4]
     Forward-Backward algorithm for smoothing. Computes posterior probabilities
     of a sequence of states given a sequence of observations."""
     t = len(ev)
@@ -588,7 +588,7 @@ def forward_backward(HMM, ev, prior):
 
 
 def fixed_lag_smoothing(e_t, HMM, d, ev, t):
-    """[Fig. 15.6]
+    """[Figure 15.6]
     Smoothing algorithm with a fixed time lag of 'd' steps.
     Online algorithm that outputs the new smoothed estimate if observation
     for new time step is given."""

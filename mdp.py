@@ -109,7 +109,7 @@ sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
 
 
 def value_iteration(mdp, epsilon=0.001):
-    "Solving an MDP by value iteration. [Fig. 17.4]"
+    "Solving an MDP by value iteration. [Figure 17.4]"
     U1 = dict([(s, 0) for s in mdp.states])
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
     while True:
@@ -140,7 +140,7 @@ def expected_utility(a, s, U, mdp):
 
 
 def policy_iteration(mdp):
-    "Solve an MDP by policy iteration [Fig. 17.7]"
+    "Solve an MDP by policy iteration [Figure 17.7]"
     U = dict([(s, 0) for s in mdp.states])
     pi = dict([(s, random.choice(mdp.actions(s))) for s in mdp.states])
     while True:
