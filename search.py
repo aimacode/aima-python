@@ -465,7 +465,7 @@ class OnlineDFSAgent:
     def update_state(self, percept):
         ''' To be overriden in most cases. The default case
         assumes th percept to be of type state'''
-        raise percept
+        return percept
 
 # ______________________________________________________________________________
 
