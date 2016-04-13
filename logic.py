@@ -32,7 +32,7 @@ And a few other functions:
 """
 
 from utils import (
-    removeall, unique, first, every, argmax, probability, num_or_str,
+    removeall, unique, first, argmax, probability, num_or_str,
     isnumber, issequence, Symbol, Expr, expr, subexpressions
 )
 import agents
@@ -168,7 +168,7 @@ def is_definite_clause(s):
     elif s.op == '==>':
         antecedent, consequent = s.args
         return (is_symbol(consequent.op) and
-                every(lambda arg: is_symbol(arg.op), conjuncts(antecedent)))
+                all(is_symbol(arg.op) for arg in conjuncts(antecedent)))
     else:
         return False
 

@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import (
-    removeall, unique, product, argmax, argmax_random_tie, mean, isclose,
+    removeall, unique, product, argmax, argmax_random_tie, isclose,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile
 )
@@ -10,6 +10,8 @@ import copy
 import heapq
 import math
 import random
+
+from statistics import mean
 from collections import defaultdict
 
 # ______________________________________________________________________________
