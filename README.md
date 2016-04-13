@@ -17,12 +17,12 @@ When complete, this project will have Python code for all the pseudocode algorit
 
 
 
-# Index of Code #
+# Index of Code
 
-Here is a table of algorithms, the figure and page where they appear in the book, and the file where they appear in the code. Unfortuately, this chart was made for the old second edition; and has only been partially upfdated to third edition, and not at all to fourth edition. We could use help fixing up the table, based on the figures in [algorithms.pdf](https://github.com/aimacode/aima-pseudocode/blob/master/algorithms.pdf). Empty implementations are a good place for contributors to look for an issue.
+Here is a table of algorithms, the figure, name of the code in the book and in the repository, and the file where they are implemented in the code. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue.
 
 
-| **Fig** | **Name (in 3<sup>rd</sup> edition)** | **Name (in code)** | **File**
+| **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File**
 |:--------|:-------------------|:---------|:-----------|
 | 2.1     | Environment        | `Environment` | [`agents.py`](../master/agents.py) |
 | 2.1     | Agent              | `Agent` | [`agents.py`](../master/agents.py) |
@@ -121,6 +121,22 @@ Here is a table of algorithms, the figure and page where they appear in the book
 | \* 23.1    | Viterbi-Segmentation | `viterbi_segment` | [`text.py`](../master/text.py) |
 | \* 24.21   | Align              |          |
 | 25.9    | Monte-Carlo-Localization|       |
+
+
+# Index of data structures
+
+Here is a table of the implemented data structures, the figure, name of the implementation in the reposiroty, and the file where they are implemented.
+
+| **Figure** | **Name (in repository)** | **File** |
+|:-----------|:-------------------------|:---------|
+| 3.2    | romania_map              | [`search.py`](../master/search.py)   |
+| 4.9    | vacumm_world             | [`search.py`](../master/search.py)   |
+| 4.23   | one_dim_state_space      | [`search.py`](../master/search.py)   |
+| 6.1    | australia_map            | [`search.py`](../master/search.py)   |
+| 7.13   | wumpus_world_inference   | [`logic.py`](../master/login.py)   |
+| 7.16   | horn_clauses_KB          | [`logic.py`](../master/logic.py)   |
+| 17.1   | sequential_decision_environment | [`mdp.py`](../master/mdp.py)   |
+| 18.2   | waiting_decision_tree    | [`learning.py`](../master/learning.py)   |
 
 
 # Acknowledgements
