@@ -260,7 +260,7 @@ class BayesNode:
         0.375"""
         assert isinstance(value, bool)
         ptrue = self.cpt[event_values(event, self.parents)]
-        return (ptrue if value else 1 - ptrue)
+        return ptrue if value else 1 - ptrue
 
     def sample(self, event):
         """Sample from the distribution for this variable conditioned
@@ -545,15 +545,15 @@ def forward(HMM, fv, ev):
                             scalar_vector_product(fv[1], HMM.transition_model[1]))
     sensor_dist = HMM.sensor_dist(ev)
 
-    return(normalize(element_wise_product(sensor_dist, prediction)))
+    return normalize(element_wise_product(sensor_dist, prediction))
 
 
 def backward(HMM, b, ev):
     sensor_dist = HMM.sensor_dist(ev)
     prediction = element_wise_product(sensor_dist, b)
 
-    return(normalize(vector_add(scalar_vector_product(prediction[0], HMM.transition_model[0]),
-                                scalar_vector_product(prediction[1], HMM.transition_model[1]))))
+    return normalize(vector_add(scalar_vector_product(prediction[0], HMM.transition_model[0]),
+                                scalar_vector_product(prediction[1], HMM.transition_model[1])))
 
 
 def forward_backward(HMM, ev, prior):
@@ -579,7 +579,7 @@ def forward_backward(HMM, ev, prior):
 
     sv = sv[::-1]
 
-    return(sv)
+    return sv
 
 # _________________________________________________________________________
 
@@ -608,7 +608,7 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
 
     if t > d:
         # always returns a 1x2 matrix
-        return([normalize(i) for i in matrix_multiplication([f], B)][0])
+        return [normalize(i) for i in matrix_multiplication([f], B)][0]
     else:
         return None
 

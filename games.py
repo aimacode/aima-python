@@ -232,7 +232,7 @@ class Fig52Game(Game):
         return state not in ('A', 'B', 'C', 'D')
 
     def to_move(self, state):
-        return ('MIN' if state in 'BCD' else 'MAX')
+        return  'MIN' if state in 'BCD' else 'MAX'
 
 
 class TicTacToe(Game):
@@ -266,7 +266,7 @@ class TicTacToe(Game):
 
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
-        return (state.utility if player == 'X' else -state.utility)
+        return  state.utility if player == 'X' else -state.utility
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
@@ -285,7 +285,7 @@ class TicTacToe(Game):
                 self.k_in_row(board, move, player, (1, 0)) or
                 self.k_in_row(board, move, player, (1, -1)) or
                 self.k_in_row(board, move, player, (1, 1))):
-            return (+1 if player == 'X' else -1)
+            return +1 if player == 'X' else -1
         else:
             return 0
 

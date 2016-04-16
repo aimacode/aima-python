@@ -130,13 +130,13 @@ def matrix_multiplication(X_M, *Y_M):
             for j in range(len(Y_M[0])):
                 for k in range(len(Y_M)):
                     result[i][j] += X_M[i][k] * Y_M[k][j]
-        return(result)
+        return result
 
     result = X_M
     for Y in Y_M:
         result = _mat_mult(result, Y)
 
-    return(result)
+    return result
 
 def vector_to_diagonal(v):
     """Converts a vector to a diagonal matrix with vector elements
@@ -157,7 +157,7 @@ def scalar_vector_product(X, Y):
     return [X*y for y in Y]
 
 def scalar_matrix_product(X, Y):
-    return([scalar_vector_product(X, y) for y in Y])
+    return [scalar_vector_product(X, y) for y in Y]
 
 def inverse_matrix(X):
     """Inverse a given square matrix of size 2x2"""
@@ -167,7 +167,7 @@ def inverse_matrix(X):
     assert det != 0
     inv_mat = scalar_matrix_product(1.0/det, [[X[1][1], -X[0][1]], [-X[1][0], X[0][0]]])
 
-    return(inv_mat)
+    return inv_mat
 
 
 def probability(p):
@@ -215,7 +215,7 @@ def num_or_str(x):
 def normalize(numbers):
     """Multiply each number by a constant such that the sum is 1.0"""
     total = float(sum(numbers))
-    return([(n / total) for n in numbers])
+    return [(n / total) for n in numbers]
 
 
 def clip(x, lowest, highest):

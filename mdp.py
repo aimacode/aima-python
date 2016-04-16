@@ -82,7 +82,7 @@ class GridMDP(MDP):
     def go(self, state, direction):
         "Return the state that results from going in this direction."
         state1 = vector_add(state, direction)
-        return (state1 if state1 in self.states else state)
+        return state1 if state1 in self.states else state
 
     def to_grid(self, mapping):
         """Convert a mapping from (x, y) to v into a [[..., v, ...]] grid."""

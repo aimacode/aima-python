@@ -640,7 +640,7 @@ def Zebra():
         if A == 'Coffee' and B == 'Green':
             return same
         if A == 'Green' and B == 'Ivory':
-            return (a - 1) == b
+            return a - 1 == b
         if recurse == 0:
             return zebra_constraint(B, b, A, a, 1)
         if ((A in Colors and B in Colors) or

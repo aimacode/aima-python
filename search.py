@@ -286,7 +286,7 @@ def depth_limited_search(problem, limit=50):
                     cutoff_occurred = True
                 elif result is not None:
                     return result
-            return ('cutoff' if cutoff_occurred else None)
+            return 'cutoff' if cutoff_occurred else None
 
     # Body of depth_limited_search:
     return recursive_dls(Node(problem.initial), problem, limit)
@@ -526,7 +526,7 @@ class LRTAStarAgent:
     def __call__(self, s1):     # as of now s1 is a state rather than a percept
         if self.problem.goal_test(s1):
             self.a = None
-            return(self.a)
+            return self.a
         else:
             if s1 not in self.H:
                 self.H[s1] = self.problem.h(s1)
@@ -553,14 +553,14 @@ class LRTAStarAgent:
         """
         print(s, a, s1)
         if s1 is None:
-            return(self.problem.h(s))
+            return self.problem.h(s)
         else:
             # sometimes we need to get H[s1] which we haven't yet added to H
             # to replace this try, except: we can initialize H with values from problem.h
             try:
-                return(self.problem.c(s, a, s1) + self.H[s1])
+                return self.problem.c(s, a, s1) + self.H[s1]
             except:
-                return(self.problem.c(s, a, s1) + self.problem.h(s1))
+                return self.problem.c(s, a, s1) + self.problem.h(s1)
 
 # ______________________________________________________________________________
 # Genetic Algorithm
