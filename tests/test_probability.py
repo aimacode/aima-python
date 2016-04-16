@@ -1,6 +1,7 @@
 import pytest
 import random
 from probability import *  # noqa
+from utils import rounder
 
 
 def tests():
