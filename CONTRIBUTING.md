@@ -75,6 +75,12 @@ Clone this repository::
 
     git clone https://github.com/aimacode/aima-python.git
 
+Fetch the aima-data submodule::
+
+    cd aima-python
+    git submodule init
+    git submodule update
+
 Then you can run the testsuite with::
 
     py.test
