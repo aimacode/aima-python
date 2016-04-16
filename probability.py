@@ -650,23 +650,5 @@ def particle_filtering(e, N, HMM):
         w[i] = float("{0:.4f}".format(w[i]))
 
     # STEP 2
-    s = weighted_sample_with_replacement(N, s, w)
+    s = weighted_sample_with_replacement(s, w, N)
     return s
-
-
-def weighted_sample_with_replacement(N, s, w):
-    """
-    Performs Weighted sampling over the paricles given weights of each particle.
-    We keep on picking random states unitll we fill N number states in new distribution
-    """
-    s_wtd = []
-    cnt = 0
-    while (cnt <= N):
-        # Generate a random number from 0 to N-1
-        i = random.randint(0, N-1)
-        if (probability(w[i])):
-            s_wtd.append(s[i])
-            cnt += 1
-    return s_wtd
-
-

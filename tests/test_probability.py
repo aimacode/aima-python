@@ -146,8 +146,11 @@ def test_particle_filtering():
     umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
     umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
+    s = particle_filtering(umbrella_evidence, N, umbrellaHMM)
+    assert len(s) == N
+    assert all(state in 'AB' for state in s)
+    # XXX 'A' and 'B' are really arbitrary names, but I'm letting it stand for now
 
-    assert particle_filtering(umbrella_evidence, N, umbrellaHMM)
 
 # The following should probably go in .ipynb:
 
