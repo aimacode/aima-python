@@ -533,9 +533,6 @@ class HiddenMarkovModel:
         self.sensor_model = sensor_model
         self.prior = prior
 
-    def transition_model(self):
-        return self.transition_model
-
     def sensor_dist(self, ev):
         if ev is True:
             return self.sensor_model[0]
