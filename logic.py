@@ -32,13 +32,12 @@ And a few other functions:
 """
 
 from utils import (
-    removeall, unique, first, argmax, probability, num_or_str,
+    removeall, unique, first, argmax, probability,
     isnumber, issequence, Symbol, Expr, expr, subexpressions
 )
 import agents
 
 import itertools
-import re
 import random
 from collections import defaultdict
 
