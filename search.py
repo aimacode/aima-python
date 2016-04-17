@@ -7,10 +7,11 @@ functions."""
 from utils import (
     is_in, argmin, argmax, argmax_random_tie, probability,
     weighted_sample_with_replacement, memoize, print_table, DataFile, Stack,
-    FIFOQueue, PriorityQueue
+    FIFOQueue, PriorityQueue, name
 )
 from grid import distance
 
+from collections import defaultdict
 import math
 import random
 import sys
