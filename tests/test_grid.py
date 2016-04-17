@@ -11,7 +11,7 @@ def test_distance():
 
 
 def test_distance2():
-	assert distance2((1, 2), (5, 5)) == 25.0
+    assert distance2((1, 2), (5, 5)) == 25.0
 
 
 def test_vector_clip():
