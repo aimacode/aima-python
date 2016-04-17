@@ -115,7 +115,7 @@ class CSP(search.Problem):
         """Make sure we can prune values from domains. (We want to pay
         for this only if we use it.)"""
         if self.curr_domains is None:
-            self.curr_domains = dict((v, list(self.domains[v])) for v in self.variables)
+            self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
 
     def suppose(self, var, value):
         "Start accumulating inferences from assuming var=value."
@@ -137,8 +137,8 @@ class CSP(search.Problem):
     def infer_assignment(self):
         "Return the partial assignment implied by the current inferences."
         self.support_pruning()
-        return dict((v, self.curr_domains[v][0])
-                    for v in self.variables if 1 == len(self.curr_domains[v]))
+        return {v: self.curr_domains[v][0]
+                for v in self.variables if 1 == len(self.curr_domains[v])}
 
     def restore(self, removals):
         "Undo a supposition and all inferences from it."
@@ -512,7 +512,7 @@ _BOXES = flatten([list(map(flatten, brow)) for brow in _BGRID])
 _ROWS = flatten([list(map(flatten, list(zip(*brow)))) for brow in _BGRID])
 _COLS = list(zip(*_ROWS))
 
-_NEIGHBORS = dict([(v, set()) for v in flatten(_ROWS)])
+_NEIGHBORS = {v: set() for v in flatten(_ROWS)}
 for unit in map(set, _BOXES + _ROWS + _COLS):
     for v in unit:
         _NEIGHBORS[v].update(unit - set([v]))
@@ -567,8 +567,8 @@ class Sudoku(CSP):
         the digits 1-9 denote a filled cell, '.' or '0' an empty one;
         other characters are ignored."""
         squares = iter(re.findall(r'\d|\.', grid))
-        domains = dict((var, ([ch] if ch in '123456789' else '123456789'))
-                       for var, ch in zip(flatten(self.rows), squares))
+        domains = {var: [ch] if ch in '123456789' else '123456789'
+                   for var, ch in zip(flatten(self.rows), squares)}
         for _ in squares:
             raise ValueError("Not a Sudoku grid", grid)  # Too many squares
         CSP.__init__(self, None, domains, self.neighbors, different_values_constraint)

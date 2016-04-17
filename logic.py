@@ -497,8 +497,9 @@ def pl_fc_entails(KB, q):
     >>> pl_fc_entails(horn_clauses_KB, expr('Q'))
     True
     """
-    count = dict([(c, len(conjuncts(c.args[0]))) for c in KB.clauses
-                  if c.op == '==>'])
+    count = {c: len(conjuncts(c.args[0]))
+             for c in KB.clauses
+             if c.op == '==>'}
     inferred = defaultdict(bool)
     agenda = [s for s in KB.clauses if is_prop_symbol(s.op)]
     while agenda:
@@ -642,7 +643,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
     # set of all symbols in all clauses
     symbols = set(sym for clause in clauses for sym in prop_symbols(clause))
     # model is a random assignment of true/false to the symbols in clauses
-    model = dict([(s, random.choice([True, False])) for s in symbols])
+    model = {s: random.choice([True, False]) for s in symbols}
     for i in range(max_flips):
         satisfied, unsatisfied = [], []
         for clause in clauses:

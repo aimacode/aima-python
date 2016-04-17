@@ -241,9 +241,9 @@ def NaiveBayesLearner(dataset):
 
     targetvals = dataset.values[dataset.target]
     target_dist = CountingProbDist(targetvals)
-    attr_dists = dict(((gv, attr), CountingProbDist(dataset.values[attr]))
-                      for gv in targetvals
-                      for attr in dataset.inputs)
+    attr_dists = {(gv, attr): CountingProbDist(dataset.values[attr])
+                  for gv in targetvals
+                  for attr in dataset.inputs}
     for example in dataset.examples:
         targetval = example[dataset.target]
         target_dist.add(targetval)
@@ -882,9 +882,9 @@ restaurant = RestaurantDataSet()
 
 
 def T(attrname, branches):
-    branches = dict((value, (child if isinstance(child, DecisionFork)
-                             else DecisionLeaf(child)))
-                    for value, child in branches.items())
+    branches = {value: (child if isinstance(child, DecisionFork)
+                        else DecisionLeaf(child))
+                for value, child in branches.items()}
     return DecisionFork(restaurant.attrnum(attrname), attrname, branches)
 
 """ [Figure 18.2]

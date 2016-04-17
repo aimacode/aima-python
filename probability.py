@@ -237,7 +237,7 @@ class BayesNode:
         elif isinstance(cpt, dict):
             # one parent, 1-tuple
             if cpt and isinstance(list(cpt.keys())[0], bool):
-                cpt = dict(((v,), p) for v, p in cpt.items())
+                cpt = {(v,): p for v, p in cpt.items()}
 
         assert isinstance(cpt, dict)
         for vs, p in cpt.items():
@@ -344,8 +344,8 @@ def make_factor(var, e, bn):
     is the pointwise product of these factors for bn's variables."""
     node = bn.variable_node(var)
     variables = [X for X in [var] + node.parents if X not in e]
-    cpt = dict((event_values(e1, variables), node.p(e1[var], e1))
-               for e1 in all_events(variables, bn, e))
+    cpt = {event_values(e1, variables): node.p(e1[var], e1)
+           for e1 in all_events(variables, bn, e)}
     return Factor(variables, cpt)
 
 
@@ -373,24 +373,23 @@ class Factor:
     def pointwise_product(self, other, bn):
         "Multiply two factors, combining their variables."
         variables = list(set(self.variables) | set(other.variables))
-        cpt = dict((event_values(e, variables), self.p(e) * other.p(e))
-                   for e in all_events(variables, bn, {}))
+        cpt = {event_values(e, variables): self.p(e) * other.p(e)
+               for e in all_events(variables, bn, {})}
         return Factor(variables, cpt)
 
     def sum_out(self, var, bn):
         "Make a factor eliminating var by summing over its values."
         variables = [X for X in self.variables if X != var]
-        cpt = dict((event_values(e, variables),
-                    sum(self.p(extend(e, var, val))
-                        for val in bn.variable_values(var)))
-                   for e in all_events(variables, bn, {}))
+        cpt = {event_values(e, variables): sum(self.p(extend(e, var, val))
+                                               for val in bn.variable_values(var))
+               for e in all_events(variables, bn, {})}
         return Factor(variables, cpt)
 
     def normalize(self):
         "Return my probabilities; must be down to one variable."
         assert len(self.variables) == 1
         return ProbDist(self.variables[0],
-                        dict((k, v) for ((k,), v) in self.cpt.items()))
+                        {k: v for ((k,), v) in self.cpt.items()})
 
     def p(self, e):
         "Look up my value tabulated for e."
@@ -442,8 +441,7 @@ def rejection_sampling(X, e, bn, N):
     ...   burglary, 10000).show_approx()
     'False: 0.7, True: 0.3'
     """
-    counts = dict((x, 0)
-                  for x in bn.variable_values(X))  # bold N in [Figure 14.14]
+    counts = {x: 0 for x in bn.variable_values(X)}  # bold N in [Figure 14.14]
     for j in range(N):
         sample = prior_sample(bn)  # boldface x in [Figure 14.14]
         if consistent_with(sample, e):
@@ -467,7 +465,7 @@ def likelihood_weighting(X, e, bn, N):
     ...   burglary, 10000).show_approx()
     'False: 0.702, True: 0.298'
     """
-    W = dict((x, 0) for x in bn.variable_values(X))
+    W = {x: 0 for x in bn.variable_values(X)}
     for j in range(N):
         sample, weight = weighted_sample(bn, e)  # boldface x, w in [Figure 14.15]
         W[sample[X]] += weight
