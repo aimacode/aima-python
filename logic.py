@@ -903,7 +903,7 @@ class FolKB(KB):
 
 
 test_kb = FolKB(
-    list(map(expr, ['Farmer(Mac)',
+    map(expr, ['Farmer(Mac)',
                     'Rabbit(Pete)',
                     'Mother(MrsMac, Mac)',
                     'Mother(MrsRabbit, Pete)',
@@ -916,10 +916,9 @@ test_kb = FolKB(
                     # '(Human(h) & Mother(m, h)) ==> Human(m)'
                     '(Mother(m, h) & Human(h)) ==> Human(m)'
                     ]))
-)
 
 crime_kb = FolKB(
-    list(map(expr,
+    map(expr,
              ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',  # noqa
               'Owns(Nono, M1)',
               'Missile(M1)',
@@ -929,7 +928,6 @@ crime_kb = FolKB(
               'American(West)',
               'Enemy(Nono, America)'
               ]))
-)
 
 
 def fol_bc_ask(KB, query):

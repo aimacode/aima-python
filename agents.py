@@ -848,7 +848,7 @@ def test_agent(AgentFactory, steps, envs):
         env.add_thing(agent)
         env.run(steps)
         return agent.performance
-    return mean(list(map(score, envs)))
+    return mean(map(score, envs))
 
 # _________________________________________________________________________
 

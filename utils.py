@@ -86,7 +86,7 @@ def histogram(values, mode=0, bin_function=None):
     Sorted by increasing value, or if mode=1, by decreasing count.
     If bin_function is given, map it over values first."""
     if bin_function:
-        values = list(map(bin_function, values))
+        values = map(bin_function, values)
 
     bins = {}
     for val in values:
@@ -299,8 +299,8 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
              for row in table]
 
     sizes = list(
-            map(lambda seq: max(list(map(len, seq))),
-                list(zip(*[list(map(str, row)) for row in table]))))
+            map(lambda seq: max(map(len, seq)),
+                list(zip(*[map(str, row) for row in table]))))
 
     for row in table:
         print(sep.join(getattr(

@@ -510,7 +510,7 @@ _R3 = list(range(3))
 _CELL = itertools.count().__next__
 _BGRID = [[[[_CELL() for x in _R3] for y in _R3] for bx in _R3] for by in _R3]
 _BOXES = flatten([list(map(flatten, brow)) for brow in _BGRID])
-_ROWS = flatten([list(map(flatten, list(zip(*brow)))) for brow in _BGRID])
+_ROWS = flatten([list(map(flatten, zip(*brow))) for brow in _BGRID])
 _COLS = list(zip(*_ROWS))
 
 _NEIGHBORS = {v: set() for v in flatten(_ROWS)}
@@ -583,7 +583,7 @@ class Sudoku(CSP):
             map(' | '.join, list(zip(lines1, lines2))))
         print('\n------+-------+------\n'.join(
             '\n'.join(reduce(
-                abut, list(map(show_box, brow)))) for brow in self.bgrid))
+                abut, map(show_box, brow))) for brow in self.bgrid))
 # ______________________________________________________________________________
 # The Zebra Puzzle
 
