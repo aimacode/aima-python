@@ -156,7 +156,7 @@ class Chart:
         if edge not in self.chart[end]:
             self.chart[end].append(edge)
             if self.trace:
-                print('%10s: added %s' % (caller(2), edge))
+                print('Chart: added %s' % (edge,))
             if not expects:
                 self.extender(edge)
             else:
