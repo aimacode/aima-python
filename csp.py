@@ -1,6 +1,6 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
 
-from utils import count, first, argmin_random_tie
+from utils import argmin_random_tie, count, first
 import search
 
 from collections import defaultdict
@@ -320,11 +320,11 @@ def tree_csp_solver(csp):
 
 
 def topological_sort(xs, x):
-    unimplemented()
+    raise NotImplementedError
 
 
 def make_arc_consistent(Xj, Xk, csp):
-    unimplemented()
+    raise NotImplementedError
 
 # ______________________________________________________________________________
 # Map-Coloring Problems

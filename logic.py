@@ -674,11 +674,11 @@ class HybridWumpusAgent(agents.Agent):
     "An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
     def __init__(self):
-        unimplemented()
+        raise NotImplementedError
 
 
 def plan_route(current, goals, allowed):
-    unimplemented()
+    raise NotImplementedError
 
 # ______________________________________________________________________________
 
@@ -844,7 +844,7 @@ def subst(s, x):
 
 
 def fol_fc_ask(KB, alpha):
-    unimplemented()
+    raise NotImplementedError
 
 
 def standardize_variables(sentence, dic=None):

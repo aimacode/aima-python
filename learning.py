@@ -412,11 +412,11 @@ def DecisionListLearner(dataset):
     def find_examples(examples):
         """Find a set of examples that all have the same outcome under
         some test. Return a tuple of the test, outcome, and examples."""
-        unimplemented()
+        raise NotImplementedError
 
     def passes(example, test):
         "Does the example pass the test?"
-        unimplemented()
+        raise NotImplementedError
 
     def predict(example):
         "Predict the outcome for the first passing test."

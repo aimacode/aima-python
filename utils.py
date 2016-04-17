@@ -322,11 +322,6 @@ def DataFile(name, mode='r'):
     return AIMAFile(['aima-data', name], mode)
 
 
-def unimplemented():
-    "Use this as a stub for not-yet-implemented functions."
-    raise NotImplementedError
-
-
 # ______________________________________________________________________________
 # Expressions
 
