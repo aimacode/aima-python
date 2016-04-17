@@ -51,8 +51,9 @@ class Problem(object):
 
     def goal_test(self, state):
         """Return True if the state is a goal. The default method compares the
-        state to self.goal or checks for state in self.goal if it is a list, as specified in the constructor. Override this
-        method if checking against a single self.goal is not enough."""
+        state to self.goal or checks for state in self.goal if it is a
+        list, as specified in the constructor. Override this method if
+        checking against a single self.goal is not enough."""
         if isinstance(self.goal, list):
             return is_in(state, self.goal)
         else:
@@ -411,7 +412,7 @@ def and_or_graph_search(problem):
 
     def and_search(states, problem, path):
         "returns plan in form of dictionary where we take action plan[s] if we reach state s"  # noqa
-        plan = dict()
+        plan = {}
         for s in states:
             plan[s] = or_search(s, problem, path)
             if plan[s] is None:
@@ -464,7 +465,7 @@ class OnlineDFSAgent:
         return self.a
 
     def update_state(self, percept):
-        '''To be overriden in most cases. The default case
+        '''To be overridden in most cases. The default case
         assumes the percept to be of type state.'''
         return percept
 
@@ -535,12 +536,12 @@ class LRTAStarAgent:
                 # self.result[(self.s, self.a)] = s1    # no need as we are using problem.output
 
                 # minimum cost for action b in problem.actions(s)
-                self.H[self.s] = min([self.LRTA_cost(self.s, b, self.problem.output(self.s, b), self.H)
-                                    for b in self.problem.actions(self.s)])
+                self.H[self.s] = min(self.LRTA_cost(self.s, b, self.problem.output(self.s, b), self.H)
+                                     for b in self.problem.actions(self.s))
 
             # costs for action b in problem.actions(s1)
             costs = [self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H)
-                        for b in self.problem.actions(s1)]
+                     for b in self.problem.actions(s1)]
             # an action b in problem.actions(s1) that minimizes costs
             self.a = list(self.problem.actions(s1))[costs.index(min(costs))]
 
@@ -780,8 +781,8 @@ australia_map = UndirectedGraph(dict(
     NT=dict(WA=1, Q=1),
     NSW=dict(Q=1, V=1)))
 australia_map.locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
-                           Q=(145, 20), NSW=(145, 32), T=(145, 42),
-                           V=(145, 37))
+                               Q=(145, 20), NSW=(145, 32), T=(145, 42),
+                               V=(145, 37))
 
 
 class GraphProblem(Problem):
@@ -813,8 +814,10 @@ class GraphProblem(Problem):
 
 class GraphProblemStochastic(GraphProblem):
     """
-    A version of Graph Problem where an action can lead to undeterministic output i.e. multiple possible states
-    Define the graph as dict(A = dict(Action = [[<Result 1>, <Result 2>, ...],<cost>], ...), ...)
+    A version of GraphProblem where an action can lead to
+    nondeterministic output i.e. multiple possible states
+
+    Define the graph as dict(A = dict(Action = [[<Result 1>, <Result 2>, ...], <cost>], ...), ...)
     A the dictionary format is different, make sure the graph is created as a directed graph
     """
 
@@ -1153,7 +1156,3 @@ def compare_graph_searchers():
                                 GraphProblem('Q', 'WA', australia_map)],
                       header=['Searcher', 'romania_map(Arad, Bucharest)',
                               'romania_map(Oradea, Neamt)', 'australia_map'])
-
-# ______________________________________________________________________________
-
-

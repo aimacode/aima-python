@@ -133,7 +133,7 @@ class GridWorldView:
     def map_to_render(self):
         default_representation = {"val": "default", "tooltip": ""}
         world_map = [[copy.deepcopy(default_representation) for _ in range(self.world.width)]
-                        for _ in range(self.world.height)]
+                     for _ in range(self.world.height)]
 
         for thing in self.world.things:
             row, column = thing.location
@@ -150,6 +150,7 @@ class GridWorldView:
 
     def show(self):
         clear_output()
-        total_html = _GRID_WORLD_HTML.format(self.object_name(), self.map_to_render(),
+        total_html = _GRID_WORLD_HTML.format(
+            self.object_name(), self.map_to_render(),
             self.block_size, json.dumps(self.representation), _JS_GRID_WORLD)
         display(HTML(total_html))

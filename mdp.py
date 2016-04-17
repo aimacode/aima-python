@@ -102,9 +102,9 @@ A 4x3 grid environment that presents the agent with a sequential decision proble
 """
 
 sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
-                      [-0.04, None,  -0.04, -1],
-                      [-0.04, -0.04, -0.04, -0.04]],
-                     terminals=[(3, 2), (3, 1)])
+                                           [-0.04, None,  -0.04, -1],
+                                           [-0.04, -0.04, -0.04, -0.04]],
+                                          terminals=[(3, 2), (3, 1)])
 
 # ______________________________________________________________________________
 

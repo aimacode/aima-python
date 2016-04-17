@@ -526,7 +526,7 @@ class HiddenMarkovModel:
 
     """ A Hidden markov model which takes Transition model and Sensor model as inputs"""
 
-    def __init__(self, transition_model, sensor_model, prior= [0.5, 0.5]):
+    def __init__(self, transition_model, sensor_model, prior=[0.5, 0.5]):
         self.transition_model = transition_model
         self.sensor_model = sensor_model
         self.prior = prior
@@ -598,7 +598,7 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
     O_t = vector_to_diagonal(HMM.sensor_dist(e_t))
     if t > d:
         f = forward(HMM, f, e_t)
-        O_tmd = vector_to_diagonal(HMM.sensor_dist(ev[t- d]))
+        O_tmd = vector_to_diagonal(HMM.sensor_dist(ev[t - d]))
         B = matrix_multiplication(inverse_matrix(O_tmd), inverse_matrix(T_model), B, T_model, O_t)
     else:
         B = matrix_multiplication(B, T_model, O_t)

@@ -191,7 +191,7 @@ def weighted_sampler(seq, weights):
 
     return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
 
-def rounder(numbers, d = 4):
+def rounder(numbers, d=4):
     "Round a single number, or sequence of numbers, to d decimal places."
     if isinstance(numbers, (int, float)):
         return round(numbers, d)

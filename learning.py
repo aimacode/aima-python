@@ -290,7 +290,6 @@ class DecisionFork:
         self.attrname = attrname or attr
         self.branches = branches or {}
 
-
     def __call__(self, example):
         "Given an example, classify it using the attribute and the branches."
         attrvalue = example[self.attr]

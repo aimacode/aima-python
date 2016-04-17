@@ -54,7 +54,7 @@ class PassiveTDAgent:
         return self.a
 
     def update_state(self, percept):
-        ''' To be overriden in most cases. The default case
+        ''' To be overridden in most cases. The default case
         assumes th percept to be of type (state, reward)'''
         return percept
 
@@ -104,19 +104,20 @@ class QLearningAgent:
         Q, Nsa, s, a, r = self.Q, self.Nsa, self.s, self.a, self.r
         alpha, gamma, terminals, actions_in_state = self.alpha, self.gamma, self.terminals, self.actions_in_state
         if s1 in terminals:
-            Q[(s1, None)] = r1
+            Q[s1, None] = r1
         if s is not None:
-            Nsa[(s, a)] += 1
-            Q[(s, a)] += alpha(Nsa[(s, a)])*(r+gamma*max([Q[(s1, a1)] for a1 in actions_in_state(s1)])-Q[(s, a)])
+            Nsa[s, a] += 1
+            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1] for a1 in actions_in_state(s1))
+                                             - Q[s, a])
         if s1 in terminals:
             self.s = self.a = self.r = None
         else:
             self.s, self.r = s1, r1
-            self.a = argmax(actions_in_state(s1), key=lambda a1: self.f(Q[(s1, a1)], Nsa[(s1, a1)]))
+            self.a = argmax(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
         return self.a
 
     def update_state(self, percept):
-        ''' To be overriden in most cases. The default case
+        ''' To be overridden in most cases. The default case
         assumes the percept to be of type (state, reward)'''
         return percept
 

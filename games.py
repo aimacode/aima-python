@@ -232,7 +232,7 @@ class Fig52Game(Game):
         return state not in ('A', 'B', 'C', 'D')
 
     def to_move(self, state):
-        return  'MIN' if state in 'BCD' else 'MAX'
+        return 'MIN' if state in 'BCD' else 'MAX'
 
 
 class TicTacToe(Game):
@@ -266,7 +266,7 @@ class TicTacToe(Game):
 
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
-        return  state.utility if player == 'X' else -state.utility
+        return state.utility if player == 'X' else -state.utility
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
@@ -343,7 +343,7 @@ class Canvas_TicTacToe(Canvas):
         if player == 'human':
             x, y = int(3*x/self.width) + 1, int(3*y/self.height) + 1
             if (x, y) not in self.ttt.actions(self.state):
-                #Invalid move
+                # Invalid move
                 return
             move = (x, y)
         elif player == 'alphabeta':
@@ -368,14 +368,14 @@ class Canvas_TicTacToe(Canvas):
                 self.draw_x(mark)
             elif board[mark] == 'O':
                 self.draw_o(mark)
-        #End game message
         if self.ttt.terminal_test(self.state):
+            # End game message
             utility = self.ttt.utility(self.state, self.ttt.to_move(self.ttt.initial))
             if utility == 0:
                 self.text_n('Game Draw!', 0.1, 0.1)
             else:
                 self.text_n('Player {} wins!'.format(1 if utility>0 else 2), 0.1, 0.1)
-        else:  #print which player's turn it is
+        else:  # Print which player's turn it is
             self.text_n("Player {}'s move({})".format(self.turn+1, self.players[self.turn]), 0.1, 0.1)
 
         self.update()

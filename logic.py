@@ -238,7 +238,7 @@ def pl_true(exp, model={}):
     and False if it is false. If the model does not specify the value for
     every proposition, this may return None to indicate 'not obvious';
     this may happen even when the expression is tautological."""
-    if exp == True or exp == False:
+    if exp in (True, False):
         return exp
     op, args = exp.op, exp.args
     if is_prop_symbol(op):
@@ -639,7 +639,7 @@ def inspect_literal(literal):
 def WalkSAT(clauses, p=0.5, max_flips=10000):
     """Checks for satisfiability of all clauses by randomly flipping values of variables
     """
-    # set of all symbols in all clauses
+    # Set of all symbols in all clauses
     symbols = set(sym for clause in clauses for sym in prop_symbols(clause))
     # model is a random assignment of true/false to the symbols in clauses
     model = {s: random.choice([True, False]) for s in symbols}
@@ -655,14 +655,14 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
         else:
             # Flip the symbol in clause that maximizes number of sat. clauses
             def sat_count(sym):
-                #returns the the number of clauses satisfied after flipping the symbol
+                # Return the the number of clauses satisfied after flipping the symbol.
                 model[sym] = not model[sym]
                 count = len([clause for clause in clauses if pl_true(clause, model)])
                 model[sym] = not model[sym]
                 return count
             sym = argmax(prop_symbols(clause), key=sat_count)
         model[sym] = not model[sym]
-    #If no solution is found within the flip limit, we return failure
+    # If no solution is found within the flip limit, we return failure
     return None
 
 # ______________________________________________________________________________
@@ -686,71 +686,71 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
     [Figure 7.22]"""
 
-    #Functions used by SAT_plan
+    # Functions used by SAT_plan
     def translate_to_SAT(init, transition, goal, time):
         clauses = []
         states = [state for state in transition]
 
-        #Symbol claiming state s at time t
+        # Symbol claiming state s at time t
         state_counter = itertools.count()
         for s in states:
             for t in range(time+1):
-                state_sym[(s, t)] = Expr("State_{}".format(next(state_counter)))
+                state_sym[s, t] = Expr("State_{}".format(next(state_counter)))
 
-        #Add initial state axiom
+        # Add initial state axiom
         clauses.append(state_sym[init, 0])
 
-        #Add goal state axiom
+        # Add goal state axiom
         clauses.append(state_sym[goal, time])
 
-        #All possible transitions
+        # All possible transitions
         transition_counter = itertools.count()
         for s in states:
             for action in transition[s]:
                 s_ = transition[s][action]
                 for t in range(time):
-                    #Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[(s, action, t)] = Expr("Transition_{}".format(next(transition_counter)))
+                    # Action 'action' taken from state 's' at time 't' to reach 's_'
+                    action_sym[s, action, t] = Expr("Transition_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
                     clauses.append(action_sym[s, action, t] |'==>'| state_sym[s, t])
                     clauses.append(action_sym[s, action, t] |'==>'| state_sym[s_, t + 1])
 
-        #Allow only one state at any time
+        # Allow only one state at any time
         for t in range(time+1):
-            #must be a state at any time
-            clauses.append(associate('|', [ state_sym[s, t] for s in states ]))
+            # must be a state at any time
+            clauses.append(associate('|', [state_sym[s, t] for s in states]))
 
             for s in states:
                 for s_ in states[states.index(s)+1:]:
-                    #for each pair of states s, s_ only one is possible at time t
+                    # for each pair of states s, s_ only one is possible at time t
                     clauses.append((~state_sym[s, t]) | (~state_sym[s_, t]))
 
-        #Restrict to one transition per timestep
+        # Restrict to one transition per timestep
         for t in range(time):
-            #list of possible transitions at time t
+            # list of possible transitions at time t
             transitions_t = [tr for tr in action_sym if tr[2] == t]
 
-            #make sure atleast one of the transition happens
-            clauses.append(associate('|', [ action_sym[tr] for tr in transitions_t ]))
+            # make sure at least one of the transitions happens
+            clauses.append(associate('|', [action_sym[tr] for tr in transitions_t]))
 
             for tr in transitions_t:
                 for tr_ in transitions_t[transitions_t.index(tr) + 1 :]:
-                    #there cannot be two transitions tr and tr_ at time t
-                    clauses.append((~action_sym[tr]) | (~action_sym[tr_]))
+                    # there cannot be two transitions tr and tr_ at time t
+                    clauses.append(~action_sym[tr] | ~action_sym[tr_])
 
-        #Combine the clauses to form the cnf
+        # Combine the clauses to form the cnf
         return associate('&', clauses)
 
     def extract_solution(model):
-        true_transitions = [ t for t in action_sym if model[action_sym[t]]]
-        #Sort transitions based on time which is the 3rd element of the tuple
+        true_transitions = [t for t in action_sym if model[action_sym[t]]]
+        # Sort transitions based on time, which is the 3rd element of the tuple
         true_transitions.sort(key = lambda x: x[2])
-        return [ action for s, action, time in true_transitions ]
+        return [action for s, action, time in true_transitions]
 
-    #Body of SAT_plan algorithm
+    # Body of SAT_plan algorithm
     for t in range(t_max):
-        #dcitionaries to help extract the solution from model
+        # dictionaries to help extract the solution from model
         state_sym = {}
         action_sym = {}
 
@@ -1062,5 +1062,3 @@ def simp(x):
 def d(y, x):
     "Differentiate and then simplify."
     return simp(diff(y, x))
-
-

@@ -106,8 +106,9 @@ class CSP(search.Problem):
     def goal_test(self, state):
         "The goal is to assign all variables, with all constraints satisfied."
         assignment = dict(state)
-        return (len(assignment) == len(self.variables) and
-                all(self.nconflicts(variables, assignment[variables], assignment) == 0 for variables in  self.variables))
+        return (len(assignment) == len(self.variables)
+                and all(self.nconflicts(variables, assignment[variables], assignment) == 0
+                        for variables in self.variables))
 
     # These are for constraint propagation
 
@@ -663,4 +664,3 @@ def solve_zebra(algorithm=min_conflicts, **args):
                 print(var, end=' ')
         print()
     return ans['Zebra'], ans['Water'], z.nassigns, ans
-
