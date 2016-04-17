@@ -314,7 +314,7 @@ class Environment(object):
         """Remove a thing from the environment."""
         try:
             self.things.remove(thing)
-        except(ValueError, e):
+        except ValueError as e:
             print(e)
             print("  in Environment delete_thing")
             print("  Thing to be removed: {} at {}" .format(thing, thing.location))
