@@ -425,9 +425,9 @@ def and_or_graph_search(problem):
 class OnlineDFSAgent:
 
     """The abstract class for an OnlineDFSAgent. Override update_state
-    method to convert percept to state. While initilizing the subclass
+    method to convert percept to state. While initializing the subclass
     a problem needs to be provided which is an instance of a subclass
-    of the Problem Class. [Figure 4.21] """
+    of the Problem class. [Figure 4.21] """
 
     def __init__(self, problem):
         self.problem = problem
