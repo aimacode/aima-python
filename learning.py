@@ -11,7 +11,10 @@ import heapq
 import math
 import random
 
-from statistics import mean
+# XXX statistics.mode is not quite the same as the old utils.mode:
+#  it insists on there being a unique most-frequent value. Code using mode
+#  needs to be revisited, or we need to restore utils.mode.
+from statistics import mean, mode
 from collections import defaultdict
 
 # ______________________________________________________________________________
@@ -391,7 +394,7 @@ def DecisionTreeLearner(dataset):
 def information_content(values):
     "Number of bits to represent the probability distribution in values."
     probabilities = normalize(removeall(0, values))
-    return sum(-p * log2(p) for p in probabilities)
+    return sum(-p * math.log2(p) for p in probabilities)
 
 # ______________________________________________________________________________
 
@@ -439,7 +442,6 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     epoches: Number of passes over the dataset
     """
 
-    examples = dataset.examples
     i_units = len(dataset.inputs)
     o_units = 1  # As of now, dataset.target gives only one index.
 
@@ -586,7 +588,6 @@ def BackPropagationLearner(dataset, net, learning_rate, epoches):
 
 def PerceptronLearner(dataset, learning_rate=0.01, epoches=100):
     """Logistic Regression, NO hidden layer"""
-    examples = dataset.examples
     i_units = len(dataset.inputs)
     o_units = 1  # As of now, dataset.target gives only one index.
     hidden_layer_sizes = []
