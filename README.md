@@ -125,7 +125,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 
 # Index of data structures
 
-Here is a table of the implemented data structures, the figure, name of the implementation in the reposiroty, and the file where they are implemented.
+Here is a table of the implemented data structures, the figure, name of the implementation in the repository, and the file where they are implemented.
 
 | **Figure** | **Name (in repository)** | **File** |
 |:-----------|:-------------------------|:---------|

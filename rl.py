@@ -18,7 +18,7 @@ class PassiveADPAgent(agents.Agent):
 class PassiveTDAgent:
     """The abstract class for a Passive (non-learning) agent that uses
     temporal differences to learn utility estimates. Override update_state
-    method to convert percept to state and reward. The mdp being probided
+    method to convert percept to state and reward. The mdp being provided
     should be an instance of a subclass of the MDP Class.[Figure 21.4]
     """
 
