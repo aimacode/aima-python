@@ -173,6 +173,9 @@ def test_fol_bc_ask():
     assert repr(test_ask('Rabbit(x)')) == '[{x: MrsRabbit}, {x: Pete}]'
     assert repr(test_ask('Criminal(x)', crime_kb)) == '[{x: West}]'
 
+def test_d():
+    assert d(x*x - x, x) == 2*x - 1
+
 def test_WalkSAT():
     def check_SAT(clauses, single_solution = {}):
         # Make sure the solution is correct if it is returned by WalkSat

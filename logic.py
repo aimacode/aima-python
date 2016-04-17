@@ -977,7 +977,7 @@ def diff(y, x):
         u, op, v = y.args[0], y.op, y.args[-1]
         if op == '+':
             return diff(u, x) + diff(v, x)
-        elif op == '-' and len(args) == 1:
+        elif op == '-' and len(y.args) == 1:
             return -diff(u, x)
         elif op == '-':
             return diff(u, x) - diff(v, x)
@@ -998,7 +998,7 @@ def diff(y, x):
 
 def simp(x):
     "Simplify the expression x."
-    if not x.args:
+    if isnumber(x) or not x.args:
         return x
     args = list(map(simp, x.args))
     u, op, v = args[0], x.op, args[-1]
