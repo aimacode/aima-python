@@ -658,7 +658,7 @@ def solve_zebra(algorithm=min_conflicts, **args):
     ans = algorithm(z, **args)
     for h in range(1, 6):
         print('House', h, end=' ')
-        for (var, val) in list(ans.items()):
+        for (var, val) in ans.items():
             if val == h:
                 print(var, end=' ')
         print()

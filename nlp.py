@@ -14,7 +14,7 @@ def Rules(**rules):
     >>> Rules(A = "B C | D E")
     {'A': [['B', 'C'], ['D', 'E']]}
     """
-    for (lhs, rhs) in list(rules.items()):
+    for (lhs, rhs) in rules.items():
         rules[lhs] = [alt.strip().split() for alt in rhs.split('|')]
     return rules
 
@@ -24,7 +24,7 @@ def Lexicon(**rules):
     >>> Lexicon(Art = "the | a | an")
     {'Art': ['the', 'a', 'an']}
     """
-    for (lhs, rhs) in list(rules.items()):
+    for (lhs, rhs) in rules.items():
         rules[lhs] = [word.strip() for word in rhs.split('|')]
     return rules
 

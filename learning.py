@@ -209,8 +209,7 @@ class CountingProbDist:
 
     def top(self, n):
         "Return (count, obs) tuples for the n most frequent observations."
-        return heapq.nlargest(
-            n, [(v, k) for (k, v) in list(self.dictionary.items())])
+        return heapq.nlargest(n, [(v, k) for (k, v) in self.dictionary.items()])
 
     def sample(self):
         "Return a random sample from the distribution."
@@ -301,7 +300,7 @@ class DecisionFork:
     def display(self, indent=0):
         name = self.attrname
         print('Test', name)
-        for (val, subtree) in list(self.branches.items()):
+        for (val, subtree) in self.branches.items():
             print(' ' * 4 * indent, name, '=', val, '==>', end=' ')
             subtree.display(indent + 1)
 
@@ -885,7 +884,7 @@ restaurant = RestaurantDataSet()
 def T(attrname, branches):
     branches = dict((value, (child if isinstance(child, DecisionFork)
                              else DecisionLeaf(child)))
-                    for value, child in list(branches.items()))
+                    for value, child in branches.items())
     return DecisionFork(restaurant.attrnum(attrname), attrname, branches)
 
 """ [Figure 18.2]

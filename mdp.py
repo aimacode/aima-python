@@ -94,7 +94,7 @@ class GridMDP(MDP):
         chars = {
             (1, 0): '>', (0, 1): '^', (-1, 0): '<', (0, -1): 'v', None: '.'}
         return self.to_grid(
-                dict([(s, chars[a]) for (s, a) in list(policy.items())]))
+                dict([(s, chars[a]) for (s, a) in policy.items()]))
 
 # ______________________________________________________________________________
 """ [Figure 17.1]

@@ -46,7 +46,7 @@ class ProbDist:
         self.varname = varname
         self.values = []
         if freqs:
-            for (v, p) in list(freqs.items()):
+            for (v, p) in freqs.items():
                 self[v] = p
             self.normalize()
 
@@ -237,10 +237,10 @@ class BayesNode:
         elif isinstance(cpt, dict):
             # one parent, 1-tuple
             if cpt and isinstance(list(cpt.keys())[0], bool):
-                cpt = dict(((v,), p) for v, p in list(cpt.items()))
+                cpt = dict(((v,), p) for v, p in cpt.items())
 
         assert isinstance(cpt, dict)
-        for vs, p in list(cpt.items()):
+        for vs, p in cpt.items():
             assert isinstance(vs, tuple) and len(vs) == len(parents)
             assert all(isinstance(v, bool) for v in vs)
             assert 0 <= p <= 1
@@ -390,7 +390,7 @@ class Factor:
         "Return my probabilities; must be down to one variable."
         assert len(self.variables) == 1
         return ProbDist(self.variables[0],
-                        dict((k, v) for ((k,), v) in list(self.cpt.items())))
+                        dict((k, v) for ((k,), v) in self.cpt.items()))
 
     def p(self, e):
         "Look up my value tabulated for e."
@@ -454,7 +454,7 @@ def rejection_sampling(X, e, bn, N):
 def consistent_with(event, evidence):
     "Is event consistent with the given evidence?"
     return all(evidence.get(k, v) == v
-               for k, v in list(event.items()))
+               for k, v in event.items())
 
 # _________________________________________________________________________
 
