@@ -101,14 +101,14 @@ class DataSet:
         to not use in inputs. Attributes can be -n .. n, or an attrname.
         Also computes the list of possible values, if that wasn't done yet."""
         self.target = self.attrnum(target)
-        exclude = list(map(self.attrnum, exclude))
+        exclude = map(self.attrnum, exclude)
         if inputs:
             self.inputs = removeall(self.target, inputs)
         else:
             self.inputs = [a for a in self.attrs
                            if a != self.target and a not in exclude]
         if not self.values:
-            self.values = list(map(unique, list(zip(*self.examples))))
+            self.values = list(map(unique, zip(*self.examples)))
         self.check_me()
 
     def check_me(self):
