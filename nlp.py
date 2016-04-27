@@ -182,3 +182,27 @@ class Chart:
         for (i, j, A, alpha, B1b) in self.chart[j]:
             if B1b and B == B1b[0]:
                 self.add_edge([i, k, A, alpha + [edge], B1b[1:]])
+
+
+# ______________________________________________________________________________
+# CYK Parsing
+
+def CYK_parse(words, grammar):
+    "[Figure 23.5]"
+    # We use 0-based indexing instead of the book's 1-based.
+    N = len(words)
+    P = defaultdict(float)
+    # Insert lexical rules for each word.
+    for (i, word) in enumerate(words):
+        for (X, p) in grammar.categories[word]: # XXX grammar.categories needs changing, above
+            P[X, i, 1] = p
+    # Combine first and second parts of right-hand sides of rules,
+    # from short to long.
+    for length in range(2, N+1):
+        for start in range(N-length+1):
+            for len1 in range(1, length): # N.B. the book incorrectly has N instead of length
+                len2 = length - len1
+                for (X, Y, Z, p) in grammar.cnf_rules(): # XXX grammar needs this method
+                    P[X, start, length] = max(P[X, start, length],
+                                              P[Y, start, len1] * P[Z, start+len1, len2] * p)
+    return P
