@@ -1,21 +1,19 @@
 # ![](https://github.com/aimacode/aima-java/blob/gh-pages/aima3e/images/aima3e.jpg)`aima-python`[![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python)
 
 
-Python code for the book *Artificial Intelligence: A Modern Approach.* We're loooking for one student sponsored by Google Summer of Code ([GSoC](https://summerofcode.withgoogle.com/)) to work on this project; if you want to be that student, make some good [contributions](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) here by looking through the [Issues](https://github.com/aimacode/aima-python/issues) and resolving some), and submit an [application](https://summerofcode.withgoogle.com/terms/student). (However, be warned that we've had over 150 students express interest, so competition will be tough.) And we're always [looking for solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) who are not affiliated with GSoC. A big thank you to everyone who has contributed!
+Python code for the book *Artificial Intelligence: A Modern Approach.* You can use this in conjunction with a course on AI, or for study on your own. We're loooking for solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
 
 ## Python 3.4
 
-This code is in Python 3.4. (Of course, the current version, Python 3.5, also works.) You can [install the latest Python version](https://www.python.org/downloads), and if that doesn't work, use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+This code is in Python 3.4 (Python 3.5, also works, but Python 2.x does not). You can [install the latest Python version](https://www.python.org/downloads), and if that doesn't work, use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
 
 ## Structure of the Project
 
 When complete, this project will have Python code for all the pseudocode algorithms in the book. For each major topic, such as `logic`, we will have the following three files in the main branch:
 
 - `logic.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
-- `logic.ipynb`: A Jupyter notebook that explains and gives examples of how to use the code.
+- `logic.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
 - `tests/logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/).
-
-
 
 # Index of Code
 
@@ -141,4 +139,4 @@ Here is a table of the implemented data structures, the figure, name of the impl
 
 # Acknowledgements
 
-Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Thanks to all!
+Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors!
