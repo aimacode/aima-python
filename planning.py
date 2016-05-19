@@ -26,7 +26,7 @@ class Action():
 
     def substitute(self, e, args):
         """Replaces variables in expression with their respective Propostional symbol"""
-        new_args = [args[i] for i in range(len(self.args)) for x in e.args if self.args[i]==x]
+        new_args = [args[i] for x in e.args for i in range(len(self.args)) if self.args[i]==x]
         return Expr(e.op, *new_args)
 
     def check_precond(self, kb, args):
@@ -37,14 +37,14 @@ class Action():
                 return False
         #check for negative clauses
         for clause in self.precond_neg:
-            if self.substitute(clause, args) in kb.clause:
+            if self.substitute(clause, args) in kb.clauses:
                 return False
         return True
 
-    def act(self, kb):
+    def act(self, kb, args):
         """Executes the action on the state's kb"""
         #check if the preconditions are satisfied
-        if not self.check_precond(kb):
+        if not self.check_precond(kb, args):
             raise Exception("Action pre-conditions not satisfied")
         #remove negative literals
         for clause in self.effect_neg:
