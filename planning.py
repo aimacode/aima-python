@@ -10,7 +10,12 @@ class Action():
     Use this to describe actions in PDDL
     action is an Expr where variables are given as arguments(args)
     Precondition and effect are both lists with positive and negated literals
-    eat = Action([expr("Hungry"), ], [, ])
+    Example:
+    precond_pos = [expr("Human(person)"), expr("Hungry(Person)")]
+    precond_neg = [expr("Eaten(food)")]
+    effect_add = [expr("Eaten(food)")]
+    effect_rem = [expr("Hungry(person)")]
+    eat = Action(Eat(person, food), [precond_pos, precond_neg], [effect_add, effect_rem])
     """
 
     def __init__(self,action , precond, effect):
@@ -18,8 +23,8 @@ class Action():
         self.args = action.args
         self.precond_pos = precond[0]
         self.precond_neg = precond[1]
-        self.effect_pos = effect[0]
-        self.effect_neg = effect[1]
+        self.effect_add = effect[0]
+        self.effect_rem = effect[1]
 
     def __call__(self, kb, args):
         return self.act(kb, args)
@@ -47,8 +52,8 @@ class Action():
         if not self.check_precond(kb, args):
             raise Exception("Action pre-conditions not satisfied")
         #remove negative literals
-        for clause in self.effect_neg:
+        for clause in self.effect_rem:
             kb.retract(self.substitute(clause, args))
         #add positive literals
-        for clause in self.effect_pos:
+        for clause in self.effect_add:
             kb.tell(self.substitute(clause, args))
