@@ -18,3 +18,17 @@ def test_action():
     assert test_kb.ask(expr("Q(B, C)")) is not False
     assert not a.check_precond(test_kb, args)
 
+def test_air_cargo():
+    p = air_cargo()
+    assert p.goal_test() is False
+    solution =[expr("Load(C1 , P1, SFO)"),
+               expr("Fly(P1, SFO, JFK)"),
+               expr("Unload(C1, P1, JFK)"),
+               expr("Load(C2, P2, JFK)"),
+               expr("Fly(P2, JFK, SFO)"),
+               expr("Unload (C2, P2, SFO)")]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()
