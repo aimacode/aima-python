@@ -17,3 +17,5 @@ def test_action():
     assert test_kb.ask(expr("Q(A)")) is not False
     assert test_kb.ask(expr("Q(B, C)")) is not False
     assert not a.check_precond(test_kb, args)
+
+    
