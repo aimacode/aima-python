@@ -27,9 +27,7 @@ def test_iterative_deepening_search():
     assert iterative_deepening_search(romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
 
 def test_depth_limited_search():
-    # output flickers between 49 and 50
-    # assert len(depth_limited_search(romania_problem).solution()) == 50
-    pass
+    assert len(depth_limited_search(romania_problem).solution()) == 50
 
 def test_astar_search():
     assert astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
