@@ -81,12 +81,9 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 11.1    | Job-Shop-Problem-With-Resources |          |
 | 11.5    | Hierarchical-Search |          |
 | 11.8    | Angelic-Search   |          |
-| \* 12.6    | House-Building-Problem |          |
-| \* 12.22   | Continuous-POP-Agent |          |
 | 11.10   | Doubles-tennis     |          |
 | 13      | Discrete Probability Distribution | `ProbDist` | [`probability.py`](../master/probability.py) |
 | 13.1    | DT-Agent           | `DTAgent` | [`probability.py`](../master/probability.py) |
-| \* 13.4    | Enumerate-Joint-Ask | `enumerate_joint_ask` | [`probability.py`](../master/probability.py) |
 | 14.9    | Enumeration-Ask    | `enumeration_ask` | [`probability.py`](../master/probability.py) |
 | 14.11   | Elimination-Ask    | `elimination_ask` | [`probability.py`](../master/probability.py) |
 | 14.13   | Prior-Sample       | `prior_sample` | [`probability.py`](../master/probability.py) |
@@ -112,12 +109,9 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`](../master/rl.py) |
 | 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`](../master/rl.py) |
 | 21.8    | Q-Learning-Agent   | `QLearningAgent` | [`rl.py`](../master/rl.py) |
-| \* 21.2    | Naive-Communicating-Agent |          |
 | 22.1    | HITS               |         |         |
 | 23      | Chart-Parse        | `Chart` | [`nlp.py`](../master/nlp.py) |
 | 23.5    | CYK-Parse          |         |         |
-| \* 23.1    | Viterbi-Segmentation | `viterbi_segment` | [`text.py`](../master/text.py) |
-| \* 24.21   | Align              |          |
 | 25.9    | Monte-Carlo-Localization|       |
 
 
