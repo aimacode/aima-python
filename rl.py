@@ -12,7 +12,7 @@ class PassiveADPAgent(agents.Agent):
 
     """Passive (non-learning) agent that uses adaptive dynamic programming
     on a given MDP and policy. [Figure 21.2]"""
-    NotImplemented
+    raise NotImplementedError 
 
 
 class PassiveTDAgent:
