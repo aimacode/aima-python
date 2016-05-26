@@ -27,7 +27,11 @@ def test_iterative_deepening_search():
     assert iterative_deepening_search(romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
 
 def test_depth_limited_search():
-    assert len(depth_limited_search(romania_problem).solution()) == 50
+    solution_3 = depth_limited_search(romania_problem, 3).solution()
+    assert solution_3[-1] == 'Bucharest'
+    assert depth_limited_search(romania_problem, 2) == 'cutoff'
+    solution_50 = depth_limited_search(romania_problem).solution()
+    assert solution_50[-1] == 'Bucharest'
 
 def test_astar_search():
     assert astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
