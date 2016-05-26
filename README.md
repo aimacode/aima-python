@@ -99,8 +99,8 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 17.7    | POMDP-Value-Iteration  |           |        |
 | 18.5    | Decision-Tree-Learning | `DecisionTreeLearner` | [`learning.py`](../master/learning.py) |
 | 18.8    | Cross-Validation   | `cross_validation` | [`learning.py`](../master/learning.py) |
-| 18.11   | Decision-List-Learning |          |
-| 18.24   | Back-Prop-Learning |          |
+| 18.11   | Decision-List-Learning | `DecisionListLearner` | [`learning.py`](../master/learning.py) |
+| 18.24   | Back-Prop-Learning | `BackPropagationLearner` | [`learning.py`](../master/learning.py) |
 | 18.34   | AdaBoost           | `AdaBoost` | [`learning.py`](../master/learning.py) |
 | 19.2    | Current-Best-Learning |          |
 | 19.3    | Version-Space-Learning |          |
