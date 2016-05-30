@@ -1,7 +1,7 @@
 # ![](https://github.com/aimacode/aima-java/blob/gh-pages/aima3e/images/aima3e.jpg)aima-python <a href="https://travis-ci.org/aimacode/aima-python" target="_blank"><img src="https://api.travis-ci.org/aimacode/aima-python.svg?branch=master" alt="Build Status"></a><a href="http://mybinder.org/repo/aimacode/aima-python" target="_blank"><img src="http://mybinder.org/badge.svg" alt="Binder"></a>
 
 
-Python code for the book *Artificial Intelligence: A Modern Approach.* You can use this in conjunction with a course on AI, or for study on your own. We're loooking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
+Python code for the book *Artificial Intelligence: A Modern Approach.* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
 
 ## Python 3.4
 
@@ -48,7 +48,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 4.8     | Genetic-Algorithm  | `genetic_algorithm` | [`search.py`](../master/search.py) |
 | 4.11    | And-Or-Graph-Search | `and_or_graph_search` | [`search.py`](../master/search.py)  |
 | 4.21    | Online-DFS-Agent   | `online_dfs_agent` | [`search.py`](../master/search.py) |
-| 4.24    | LRTA\*-Agent       |        |        |
+| 4.24    | LRTA\*-Agent       | `LRTAStarAgent`    | [`search.py`](../master/search.py) |
 | 5.3     | Minimax-Decision   | `minimax_decision` | [`games.py`](../master/games.py) |
 | 5.7     | Alpha-Beta-Search  | `alphabeta_search` | [`games.py`](../master/games.py) |
 | 6       | CSP                | `CSP` | [`csp.py`](../master/csp.py) |
@@ -66,7 +66,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 7.17    | DPLL-Satisfiable?  | `dpll_satisfiable` | [`logic.py`](../master/logic.py) |
 | 7.18    | WalkSAT            | `WalkSAT` | [`logic.py`](../master/logic.py) |
 | 7.20    | Hybrid-Wumpus-Agent    |         |           |
-| 7.22    | SATPlan            |          |
+| 7.22    | SATPlan            | `SAT_plan`  | [`logic.py`](../master/logic.py) |
 | 9       | Subst              | `subst` | [`logic.py`](../master/logic.py) |
 | 9.1     | Unify              | `unify` | [`logic.py`](../master/logic.py) |
 | 9.3     | FOL-FC-Ask         | `fol_fc_ask` | [`logic.py`](../master/logic.py) |
@@ -89,7 +89,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 14.13   | Prior-Sample       | `prior_sample` | [`probability.py`](../master/probability.py) |
 | 14.14   | Rejection-Sampling | `rejection_sampling` | [`probability.py`](../master/probability.py) |
 | 14.15   | Likelihood-Weighting | `likelihood_weighting` | [`probability.py`](../master/probability.py) |
-| 14.16   | Gibbs-Ask           |          |
+| 14.16   | Gibbs-Ask           | `gibbs_ask`  | [`probability.py`](../master/probability.py) |
 | 15.4    | Forward-Backward   | `forward_backward` | [`probability.py`](../master/probability.py) |
 | 15.6    | Fixed-Lag-Smoothing | `fixed_lag_smoothing` | [`probability.py`](../master/probability.py) |
 | 15.17   | Particle-Filtering | `particle_filtering` | [`probability.py`](../master/probability.py) |
@@ -99,19 +99,19 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 17.7    | POMDP-Value-Iteration  |           |        |
 | 18.5    | Decision-Tree-Learning | `DecisionTreeLearner` | [`learning.py`](../master/learning.py) |
 | 18.8    | Cross-Validation   | `cross_validation` | [`learning.py`](../master/learning.py) |
-| 18.11   | Decision-List-Learning |          |
-| 18.24   | Back-Prop-Learning |          |
+| 18.11   | Decision-List-Learning | `DecisionListLearner` | [`learning.py`](../master/learning.py) |
+| 18.24   | Back-Prop-Learning | `BackPropagationLearner` | [`learning.py`](../master/learning.py) |
 | 18.34   | AdaBoost           | `AdaBoost` | [`learning.py`](../master/learning.py) |
 | 19.2    | Current-Best-Learning |          |
 | 19.3    | Version-Space-Learning |          |
 | 19.8    | Minimal-Consistent-Det |          |
 | 19.12   | FOIL               |          |
-| 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`](../master/rl.py) |
+| 21.2    | Passive-ADP-Agent  | 				  | 						   |
 | 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`](../master/rl.py) |
 | 21.8    | Q-Learning-Agent   | `QLearningAgent` | [`rl.py`](../master/rl.py) |
 | 22.1    | HITS               |         |         |
 | 23      | Chart-Parse        | `Chart` | [`nlp.py`](../master/nlp.py) |
-| 23.5    | CYK-Parse          |         |         |
+| 23.5    | CYK-Parse          | `CYK_parse` | [`nlp.py`](../master/nlp.py) |
 | 25.9    | Monte-Carlo-Localization|       |
 
 
