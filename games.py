@@ -1,13 +1,13 @@
 """Games, or Adversarial Search (Chapter 5)"""
 
-import collections
+from collections import namedtuple
 import random
 
 from utils import argmax
 from canvas import Canvas
 
 infinity = float('inf')
-GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves')
+GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 
 # ______________________________________________________________________________
 # Minimax Search
@@ -280,7 +280,7 @@ class TicTacToe(Game):
             print()
 
     def compute_utility(self, board, move, player):
-        "If X wins with this move, return 1; if O return -1; else return 0."
+        "If 'X' wins with this move, return 1; if 'O' wins return -1; else return 0."
         if (self.k_in_row(board, move, player, (0, 1)) or
                 self.k_in_row(board, move, player, (1, 0)) or
                 self.k_in_row(board, move, player, (1, -1)) or
@@ -322,7 +322,7 @@ class Canvas_TicTacToe(Canvas):
     """Play a 3x3 TicTacToe game on HTML canvas
     TODO: Add restart button
     """
-    def __init__(self, varname, player_1='human', player_2='random', id=None, width=800, height=600):
+    def __init__(self, varname, player_1='human', player_2='random', id=None, width=300, height=300):
         valid_players = ('human', 'random', 'alphabeta')
         if player_1 not in valid_players or player_2 not in valid_players:
             raise TypeError("Players must be one of {}".format(valid_players))
@@ -383,11 +383,11 @@ class Canvas_TicTacToe(Canvas):
     def draw_x(self, position):
         self.stroke(0, 255, 0)
         x, y = [i-1 for i in position]
-        offset = 1/20
+        offset = 1/15
         self.line_n(x/3 + offset, y/3 + offset, x/3 + 1/3 - offset, y/3 + 1/3 - offset)
         self.line_n(x/3 + 1/3 - offset, y/3 + offset, x/3 + offset, y/3 + 1/3 - offset)
 
     def draw_o(self, position):
         self.stroke(255, 0, 0)
         x, y = [i-1 for i in position]
-        self.arc_n(x/3 + 1/6, y/3 + 1/6, 1/7, 0, 360)
+        self.arc_n(x/3 + 1/6, y/3 + 1/6, 1/9, 0, 360)
