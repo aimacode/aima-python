@@ -119,6 +119,7 @@ def test_forward_backward():
     assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [[0.5871, 0.4129],
                  [0.7177, 0.2823], [0.2324, 0.7676], [0.6072, 0.3928], [0.2324, 0.7676], [0.7177, 0.2823]]
 
+
 def test_fixed_lag_smoothing():
     umbrella_evidence = [T, F, T, F, T]
     e_t = F

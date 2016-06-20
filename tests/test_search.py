@@ -23,8 +23,10 @@ def test_depth_first_graph_search():
     solution = depth_first_graph_search(romania_problem).solution()
     assert solution[-1] == 'Bucharest'
 
+
 def test_iterative_deepening_search():
     assert iterative_deepening_search(romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
+
 
 def test_depth_limited_search():
     solution_3 = depth_limited_search(romania_problem, 3).solution()
@@ -33,11 +35,14 @@ def test_depth_limited_search():
     solution_50 = depth_limited_search(romania_problem).solution()
     assert solution_50[-1] == 'Bucharest'
 
+
 def test_astar_search():
     assert astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
 
+
 def test_recursive_best_first_search():
     assert recursive_best_first_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+
 
 def test_BoggleFinder():
     board = list('SARTELNID')
@@ -50,6 +55,7 @@ def test_BoggleFinder():
     f = BoggleFinder(board)
     assert len(f) == 206
 
+
 def test_and_or_graph_search():
     def run_plan(state, problem, plan):
         if problem.goal_test(state):
@@ -60,6 +66,7 @@ def test_and_or_graph_search():
         return all(predicate(r) for r in problem.result(state, plan[0]))
     plan = and_or_graph_search(vacumm_world)
     assert run_plan('State_1', vacumm_world, plan)
+
 
 def test_LRTAStarAgent():
     my_agent = LRTAStarAgent(LRTA_problem)
@@ -104,7 +111,7 @@ DIET LENT NETS NIL NIT SETAL LATS TARE ARE SATI'
 
 >>> boggle_hill_climbing(list('ABCDEFGHI'), verbose=False)
 (['E', 'P', 'R', 'D', 'O', 'A', 'G', 'S', 'T'], 123)
-"""    
+"""
 
 if __name__ == '__main__':
     pytest.main()
