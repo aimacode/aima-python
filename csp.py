@@ -372,8 +372,6 @@ def parse_neighbors(neighbors, variables=[]):
     True
     """
     dic = defaultdict(list)
-    for var in variables:
-        dic[var] = []
     specs = [spec.split(':') for spec in neighbors.split(';')]
     for (A, Aneighbors) in specs:
         A = A.strip()
