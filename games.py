@@ -96,7 +96,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         v = -infinity
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a),
-                                 alpha, beta, depth+1))
+                                 alpha, beta, depth + 1))
             if v >= beta:
                 return v
             alpha = max(alpha, v)
@@ -108,7 +108,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         v = infinity
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a),
-                                 alpha, beta, depth+1))
+                                 alpha, beta, depth + 1))
             if v <= alpha:
                 return v
             beta = min(beta, v)
@@ -245,8 +245,8 @@ class TicTacToe(Game):
         self.h = h
         self.v = v
         self.k = k
-        moves = [(x, y) for x in range(1, h+1)
-                 for y in range(1, v+1)]
+        moves = [(x, y) for x in range(1, h + 1)
+                 for y in range(1, v + 1)]
         self.initial = GameState(to_move='X', utility=0, board={}, moves=moves)
 
     def actions(self, state):
@@ -274,8 +274,8 @@ class TicTacToe(Game):
 
     def display(self, state):
         board = state.board
-        for x in range(1, self.h+1):
-            for y in range(1, self.v+1):
+        for x in range(1, self.h + 1):
+            for y in range(1, self.v + 1):
                 print(board.get((x, y), '.'), end=' ')
             print()
 
@@ -315,7 +315,7 @@ class ConnectFour(TicTacToe):
 
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
-                if y == 1 or (x, y-1) in state.board]
+                if y == 1 or (x, y - 1) in state.board]
 
 
 class Canvas_TicTacToe(Canvas):
@@ -374,7 +374,7 @@ class Canvas_TicTacToe(Canvas):
             if utility == 0:
                 self.text_n('Game Draw!', 0.1, 0.1)
             else:
-                self.text_n('Player {} wins!'.format(1 if utility>0 else 2), 0.1, 0.1)
+                self.text_n('Player {} wins!'.format(1 if utility > 0 else 2), 0.1, 0.1)
         else:  # Print which player's turn it is
             self.text_n("Player {}'s move({})".format(self.turn+1, self.players[self.turn]), 0.1, 0.1)
 

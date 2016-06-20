@@ -632,16 +632,16 @@ def particle_filtering(e, N, HMM):
     for i in range(N):
         if s[i] == 'A':
             # P(U|A)*P(A)
-            w_i = HMM.sensor_dist(e)[0]*dist[0]
+            w_i = HMM.sensor_dist(e)[0] * dist[0]
         if s[i] == 'B':
             # P(U|B)*P(B)
-            w_i = HMM.sensor_dist(e)[1]*dist[1]
+            w_i = HMM.sensor_dist(e)[1] * dist[1]
         w[i] = w_i
         w_tot += w_i
 
     # Normalize all the weights
     for i in range(N):
-        w[i] = w[i]/w_tot
+        w[i] = w[i] / w_tot
 
     # Limit weights to 4 digits
     for i in range(N):

@@ -555,7 +555,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epoches):
             o_units = len(o_nodes)
             err = [t_val[i] - o_nodes[i].value
                    for i in range(o_units)]
-            delta[-1] = [(o_nodes[i].value)*(1 - o_nodes[i].value) *
+            delta[-1] = [(o_nodes[i].value) * (1 - o_nodes[i].value) *
                          (err[i]) for i in range(o_units)]
 
             # Backward pass
@@ -620,7 +620,7 @@ def PerceptronLearner(dataset, learning_rate=0.01, epoches=100):
 def Linearlearner(dataset, learning_rate=0.01, epochs=100):
     """Define with learner = Linearlearner(data); infer with learner(x)."""
     idx_i = dataset.inputs
-    idx_t = dataset.target     # As of now, dataset.target gives only one index.
+    idx_t = dataset.target  # As of now, dataset.target gives only one index.
     examples = dataset.examples
 
     # X transpose
@@ -794,7 +794,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
                                           k=10, trials=1)
             trial_errT += errT
             trial_errV += errV
-        return trial_errT/trials, trial_errV/trials
+        return trial_errT / trials, trial_errV / trials
     else:
         fold_errT = 0
         fold_errV = 0
@@ -802,15 +802,15 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
         examples = dataset.examples
         for fold in range(k):
             random.shuffle(dataset.examples)
-            train_data, val_data = train_and_test(dataset, fold * (n/k),
-                                                  (fold + 1) * (n/k))
+            train_data, val_data = train_and_test(dataset, fold * (n / k),
+                                                  (fold + 1) * (n / k))
             dataset.examples = train_data
             h = learner(dataset, size)
             fold_errT += test(h, dataset, train_data)
             fold_errV += test(h, dataset, val_data)
             # Reverting back to original once test is completed
             dataset.examples = examples
-        return fold_errT/k, fold_errV/k
+        return fold_errT / k, fold_errV / k
 
 
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):

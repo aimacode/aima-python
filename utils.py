@@ -18,6 +18,7 @@ def sequence(iterable):
     return (iterable if isinstance(iterable, collections.abc.Sequence)
             else tuple(iterable))
 
+
 def removeall(item, seq):
     """Return a copy of seq (or string) with all occurences of item removed."""
     if isinstance(seq, str):
@@ -25,13 +26,16 @@ def removeall(item, seq):
     else:
         return [x for x in seq if x != item]
 
-def unique(seq): # TODO: replace with set
+
+def unique(seq):  # TODO: replace with set
     """Remove duplicate elements from seq. Assumes hashable elements."""
     return list(set(seq))
+
 
 def count(seq):
     """Count the number of items in sequence that are interpreted as true."""
     return sum(bool(x) for x in seq)
+
 
 def product(numbers):
     """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
@@ -39,6 +43,7 @@ def product(numbers):
     for x in numbers:
         result *= x
     return result
+
 
 def first(iterable, default=None):
     "Return the first element of an iterable or the next element of a generator; or default."
@@ -48,6 +53,7 @@ def first(iterable, default=None):
         return default
     except TypeError:
         return next(iterable, default)
+
 
 def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
@@ -61,13 +67,16 @@ identity = lambda x: x
 argmin = min
 argmax = max
 
+
 def argmin_random_tie(seq, key=identity):
     """Return a minimum element of seq; break ties at random."""
     return argmin(shuffled(seq), key=key)
 
+
 def argmax_random_tie(seq, key=identity):
     "Return an element with highest fn(seq[i]) score; break ties at random."
     return argmax(shuffled(seq), key=key)
+
 
 def shuffled(iterable):
     "Randomly shuffle a copy of iterable."
@@ -137,6 +146,7 @@ def matrix_multiplication(X_M, *Y_M):
 
     return result
 
+
 def vector_to_diagonal(v):
     """Converts a vector to a diagonal matrix with vector elements
     as the diagonal elements of the matrix"""
@@ -146,17 +156,21 @@ def vector_to_diagonal(v):
 
     return diag_matrix
 
+
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
     return tuple(map(operator.add, a, b))
 
 
+
 def scalar_vector_product(X, Y):
     """Return vector as a product of a scalar and a vector"""
-    return [X*y for y in Y]
+    return [X * y for y in Y]
+
 
 def scalar_matrix_product(X, Y):
     return [scalar_vector_product(X, y) for y in Y]
+
 
 def inverse_matrix(X):
     """Inverse a given square matrix of size 2x2"""
@@ -191,6 +205,7 @@ def weighted_sampler(seq, weights):
 
     return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
 
+
 def rounder(numbers, d=4):
     "Round a single number, or sequence of numbers, to d decimal places."
     if isinstance(numbers, (int, float)):
@@ -198,6 +213,7 @@ def rounder(numbers, d=4):
     else:
         constructor = type(numbers)     # Can be list, set, tuple, etc.
         return constructor(rounder(n, d) for n in numbers)
+
 
 def num_or_str(x):
     """The argument is a string; convert to a number if
@@ -210,6 +226,7 @@ def num_or_str(x):
             return float(x)
         except ValueError:
             return str(x).strip()
+
 
 def normalize(numbers):
     """Multiply each number by a constant such that the sum is 1.0"""
@@ -236,7 +253,7 @@ try:  # math.isclose was added in Python 3.5; but we might be in 3.4
 except ImportError:
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
         "Return true if numbers a and b are close to each other."
-        return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+        return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 # ______________________________________________________________________________
 # Misc Functions
@@ -273,6 +290,7 @@ def name(obj):
     return (getattr(obj, 'name', 0) or getattr(obj, '__name__', 0) or
             getattr(getattr(obj, '__class__', 0), '__name__', 0) or
             str(obj))
+
 
 def isnumber(x):
     "Is x a number?"
@@ -356,8 +374,8 @@ class Expr(object):
 
     def __or__(self, rhs):
         "Allow both P | Q, and P |'==>'| Q."
-        if isinstance(rhs, Expression) :
-            return Expr('|',  self, rhs)
+        if isinstance(rhs, Expression):
+            return Expr('|', self, rhs)
         else:
             return PartialExpr(rhs, self)
 
@@ -394,7 +412,7 @@ class Expr(object):
     def __hash__(self): return hash(self.op) ^ hash(self.args)
 
     def __repr__(self):
-        op   = self.op
+        op = self.op
         args = [str(arg) for arg in self.args]
         if op.isidentifier():       # f(x) or f(x, y)
             return '{}({})'.format(op, ', '.join(args)) if args else op
@@ -407,16 +425,19 @@ class Expr(object):
 # An 'Expression' is either an Expr or a Number.
 # Symbol is not an explicit type; it is any Expr with 0 args.
 
-Number     = (int, float, complex)
+Number = (int, float, complex)
 Expression = (Expr, Number)
+
 
 def Symbol(name):
     "A Symbol is just an Expr with no args."
     return Expr(name)
 
+
 def symbols(names):
     "Return a tuple of Symbols; names is a comma/whitespace delimited str."
     return tuple(Symbol(name) for name in names.replace(',', ' ').split())
+
 
 def subexpressions(x):
     "Yield the subexpressions of an Expression (including x itself)."
@@ -425,20 +446,23 @@ def subexpressions(x):
         for arg in x.args:
             yield from subexpressions(arg)
 
+
 def arity(expression):
     "The number of sub-expressions in this expression."
     if isinstance(expression, Expr):
         return len(expression.args)
-    else: # expression is a number
+    else:  # expression is a number
         return 0
 
 # For operators that are not defined in Python, we allow new InfixOps:
+
 
 class PartialExpr:
     """Given 'P |'==>'| Q, first form PartialExpr('==>', P), then combine with Q."""
     def __init__(self, op, lhs): self.op, self.lhs = op, lhs
     def __or__(self, rhs):       return Expr(self.op, self.lhs, rhs)
     def __repr__(self):          return "PartialExpr('{}', {})".format(self.op, self.lhs)
+
 
 def expr(x):
     """Shortcut to create an Expression. x is a str in which:
@@ -455,6 +479,7 @@ def expr(x):
 
 infix_ops = '==> <== <=>'.split()
 
+
 def expr_handle_infix_ops(x):
     """Given a str, return a new str with ==> replaced by |'==>'|, etc.
     >>> expr_handle_infix_ops('P ==> Q')
@@ -463,6 +488,7 @@ def expr_handle_infix_ops(x):
     for op in infix_ops:
         x = x.replace(op, '|' + repr(op) + '|')
     return x
+
 
 class defaultkeydict(collections.defaultdict):
     """Like defaultdict, but the default_factory is a function of the key.
@@ -529,7 +555,7 @@ class FIFOQueue(Queue):
     def pop(self):
         e = self.A[self.start]
         self.start += 1
-        if self.start > 5 and self.start > len(self.A)/2:
+        if self.start > 5 and self.start > len(self.A) / 2:
             self.A = self.A[self.start:]
             self.start = 0
         return e

@@ -30,7 +30,7 @@ class PassiveADPAgent:
     def __init__(self, pi, mdp):
         self.pi = pi
         self.mdp = PassiveADPAgent.ModelMDP(mdp.init, mdp.actlist, 
-                                        mdp.terminals, mdp.gamma, mdp.states)
+                                            mdp.terminals, mdp.gamma, mdp.states)
         self.U = {}
         self.Nsa = defaultdict(int)
         self.Ns1_sa = defaultdict(int)
@@ -50,7 +50,7 @@ class PassiveADPAgent:
             Ns1_sa[(s1, s, a)] += 1
             # for each t such that Ns′|sa [t, s, a] is nonzero
             for t in [res for (res, state, act), freq in Ns1_sa.items()
-                        if (state, act) == (s, a) and freq != 0]:
+                      if (state, act) == (s, a) and freq != 0]:
                 P[(s, a)][t] = Ns1_sa[(t, s, a)] / Nsa[(s, a)]
 
         U = policy_evaluation(pi, U, mdp)

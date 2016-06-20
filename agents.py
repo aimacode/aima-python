@@ -362,7 +362,7 @@ class Direction():
             }.get(heading, None)
 
     def move_forward(self, from_location):
-        x,y = from_location
+        x, y = from_location
         if self.direction == self.R:
             return (x+1, y)
         elif self.direction == self.L:
@@ -389,11 +389,12 @@ class XYEnvironment(Environment):
         self.width = width
         self.height = height
         self.observers = []
-        #Sets iteration start and end (no walls).
-        self.x_start,self.y_start = (0,0)
-        self.x_end,self.y_end = (self.width, self.height)
+        # Sets iteration start and end (no walls).
+        self.x_start, self.y_start = (0, 0)
+        self.x_end, self.y_end = (self.width, self.height)
 
     perceptible_distance = 1
+
     def things_near(self, location, radius=None):
         "Return all things within radius of location."
         if radius is None:
@@ -447,7 +448,7 @@ class XYEnvironment(Environment):
     #     for obs in self.observers:
     #         obs.thing_added(thing)
 
-    def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items = False):
+    def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items=False):
         '''Adds things to the world.
             If (exclude_duplicate_class_items) then the item won't be added if the location
             has at least one item of the same class'''
@@ -462,7 +463,7 @@ class XYEnvironment(Environment):
         x,y = location
         return not (x < self.x_start or x >= self.x_end or y < self.y_start or y >= self.y_end)
 
-    def random_location_inbounds(self, exclude = None):
+    def random_location_inbounds(self, exclude=None):
         '''Returns a random location that is inbounds (within walls if we have walls)'''
         location = (random.randint(self.x_start, self.x_end), random.randint(self.y_start, self.y_end))
         if exclude is not None:
@@ -486,14 +487,14 @@ class XYEnvironment(Environment):
         '''Put walls around the entire perimeter of the grid.'''
         for x in range(self.width):
             self.add_thing(Wall(), (x, 0))
-            self.add_thing(Wall(), (x, self.height-1))
+            self.add_thing(Wall(), (x, self.height - 1))
         for y in range(self.height):
             self.add_thing(Wall(), (0, y))
-            self.add_thing(Wall(), (self.width-1, y))
+            self.add_thing(Wall(), (self.width - 1, y))
 
-        #Updates iteration start and end (with walls).
-        self.x_start,self.y_start = (1,1)
-        self.x_end,self.y_end = (self.width-1, self.height-1)
+        # Updates iteration start and end (with walls).
+        self.x_start, self.y_start = (1, 1)
+        self.x_end, self.y_end = (self.width - 1, self.height - 1)
 
     def add_observer(self, observer):
         """Adds an observer to the list of observers.
@@ -662,6 +663,7 @@ class Wumpus(Agent):
 class Stench(Thing):
     pass
 
+
 class Explorer(Agent):
     holding = []
     has_arrow = True
@@ -674,8 +676,9 @@ class Explorer(Agent):
 
 
 class WumpusEnvironment(XYEnvironment):
-    pit_probability = 0.2 #Probability to spawn a pit in a location. (From Chapter 7.2)
-    #Room should be 4x4 grid of rooms. The extra 2 for walls
+    pit_probability = 0.2 # Probability to spawn a pit in a location. (From Chapter 7.2)
+    # Room should be 4x4 grid of rooms. The extra 2 for walls
+
     def __init__(self, agent_program, width=6, height=6):
         super(WumpusEnvironment, self).__init__(width, height)
         self.init_world(agent_program)
@@ -690,14 +693,14 @@ class WumpusEnvironment(XYEnvironment):
         for x in range(self.x_start, self.x_end):
             for y in range(self.y_start, self.y_end):
                 if random.random() < self.pit_probability:
-                    self.add_thing(Pit(), (x,y), True)
-                    self.add_thing(Breeze(), (x - 1,y), True)
-                    self.add_thing(Breeze(), (x,y - 1), True)
-                    self.add_thing(Breeze(), (x + 1,y), True)
-                    self.add_thing(Breeze(), (x,y + 1), True)
+                    self.add_thing(Pit(), (x, y), True)
+                    self.add_thing(Breeze(), (x - 1, y), True)
+                    self.add_thing(Breeze(), (x, y - 1), True)
+                    self.add_thing(Breeze(), (x + 1, y), True)
+                    self.add_thing(Breeze(), (x, y + 1), True)
 
         "WUMPUS"
-        w_x, w_y = self.random_location_inbounds(exclude = (1,1))
+        w_x, w_y = self.random_location_inbounds(exclude=(1, 1))
         self.add_thing(Wumpus(lambda x: ""), (w_x, w_y), True)
         self.add_thing(Stench(), (w_x - 1, w_y), True)
         self.add_thing(Stench(), (w_x + 1, w_y), True)
@@ -705,32 +708,31 @@ class WumpusEnvironment(XYEnvironment):
         self.add_thing(Stench(), (w_x, w_y + 1), True)
 
         "GOLD"
-        self.add_thing(Gold(), self.random_location_inbounds(exclude = (1,1)), True)
+        self.add_thing(Gold(), self.random_location_inbounds(exclude=(1, 1)), True)
         #self.add_thing(Gold(), (2,1), True)  Making debugging a whole lot easier
 
         "AGENT"
-        self.add_thing(Explorer(program), (1,1), True)
+        self.add_thing(Explorer(program), (1, 1), True)
 
-    def get_world(self, show_walls = True):
+    def get_world(self, show_walls=True):
         '''returns the items in the world'''
         result = []
-        x_start,y_start = (0,0)  if show_walls else (1,1)
-        x_end,y_end = (self.width, self.height) if show_walls else (self.width - 1, self.height - 1)
+        x_start, y_start = (0, 0) if show_walls else (1, 1)
+        x_end, y_end = (self.width, self.height) if show_walls else (self.width - 1, self.height - 1)
         for x in range(x_start, x_end):
             row = []
             for y in range(y_start, y_end):
-                row.append(self.list_things_at((x,y)))
+                row.append(self.list_things_at((x, y)))
             result.append(row)
         return result
 
-    def percepts_from(self, agent, location, tclass = Thing):
+    def percepts_from(self, agent, location, tclass=Thing):
         '''Returns percepts from a given location, and replaces some items with percepts from chapter 7.'''
         thing_percepts = {
             Gold: Glitter(),
             Wall: Bump(),
             Wumpus: Stench(),
-            Pit: Breeze()
-            }
+            Pit: Breeze()}
         '''Agents don't need to get their percepts'''
         thing_percepts[agent.__class__] = None
 
@@ -740,19 +742,19 @@ class WumpusEnvironment(XYEnvironment):
 
 
         result = [thing_percepts.get(thing.__class__, thing) for thing in self.things
-                if thing.location == location and isinstance(thing, tclass)]
+                  if thing.location == location and isinstance(thing, tclass)]
         return result if len(result) else [None]
 
     def percept(self, agent):
         '''Returns things in adjacent (not diagonal) cells of the agent.
             Result format: [Left, Right, Up, Down, Center / Current location]'''
-        x,y = agent.location
+        x, y = agent.location
         result = []
-        result.append(self.percepts_from(agent, (x - 1,y)))
-        result.append(self.percepts_from(agent, (x + 1,y)))
-        result.append(self.percepts_from(agent, (x,y - 1)))
-        result.append(self.percepts_from(agent, (x,y + 1)))
-        result.append(self.percepts_from(agent, (x,y)))
+        result.append(self.percepts_from(agent, (x - 1, y)))
+        result.append(self.percepts_from(agent, (x + 1, y)))
+        result.append(self.percepts_from(agent, (x, y - 1)))
+        result.append(self.percepts_from(agent, (x, y + 1)))
+        result.append(self.percepts_from(agent, (x, y)))
 
         '''The wumpus gives out a a loud scream once it's killed.'''
         wumpus = [thing for thing in self.things if isinstance(thing, Wumpus)]
@@ -781,14 +783,14 @@ class WumpusEnvironment(XYEnvironment):
             agent.performance -= 1
         elif action == 'Grab':
             things = [thing for thing in self.list_things_at(agent.location)
-                    if agent.can_grab(thing)]
+                      if agent.can_grab(thing)]
             if len(things):
                 print("Grabbing", things[0].__class__.__name__)
                 if len(things):
                     agent.holding.append(things[0])
             agent.performance -= 1
         elif action == 'Climb':
-            if agent.location == (1,1): #Agent can only climb out of (1,1)
+            if agent.location == (1, 1):  # Agent can only climb out of (1,1)
                 agent.performance += 1000 if Gold() in agent.holding else 0
                 self.delete_thing(agent)
         elif action == 'Shoot':
@@ -830,6 +832,7 @@ class WumpusEnvironment(XYEnvironment):
 
     #Almost done. Arrow needs to be implemented
 # ______________________________________________________________________________
+
 
 def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
     """See how well each of several agents do in n instances of an environment.

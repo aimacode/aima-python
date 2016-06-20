@@ -36,7 +36,7 @@ class Canvas:
     def execute(self, exec_str):
         "Stores the command to be exectued to a list which is used later during update()"
         if not isinstance(exec_str, str):
-            print("Invalid execution argument:",exec_str)
+            print("Invalid execution argument:", exec_str)
             self.alert("Recieved invalid execution command format")
         prefix = "{0}_canvas_object.".format(self.id)
         self.exec_list.append(prefix + exec_str + ';')
@@ -98,14 +98,14 @@ class Canvas:
         "Changes the font of text"
         self.execute('font("{0}")'.format(font))
 
-    def text(self, txt, x, y, fill = True):
+    def text(self, txt, x, y, fill=True):
         "Display a text at (x, y)"
         if fill:
             self.execute('fill_text("{0}", {1}, {2})'.format(txt, x, y))
         else:
             self.execute('stroke_text("{0}", {1}, {2})'.format(txt, x, y))
 
-    def text_n(self, txt, xn, yn, fill = True):
+    def text_n(self, txt, xn, yn, fill=True):
         "Similar to text(), but with normalized coordinates"
         x = round(xn * self.width)
         y = round(yn * self.height)
@@ -117,6 +117,6 @@ class Canvas:
 
     def update(self):
         "Execute the JS code to execute the commands queued by execute()"
-        exec_code = "<script>\n"+'\n'.join(self.exec_list)+"\n</script>"
+        exec_code = "<script>\n" + '\n'.join(self.exec_list) + "\n</script>"
         self.exec_list = []
         display(HTML(exec_code))

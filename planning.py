@@ -4,6 +4,7 @@
 from utils import Expr, expr, first
 from logic import FolKB
 
+
 class PDLL:
     """
     PDLL used to deine a search problem
@@ -47,7 +48,7 @@ class Action:
     eat = Action(expr("Eat(person, food)"), [precond_pos, precond_neg], [effect_add, effect_rem])
     """
 
-    def __init__(self,action , precond, effect):
+    def __init__(self, action, precond, effect):
         self.name = action.op
         self.args = action.args
         self.precond_pos = precond[0]
@@ -60,16 +61,16 @@ class Action:
 
     def substitute(self, e, args):
         """Replaces variables in expression with their respective Propostional symbol"""
-        new_args = [args[i] for x in e.args for i in range(len(self.args)) if self.args[i]==x]
+        new_args = [args[i] for x in e.args for i in range(len(self.args)) if self.args[i] == x]
         return Expr(e.op, *new_args)
 
     def check_precond(self, kb, args):
         """Checks if the precondition is satisfied in the current state"""
-        #check for positive clauses
+        # check for positive clauses
         for clause in self.precond_pos:
             if self.substitute(clause, args) not in kb.clauses:
                 return False
-        #check for negative clauses
+        # check for negative clauses
         for clause in self.precond_neg:
             if self.substitute(clause, args) in kb.clauses:
                 return False
@@ -77,13 +78,13 @@ class Action:
 
     def act(self, kb, args):
         """Executes the action on the state's kb"""
-        #check if the preconditions are satisfied
+        # check if the preconditions are satisfied
         if not self.check_precond(kb, args):
             raise Exception("Action pre-conditions not satisfied")
-        #remove negative literals
+        # remove negative literals
         for clause in self.effect_rem:
             kb.retract(self.substitute(clause, args))
-        #add positive literals
+        # add positive literals
         for clause in self.effect_add:
             kb.tell(self.substitute(clause, args))
 
@@ -99,7 +100,7 @@ def air_cargo():
             expr('Plane(P2)'),
             expr('Airport(JFK)'),
             expr('Airport(SFO)')]
-    
+
     def goal_test(kb):
         required = [expr('At(C1 , JFK)'), expr('At(C2 ,SFO)')]
         for q in required:
@@ -131,4 +132,3 @@ def air_cargo():
     fly = Action(expr("Fly(p, f, to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [load, unload, fly], goal_test)
-    
