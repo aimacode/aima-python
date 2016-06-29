@@ -65,6 +65,16 @@ def test_event_values():
     assert event_values((1, 2), ['C', 'A']) == (1, 2)
 
 
+def test_enumerate_joint():
+    P = JointProbDist(['X', 'Y'])
+    P[0, 0] = 0.25
+    P[0, 1] = 0.5
+    P[1, 1] = P[2, 1] = 0.125
+    assert enumerate_joint(['Y'], dict(X=0), P) == 0.75
+    assert enumerate_joint(['X'], dict(Y=2), P) == 0
+    assert enumerate_joint(['X'], dict(Y=1), P) == 0.75
+
+
 def test_enumerate_joint_ask():
     P = JointProbDist(['X', 'Y'])
     P[0, 0] = 0.25
