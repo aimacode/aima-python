@@ -118,7 +118,7 @@ class JointProbDist(ProbDist):
 
 
 def event_values(event, variables):
-    """Return a tuple of the values of variables variables in event.
+    """Return a tuple of the values of variables in event.
     >>> event_values ({'A': 10, 'B': 9, 'C': 8}, ['C', 'A'])
     (8, 10)
     >>> event_values ((1, 2), ['C', 'A'])
