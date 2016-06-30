@@ -79,6 +79,9 @@ class ProbDist:
         return ', '.join([('%s: ' + numfmt) % (v, p)
                           for (v, p) in sorted(self.prob.items())])
 
+    def __repr__(self):
+        return "P(%s)" % self.varname
+
 
 class JointProbDist(ProbDist):
     """A discrete probability distribute over a set of variables.
