@@ -54,9 +54,9 @@ class NgramTextModel(CountingProbDist):
         """Add each of the tuple words[i:i+n], using a sliding window.
         Prefix some copies of the empty word, '', to make the start work."""
         n = self.n
-        words = ['', ] * (n-1) + words
-        for i in range(len(words)-n):
-            self.add(tuple(words[i:i+n]))
+        words = ['', ] * (n - 1) + words
+        for i in range(len(words) - n):
+            self.add(tuple(words[i:i + n]))
 
     def samples(self, nwords):
         """Build up a random sample of text nwords words long, using
@@ -92,7 +92,7 @@ def viterbi_segment(text, P):
                 words[i] = w
     # Now recover the sequence of best words
     sequence = []
-    i = len(words)-1
+    i = len(words) - 1
     while i > 0:
         sequence[0:0] = [words[i]]
         i = i - len(words[i])
@@ -198,6 +198,7 @@ class Document:
         self.url = url
         self.nwords = nwords
 
+
 def words(text, reg=re.compile('[a-z0-9]+')):
     """Return a list of the words in text, ignoring punctuation and
     converting everything to lowercase (to canonicalize).
@@ -276,7 +277,7 @@ def bigrams(text):
     >>> bigrams(['this', 'is', 'a', 'test'])
     [['this', 'is'], ['is', 'a'], ['a', 'test']]
     """
-    return [text[i:i+2] for i in range(len(text) - 1)]
+    return [text[i:i + 2] for i in range(len(text) - 1)]
 
 # Decoding a Shift (or Caesar) Cipher
 
@@ -369,6 +370,3 @@ class PermutationDecoderProblem(search.Problem):
     def goal_test(self, state):
         "We're done when we get all 26 letters assigned."
         return len(state) >= 26
-
-
-

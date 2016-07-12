@@ -1,13 +1,13 @@
 """Games, or Adversarial Search (Chapter 5)"""
 
-import collections
+from collections import namedtuple
 import random
 
 from utils import argmax
 from canvas import Canvas
 
 infinity = float('inf')
-GameState = collections.namedtuple('GameState', 'to_move, utility, board, moves')
+GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 
 # ______________________________________________________________________________
 # Minimax Search
@@ -96,7 +96,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         v = -infinity
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a),
-                                 alpha, beta, depth+1))
+                                 alpha, beta, depth + 1))
             if v >= beta:
                 return v
             alpha = max(alpha, v)
@@ -108,7 +108,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         v = infinity
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a),
-                                 alpha, beta, depth+1))
+                                 alpha, beta, depth + 1))
             if v <= alpha:
                 return v
             beta = min(beta, v)
@@ -245,8 +245,8 @@ class TicTacToe(Game):
         self.h = h
         self.v = v
         self.k = k
-        moves = [(x, y) for x in range(1, h+1)
-                 for y in range(1, v+1)]
+        moves = [(x, y) for x in range(1, h + 1)
+                 for y in range(1, v + 1)]
         self.initial = GameState(to_move='X', utility=0, board={}, moves=moves)
 
     def actions(self, state):
@@ -274,13 +274,13 @@ class TicTacToe(Game):
 
     def display(self, state):
         board = state.board
-        for x in range(1, self.h+1):
-            for y in range(1, self.v+1):
+        for x in range(1, self.h + 1):
+            for y in range(1, self.v + 1):
                 print(board.get((x, y), '.'), end=' ')
             print()
 
     def compute_utility(self, board, move, player):
-        "If X wins with this move, return 1; if O return -1; else return 0."
+        "If 'X' wins with this move, return 1; if 'O' wins return -1; else return 0."
         if (self.k_in_row(board, move, player, (0, 1)) or
                 self.k_in_row(board, move, player, (1, 0)) or
                 self.k_in_row(board, move, player, (1, -1)) or
@@ -315,14 +315,14 @@ class ConnectFour(TicTacToe):
 
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
-                if y == 1 or (x, y-1) in state.board]
+                if y == 1 or (x, y - 1) in state.board]
 
 
 class Canvas_TicTacToe(Canvas):
     """Play a 3x3 TicTacToe game on HTML canvas
     TODO: Add restart button
     """
-    def __init__(self, varname, player_1='human', player_2='random', id=None, width=800, height=600):
+    def __init__(self, varname, player_1='human', player_2='random', id=None, width=300, height=300):
         valid_players = ('human', 'random', 'alphabeta')
         if player_1 not in valid_players or player_2 not in valid_players:
             raise TypeError("Players must be one of {}".format(valid_players))
@@ -374,7 +374,7 @@ class Canvas_TicTacToe(Canvas):
             if utility == 0:
                 self.text_n('Game Draw!', 0.1, 0.1)
             else:
-                self.text_n('Player {} wins!'.format(1 if utility>0 else 2), 0.1, 0.1)
+                self.text_n('Player {} wins!'.format(1 if utility > 0 else 2), 0.1, 0.1)
         else:  # Print which player's turn it is
             self.text_n("Player {}'s move({})".format(self.turn+1, self.players[self.turn]), 0.1, 0.1)
 
@@ -383,11 +383,11 @@ class Canvas_TicTacToe(Canvas):
     def draw_x(self, position):
         self.stroke(0, 255, 0)
         x, y = [i-1 for i in position]
-        offset = 1/20
+        offset = 1/15
         self.line_n(x/3 + offset, y/3 + offset, x/3 + 1/3 - offset, y/3 + 1/3 - offset)
         self.line_n(x/3 + 1/3 - offset, y/3 + offset, x/3 + offset, y/3 + 1/3 - offset)
 
     def draw_o(self, position):
         self.stroke(255, 0, 0)
         x, y = [i-1 for i in position]
-        self.arc_n(x/3 + 1/6, y/3 + 1/6, 1/7, 0, 360)
+        self.arc_n(x/3 + 1/6, y/3 + 1/6, 1/9, 0, 360)

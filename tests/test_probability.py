@@ -10,13 +10,6 @@ def tests():
     assert cpt.p(True, event) == 0.95
     event = {'Burglary': False, 'Earthquake': True}
     assert cpt.p(False, event) == 0.71
-    # assert BoolCPT({T: 0.2, F: 0.625}).p(False, ['Burglary'], event) == 0.375
-    # assert BoolCPT(0.75).p(False, [], {}) == 0.25
-    # cpt = BoolCPT({True: 0.2, False: 0.7})
-    # assert cpt.rand(['A'], {'A': True}) in [True, False]
-    # cpt = BoolCPT({(True, True): 0.1, (True, False): 0.3,
-    #                (False, True): 0.5, (False, False): 0.7})
-    # assert cpt.rand(['A', 'B'], {'A': True, 'B': False}) in [True, False]
     # #enumeration_ask('Earthquake', {}, burglary)
 
     s = {'A': True, 'B': False, 'C': True, 'D': False}
@@ -65,6 +58,16 @@ def test_event_values():
     assert event_values((1, 2), ['C', 'A']) == (1, 2)
 
 
+def test_enumerate_joint():
+    P = JointProbDist(['X', 'Y'])
+    P[0, 0] = 0.25
+    P[0, 1] = 0.5
+    P[1, 1] = P[2, 1] = 0.125
+    assert enumerate_joint(['Y'], dict(X=0), P) == 0.75
+    assert enumerate_joint(['X'], dict(Y=2), P) == 0
+    assert enumerate_joint(['X'], dict(Y=1), P) == 0.75
+
+
 def test_enumerate_joint_ask():
     P = JointProbDist(['X', 'Y'])
     P[0, 0] = 0.25
@@ -77,6 +80,15 @@ def test_enumerate_joint_ask():
 def test_bayesnode_p():
     bn = BayesNode('X', 'Burglary', {T: 0.2, F: 0.625})
     assert bn.p(False, {'Burglary': False, 'Earthquake': True}) == 0.375
+    assert BayesNode('W', '', 0.75).p(False, {'Random': True}) == 0.25
+
+
+def test_bayesnode_sample():
+    X = BayesNode('X', 'Burglary', {T: 0.2, F: 0.625})
+    assert X.sample({'Burglary': False, 'Earthquake': True}) in [True, False]
+    Z = BayesNode('Z', 'P Q', {(True, True): 0.2, (True, False): 0.3,
+                               (False, True): 0.5, (False, False): 0.7})
+    assert Z.sample({'P': True, 'Q': False}) in [True, False]
 
 
 def test_enumeration_ask():
@@ -118,6 +130,7 @@ def test_forward_backward():
     umbrella_evidence = [T, F, T, F, T]
     assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [[0.5871, 0.4129],
                  [0.7177, 0.2823], [0.2324, 0.7676], [0.6072, 0.3928], [0.2324, 0.7676], [0.7177, 0.2823]]
+
 
 def test_fixed_lag_smoothing():
     umbrella_evidence = [T, F, T, F, T]

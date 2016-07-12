@@ -30,6 +30,7 @@ def test_shift_decoding():
 
     assert msg == 'This is a secret message.'
 
+
 def test_rot13_encoding():
     code = rot13('Hello, world!')
 
@@ -52,7 +53,7 @@ def test_counting_probability_distribution():
 
     ps = [D[n] for n in '123456']
 
-    assert 1/7 <= min(ps) <= max(ps) <= 1/5
+    assert 1 / 7 <= min(ps) <= max(ps) <= 1 / 5
 
 
 def test_ngram_models():
@@ -179,9 +180,9 @@ def test_canonicalize():
 
 def test_translate():
     text = 'orange apple lemon '
-    func = lambda x: ('s ' + x) if x==' ' else x
+    func = lambda x: ('s ' + x) if x ==' ' else x
 
-    assert translate(text, func) == 'oranges  apples  lemons  ' 
+    assert translate(text, func) == 'oranges  apples  lemons  '
 
 
 def test_bigrams():

@@ -372,8 +372,6 @@ def parse_neighbors(neighbors, variables=[]):
     True
     """
     dic = defaultdict(list)
-    for var in variables:
-        dic[var] = []
     specs = [spec.split(':') for spec in neighbors.split(';')]
     for (A, Aneighbors) in specs:
         A = A.strip()
@@ -483,7 +481,7 @@ class NQueensCSP(CSP):
             for var in range(n):
                 if assignment.get(var, '') == val:
                     ch = 'Q'
-                elif (var+val) % 2 == 0:
+                elif (var + val) % 2 == 0:
                     ch = '.'
                 else:
                     ch = '-'
@@ -494,7 +492,7 @@ class NQueensCSP(CSP):
                     ch = '*'
                 else:
                     ch = ' '
-                print(str(self.nconflicts(var, val, assignment))+ch, end=' ')
+                print(str(self.nconflicts(var, val, assignment)) + ch, end=' ')
             print()
 
 # ______________________________________________________________________________

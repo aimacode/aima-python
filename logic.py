@@ -280,7 +280,7 @@ def pl_true(exp, model={}):
         return None
     if op == '<=>':
         return pt == qt
-    elif op == '^': # xor or 'not equivalent'
+    elif op == '^':  # xor or 'not equivalent'
         return pt != qt
     else:
         raise ValueError("illegal operator in logic expression" + str(exp))
@@ -722,7 +722,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
             clauses.append(associate('|', [state_sym[s, t] for s in states]))
 
             for s in states:
-                for s_ in states[states.index(s)+1:]:
+                for s_ in states[states.index(s) + 1:]:
                     # for each pair of states s, s_ only one is possible at time t
                     clauses.append((~state_sym[s, t]) | (~state_sym[s_, t]))
 
@@ -745,7 +745,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     def extract_solution(model):
         true_transitions = [t for t in action_sym if model[action_sym[t]]]
         # Sort transitions based on time, which is the 3rd element of the tuple
-        true_transitions.sort(key = lambda x: x[2])
+        true_transitions.sort(key=lambda x: x[2])
         return [action for s, action, time in true_transitions]
 
     # Body of SAT_plan algorithm
@@ -904,18 +904,18 @@ class FolKB(KB):
 
 test_kb = FolKB(
     map(expr, ['Farmer(Mac)',
-                    'Rabbit(Pete)',
-                    'Mother(MrsMac, Mac)',
-                    'Mother(MrsRabbit, Pete)',
-                    '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
-                    '(Mother(m, c)) ==> Loves(m, c)',
-                    '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
-                    '(Farmer(f)) ==> Human(f)',
-                    # Note that this order of conjuncts
-                    # would result in infinite recursion:
-                    # '(Human(h) & Mother(m, h)) ==> Human(m)'
-                    '(Mother(m, h) & Human(h)) ==> Human(m)'
-                    ]))
+               'Rabbit(Pete)',
+               'Mother(MrsMac, Mac)',
+               'Mother(MrsRabbit, Pete)',
+               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
+               '(Mother(m, c)) ==> Loves(m, c)',
+               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
+               '(Farmer(f)) ==> Human(f)',
+               # Note that this order of conjuncts
+               # would result in infinite recursion:
+               # '(Human(h) & Mother(m, h)) ==> Human(m)'
+               '(Mother(m, h) & Human(h)) ==> Human(m)'
+               ]))
 
 crime_kb = FolKB(
     map(expr,
@@ -982,7 +982,7 @@ def diff(y, x):
         elif op == '*':
             return u * diff(v, x) + v * diff(u, x)
         elif op == '/':
-            return (v*diff(u, x) - u*diff(v, x)) / (v * v)
+            return (v * diff(u, x) - u * diff(v, x)) / (v * v)
         elif op == '**' and isnumber(x.op):
             return (v * u ** (v - 1) * diff(u, x))
         elif op == '**':

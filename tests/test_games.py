@@ -18,7 +18,7 @@ def gen_state(to_move='X', x_positions=[], o_positions=[], h=3, v=3, k=3):
     and how many consecutive X's or O's required to win, return the corresponding
     game state"""
 
-    moves = set([(x, y) for x in range(1, h+1) for y in range(1, v+1)]) \
+    moves = set([(x, y) for x in range(1, h + 1) for y in range(1, v + 1)]) \
         - set(x_positions) - set(o_positions)
     moves = list(moves)
     board = {}

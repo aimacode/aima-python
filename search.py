@@ -283,7 +283,7 @@ def depth_limited_search(problem, limit=50):
         else:
             cutoff_occurred = False
             for child in node.expand(problem):
-                result = recursive_dls(child, problem, limit-1)
+                result = recursive_dls(child, problem, limit - 1)
                 if result == 'cutoff':
                     cutoff_occurred = True
                 elif result is not None:
@@ -384,7 +384,7 @@ def simulated_annealing(problem, schedule=exp_schedule()):
             return current
         next = random.choice(neighbors)
         delta_e = problem.value(next.state) - problem.value(current.state)
-        if delta_e > 0 or probability(math.exp(delta_e/T)):
+        if delta_e > 0 or probability(math.exp(delta_e / T)):
             current = next
 
 
@@ -470,6 +470,7 @@ class OnlineDFSAgent:
         return percept
 
 # ______________________________________________________________________________
+
 
 class OnlineSearchProblem(Problem):
     """
@@ -757,20 +758,20 @@ vacumm_world = Graph(dict(
 One-dimensional state space Graph
 """
 one_dim_state_space = Graph(dict(
-    State_1 = dict(Right = 'State_2'),
-    State_2 = dict(Right = 'State_3', Left = 'State_1'),
-    State_3 = dict(Right = 'State_4', Left = 'State_2'),
-    State_4 = dict(Right = 'State_5', Left = 'State_3'),
-    State_5 = dict(Right = 'State_6', Left = 'State_4'),
-    State_6 = dict(Left = 'State_5')
+    State_1=dict(Right='State_2'),
+    State_2=dict(Right='State_3', Left='State_1'),
+    State_3=dict(Right='State_4', Left='State_2'),
+    State_4=dict(Right='State_5', Left='State_3'),
+    State_5=dict(Right='State_6', Left='State_4'),
+    State_6=dict(Left='State_5')
     ))
 one_dim_state_space.least_costs = dict(
-    State_1 = 8,
-    State_2 = 9,
-    State_3 = 2,
-    State_4 = 2,
-    State_5 = 4,
-    State_6 = 3)
+    State_1=8,
+    State_2=9,
+    State_3=2,
+    State_4=2,
+    State_5=4,
+    State_6=3)
 
 """ [Figure 6.1]
 Principal states and territories of Australia
@@ -811,6 +812,7 @@ class GraphProblem(Problem):
             return int(distance(locs[node.state], locs[self.goal]))
         else:
             return infinity
+
 
 class GraphProblemStochastic(GraphProblem):
     """
@@ -871,8 +873,8 @@ class NQueensProblem(Problem):
         "Would putting two queens in (row1, col1) and (row2, col2) conflict?"
         return (row1 == row2 or  # same row
                 col1 == col2 or  # same column
-                row1-col1 == row2-col2 or  # same \ diagonal
-                row1+col1 == row2+col2)   # same / diagonal
+                row1 - col1 == row2 - col2 or  # same \ diagonal
+                row1 + col1 == row2 + col2)   # same / diagonal
 
     def goal_test(self, state):
         "Check if all columns filled, no conflicts."
@@ -896,7 +898,7 @@ cubes16 = ['FORIXB', 'MOQABJ', 'GURILW', 'SETUPL',
 def random_boggle(n=4):
     """Return a random Boggle board of size n x n.
     We represent a board as a linear list of letters."""
-    cubes = [cubes16[i % 16] for i in range(n*n)]
+    cubes = [cubes16[i % 16] for i in range(n * n)]
     random.shuffle(cubes)
     return list(map(random.choice, cubes))
 

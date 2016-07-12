@@ -1,6 +1,7 @@
 import pytest
 from mdp import *  # noqa
 
+
 def test_value_iteration():
     assert value_iteration(sequential_decision_environment, .01) == {(3, 2): 1.0, (3, 1): -1.0,
                                         (3, 0): 0.12958868267972745, (0, 1): 0.39810203830605462,
