@@ -27,6 +27,12 @@ def loadPageHTML( addressList ):
             contentDict[addr] = html
     return contentDict
 
+def initPages( addressList ):
+    pages = {}
+    for addr in addressList:
+        pages[addr] = Page(addr)
+    return pages
+
 def stripRawHTML( raw_html ):
     # TODO: Strip more out of the raw html
     return re.sub("<head>.*?</head>", "", raw_html, flags=re.DOTALL) # remove <head> section
@@ -97,7 +103,7 @@ def detectConvergence():
         aveDeltaHub  = sum(diffsHub)/float(len(diffsHub))
         aveDeltaAuth = sum(diffsAuth)/float(len(diffsAuth))
         print(aveDeltaHub, " ", aveDeltaAuth)
-        if aveDeltaHub < 0.1 and aveDeltaAuth < 0.1:
+        if aveDeltaHub < 0.01 and aveDeltaAuth < 0.01:
             return True
     else:
         print("On first iteration")
@@ -121,7 +127,7 @@ def getOutlinks( page ):
 
 class Page(object):
 
-    def __init__(self, address, hub, authority, inlinks, outlinks):
+    def __init__(self, address, hub=0, authority=0, inlinks=None, outlinks=None):
         self.address = address
         self.hub = hub
         self.authority = authority
@@ -130,8 +136,7 @@ class Page(object):
 
 pagesContent = {} # maps Page relative or absolute URL/location to page's HTML content
 pagesIndex = {}
-
-# convergence = detectConvergence()
+convergence = detectConvergence() # assign function to variable to mimic pseudocode's syntax
 
 def HITS(query): # returns pages with hub and authority numbers
     pages = expand_pages(relevant_pages(query)) # in order to 'map' faithfully to pseudocode we
