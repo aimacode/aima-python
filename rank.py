@@ -18,6 +18,7 @@ examplePagesSet = ["https://en.wikipedia.org/wiki/", "Aesthetics", "Analytic_phi
 
 
 def loadPageHTML( addressList ):
+    """Download HTML page content for every URL address passed as argument"""
     contentDict = {}
     for addr in addressList:
         with urllib.request.urlopen(addr) as response:
@@ -28,29 +29,39 @@ def loadPageHTML( addressList ):
     return contentDict
 
 def initPages( addressList ):
+    """Create a dictionary of pages from a list of URL addresses"""
     pages = {}
     for addr in addressList:
         pages[addr] = Page(addr)
     return pages
 
 def stripRawHTML( raw_html ):
+    """Remove the <head> section of the HTML which contains links to stylesheets etc.,
+    and remove all other unnessecary HTML"""
     # TODO: Strip more out of the raw html
     return re.sub("<head>.*?</head>", "", raw_html, flags=re.DOTALL) # remove <head> section
 
 def determineInlinks( page ):
+    """Given a set of pages that have their outlinks determined, we can fill
+    out a page's inlinks by looking through all other page's outlinks"""
     inlinks = []
     for addr, indexPage in pagesIndex.items():
+        if page.adress = indexPage.address:
+            continue
         if page.address in indexPage.outlinks:
             inlinks.append(addr)
     return inlinks
 
 def findOutlinks( page, handleURLs=None ):
+    """Search a page's HTML content for URL links to other pages"""
     urls = re.findall(r'href=[\'"]?([^\'" >]+)', pagesContent[page.address])
     if handleURLs:
         urls = handleURLs(urls)
     return urls
 
 def onlyWikipediaURLS( urls ):
+    """Some example HTML page data is from wikipedia. This function converts
+    relative wikipedia links to full wikipedia URLs"""
     wikiURLs = [url for url in urls if url.startswith('/wiki/')]
     return ["https://en.wikipedia.org"+url for url in wikiURLs]
 
@@ -74,6 +85,8 @@ def expand_pages( pages ):
     return expanded
 
 def relevant_pages(query):
+    """relevant pages are pages that contain the query in its entireity.
+    If a page's content contains the query it is returned by the function"""
     relevant = {}
     print("pagesContent in function: ", pagesContent)
     for addr, page in pagesIndex.items():
@@ -92,6 +105,9 @@ def normalize( pages ):
         page.authority /= summed_auth
 
 def detectConvergence():
+    """If the hub and authority values of the pages are no longer changing, we have
+    reached a convergence and further iterations will have no effect. This detects convergence
+    so that we can stop the HITS algorithm as early as possible."""
     if "hub_history" not in detectConvergence.__dict__:
         detectConvergence.hub_history, detectConvergence.auth_history = [],[]
     # Calculate average deltaHub and average deltaAuth
@@ -103,7 +119,7 @@ def detectConvergence():
         aveDeltaHub  = sum(diffsHub)/float(len(diffsHub))
         aveDeltaAuth = sum(diffsAuth)/float(len(diffsAuth))
         print(aveDeltaHub, " ", aveDeltaAuth)
-        if aveDeltaHub < 0.01 and aveDeltaAuth < 0.01:
+        if aveDeltaHub < 0.01 and aveDeltaAuth < 0.01: # may need tweaking
             return True
     else:
         print("On first iteration")
@@ -126,7 +142,6 @@ def getOutlinks( page ):
 # HITS Algorithm
 
 class Page(object):
-
     def __init__(self, address, hub=0, authority=0, inlinks=None, outlinks=None):
         self.address = address
         self.hub = hub
@@ -138,7 +153,8 @@ pagesContent = {} # maps Page relative or absolute URL/location to page's HTML c
 pagesIndex = {}
 convergence = detectConvergence() # assign function to variable to mimic pseudocode's syntax
 
-def HITS(query): # returns pages with hub and authority numbers
+def HITS(query):
+    """The HITS algorithm for computing hubs and authorities with respect to a query."""
     pages = expand_pages(relevant_pages(query)) # in order to 'map' faithfully to pseudocode we
     for p in pages:                             # won't pass the list of pages as an argument
         p.authority = 1
