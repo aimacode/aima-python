@@ -130,12 +130,12 @@ def detectConvergence():
 def getInlinks( page ):
     if not page.inlinks:
         page.inlinks = determineInlinks(page)
-    return page.inlinks
+    return [p for addr, p in pagesIndex.items() if addr in page.inlinks ]
 
 def getOutlinks( page ):
     if not page.outlinks:
         page.outlinks = findOutlinks(page)
-    return page.outlinks
+    return [p for addr, p in pagesIndex.items() if addr in page.outlinks]
 
 
 # ______________________________________________________________________________
