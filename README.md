@@ -106,7 +106,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 19.3    | Version-Space-Learning |          |
 | 19.8    | Minimal-Consistent-Det |          |
 | 19.12   | FOIL               |          |
-| 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`](../master/rl.py) | 						   |
+| 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`](../master/rl.py) |
 | 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`](../master/rl.py) |
 | 21.8    | Q-Learning-Agent   | `QLearningAgent` | [`rl.py`](../master/rl.py) |
 | 22.1    | HITS               |         |         |
