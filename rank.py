@@ -120,7 +120,7 @@ pagesIndex = {}
 #     for p in pages:                             # won't pass the list of pages as an argument
 #         p.authority = 1
 #         p.hub = 1
-#     while True:
+#     while True: # repeat until... convergence 
 #         for p in pages:
 #             p.authority = sum(x.hub for x in inlinks(p))  # p.authority ← ∑i Inlinki(p).Hub
 #             p.hub = sum(x.authority for x in outlinks(p)) # p.hub ← ∑i Outlinki(p).Authority
