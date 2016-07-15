@@ -31,6 +31,9 @@ def ms_error(predictions, targets):
 def mean_error(predictions, targets):
     return mean([abs(p - t) for p, t in zip(predictions, targets)])
 
+def manhattan_distance(predictions, targets):
+    return sum([abs(p - t) for p, t in zip(predictions, targets)])
+
 
 def mean_boolean_error(predictions, targets):
     return mean([(p != t) for p, t in zip(predictions, targets)])
@@ -122,7 +125,7 @@ class DataSet:
         assert self.target not in self.inputs
         assert set(self.inputs).issubset(set(self.attrs))
         if self.got_values_flag:
-            # no need to check if values aren't provided while initializing DataSet
+            # only check if values are provided while initializing DataSet
             list(map(self.check_example, self.examples))
 
     def add_example(self, example):
