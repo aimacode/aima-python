@@ -31,6 +31,7 @@ def ms_error(predictions, targets):
 def mean_error(predictions, targets):
     return mean([abs(p - t) for p, t in zip(predictions, targets)])
 
+
 def manhattan_distance(predictions, targets):
     return sum([abs(p - t) for p, t in zip(predictions, targets)])
 
