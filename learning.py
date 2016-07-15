@@ -75,6 +75,10 @@ class DataSet:
         self.source = source
         self.values = values
         self.distance = distance
+        if values is None:
+            self.got_values_flag = False
+        else:
+            self.got_values_flag = True
 
         # Initialize .examples from string or list or data directory
         if isinstance(examples, str):
@@ -85,7 +89,7 @@ class DataSet:
             self.examples = examples
         # Attrs are the indices of examples, unless otherwise stated.
         if attrs is None and self.examples is not None:
-                attrs = list(range(len(self.examples[0])))
+            attrs = list(range(len(self.examples[0])))
         self.attrs = attrs
         # Initialize .attrnames from string, list, or by default
         if isinstance(attrnames, str):
@@ -117,7 +121,9 @@ class DataSet:
         assert self.target in self.attrs
         assert self.target not in self.inputs
         assert set(self.inputs).issubset(set(self.attrs))
-        list(map(self.check_example, self.examples))
+        if self.got_values_flag:
+            # no need to check if values aren't provided while initializing DataSet
+            list(map(self.check_example, self.examples))
 
     def add_example(self, example):
         "Add an example to the list of examples, checking it first."
