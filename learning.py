@@ -84,8 +84,8 @@ class DataSet:
         else:
             self.examples = examples
         # Attrs are the indices of examples, unless otherwise stated.
-        if not attrs and self.examples:
-            attrs = list(range(len(self.examples[0])))
+        if attrs is None and self.examples is not None:
+                attrs = list(range(len(self.examples[0])))
         self.attrs = attrs
         # Initialize .attrnames from string, list, or by default
         if isinstance(attrnames, str):
