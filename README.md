@@ -1,4 +1,9 @@
-# ![](https://github.com/aimacode/aima-java/blob/gh-pages/aima3e/images/aima3e.jpg)aima-python <a href="https://travis-ci.org/aimacode/aima-python" target="_blank"><img src="https://api.travis-ci.org/aimacode/aima-python.svg?branch=master" alt="Build Status"></a><a href="http://mybinder.org/repo/aimacode/aima-python" target="_blank"><img src="http://mybinder.org/badge.svg" alt="Binder"></a>
+<div align="center">
+  <img src="https://raw.githubusercontent.com/aimacode/aima-python/master/images/aima3e_big.jpg">
+</div>
+-----------------
+
+# `aima-python` [![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
 
 
 Python code for the book *Artificial Intelligence: A Modern Approach.* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
