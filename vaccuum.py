@@ -67,8 +67,8 @@ def ModelBasedVacuumAgent() -> object:
 class Dirt(ag.Thing):
     pass
 
-class Floor(ag.Thing):
-    pass
+# class Floor(ag.Thing):
+#     pass
 
 
 class VacuumEnvironment(ag.XYEnvironment):
@@ -117,14 +117,12 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 
     def __init__(self):
         super(TrivialVacuumEnvironment, self).__init__()
-        # self.status = {loc_A: random.choice(['Clean', 'Dirty']),
-        #                loc_B: random.choice(['Clean', 'Dirty'])}
-        self.add_thing(Dirt(), self.random_location_inbounds())
+        choice = random.randint(0, 3)
+        if choice % 2:  # 1 or 3
+            self.add_thing(Dirt(), loc_A)
+        if choice > 1:  # 2 or 3
+            self.add_thing(Dirt(), loc_B)
 
-    # def thing_classes(self):
-    #     return [ag.Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent,
-    #             TableDrivenVacuumAgent, ModelBasedVacuumAgent]
-    #
     def percept(self, agent):
         "Returns the agent's location, and the location status (Dirty/Clean)."
         status = ('Dirty' if self.some_things_at(
@@ -145,9 +143,9 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
     #             agent.performance += 10
     #         self.status[agent.location] = 'Clean'
     #
-    # def default_location(self, thing):
-    #     "Agents start in either location at random."
-    #     return random.choice([loc_A, loc_B])
+    def add_agent(self, a):
+        "Agents start in either location at random."
+        super().add_thing(a, random.choice([loc_A, loc_B]))
 
 
 # _________________________________________________________________________
@@ -170,27 +168,42 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # v = TrivialVacuumEnvironment()
 # a = ModelBasedVacuumAgent()
 # a = ag.TraceAgent(a)
-# v.add_thing(a)
-# v.run(20)
+# v.add_agent(a)
+# v.run(10)
 
-# Launch GUI
+# Launch GUI of Trivial Environment
 v = TrivialVacuumEnvironment()
-# v = VacuumEnvironment(5, 4)
-# a = ModelBasedVacuumAgent()
 a = RandomVacuumAgent()
 a = ag.TraceAgent(a)
-#v.add_thing(Floor(), location=(1, 1))
-#v.add_thing(Floor(), location=(2, 1))
-# v.add_thing(Dirt(), location=(1, 1))
-# v.add_thing(Dirt(), location=(2, 1))
-v.add_thing(a, location=(1, 1))
+v.add_agent(a)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
+    Dirt: 'images/dirt.png',
     ag.Wall: 'images/wall.jpg',
-    Floor: 'images/floor.png',
-    Dirt: 'images/Dirt.png',
+    # Floor: 'images/floor.png',
     ag.Agent: 'images/vacuum.png',
 })
 c.update()
 g.mainloop()
+
+# Launch GUI of more complex environment
+# v = VacuumEnvironment(5, 4)
+# a = ModelBasedVacuumAgent()
+# #a = RandomVacuumAgent()
+# a = ag.TraceAgent(a)
+# loc = v.random_location_inbounds()
+# v.add_thing(a, location=loc)
+# for
+# loc = v.random_location_inbounds()
+# v.add_thing(Dirt(), location=loc)
+# g = gui.EnvGUI(v, 'Vaccuum')
+# c = g.getCanvas()
+# c.mapImageNames({
+#     ag.Wall: 'images/wall.jpg',
+#     # Floor: 'images/floor.png',
+#     Dirt: 'images/dirt.png',
+#     ag.Agent: 'images/vacuum.png',
+# })
+# c.update()
+# g.mainloop()
