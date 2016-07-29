@@ -453,7 +453,8 @@ class XYEnvironment(Environment):
 
     def random_location_inbounds(self, exclude=None):
         '''Returns a random location that is inbounds (within walls if we have walls)'''
-        location = (random.randint(self.x_start, self.x_end), random.randint(self.y_start, self.y_end))
+        location = (random.randint(self.x_start, self.x_end - 1),
+                    random.randint(self.y_start, self.y_end - 1))
         if exclude is not None:
             while(location == exclude):
                 location = (random.randint(self.x_start, self.x_end - 1),
@@ -480,6 +481,17 @@ class XYEnvironment(Environment):
         for y in range(self.height):
             self.add_thing(Wall(), (0, y))
             self.add_thing(Wall(), (self.width - 1, y))
+
+        # Updates iteration start and end (with walls).
+        self.x_start, self.y_start = (1, 1)
+        self.x_end, self.y_end = (self.width - 1, self.height - 1)
+
+    def scatter_things(self, type, prob=0.5):
+        '''Scatter things around the environment.'''
+        for x in range(self.x_start, self.x_end):
+            for y in range(self.x_start, self.x_end):
+                if random.uniform(0, 1) < prob:
+                    self.add_thing(type(), (x, y))
 
         # Updates iteration start and end (with walls).
         self.x_start, self.y_start = (1, 1)

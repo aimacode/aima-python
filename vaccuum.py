@@ -172,38 +172,36 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # v.run(10)
 
 # Launch GUI of Trivial Environment
-v = TrivialVacuumEnvironment()
-a = RandomVacuumAgent()
-a = ag.TraceAgent(a)
-v.add_agent(a)
-g = gui.EnvGUI(v, 'Vaccuum')
-c = g.getCanvas()
-c.mapImageNames({
-    Dirt: 'images/dirt.png',
-    ag.Wall: 'images/wall.jpg',
-    # Floor: 'images/floor.png',
-    ag.Agent: 'images/vacuum.png',
-})
-c.update()
-g.mainloop()
-
-# Launch GUI of more complex environment
-# v = VacuumEnvironment(5, 4)
-# a = ModelBasedVacuumAgent()
-# #a = RandomVacuumAgent()
+# v = TrivialVacuumEnvironment()
+# a = RandomVacuumAgent()
 # a = ag.TraceAgent(a)
-# loc = v.random_location_inbounds()
-# v.add_thing(a, location=loc)
-# for
-# loc = v.random_location_inbounds()
-# v.add_thing(Dirt(), location=loc)
+# v.add_agent(a)
 # g = gui.EnvGUI(v, 'Vaccuum')
 # c = g.getCanvas()
 # c.mapImageNames({
+#     Dirt: 'images/dirt.png',
 #     ag.Wall: 'images/wall.jpg',
 #     # Floor: 'images/floor.png',
-#     Dirt: 'images/dirt.png',
 #     ag.Agent: 'images/vacuum.png',
 # })
 # c.update()
 # g.mainloop()
+
+# Launch GUI of more complex environment
+v = VacuumEnvironment(5, 4)
+a = ModelBasedVacuumAgent()
+#a = RandomVacuumAgent()
+a = ag.TraceAgent(a)
+loc = v.random_location_inbounds()
+v.add_thing(a, location=loc)
+v.scatter_things(Dirt)
+g = gui.EnvGUI(v, 'Vaccuum')
+c = g.getCanvas()
+c.mapImageNames({
+    ag.Wall: 'images/wall.jpg',
+    # Floor: 'images/floor.png',
+    Dirt: 'images/dirt.png',
+    ag.Agent: 'images/vacuum.png',
+})
+c.update()
+g.mainloop()
