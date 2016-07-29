@@ -19,7 +19,7 @@ from tkinter import ttk
 from PIL import ImageTk, Image  # pip install pillow
 
 class EnvGUI(tk.Tk, object):
-    def __init__(self, env, title='AIMA GUI', cellsize=50, n=10):
+    def __init__(self, env, title='AIMA GUI', cellsize=200, n=10):
         # Initialize window
 
         super(EnvGUI, self).__init__()
@@ -113,6 +113,7 @@ class EnvCanvas(tk.Canvas, object):
         # Initialize instance variables
         self.env = env
         self.cellwidth = cellwidth
+        self.cellheight = cellheight
         self.w = w
         self.h = h
         # print(
@@ -140,7 +141,7 @@ class EnvCanvas(tk.Canvas, object):
 
         # self.bind('<Button-1>', self.user_left) ## What should this do?
         # self.bind('<Button-2>', self.user_edit_objects)
-        self.bind('<Button-3>', self.user_add_object)
+        # self.bind('<Button-3>', self.user_add_object)
 
         self.pack()
 
@@ -165,6 +166,8 @@ class EnvCanvas(tk.Canvas, object):
                 pi = Image.open(fni)
                 #tki = ImageTk.PhotoImage(pi)
                 pil_image.paste(pi, mask=pi)
+            # pil_image = pil_image.resize((self.cellwidth, self.cellheight),
+            #                              Image.ANTIALIAS)
             tk_image = ImageTk.PhotoImage(pil_image)
             self.images[concat] = tk_image
         return tk_image
