@@ -606,3 +606,14 @@ class PriorityQueue(Queue):
         for i, (value, item) in enumerate(self.A):
             if item == key:
                 self.A.pop(i)
+
+# ______________________________________________________________________________
+# Useful Shorthands
+
+
+class Bool(int):
+    """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'"""
+    __str__ = __repr__ = lambda self: 'T' if self else 'F'
+
+T = Bool(True)
+F = Bool(False)
