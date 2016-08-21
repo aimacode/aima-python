@@ -132,3 +132,42 @@ def air_cargo():
     fly = Action(expr("Fly(p, f, to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [load, unload, fly], goal_test)
+
+
+def spare_tire():
+    init = [expr('Tire(Flat)'),
+            expr('Tire(Spare)'),
+            expr('At(Flat, Axle)'),
+            expr('At(Spare, Trunk)')]
+
+    def goal_test(kb):
+        required = [expr('At(Spare, Axle)'), expr('At(Flat, Ground)')]
+        for q in required:
+            if kb.ask(q) is False:
+                return False
+        return True
+
+    ##Actions
+    #Remove
+    precond_pos = [expr("At(obj, loc)")]
+    precond_neg = []
+    effect_add = [expr("At(obj, Ground)")]
+    effect_rem = [expr("At(obj, loc)")]
+    remove = Action(expr("Remove(obj, loc)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+
+    #PutOn
+    precond_pos = [expr("Tire(t)"), expr("At(t, Ground)")]
+    precond_neg = [expr("At(Flat, Axle)")]
+    effect_add = [expr("At(t, Axle)")]
+    effect_rem = [expr("At(t, Ground)")]
+    put_on = Action(expr("PutOn(t, Axle)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+
+    #LeaveOvernight
+    precond_pos = []
+    precond_neg = []
+    effect_add = []
+    effect_rem = [expr("At(Spare, Ground)"), expr("At(Spare, Axle)"), expr("At(Spare, Trunk)"),
+                  expr("At(Flat, Ground)"), expr("At(Flat, Axle)"), expr("At(Flat, Trunk)")]
+    leave_overnight = Action(expr("LeaveOvernight"), [precond_pos, precond_neg], [effect_add, effect_rem])
+
+    return PDLL(init, [remove, put_on, leave_overnight], goal_test)
