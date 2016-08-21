@@ -7,7 +7,7 @@ from logic import FolKB
 
 class PDLL:
     """
-    PDLL used to deine a search problem
+    PDLL used to define a search problem
     It stores states in a knowledge base consisting of first order logic statements
     The conjunction of these logical statements completely define a state
     """
@@ -123,7 +123,7 @@ def air_cargo():
     effect_rem = [expr("In(c, p)")]
     unload = Action(expr("Unload(c, p, a)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
-    #  Load
+    #  Fly
     #  Used used 'f' instead of 'from' because 'from' is a python keyword and expr uses eval() function
     precond_pos = [expr("At(p, f)"), expr("Plane(p)"), expr("Airport(f)"), expr("Airport(to)")]
     precond_neg = []
