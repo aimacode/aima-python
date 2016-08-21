@@ -61,7 +61,11 @@ class Action:
 
     def substitute(self, e, args):
         """Replaces variables in expression with their respective Propostional symbol"""
-        new_args = [args[i] for x in e.args for i in range(len(self.args)) if self.args[i] == x]
+        new_args = list(e.args)
+        for num, x in enumerate(e.args):
+            for i in range(len(self.args)):
+                if self.args[i] == x:
+                    new_args[num] = args[i]
         return Expr(e.op, *new_args)
 
     def check_precond(self, kb, args):
