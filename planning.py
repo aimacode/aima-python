@@ -128,7 +128,7 @@ def air_cargo():
     unload = Action(expr("Unload(c, p, a)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     #  Fly
-    #  Used used 'f' instead of 'from' because 'from' is a python keyword and expr uses eval() function
+    #  Used 'f' instead of 'from' because 'from' is a python keyword and expr uses eval() function
     precond_pos = [expr("At(p, f)"), expr("Plane(p)"), expr("Airport(f)"), expr("Airport(to)")]
     precond_neg = []
     effect_add = [expr("At(p, to)")]
