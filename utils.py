@@ -228,10 +228,16 @@ def num_or_str(x):
             return str(x).strip()
 
 
-def normalize(numbers):
+def normalize(dist):
     """Multiply each number by a constant such that the sum is 1.0"""
-    total = float(sum(numbers))
-    return [(n / total) for n in numbers]
+    if isinstance(dist, dict):
+        total = sum(dist.values())
+        for key in dist:
+            dist[key] = dist[key] / total
+            assert 0 <= dist[key] <= 1, "Probabilities must be between 0 and 1."
+        return dist
+    total = sum(dist)
+    return [(n / total) for n in dist]
 
 
 def clip(x, lowest, highest):
@@ -600,3 +606,14 @@ class PriorityQueue(Queue):
         for i, (value, item) in enumerate(self.A):
             if item == key:
                 self.A.pop(i)
+
+# ______________________________________________________________________________
+# Useful Shorthands
+
+
+class Bool(int):
+    """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'"""
+    __str__ = __repr__ = lambda self: 'T' if self else 'F'
+
+T = Bool(True)
+F = Bool(False)
