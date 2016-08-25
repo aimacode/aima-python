@@ -11,7 +11,7 @@ Thanks for considering contributing to `aima-python`! Here is some of the work t
 
 ## New and Improved Algorithms
 
-- Implement functions that were in the third edition of the book but were not yet implemented in the code. Check the [list of pseudocode algorithms (pdf)](https://github.com/aimacode/pseudocode/blob/master/algorithms.pdf) to see what's missing.
+- Implement functions that were in the third edition of the book but were not yet implemented in the code. Check the [list of pseudocode algorithms (pdf)](https://github.com/aimacode/pseudocode/blob/master/aima3e-algorithms.pdf) to see what's missing.
 - As we finish chapters for the new fourth edition, we will share the new pseudocode in the [`aima-pseudocode`](https://github.com/aimacode/aima-pseudocode) repository, and describe what changes are necessary.
 We hope to have a `algorithm-name.md` file for each algorithm, eventually; it would be great if contributors could add some for the existing algorithms.
 - Give examples of how to use the code in the `.ipynb` file.
