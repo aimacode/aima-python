@@ -17,6 +17,7 @@
 import tkinter as tk  # pip install tkinter
 from tkinter import ttk
 from PIL import ImageTk, Image  # pip install pillow
+import os
 
 class EnvGUI(tk.Tk, object):
     def __init__(self, env, title='AIMA GUI', cellsize=200, n=10):
@@ -126,6 +127,7 @@ class EnvCanvas(tk.Canvas, object):
         # that have been opened to their PhotoImage objects
         self.fnMap = { Empty: 'images/default.png'}
         self.images = {}
+        cwd = os.getcwd()
         default = self.get_image(self.fnMap[Empty])
 
         self.cells = [[0 for x in range(w)] for y in range(h)]
