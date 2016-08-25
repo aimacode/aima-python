@@ -70,3 +70,6 @@ target/
 
 # dotenv
 .env
+
+.idea/aima-python.iml
+.idea/misc.xml
