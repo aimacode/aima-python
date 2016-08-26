@@ -168,8 +168,8 @@ class EnvCanvas(tk.Canvas, object):
                 pi = Image.open(fni)
                 #tki = ImageTk.PhotoImage(pi)
                 pil_image.paste(pi, mask=pi)
-            # pil_image = pil_image.resize((self.cellwidth, self.cellheight),
-            #                              Image.ANTIALIAS)
+            pil_image = pil_image.resize((self.cellwidth, self.cellheight),
+                                         Image.ANTIALIAS)
             tk_image = ImageTk.PhotoImage(pil_image)
             self.images[concat] = tk_image
         return tk_image
