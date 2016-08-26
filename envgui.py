@@ -124,7 +124,7 @@ class EnvCanvas(tk.Canvas, object):
         # Ugly hack: we need to keep a reference to each ImageTk.PhotoImage,
         # or it will be garbage collected.  This dictionary maps image files
         # that have been opened to their PhotoImage objects
-        self.fnMap = { Empty: 'images/default.png'}
+        self.fnMap = { Empty: '../../images/default.png'}
         self.images = {}
         default = self.get_image(self.fnMap[Empty])
 
