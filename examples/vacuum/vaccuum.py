@@ -189,8 +189,8 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 
 # Launch GUI of more complex environment
 v = VacuumEnvironment(5, 4)
-a = ModelBasedVacuumAgent()
-#a = RandomVacuumAgent()
+#a = ModelBasedVacuumAgent()
+a = RandomVacuumAgent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
