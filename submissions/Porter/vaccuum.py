@@ -199,10 +199,10 @@ g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
     #ag.Wall: '../images/wall.jpg',
-    ag.Wall: '../submissions/Porter/dog.jpg',
+    ag.Wall: 'submissions/Porter/dog.jpg',
     # Floor: 'images/floor.png',
-    Dirt: '../images/dirt.png',
-    ag.Agent: '../images/vacuum.png',
+    Dirt: 'images/dirt.png',
+    ag.Agent: 'images/vacuum.png',
 })
 c.update()
 g.mainloop()
