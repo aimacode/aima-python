@@ -189,8 +189,8 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 
 # Launch GUI of more complex environment
 v = VacuumEnvironment(5, 4)
-a = ModelBasedVacuumAgent()
-#a = RandomVacuumAgent()
+#a = ModelBasedVacuumAgent()
+a = RandomVacuumAgent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
@@ -198,7 +198,7 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'cat.png',
+    ag.Wall: 'submissions/McLean/0001.jpg',
     # Floor: 'images/floor.png',
     Dirt: 'images/dirt.png',
     ag.Agent: 'images/vacuum.png',
