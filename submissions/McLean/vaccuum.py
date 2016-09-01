@@ -2,8 +2,6 @@ import agents as ag
 import envgui as gui
 import random
 
-
-
 # ______________________________________________________________________________
 
 loc_A, loc_B = (1, 1), (2, 1)  # The two locations for the Vacuum world
@@ -200,8 +198,8 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'submissions/miles/flower.jpg',
-    #Floor: 'images/floor.png',
+    ag.Wall: 'submissions/McLean/0001.jpg',
+    # Floor: 'images/floor.png',
     Dirt: 'images/dirt.png',
     ag.Agent: 'images/vacuum.png',
 })
