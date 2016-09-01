@@ -195,13 +195,13 @@ a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
 v.scatter_things(Dirt)
-g = gui.EnvGUI(v, 'Vaccuum')
+g = gui.EnvGUI(v, 'eVaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'cat.png',
+    ag.Wall: '../submissions/Fritz/river.jpg',
     # Floor: 'images/floor.png',
-    Dirt: 'images/dirt.png',
-    ag.Agent: 'images/vacuum.png',
+    Dirt: '../images/dirt.png',
+    ag.Agent: '../images/vacuum.png',
 })
 c.update()
 g.mainloop()
