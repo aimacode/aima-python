@@ -72,4 +72,4 @@ target/
 .env
 
 # pycharm
-#.idea/
+.idea/
