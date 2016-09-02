@@ -198,7 +198,7 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    'submissions/ban/cat.png',
+    ag.Wall: 'cat.png',
     # Floor: 'images/floor.png',
     Dirt: 'images/dirt.png',
     ag.Agent: 'images/vacuum.png',
