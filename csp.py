@@ -156,7 +156,7 @@ def AC3(csp, queue=None, removals=None):
             if not csp.curr_domains[Xi]:
                 return False
             for Xk in csp.neighbors[Xi]:
-                if Xk != Xi:
+                if Xk != Xj:
                     queue.append((Xk, Xi))
     return True
 
