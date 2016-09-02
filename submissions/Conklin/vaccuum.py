@@ -200,8 +200,8 @@ c = g.getCanvas()
 c.mapImageNames({
     ag.Wall: 'submissions/Conklin/immahoers.jpg',
     # Floor: 'images/floor.png',
-    Dirt: 'images/dirt.png',
-    ag.Agent: 'images/vacuum.png',
+    Dirt: '../images/dirt.png',
+    ag.Agent: '../images/vacuum.png',
 })
 c.update()
 g.mainloop()
