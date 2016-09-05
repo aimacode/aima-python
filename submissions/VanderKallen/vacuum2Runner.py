@@ -48,7 +48,7 @@ class VacuumEnvironment(ag.XYEnvironment):
             agent.performance -= 1
 
 # Launch GUI of more complex environment
-v = VacuumEnvironment(6, 4)
+v = VacuumEnvironment(4, 3)
 a = v2.HW2Agent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
@@ -57,10 +57,10 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: '../images/wall.jpg',
+    ag.Wall: 'images/wall.jpg',
     # Floor: 'images/floor.png',
-    Dirt: '../images/dirt.png',
-    ag.Agent: '../images/vacuum.png',
+    Dirt: 'images/dirt.png',
+    ag.Agent: 'images/vacuum.png',
 })
 c.update()
 g.mainloop()
