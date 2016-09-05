@@ -27,6 +27,10 @@ def HW2Agent() -> object:
 
             if lastAction == 'Left' and bump == 'Bump' and lastStatus == 'Clean':
                 action = 'Right'
+            elif lastAction == 'Right' and bump == 'Bump' and lastStatus == 'Clean':
+                action = 'Up'
+            elif lastAction == 'Up' and bump == 'Bump' and lastStatus == 'Clean':
+                action = 'Down'
             else:
                 action = 'Left'
 
