@@ -16,16 +16,31 @@ def HW2Agent() -> object:
             lastAction = oldActions [-1]
 
 
-            if bump == 'Bump' and status == 'Clean':
-                action = 'left'
-            if lastAction == 'Left' and bump == 'Bump' and status == 'Clean':
-                action = 'Right'
-            elif lastAction == 'Right' and bump == 'Bump' and status == 'Clean':
-                action = 'Up'
-            elif lastAction == 'Up' and bump == 'Bump' and status == 'Clean':
-                action = 'Down'
+            if lastAction != 'Suck':
+
+                if lastAction == 'Left' and bump == 'Bump' and status == 'Clean':
+                    action = 'Right'
+                elif lastAction == 'Right' and bump == 'Bump' and status == 'Clean':
+                    action = 'Up'
+                elif lastAction == 'Up' and bump == 'Bump' and status == 'Clean':
+                    action = 'Down'
+                elif bump == 'None' and status == 'Clean' and lastStatus == 'Clean':
+                    action = 'Right'
+                else:
+                    action = 'Left'
+
             else:
-                action = 'Left'
+                if  bump == 'Bump' and status == 'Clean':
+                    action = 'Right'
+                elif bump == 'Bump' and status == 'Clean':
+                    action = 'Up'
+                elif bump == 'Bump' and status == 'Clean':
+                    action = 'Down'
+                elif bump == 'None' and status == 'Clean' and lastStatus == 'Clean':
+                    action = 'Right'
+                else:
+                    action = 'Left'
+
 
             oldPercepts.append(percept)
             oldActions.append(action)
