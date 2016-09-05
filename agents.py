@@ -449,7 +449,18 @@ class XYEnvironment(Environment):
     def is_inbounds(self, location):
         '''Checks to make sure that the location is inbounds (within walls if we have walls)'''
         x,y = location
-        return not (x < self.x_start or x >= self.x_end or y < self.y_start or y >= self.y_end)
+        # this works, but I had trouble debugging it:
+        # return not (x < self.x_start or x >= self.x_end or y < self.y_start or y >= self.y_end)
+        # so I took it apart:
+        if x < self.x_start:
+            return False
+        if x >= self.x_end:
+            return False
+        if y < self.y_start:
+            return False
+        if y >= self.y_end:
+            return False
+        return True
 
     def random_location_inbounds(self, exclude=None):
         '''Returns a random location that is inbounds (within walls if we have walls)'''
@@ -478,7 +489,7 @@ class XYEnvironment(Environment):
         for x in range(self.width):
             self.add_thing(Wall(), (x, 0))
             self.add_thing(Wall(), (x, self.height - 1))
-        for y in range(self.height):
+        for y in range(1, self.height-1):
             self.add_thing(Wall(), (0, y))
             self.add_thing(Wall(), (self.width - 1, y))
 

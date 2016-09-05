@@ -250,3 +250,101 @@ class EnvCanvas(tk.Canvas, object):
 
         w = self.cellwidth
         return w * row, w * column
+
+# a Text User Interface for the Agent program
+class EnvTUI(object):
+    def __init__(self, env, title='AIMA GUI', cellsize=200, n=10):
+        # Initialize window
+
+        # Create components
+        w = env.width
+        h = env.height
+        self.env = env
+        self.grid = [['.' for x in range(w)] for y in range(h)]
+        self.fnMap = { Empty: '.'}
+
+    def mapImageNames(self, fnMap):
+        self.fnMap.update(fnMap)
+
+    def displayString(self):
+        display = ''
+        first = True
+        for y in range(len(self.grid)):
+            if not first:
+                display += '\n'
+            first = False
+            for x in range(len(self.grid[y])):
+                tList = self.env.list_things_at((x, y))
+                tname = self.fnMap[Empty]
+                for thing in tList:
+                    tclass = thing.__class__
+                    tname = self.fnMap[tclass]
+                display += tname
+        return display
+
+    def help(self):
+        for line in [
+            'Commands are:',
+            '   h: print this help message',
+            '   s n: advance n steps',
+            '   t: list things',
+            '   a: list agents',
+            '   an empty string advances n steps',
+        ]:
+          print(line)
+
+    def list_things(self, MyClass=object):
+        print(MyClass.__name__ + '(s) in the environment:')
+        for obj in self.env.things:
+            if isinstance(obj, MyClass):
+                print("%s at %s" % (obj, obj.location))
+
+    def list_agents(self):
+        print("Agents in the environment:")
+        for agt in self.env.agents:
+            print("%s at %s" % (agt, agt.location))
+
+    def step(self, n=1):
+        for s in range(n):
+            self.env.step()
+        if n > 0:
+            print(str(n) + ' step(s) later:')
+        print(self.displayString())
+
+    def mainloop(self):
+        print(self.displayString())
+        reply = ''
+        n = 1
+        while reply != 'q':
+            reply = input('Command (h for help): ').strip()
+            if reply == '':
+                self.step(n)
+                continue
+
+            if reply == 'h':
+                self.help()
+                continue
+
+            if reply == 'q':
+                continue
+
+            if reply == 'a':
+                self.list_agents()
+                continue
+
+            if reply == 't':
+                self.list_things()
+                continue
+
+            if reply[0] == 's':
+                command = reply.split()
+                try:
+                    arg = command[1]
+                except:
+                    arg = str(n)
+                try:
+                    n = int(arg)
+                    self.step(n)
+                except:
+                    print('"' + arg + '" is not an integer')
+                continue
