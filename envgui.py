@@ -294,7 +294,7 @@ class EnvTUI(object):
           print(line)
 
     def list_things(self, MyClass=object):
-        print(MyClass.__name__ + '(s) in the environment:')
+        print(MyClass.__name__ + 's in the environment:')
         for obj in self.env.things:
             if isinstance(obj, MyClass):
                 print("%s at %s" % (obj, obj.location))
@@ -307,8 +307,7 @@ class EnvTUI(object):
     def step(self, n=1):
         for s in range(n):
             self.env.step()
-        if n > 0:
-            print(str(n) + ' step(s) later:')
+        print(str(n) + ' step(s) later:')
         print(self.displayString())
 
     def mainloop(self):
