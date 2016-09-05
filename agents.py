@@ -250,11 +250,20 @@ class Environment(object):
                 return True
         return False
 
-    def old_list_things_at(self, location, tclass=Thing):
+    # def old_list_things_at(self, location, tclass=Thing):
+    #     "Return all things exactly at a given location."
+    #     return [thing for thing in self.things
+    #             if thing.location == location
+    #             and isinstance(thing, tclass)]
+
+    def get_things(self, tclass=Thing):
         "Return all things exactly at a given location."
-        return [thing for thing in self.things
-                if thing.location == location
-                and isinstance(thing, tclass)]
+        rlist = []
+        for thing in self.things:
+            if not isinstance(thing, tclass):
+                continue
+            rlist.append(thing)
+        return rlist
 
     def list_things_at(self, location, tclass=Thing):
         "Return all things exactly at a given location."
