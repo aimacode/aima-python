@@ -1,7 +1,7 @@
 import agents as ag
 import envgui as gui
 # change this line ONLY to refer to your project
-import submissions.aardvark.vacuum2 as v2
+import submissions.Porter.vacuum2 as v2
 
 # ______________________________________________________________________________
 # Vacuum environment
@@ -47,13 +47,16 @@ class VacuumEnvironment(ag.XYEnvironment):
         if action != 'NoOp':
             agent.performance -= 1
 
+   
+
+
 # Launch GUI of more complex environment
-v = VacuumEnvironment(6, 4)
-a = v2.HW2Agent()
-a = ag.TraceAgent(a)
-loc = v.random_location_inbounds()
-v.add_thing(a, location=loc)
-v.scatter_things(Dirt)
+v = VacuumEnvironment(5, 3)  #Size of environment
+a = v2.HW2Agent() #Initializing vacuum agent
+a = ag.TraceAgent(a)  #Defining vacuum2 as a TraceAgent
+loc = v.random_location_inbounds()  #location for vacuum
+v.add_thing(a, location=loc)  #placing vacuum agent in random place in environment
+v.scatter_things(Dirt)  #scater the dirt
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
@@ -64,3 +67,4 @@ c.mapImageNames({
 })
 c.update()
 g.mainloop()
+
