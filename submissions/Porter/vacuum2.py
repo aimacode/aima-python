@@ -14,27 +14,20 @@ def HW2Agent() -> object:
         else:
             lastBump, lastStatus = oldPercepts[-1]
             lastAction = oldActions [-1]
-            # if lastBump == 'None':
-            #     action = 'Right'
-            # else:
-            #     action = 'Left'
-
-            if bump == 'Bump' and lastStatus == 'Clean':
-                action = 'Left'
-                # elif status == 'Clean':
-                #     action = 'Up'
 
 
-            if lastAction == 'Left' and bump == 'Bump' and lastStatus == 'Clean':
+            if bump == 'Bump' and status == 'Clean':
+                action = 'left'
+            if lastAction == 'Left' and bump == 'Bump' and status == 'Clean':
                 action = 'Right'
-            elif lastAction == 'Right' and bump == 'Bump' and lastStatus == 'Clean':
+            elif lastAction == 'Right' and bump == 'Bump' and status == 'Clean':
                 action = 'Up'
-            elif lastAction == 'Up' and bump == 'Bump' and lastStatus == 'Clean':
+            elif lastAction == 'Up' and bump == 'Bump' and status == 'Clean':
                 action = 'Down'
             else:
                 action = 'Left'
 
-        oldPercepts.append(percept)
-        oldActions.append(action)
+            oldPercepts.append(percept)
+            oldActions.append(action)
         return action
     return ag.Agent(program)
