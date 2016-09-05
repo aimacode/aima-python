@@ -4,6 +4,7 @@ def HW2Agent() -> object:
     "An agent that keeps track of what locations are clean or dirty."
     oldPercepts = [('None', 'Clean')]
     oldActions = ['NoOp']
+    # oldLocation = [location]
 
     def program(percept):
         "Same as ReflexVacuumAgent, except if everything is clean, do NoOp."
@@ -20,8 +21,14 @@ def HW2Agent() -> object:
 
             if bump == 'Bump' and lastStatus == 'Clean':
                 action = 'Left'
-            else:
+                # elif status == 'Clean':
+                #     action = 'Up'
+
+
+            if lastAction == 'Left' and bump == 'Bump' and lastStatus == 'Clean':
                 action = 'Right'
+            else:
+                action = 'Left'
 
         oldPercepts.append(percept)
         oldActions.append(action)
