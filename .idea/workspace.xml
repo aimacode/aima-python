@@ -1,31 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7c0d5b11-9838-459c-818c-2b175619ce26" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Conklin/immahoers.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Hess/kanye.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Kinley/johnny.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Conklin/vaccuum.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Hawley/Hello.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Hess/vaccuum.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Kinley/vaccuum.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Porter/vacuum2.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Porter/vacuum2Runner.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/aardvark/vacuum2.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/aardvark/vacuum2Runner.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/aima-python.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/examples/vacuum/vaccuum.py" afterPath="$PROJECT_DIR$/submissions/aardvark/vaccuum.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/examples/wumpus.py" afterPath="$PROJECT_DIR$/submissions/aardvark/wumpus.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/submissions/James/default.jpg" afterPath="$PROJECT_DIR$/submissions/Dickenson/default.jpg" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/submissions/James/vaccuum.py" afterPath="$PROJECT_DIR$/submissions/Dickenson/vaccuum.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/agents.py" afterPath="$PROJECT_DIR$/agents.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/envgui.py" afterPath="$PROJECT_DIR$/envgui.py" />
-    </list>
+    <list default="true" id="7c0d5b11-9838-459c-818c-2b175619ce26" name="Default" comment="" />
     <ignored path="aima-python.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
@@ -410,12 +386,12 @@
     <frame x="-16" y="-1047" width="1680" height="960" extended-state="0" />
     <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2002442" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2002442" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32891566" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3847981" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3847981" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32891566" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
