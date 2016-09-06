@@ -4,8 +4,8 @@ def HW2Agent() -> object:
 
     def program(percept):
         bump, status = percept
-        lastAction = program.oldActions[-1]
-        lastBump, lastStatus = program.oldPercepts[-1]
+        # lastAction = program.oldActions[-1]
+        # lastBump, lastStatus = program.oldPercepts[-1]
 
         if status == 'Dirty':
             action = 'Suck'
@@ -15,24 +15,46 @@ def HW2Agent() -> object:
                 if bump == 'Bump':
                     program.top = True
                     action = 'Left'
+                    program.step = program.step + 1
                 else:
                     action = 'Up'
+                    program.step = program.step + 1
             elif program.direction == 'Left':
                 print('Going Left')
                 if bump == 'Bump':
-                    program.direction = 'Right'
-                    action = 'Right'
+                    if program.oldDirection == 'Right':
+                        program.direction = 'Right'
+                        program.oldDirection = 'Left'
+                        action = 'Down'
+                        program.step = program.step + 1
+                    elif program.oldDirection == 'Left':
+                        program.direction = 'Right'
+                        action = 'Right'
+                        program.step = program.step + 1
                 else:
                     action = 'Left'
+                    program.step = program.step + 1
             elif program.direction == 'Right':
                 print('Going Right')
                 if bump == 'Bump':
-                    program.direction = 'Left'
-                    action = 'Down'
+                    if program.oldDirection == 'Left':
+                        program.direction = 'Left'
+                        program.oldDirection = 'Right'
+                        action = 'Down'
+                        program.step = program.step + 1
+                    elif program.oldDirection == 'Right':
+                        program.direction = 'Left'
+                        action = 'Left'
+                        program.step = program.step + 1
                 else:
                     action = 'Right'
+                    program.step = program.step + 1
+            else:
+                action = 'Right'
+                program.step = program.step + 1
 
 
+        print(program.step)
         program.oldPercepts.append(percept)
         program.oldActions.append(action)
         return action
@@ -42,6 +64,8 @@ def HW2Agent() -> object:
     program.oldActions = ['NoOp']
     program.top = False
     program.direction = 'Left'
+    program.oldDirection = 'Left'
+    program.step = 1
 
     agt = ag.Agent(program)
     # assign class attributes here:
