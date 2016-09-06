@@ -7,7 +7,7 @@ def HW2Agent() -> object:
         if status == 'Dirty':
             action = 'Suck'
         else:
-            lastBump, lastStatus = oldPercepts[-1]
+            lastBump, lastStatus = program.oldPercepts[-1]
             if bump == 'None':
                 action = 'Right'
             else:
