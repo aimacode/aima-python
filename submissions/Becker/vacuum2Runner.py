@@ -190,28 +190,28 @@ def testVacuum(label, w=4, h=3,
     else:
         print('----------------------------------------')
 
-# testVacuum('Two Cells, Agent on Left:')
-# testVacuum('Two Cells, Agent on Right:', vloc=(2,1))
-# testVacuum('Two Cells, Agent on Top:', w=3, h=4,
-#            dloc=[(1,1), (1,2)], vloc=(1,1) )
-# testVacuum('Two Cells, Agent on Bottom:', w=3, h=4,
-#            dloc=[(1,1), (1,2)], vloc=(1,2) )
-# testVacuum('Five Cells, Agent on Left:', w=7, h=3,
-#           dloc=[(2,1), (4,1)], vloc=(1,1), limit=12)
-# testVacuum('Five Cells, Agent near Right:', w=7, h=3,
-#           dloc=[(2,1), (3,1)], vloc=(4,1), limit=12)
-# testVacuum('Five Cells, Agent on Top:', w=3, h=7,
-#           dloc=[(1,2), (1,4)], vloc=(1,1), limit=12 )
-# testVacuum('Five Cells, Agent Near Bottom:', w=3, h=7,
-#           dloc=[(1,2), (1,3)], vloc=(1,4), limit=12 )
+testVacuum('Two Cells, Agent on Left:')
+testVacuum('Two Cells, Agent on Right:', vloc=(2,1))
+testVacuum('Two Cells, Agent on Top:', w=3, h=4,
+           dloc=[(1,1), (1,2)], vloc=(1,1) )
+testVacuum('Two Cells, Agent on Bottom:', w=3, h=4,
+           dloc=[(1,1), (1,2)], vloc=(1,2) )
+testVacuum('Five Cells, Agent on Left:', w=7, h=3,
+           dloc=[(2,1), (4,1)], vloc=(1,1), limit=12)
+testVacuum('Five Cells, Agent near Right:', w=7, h=3,
+           dloc=[(2,1), (3,1)], vloc=(4,1), limit=12)
+testVacuum('Five Cells, Agent on Top:', w=3, h=7,
+           dloc=[(1,2), (1,4)], vloc=(1,1), limit=12 )
+testVacuum('Five Cells, Agent Near Bottom:', w=3, h=7,
+           dloc=[(1,2), (1,3)], vloc=(1,4), limit=12 )
 testVacuum('5x4 Grid, Agent in Top Left:', w=7, h=6,
-          dloc=[(1,4), (2,2), (3, 3), (4,1), (5,2)],
-          vloc=(1,1), limit=34 )
+           dloc=[(1,4), (2,2), (3, 3), (4,1), (5,2)],
+           vloc=(1,1), limit=46 )
 testVacuum('5x4 Grid, Agent near Bottom Right:', w=7, h=6,
-          dloc=[(1,3), (2,2), (3, 4), (4,1), (5,2)],
-          vloc=(5, 4), limit=34 )
+           dloc=[(1,3), (2,2), (3, 4), (4,1), (5,2)],
+           vloc=(4, 3), limit=46 )
 
-v = VacuumEnvironment(7, 6)
+v = VacuumEnvironment(6, 3)
 a = v2.HW2Agent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
