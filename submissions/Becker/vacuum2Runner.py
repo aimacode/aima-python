@@ -209,9 +209,9 @@ testVacuum('5x4 Grid, Agent in Top Left:', w=7, h=6,
           vloc=(1,1), limit=34 )
 testVacuum('5x4 Grid, Agent near Bottom Right:', w=7, h=6,
           dloc=[(1,3), (2,2), (3, 4), (4,1), (5,2)],
-          vloc=(4, 3), limit=34 )
+          vloc=(5, 4), limit=34 )
 
-v = VacuumEnvironment(7, 3)
+v = VacuumEnvironment(7, 6)
 a = v2.HW2Agent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
