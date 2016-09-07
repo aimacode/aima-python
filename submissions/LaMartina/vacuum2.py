@@ -21,9 +21,9 @@ def HW2Agent() -> object:
                         action = lastAction
                     else:
                         if bump == 'Bump' and lastAction != 'Suck':
-                        action = switchAction(lastAction)
+                            action = switchAction(lastAction)
                         else:
-                        action = lastAction[-2]
+                            action = lastAction2
 
         program.oldPercepts.append(percept)
         program.oldActions.append(action)
