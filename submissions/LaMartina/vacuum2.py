@@ -9,6 +9,7 @@ def HW2Agent() -> object:
         else:
             lastBump, lastStatus = program.oldPercepts[-1]
             lastBump2, lastStatus2 = program.oldPercepts[-2]
+            lastAction = program.oldActions[-1]
             if bump == 'Bump' and lastBump == 'Bump' and lastBump2 == 'Bump':
                 action = 'Up'
             else:
@@ -16,9 +17,9 @@ def HW2Agent() -> object:
                     action = 'Down'
                 else:
                     if bump == 'None':
-                        action = 'Right'
+                        action = lastAction
                     else:
-                        action = 'Left'
+                        action = switchAction(lastAction)
 
         program.oldPercepts.append(percept)
         program.oldActions.append(action)
@@ -27,6 +28,14 @@ def HW2Agent() -> object:
     # assign static variables here
     program.oldPercepts = [('None', 'Clean'),('None', 'Clean')]
     program.oldActions = ['NoOp']
+
+    def switchAction(action):
+        if action == 'Right':
+            newAction = 'Left'
+        if action == 'Left':
+            newAction = 'Right'
+        return newAction
+    switchAction.newAction = ''
 
     agt = ag.Agent(program)
     # assign class attributes here:
