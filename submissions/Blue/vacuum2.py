@@ -25,7 +25,7 @@ def HW2Agent() -> object:
                     action = 'Left'
 
 
-            # elif lastAction == 'Left' and bump == 'Bump':
+            #elif lastAction == 'Left' and bump == 'Bump':
             #     leftEdge = 'leftEdge'
             #     action = 'Up'
             # elif leftEdge == 'leftEdge' and lastAction == 'Left' and ceil == 'noCeil':
