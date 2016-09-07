@@ -8,10 +8,13 @@ def HW2Agent() -> object:
             action = 'Suck'
         else:
             lastBump, lastStatus = program.oldPercepts[-1]
-            if bump == 'None':
-                action = 'Right'
+            if bump == 'Bump' and lastBump == 'Bump':
+                action = 'Down'
             else:
-                action = 'Left'
+                if bump == 'None':
+                    action = 'Right'
+                else:
+                    action = 'Left'
 
         program.oldPercepts.append(percept)
         program.oldActions.append(action)
