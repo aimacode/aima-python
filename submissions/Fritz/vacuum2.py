@@ -17,18 +17,30 @@ def HW2Agent() -> object:
                 if program.act == 'Up':
                     program.act = 'Right'
                     action = program.act
+                    if program.counter >= 4:
+                        action = "Down"
+                    program.counter = program.counter + 1
                 else:
                     if program.act == 'Right':
                         program.act = 'Down'
                         action = program.act
+                        if program.counter >= 4:
+                            action = "Left"
+                        program.counter = program.counter + 1
                     else:
                         if program.act == 'Down':
                             program.act = 'Left'
                             action = program.act
+                            if program.counter >= 4:
+                                action = "Up"
+                            program.counter = program.counter + 1
                         else:
                             if program.act == 'Left':
                                 program.act = 'Up'
                                 action = program.act
+                                if program.counter >= 4:
+                                    action = "Right"
+                                program.counter = program.counter + 1
                # program.top = program.top + 1
 
 

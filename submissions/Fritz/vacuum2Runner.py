@@ -211,6 +211,7 @@ testVacuum('5x4 Grid, Agent near Bottom Right:', w=7, h=6,
            dloc=[(1,3), (2,2), (3, 4), (4,1), (5,2)],
            vloc=(4, 3), limit=46 )
 
+
 v = VacuumEnvironment(6, 3)
 a = v2.HW2Agent()
 a = ag.TraceAgent(a)
