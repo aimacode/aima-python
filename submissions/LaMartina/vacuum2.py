@@ -14,7 +14,7 @@ def HW2Agent() -> object:
             #if bump == 'Bump' and lastBump == 'Bump' and lastBump2 == 'Bump':
                # action = 'Up'
             #else:
-            if bump == 'Bump' and lastBump == 'Bump':
+            if bump == 'Bump' and lastBump == 'Bump' and (lastAction == 'Right' or lastAction == 'Left'):
                 action = 'Down'
             else:
                 if bump == 'None' and lastAction != 'Suck':
