@@ -17,13 +17,16 @@ def HW2Agent() -> object:
             if bump == 'Bump' and lastBump == 'Bump' and (lastAction == 'Right' or lastAction == 'Left'):
                 action = 'Down'
             else:
-                if bump == 'None' and lastAction != 'Suck':
+                if bump == 'None' and lastAction != 'Suck' #and lastBump == 'None':
                     action = lastAction
                 else:
-                    if bump == 'Bump' and lastAction != 'Suck':
+                    if bump == 'None' and lastAction != 'Suck'# and lastBump == 'Bump':
                         action = switchAction(lastAction)
-                    else:
-                        action = lastAction2
+                        else:
+                            if bump == 'Bump' and lastAction != 'Suck':
+                                action = switchAction(lastAction)
+                            else:
+                                action = lastAction2
 
         program.oldPercepts.append(percept)
         program.oldActions.append(action)
