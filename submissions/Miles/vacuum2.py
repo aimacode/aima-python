@@ -57,7 +57,7 @@ def HW2Agent() -> object:
             else:
                 action = 'Right'
 
-# end actions of the vacuum
+
         oldPercepts.append([wall, status, lastLoc]) # add all the old percepts that the agent has ever recieved
         oldActions.append(action) # add all the old actions of the agent
 
