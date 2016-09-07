@@ -25,7 +25,7 @@ def HW2Agent() -> object:
         return action
 
     # assign static variables here
-    program.oldPercepts = [('None', 'Clean')]
+    program.oldPercepts = [('None', 'Clean'),('None', 'Clean')]
     program.oldActions = ['NoOp']
 
     agt = ag.Agent(program)
