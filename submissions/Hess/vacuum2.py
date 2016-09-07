@@ -29,7 +29,7 @@ def HW2Agent() -> object:
 
     # assign static variables here
     program.oldPercepts = [('None', 'Clean')]
-    program.oldActions = ['NoOp']
+    program.oldActions = ['Left']
 
     agt = ag.Agent(program)
     # assign class attributes here:
