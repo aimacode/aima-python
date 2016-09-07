@@ -1,10 +1,10 @@
 import agents as ag
 import envgui as gui
 # change this line ONLY to refer to your project
-import submissions.Porter.vacuum2 as v2
+import submissions.miles.vacuum2 as v2
 
 # ______________________________________________________________________________
-# Vacuum environmenty
+# Vacuum environment
 
 class Dirt(ag.Thing):
     pass
