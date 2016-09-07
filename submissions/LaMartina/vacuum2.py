@@ -19,6 +19,13 @@ def HW2Agent() -> object:
             #else:
         if status == 'Dirty':
             action = 'Suck'
+        # else:
+        #     if program.startTop == 'false' and bump == 'None':
+        #         action = 'Up'
+        #     else:
+        #         if program.startTop == 'false' and bump == 'Bump':
+        #             program.startTop = 'true'
+        #             action = 'Left'
         else:
             lastBump, lastStatus = program.oldPercepts[-1]
             lastBump2, lastStatus2 = program.oldPercepts[-2]
