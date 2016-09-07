@@ -4,6 +4,19 @@ def HW2Agent() -> object:
 
     def program(percept):
         bump, status = percept
+        # if program.startTop == 'false' and bump == 'None':
+        #     action = 'Up'
+        #     return action
+            # if bump == 'None':
+            #     action = 'Up'
+            #     return action
+            # if bump == 'Bump':
+            #     program.startTop = 'true'
+        # else:
+        #     if program.startTop == 'false' and bump == 'Bump':
+        #         program.startTop = 'true'
+                #action = 'Left'
+            #else:
         if status == 'Dirty':
             action = 'Suck'
         else:
@@ -99,6 +112,7 @@ def HW2Agent() -> object:
     program.up = 'false'
     program.down = 'false'
     program.lastDown = ''
+    program.startTop = 'false'
 
     # def switchAction(action):
     #     if action == 'Right':
