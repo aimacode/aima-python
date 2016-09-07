@@ -1,28 +1,49 @@
 import agents as ag
 
 def HW2Agent() -> object:
-    "An agent that keeps track of what locations are clean or dirty."
-    oldPercepts = [('None', 'Clean')]
-    oldActions = ['NoOp']
 
     def program(percept):
-        "Same as ReflexVacuumAgent, except if everything is clean, do NoOp."
         bump, status = percept
+        lastBump, lastStatus = program.oldPercepts[-1]
+
         if status == 'Dirty':
             action = 'Suck'
-        else:
-            lastBump, lastStatus = oldPercepts[-1]
+        elif status == 'Clean' and lastBump == 'None':
+            action = 'Right'
+        elif status == 'Clean' and lastBump == 'Bump' :
+            action = 'Left'
+        elif lastStatus == 'Clean' and lastBump == 'None' :
+            action ='Left'
 
-            if lastBump == 'None':
-                action = 'Left'
-            else:
-                action = 'Right'
-            if bump == 'Bump' :
-                action = 'Left'
-            else:
-                action = 'Right'
+        # else:
+        #     if lastBump == 'None':
+        #         action = 'Right'
 
-        oldPercepts.append(percept)
-        oldActions.append(action)
+                # checkHeight = True
+                # if lastBump == 'Bump' and checkHeight == True :
+                #     action = 'Down'
+
+                # checkWidth = True
+                # if lastBump == 'Bump'  and checkWidth == True :
+                #     action = 'Left'
+                # elif lastBump == 'None' and checkWidth == True :
+                #     action = 'Left'
+
+
+        program.oldPercepts.append(percept)
+        program.oldActions.append(action)
         return action
-    return ag.Agent(program)
+
+    # assign static variables here
+    program.oldPercepts = [('None', 'Clean')]
+    program.oldActions = ['NoOp']
+    # program.width = [0]
+    # program.checkHeight = [False]
+    # program.checkWidth = [False]
+
+
+    agt = ag.Agent(program)
+    # assign class attributes here:
+    # agt.direction = ag.Direction('left')
+
+    return agt

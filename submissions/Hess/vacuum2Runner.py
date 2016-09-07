@@ -16,7 +16,7 @@ class VacuumEnvironment(ag.XYEnvironment):
     performance measure is 100 for each dirt cleaned, and -1 for
     each turn taken."""
 
-    def __init__(self, width=4, height=3):
+    def __init__(self, width=5, height=3):
         super(VacuumEnvironment, self).__init__(width, height)
         self.add_walls()
 
