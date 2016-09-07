@@ -1,7 +1,7 @@
 import agents as ag
 import envgui as gui
 # change this line ONLY to refer to your project
-import submissions.aardvark.vacuum2 as v2
+import submissions.Blue.vacuum2 as v2
 
 # ______________________________________________________________________________
 # Vacuum environment
@@ -197,7 +197,7 @@ testVacuum('Two Cells, Agent on Top:', w=3, h=4,
 testVacuum('Two Cells, Agent on Bottom:', w=3, h=4,
            dloc=[(1,1), (1,2)], vloc=(1,2) )
 testVacuum('Five Cells, Agent on Left:', w=7, h=3,
-           dloc=[(2,1), (4,1)], vloc=(1,1), limit=12)
+           dloc=[(2,1), (4import submissions. *aardvark* .vacuum2 as v,1)], vloc=(1,1), limit=12)
 testVacuum('Five Cells, Agent near Right:', w=7, h=3,
            dloc=[(2,1), (3,1)], vloc=(4,1), limit=12)
 testVacuum('Five Cells, Agent on Top:', w=3, h=7,
