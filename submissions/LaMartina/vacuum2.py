@@ -27,7 +27,7 @@ def HW2Agent() -> object:
 
     # assign static variables here
     program.oldPercepts = [('None', 'Clean'),('None', 'Clean')]
-    program.oldActions = ['NoOp']
+    program.oldActions = ['Right']
 
     def switchAction(action):
         if action == 'Right':
