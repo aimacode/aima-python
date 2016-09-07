@@ -16,7 +16,7 @@ class VacuumEnvironment(ag.XYEnvironment):
     performance measure is 100 for each dirt cleaned, and -1 for
     each turn taken."""
 
-    def __init__(self, width=4, height=3):
+    def __init__(self, width=3, height=3):
         super(VacuumEnvironment, self).__init__(width, height)
         self.add_walls()
 
@@ -48,7 +48,7 @@ class VacuumEnvironment(ag.XYEnvironment):
             agent.performance -= 1
 
 # Launch GUI of more complex environment
-v = VacuumEnvironment(4, 4)
+v = VacuumEnvironment(6, 4)
 a = v2.HW2Agent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
