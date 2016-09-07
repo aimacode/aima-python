@@ -1,34 +1,58 @@
 import agents as ag
 
 def HW2Agent() -> object:
+    "An agent that keeps track of what locations are clean or dirty."
+    oldPercepts = [('None', 'Clean', 'Right', 'Left', 'Up', 'Down')]
+    oldActions = ['NoOp']
 
     def program(percept):
-      #  locate('Dirty')
-         # action = 'Suck'
-        bump, status = percept
-   #   if status == 'No0p'
-            # return 'Clean'
-        # do something with the up and down actions
-
-    if status == 'Dirty':
+        "Same as ReflexVacuumAgent, except if everything is clean, do NoOp."
+        wall, status = percept
+        lastLoc = oldPercepts[-1]
+        lastAction = oldActions[-1]
+        # checks to see if the starting point is dirty
+        if status == 'Dirty':
             action = 'Suck'
         else:
-            lastBump, lastStatus = program.oldPercepts[-1]
-            if bump == 'None':
-                action = 'Right'
+
+            if lastLoc == 'Up':
+                if wall == 'Bump':  # checks to see if it hits the top
+                    action = 'Down'
+                    action = 'Left'
+ # lastAction = 'Bump'
+                else:
+                    action = 'Up'
+                    # moves for the vacuum at the latest location of right
+            elif lastLoc == 'Right':
+
+
+                lastAction = oldActions[-1]
+                if lastAction == 'Left':
+                    action = 'Right'
+                elif wall == 'Bump':
+                    lastLoc = 'Left'
+                    action = 'Down'
+                else:
+                    action = 'Right'
+
+                    # moves for the vacuum at the latest location of left
+            elif lastLoc == 'Left' :
+
+                lastAction = oldActions[-1]
+                if lastAction == 'Up' or lastAction == 'Down' :
+                    action = 'Left'
+                elif wall == 'Bump' :
+                    lastLoc = 'Right'
+                    action = 'Right'
+
+                else:
+                    action = 'Left'
             else:
-                action = 'Left'
+                action = 'Right'
 
-        program.oldPercepts.append(percept)
-        program.oldActions.append(action)
-        return action
 
-    # assign static variables here
-    program.oldPercepts = [('None', 'Clean')]
-    program.oldActions = ['NoOp']
+        oldPercepts.append([wall, status, lastLoc])
+        oldActions.append(action)
 
-    agt = ag.Agent(program)
-    # assign class attributes here:
-    # agt.direction = ag.Direction('left')
-
-    return agt
+        return oldActions
+    return ag.Agent(program)
