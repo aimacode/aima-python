@@ -47,117 +47,117 @@ class VacuumEnvironment(ag.XYEnvironment):
         if action != 'NoOp':
             agent.performance -= 1
 
-# # Launch a Text-Based Environment
-# print('Two Cells, Agent on Left:')
-# v = VacuumEnvironment(4, 3)
-# v.add_thing(Dirt(), (1, 1))
-# v.add_thing(Dirt(), (2, 1))
-# a = v2.HW2Agent()
-# a = ag.TraceAgent(a)
-# v.add_thing(a, (1, 1))
-# t = gui.EnvTUI(v)
-# t.mapImageNames({
-#     ag.Wall: '#',
-#     Dirt: '@',
-#     ag.Agent: 'V',
-# })
-# t.step(0)
-# t.list_things(Dirt)
-# t.step(4)
-# if len(t.env.get_things(Dirt)) > 0:
-#     t.list_things(Dirt)
-# else:
-#     print('All clean!')
-#
-# # Check to continue
-# if input('Do you want to continue [y/N]? ') != 'y':
-#     exit(0)
-# else:
-#     print('----------------------------------------')
-#
-# # Repeat, but put Agent on the Right
-# print('Two Cells, Agent on Right:')
-# v = VacuumEnvironment(4, 3)
-# v.add_thing(Dirt(), (1, 1))
-# v.add_thing(Dirt(), (2, 1))
-# a = v2.HW2Agent()
-# a = ag.TraceAgent(a)
-# v.add_thing(a, (2, 1))
-# t = gui.EnvTUI(v)
-# t.mapImageNames({
-#     ag.Wall: '#',
-#     Dirt: '@',
-#     ag.Agent: 'V',
-# })
-# t.step(0)
-# t.list_things(Dirt)
-# t.step(4)
-# if len(t.env.get_things(Dirt)) > 0:
-#     t.list_things(Dirt)
-# else:
-#     print('All clean!')
-#
-# # Check to continue
-# if input('Do you want to continue [y/N]? ') != 'y':
-#     exit(0)
-# else:
-#     print('----------------------------------------')
-#
-# # Repeat, but put Agent on the Right
-# print('Two Cells, Agent on Top:')
-# v = VacuumEnvironment(3, 4)
-# v.add_thing(Dirt(), (1, 1))
-# v.add_thing(Dirt(), (1, 2))
-# a = v2.HW2Agent()
-# a = ag.TraceAgent(a)
-# v.add_thing(a, (1, 1))
-# t = gui.EnvTUI(v)
-# t.mapImageNames({
-#     ag.Wall: '#',
-#     Dirt: '@',
-#     ag.Agent: 'V',
-# })
-# t.step(0)
-# t.list_things(Dirt)
-# t.step(4)
-# if len(t.env.get_things(Dirt)) > 0:
-#     t.list_things(Dirt)
-# else:
-#     print('All clean!')
-#
-# # Check to continue
-# if input('Do you want to continue [y/N]? ') != 'y':
-#     exit(0)
-# else:
-#     print('----------------------------------------')
-#
-# # Repeat, but put Agent on the Right
-# print('Two Cells, Agent on Bottom:')
-# v = VacuumEnvironment(3, 4)
-# v.add_thing(Dirt(), (1, 1))
-# v.add_thing(Dirt(), (1, 2))
-# a = v2.HW2Agent()
-# a = ag.TraceAgent(a)
-# v.add_thing(a, (1, 2))
-# t = gui.EnvTUI(v)
-# t.mapImageNames({
-#     ag.Wall: '#',
-#     Dirt: '@',
-#     ag.Agent: 'V',
-# })
-# t.step(0)
-# t.list_things(Dirt)
-# t.step(4)
-# if len(t.env.get_things(Dirt)) > 0:
-#     t.list_things(Dirt)
-# else:
-#     print('All clean!')
-#
-# # Check to continue
-# if input('Do you want to continue [y/N]? ') != 'y':
-#     exit(0)
-# else:
-#     print('----------------------------------------')
+# Launch a Text-Based Environment
+print('Two Cells, Agent on Left:')
+v = VacuumEnvironment(4, 3)
+v.add_thing(Dirt(), (1, 1))
+v.add_thing(Dirt(), (2, 1))
+a = v2.HW2Agent()
+a = ag.TraceAgent(a)
+v.add_thing(a, (1, 1))
+t = gui.EnvTUI(v)
+t.mapImageNames({
+    ag.Wall: '#',
+    Dirt: '@',
+    ag.Agent: 'V',
+})
+t.step(0)
+t.list_things(Dirt)
+t.step(4)
+if len(t.env.get_things(Dirt)) > 0:
+    t.list_things(Dirt)
+else:
+    print('All clean!')
+
+# Check to continue
+if input('Do you want to continue [y/N]? ') != 'y':
+    exit(0)
+else:
+    print('----------------------------------------')
+
+# Repeat, but put Agent on the Right
+print('Two Cells, Agent on Right:')
+v = VacuumEnvironment(4, 3)
+v.add_thing(Dirt(), (2, 1))
+v.add_thing(Dirt(), (2, 1))
+a = v2.HW2Agent()
+a = ag.TraceAgent(a)
+v.add_thing(a, (2, 1))
+t = gui.EnvTUI(v)
+t.mapImageNames({
+    ag.Wall: '#',
+    Dirt: '@',
+    ag.Agent: 'V',
+})
+t.step(0)
+t.list_things(Dirt)
+t.step(4)
+if len(t.env.get_things(Dirt)) > 0:
+    t.list_things(Dirt)
+else:
+    print('All clean!')
+
+# Check to continue
+if input('Do you want to continue [y/N]? ') != 'y':
+    exit(0)
+else:
+    print('----------------------------------------')
+
+# Repeat, but put Agent on the Right
+print('Two Cells, Agent on Top:')
+v = VacuumEnvironment(3, 4)
+v.add_thing(Dirt(), (1, 1))
+v.add_thing(Dirt(), (1, 2))
+a = v2.HW2Agent()
+a = ag.TraceAgent(a)
+v.add_thing(a, (1, 1))
+t = gui.EnvTUI(v)
+t.mapImageNames({
+    ag.Wall: '#',
+    Dirt: '@',
+    ag.Agent: 'V',
+})
+t.step(0)
+t.list_things(Dirt)
+t.step(4)
+if len(t.env.get_things(Dirt)) > 0:
+    t.list_things(Dirt)
+else:
+    print('All clean!')
+
+# Check to continue
+if input('Do you want to continue [y/N]? ') != 'y':
+    exit(0)
+else:
+    print('----------------------------------------')
+
+# Repeat, but put Agent on the Right
+print('Two Cells, Agent on Bottom:')
+v = VacuumEnvironment(3, 4)
+v.add_thing(Dirt(), (1, 1))
+v.add_thing(Dirt(), (1, 2))
+a = v2.HW2Agent()
+a = ag.TraceAgent(a)
+v.add_thing(a, (1, 2))
+t = gui.EnvTUI(v)
+t.mapImageNames({
+    ag.Wall: '#',
+    Dirt: '@',
+    ag.Agent: 'V',
+})
+t.step(0)
+t.list_things(Dirt)
+t.step(4)
+if len(t.env.get_things(Dirt)) > 0:
+    t.list_things(Dirt)
+else:
+    print('All clean!')
+
+# Check to continue
+if input('Do you want to continue [y/N]? ') != 'y':
+    exit(0)
+else:
+    print('----------------------------------------')
 
 def testVacuum(label, w=4, h=3,
                dloc=[(1,1),(2,1)],
@@ -197,7 +197,7 @@ testVacuum('Two Cells, Agent on Top:', w=3, h=4,
 testVacuum('Two Cells, Agent on Bottom:', w=3, h=4,
            dloc=[(1,1), (1,2)], vloc=(1,2) )
 testVacuum('Five Cells, Agent on Left:', w=7, h=3,
-           dloc=[(2,1), (4import submissions. *aardvark* .vacuum2 as v,1)], vloc=(1,1), limit=12)
+           dloc=[(2,1), (4,1)], vloc=(1,1), limit=12)
 testVacuum('Five Cells, Agent near Right:', w=7, h=3,
            dloc=[(2,1), (3,1)], vloc=(4,1), limit=12)
 testVacuum('Five Cells, Agent on Top:', w=3, h=7,
