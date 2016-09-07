@@ -57,7 +57,7 @@ def HW2Agent() -> object:
                                             action = "Down"
                                         else:
                                             if bump == 'None' and lastAction != 'Suck' and lastBump == 'None':
-                                                action = lastAction
+                                               action = lastAction
                                             else:
                                                 if bump == 'None' and lastAction != 'Suck' and lastBump == 'Bump' and lastAction == 'Down' and program.lastDown == 'Left':
                                                     lastAction = 'Down2'
@@ -111,14 +111,15 @@ def HW2Agent() -> object:
     #         newAction = 'Down'
     #     return newAction
     def switchAction(action):
-        if action == 'Down'
+        if action == 'Down':
             newAction = 'Left'
-        if action == 'Left'
+        if action == 'Left':
             newAction = 'Down'
-        if action == 'Right'
+        if action == 'Right':
             newAction = 'Down'
-        if action == 'Down2'
+        if action == 'Down2':
             newAction = 'Right'
+        return newAction
     switchAction.newAction = ''
 
     agt = ag.Agent(program)
