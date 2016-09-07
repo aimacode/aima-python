@@ -4,31 +4,24 @@ def HW2Agent() -> object:
 
     def program(percept):
         bump, status = percept
-        lastBump, lastStatus = program.oldPercepts[-1]
-
         if status == 'Dirty':
             action = 'Suck'
-        elif status == 'Clean' and lastBump == 'None':
-            action = 'Right'
-        elif status == 'Clean' and lastBump == 'Bump' :
-            action = 'Left'
-        elif lastStatus == 'Clean' and lastBump == 'None' :
-            action ='Left'
+        else:
+            lastBump, lastStatus = program.oldPercepts[-1]
+            lastAction = program.oldActions[-1]
 
-        # else:
-        #     if lastBump == 'None':
-        #         action = 'Right'
-
-                # checkHeight = True
-                # if lastBump == 'Bump' and checkHeight == True :
-                #     action = 'Down'
-
-                # checkWidth = True
-                # if lastBump == 'Bump'  and checkWidth == True :
-                #     action = 'Left'
-                # elif lastBump == 'None' and checkWidth == True :
-                #     action = 'Left'
-
+            if lastAction == 'Suck' :
+                action = program.oldActions[-2]
+            elif (lastAction == 'Right' and bump == 'None'):
+                action = 'Right'
+            elif (lastAction == 'Right' and bump == 'Bump'):
+                action = 'Left'
+            elif (lastAction == 'Left' and bump == 'None') :
+                action ='Left'
+            elif (lastAction == 'Left' and bump == 'Bump') :
+                action = 'Right'
+            else:
+                action = 'Left'
 
         program.oldPercepts.append(percept)
         program.oldActions.append(action)
@@ -37,10 +30,6 @@ def HW2Agent() -> object:
     # assign static variables here
     program.oldPercepts = [('None', 'Clean')]
     program.oldActions = ['NoOp']
-    # program.width = [0]
-    # program.checkHeight = [False]
-    # program.checkWidth = [False]
-
 
     agt = ag.Agent(program)
     # assign class attributes here:
