@@ -1,7 +1,7 @@
 import agents as ag
 import envgui as gui
 # change this line ONLY to refer to your project
-import submissions.aardvark.vacuum2 as v2
+import submissions.Blue.vacuum2 as v2
 
 # ______________________________________________________________________________
 # Vacuum environment
@@ -78,7 +78,7 @@ else:
 # Repeat, but put Agent on the Right
 print('Two Cells, Agent on Right:')
 v = VacuumEnvironment(4, 3)
-v.add_thing(Dirt(), (1, 1))
+v.add_thing(Dirt(), (2, 1))
 v.add_thing(Dirt(), (2, 1))
 a = v2.HW2Agent()
 a = ag.TraceAgent(a)
