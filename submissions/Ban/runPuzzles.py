@@ -1,5 +1,5 @@
 import search
-import submissions.aardvark.puzzles as pz
+import submissions.Ban.puzzles as pz
 
 def compare_searchers(problems, header, searchers=[]):
     def do(searcher, problem):

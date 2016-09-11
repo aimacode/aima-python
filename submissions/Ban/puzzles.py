@@ -2,12 +2,12 @@ import search
 from math import(cos, pi)
 
 sumner_map = search.UndirectedGraph(dict(
-    Dublin=dict(Mullingar=67, Nass=41),
-    Mullingar=dict(Dublin=67, Naas=59),
-    Naas=dict(Dublin=41, Mullingar=59)
+    Dublin=dict(Mullingar=67),
+    Mullingar=dict(Naas=59, Dublin=67),
+    Naas=dict(Mullingar=59),
 ))
 
-sumner_puzzle = search.GraphProblem('Dublin', 'Mullinger', sumner_map)
+sumner_puzzle = search.GraphProblem('Dublin', 'Naas', sumner_map)
 
 sumner_puzzle.description = '''
 An abbreviated map of Eastern Ireland.
