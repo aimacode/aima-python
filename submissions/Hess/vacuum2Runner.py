@@ -1,7 +1,7 @@
 import agents as ag
 import envgui as gui
 # change this line ONLY to refer to your project
-import submissions.aardvark.vacuum2 as v2
+import submissions.Hess.vacuum2 as v2
 
 # ______________________________________________________________________________
 # Vacuum environment
@@ -16,7 +16,7 @@ class VacuumEnvironment(ag.XYEnvironment):
     performance measure is 100 for each dirt cleaned, and -1 for
     each turn taken."""
 
-    def __init__(self, width=4, height=3):
+    def __init__(self, width=5, height=3):
         super(VacuumEnvironment, self).__init__(width, height)
         self.add_walls()
 
@@ -47,117 +47,117 @@ class VacuumEnvironment(ag.XYEnvironment):
         if action != 'NoOp':
             agent.performance -= 1
 
-# Launch a Text-Based Environment
-print('Two Cells, Agent on Left:')
-v = VacuumEnvironment(4, 3)
-v.add_thing(Dirt(), (1, 1))
-v.add_thing(Dirt(), (2, 1))
-a = v2.HW2Agent()
-a = ag.TraceAgent(a)
-v.add_thing(a, (1, 1))
-t = gui.EnvTUI(v)
-t.mapImageNames({
-    ag.Wall: '#',
-    Dirt: '@',
-    ag.Agent: 'V',
-})
-t.step(0)
-t.list_things(Dirt)
-t.step(4)
-if len(t.env.get_things(Dirt)) > 0:
-    t.list_things(Dirt)
-else:
-    print('All clean!')
-
-# Check to continue
-if input('Do you want to continue [y/N]? ') != 'y':
-    exit(0)
-else:
-    print('----------------------------------------')
-
-# Repeat, but put Agent on the Right
-print('Two Cells, Agent on Right:')
-v = VacuumEnvironment(4, 3)
-v.add_thing(Dirt(), (1, 1))
-v.add_thing(Dirt(), (2, 1))
-a = v2.HW2Agent()
-a = ag.TraceAgent(a)
-v.add_thing(a, (2, 1))
-t = gui.EnvTUI(v)
-t.mapImageNames({
-    ag.Wall: '#',
-    Dirt: '@',
-    ag.Agent: 'V',
-})
-t.step(0)
-t.list_things(Dirt)
-t.step(4)
-if len(t.env.get_things(Dirt)) > 0:
-    t.list_things(Dirt)
-else:
-    print('All clean!')
-
-# Check to continue
-if input('Do you want to continue [y/N]? ') != 'y':
-    exit(0)
-else:
-    print('----------------------------------------')
-
-# Repeat, but put Agent on the Right
-print('Two Cells, Agent on Top:')
-v = VacuumEnvironment(3, 4)
-v.add_thing(Dirt(), (1, 1))
-v.add_thing(Dirt(), (1, 2))
-a = v2.HW2Agent()
-a = ag.TraceAgent(a)
-v.add_thing(a, (1, 1))
-t = gui.EnvTUI(v)
-t.mapImageNames({
-    ag.Wall: '#',
-    Dirt: '@',
-    ag.Agent: 'V',
-})
-t.step(0)
-t.list_things(Dirt)
-t.step(4)
-if len(t.env.get_things(Dirt)) > 0:
-    t.list_things(Dirt)
-else:
-    print('All clean!')
-
-# Check to continue
-if input('Do you want to continue [y/N]? ') != 'y':
-    exit(0)
-else:
-    print('----------------------------------------')
-
-# Repeat, but put Agent on the Right
-print('Two Cells, Agent on Bottom:')
-v = VacuumEnvironment(3, 4)
-v.add_thing(Dirt(), (1, 1))
-v.add_thing(Dirt(), (1, 2))
-a = v2.HW2Agent()
-a = ag.TraceAgent(a)
-v.add_thing(a, (1, 2))
-t = gui.EnvTUI(v)
-t.mapImageNames({
-    ag.Wall: '#',
-    Dirt: '@',
-    ag.Agent: 'V',
-})
-t.step(0)
-t.list_things(Dirt)
-t.step(4)
-if len(t.env.get_things(Dirt)) > 0:
-    t.list_things(Dirt)
-else:
-    print('All clean!')
-
-# Check to continue
-if input('Do you want to continue [y/N]? ') != 'y':
-    exit(0)
-else:
-    print('----------------------------------------')
+# # Launch a Text-Based Environment
+# print('Two Cells, Agent on Left:')
+# v = VacuumEnvironment(4, 3)
+# v.add_thing(Dirt(), (1, 1))
+# v.add_thing(Dirt(), (2, 1))
+# a = v2.HW2Agent()
+# a = ag.TraceAgent(a)
+# v.add_thing(a, (1, 1))
+# t = gui.EnvTUI(v)
+# t.mapImageNames({
+#     ag.Wall: '#',
+#     Dirt: '@',
+#     ag.Agent: 'V',
+# })
+# t.step(0)
+# t.list_things(Dirt)
+# t.step(4)
+# if len(t.env.get_things(Dirt)) > 0:
+#     t.list_things(Dirt)
+# else:
+#     print('All clean!')
+#
+# # Check to continue
+# if input('Do you want to continue [y/N]? ') != 'y':
+#     exit(0)
+# else:
+#     print('----------------------------------------')
+#
+# # Repeat, but put Agent on the Right
+# print('Two Cells, Agent on Right:')
+# v = VacuumEnvironment(4, 3)
+# v.add_thing(Dirt(), (1, 1))
+# v.add_thing(Dirt(), (2, 1))
+# a = v2.HW2Agent()
+# a = ag.TraceAgent(a)
+# v.add_thing(a, (2, 1))
+# t = gui.EnvTUI(v)
+# t.mapImageNames({
+#     ag.Wall: '#',
+#     Dirt: '@',
+#     ag.Agent: 'V',
+# })
+# t.step(0)
+# t.list_things(Dirt)
+# t.step(4)
+# if len(t.env.get_things(Dirt)) > 0:
+#     t.list_things(Dirt)
+# else:
+#     print('All clean!')
+#
+# # Check to continue
+# if input('Do you want to continue [y/N]? ') != 'y':
+#     exit(0)
+# else:
+#     print('----------------------------------------')
+#
+# # Repeat, but put Agent on the Right
+# print('Two Cells, Agent on Top:')
+# v = VacuumEnvironment(3, 4)
+# v.add_thing(Dirt(), (1, 1))
+# v.add_thing(Dirt(), (1, 2))
+# a = v2.HW2Agent()
+# a = ag.TraceAgent(a)
+# v.add_thing(a, (1, 1))
+# t = gui.EnvTUI(v)
+# t.mapImageNames({
+#     ag.Wall: '#',
+#     Dirt: '@',
+#     ag.Agent: 'V',
+# })
+# t.step(0)
+# t.list_things(Dirt)
+# t.step(4)
+# if len(t.env.get_things(Dirt)) > 0:
+#     t.list_things(Dirt)
+# else:
+#     print('All clean!')
+#
+# # Check to continue
+# if input('Do you want to continue [y/N]? ') != 'y':
+#     exit(0)
+# else:
+#     print('----------------------------------------')
+#
+# # Repeat, but put Agent on the Right
+# print('Two Cells, Agent on Bottom:')
+# v = VacuumEnvironment(3, 4)
+# v.add_thing(Dirt(), (1, 1))
+# v.add_thing(Dirt(), (1, 2))
+# a = v2.HW2Agent()
+# a = ag.TraceAgent(a)
+# v.add_thing(a, (1, 2))
+# t = gui.EnvTUI(v)
+# t.mapImageNames({
+#     ag.Wall: '#',
+#     Dirt: '@',
+#     ag.Agent: 'V',
+# })
+# t.step(0)
+# t.list_things(Dirt)
+# t.step(4)
+# if len(t.env.get_things(Dirt)) > 0:
+#     t.list_things(Dirt)
+# else:
+#     print('All clean!')
+#
+# # Check to continue
+# if input('Do you want to continue [y/N]? ') != 'y':
+#     exit(0)
+# else:
+#     print('----------------------------------------')
 
 def testVacuum(label, w=4, h=3,
                dloc=[(1,1),(2,1)],
@@ -220,7 +220,7 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'images/wall.jpg',
+    ag.Wall: 'submissions/Hess/kanye.jpg',
     # Floor: 'images/floor.png',
     Dirt: 'images/dirt.png',
     ag.Agent: 'images/vacuum.png',
