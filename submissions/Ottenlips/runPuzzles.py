@@ -1,5 +1,5 @@
 import search
-import submissions.aardvark.puzzles as pz
+import submissions.Ottenlips.puzzles as pz
 
 def compare_searchers(problems, header, searchers=[]):
     def do(searcher, problem):
@@ -16,6 +16,6 @@ compare_searchers(
     ],
     searchers=[
         search.breadth_first_search,
-        search.depth_first_graph_search,
+        search.astar_search,
     ]
 )
