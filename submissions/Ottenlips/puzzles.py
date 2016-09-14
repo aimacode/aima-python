@@ -2,10 +2,10 @@ import search
 from math import(cos, pi)
 
 sumner_map = search.UndirectedGraph(dict(
-    Kirkwood=dict(Webster=7, Clayton=17, St_Louis=18),
-    St_Louis=dict(Clayton=18),
-    Clayton=dict(Webster=21, Kirkwood=17),
-    Webster=dict(Kirkwood=7, Clayton=21),
+    Kirkwood=dict(Webster=10, Clayton=17, St_Louis=21),
+    St_Louis=dict(Clayton=12),
+    Clayton=dict(Webster=14, Kirkwood=17),
+    Webster=dict(Kirkwood=10, Clayton=14),
 ))
 
 sumner_puzzle = search.GraphProblem('Webster', 'St_Louis', sumner_map)

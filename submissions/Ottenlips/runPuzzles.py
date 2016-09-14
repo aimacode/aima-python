@@ -17,5 +17,7 @@ compare_searchers(
     searchers=[
         search.breadth_first_search,
         search.astar_search,
+        search.depth_first_graph_search,
+
     ]
 )
