@@ -131,11 +131,13 @@ def testVacuum(student, label, w=4, h=3,
         print('----------------------------------------')
         return True
 
+print('Submissions that compile: ')
 for student in roster:
     try:
         # http://stackoverflow.com/a/17136796/2619926
         mod = importlib.import_module('submissions.' + student + '.vacuum2')
         submissions[student] = mod.HW2Agent
+        print('    ' + student)
     except:
         pass
 
