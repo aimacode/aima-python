@@ -34,3 +34,15 @@ def test_air_cargo():
         p.act(action)
 
     assert p.goal_test()
+    
+def test_spare_tire():
+    p = spare_tire()
+    assert p.goal_test() is False
+    solution = [expr("Remove(Flat, Axle)"),
+                expr("Remove(Spare, Trunk)"),
+                expr("PutOn(Spare, Axle)")]
+
+    for action in solution:
+        p.act(action)
+        
+    assert p.goal_test()
