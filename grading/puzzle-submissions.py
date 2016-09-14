@@ -4,6 +4,7 @@ import importlib
 import traceback
 import search
 from utils import(isnumber)
+from math import(inf)
 
 class MyException(Exception):
     pass
@@ -42,12 +43,38 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
 
 
 def compare_searchers(problems, header, searchers=[]):
+    best = {}
+    bestNode = {}
+    for p in problems:
+        best[p.label] = inf
+        bestNode[p.label] = None
     def do(searcher, problem):
+        nonlocal best, bestNode
         p = search.InstrumentedProblem(problem)
         goalNode = searcher(p)
-        return p, goalNode.path_cost
+        cost = goalNode.path_cost
+        if cost < best[p.label]:
+            best[p.label] = cost
+            bestNode[p.label] = goalNode
+        return p, cost
     table = [[search.name(s)] + [do(s, p) for p in problems] for s in searchers]
     print_table(table, header)
+    print('----------------------------------------')
+    for p in problems:
+        bestPath = []
+        node = bestNode[p.label]
+        while node != None:
+            bestPath.append(node.state)
+            node = node.parent
+        summary = "Best Path for " + p.label + ": "
+        for state in reversed(bestPath):
+            try:
+                summary += "\n" + p.prettyPrint(state) + "\n---------"
+            except:
+                summary += " " + state
+        print(summary)
+        print('----------------------------------------')
+
 
 submissions = {}
 scores = {}
@@ -59,8 +86,11 @@ for student in roster:
         mod = importlib.import_module('submissions.' + student + '.puzzles')
         submissions[student] = mod.myPuzzles
         print('    ' + student)
-    except:
+    except ImportError:
         pass
+    except:
+        traceback.print_exc()
+
 print('----------------------------------------')
 
 for student in submissions:
@@ -73,7 +103,8 @@ for student in submissions:
             try:
                 hlist[0].append(problem.label)
             except:
-                hlist[0].append('Problem ' + str(i))
+                problem.label = 'Problem ' + str(i)
+                hlist[0].append(problem.label)
             i += 1
             hlist[1].append('(<succ/goal/stat/fina>, cost)')
         compare_searchers(
