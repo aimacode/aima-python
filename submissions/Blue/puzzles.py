@@ -16,17 +16,20 @@ triangle_map = search.UndirectedGraph(dict(
       WakeForest=dict(Clayton=43, Durham=37, Raleigh=29),
 ))
 
-triangle_puzzle = search.GraphProblem('Raleigh', 'Durham',  triangle_map)
+triangle_puzzle_RD = search.GraphProblem('Raleigh', 'Durham',  triangle_map)
 # triangle_puzzle_RtoC = search.GraphProblem('Raleigh', 'Cary', triangle_map)
-triangle_puzzle = search.GraphProblem('Raleigh', 'ChapelHill', triangle_map) # BFS is better than DFS
-triangle_puzzle = search.GraphProblem('ChapelHill', 'Clayton', triangle_map) # UCS is better than BFS
+triangle_puzzle_RC = search.GraphProblem('Raleigh', 'ChapelHill', triangle_map) # BFS is better than DFS
+triangle_puzzle_CC = search.GraphProblem('ChapelHill', 'Clayton', triangle_map) # UCS is better than BFS
 
-triangle_puzzle.description = '''
+triangle_puzzle_RD.description = '''
 An abbreviated map of the Triangle Area of NC.
 This map is unique, to the best of my knowledge.
 '''
 
 myPuzzles = [
-    triangle_puzzle,
+    # triangle_puzzle,
+    triangle_puzzle_RD,
+    triangle_puzzle_RC,
+    triangle_puzzle_CC,
     # triangle_puzzle_RtoC
 ]
