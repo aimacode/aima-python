@@ -35,8 +35,9 @@ http://penelope.uchicago.edu/Thayer/E/Journals/TAPA/82/Speed_under_Sail_of_Ancie
 '''
 
 myPuzzles = [
+    # One of these is usually has UCS over BFS
     mediterranean_puzzle,
-    search.GraphProblem('Alexandria', 'Naples', mediterranean_map),
-    search.GraphProblem('Tyre', 'Gaza', mediterranean_map),
-    search.GraphProblem('Narbo', 'Corinth', mediterranean_map),
+    search.GraphProblem('Tyre', 'Utica', mediterranean_map),
+    # BFS is better than DFS
+    search.GraphProblem('Massilia', 'Rhodes', mediterranean_map),
 ]
