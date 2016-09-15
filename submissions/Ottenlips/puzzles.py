@@ -2,9 +2,10 @@ import search
 from math import(cos, pi)
 
 stl_map = search.UndirectedGraph(dict(
-    Kirkwood=dict(Webster=10, Clayton=17, Glendale=7),
+    Kirkwood=dict(Webster=10, Clayton=17, MapleWood=17, Glendale=7),
     St_Louis=dict(Clayton=12),
     Glendale=dict(St_Louis=19),
+    MapleWood=dict(St_Louis=11),
     Clayton=dict(Webster=14, St_Louis=12, Kirkwood=17),
     Webster=dict(Kirkwood=10, Clayton=14),
 ))
