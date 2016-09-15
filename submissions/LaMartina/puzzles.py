@@ -20,13 +20,13 @@ kc_map = search.UndirectedGraph(dict(
     RichHill=dict(Ottawa=87,Clinton=51),
     Ottawa=dict(OsageCity=32,RichHill=87),
     OsageCity=dict(Topeka=38,Ottawa=32),
-    OverlandPark=dict(Olathe=12,Lawrence=35,KansasCity=12),
+    OverlandPark=dict(Olathe=12,Lawrence=35,KansasCity=12,Holton=98),
     Olathe=dict(Lawrence=30,OverlandPark=12),
     Lawrence=dict(Topeka=28,OverlandPark=35,Olathe=30),
     Atchison=dict(KansasCity=50),
-    Topeka=dict(Lawrence=28,OsageCity=38)
-
-
+    Topeka=dict(Lawrence=28,OsageCity=38,StMarys=26),
+    StMarys=dict(Topeka=26,Holton=37),
+    Holton=dict(OverlandPark=98,StMarys=37),
 ))
 
 sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
@@ -40,6 +40,12 @@ kcmapTopeka_puzzle = search.GraphProblem('KansasCity','Topeka', kc_map)
 
 kcmapTopeka_puzzle.label = 'Kansas City Map'
 kcmapTopeka_puzzle.description = '''
+A map of the Kansas City area in the Missouri-Kansas Bistate Area.
+'''
+kcmapStMarys_puzzle = search.GraphProblem('KansasCity','StMarys', kc_map)
+
+kcmapStMarys_puzzle.label = 'Kansas City Map'
+kcmapStMarys_puzzle.description = '''
 A map of the Kansas City area in the Missouri-Kansas Bistate Area.
 '''
 # A trivial Problem definition
@@ -67,7 +73,8 @@ switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
 myPuzzles = [
+    #kcmapTopeka_puzzle,
+    kcmapStMarys_puzzle,
     sumner_puzzle,
     switch_puzzle,
-    kcmapTopeka_puzzle,
 ]
