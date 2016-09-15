@@ -1,6 +1,6 @@
 import search
 from math import(cos, pi)
-
+#unnecessary change to push
 # A sample map problem
 sweden_map = search.UndirectedGraph(dict(
     Stockholm=dict(Uppsala=71, Umeå=637, Malmö=271),
