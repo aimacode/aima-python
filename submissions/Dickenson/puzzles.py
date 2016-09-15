@@ -2,19 +2,23 @@ import search
 from math import(cos, pi)
 
 # A sample map problem
-sumner_map = search.UndirectedGraph(dict(
-    Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
-    Cottontown=dict(Portland=18),
-    Fairfield=dict(Mitchellville=21, Portland=17),
-    Mitchellville=dict(Portland=7, Fairfield=21),
+zimbabwe_map = search.UndirectedGraph(dict(
+    Harare=dict(MountDarwin=118, Kadoma=102, Chikore=138, Mutare=197),
+    Kadoma=dict(Harare=102, Kadoma=107),
+    Gweru=dict(Kadoma=107, Bulawayo=99),
+    Bulawayo=dict(Gweru=99, Lubimbi=183),
+    Lubimbi=dict(Gweru=267, Bulawayo=183),
+    Mutare=dict(Harare=197, Nyanga=98),
+    MountDarwin=dict(Harare=118),
+    Nyanga=dict(Chikore=106, Mutare=98),
+    Chikore=dict(Harare=138, Nyanga=106),
 ))
 
-sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
+sumner_puzzle = search.GraphProblem('Harare', 'Mutare', zimbabwe_map)
 
-sumner_puzzle.label = 'Sumner Map'
+sumner_puzzle.label = 'Zimbabwe Map'
 sumner_puzzle.description = '''
-An abbreviated map of Sumner County, TN.
-This map is unique, to the best of my knowledge.
+An abbreviated map of several cities in Zimbabwe.
 '''
 
 # A trivial Problem definition
