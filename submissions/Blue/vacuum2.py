@@ -1,45 +1,52 @@
 import agents as ag
 
 def HW2Agent() -> object:
-    # oldPercepts = [('None', 'Clean','noBott')]
-    # oldActions = ['NoOp']
+    # program.oldPercepts = [('None', 'Clean','down', 0)]
+    # program.oldActions = ['NoOp']
     def program(percept):
         bump, status = percept
         if status == 'Dirty':
             action = 'Suck'
         else:
-            lastBump, lastStatus, bottom = program.oldPercepts[-1]
+            lastBump, lastStatus, bottom, count = program.oldPercepts[-1]
             lastAction = program.oldActions[-1]
+            # program.bottom = 'down'
+            # program.count = 0
 
-
-            if bprogram.ottom == 'down':
+            if program.bottom == 'down':
                 if bump == 'None':
                     action = 'Down'
+                elif bump == 'Bump' and lastAction[-1] == 'Down':
+                    action = 'Left'
+                    program.bottom = 'up'
+                    action = 'Up'
                 else:
                     program.bottom = 'right'
                     action = 'Right'
-            if bottom == 'right':
-                if bump =='Bump':
-                    action = 'Up'
-                    bottom = 'up'
+            if program.bottom == 'right':
+                if bump =='None':
+                   action = 'Right'
                 else:
+                    program.bottom = 'up'
+                    action = 'Up'
+            if program.bottom == 'up':
+                if bump == 'None':
+                    action = 'Up'
+                elif bump == 'Bump' and lastAction[-1] == 'Up':
                     action = 'Left'
+                    program.bottom = 'down'
+                    action = 'Down'
+                else:
+                    program.bottom = 'left'
+                    action = 'Left'
+
+            # if program.bottom == 'left':
             # elif bump == 'Bump':
             #     action = 'Up'
             # else:
             #     action = 'Right'
 
-            #elif lastAction == 'Left' and bump == 'Bump':
-            #     leftEdge = 'leftEdge'
-            #     action = 'Up'
-            # elif leftEdge == 'leftEdge' and lastAction == 'Left' and ceil == 'noCeil':
-            #     action = 'Up'
-            # elif lastAction == 'Up' and bump == 'Bump':
-            #     action = 'Right'
-            #     ceil = 'ceil'
-            #     leftEdge = 'noLeftEdge'
-            # elif lastAction == 'Right' and bump == 'Bump':
-            #     rightEdge = 'rightEdge'
+
 
 
         program.oldPercepts.append(percept)
@@ -47,9 +54,10 @@ def HW2Agent() -> object:
         return action
 
     # assign static variables here
-    program.oldPercepts = [('None', 'Clean')]
+    program.oldPercepts = [('None', 'Clean', 'down', 0)]
     program.oldActions = ['NoOp']
-    program.bottom = 'noBott'
+    # program.bottom = 'noBott'
+    # program.count = 0
 
     agt = ag.Agent(program)
     # assign class attributes here:
