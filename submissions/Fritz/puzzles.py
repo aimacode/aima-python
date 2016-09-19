@@ -19,7 +19,7 @@ AK_map = search.UndirectedGraph(dict(
 ))
 
 AK_puzzle = search.GraphProblem('Haines', 'ElfinCove', AK_map) #This instance yields a better solution with UCS than BFS
-AK_puzzle = search.GraphProblem('MudBay', 'Hoonah', AK_map) #This instance yields a better solution with BFS than DFS
+AK_puzzle1 = search.GraphProblem('MudBay', 'Hoonah', AK_map) #This instance yields a better solution with BFS than DFS
 
 AK_puzzle.description = '''
 An abbreviated map of south east Alaska.
@@ -28,4 +28,5 @@ This map is unique, to the best of my knowledge.
 
 myPuzzles = [
     AK_puzzle,
+    AK_puzzle1,
 ]
