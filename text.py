@@ -32,10 +32,10 @@ class NgramTextModel(CountingProbDist):
     You can add, sample or get P[(word1, ..., wordn)]. The method P.samples(n)
     builds up an n-word sequence; P.add and P.add_sequence add data."""
 
-    def __init__(self, n, observation_sequence=[]):
+    def __init__(self, n, observation_sequence=[], default=0):
         # In addition to the dictionary of n-tuples, cond_prob is a
         # mapping from (w1, ..., wn-1) to P(wn | w1, ... wn-1)
-        CountingProbDist.__init__(self)
+        CountingProbDist.__init__(self, default=default)
         self.n = n
         self.cond_prob = defaultdict()
         self.add_sequence(observation_sequence)
