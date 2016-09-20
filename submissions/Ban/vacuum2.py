@@ -7,6 +7,11 @@ def HW2Agent() -> object:
 
     def program(percept):
         "Same as ReflexVacuumAgent, except if everything is clean, do NoOp."
+        # Step 1: Move to top
+        # Step 2: Move to left
+        # Step 3: Move to Right
+        # Step 4: Move Down one
+        # Step 5: Repeat Steps 2-4 until complete
         bump, status = percept
         lastBump, lastStatus, topFound, moveDirection = oldPercepts[-1]
         lastAction = oldActions[-1]
