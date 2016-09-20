@@ -4,7 +4,8 @@ import importlib
 import traceback
 import search
 from utils import(isnumber)
-from math import(inf)
+import inf
+# from math import(inf)
 
 class MyException(Exception):
     pass
