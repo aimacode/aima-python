@@ -9,7 +9,7 @@ from math import(inf)
 class MyException(Exception):
     pass
 
-roster = ['Ban','Becker','Blue','Capps','Conklin','Dickenson','Fritz',
+roster = ['Anderson', 'Ban','Becker','Blue','Capps','Conklin','Dickenson','Fritz',
           'Haller','Hawley','Hess','Johnson','Karman','Kinley','LaMartina',
           'McLean','Miles','Ottenlips','Porter','Sery','VanderKallen',
           'aardvark','zzzsolutions',
@@ -79,21 +79,24 @@ def compare_searchers(problems, header, searchers=[]):
 submissions = {}
 scores = {}
 
-print('Submissions that compile: ')
+message1 = 'Submissions that compile:'
 for student in roster:
     try:
         # http://stackoverflow.com/a/17136796/2619926
         mod = importlib.import_module('submissions.' + student + '.puzzles')
         submissions[student] = mod.myPuzzles
-        print('    ' + student)
+        message1 += ' ' + student
     except ImportError:
         pass
     except:
         traceback.print_exc()
 
+print(message1)
 print('----------------------------------------')
 
-for student in submissions:
+for student in roster:
+    if not student in submissions.keys():
+        continue
     scores[student] = []
     try:
         plist = submissions[student]
