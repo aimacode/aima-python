@@ -1,7 +1,7 @@
 import agents as ag
 import envgui as gui
 # change this line ONLY to refer to your project
-import submissions.Ban.vacuum2 as v2
+import submissions.Sery.vacuum2 as v2
 
 # ______________________________________________________________________________
 # Vacuum environment
@@ -211,7 +211,7 @@ testVacuum('5x4 Grid, Agent near Bottom Right:', w=7, h=6,
            dloc=[(1,3), (2,2), (3, 4), (4,1), (5,2)],
            vloc=(4, 3), limit=46 )
 
-v = VacuumEnvironment(6, 3)
+v = VacuumEnvironment(7, 4)
 a = v2.HW2Agent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
