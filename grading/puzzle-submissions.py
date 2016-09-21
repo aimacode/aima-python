@@ -3,9 +3,11 @@ import agents as ag
 import importlib
 import traceback
 import search
+
 from utils import(isnumber)
 import inf
 # from math import(inf)
+
 
 class MyException(Exception):
     pass
@@ -96,6 +98,10 @@ for student in roster:
 print(message1)
 print('----------------------------------------')
 
+def bestFS(problem, h=None):
+    h = memoize(h or problem.h, 'h')
+    return search.best_first_graph_search(problem, lambda n: h(n))
+
 for student in roster:
     if not student in submissions.keys():
         continue
@@ -117,6 +123,7 @@ for student in roster:
             header=hlist,
             searchers=[
                 search.depth_first_graph_search,
+                bestFS,
                 search.breadth_first_search,
                 search.iterative_deepening_search,
                 search.uniform_cost_search,
