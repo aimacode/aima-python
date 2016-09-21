@@ -3,16 +3,15 @@ import agents as ag
 import importlib
 import traceback
 import search
-from utils import(isnumber, memoize)
+from utils import(isnumber)
 from math import(inf)
 
 class MyException(Exception):
     pass
 
-roster = ['Anderson', 'Ban','Becker','Blue','Capps','Conklin','Dickenson',
-          'Fritz','Haller','Hawley','Hess','Johnson','Karman','Kinley',
-          'LaMartina','McLean','Miles','Ottenlips','Porter','Sery',
-          'VanderKallen',
+roster = ['Ban','Becker','Blue','Capps','Conklin','Dickenson','Fritz',
+          'Haller','Hawley','Hess','Johnson','Karman','Kinley','LaMartina',
+          'McLean','Miles','Ottenlips','Porter','Sery','VanderKallen',
           'aardvark','zzzsolutions',
           ]
 
@@ -80,28 +79,21 @@ def compare_searchers(problems, header, searchers=[]):
 submissions = {}
 scores = {}
 
-message1 = 'Submissions that compile:'
+print('Submissions that compile: ')
 for student in roster:
     try:
         # http://stackoverflow.com/a/17136796/2619926
         mod = importlib.import_module('submissions.' + student + '.puzzles')
         submissions[student] = mod.myPuzzles
-        message1 += ' ' + student
+        print('    ' + student)
     except ImportError:
         pass
     except:
         traceback.print_exc()
 
-print(message1)
 print('----------------------------------------')
 
-def bestFS(problem, h=None):
-    h = memoize(h or problem.h, 'h')
-    return search.best_first_graph_search(problem, lambda n: h(n))
-
-for student in roster:
-    if not student in submissions.keys():
-        continue
+for student in submissions:
     scores[student] = []
     try:
         plist = submissions[student]
@@ -120,7 +112,6 @@ for student in roster:
             header=hlist,
             searchers=[
                 search.depth_first_graph_search,
-                bestFS,
                 search.breadth_first_search,
                 search.iterative_deepening_search,
                 search.uniform_cost_search,
