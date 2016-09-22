@@ -105,10 +105,20 @@ class SixteenPuzzle(search.Problem):
         return ['uR', 'uL','dR','dL','lD','rD','rU','rD']
 
     def result(self, state, action):
-        if action == 'up':
-            return 'on'
-        else:
-            return 'off'
+        newState = state
+        if action == 'uR' or action == 'uL':
+            newState[2] = state[1]
+            newState[1] = state[2]
+        if action == 'dR' or action == 'dL':
+            newState[3] = state[4]
+            newState[4] = state[3]
+        if action == 'lD' or action == 'lU':
+            newState[1] = state[3]
+            newState[3] = state[1]
+        if action == 'rD' or action == 'rU':
+            newState[2] = state[4]
+            newState[4] = state[2]
+
 
     def goal_test(self, state):
         return state == ['1','2','3','4']
@@ -119,7 +129,7 @@ class SixteenPuzzle(search.Problem):
             return 0
         else:
             return 1
-
+sixteen_puzzle = SixteenPuzzle(['2','3','4','1'])
 myPuzzles = [
     kcmapTopeka_puzzle,
     kcmapStMarys_puzzle,
