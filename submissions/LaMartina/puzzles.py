@@ -131,6 +131,10 @@ switch_puzzle.label = 'Light Switch'
 #             return 1
 #
 class SixteenPuzzle(search.Problem):
+    # def __init__(self, initial, goal=('1','2','3','4')):
+    #     self.initial = initial
+    #     self.goal = goal
+
     def actions(self, state):
         return ['uR', 'uL','dR','dL','lD','rD','rU','rD']
 
@@ -165,6 +169,7 @@ class SixteenPuzzle(search.Problem):
         else:
             return 1
 sixteen_puzzle = SixteenPuzzle(('2','3','4','1'))
+sixteen_puzzle.label = 'Sixteen Puzzle'
 myPuzzles = [
     kcmapTopeka_puzzle,
     kcmapStMarys_puzzle,
