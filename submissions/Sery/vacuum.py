@@ -6,7 +6,6 @@ import random
 
 loc_A, loc_B = (1, 1), (2, 1)  # The two locations for the Vacuum world
 
-
 def RandomVacuumAgent():
     "Randomly choose one of the actions from the vacuum environment."
     p = ag.RandomAgentProgram(['Right', 'Left', 'Up', 'Down', 'Suck', 'NoOp'])
@@ -189,8 +188,8 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 
 # Launch GUI of more complex environment
 v = VacuumEnvironment(5, 4)
-a = ModelBasedVacuumAgent()
-#a = RandomVacuumAgent()
+#a = ModelBasedVacuumAgent()
+a = RandomVacuumAgent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
@@ -198,10 +197,10 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: './corey.jpg',
+    ag.Wall: 'submissions/Sery/corey.jpg',
     # Floor: 'images/floor.png',
-    Dirt: '../../images/dirt.png',
-    ag.Agent: '../../images/vacuum.png',
+    Dirt: 'images/dirt.png',
+    ag.Agent: 'images/vacuum.png',
 })
 c.update()
 g.mainloop()
