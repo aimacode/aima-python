@@ -94,21 +94,38 @@ def try_to_play(game):
 
 AB_searches = [ make_ab(d) for d in range(9)]
 
+def makeMoveTable(game, states):
+    header = [['state:', 'moves']]
+    table = []
+    for state in states:
+        row = [str(state) + ':']
+        moves = game.actions(state)
+        moveString = str(moves)
+        row.append(moveString)
+        table.append(row)
+    print_table(table, header)
+
+def makeABtable(game, states):
+    topLeft = str(game)[1:-1]
+    header = [[str(topLeft)]]
+    maxChars = len(topLeft)
+    for i in range(len(AB_searches)):
+        header[0].append('AB(' + str(i) + ')')
+    table = []
+    for state in states:
+        row = [str(state)[:maxChars]]
+        for abSearch in AB_searches:
+            bestMove = abSearch(game, state)
+            row.append(str(bestMove))
+        table.append(row)
+    print_table(table, header, tjust='rjust')
+
 def try_games(games):
     for g in games:
-        topLeft = str(g)[1:-1]
-        header = [[str(topLeft)]]
-        maxChars = len(topLeft)
-        for i in range(len(AB_searches)):
-            header[0].append('AB(' + str(i) + ')')
-        table = []
-        for state in games[g]:
-            column = [str(state)[:maxChars]]
-            for abSearch in AB_searches:
-                bestMove = abSearch(g, state)
-                column.append(str(bestMove))
-            table.append(column)
-        print_table(table, header, tjust='rjust')
+        makeABtable(g, games[g])
+        print()
+        makeMoveTable(g, games[g])
+        print()
         try_to_play(g)
 
 submissions = {}
