@@ -130,50 +130,79 @@ switch_puzzle.label = 'Light Switch'
 #         else:
 #             return 1
 #
+# class SixteenPuzzle(search.Problem):
+#     # def __init__(self, initial, goal=('1','2','3','4')):
+#     #     self.initial = initial
+#     #     self.goal = goal
+#
+#     def actions(self, state):
+#         return ['uR', 'uL','dR','dL','lD','rD','rU','rD']
+#
+#     def result(self, state, action):
+#         newState = state
+#         a,b,c,d = newState
+#         if action == 'uR' or action == 'uL':
+#             a = b
+#             b = a
+#         if action == 'dR' or action == 'dL':
+#             c = d
+#             d = c
+#         if action == 'lD' or action == 'lU':
+#             a = c
+#             c = a
+#         if action == 'rD' or action == 'rU':
+#             b = d
+#             d = b
+#         newState = (a,b,c,d)
+#         return newState
+#
+#
+#     def goal_test(self, state):
+#         return state == ('1','2','3','4')
+#
+#     def path_cost(self, c, state1, action, state2):
+#         return c+1
+#     def h(self, node):
+#         state = node.state
+#         if self.goal_test(state):
+#             return 0
+#         else:
+#             return 1
 class SixteenPuzzle(search.Problem):
-    # def __init__(self, initial, goal=('1','2','3','4')):
-    #     self.initial = initial
-    #     self.goal = goal
-
     def actions(self, state):
         return ['uR', 'uL','dR','dL','lD','rD','rU','rD']
 
     def result(self, state, action):
         newState = state
-        a,b,c,d = newState
         if action == 'uR' or action == 'uL':
-            a = b
-            b = a
+            newState[0] = state[1]
+            newState[1] = state[0]
         if action == 'dR' or action == 'dL':
-            c = d
-            d = c
+            newState[3] = state[2]
+            newState[2] = state[3]
         if action == 'lD' or action == 'lU':
-            a = c
-            c = a
+            newState[0] = state[2]
+            newState[2] = state[0]
         if action == 'rD' or action == 'rU':
-            b = d
-            d = b
-        newState = (a,b,c,d)
+            newState[1] = state[3]
+            newState[3] = state[1]
+
         return newState
-
-
     def goal_test(self, state):
-        return state == ('1','2','3','4')
+        return state[0] == '1' and state[1] == '2' and state[2] == '3' and state[3] == '4'
 
-    def path_cost(self, c, state1, action, state2):
-        return c+1
     def h(self, node):
         state = node.state
         if self.goal_test(state):
             return 0
         else:
             return 1
-sixteen_puzzle = SixteenPuzzle(('2','3','4','1'))
+sixteen_puzzle = SixteenPuzzle(['2','3','4','1'])
 sixteen_puzzle.label = 'Sixteen Puzzle'
 myPuzzles = [
     kcmapTopeka_puzzle,
     kcmapStMarys_puzzle,
     sumner_puzzle,
     switch_puzzle,
-    sixteen_puzzle,
+    #sixteen_puzzle,
 ]
