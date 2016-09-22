@@ -26,12 +26,12 @@ kc_map = search.UndirectedGraph(dict(
     Clinton=dict(RichHill=51,Warsaw=30),
     RichHill=dict(Ottawa=87,Clinton=51),
     Ottawa=dict(OsageCity=32,RichHill=87),
-    OsageCity=dict(Topeka=38,Ottawa=32),
+    OsageCity=dict(Ottawa=32),
     OverlandPark=dict(Olathe=12,Lawrence=35,KansasCity=12,Holton=98),
     Olathe=dict(Lawrence=30,OverlandPark=12),
     Lawrence=dict(Topeka=28,OverlandPark=35,Olathe=30),
     Atchison=dict(KansasCity=50),
-    Topeka=dict(Lawrence=28,OsageCity=38,StMarys=26),
+    Topeka=dict(Lawrence=28,StMarys=26),
     StMarys=dict(Topeka=26,Holton=37),
     Holton=dict(OverlandPark=98,StMarys=37),
 ))
@@ -46,11 +46,11 @@ kc_map.locations = dict(
     Clinton= (latitude(38.3686), longitude(38.3686, 93.7783)),
     RichHill= (latitude(38.0964), longitude(38.0964, 94.3611)),
     Ottawa= (latitude(38.6158), longitude(38.6158, 95.2686)),
-    OsageCity= (latitude(38.6339), longitude(38.6339, 95.8258)),
+    OsageCity= (latitude(39.0000), longitude(38.6339, 95.8258)),
     OverlandPark= (latitude(38.9822), longitude(38.9822, 94.6708)),
     Olathe=(latitude(38.8814), longitude(38.8814,94.8191)),
     Lawrence=(latitude(38.9717), longitude(38.9717,95.2353)),
-    Atchison=(latitude(39.5631), longitude(39.0997,95.1216)),
+    Atchison=(latitude(39.5631), longitude(39.5631,95.1216)),
     Topeka=(latitude(39.0558), longitude(39.0558,95.6890)),
     StMarys=(latitude(39.1942), longitude(39.1942,96.0711)),
     Holton=(latitude(39.4653), longitude(39.4653,95.7364)),
@@ -64,7 +64,7 @@ sumner_puzzle.description = '''
 An abbreviated map of Sumner County, TN.
 This map is unique, to the best of my knowledge.
 '''
-kcmapTopeka_puzzle = search.GraphProblem('KansasCity','Topeka', kc_map)
+kcmapTopeka_puzzle = search.GraphProblem('Ottawa','Topeka', kc_map)
 
 kcmapTopeka_puzzle.label = 'Kansas City Map'
 kcmapTopeka_puzzle.description = '''
@@ -101,7 +101,7 @@ switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
 myPuzzles = [
-    #kcmapTopeka_puzzle,
+    kcmapTopeka_puzzle,
     kcmapStMarys_puzzle,
     sumner_puzzle,
     switch_puzzle,
