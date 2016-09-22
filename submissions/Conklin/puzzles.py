@@ -32,6 +32,7 @@ sweden_puzzle_HJ = search.GraphProblem('Helsingborg', 'Jönköping', sweden_map)
 #A* = UCS, but more efficient
 sweden_puzzle_UJ = search.GraphProblem('Umeå', 'Jönköping', sweden_map)
 
+#an unnecessary change to commit
 
 
 sweden_puzzle_MU.label = 'Map of Sweden Using Distance (KM)'
