@@ -64,7 +64,7 @@ sumner_puzzle.description = '''
 An abbreviated map of Sumner County, TN.
 This map is unique, to the best of my knowledge.
 '''
-kcmapTopeka_puzzle = search.GraphProblem('Ottawa','Topeka', kc_map)
+kcmapTopeka_puzzle = search.GraphProblem('OsageCity','Topeka', kc_map)
 
 kcmapTopeka_puzzle.label = 'Kansas City Map'
 kcmapTopeka_puzzle.description = '''
@@ -99,6 +99,26 @@ class LightSwitch(search.Problem):
 
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
+#version of the sixteen puzzle that is 2 by 2
+class SixteenPuzzle(search.Problem):
+    def actions(self, state):
+        return ['uR', 'uL','dR','dL','lD','rD','rU','rD']
+
+    def result(self, state, action):
+        if action == 'up':
+            return 'on'
+        else:
+            return 'off'
+
+    def goal_test(self, state):
+        return state == ['1','2','3','4']
+
+    def h(self, node):
+        state = node.state
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
 
 myPuzzles = [
     kcmapTopeka_puzzle,
