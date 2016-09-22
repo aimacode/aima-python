@@ -25,6 +25,30 @@ mediterranean_map = search.UndirectedGraph(dict(
     Thessalonica=dict(Ascalon=12),
     Tyre=dict(Rhodes=10),
 ))
+mediterranean_map.locations = dict(
+    Alexandria=(31.2, 29.91),
+    Ascalon=(31.67, 34.57),
+    Berytus=(0, 0),
+    Byzantium=(0, 0),
+    Caesarea=(0, 0),
+    Carthage=(0, 0),
+    Corinth=(0, 0),
+    Crete=(0, 0),
+    Cyprus=(0, 0),
+    Cyrene=(0, 0),
+    Epidamnus=(0, 0),
+    Gaza=(0, 0),
+    Gibraltar=(0, 0),
+    Massilia=(0, 0),
+    Myra=(0, 0),
+    Naples=(0, 0),
+    Narbo=(0, 0),
+    Rhodes=(0, 0),
+    Rome=(0, 0),
+    Tarraco=(0, 0),
+    Thessalonica=(0, 0),
+    Tyre=(0, 0),
+)
 
 mediterranean_puzzle = search.GraphProblem('Gibraltar', 'Alexandria', mediterranean_map)
 
@@ -34,10 +58,102 @@ Times are based from the article "Speed Under Sail of Ancient Ships", a journal 
 http://penelope.uchicago.edu/Thayer/E/Journals/TAPA/82/Speed_under_Sail_of_Ancient_Ships*.html
 '''
 
+class ColorMaze(search.Problem):
+    colorCounts = dict()
+
+    def getPosition(self, state):
+        for row in range(0, len(state)):
+            for col in range(0, len(state[row])):
+                if state[row][col] == '*':
+                    return (row, col)
+
+    def setPositionValue(self, grid, coor, value):
+        r,c = coor
+        for row in range(0, len(grid)):
+            for col in range(0, len(grid[row])):
+                if r == row and c == col:
+                    grid[row][col] = value
+                    return grid
+
+    def actions(self, state):
+        return ['u', 'd', 'l', 'r']
+
+    def result(self, state, action):
+
+        r, c = self.getPosition(state)
+        newState = state
+
+        if action == 'u':
+            r -= 1
+        elif action == 'd':
+            r += 1
+        elif action == 'l':
+            c -= 1
+        elif action == 'r':
+            c += 1
+
+
+        # Keep within bounds of grid
+        if r < 0 or r >= len(state): return state
+        if c < 0 or r >= len(state[0]): return state
+
+        for row in range(0, len(newState)):
+            for col in range(0, len(row)):
+                if r == row and c == col:
+                    if newState[row][col] == 'x':
+                        # If we're at the same spot
+                        return state
+
+                    self.colorCounts[newState[row][col]] += 1
+                    newState[row][col] = '*'
+                    # Mark where we've been
+                    self.setPositionValue(newState, (r,c), 'x')
+                    break
+
+        return newState
+
+
+    def goal_test(self, state):
+        position = self.getPosition(state)
+        # End in upper right corner
+        if position == (0, len(state[0])):
+            counts = self.colorCounts.values()
+            # Clever way to see if contents are equal to each other
+            # Credit to http://stackoverflow.com/a/3844832/4276296
+            return len(set(counts)) <= 1
+
+        return False
+
+
+
+    def h(self, node):
+        state = node.state
+
+        for row in range(0, len(state)):
+            for col in range(0, len(row)):
+                self.colorCounts[state[row][col]] = 0
+
+        print(self.colorCounts)
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
+
+ColorMaze_puzzle = ColorMaze(
+    [
+        ['y', '', 'r', ''],
+        ['r', 'y', 'r', 'r'],
+        ['r', '', 'r', 'y'],
+        ['*', 'r', 'r', 'y'],
+    ]
+)
+ColorMaze_puzzle.label = 'Color Maze'
+
 myPuzzles = [
     # One of these is usually has UCS over BFS
     mediterranean_puzzle,
     search.GraphProblem('Tyre', 'Utica', mediterranean_map),
     # BFS is better than DFS
     search.GraphProblem('Massilia', 'Rhodes', mediterranean_map),
+    ColorMaze_puzzle,
 ]
