@@ -112,36 +112,54 @@ class ThinkAhead(Game):
 
 won = GameState(
     to_move = 'H',
-    position = (1,1),
+    position = (0,1),
     board = [[nan,nan],
              [ 9 ,nan]],
     label = 'won'
 )
+won.scores = {'H':9, 'V': 0}
 
 lost = GameState(
     to_move = 'V',
-    position = (0,0),
+    position = (0,1),
     board = [[nan,nan],
              [ 9 ,nan]],
     label = 'lost'
 )
+lost.scores = {'H':0, 'V': 9}
 
 winin1 = GameState(
     to_move = 'H',
-    position = (0,0),
-    board = [[nan, 3 , 2 ],
-             [nan, 9 ,nan],
-             [nan,nan, 1]],
+    position = (1,1),
+    board = [[nan,nan],
+             [ 9 ,nan]],
     label = 'winin1'
 )
 
 losein1 = GameState(
     to_move = 'V',
     position = (0,0),
+    board = [[nan,nan],
+             [ 9 ,nan]],
+    label = 'losein1'
+)
+
+winin2 = GameState(
+    to_move = 'H',
+    position = (0,0),
+    board = [[nan, 3 , 2 ],
+             [nan, 9 ,nan],
+             [nan,nan, 1]],
+    label = 'winin2'
+)
+
+losein2 = GameState(
+    to_move = 'V',
+    position = (0,0),
     board = [[nan,nan,nan],
              [ 3 , 9 ,nan],
              [ 2 ,nan, 1]],
-    label = 'losein1'
+    label = 'losein2'
 )
 
 # http://www.kongregate.com/games/zolli/thinkahead-brain-trainer
