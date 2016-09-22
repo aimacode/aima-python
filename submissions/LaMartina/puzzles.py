@@ -200,6 +200,8 @@ switch_puzzle.label = 'Light Switch'
 
 
 class SixteenPuzzle(search.Problem):
+    def _init_(self,state):
+        self.initial = state
     def actions(self, state):
         return ['uR', 'uL','dR','dL','lD','rD','rU','rD']
 
