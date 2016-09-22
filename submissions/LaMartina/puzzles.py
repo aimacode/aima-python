@@ -1,4 +1,5 @@
 import search
+import math
 from math import(cos, pi)
 
 # A sample map problem
@@ -8,6 +9,12 @@ sumner_map = search.UndirectedGraph(dict(
     Fairfield=dict(Mitchellville=21, Portland=17),
     Mitchellville=dict(Portland=7, Fairfield=21),
 ))
+#converts latitude to miles:
+def latitude(lat):
+    return lat * 69
+#converts longitude to miles:
+def longitude(lat,long):
+    return long * 69 * math.cos(math.radians(lat))
 kc_map = search.UndirectedGraph(dict(
     KansasCity=dict(Independence=11,OverlandPark=12,Atchison=50,),
     Independence=dict(Higginsville=46,LeesSummit=18,KansasCity=11),
@@ -28,6 +35,27 @@ kc_map = search.UndirectedGraph(dict(
     StMarys=dict(Topeka=26,Holton=37),
     Holton=dict(OverlandPark=98,StMarys=37),
 ))
+kc_map.locations = dict(
+    KansasCity=(latitude(39.0997), longitude(39.0997,94.5786)),
+    Independence=(latitude(39.0911), longitude(39.0911,94.4155)),
+    Higginsville=(latitude(39.0725), longitude(39.0725,93.7172)),
+    LeesSummit=(latitude(38.9108), longitude(38.9108,94.3822)),
+    Warrensburg=(latitude(38.7628), longitude(38.7628,93.7360)),
+    Sedalia=(latitude(38.7045), longitude(38.7045,93.2283)),
+    Warsaw=(latitude(38.2431), longitude(38.2431,93.3819)),
+    Clinton= (latitude(38.3686), longitude(38.3686, 93.7783)),
+    RichHill= (latitude(38.0964), longitude(38.0964, 94.3611)),
+    Ottawa= (latitude(38.6158), longitude(38.6158, 95.2686)),
+    OsageCity= (latitude(38.6339), longitude(38.6339, 95.8258)),
+    OverlandPark= (latitude(38.9822), longitude(38.9822, 94.6708)),
+    Olathe=(latitude(38.8814), longitude(38.8814,94.8191)),
+    Lawrence=(latitude(38.9717), longitude(38.9717,95.2353)),
+    Atchison=(latitude(39.5631), longitude(39.0997,95.1216)),
+    Topeka=(latitude(39.0558), longitude(39.0558,95.6890)),
+    StMarys=(latitude(39.1942), longitude(39.1942,96.0711)),
+    Holton=(latitude(39.4653), longitude(39.4653,95.7364)),
+
+)
 
 sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
 
