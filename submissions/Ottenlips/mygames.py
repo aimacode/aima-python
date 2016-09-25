@@ -12,7 +12,8 @@ class GameState:
         self.board = board
         self.label = label
         self.scores = {'S': 0}
-        # self.scores = {'P2': 0}
+        self.scores = {'P1': 0}
+        self.scores = {'P2': 0}
 
     def __str__(self):
         if self.label == None:
@@ -28,9 +29,7 @@ class Move:
         return self.position, self.value
     # def getValue(self):
 
-
-
-class ThinkAhead(Game):
+class Star29(Game):
     """
     An implementation of ThinkAhead
     """
@@ -38,8 +37,6 @@ class ThinkAhead(Game):
         self.initial = state
         self.first = ''
         self.startingBoard = state.board
-
-
 
     def actions(self, state):
         ""
@@ -82,32 +79,25 @@ class ThinkAhead(Game):
             newState.board = (self.startingBoard[1], self.startingBoard[2])
         # newState.board[p] = nan
         newState.scores['S'] += value
-        # newState.scores['P2'] += value
+        newState.scores['P1'] += value
+        newState.scores['P2'] += value
 
         self.lastMove = newState.position
         return newState
 
     def utility(self, state, player):
         "Player relative score"
-        #
-        # Return
-        # the
-        # value
-        # to
-        # player;
-        # 1
-        # for win, -1 for loss, 0 otherwise.
-        if state.scores['S'] >= 29 and player=="Player Two" :
+        if state.scores['P2'] >= 29 and player=="Player Two" :
             return 1
-        if state.scores['S'] >= 29 and player == "Player One":
+        if state.scores['P1'] >= 29 and player == "Player One":
             return -1
-        return 0
+
+        return state.scores['S']
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
         if state.scores['S'] >= 29:
             return 1
-
         return 0
 
     def display(self, state):
@@ -115,26 +105,27 @@ class ThinkAhead(Game):
         print('Score: ' + str(state.scores))
 
     def check_win(self, board, player, state):
-        if state.scores['S'] >= 29 and player=='Player One':
+        if state.scores['P2'] >= 29 and player=="Player Two" :
             return 1
+        if state.scores['P1'] >= 29 and player == "Player One":
+            return -1
 
         return 0
 
 
-won = GameState(
+full_game = GameState(
     to_move = 'Player One',
     position = 0,
     board=[1,2,3,4,5],
     label = ''
 )
-won.scores = {'S':0}
+full_game.scores = {'S':0, 'P1':0, 'P2':0}
 
-
-thinkA = ThinkAhead(won)
+thinkA = Star29(full_game)
 
 myGames = {
     thinkA: [
-        won,
+        full_game,
 
     ]
 }
