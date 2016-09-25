@@ -264,44 +264,50 @@ class CTT(Game):
     # Did I win?
     def check_win(self, board, player):
         # check d1
-        for y in range(1, self.v + 1):
-            if self.k_in_row(board, (1,y), player, (1,0)):
+        for (x,y) in self.d1[1:length]:
+            if board.get((x,y)) == player:
                 return 1
         # check d2
-        for y in range(1, self.v + 1):
-             if self.k_in_row(board, (1, y), player, (1, 0)):
-                 return 1
-        # check d3
-        for y in range(1, self.v + 1):
-            if self.k_in_row(board, (1, y), player, (1, 0)):
+        for (x,y) in self.d2[1:length]:
+            if board.get((x,y)) == player:
                 return 1
-        # check d1
-        for x in range(1, self.h + 1):
-            if self.k_in_row(board, (x,1), player, (0,1)):
-                return 1
-        # check d2
-        if self.k_in_row(board, (1,1), player, (1,1)):
-            return 1
         # check d3
-        if self.k_in_row(board, (3,1), player, (-1,1)):
-            return 1
+        for (x,y) in self.d3[1:length]:
+            if board.get((x,y)) == player:
+                return 1
+        # check c1
+        for (x,y) in self.c1[1:length]:
+            if board.get((x,y)) == player:
+                return 1
+        # check c2
+        for (x,y) in self.c2[1:length]:
+            if board.get((x,y)) == player:
+                return 1
+        # check c3
+        for (x,y) in self.c3[1:length]:
+            if board.get((x,y)) == player:
+                return 1
         return 0
 
-    # does player have K in a row? return 1 if so, 0 if not
-    def k_in_row(self, board, start, player, direction):
-        "Return true if there is a line through start on board for player."
-        (delta_x, delta_y) = direction
-        x, y = start
-        n = 0  # n is number of moves in row
-        while board.get((x, y)) == player:
-            n += 1
-            x, y = x + delta_x, y + delta_y
-        x, y = start
-        while board.get((x, y)) == player:
-            n += 1
-            x, y = x - delta_x, y - delta_y
-        n -= 1  # Because we counted start itself twice
-        return n >= self.k
+    # # does player have 3 in a row? return 1 if so, 0 if not
+    # def k_in_row(self, board, player, win):
+    #     while board.get
+    #     return 0
+
+    # def k_in_row(self, board, start, player, direction):
+    #     "Return true if there is a line through start on board for player."
+    #     (delta_x, delta_y) = direction
+    #     x, y = start
+    #     n = 0  # n is number of moves in row
+    #     while board.get((x, y)) == player:
+    #         n += 1
+    #         x, y = x + delta_x, y + delta_y
+    #     x, y = start
+    #     while board.get((x, y)) == player:
+    #         n += 1
+    #         x, y = x - delta_x, y - delta_y
+    #     n -= 1  # Because we counted start itself twice
+    #     return n >= self.k
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
