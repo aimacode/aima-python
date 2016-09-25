@@ -325,69 +325,84 @@ myGame = CTT()
 
 won = GameState(
     to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
-             (2,1): 'O', (2,2): 'O',
+    board = {(1,1): 'X', (2,2): 'X', (3,3): 'X',
+             (1,7): 'O', (2,6): 'O',
             },
     label = 'won'
 )
 
 winin1 = GameState(
     to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
+    board = {(3,3): 'X', (3,3): 'X',
+             (6,4): 'O', (7,4): 'O',
             },
     label = 'winin1'
 )
 
 losein1 = GameState(
     to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-             (3,1): 'X',
-            },
+    board={(3, 3): 'X', (3, 3): 'X', (5,4): 'X',
+           (6, 4): 'O', (7, 4): 'O',
+           },
     label = 'losein1'
+
+
+# winin2 = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'X',
+#              (2,1): 'O', (2,2): 'O',
+#             },
+#     label = 'winin2'
+# )
+#
+# losein2 = GameState(
+#     to_move = 'O',
+#     board = {(1,1): 'X', (1,2): 'X',
+#              (2,1): 'O', (2,2): 'O',
+#              (3,1): 'X',
+#             },
+#     label = 'losein2'
 )
 
-winin3 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-             (3,1): 'O',
-            },
-    label = 'winin3'
-)
+# winin3 = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'O',
+#              (2,1): 'X',
+#              (3,1): 'O',
+#             },
+#     label = 'winin3'
+# )
+#
+# losein3 = GameState(
+#     to_move = 'O',
+#     board = {(1,1): 'X',
+#              (2,1): 'X',
+#              (3,1): 'O', (1,2): 'X', (1,2): 'O',
+#             },
+#     label = 'losein3'
+# )
+#
+# winin5 = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'O',
+#              (2,1): 'X',
+#             },
+#     label = 'winin5'
+# )
 
-losein3 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X',
-             (2,1): 'X',
-             (3,1): 'O', (1,2): 'X', (1,2): 'O',
-            },
-    label = 'losein3'
-)
+# lost = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'X',
+#              (2,1): 'O', (2,2): 'O', (2,3): 'O',
+#              (3,1): 'X'
+#             },
+#     label = 'lost'
 
-winin5 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-            },
-    label = 'winin5'
-)
-
-lost = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
-             (3,1): 'X'
-            },
-    label = 'lost'
-)
 
 myGames = {
     myGame: [
         won,
-        winin1, losein1, winin3, losein3, winin5,
-        lost,
+        winin1, losein1
     ]
 }
 
