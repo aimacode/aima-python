@@ -88,11 +88,10 @@ class Star29(Game):
     def utility(self, state, player):
         "Player relative score"
         if state.scores['P2'] >= 29 and player=="Player Two" :
-            return 1
-        if state.scores['P1'] >= 29 and player == "Player One":
             return -1
-
-        return state.scores['S']
+        if state.scores['P1'] >= 29 and player == "Player One":
+            return 1
+        return 0
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
@@ -104,20 +103,20 @@ class Star29(Game):
         print(state.board)
         print('Score: ' + str(state.scores))
 
-    def check_win(self, board, player, state):
-        if state.scores['P2'] >= 29 and player=="Player Two" :
-            return 1
-        if state.scores['P1'] >= 29 and player == "Player One":
-            return -1
-
-        return 0
+    # def check_win(self, board, player, state):
+    #     if state.scores['P2'] >= 29 and player=="Player Two" :
+    #         return 1
+    #     if state.scores['P1'] >= 29 and player == "Player One":
+    #         return -1
+    #
+    #     return 0
 
 
 full_game = GameState(
     to_move = 'Player One',
     position = 0,
     board=[1,2,3,4,5],
-    label = ''
+    label = 'full'
 )
 full_game.scores = {'S':0, 'P1':0, 'P2':0}
 
