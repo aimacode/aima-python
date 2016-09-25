@@ -185,30 +185,49 @@ class GameState:
 #     ]
 # }
 
-class SimpleStratego(Game):
-    """A flagrant copy of TicTacToe, from game.py
+class CTT(Game):
+    """A version of the Circle-Tac-Toe game
     It's simplified, so that moves and utility are calculated as needed
     Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
-    def __init__(self, h=5, v=5, k=5):
+    def __init__(self, h=7, v=7, k=3):
         self.h = h
         self.v = v
         self.k = k
         self.initial = GameState(to_move='X', board={})
+        # self.invalidSpaces = {(1,2):'F', (1,3):'F', (1,4):'F', (1,5):'F', (1,6):'F', (2,1):'F', (2,3):'F',
+        #                       (2, 4): 'F', (2,5):'F', (2,7):'F', (3,1):'F', (3,2):'F', (3,4):'F', (3,6):'F',
+        #                       (3, 7): 'F', (4,1):'F', (4,2):'F', (4,3):'F', (4,4):'F',(4,5):'F',(4,6):'F',(4,7):'F',
+        #                       (5, 1): 'F',(5,2):'F',(5,4):'F',(5,6):'F',(5,7):'F',(6,1):'F',(6,3):'F',(6,4):'F',(6,5):'F',
+        #                       (6, 7): 'F',(7,2):'F',(7,3):'F',(7,4):'F',(7,5):'F',(7,6):'F'}
+        #Valid spaces make up the spaces within the 7x7 grid that are "allowable"
+        self.validSpaces = (
+        (1, 1), (1, 7), (2, 2), (2, 6), (3, 3), (3, 5), (5, 4), (6, 4),)
+        #c1, c2, c3, d1, d2, and d3 are the coordinates that make up the 6 winning states.
+        #these will be checked when determining if the game is over.
+        self.c1 = ((3,3), (3,5), (5,4),)
+        self.c2 = ((2,2), (2,6), (6,4),)
+        self.c3 = ((1,1), (1,7), (7,4),)
+        self.d1 = ((1,1), (2,2), (3,3),)
+        self.d2 = ((1,7), (2,6), (3,5),)
+        self.d3 = ((5,4), (6,4), (7,4),)
 
     def actions(self, state):
         try:
             return state.moves
         except:
             pass
-        "Legal moves are any moves within 1 space of a numbered game piece."
+        "Legal moves are any 'valid' squares not yet taken."
         moves = []
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
-                if (x,y) not in state.board.keys():
-                    moves.append((x,y))
+                if (x,y) in validSpaces():
+                    if (x,y) not in state.board.keys():
+                        moves.append((x,y))
+                # if (x,y) not in state.board.keys():
+                #     moves.append((x,y))
         state.moves = moves
         return moves
 
@@ -244,18 +263,26 @@ class SimpleStratego(Game):
 
     # Did I win?
     def check_win(self, board, player):
-        # check rows
+        # check d1
         for y in range(1, self.v + 1):
             if self.k_in_row(board, (1,y), player, (1,0)):
                 return 1
-        # check columns
+        # check d2
+        for y in range(1, self.v + 1):
+             if self.k_in_row(board, (1, y), player, (1, 0)):
+                 return 1
+        # check d3
+        for y in range(1, self.v + 1):
+            if self.k_in_row(board, (1, y), player, (1, 0)):
+                return 1
+        # check d1
         for x in range(1, self.h + 1):
             if self.k_in_row(board, (x,1), player, (0,1)):
                 return 1
-        # check \ diagonal
+        # check d2
         if self.k_in_row(board, (1,1), player, (1,1)):
             return 1
-        # check / diagonal
+        # check d3
         if self.k_in_row(board, (3,1), player, (-1,1)):
             return 1
         return 0
@@ -288,7 +315,7 @@ class SimpleStratego(Game):
             print()
 
 
-myGame = SimpleStratego()
+myGame = CTT()
 
 won = GameState(
     to_move = 'O',
@@ -357,3 +384,4 @@ myGames = {
         lost,
     ]
 }
+
