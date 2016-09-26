@@ -204,7 +204,7 @@ class CTT(Game):
         #                       (6, 7): 'F',(7,2):'F',(7,3):'F',(7,4):'F',(7,5):'F',(7,6):'F'}
         #Valid spaces make up the spaces within the 7x7 grid that are "allowable"
         self.validSpaces = (
-        (1, 1), (1, 7), (2, 2), (2, 6), (3, 3), (3, 5), (5, 4), (6, 4),)
+        (1, 1), (1, 7), (2, 2), (2, 6), (3, 3), (3, 5), (5, 4), (6, 4),(7,4),)
         #c1, c2, c3, d1, d2, and d3 are the coordinates that make up the 6 winning states.
         #these will be checked when determining if the game is over.
         self.c1 = ((3,3), (3,5), (5,4),)
@@ -223,7 +223,7 @@ class CTT(Game):
         moves = []
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
-                if (x,y) in validSpaces():
+                if (x,y) in self.validSpaces:
                     if (x,y) not in state.board.keys():
                         moves.append((x,y))
                 # if (x,y) not in state.board.keys():
@@ -264,27 +264,27 @@ class CTT(Game):
     # Did I win?
     def check_win(self, board, player):
         # check d1
-        for (x,y) in self.d1[1:length]:
+        for (x,y) in self.d1[1:9]:
             if board.get((x,y)) == player:
                 return 1
         # check d2
-        for (x,y) in self.d2[1:length]:
+        for (x,y) in self.d2[1:9]:
             if board.get((x,y)) == player:
                 return 1
         # check d3
-        for (x,y) in self.d3[1:length]:
+        for (x,y) in self.d3[1:9]:
             if board.get((x,y)) == player:
                 return 1
         # check c1
-        for (x,y) in self.c1[1:length]:
+        for (x,y) in self.c1[1:9]:
             if board.get((x,y)) == player:
                 return 1
         # check c2
-        for (x,y) in self.c2[1:length]:
+        for (x,y) in self.c2[1:9]:
             if board.get((x,y)) == player:
                 return 1
         # check c3
-        for (x,y) in self.c3[1:length]:
+        for (x,y) in self.c3[1:9]:
             if board.get((x,y)) == player:
                 return 1
         return 0
