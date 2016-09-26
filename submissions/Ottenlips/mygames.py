@@ -88,7 +88,7 @@ class Star29(Game):
     def utility(self, state, player):
         "Player relative score"
         if state.scores['P2'] >= 29 and player=="Player Two" :
-            return -1
+            return 1
         if state.scores['P1'] >= 29 and player == "Player One":
             return 1
         return 0
