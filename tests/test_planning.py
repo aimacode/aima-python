@@ -46,3 +46,14 @@ def test_spare_tire():
         p.act(action)
         
     assert p.goal_test()
+
+def test_have_cake_and_eat_cake_too():
+    p = have_cake_and_eat_cake_too()
+    assert p.goal_test() is False
+    solution = [expr("Eat(Cake)"),
+                expr("Bake(Cake)")]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()
