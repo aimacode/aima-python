@@ -12,8 +12,6 @@ class GameState:
         self.board = board
         self.label = label
         self.scores = {'S': 0}
-        self.scores = {'P1': 0}
-        self.scores = {'P2': 0}
 
     def __str__(self):
         if self.label == None:
@@ -79,24 +77,25 @@ class Star29(Game):
             newState.board = (self.startingBoard[1], self.startingBoard[2])
         # newState.board[p] = nan
         newState.scores['S'] += value
-        newState.scores['P1'] += value
-        newState.scores['P2'] += value
+
 
         self.lastMove = newState.position
         return newState
 
     def utility(self, state, player):
         "Player relative score"
-        if state.scores['P2'] >= 29 and player=="Player Two" :
+        if state.scores['S'] > 29:
             return 1
-        if state.scores['P1'] >= 29 and player == "Player One":
-            return 1
-        return 0
+        elif state.scores['S'] == 29:
+            return -1
+        else:
+            return 0
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
         if state.scores['S'] >= 29:
-            return 1
+            return -1
+
         return 0
 
     def display(self, state):
@@ -118,14 +117,14 @@ full_game = GameState(
     board=[1,2,3,4,5],
     label = 'full'
 )
-full_game.scores = {'S':0, 'P1':0, 'P2':0}
+full_game.scores = {'S':27}
 mid_game = GameState(
     to_move = 'Player One',
     position = 0,
     board=[1,2,3,4,5],
     label = 'mid'
 )
-mid_game.scores = {'S':15, 'P1':15, 'P2':15}
+mid_game.scores = {'S':15}
 
 won_game = GameState(
     to_move = 'Player One',
@@ -133,7 +132,7 @@ won_game = GameState(
     board=[1,2,3,4,5],
     label = 'won'
 )
-won_game.scores = {'S':27, 'P1':27, 'P2':27}
+won_game.scores = {'S':27}
 
 thinkA = Star29(full_game)
 
