@@ -1,6 +1,6 @@
 from collections import namedtuple
 from games import (Game)
-from pprint import pprint
+# from pprint import pprint
 
 
 # class GameState:
@@ -258,7 +258,7 @@ class GameState:
         self.to_move = to_move
         self.label = label
 
-    # keep this mesthod... not sure its purpose
+
 
     def __str__(self):
         if self.label == None:
@@ -267,12 +267,7 @@ class GameState:
 
 
 class DotsAndBoxes(Game):
-    """A flagrant copy of TicTacToe, from game.py
-    It's simplified, so that moves and utility are calculated as needed
-    Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
-    A state has the player to move and a board, in the form of
-    a dict of {(x, y): Player} entries, where Player is 'X' or 'O'.
-    A copy of the game dots and boxes. This game is played on a board that is 4 by 4 square
+    """A copy of the game dots and boxes. This game is played on a board that is 4 by 4 square
     the goal is to create a completed square first.
     """
 
@@ -280,10 +275,10 @@ class DotsAndBoxes(Game):
         self.height = height
         self.width = width
         self.initial = GameState(to_move='----', width=3, height=3, board={})
-        self.boardh = [[False for x in range(3)] for y in range(4)]
-        self.boardv = [[False for x in range(4)] for y in range(3)]
+        self.boardh = [[False for x in range(4)] for y in range(5)]
+        self.boardv = [[False for x in range(5)] for y in range(4)]
         board = [['+'] * 5] * 5
-        pprint(board)
+        # pprint(board)
 
     def actions(self, state):
         try:
@@ -338,36 +333,102 @@ class DotsAndBoxes(Game):
         return len(self.board.keys()) == 2 * w * h - h - w
 
 
-def _isSquareMove(self, move):
-    b = self.board
-    mmove = self._makemove
-    move = ((x1, y1), (x2, y2))
-    captured_squares = []
-    if self._isHorizontal(move):
-        for j in [-1, 1]:
-            if (b.has_key(mmove((x1, y1), (x1, y1 - j)))
-                and b.has_key(mmove((x1, y1 - j), (x1 + 1, y1 - j)))
-                and b.has_key(mmove((x1 + 1, y1 - j), (x2, y2)))):
-                captured_squares.append(min([(x1, y1), (x1, y1 - j),
+    def _isSquareMove(self, move):
+        b = self.board
+        mmove = self._makemove
+        move = ((x1, y1), (x2, y2))
+        captured_squares = []
+        if self._isHorizontal(move):
+            for j in [-1, 1]:
+                if (b.has_key(mmove((x1, y1), (x1, y1 - j)))
+                    and b.has_key(mmove((x1, y1 - j), (x1 + 1, y1 - j)))
+                    and b.has_key(mmove((x1 + 1, y1 - j), (x2, y2)))):
+                    captured_squares.append(min([(x1, y1), (x1, y1 - j),
                                              (x1 + 1, y1 - j), (x2, y2)]))
-    else:
-        for j in [-1, 1]:
-            if (b.has_key(mmove((x1, y1), (x1 - j, y1)))
-                and b.has_key(mmove((x1 - j, y1), (x1 - j, y1 + 1)))
-                and b.has_key(mmove((x1 - j, y1 + 1), (x2, y2)))):
-                captured_squares.append(min([(x1, y1), (x1 - j, y1),
+        else:
+            for j in [-1, 1]:
+                if (b.has_key(mmove((x1, y1), (x1 - j, y1)))
+                    and b.has_key(mmove((x1 - j, y1), (x1 - j, y1 + 1)))
+                    and b.has_key(mmove((x1 - j, y1 + 1), (x2, y2)))):
+                    captured_squares.append(min([(x1, y1), (x1 - j, y1),
                                              (x1 - j, y1 + 1), (x2, y2)]))
-    return captured_squares
+        return captured_squares
 
-def _isHorizontal(self, move):
-    # return true is the move is horizontal
-    return abs(move[0][0] - move[1][0]) == 1
+    def _isHorizontal(self, move):
+        # return true is the move is horizontal
+        return abs(move[0][0] - move[1][0]) == 1
 
-def _idVertical(self, move):
-    # return true if the move is vertical
-    return not self._isHorizontal(self, move)
+    def _idVertical(self, move):
+        # return true if the move is vertical
+        return not self._isHorizontal(self, move)
+
+    def play(self, move):
+        assert (self._isGoodCoord(move[0]) and
+                self._isGoodCoord(move[1]))
+        move = self._makeMove(move[0], move[1])
+        assert(not self.board.has_key(move))
+        self.baord[move] = self.player
+        ## check to see if a sqaure is completed
+        square_corners = self._isSquareMove(move)
+        if square_corners:
+            for corner in square_corners:
+                self.squares[corner] = self.player
+        else:
+            self.newPlayer()
+        return square_corners
+
+    def newPLayer(self):
+        self.player = (self.player + 1) % 2
+
+    def getPlayer(self):
+        return self.player
+
+    def getSquares(self):
+        # returns a dictionary of squares captured
+        return self.squares
+    def _str_(self):
+
+        buffer = [ ]
+
+        for i in range(self.width-1):
+            if self.board.has_key(((i, self.height-1), (i+1, self.height-1))):
+                buffer.append("+--")
+            else: buffer.append("+  ")
+        buffer.append("+\n")
 
 
+        for j in range(self.heigh-2, -1, -1):
+            for i in range(self.width):
+                if self.board.has_key(((i,j), (i, j+1))):
+                    buffer.append("|")
+                else:
+                    buffer.append(" ")
+                if self.squares.has_key((i, j)):
+                    buffer.append("%s " % self.squares[i,j])
+                else:
+                    buffer.append("   ")
+        buffer.append("\n")
+
+
+        # horizontal
+
+        for i in range(self.width-1):
+            if self.board.has_key(((i, j), (i+1, j))):
+                    buffer.append("+--")
+            else: buffer.append("+  ")
+        buffer.append("+\n")
+
+        return ''.join(buffer)
+
+def _makeMove(self, coord1, coord2):
+    """return a new move and ensure that it is legal"""
+    xd, yd = coord2[0] - coord1[0], coord2[1] - coord1[1]
+    assert ((abs(xd) == 1 and abs(yd) == 0) or
+            (abs(xd) == 0 and abs (yd) == 1))
+    if coord1 < coord2:
+        return (coord1, coord2)
+    else:
+        return (tuple(coord2), tuple(coord1))
 
 
 
@@ -418,3 +479,12 @@ def _idVertical(self, move):
 
 
 myGames = DotsAndBoxes()
+
+
+myGames = {
+#     myGame: [
+#         won,
+#         winin1, losein1, winin3, losein3, winin5,
+#         lost,
+#     ]
+}
