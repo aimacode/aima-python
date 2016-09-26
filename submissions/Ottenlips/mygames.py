@@ -86,7 +86,7 @@ class Star29(Game):
         "if player goes over 29 they loose"
         if state.scores['S'] > 29 and player == 'Player One':
             return 1
-        if state.scores['S'] > 29 and player == 'Player Two':
+        elif state.scores['S'] > 29 and player == 'Player Two':
             return 1
         elif state.scores['S'] == 30:
             return -1
