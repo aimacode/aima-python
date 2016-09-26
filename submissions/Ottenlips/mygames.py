@@ -87,8 +87,8 @@ class Star29(Game):
         if state.scores['S'] > 29 and player == 'Player One':
             return 1
         if state.scores['S'] > 29 and player == 'Player Two':
-            return -1
-        elif state.scores['S'] == 29:
+            return 1
+        elif state.scores['S'] == 30:
             return -1
         else:
             return 0
@@ -119,7 +119,7 @@ full_game = GameState(
     board=[1,2,3,4,5],
     label = 'full'
 )
-full_game.scores = {'S':27}
+full_game.scores = {'S':0}
 mid_game = GameState(
     to_move = 'Player One',
     position = 0,
