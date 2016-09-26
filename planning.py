@@ -195,15 +195,14 @@ def three_block_tower():
 
     ## Actions
     #  Move
-    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)'),
-                   expr('Block(y)'), expr('b != x'), expr('b != y'), expr('x != y')]
+    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)'), expr('Block(y)')]
     precond_neg = []
     effect_add = [expr('On(b, y)'), expr('Clear(x)')]
     effect_rem = [expr('On(b, x)'), expr('Clear(y)')]
     move = Action(expr('Move(b, x, y)'), [precond_pos, precond_neg], [effect_add, effect_rem])
     
     #  MoveToTable
-    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)'), expr('b != x')]
+    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
     precond_neg = []
     effect_add = [expr('On(b, Table)'), expr('Clear(x)')]
     effect_rem = [expr('On(b, x)')]
