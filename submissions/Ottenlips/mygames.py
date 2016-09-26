@@ -83,16 +83,18 @@ class Star29(Game):
         return newState
 
     def utility(self, state, player):
-        "Player relative score"
-        if state.scores['S'] > 29:
+        "if player goes over 29 they loose"
+        if state.scores['S'] > 29 and player == 'Player One':
             return 1
+        if state.scores['S'] > 29 and player == 'Player Two':
+            return -1
         elif state.scores['S'] == 29:
             return -1
         else:
             return 0
 
     def terminal_test(self, state):
-        "A state is terminal if it is won or there are no empty squares."
+        "A state is terminal if it is over 29."
         if state.scores['S'] >= 29:
             return -1
 
