@@ -1,5 +1,5 @@
 import search
-from math import(cos, pi)
+from math import(cos,pi)
 
 # A sample map problem
 sweden_map = search.UndirectedGraph(dict(
@@ -17,38 +17,78 @@ sweden_map = search.UndirectedGraph(dict(
     Östersund=dict(Umeå=363, Gothenburg=779, Lund=1156),
 ))
 
-sweden_puzzle = search.GraphProblem('Malmö', 'Umeå', sweden_map)
+sweden_map.locations = dict(
+    Stockholm=(18.1, 59.3), Gothenburg=(12, 57.7), Malmö=(13, 15.6), Uppsala=(17.6, 59.9), Örebro=(15.2, 59.3),
+    Linköping=(15.6, 58.4), Helsingborg=(12.7, 56), Jönköping=(14.2, 57.8), Norrköping=(16.2, 58.6),
+    Lund=(13.2, 55.7), Umeå=(20.3, 63.8), Östersund=(14.6, 63.2),
+)
 
-sweden_puzzle.label = 'Map of Sweden'
-sweden_puzzle.description = '''
-An abbreviated map of Sweden.
-'''
+#BFS > DFS & UCS > BFS
+sweden_puzzle_MU = search.GraphProblem('Malmö', 'Umeå', sweden_map)
+#BFS > BeFS
+sweden_puzzle_UG = search.GraphProblem('Umeå', 'Gothenburg', sweden_map)
+#BeFS > DFS
+sweden_puzzle_HJ = search.GraphProblem('Helsingborg', 'Jönköping', sweden_map)
+#A* = UCS, but more efficient
+sweden_puzzle_UJ = search.GraphProblem('Umeå', 'Jönköping', sweden_map)
 
-# A trivial Problem definition
-class LightSwitch(search.Problem):
-    def actions(self, state):
-        return ['up', 'down']
 
-    def result(self, state, action):
-        if action == 'up':
-            return 'on'
-        else:
-            return 'off'
+sweden_puzzle_MU.label = 'Map of Sweden Using Distance (KM)'
+sweden_puzzle_UG.label = 'Map of Sweden Using Approximated Locations'
+sweden_puzzle_HJ.label = 'Map of Sweden Using Approximated Locations'
+sweden_puzzle_UJ.label = 'Map of Sweden Using Approximated Locations'
 
-    def goal_test(self, state):
-        return state == 'on'
-
-    def h(self, node):
-        state = node.state
-        if self.goal_test(state):
-            return 0
-        else:
-            return 1
-
-switch_puzzle = LightSwitch('off')
-switch_puzzle.label = 'Light Switch'
+#My attempt at a puzzle that, for the life of me, I could not figure out
+# class CleaningCrew(search.Problem):
+#     def actions(self, state):
+#         self.initial = CleaningCrew([
+#             ['X', 'X', 'O', 'O', 'O'],
+#             ['O', 'X', 'X', 'O', 'O'],
+#             ['O', 'X', 'O', 'X', 'O'],
+#             ['O', 'O', 'X', 'O', 'X'],
+#             ['X', 'O', 'X', 'O', 'O'],
+#             ])
+#         return ['up', 'down', 'left', 'right']
+#
+#     def result(self, state, action):
+#         if action == 'up':
+#             self.columns
+#             return 'O'
+#         elif action == 'down':
+#             self.columns
+#             return 'O'
+#         elif action == 'right':
+#             self.rows
+#             return 'O'
+#         elif action == 'left':
+#             self.rows
+#             return 'O'
+#         else:
+#             return 'X'
+#
+#     def goal_test(self, state):
+#         goal = ([['O', 'O', 'O', 'O', 'O'],
+#                  ['O', 'O', 'O', 'O', 'O'],
+#                  ['O', 'O', 'O', 'O', 'O'],
+#                  ['O', 'O', 'O', 'O', 'O'],
+#                  ['O', 'O', 'O', 'O', 'O'],
+#                  ])
+#         return state == goal
+#
+#     def h(self, node):
+#         state = node.state
+#         if self.goal_test(state):
+#             return 0
+#         else:
+#             return 1
+#
+#     CleaningCrewPuzzle = CleaningCrew(initial)
+#     CleaningCrewPuzzle.label = 'A Simplified Cube Puzzle'
 
 myPuzzles = [
-    sweden_puzzle,
-    switch_puzzle,
+    sweden_puzzle_MU,
+    sweden_puzzle_UG,
+    sweden_puzzle_HJ,
+    sweden_puzzle_UJ,
+    #CleaningCrewPuzzle,
 ]

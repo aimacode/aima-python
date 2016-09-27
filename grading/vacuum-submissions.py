@@ -2,6 +2,7 @@ import agents as ag
 import envgui as gui
 import importlib
 import traceback
+from grading.util import roster
 
 # ______________________________________________________________________________
 # Vacuum environment
@@ -77,12 +78,6 @@ class VacuumEnvironment(ag.XYEnvironment):
 
 class MyException(Exception):
     pass
-
-roster = ['Ban','Becker','Blue','Capps','Conklin','Dickenson','Fritz',
-          'Haller','Hawley','Hess','Johnson','Karman','Kinley','LaMartina',
-          'McLean','Miles','Ottenlips','Porter','Sery','VanderKallen',
-          'aardvark','zzzsolutions',
-          ]
 
 submissions = {}
 scores = {}
