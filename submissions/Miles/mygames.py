@@ -13,18 +13,15 @@ class GameState:
             return super(GameState, self).__str__()
         return self.label
 
-class FlagrantCopy(Game):
+class DotsandBoxes(Game):
 
-    """A flagrant copy of TicTacToe, from game.py
-    It's simplified, so that moves and utility are calculated as needed
-    Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
-    A state has the player to move and a board, in the form of
-    a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
+    """A copy of the game dots and boxes. This game is played on a board that is 4 by 4 square
+    the goal is to create a completed square first."""
 
     def __init__(self, h=4, v=4):
         self.h = h
         self.v = v
-        self.initial = GameState(to_move='X', board={})
+        self.initial = GameState(to_move='+--', board={})
 
     def actions(self, state):
         try:
@@ -119,7 +116,7 @@ class FlagrantCopy(Game):
             print()
 
 
-myGame = FlagrantCopy()
+myGame = DotsandBoxes()
 
 Box1 = [[(0, 0), (1, 0)], [(1, 0), (1, 1)], [(1, 1), (0, 1)],
         [(0, 1), (0, 0)],
