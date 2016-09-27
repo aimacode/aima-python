@@ -12,6 +12,8 @@ class GameState:
         self.board = board
         self.label = label
         self.scores = {'S': 0}
+        self.scores = {'P1': 0}
+        self.scores = {'P2': 0}
 
     def __str__(self):
         if self.label == None:
@@ -33,13 +35,12 @@ class Star29(Game):
     """
     def __init__(self, state):
         self.initial = state
-        self.first = ''
         self.startingBoard = state.board
 
-    def actions(self, state):
-        ""
-        p = state.position
 
+    def actions(self, state):
+        # ""
+        p = state.position
         return state.board
 
     # defines the order of play
@@ -84,14 +85,17 @@ class Star29(Game):
 
     def utility(self, state, player):
         "if player goes over 29 they loose"
-        if state.scores['S'] > 29 and player == 'Player One':
-            return 1
-        elif state.scores['S'] > 29 and player == 'Player Two':
-            return 1
-        elif state.scores['S'] == 30:
-            return -1
-        else:
-            return 0
+
+        # if state.scores['S'] >= 29 and player == 'Player One':
+        #     return 1
+        # elif state.scores['S'] >= 29 and player != 'Player Two':
+        #     return 1
+        # elif state.scores['S'] == 30:
+        #     return -1
+        # else:
+        #     return 0
+        opponent = self.opponent(player)
+        return state.scores['S']
 
     def terminal_test(self, state):
         "A state is terminal if it is over 29."
@@ -119,29 +123,30 @@ full_game = GameState(
     board=[1,2,3,4,5],
     label = 'full'
 )
-full_game.scores = {'S':0}
-mid_game = GameState(
-    to_move = 'Player One',
-    position = 0,
-    board=[1,2,3,4,5],
-    label = 'mid'
-)
-mid_game.scores = {'S':15}
+full_game.scores = {'S':0, 'P1':0, 'P2':0}
 
-won_game = GameState(
-    to_move = 'Player One',
-    position = 0,
-    board=[1,2,3,4,5],
-    label = 'won'
-)
-won_game.scores = {'S':27}
+# mid_game = GameState(
+#     to_move = 'Player One',
+#     position = 0,
+#     board=[1,2,3,4,5],
+#     label = 'mid'
+# )
+# mid_game.scores = {'S':15}
+#
+# won_game = GameState(
+#     to_move = 'Player One',
+#     position = 0,
+#     board=[1,2,3,4,5],
+#     label = 'won'
+# )
+# won_game.scores = {'S':27}
 
 thinkA = Star29(full_game)
 
 myGames = {
     thinkA: [
         full_game,
-        mid_game,
-        won_game
+        # mid_game,
+        # won_game
     ]
 }
