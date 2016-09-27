@@ -112,9 +112,9 @@ class Star29(Game):
 
 
         if(len(state.board)==2):
-            print("Now pick "+str(state.board[0])+" or "+ str(state.board[1]))
+            print("--> "+str(state.board[0])+" or --> "+ str(state.board[1]))
         else:
-            print("First move " + str(state.board))
+            print("First move "+"\n  " + str(state.board[0])+"\n"+str(state.board[1])+"  "+str(state.board[4])+"\n"+str(state.board[2])+"  "+str(state.board[3]))
         print('Score: ' + str(state.scores))
 
     # def check_win(self, board, player, state):
