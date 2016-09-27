@@ -12,8 +12,6 @@ class GameState:
         self.board = board
         self.label = label
         self.scores = {'S': 0}
-        self.scores = {'P1': 0}
-        self.scores = {'P2': 0}
 
     def __str__(self):
         if self.label == None:
@@ -78,34 +76,45 @@ class Star29(Game):
             newState.board = (self.startingBoard[1], self.startingBoard[2])
         # newState.board[p] = nan
         newState.scores['S'] += value
-
+        # newState.scores['P1'] += value
+        # newState.scores['P2'] += value
+        # if currMover == 'Player One':
+        #     newState.scores['P1'] += value
+        # elif currMover == 'Player Two':
+        #     newState.scores['P2'] += value
 
         self.lastMove = newState.position
         return newState
 
     def utility(self, state, player):
         "if player goes over 29 they loose"
-
-        # if state.scores['S'] >= 29 and player == 'Player One':
-        #     return 1
-        # elif state.scores['S'] >= 29 and player != 'Player Two':
-        #     return 1
-        # elif state.scores['S'] == 30:
-        #     return -1
-        # else:
-        #     return 0
-        opponent = self.opponent(player)
-        return state.scores['S']
+        if player == 'Player One' and state.scores['S'] == 29:
+            return -1;
+        if state.scores['S'] <= 28:
+            if range(2,5) in state.board:
+                return -1
+        else:
+            return 1
+        # if state.scores['S'] > 28:
+        #     return -state.scores['S']
+        # if state.scores['S'] == 28:
+        #     return state.scores['P1'] - state.scores['P1']
+        return 0
 
     def terminal_test(self, state):
         "A state is terminal if it is over 29."
         if state.scores['S'] >= 29:
-            return -1
+            return 1
 
         return 0
 
     def display(self, state):
-        print(state.board)
+
+
+        if(len(state.board)==2):
+            print("Now pick "+str(state.board[0])+" or "+ str(state.board[1]))
+        else:
+            print("First move " + str(state.board))
         print('Score: ' + str(state.scores))
 
     # def check_win(self, board, player, state):
@@ -123,7 +132,7 @@ full_game = GameState(
     board=[1,2,3,4,5],
     label = 'full'
 )
-full_game.scores = {'S':0, 'P1':0, 'P2':0}
+full_game.scores = {'S':0}
 
 mid_game = GameState(
     to_move = 'Player One',
