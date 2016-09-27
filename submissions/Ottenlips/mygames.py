@@ -125,28 +125,28 @@ full_game = GameState(
 )
 full_game.scores = {'S':0, 'P1':0, 'P2':0}
 
-# mid_game = GameState(
-#     to_move = 'Player One',
-#     position = 0,
-#     board=[1,2,3,4,5],
-#     label = 'mid'
-# )
-# mid_game.scores = {'S':15}
-#
-# won_game = GameState(
-#     to_move = 'Player One',
-#     position = 0,
-#     board=[1,2,3,4,5],
-#     label = 'won'
-# )
-# won_game.scores = {'S':27}
+mid_game = GameState(
+    to_move = 'Player One',
+    position = 0,
+    board=[1,2,3,4,5],
+    label = 'mid'
+)
+mid_game.scores = {'S':15}
+
+won_game = GameState(
+    to_move = 'Player One',
+    position = 0,
+    board=[1,2,3,4,5],
+    label = 'won'
+)
+won_game.scores = {'S':27}
 
 thinkA = Star29(full_game)
 
 myGames = {
     thinkA: [
         full_game,
-        # mid_game,
-        # won_game
+        mid_game,
+        won_game
     ]
 }
