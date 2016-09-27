@@ -202,7 +202,8 @@ class CTT(Game):
         #                       (3, 7): 'F', (4,1):'F', (4,2):'F', (4,3):'F', (4,4):'F',(4,5):'F',(4,6):'F',(4,7):'F',
         #                       (5, 1): 'F',(5,2):'F',(5,4):'F',(5,6):'F',(5,7):'F',(6,1):'F',(6,3):'F',(6,4):'F',(6,5):'F',
         #                       (6, 7): 'F',(7,2):'F',(7,3):'F',(7,4):'F',(7,5):'F',(7,6):'F'}
-        #Valid spaces make up the spaces within the 7x7 grid that are "allowable"
+        #Valid spaces make up the spaces within the 7x7 grid that are "allowable".
+        #This is set as an immutable Tuple since it will be true always and can't be changed.
         self.validSpaces = (
         (1, 1), (1, 7), (2, 2), (2, 6), (3, 3), (3, 5), (5, 4), (6, 4),(7,4),)
         #c1, c2, c3, d1, d2, and d3 are the coordinates that make up the 6 winning states.
@@ -263,36 +264,38 @@ class CTT(Game):
 
     # Did I win?
     def check_win(self, board, player):
+
         # check d1
-        for (x,y) in self.d1[1:9]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.d1,board,player) == 3:
+         return 1
         # check d2
-        for (x,y) in self.d2[1:9]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.d2,board,player) == 3:
+         return 1
         # check d3
-        for (x,y) in self.d3[1:9]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.d3,board,player) == 3:
+         return 1
         # check c1
-        for (x,y) in self.c1[1:9]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.c1,board,player) == 3:
+         return 1
         # check c2
-        for (x,y) in self.c2[1:9]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.c2,board,player) == 3:
+         return 1
         # check c3
-        for (x,y) in self.c3[1:9]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.c3,board,player) == 3:
+         return 1
         return 0
 
-    # # does player have 3 in a row? return 1 if so, 0 if not
-    # def k_in_row(self, board, player, win):
-    #     while board.get
-    #     return 0
+    # does player have 3 in a row? return 1 if so, 0 if not
+    def k_in_row(self,list,board,player):
+        x=0
+        y=0
+        while x<3:
+            coordinate = list[x]
+            if board.get (coordinate) == player:
+                y += 1
+            x += 1
+        return y
+
 
     # def k_in_row(self, board, start, player, direction):
     #     "Return true if there is a line through start on board for player."
