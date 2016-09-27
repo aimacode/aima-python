@@ -377,14 +377,11 @@ stalemate = GameState(
 )
 
 
-# winin3 = GameState(
-#     to_move = 'X',
-#     board = {(1,1): 'X', (1,2): 'O',
-#              (2,1): 'X',
-#              (3,1): 'O',
-#             },
-#     label = 'winin3'
-# )
+new = GameState(
+    to_move = 'X',
+    board = { },
+    label = 'new'
+)
 #
 # losein3 = GameState(
 #     to_move = 'O',
@@ -416,7 +413,7 @@ myGames = {
     myGame: [
         won,
         winin1, losein1,
-        winin2, stalemate
+        winin2, stalemate, new
     ]
 }
 
