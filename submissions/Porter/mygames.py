@@ -197,11 +197,13 @@ class CTT(Game):
         self.v = v
         self.k = k
         self.initial = GameState(to_move='X', board={})
-        # self.invalidSpaces = {(1,2):'F', (1,3):'F', (1,4):'F', (1,5):'F', (1,6):'F', (2,1):'F', (2,3):'F',
-        #                       (2, 4): 'F', (2,5):'F', (2,7):'F', (3,1):'F', (3,2):'F', (3,4):'F', (3,6):'F',
-        #                       (3, 7): 'F', (4,1):'F', (4,2):'F', (4,3):'F', (4,4):'F',(4,5):'F',(4,6):'F',(4,7):'F',
-        #                       (5, 1): 'F',(5,2):'F',(5,4):'F',(5,6):'F',(5,7):'F',(6,1):'F',(6,3):'F',(6,4):'F',(6,5):'F',
-        #                       (6, 7): 'F',(7,2):'F',(7,3):'F',(7,4):'F',(7,5):'F',(7,6):'F'}
+        self.invalidSpaces = {
+            (1,2):'H', (1,3):'H', (1,4):'H', (1,5):'H', (1,6):'H', (2,1):'H', (2,3):'H',
+            (2, 4):'H', (2,5):'H', (2,7):'H', (3,1):'H', (3,2):'H', (3,4):'H', (3,6):'H',
+            (3, 7):'H', (4,1):'H', (4,2):'H', (4,3):'H', (4,4):'H',(4,5):'H',(4,6):'H',(4,7):'H',
+            (5, 1):'H',(5,2):'H',(5,4):'H',(5,6):'H',(5,7):'H',(6,1):'H',(6,3):'H',(6,4):'H',(6,5):'H',
+            (6, 7):'H',(7,2):'H',(7,3):'H',(7,4):'H',(7,5):'H',(7,6):'H'
+        }
         #Valid spaces make up the spaces within the 7x7 grid that are "allowable".
         #This is set as an immutable Tuple since it will be true always and can't be changed.
         self.validSpaces = (
@@ -214,6 +216,8 @@ class CTT(Game):
         self.d1 = ((1,1), (2,2), (3,3),)
         self.d2 = ((1,7), (2,6), (3,5),)
         self.d3 = ((5,4), (6,4), (7,4),)
+
+
 
     def actions(self, state):
         try:
@@ -241,6 +245,7 @@ class CTT(Game):
         return None
 
     def result(self, state, move):
+        # self.display (state)
         if move not in self.actions(state):
             return state  # Illegal move has no effect
         board = state.board.copy()
@@ -321,7 +326,7 @@ class CTT(Game):
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
                 print(board.get((x, y), '.'), end=' ')
-            print()
+        print()
 
 
 myGame = CTT()
@@ -348,24 +353,29 @@ losein1 = GameState(
            (6, 4): 'O', (7, 4): 'O',
            },
     label = 'losein1'
-
-
-# winin2 = GameState(
-#     to_move = 'X',
-#     board = {(1,1): 'X', (1,2): 'X',
-#              (2,1): 'O', (2,2): 'O',
-#             },
-#     label = 'winin2'
-# )
-#
-# losein2 = GameState(
-#     to_move = 'O',
-#     board = {(1,1): 'X', (1,2): 'X',
-#              (2,1): 'O', (2,2): 'O',
-#              (3,1): 'X',
-#             },
-#     label = 'losein2'
 )
+
+
+winin2 = GameState(
+    to_move = 'X',
+    board = {(1,1): 'O', (1,7): 'X', (2,6): 'O',
+             (3,3): 'X', (6,4): 'X', (7,4): 'O'
+            },
+    label = 'winin2'
+)
+
+
+#
+stalemate = GameState(
+    to_move = 'X',
+    board = {(1,1): 'X', (1,7): 'O',
+             (2,2): 'O', (2,6): 'X',
+             (3,3): 'X',(3,5): 'O',(5,4): 'X',
+             (6,4): 'O',(7,4): 'X',
+            },
+    label = 'stalemate'
+)
+
 
 # winin3 = GameState(
 #     to_move = 'X',
@@ -405,7 +415,8 @@ losein1 = GameState(
 myGames = {
     myGame: [
         won,
-        winin1, losein1
+        winin1, losein1,
+        winin2, stalemate
     ]
 }
 
