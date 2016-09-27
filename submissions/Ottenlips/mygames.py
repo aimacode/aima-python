@@ -134,19 +134,45 @@ full_game = GameState(
 )
 full_game.scores = {'S':0}
 
+next_game = GameState(
+    to_move = 'Player One',
+    position = 0,
+    board=[1,2,3,4,5],
+    label = 'S 5'
+)
+next_game.scores = {'S':5}
+
+next_game2 = GameState(
+    to_move = 'Player One',
+    position = 0,
+    board=[1,2,3,4,5],
+    label = 'S 10'
+)
+next_game2.scores = {'S':10}
+
+
 mid_game = GameState(
     to_move = 'Player One',
     position = 0,
     board=[1,2,3,4,5],
-    label = 'mid'
+    label = 'S 15'
 )
 mid_game.scores = {'S':15}
+
+almost_done_game = GameState(
+    to_move = 'Player One',
+    position = 0,
+    board=[1,2,3,4,5],
+    label = 'S 20'
+)
+almost_done_game.scores = {'S':20}
+
 
 won_game = GameState(
     to_move = 'Player One',
     position = 0,
     board=[1,2,3,4,5],
-    label = 'won'
+    label = 'wonS27'
 )
 won_game.scores = {'S':27}
 
@@ -155,7 +181,10 @@ thinkA = Star29(full_game)
 myGames = {
     thinkA: [
         full_game,
+        next_game,
+        next_game2,
         mid_game,
+        almost_done_game,
         won_game
     ]
 }
