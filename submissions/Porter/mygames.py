@@ -192,7 +192,7 @@ class CTT(Game):
     A state has the player to move and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
-    def __init__(self, h=7, v=7, k=3, depth=2):
+    def __init__(self, h=7, v=7, k=3, depth=4):
         self.h = h
         self.v = v
         self.k = k
