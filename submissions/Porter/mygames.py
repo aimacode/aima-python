@@ -245,7 +245,7 @@ class CTT(Game):
         return None
 
     def result(self, state, move):
-        # self.display (state)
+
         if move not in self.actions(state):
             return state  # Illegal move has no effect
         board = state.board.copy()
@@ -326,7 +326,7 @@ class CTT(Game):
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
                 print(board.get((x, y), '.'), end=' ')
-        print()
+            print()
 
 
 myGame = CTT()
