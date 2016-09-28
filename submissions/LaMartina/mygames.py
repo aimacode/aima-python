@@ -151,23 +151,35 @@ class Swag(Game):
             moves.append((2,y))
         for z in range(2,bag3tokens + 1):
             moves.append((3,z))
+        state.moves = moves
+        return moves
     def utility(self, state, player):
         try:
             return state.utility if player == '1' else -state.utility
         except:
             pass
         board = state.board
+        util = self.check_win(board, '1')
+    def check_win(self,board,player):
+        if self.bag1.isEmpty() and self.bag2.isEmpty() and self.bag3.isEmpty():
+            return 1
+        return 0
     def terminal_test(self, state):
         pass
     def result(self,state,move):
         pass
     #def bags(self, bagNumber):
     #"Creates a board for a given number of bags"
+
 class Bag():
     "Creates a bag with a number and a certain number of tokens"
     def __init__(self,bagNumber,tokens):
         self.bagNumber = bagNumber
         self.tokens = tokens
+    def isEmpty(self):
+        if self.bagNumber == 0:
+            return True
+        return False
 myGame = FlagrantCopy()
 
 won = GameState(
