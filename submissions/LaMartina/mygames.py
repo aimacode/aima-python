@@ -155,7 +155,7 @@ class Swag(Game):
             moves.append((1,x))
         for y in range(1,bag2tokens + 1):
             moves.append((2,y))
-        for z in range(2,bag3tokens + 1):
+        for z in range(1,bag3tokens + 1):
             moves.append((3,z))
         state.moves = moves
         return moves
