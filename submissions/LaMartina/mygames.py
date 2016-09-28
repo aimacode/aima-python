@@ -304,12 +304,32 @@ win113 = GameState(
 win121 = GameState(
     to_move = '2',
     board = {1:0,2:1,3:0},
-    label = 'winin1 taking two from 1'
+    label = 'winin1 taking 1 from 2'
 )
 win122 = GameState(
     to_move = '2',
     board = {1:0,2:2,3:0},
-    label = 'winin1 taking two from 1'
+    label = 'winin1 taking 2 from 2'
+)
+win123 = GameState(
+    to_move = '2',
+    board = {1:0,2:3,3:0},
+    label = 'winin1 taking 3 from 2'
+)
+win124 = GameState(
+    to_move = '2',
+    board = {1:0,2:4,3:0},
+    label = 'winin1 taking 4 from 2'
+)
+win131 = GameState(
+    to_move = '2',
+    board = {1:0,2:0,3:1},
+    label = 'winin1 taking 1 from 3'
+)
+win135 = GameState(
+    to_move = '2',
+    board = {1:0,2:0,3:5},
+    label = 'winin1 taking 5 from 3'
 )
 
 
