@@ -1,5 +1,6 @@
 import search
 from math import(cos, pi)
+from copy import deepcopy
 
 mediterranean_map = search.UndirectedGraph(dict(
     Alexandria=dict(Rome=53, Byzantium=18, Crete=12, Cyprus=6.5, Cyrene=8, Massilia=58, Myra=6, Naples=60, Rhodes=8),
@@ -81,7 +82,7 @@ class ColorMaze(search.Problem):
     def result(self, state, action):
 
         r, c = self.getPosition(state)
-        newState = state
+        newState = deepcopy(state)
 
         if action == 'u':
             r -= 1
