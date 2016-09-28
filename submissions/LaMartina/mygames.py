@@ -184,7 +184,8 @@ class Swag(Game):
         return 0
 
     def terminal_test(self, state):
-        pass
+        "A terminal state means a player has one or no moves are left"
+        return self.utility(state, '1') != 0 or len(self.actions(state)) == 0
 
     def result(self,state,move):
         pass
