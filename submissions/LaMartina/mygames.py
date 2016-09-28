@@ -279,6 +279,24 @@ myGame = FlagrantCopy()
 
 myGame2 = Swag()
 
+won = GameState(
+    to_move = '1',
+    board = {1:0,2:0,3:0},
+    label = 'win'
+)
+#The Gamestates below are formatted as winxyz where x is the number of moves to win, y is the bag to win from, and z is the number
+#of tokens
+win111 = GameState(
+    to_move = '2',
+    board = {1:1,2:0,3:0},
+    label = 'winin1 taking one from bag 1'
+)
+win112 = GameState(
+    to_move = '2',
+    board = {1:2,2:0,3:0},
+    label = 'winin1 taking two from 1'
+)
+
 
 myGames = {
     # myGame: [
@@ -286,7 +304,9 @@ myGames = {
     #     winin1, losein1, winin3, losein3, winin5,
     #     lost,
     # ]
-    myGame2: {
-
-    }
+    myGame2: [
+        won,
+        win111,
+        win112
+    ]
 }
