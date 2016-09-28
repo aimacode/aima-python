@@ -192,11 +192,12 @@ class CTT(Game):
     A state has the player to move and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
-    def __init__(self, h=7, v=7, k=3):
+    def __init__(self, h=7, v=7, k=3, depth=4):
         self.h = h
         self.v = v
         self.k = k
         self.initial = GameState(to_move='X', board={})
+        self.maxDepth = depth
         self.invalidSpaces = {
             (1,2):'H', (1,3):'H', (1,4):'H', (1,5):'H', (1,6):'H', (2,1):'H', (2,3):'H',
             (2, 4):'H', (2,5):'H', (2,7):'H', (3,1):'H', (3,2):'H', (3,4):'H', (3,6):'H',
@@ -245,7 +246,7 @@ class CTT(Game):
         return None
 
     def result(self, state, move):
-        # self.display (state)
+
         if move not in self.actions(state):
             return state  # Illegal move has no effect
         board = state.board.copy()
@@ -326,7 +327,7 @@ class CTT(Game):
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
                 print(board.get((x, y), '.'), end=' ')
-        print()
+            print()
 
 
 myGame = CTT()
