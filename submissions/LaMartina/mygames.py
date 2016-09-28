@@ -296,6 +296,21 @@ win112 = GameState(
     board = {1:2,2:0,3:0},
     label = 'winin1 taking two from 1'
 )
+win113 = GameState(
+    to_move = '2',
+    board = {1:3,2:0,3:0},
+    label = 'winin1 taking 3 from 1'
+)
+win121 = GameState(
+    to_move = '2',
+    board = {1:0,2:1,3:0},
+    label = 'winin1 taking two from 1'
+)
+win122 = GameState(
+    to_move = '2',
+    board = {1:0,2:2,3:0},
+    label = 'winin1 taking two from 1'
+)
 
 
 myGames = {
@@ -307,6 +322,6 @@ myGames = {
     myGame2: [
         won,
         win111,
-        win112
+        win112,win113,win121,win122,
     ]
 }
