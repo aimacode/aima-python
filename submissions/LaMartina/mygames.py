@@ -135,7 +135,10 @@ class Swag(Game):
     #def __init__(self,bagNumber):
         #"Initializes a swag game with the given number of bags"
         #self.bagNumber = bagNumber
+    #def bags(self, bagNumber):
+    #"Creates a board for a given number of bags"
     def actions(self,state):
+        "Determine the set of available actions"
         try:
             return state.moves
         except:
@@ -153,23 +156,39 @@ class Swag(Game):
             moves.append((3,z))
         state.moves = moves
         return moves
+
+    def opponent(self, player):
+        "Returns who has the next turn"
+        if player == '1':
+            return '2'
+        if player == '2':
+            return '1'
+
     def utility(self, state, player):
+        "Determines the utility of the player choosing a particular move"
         try:
             return state.utility if player == '1' else -state.utility
         except:
             pass
         board = state.board
         util = self.check_win(board, '1')
+        if util == 0:
+            util = -self.check_win(board,'2')
+        state.utility = util
+        return util if player == '1' else -util
+
     def check_win(self,board,player):
+        "Checks to see if the player has won"
         if self.bag1.isEmpty() and self.bag2.isEmpty() and self.bag3.isEmpty():
             return 1
         return 0
+
     def terminal_test(self, state):
         pass
+
     def result(self,state,move):
         pass
-    #def bags(self, bagNumber):
-    #"Creates a board for a given number of bags"
+
 
 class Bag():
     "Creates a bag with a number and a certain number of tokens"
