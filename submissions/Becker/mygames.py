@@ -18,8 +18,8 @@ class Hex(Game):
     def __init__(self, h=3, v=3):
         self.h = h
         self.v = v
-        self.blueWin = ((1,3), (2,3), (3,3))
-        self.redWin = ((1,1), (1,2), (1,3))
+        self.blueWin = ((1, 1), (1, 2), (1, 3))
+        self.redWin = ((1, 3), (2, 3), (3, 3))
         self.initial = GameState(to_move='B', board={})
 
     def actions(self, state):
@@ -68,68 +68,50 @@ class Hex(Game):
 
     # Did I win?
     def check_win(self, board, player):
-        for (x, y) in self.blueWin:
-            if board.get((x, y)) == player:
-                return self.is_connected(board, x, y-1, player)
-        for (x, y) in self.redWin:
-            if board.get((x, y)) == player:
-                # return self.is_connected(board, x+1, y, player)
-                return 0
-        return 0
-
-    # does player have K in a row? return 1 if so, 0 if not
-    def is_connected(self, board, x, y, player):
-        if x > self.v or x < 1:
+        if player == 'B':
+            for y in range(1, self.v + 1):
+                if board.get((1, y)) == player and self.check_blue(board, (1, y), player, (1, 0)) == 1:
+                    return 1
             return 0
-        if y > self.h or y < 1:
+        if player == 'R':
+            for x in range(1, self.h + 1):
+                if board.get((x, 3)) == player and self.check_red(board, (x, 3), player, (0, -1)) == 1:
+                    return 1
             return 0
-        if self.check_next(board, x, y, player) == 1:
-            if player == "B":
-                if y == 1:
-                    return 1
-                else:
-                    return self.is_connected(board, x, y-1, player)
-            else:
-                if x == 3:
-                    return 1
-                else:
-                    return self.is_connected(board, x+1, y, player)
-        elif player == "B":
-            if self.check_next(board, x-1, y, player) == 1:
-                # x -= 1
-                if y == 1:
-                    return 1
-                else:
-                    return self.is_connected(board, x-1, y-1, player)
-            elif self.check_next(board, x+1, y, player) == 1:
-                # x += 1
-                if y == 1:
-                    return 1
-                else:
-                    return self.is_connected(board, x+1, y-1, player)
-            else:
-                return 0
-        elif player == "R":
-            if self.check_next(board, x, y-1, player) == 1:
-                # y -= 1
-                if x == 3:
-                    return 1
-                else:
-                    return self.is_connected(board, x+1, y-1, player)
-            elif self.check_next(board, x, y+1, player) == 1:
-                if x == 3:
-                    return 1
-                else:
-                    return self.is_connected(board, x+1, y+1, player)
-            else:
-                return 0
-        return 0
+        else:
+            return 0
 
-    def check_next(self, board, x, y, player):
+    def check_blue(self, board, start, player, direction):
+        (delta_x, delta_y) = direction
+        (start_x, start_y) = start
+        x, y = start_x + delta_x, start_y + delta_y
+        # check
         if board.get((x, y)) == player:
             return 1
         else:
-            return 0
+            if direction == (1, 0):     # if down
+                direction = (1, -1)     # down and left
+            elif direction == (1, -1):  # if down and left
+                direction = (1, 1)      # down and right
+            else:
+                return 0
+            return self.check_blue(board, start, player, direction)
+
+    def check_red(self, board, start, player, direction):
+        (delta_x, delta_y) = direction
+        (start_x, start_y) = start
+        x, y = start_x + delta_x, start_y + delta_y
+        # check
+        if board.get((x, y)) == player:
+            return 1
+        else:
+            if direction == (0, -1):    # if left
+                direction = (-1, -1)    # left and up
+            elif direction == (-1, -1): # if left and up
+                direction = (1, -1)     # left and down
+            else:
+                return 0
+            return self.check_red(board, start, player, direction)
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
