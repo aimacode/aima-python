@@ -178,17 +178,20 @@ class Swag(Game):
         if util == 0:
             util = -self.check_win(board,'2')
         state.utility = util
-        return util if player == '1' else -util
+        to_return = util if player == '1' else -util
+        return to_return
 
     def check_win(self,board,player):
         "Checks to see if the player has won"
-        if self.bag1.isEmpty() and self.bag2.isEmpty() and self.bag3.isEmpty():
+        #if self.bag1.isEmpty() and self.bag2.isEmpty() and self.bag3.isEmpty():
+        if board[1] == 0 and board[2] == 0 and board[3] == 0:
             return 1
         return 0
 
     def terminal_test(self, state):
         "A terminal state means a player has one or no moves are left"
-        return self.utility(state, '1') != 0 or len(self.actions(state)) == 0
+        value = self.utility(state, '1') != 0 or len(self.actions(state)) == 0
+        return value
 
     def result(self,state,move):
         if move not in self.actions(state):
