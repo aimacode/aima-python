@@ -342,6 +342,6 @@ myGames = {
     myGame2: [
         won,
         win111,
-        win112,win113,win121,win122,
+        win112,win113,win121,win122,win123,win124,win131,win135
     ]
 }
