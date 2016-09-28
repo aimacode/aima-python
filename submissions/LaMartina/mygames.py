@@ -174,14 +174,14 @@ class Swag(Game):
         except:
             pass
         board = state.board
-        util = self.check_win(board, '1')
-        if util == 0:
-            util = -self.check_win(board,'2')
+        util = self.check_win(board) #'1')
+        # if util == 0:
+        #     util = -self.check_win(board,'2')
         state.utility = util
-        to_return = util if player == '1' else -util
+        to_return = util #if player == '1' else -util
         return to_return
 
-    def check_win(self,board,player):
+    def check_win(self,board,): #player):
         "Checks to see if the player has won"
         #if self.bag1.isEmpty() and self.bag2.isEmpty() and self.bag3.isEmpty():
         if board[1] == 0 and board[2] == 0 and board[3] == 0:
@@ -204,6 +204,19 @@ class Swag(Game):
         return GameState(to_move=next_mover, board=board)
 
 
+    def display(self, state):
+        board = state.board
+        for x in range(1, board[1] + 1):
+            print('.', end= '')
+            print()
+        for y in range(1,board[2] + 1):
+            print('  .', end = '')
+            print()
+        for z in range(1,board[3]+1):
+            print('    .', end = '')
+            # for y in range(1, self.v + 1):
+            #     print(board.get((x, y), '.'), end=' ')
+            print()
 class Bag():
     "Creates a bag with a number and a certain number of tokens"
     def __init__(self,bagNumber,tokens):
