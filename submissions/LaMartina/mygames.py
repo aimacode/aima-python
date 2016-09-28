@@ -188,7 +188,14 @@ class Swag(Game):
         return self.utility(state, '1') != 0 or len(self.actions(state)) == 0
 
     def result(self,state,move):
-        pass
+        if move not in self.actions(state):
+            return state  # Illegal move has no effect
+        board = state.board.copy()
+        player = state.to_move
+        bag, tokens_taken = move
+        board[bag] += -tokens_taken
+        next_mover = self.opponent(player)
+        return GameState(to_move=next_mover, board=board)
 
 
 class Bag():
@@ -200,6 +207,7 @@ class Bag():
         if self.bagNumber == 0:
             return True
         return False
+
 myGame = FlagrantCopy()
 
 won = GameState(
@@ -261,6 +269,10 @@ lost = GameState(
             },
     label = 'lost'
 )
+
+
+myGame2 = Swag()
+
 
 myGames = {
     myGame: [
