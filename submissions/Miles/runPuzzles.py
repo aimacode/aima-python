@@ -1,5 +1,5 @@
 import search
-import submissions.miles.puzzles as pz
+import submissions.Miles.puzzles as pz
 
 def compare_searchers(problems, header, searchers=[]):
     def do(searcher, problem):
