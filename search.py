@@ -656,7 +656,7 @@ class Graph:
         "Add a link from A to B of given distance, in one direction only."
         self.dict.setdefault(A, {})[B] = distance
 
-    def get(self, a, b=None):
+    def get(self, a: object, b: object = None) -> object:
         """Return a link distance or a dict of {node: distance} entries.
         .get(a,b) returns the distance or None;
         .get(a) returns a dict of {node: distance} entries, possibly {}."""
