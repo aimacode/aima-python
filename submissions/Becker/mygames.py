@@ -15,11 +15,11 @@ class GameState:
 class Hex(Game):
     """ """
 
-    def __init__(self, h=3, v=3):
+    def __init__(self, h=5, v=5):
         self.h = h
         self.v = v
-        self.blueWin = ((1, 1), (1, 2), (1, 3))
-        self.redWin = ((1, 3), (2, 3), (3, 3))
+        # self.blueWin = ((1, 1), (1, 2), (1, 3))
+        # self.redWin = ((1, 3), (2, 3), (3, 3))
         self.initial = GameState(to_move='B', board={})
 
     def actions(self, state):
@@ -75,7 +75,7 @@ class Hex(Game):
             return 0
         if player == 'R':
             for x in range(1, self.h + 1):
-                if board.get((x, 3)) == player and self.check_red(board, (x, 3), player, (0, -1)) == 1:
+                if board.get((x, 1)) == player and self.check_red(board, (x, 1), player, (0, 1)) == 1:
                     return 1
             return 0
         else:
@@ -87,7 +87,10 @@ class Hex(Game):
         x, y = start_x + delta_x, start_y + delta_y
         # check
         if board.get((x, y)) == player:
-            return 1
+            if x == self.h:
+                return 1
+            else:
+                return self.check_blue(board, (x, y), player, (1, 0))
         else:
             if direction == (1, 0):     # if down
                 direction = (1, -1)     # down and left
@@ -103,12 +106,15 @@ class Hex(Game):
         x, y = start_x + delta_x, start_y + delta_y
         # check
         if board.get((x, y)) == player:
-            return 1
+            if y == self.v:
+                return 1
+            else:
+                return self.check_red(board, (x, y), player, (0, 1))
         else:
-            if direction == (0, -1):    # if left
-                direction = (-1, -1)    # left and up
-            elif direction == (-1, -1): # if left and up
-                direction = (1, -1)     # left and down
+            if direction == (0, 1):    # if right
+                direction = (-1, 1)    # right and up
+            elif direction == (-1, 1): # if right and up
+                direction = (1, 1)     # right and down
             else:
                 return 0
             return self.check_red(board, start, player, direction)
