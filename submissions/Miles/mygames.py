@@ -1,30 +1,27 @@
 from collections import namedtuple
 from games import (Game)
+from copy import deepcopy
 
 class GameState:
-    def __init__(self, to_move, board, label=None, depth=8):
+    def __init__(self, to_move, board, label=None):
         self.to_move = to_move
         self.board = board
         self.label = label
-        self.maxDepth = depth
 
     def __str__(self):
         if self.label == None:
             return super(GameState, self).__str__()
         return self.label
 
-class FlagrantCopy(Game):
-    """A flagrant copy of TicTacToe, from game.py
-    It's simplified, so that moves and utility are calculated as needed
-    Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
-    A state has the player to move and a board, in the form of
-    a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
+class DotsandBoxes(Game):
 
-    def __init__(self, h=3, v=3, k=3):
+    """A copy of the game dots and boxes. This game is played on a board that is 4 by 4 square
+    the goal is to create a completed square first."""
+
+    def __init__(self, h=4, v=4):
         self.h = h
         self.v = v
-        self.k = k
-        self.initial = GameState(to_move='X', board={})
+        self.initial = GameState(to_move='+--', board={})
 
     def actions(self, state):
         try:
@@ -35,7 +32,7 @@ class FlagrantCopy(Game):
         moves = []
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
-                if (x,y) not in state.board.keys():
+                if (x,y) not in state.board:
                     moves.append((x,y))
         state.moves = moves
         return moves
@@ -51,9 +48,10 @@ class FlagrantCopy(Game):
     def result(self, state, move):
         if move not in self.actions(state):
             return state  # Illegal move has no effect
-        board = state.board.copy()
+        board = deepcopy(state.board)
         player = state.to_move
-        board[move] = player
+        assert isinstance(board, object)
+       # board[move] = player
         next_mover = self.opponent(player)
         return GameState(to_move=next_mover, board=board)
 
@@ -90,19 +88,21 @@ class FlagrantCopy(Game):
 
     # does player have K in a row? return 1 if so, 0 if not
     def k_in_row(self, board, start, player, direction):
-        "Return true if there is a line through start on board for player."
-        (delta_x, delta_y) = direction
-        x, y = start
-        n = 0  # n is number of moves in row
-        while board.get((x, y)) == player:
-            n += 1
-            x, y = x + delta_x, y + delta_y
-        x, y = start
-        while board.get((x, y)) == player:
-            n += 1
-            x, y = x - delta_x, y - delta_y
-        n -= 1  # Because we counted start itself twice
-        return n >= self.k
+        # "Return true if there is a line through start on board for player."
+        # (delta_x, delta_y) = direction
+        # x, y = start
+        # n = 0  # n is number of moves in row
+        # while board.get((x, y)) == player:
+        #     n += 1
+        #     x, y = x + delta_x, y + delta_y
+        # x, y = start
+        # while board.get((x, y)) == player:
+        #     n += 1
+        #     x, y = x - delta_x, y - delta_y
+        # n -= 1  # Because we counted start itself twice
+
+        # n >=
+        return self.v
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
@@ -116,66 +116,99 @@ class FlagrantCopy(Game):
             print()
 
 
-myGame = FlagrantCopy()
+myGame = DotsandBoxes()
+
+Box1 = [[(0, 0), (1, 0)], [(1, 0), (1, 1)], [(1, 1), (0, 1)],
+        [(0, 1), (0, 0)],
+        ]
+
+Box2 = [[(1, 1), (1, 0)], [(2, 1), (1, 1)], [(2, 0), (2, 1)],
+        [(1, 0), (2, 0)],
+        ]
+
+Box3 = [[(2, 0), (3, 0)], [(3, 1), (3, 0)], [(3, 1), (2, 1)],
+        [(2, 1), (2, 0)],
+        ]
+
+Box4 = [[(0, 1), (1, 1)], [(1, 1), (1, 2)], [(1, 2), (0, 2)],
+        [(0, 2), (0, 1)],
+        ]
+
+Box5 = [[(1, 1), (2, 1)], [(2, 1), (2, 2)], [(2, 2), (1, 2)],
+        [(1, 2), (1, 1)],
+        ]
+
+Box6 = [[(2, 1), (3, 1)], [(3, 1), (3, 2)], [(3, 2), (2, 2)],
+        [(2, 2), (2, 1)],
+        ]
+
+Box7 = [[(0, 2), (1, 2)], [(1, 2), (1, 3)], [(1, 3), (0, 3)],
+        [(0, 3), (0, 2)],
+        ]
+
+Box8 = [[(1, 2), (2, 2)], [(2, 2), (2, 3)], [(2, 3), (1, 3)],
+        [(1, 3), (1, 2)],
+        ]
+Box9 = [[(2, 2), (3, 2)], [(3, 2), (3, 3)], [(3, 3), (2, 3)],
+        [(2, 3), (2, 2)],
+        ]
 
 won = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
-    label = 'won'
+    to_move='+--',
+   # width=4,
+   # height=4,
+    board=(Box1, Box2, Box3, Box4, Box5,
+           ),
+    label='won'
 )
 
 winin1 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
-    label = 'winin1'
+    to_move='+--',
+   # width=4,
+   # height=4,
+    board=[Box1, Box2, Box3, Box4,
+           ],
+    label='won'
 )
-
 losein1 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-             (3,1): 'X',
-            },
-    label = 'losein1'
+    to_move='+--',
+   # width=4,
+   # height=4,
+    board=[Box1, Box2,
+           ],
+    label='won'
 )
-
 winin3 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-             (3,1): 'O',
-            },
-    label = 'winin3'
+    to_move='+--',
+  #  width=4,
+   # height=4,
+    board=[Box1, Box2,
+           ],
+    label='won'
 )
-
 losein3 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X',
-             (2,1): 'X',
-             (3,1): 'O', (1,2): 'X', (1,2): 'O',
-            },
-    label = 'losein3'
+    to_move='+--',
+   # width=4,
+   # height=4,
+    board=[Box1,
+           ],
+    label='won'
 )
-
 winin5 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-            },
-    label = 'winin5'
+    to_move='+--',
+   # width=4,
+   # height=4,
+    board=[Box1,
+           ],
+    label='won'
 )
-
 lost = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
-             (3,1): 'X'
-            },
-    label = 'lost'
+    to_move='+--',
+   # width=4,
+   # height=4,
+    board=[
+    ],
+    label='lost'
 )
 
 myGames = {
@@ -185,3 +218,4 @@ myGames = {
         lost,
     ]
 }
+
