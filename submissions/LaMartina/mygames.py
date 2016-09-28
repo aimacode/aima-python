@@ -145,9 +145,12 @@ class Swag(Game):
             pass
         "You may take any number of tokens from only one bag."
         moves = []
-        bag1tokens = self.bag1.tokens
-        bag2tokens = self.bag2.tokens
-        bag3tokens = self.bag3.tokens
+        # bag1tokens = self.bag1.tokens
+        # bag2tokens = self.bag2.tokens
+        # bag3tokens = self.bag3.tokens
+        bag1tokens = state.board[1]
+        bag2tokens = state.board[2]
+        bag3tokens = state.board[3]
         for x in range(1,bag1tokens + 1):
             moves.append((1,x))
         for y in range(1,bag2tokens + 1):
@@ -210,74 +213,77 @@ class Bag():
 
 myGame = FlagrantCopy()
 
-won = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
-    label = 'won'
-)
-
-winin1 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
-    label = 'winin1'
-)
-
-losein1 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-             (3,1): 'X',
-            },
-    label = 'losein1'
-)
-
-winin3 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-             (3,1): 'O',
-            },
-    label = 'winin3'
-)
-
-losein3 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X',
-             (2,1): 'X',
-             (3,1): 'O', (1,2): 'X', (1,2): 'O',
-            },
-    label = 'losein3'
-)
-
-winin5 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-            },
-    label = 'winin5'
-)
-
-lost = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
-             (3,1): 'X'
-            },
-    label = 'lost'
-)
+# won = GameState(
+#     to_move = 'O',
+#     board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
+#              (2,1): 'O', (2,2): 'O',
+#             },
+#     label = 'won'
+# )
+#
+# winin1 = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'X',
+#              (2,1): 'O', (2,2): 'O',
+#             },
+#     label = 'winin1'
+# )
+#
+# losein1 = GameState(
+#     to_move = 'O',
+#     board = {(1,1): 'X', (1,2): 'X',
+#              (2,1): 'O', (2,2): 'O',
+#              (3,1): 'X',
+#             },
+#     label = 'losein1'
+# )
+#
+# winin3 = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'O',
+#              (2,1): 'X',
+#              (3,1): 'O',
+#             },
+#     label = 'winin3'
+# )
+#
+# losein3 = GameState(
+#     to_move = 'O',
+#     board = {(1,1): 'X',
+#              (2,1): 'X',
+#              (3,1): 'O', (1,2): 'X', (1,2): 'O',
+#             },
+#     label = 'losein3'
+# )
+#
+# winin5 = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'O',
+#              (2,1): 'X',
+#             },
+#     label = 'winin5'
+# )
+#
+# lost = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'X',
+#              (2,1): 'O', (2,2): 'O', (2,3): 'O',
+#              (3,1): 'X'
+#             },
+#     label = 'lost'
+# )
 
 
 myGame2 = Swag()
 
 
 myGames = {
-    myGame: [
-        won,
-        winin1, losein1, winin3, losein3, winin5,
-        lost,
-    ]
+    # myGame: [
+    #     won,
+    #     winin1, losein1, winin3, losein3, winin5,
+    #     lost,
+    # ]
+    myGame2: {
+
+    }
 }
