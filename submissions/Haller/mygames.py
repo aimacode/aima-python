@@ -110,9 +110,14 @@ class Oink(Game):
         tempX = int(move[6:-3])
         tempY = int(move[8:-1])
         board[tempX][tempY] = player
-        board[self.piggyX][self.piggyY] = ' '
-        self.piggyX = tempX
-        self.piggyY = tempY
+        if state.to_move == 'P':
+            board[self.piggyX][self.piggyY] = ' '
+            self.piggyX = tempX
+            self.piggyY = tempY
+        else:
+            board[self.fencesX[player]][self.fencesY[player]] = ' '
+            self.fencesX[player] = tempX
+            self.fencesY[player] = tempY
         next_mover = self.opponent(player)
         return GameState(to_move=next_mover, board=board)
 
