@@ -29,6 +29,19 @@ northernIl_map = search.UndirectedGraph(dict(
     Lafayette=dict(Indianapolis=62),
     Indianapolis=dict(SouthBend=150),
 ))
+northernIl_puzzle2 = search.GraphProblem('Rockford', 'Indianapolis', northernIl_map)
+northernIl_map.locations = dict(
+    Rockford = (42, 89),
+    CrystalLake= (42, 88),
+    Chicago= (41, 87),
+    Detriot= (42, 83),
+    Aurora= (41, 88),
+    Hammond= (41, 87),
+    Champaign= (40, 88),
+    Lafayette = (40, 86),
+    Indianapolis= (39, 86),
+)
+
 
 northernIl_puzzle = search.GraphProblem('Rockford', 'SouthBend', northernIl_map)
 #northernIl_puzzle shows breadth_first_search is lower than depth_first_search
@@ -60,10 +73,15 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
+
+
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
+
+
 
 myPuzzles = [
     northernIl_puzzle,
     switch_puzzle,
+    northernIl_puzzle2,
 ]
