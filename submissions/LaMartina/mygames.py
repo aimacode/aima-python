@@ -206,17 +206,25 @@ class Swag(Game):
 
     def display(self, state):
         board = state.board
+        print('1)',end='')
         for x in range(1, board[1] + 1):
             print('.', end= '')
-            print()
+            #print()
+        #print(' ',end='')
+        print()
+        print('2)',end='')
         for y in range(1,board[2] + 1):
-            print('  .', end = '')
-            print()
+            print('.', end = '')
+            #print()
+        print()
+        #print(' ', end='')
+        print('3)',end='')
         for z in range(1,board[3]+1):
-            print('    .', end = '')
+            print('.', end = '')
             # for y in range(1, self.v + 1):
             #     print(board.get((x, y), '.'), end=' ')
-            print()
+            #print()
+        print()
 class Bag():
     "Creates a bag with a number and a certain number of tokens"
     def __init__(self,bagNumber,tokens):
