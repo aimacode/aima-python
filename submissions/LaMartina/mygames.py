@@ -170,22 +170,27 @@ class Swag(Game):
     def utility(self, state, player):
         "Determines the utility of the player choosing a particular move"
         try:
-            return state.utility if player == '1' else -state.utility
+            return state.utility
         except:
             pass
         board = state.board
-        util = self.check_win(board) #'1')
+        util = self.check_win(board,player) #'1')
+        # if util == 0:
+        #     if (board[1] == 0 and board[2] == 0) or (board[1] == 0 and board[3] ==0) or (board[2] == 0 and board[3] == 0):
+        #         util = -1
         # if util == 0:
         #     util = -self.check_win(board,'2')
         state.utility = util
         to_return = util #if player == '1' else -util
         return to_return
 
-    def check_win(self,board,): #player):
+    def check_win(self,board,player): #player):
         "Checks to see if the player has won"
         #if self.bag1.isEmpty() and self.bag2.isEmpty() and self.bag3.isEmpty():
         if board[1] == 0 and board[2] == 0 and board[3] == 0:
-            return 1
+            if player == '1':
+                return 1
+            return -1
         return 0
 
     def terminal_test(self, state):
