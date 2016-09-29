@@ -26,7 +26,7 @@ class GameOfKings(Game):
         self.initial = GameState(to_move='E', board={(1,1): 'E', (4,4): 'F'})
         self.englandWin = (1,1)
         self.franceWin = (4,4)
-
+#insert random change so I can commit
     def actions(self, state):
         try:
             return state.moves
