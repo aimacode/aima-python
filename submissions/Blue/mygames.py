@@ -76,6 +76,8 @@ class dodgeEm(Game):
         next_mover = self.opponent(player)
         return GameState(to_move=next_mover, board=board)
 
+
+
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
         try:
