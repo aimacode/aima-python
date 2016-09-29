@@ -2,10 +2,17 @@ from collections import namedtuple
 from games import (Game)
 
 class GameState:
-    def __init__(self, to_move, board, label=None):
+    # def __init__(self, to_move, board, start_player,
+    #              label=None,):
+    #     self.to_move = to_move
+    #     self.board = board
+    #     self.label = label
+    #     self.start_player = start_player
+    def __init__(self, to_move, board, label=None,):
         self.to_move = to_move
         self.board = board
         self.label = label
+        #self.start_player = start_player
 
     def __str__(self):
         if self.label == None:
@@ -116,7 +123,8 @@ class FlagrantCopy(Game):
 
 class Swag(Game):
     """A electronic version of the game Swag, described on thinkfun.com."""
-    def __init__(self):
+    def __init__(self,#start_player
+                 ):
         "Initializes a swag game with 3 bags"
         self.bag1 = Bag(
             bagNumber = 1,
@@ -129,7 +137,8 @@ class Swag(Game):
         #self.bag3tokens = 5
         board = {self.bag1.bagNumber:self.bag1.tokens,
                       self.bag2.bagNumber:self.bag2.tokens,self.bag3.bagNumber:self.bag3.tokens}
-        self.initial = GameState(to_move = '1', board = board)
+        self.initial = GameState(to_move = '1', board = board,#start_player=start_player
+                                 )
        # self.bagNumber = 3
        # self.board = bags(self.bagNumber)
     #def __init__(self,bagNumber):
@@ -181,21 +190,24 @@ class Swag(Game):
         # if util == 0:
         #     util = -self.check_win(board,'2')
         state.utility = util
-        to_return = util #if player == '1' else -util
+        to_return = util if player == '1' else -util
         return to_return
 
     def check_win(self,board,player): #player):
         "Checks to see if the player has won"
         #if self.bag1.isEmpty() and self.bag2.isEmpty() and self.bag3.isEmpty():
         if board[1] == 0 and board[2] == 0 and board[3] == 0:
-            if player == '1':
-                return 1
-            return -1
+            #if player == self.initial.start_player:
+                #return 1
+
+            #return -1
+            return 1
         return 0
 
     def terminal_test(self, state):
         "A terminal state means a player has one or no moves are left"
-        value = self.utility(state, '1') != 0 or len(self.actions(state)) == 0
+        #value = self.utility(state, '1') != 0 or len(self.actions(state)) == 0
+        value = len(self.actions(state)) == 0
         return value
 
     def result(self,state,move):
@@ -303,7 +315,8 @@ myGame = FlagrantCopy()
 # )
 
 
-myGame2 = Swag()
+myGame2 = Swag(#'1'
+               )
 
 won = GameState(
     to_move = '1',
@@ -313,47 +326,48 @@ won = GameState(
 #The Gamestates below are formatted as winxyz where x is the number of moves to win, y is the bag to win from, and z is the number
 #of tokens
 win111 = GameState(
-    to_move = '2',
+    to_move = '1',
     board = {1:1,2:0,3:0},
     label = 'winin1 taking one from bag 1'
 )
 win112 = GameState(
-    to_move = '2',
+    to_move = '1',
     board = {1:2,2:0,3:0},
-    label = 'winin1 taking two from 1'
+    label = 'winin1 taking two from 1',
+    #start_player = '1'
 )
 win113 = GameState(
-    to_move = '2',
+    to_move = '1',
     board = {1:3,2:0,3:0},
     label = 'winin1 taking 3 from 1'
 )
 win121 = GameState(
-    to_move = '2',
+    to_move = '1',
     board = {1:0,2:1,3:0},
     label = 'winin1 taking 1 from 2'
 )
 win122 = GameState(
-    to_move = '2',
+    to_move = '1',
     board = {1:0,2:2,3:0},
     label = 'winin1 taking 2 from 2'
 )
 win123 = GameState(
-    to_move = '2',
+    to_move = '1',
     board = {1:0,2:3,3:0},
     label = 'winin1 taking 3 from 2'
 )
 win124 = GameState(
-    to_move = '2',
+    to_move = '1',
     board = {1:0,2:4,3:0},
     label = 'winin1 taking 4 from 2'
 )
 win131 = GameState(
-    to_move = '2',
+    to_move = '1',
     board = {1:0,2:0,3:1},
     label = 'winin1 taking 1 from 3'
 )
 win135 = GameState(
-    to_move = '2',
+    to_move = '1',
     board = {1:0,2:0,3:5},
     label = 'winin1 taking 5 from 3'
 )
