@@ -2,10 +2,11 @@ from collections import namedtuple
 from games import (Game)
 
 class GameState:
-    def __init__(self, to_move, board, label=None):
+    def __init__(self, to_move, board, label=None, maxDepth=5):
         self.to_move = to_move
         self.board = board
         self.label = label
+        self.maxDepth = maxDepth
 
     def __str__(self):
         if self.label == None:
@@ -25,6 +26,21 @@ class FlagrantCopy(Game):
         self.k = k
         self.initial = GameState(to_move='X', board={})
 
+    def land(self, board, column):
+        for row in range(self.v):
+            position = (row, column)
+            if position in board.keys():
+                continue
+            return position
+
+    def hasRoom(self, board, column):
+        topRow = self.v - 1
+        topCell = (topRow, column)
+        if topCell in board.keys():
+            return False
+        else:
+            return True
+
     def actions(self, state):
         try:
             return state.moves
@@ -33,16 +49,9 @@ class FlagrantCopy(Game):
         "Legal moves are any square not yet taken."
         moves = []
         count = 4
-        for x in range(count, self.h + 1):
-            for y in range(1, self.v + 1):
-                if (x,y) not in state.board.keys():
-                    moves.append((x,y))
-                if (x,y) in state.board.keys():
-                    moves.append((x -1, y))
-                if (x, y) in state.board.keys():
-                    moves.append((x -2, y))
-                if (x, y) in state.board.keys():
-                    moves.append((x -3, y))
+        for x in range(self.h):
+            if self.hasRoom(state.board, x):
+                moves.append(x)
         state.moves = moves
         return moves
 
@@ -59,7 +68,8 @@ class FlagrantCopy(Game):
             return state  # Illegal move has no effect
         board = state.board.copy()
         player = state.to_move
-        board[move] = player
+        position = self.land(board, move)
+        board[position] = player
         next_mover = self.opponent(player)
         return GameState(to_move=next_mover, board=board)
 
@@ -117,8 +127,8 @@ class FlagrantCopy(Game):
 
     def display(self, state):
         board = state.board
-        for x in range(1, self.h + 1):
-            for y in range(1, self.v + 1):
+        for x in range(self.h):
+            for y in range(self.v):
                 print(board.get((x, y), '.'), end=' ')
             print()
 
@@ -130,7 +140,7 @@ won = GameState(
     board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
              (2,1): 'O', (2,2): 'O',
             },
-    label = 'lost'
+    label = 'won'
 )
 
 winin1 = GameState(
@@ -138,7 +148,7 @@ winin1 = GameState(
     board = {(1,1): 'X', (1,2): 'X',
              (2,1): 'O', (2,2): 'O',
             },
-    label = 'losein1'
+    label = 'winin1'
 )
 
 losein1 = GameState(
@@ -147,7 +157,7 @@ losein1 = GameState(
              (2,1): 'O', (2,2): 'O',
              (3,1): 'X',
             },
-    label = 'winin1'
+    label = 'losein1'
 )
 
 winin3 = GameState(
@@ -156,7 +166,7 @@ winin3 = GameState(
              (2,1): 'X',
              (3,1): 'O',
             },
-    label = 'losein3'
+    label = 'winin3'
 )
 
 losein3 = GameState(
@@ -165,7 +175,7 @@ losein3 = GameState(
              (2,1): 'X',
              (3,1): 'O', (1,2): 'X', (1,2): 'O',
             },
-    label = 'winin3'
+    label = 'losein3'
 )
 
 winin5 = GameState(
@@ -173,7 +183,7 @@ winin5 = GameState(
     board = {(1,1): 'X', (1,2): 'O',
              (2,1): 'X',
             },
-    label = 'losein5'
+    label = 'winin5'
 )
 
 lost = GameState(
@@ -182,7 +192,7 @@ lost = GameState(
              (2,1): 'O', (2,2): 'O', (2,3): 'O',
              (3,1): 'X'
             },
-    label = 'won'
+    label = 'lost'
 )
 
 myGames = {
