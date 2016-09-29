@@ -27,7 +27,7 @@ class Star29(Game):
     def actions(self, state):
         moves = []
         if state.score >= 29:
-            moves = []
+            self.terminal_test(state)
         else:
             if state.board == 1:
                 moves.append(3)
@@ -48,6 +48,13 @@ class Star29(Game):
                             if state.board == 5:
                                 moves.append(2)
                                 moves.append(3)
+                            else:
+                                if state.board == 0:
+                                    moves.append(1)
+                                    moves.append(2)
+                                    moves.append(3)
+                                    moves.append(4)
+                                    moves.append(5)
         state.moves = moves
         return moves
 
@@ -77,24 +84,28 @@ class Star29(Game):
 
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
-        try:
-            return state.utility if player == 'p1' else -state.utility
-        except:
-            pass
-        board = state.board
-        util = self.check_win(state)
-        if util == 0:
-            util = -self.check_win(state)
-        state.utility = util
-        return util if player == 'p1' else -util
+        "if player goes over 29 they loose"
+        if player == 'p1' and state.score >= 29:
+            return 1
+        if state.score < 29:
+            return 0
+        else:
+            return -1
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
         return state.score >= 29
 
     def display(self, state):
-        print(str(state.board))
-        print('Score: ' + str(state.score))
+        if state.board != 0:
+            print()
+            print('Score: ' + str(state.score))
+            print('The coin is on the ' + str(state.board) + ' Spot.')
+            print(str(state.to_move) +' may slide it to the ' + str(state.moves[0]) + ' space or the ' + str(state.moves[1]) + ' space.')
+            print()
+        else:
+            print()
+            print('Place your coin on any number to Start')
 
 won = GameState(
     to_move = 'p1',
@@ -112,11 +123,38 @@ oneAway = GameState(
 
 start = GameState(
     to_move = 'p1',
-    board = 4,
+    board = 0,
     score = 0,
     label = 'start'
 )
 
+choice = GameState(
+    to_move = 'p1',
+    board = 1,
+    score = 24,
+    label = '4 is better'
+)
+
+choice2 = GameState(
+    to_move = 'p1',
+    board = 4,
+    score = 27,
+    label = '1 is better'
+)
+
+choice3 = GameState(
+    to_move = 'p1',
+    board = 3,
+    score = 23,
+    label = '5 is better'
+)
+
+choice4 = GameState(
+    to_move = 'p1',
+    board = 4,
+    score = 27,
+    label = 'choice4'
+)
 star29 = Star29(start)
 
 myGames = {
@@ -124,5 +162,9 @@ myGames = {
         won,
         oneAway,
         start,
+        choice,
+        choice2,
+        choice3,
+        choice4
     ]
 }
