@@ -114,7 +114,14 @@ def makeABtable(game, states):
     table = []
     for state in states:
         row = [str(state)[:maxChars]]
-        for abSearch in AB_searches:
+        maxDepth = len(AB_searches)
+        if hasattr(state, 'maxDepth'):
+            maxDepth = min(maxDepth, state.maxDepth + 1)
+        for abi in range(len(AB_searches)):
+            if(abi > maxDepth):
+                row.append(None)
+                continue
+            abSearch = AB_searches[abi]
             bestMove = abSearch(game, state)
             row.append(str(bestMove))
         table.append(row)
