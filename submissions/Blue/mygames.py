@@ -16,12 +16,9 @@ class GameState:
 class dodgeEm(Game):
     """
        a 4x4 board and recreation of the board shown on the thinkfun website.
-       the goal is for the player to have 4 pieces off the board (in a row/column),
-       opposite of their starting position. The square (5,1) is blank and is an
+       the goal is for the player to have 4 pieces off the board (in a row/column)
+        The square (5,1) is blank and is an
        invalid move for both Blue(B) and Yellow(Y).
-
-       ~The goal for B is to have all pieces on all squares (x,5) with the exception of (5,5)
-       ~The goal for Y is to have all pieces on all squares (1,y) with the exception of (1,1)
 
        ~Whoever captures(1,5) - top right corner first wins
          - So, the best piece to move for Blue is the one that is in (1,1) and the best first
@@ -163,15 +160,10 @@ yellowWins = GameState(
 
 # gameOverBlue = GameState(
 #     to_move = 'Y',
-#     board = {(1,3): 'B', (1,1): 'Y', (2,3): 'B',
-#              (1,2): 'Y', (3,3): 'B', (1,3): 'Y',
-#              (4,3): 'B', (3,1): 'Y', (1,2): 'B',
-#              (2,1): 'Y', (2,2): 'B', (2,2): 'Y',
-#              (3,2): 'B', (2,3): 'Y', (3,3): 'B',
-#              (1,3): 'Y', (4,3): 'B', (1,4): 'Y',
-#              (1,3): 'B', (2,1): 'Y', (2,3): 'B',
-#              (3,1): 'Y', (2,3): 'B', (3,2): 'Y',
-#              (3,3): 'B', (2,2): 'Y', (4,3): 'B'},
+#     board = {(1,3): 'B', (1,5): 'Y', (2,4): 'B',
+#              (2,5): 'Y', (3,2): 'B', (3,5): 'Y',
+#              (4,3): 'B',(4,5): 'Y',
+#              },
 #
 #     label = 'Yellow wins'
 # )
