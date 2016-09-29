@@ -24,42 +24,42 @@ class Oink(Game):
     def __init__(self):
         self.collCount = 4
         self.rowCount = 4
-        self.piggyX = 0
-        self.piggyY = 1
-        self.fencesX = {'F1':3,
+        self.piggyR = 0
+        self.piggyC = 1
+        self.fencesR = {'F1':3,
                        'F2':3,
                        'F3':3,
                        'F4':3}
-        self.fencesY = {'F1':0,
+        self.fencesC = {'F1':0,
                        'F2':1,
                        'F3':2,
                        'F4':3}
-        self.initial = GameState(to_move='P', board=[ [' ','P',' ',' '],
-                                                            [' ',' ',' ',' '],
-                                                        [' ',' ',' ',' '],
-                                                            ['F1','F2','F3','F4']])
+        self.initial = GameState(to_move='P', board=[ [' ',  'P',  ' ',  ' '],
+                                                         [' ',  ' ',  ' ',  ' '],
+                                                      [' ',  ' ',  ' ',  ' '],
+                                                         ['F1', 'F2', 'F3', 'F4']])
 
     def actions(self, state):
-        try:
-            return state.moves
-        except:
-            pass
-        "Legal moves are any square not yet taken."
+        # try:
+        #     return state.moves
+        # except:
+        #     pass
+        # "Legal moves are any square not yet taken."
         moves = []
-        if state.to_move =='P':
+        if state.to_move == 'P':
             for i in range(self.rowCount):
                 if i % 2 == 0 and 'P' in state.board[i]:
                     loc = state.board[i].index('P')
                     if i-1 >= 0:
-                        if state.board[i-1][loc] == ' ':
-                            moves.append('P to (' + str(i-1) + ',' + str(loc) + ')')
                         if loc-1 >= 0 and state.board[i-1][loc-1] == ' ':
                             moves.append('P to (' + str(i-1) + ',' + str(loc-1) + ')')
+                        if state.board[i-1][loc] == ' ':
+                            moves.append('P to (' + str(i-1) + ',' + str(loc) + ')')
                     if i+1 < self.rowCount:
-                        if state.board[i+1][loc] == ' ':
-                            moves.append('P to (' + str(i+1) + ',' + str(loc) + ')')
                         if loc-1 >= 0 and state.board[i+1][loc-1] == ' ':
                             moves.append('P to (' + str(i+1) + ',' + str(loc-1) + ')')
+                        if state.board[i+1][loc] == ' ':
+                            moves.append('P to (' + str(i+1) + ',' + str(loc) + ')')
                 if i % 2 != 0 and 'P' in state.board[i]:
                     loc = state.board[i].index('P')
                     if i-1 >= 0:
@@ -73,20 +73,20 @@ class Oink(Game):
                         if loc+1 < self.collCount and state.board[i+1][loc+1] == ' ':
                             moves.append('P to (' + str(i+1) + ',' + str(loc+1) + ')')
         if state.to_move =='F':
-            for k in self.fencesY.keys():
+            for k in self.fencesC.keys():
                 for i in range(self.rowCount):
-                    if i % 2 == 0 and k in state.board[i]:
+                    if i % 2 == 0 and k in state.board[i] and state.board[i][self.fencesC[k]] == k:
                         if i-1 >= 0:
-                            if state.board[i-1][self.fencesY[k]] == ' ':
-                                moves.append(k + ' to(' + str(i-1) + ',' + str(loc) + ')')
-                            if loc-1 >= 0 and state.board[i-1][self.fencesY[k]-1] == ' ':
-                                moves.append(k + ' to(' + str(i-1) + ',' + str(loc-1) + ')')
-                    if i % 2 != 0 and k in state.board[i]:
+                            if self.fencesC[k]-1 >= 0 and state.board[i-1][self.fencesC[k]-1] == ' ':
+                                moves.append(k + ' to(' + str(i-1) + ',' + str(self.fencesC[k]-1) + ')')
+                            if state.board[i-1][self.fencesC[k]] == ' ':
+                                moves.append(k + ' to(' + str(i-1) + ',' + str(self.fencesC[k]) + ')')
+                    if i % 2 != 0 and k in state.board[i] and state.board[i][self.fencesC[k]] == k:
                         if i-1 >= 0:
-                            if state.board[i-1][self.fencesY[k]] == ' ':
-                                moves.append(k + ' to(' + str(i-1) + ',' + str(loc) + ')')
-                            if loc+1 < self.collCount and state.board[i-1][self.fencesY[k]+1] == ' ':
-                                moves.append(k + ' to(' + str(i-1) + ',' + str(loc+1) + ')')
+                            if state.board[i-1][self.fencesC[k]] == ' ':
+                                moves.append(k + ' to(' + str(i-1) + ',' + str(self.fencesC[k]) + ')')
+                            if self.fencesC[k]+1 < self.collCount and state.board[i-1][self.fencesC[k]+1] == ' ':
+                                moves.append(k + ' to(' + str(i-1) + ',' + str(self.fencesC[k]+1) + ')')
 
         state.moves = moves
         return moves
@@ -105,20 +105,22 @@ class Oink(Game):
         board = copy.deepcopy(state.board)
         if state.to_move == 'P':
             player = 'P'
+            retPlayer = 'P'
         else:
             player = move[:2]
-        tempX = int(move[6:-3])
-        tempY = int(move[8:-1])
-        board[tempX][tempY] = player
+            retPlayer = 'F'
+        tempR = int(move[6:-3])
+        tempC = int(move[8:-1])
+        board[tempR][tempC] = player
         if state.to_move == 'P':
-            board[self.piggyX][self.piggyY] = ' '
-            self.piggyX = tempX
-            self.piggyY = tempY
+            board[self.piggyR][self.piggyC] = ' '
+            self.piggyR = tempR
+            self.piggyC = tempC
         else:
-            board[self.fencesX[player]][self.fencesY[player]] = ' '
-            self.fencesX[player] = tempX
-            self.fencesY[player] = tempY
-        next_mover = self.opponent(player)
+            board[self.fencesR[player]][self.fencesC[player]] = ' '
+            self.fencesC[player] = tempC
+            self.fencesR[player] = tempR
+        next_mover = self.opponent(retPlayer)
         return GameState(to_move=next_mover, board=board)
 
     def utility(self, state, player):
@@ -128,28 +130,23 @@ class Oink(Game):
         except:
             pass
         board = state.board
-        util = self.check_win(board, 'P')
+        util = self.check_win(board, state, 'P')
         if util == 0:
-            util = -self.check_win(board, 'F')
+            util = -self.check_win(board, state, 'F')
         state.utility = util
         return util if player == 'P' else -util
 
     # Did I win?
-    def check_win(self, board, player):
-        # check rows
-        for y in range(1, self.v + 1):
-            if self.k_in_row(board, (1,y), player, (1,0)):
-                return 1
-        # check columns
-        for x in range(1, self.h + 1):
-            if self.k_in_row(board, (x,1), player, (0,1)):
-                return 1
-        # check \ diagonal
-        if self.k_in_row(board, (1,1), player, (1,1)):
+    def check_win(self, board, state, player):
+        met = 0
+        if player == 'P' and self.piggyR == 3:
             return 1
-        # check / diagonal
-        if self.k_in_row(board, (3,1), player, (-1,1)):
-            return 1
+        if player == 'F':
+            chkActions = copy.deepcopy(state)
+            chkActions.to_move ='P'
+            chkMoves = self.actions(chkActions)
+            if len(chkMoves) == 0:
+                return 1
         return 0
 
     def terminal_test(self, state):
@@ -161,9 +158,15 @@ class Oink(Game):
         for x in range(self.rowCount):
             for y in range(self.collCount):
                 if x % 2 == 0:
-                    pStr = board[x][y] + '#'
+                    if board[x][y] in self.fencesC.keys():
+                        pStr = board[x][y] + '##'
+                    else:
+                        pStr = board[x][y] + ' ##'
                 if x % 2 != 0:
-                    pStr = '#' + board[x][y]
+                    if board[x][y] in self.fencesC.keys():
+                        pStr = '##' + board[x][y]
+                    else:
+                        pStr = '## ' + board[x][y]
                 print(pStr, end='')
             print()
 
@@ -171,18 +174,20 @@ class Oink(Game):
 myGame = Oink()
 
 won = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
+    to_move = 'F',
+    board = [ [' ',   ' ',  'F1',   ' '],
+                 ['F2',  ' ',   'F4',  ' '],
+              [' ',   ' ',   ' ',   ' '],
+                 ['P',   'F3',   ' ',  ' ']],
     label = 'won'
 )
 
 winin1 = GameState(
     to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
+    board = [ [' ',' ','F1',' '],
+                  ['F2','P','F4',' '],
+              [' ',' ','F3',' '],
+                  [' ',' ',' ',' ']],
     label = 'winin1'
 )
 
@@ -222,11 +227,11 @@ winin5 = GameState(
 )
 
 lost = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
-             (3,1): 'X'
-            },
+    to_move = 'P',
+    board = [ [' ',  'F1',  'F4',  ' '],
+                 [' ',  'P',  ' ',  ' '],
+              [' ',  'F2',  'F3',  ' '],
+                 [' ', ' ', ' ', ' ']],
     label = 'lost'
 )
 
