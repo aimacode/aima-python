@@ -178,10 +178,10 @@ class Swag(Game):
 
     def utility(self, state, player):
         "Determines the utility of the player choosing a particular move"
-        try:
-            return state.utility
-        except:
-            pass
+        # try:
+        #     return state.utility
+        # except:
+        #     pass
         board = state.board
         util = self.check_win(board,player) #'1')
         # if util == 0:
@@ -190,7 +190,8 @@ class Swag(Game):
         # if util == 0:
         #     util = -self.check_win(board,'2')
         state.utility = util
-        to_return = util if player == '1' else -util
+        lastPlayer = state.to_move
+        to_return = util if lastPlayer == '1' else -util
         return to_return
 
     def check_win(self,board,player): #player):
@@ -206,8 +207,8 @@ class Swag(Game):
 
     def terminal_test(self, state):
         "A terminal state means a player has one or no moves are left"
-        #value = self.utility(state, '1') != 0 or len(self.actions(state)) == 0
-        value = len(self.actions(state)) == 0
+        value = self.utility(state, '1') != 0 or len(self.actions(state)) == 0
+        #value = len(self.actions(state)) == 0
         return value
 
     def result(self,state,move):
@@ -326,50 +327,50 @@ won = GameState(
 #The Gamestates below are formatted as winxyz where x is the number of moves to win, y is the bag to win from, and z is the number
 #of tokens
 win111 = GameState(
-    to_move = '1',
+    to_move = '2',
     board = {1:1,2:0,3:0},
-    label = 'winin1 taking one from bag 1'
+    label = 'win1 taking one from bag 1'
 )
 win112 = GameState(
-    to_move = '1',
+    to_move = '2',
     board = {1:2,2:0,3:0},
-    label = 'winin1 taking two from 1',
+    label = 'win2 taking two from 1',
     #start_player = '1'
 )
 win113 = GameState(
-    to_move = '1',
+    to_move = '2',
     board = {1:3,2:0,3:0},
-    label = 'winin1 taking 3 from 1'
+    label = 'win3 taking 3 from 1'
 )
 win121 = GameState(
-    to_move = '1',
+    to_move = '2',
     board = {1:0,2:1,3:0},
-    label = 'winin1 taking 1 from 2'
+    label = 'win4 taking 1 from 2'
 )
 win122 = GameState(
-    to_move = '1',
+    to_move = '2',
     board = {1:0,2:2,3:0},
     label = 'winin1 taking 2 from 2'
 )
 win123 = GameState(
-    to_move = '1',
+    to_move = '2',
     board = {1:0,2:3,3:0},
-    label = 'winin1 taking 3 from 2'
+    label = 'win5 taking 3 from 2'
 )
 win124 = GameState(
-    to_move = '1',
+    to_move = '2',
     board = {1:0,2:4,3:0},
-    label = 'winin1 taking 4 from 2'
+    label = 'win6 taking 4 from 2'
 )
 win131 = GameState(
-    to_move = '1',
+    to_move = '2',
     board = {1:0,2:0,3:1},
-    label = 'winin1 taking 1 from 3'
+    label = 'win7 taking 1 from 3'
 )
 win135 = GameState(
-    to_move = '1',
+    to_move = '2',
     board = {1:0,2:0,3:5},
-    label = 'winin1 taking 5 from 3'
+    label = 'win8 taking 5 from 3'
 )
 
 
@@ -382,6 +383,6 @@ myGames = {
     myGame2: [
         won,
         win111,
-        win112,win113,win121,win122,win123,win124,win131,win135
+        win112, win113,win121,win122,win123,win124,win131,win135
     ]
 }
