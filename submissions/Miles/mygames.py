@@ -4,10 +4,11 @@ from copy import deepcopy
 
 
 class GameState:
-    def __init__(self, to_move, board, label=None):
+    def __init__(self, to_move, board, label=None, depth=8):
         self.to_move = to_move
         self.board = board
         self.label = label
+        self.MaxDepth = depth
 
     def __str__(self):
         if self.label == None:
@@ -15,24 +16,22 @@ class GameState:
         return self.label
 
 
-
-
 class DotsandBoxes(Game):
 
-    """A copy of the game dots and boxes. This game is played on a board that is 4 by 4 square
+    """A copy of the game dots and boxes. This game is played on a board that is 3 by 3 square
     the goal is to create a completed square first."""
 
 
     def __init__(self, h=3, v=3):
         self.h = h
         self.v = v
-        self.initial = GameState(to_move='+--', board={})
+        self.initial = GameState(to_move='---', board={})
 
 
     def actions(self, state):
+
         try:
             return state.moves
-
         except:
             pass
         "Legal moves are any square not yet taken."
@@ -43,6 +42,16 @@ class DotsandBoxes(Game):
                     moves.append((x, y))
         state.moves = moves
         return moves
+
+    def _makeMove(self, line1, line2):
+        """return a new move and makes sure it's legal"""
+        x, y = line2[0] - line1[0], line2[1] - line1[1]
+        assert ((abs(x) == 1 and abs(y) == 0) or
+                 (abs(x) == 0 and abs(y) == 1))
+        if line1 < line2:
+            return (line1, line2)
+        else:
+            return (tuple(line2), tuple(line1))
 
 
 # defines the order of play
@@ -68,15 +77,15 @@ class DotsandBoxes(Game):
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
         try:
-            return state.utility if player == 'X' else -state.utility
+            return state.utility if player == '---' else -state.utility
         except:
             pass
         board = state.board
-        util = self.check_win(board, 'X')
+        util = self.check_win(board, '---')
         if util == 0:
-            util = -self.check_win(board, 'O')
+            util = -self.check_win(board, '---')
         state.utility = util
-        return util if player == 'X' else -util
+        return util if player == '---' else -util
 
     # Did I win?
 
@@ -118,6 +127,39 @@ class DotsandBoxes(Game):
         # n >=
         return self.v
 
+    def _isSquareMove(self, move):
+        b = self.board
+        mmove = self._makemove
+        move = ((x1, y1), (x2, y2))
+        captured_squares = []
+        if self._isHorizontal(move):
+            for j in [-1, 1]:
+                if (b.has_key(mmove((x1, y1), (x1, y1 - j)))
+                    and b.has_key(mmove((x1, y1 - j), (x1 + 1, y1 - j)))
+                    and b.has_key(mmove((x1 + 1, y1 - j), (x2, y2)))):
+                    captured_squares.append(min([(x1, y1), (x1, y1 - j),
+                                                 (x1 + 1, y1 - j), (x2, y2)]))
+        else:
+            for j in [-1, 1]:
+                if (b.has_key(mmove((x1, y1), (x1 - j, y1)))
+                    and b.has_key(mmove((x1 - j, y1), (x1 - j, y1 + 1)))
+                    and b.has_key(mmove((x1 - j, y1 + 1), (x2, y2)))):
+                    captured_squares.append(min([(x1, y1), (x1 - j, y1),
+                                                 (x1 - j, y1 + 1), (x2, y2)]))
+        return captured_squares
+
+    def Horizontal(self, move):
+        # return true is the move is horizontal
+        return abs(move[0][0] - move[1][0]) == 1
+
+    def Vertical(self, move):
+        # return true if the move is vertical
+        return not self.Horizontal(self, move)
+
+    def getBoxes(self):
+        # returns a dictionary of boxes
+        # not needed
+        return self.squares
 
     def terminal_test(self, state):
         "A state is terminal if it is won or there are no empty squares."
@@ -150,10 +192,6 @@ Box3 = [[(0, 1), (1, 1)], [(1, 1), (1, 2)], [(1, 2), (0, 2)],
 Box4 = [[(1, 1), (2, 1)], [(2, 1), (2, 2)], [(2, 2), (1, 2)],
         [(1, 2), (1, 1)],
         ]
-
-
-
-
 
 # Box6 = [[(2, 1), (3, 1)], [(3, 1), (3, 2)], [(3, 2), (2, 2)],
 #         [(2, 2), (2, 1)],
@@ -220,7 +258,7 @@ winin5 = GameState(
     label='won'
 )
 lost = GameState(
-    to_move='+--',
+    to_move='---',
     # width=4,
     # height=4,
     board=[
