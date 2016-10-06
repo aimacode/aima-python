@@ -48,7 +48,7 @@ neighbors = {'AL': ['MS', 'TN', 'GA', 'FL'],
              'WA': ['OR', 'ID'],
              'WI': ['MN', 'IA', 'MI', 'IL'],
              'WV': ['OH', 'KY', 'PA', 'MD', 'VA'],
-             'WY': ['ID', 'UT', 'MT', 'SD', 'NE', 'CO']
+             'WY': ['ID', 'UT', 'MT', 'SD', 'NE', 'CO'],
 }
 
 variables = neighbors.keys()
