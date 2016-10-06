@@ -1,11 +1,17 @@
 import importlib
 import traceback
 from grading.util import roster, print_table
-
+from csp import backtracking_search, lcv, mrv, mac
 
 def try_csps(csps):
     for c in csps:
-        pass
+        assignment = backtracking_search(
+            **c
+            # order_domain_values=lcv,
+            # select_unassigned_variable=mrv,
+            # inference=mac
+        )
+        print(assignment)
 
 submissions = {}
 scores = {}
