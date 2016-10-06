@@ -35,34 +35,50 @@ class ConnectFour(search.Problem):
             Red = 'X'  # the player
             Yellow = 'O'  # the computer
             player1 = 'Winner'
-            state = ConnectFour([['O', 'O', 'O', 'O'],
+            state1 = ConnectFour([['O', 'O', 'O', 'O'],
                                  ['O', 'O', 'O', 'O'],
                                  ['O', 'O', 'O', 'O'],
                                  ['O', 'O', 'O', 'O'],
                                  ])
-            return state
+            state2 = ConnectFour([['X', 'O', 'O', 'O'],
+                                 ['O', 'X', 'O', 'O'],
+                                 ['O', 'O', 'X', 'O'],
+                                 ['O', 'O', 'O', 'X'],
+                                 ])
+            state3 = ConnectFour([['X', 'O', 'O', 'O'],
+                                 ['X', 'O', 'O', 'O'],
+                                 ['X', 'O', 'O', 'O'],
+                                 ['X', 'O', 'O', 'O'],
+                                 ])
+            state4 = ConnectFour([['O', 'X', 'O', 'O'],
+                                 ['O', 'X', 'O', 'O'],
+                                 ['O', 'X', 'O', 'O'],
+                                 ['O', 'X', 'O', 'O'],
+                                 ])
+            state5 = ConnectFour([['O', 'O', 'X', 'O'],
+                                 ['O', 'O', 'X', 'O'],
+                                 ['O', 'O', 'X', 'O'],
+                                 ['O', 'O', 'X', 'O'],
+                                 ])
+            return state1
 
     def result(self, state, action):
         if action == 'X':
-            self.rows
-            return 'X'
+
+            return state2
         else:
-            self.columns
-            return 'O'
 
-
+            return state1
     def goal_test(self, state):
-        GOAL = ('X', 'X', 'X', 'X')
-        GOAL2 = ('O', 'O', 'O', 'O')
-        return state == GOAL or GOAL2
 
+        return state
 
     def h(self, node):
         state = node.state
         if self.goal_test(state):
-            return 0
-        else:
             return 1
+        else:
+            return -1
 
 
 miles_puzzle = ConnectFour('X')

@@ -1,12 +1,16 @@
 # common utilities for grading
 from utils import isnumber
 
-roster = ['Anderson', 'Ban','Becker','Blue','Capps','Conklin','Dickenson',
-          'Fritz','Haller','Hawley','Hess','Johnson','Karman','Kinley',
-          'LaMartina','McLean','Miles','Ottenlips','Porter','Sery',
-          'VanderKallen',
-          'aardvark','aartiste','zzzsolutions',
-          ]
+roster = [
+    'Anderson','Ban','Becker',
+    'Blue','Capps','Conklin',
+    'Dickenson','Fritz','Haller',
+    'Hawley','Hess','Johnson',
+    'Karman','Kinley','LaMartina',
+    'McLean','Miles','Ottenlips',
+    'Porter','Sery','VanderKallen',
+    'aardvark','aartiste','zzzsolutions',
+]
 
 def print_table(table, header=None, sep='   ',numfmt='%g',
                 njust='rjust', tjust='ljust'):

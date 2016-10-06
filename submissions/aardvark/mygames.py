@@ -2,10 +2,11 @@ from collections import namedtuple
 from games import (Game)
 
 class GameState:
-    def __init__(self, to_move, board, label=None):
+    def __init__(self, to_move, board, label=None, depth=8):
         self.to_move = to_move
         self.board = board
         self.label = label
+        self.maxDepth = depth
 
     def __str__(self):
         if self.label == None:
