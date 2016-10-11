@@ -104,7 +104,7 @@ for i in range(t):
     p = p3
     #print p
     print(eval(myrobot, p))
-    for i in range(n):
-    	plt.plot(p[i].x,p[i].y, '.')
-    plt.axis([0,10,0,10])
-    plt.show()
+for i in range(n):
+	plt.plot(p[i].x,p[i].y, '.')
+plt.axis([0,10,0,10])
+plt.show()
