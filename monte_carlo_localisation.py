@@ -5,9 +5,6 @@
 
 
 from math import *
-import matplotlib
-#matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import random
 from robot_class import robot
 
@@ -57,7 +54,7 @@ myrobot.set(1.0, 6.0, 0)
 
 
 n = 1000
-t = 100
+t = 20
 
 p = []
 
@@ -75,9 +72,10 @@ for i in range(n):
     x = robot()
     x.set_noise(0.1, 0.01, 2.0)
     p.append(x)
-    plt.plot(x.x, x.y , ".")
-#plt.axis([0,10,0,10])
-plt.show()
+
+eval1 = eval(myrobot, p)
+print(eval1)
+
 for i in range(t):
     myrobot = myrobot.move(0, 0.5)
     myrobot.set_sense_orient()
@@ -106,7 +104,3 @@ for i in range(t):
     p = p3
     #print p
     print(eval(myrobot, p))
-for i in range(n):
-	plt.plot(p[i].x,p[i].y, '.')
-plt.axis([0,10,0,10])
-plt.show()
