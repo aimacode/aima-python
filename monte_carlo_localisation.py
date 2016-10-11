@@ -1,7 +1,7 @@
-"""
-    For simplicity the positive orientation of theta is reversed
-    i.e - when moving clockwise theta is positive
-"""
+
+#    For simplicity the positive orientation of theta is reversed
+#   i.e - when moving clockwise theta is positive
+
 
 
 from math import *
@@ -39,35 +39,35 @@ def eval(r, p):
 ####   DON'T MODIFY ANYTHING ABOVE HERE! ENTER CODE BELOW ####
 myrobot = robot()
 myrobot.set(1.0, 6.0, 0)
-"""
-myrobot.set(6.0, 3.0, pi/4)
-myrobot.set_sense_orient()
-print myrobot.sense()
-"""
+
+#myrobot.set(6.0, 3.0, pi/4)
+#myrobot.set_sense_orient()
+#print myrobot.sense()
+
 #print myrobot.convert_to_degrees(myrobot.set_sense_orient())
 #print myrobot.set_sense_orient()
 #print myrobot.x, myrobot.y
-"""
-x =  0.5
+
+#x =  0.5
 #print -3.5 % 2
 #print myrobot.orientation * 180 / pi_c
-print (x * 2 * pi) % (2*pi)
-"""
+#print (x * 2 * pi) % (2*pi)
+
 
 n = 1000
 t = 100
 
 p = []
-"""
-xs = []
-ys = []
-for i in range(len(maze)):
-    for j in range(len(maze[0])):
-        if maze[i][j] == 1:
-            xs.append(i)
-            ys.append(j)
-plt.plot(xs,ys,'--')
-"""
+
+# xs = []
+# ys = []
+# for i in range(len(maze)):
+#     for j in range(len(maze[0])):
+#         if maze[i][j] == 1:
+#             xs.append(i)
+#             ys.append(j)
+# plt.plot(xs,ys,'--')
+
 
 for i in range(n):
     x = robot()
