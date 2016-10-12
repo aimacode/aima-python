@@ -24,4 +24,3 @@ This map is unique, to the best of my knowledge.
 myPuzzles = [
     sumner_puzzle,
 ]
-
