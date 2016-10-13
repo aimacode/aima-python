@@ -61,9 +61,27 @@ domainsNWAfrica = {
     'Benin': rgb,
     'BurFaso': rgb,
     'Mali': rgb
+}
+variablesAfrica = domainsNWAfrica.keys()
 
-
-
+neighborsAfrica = {
+    'WS': ['Mor','Maur'],
+    'Mor': ['Alg','WS'],
+    'Alg': ['Tun','Mali','Mor','Maur','WS'],
+    'Tun': ['Alg'],
+    'Maur': ['WS','Alg','Mali','Sen'],
+    'Sen': ['Mali','Maur','TheGam','Gui-Bis','Gui'],
+    'TheGam': ['Sen',],
+    'Gui-Bis': ['Sen','Gui'],
+    'Gui': ['Gui-Bis','Sen','SieLeo','Lib','Mali','Cot'],
+    'SieLeo': ['Gui','Lib'],
+    'Lib': ['Gui','SieLeo','Cot'],
+    'Cot': ['Lib','Gui','Mali','BurFaso','Ghana'],
+    'Ghana': ['Togo','BurFaso','Cot'],
+    'Togo': ['BurFaso','Benin','Ghana'],
+    'Benin': ['Mali','Togo'],
+    'BurFaso': ['Benin','Togo','Ghana','Cot','Mali'],
+    'Mali': ['Alg','Maur','Sen','Gui','Cot','BurFaso'],
 }
 myCSPs = [
     {'csp': myAus,
