@@ -1,6 +1,6 @@
 import csp
 
-rgb = ['R', 'G', 'B']
+rgb = ['R', 'G', 'B','K']
 
 domains = {
     'AM': rgb,
@@ -83,8 +83,13 @@ neighborsAfrica = {
     'BurFaso': ['Benin','Togo','Ghana','Cot','Mali'],
     'Mali': ['Alg','Maur','Sen','Gui','Cot','BurFaso'],
 }
+
+myAfr = csp.CSP(variablesAfrica, domainsNWAfrica, neighborsAfrica, constraints)
+
 myCSPs = [
-    {'csp': myAus,
+    {'csp': myAfr,
+        #'csp': myAus,
      # 'select_unassigned_variable':csp.mrv,
+
      }
 ]
