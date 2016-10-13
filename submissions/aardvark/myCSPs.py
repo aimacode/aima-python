@@ -43,6 +43,18 @@ def constraints(A, a, B, b):
 
 myAus = csp.CSP(variables, domains, neighbors, constraints)
 
+domainsAfrica = {
+    'WS': rgb,
+    'Mor': rgb,
+    'Alg': rgb,
+    'Tun': rgb,
+    'Maur': rgb,
+    'Sen': rgb,
+    'TheGam': rgb,
+    'Gui-Bis': rgb,
+
+
+}
 myCSPs = [
     {'csp': myAus,
      # 'select_unassigned_variable':csp.mrv,
