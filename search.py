@@ -448,7 +448,7 @@ class OnlineDFSAgent:
             if self.s is not None:
                 if s1 != self.result[(self.s, self.a)]:
                     self.result[(self.s, self.a)] = s1
-                    unbacktracked[s1].insert(0, self.s)
+                    self.unbacktracked[s1].insert(0, self.s)
             if len(self.untried[s1]) == 0:
                 if len(self.unbacktracked[s1]) == 0:
                     self.a = None
@@ -656,7 +656,7 @@ class Graph:
         "Add a link from A to B of given distance, in one direction only."
         self.dict.setdefault(A, {})[B] = distance
 
-    def get(self, a, b=None):
+    def get(self, a: object, b: object = None) -> object:
         """Return a link distance or a dict of {node: distance} entries.
         .get(a,b) returns the distance or None;
         .get(a) returns a dict of {node: distance} entries, possibly {}."""
@@ -796,7 +796,7 @@ class GraphProblem(Problem):
 
     def actions(self, A):
         "The actions at a graph node are just its neighbors."
-        return list(self.graph.get(A).keys())
+        return reversed(sorted(list(self.graph.get(A).keys())))
 
     def result(self, state, action):
         "The result of going to a neighbor is just that neighbor."
@@ -809,7 +809,10 @@ class GraphProblem(Problem):
         "h function is straight-line distance from a node's state to goal."
         locs = getattr(self.graph, 'locations', None)
         if locs:
-            return int(distance(locs[node.state], locs[self.goal]))
+            # changed to observe heuristics
+            # return int(distance(locs[node.state], locs[self.goal]))
+            d2g = distance(locs[node.state], locs[self.goal])
+            return d2g
         else:
             return infinity
 
@@ -826,7 +829,7 @@ class GraphProblemStochastic(GraphProblem):
     def result(self, state, action):
         return self.graph.get(state, action)
 
-    def path_cost():
+    def path_cost(self):
         raise NotImplementedError
 
 
