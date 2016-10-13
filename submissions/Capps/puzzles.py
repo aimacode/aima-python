@@ -34,18 +34,42 @@ This map is unique, to the best of my knowledge.
 '''
 
 # A trivial Problem definition
-class LightSwitch(search.Problem):
+class Twiddle(search.Problem):
     def actions(self, state):
-        return ['up', 'down']
+        return [(0, 0, 'cc'), (0, 0, 'cw'), (0, 2, 'cc'), (0, 2, 'cw')]
 
     def result(self, state, action):
-        if action == 'up':
-            return 'on'
+        newState = state.copy()
+        if action == (0, 0, 'cc'):
+            newState[0][0] = state[0][1]
+            newState[0][1] = state[1][1]
+            newState[1][0] = state[0][0]
+            newState[1][1] = state[1][0]
+            return newState
         else:
-            return 'off'
+            if action == (0, 0, 'cw'):
+                newState[0][0] = state[1][0]
+                newState[0][1] = state[0][0]
+                newState[1][0] = state[1][1]
+                newState[1][1] = state[0][1]
+                return newState
+            else:
+                if action == (0, 2, 'cc'):
+                    newState[0][1] = state[0][2]
+                    newState[0][2] = state[1][2]
+                    newState[1][1] = state[0][1]
+                    newState[1][2] = state[1][1]
+                    return newState
+                else:
+                    if action == (0, 2, 'cw'):
+                        newState[0][1] = state[1][1]
+                        newState[0][2] = state[0][1]
+                        newState[1][1] = state[1][2]
+                        newState[1][2] = state[0][2]
+                        return newState
 
     def goal_test(self, state):
-        return state == 'on'
+        return state == [['1', '2', '3'], ['4', '5', '6']]
 
     def h(self, node):
         state = node.state
@@ -54,10 +78,11 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
-switch_puzzle = LightSwitch('off')
-switch_puzzle.label = 'Light Switch'
+
+twiddle_puzzle = Twiddle([['1', '2', '3'], ['4', '5', '6']])
+twiddle_puzzle.label = 'Twiddle Puzzle TRICKS'
 
 myPuzzles = [
-    Butte_map,
-    switch_puzzle,
+    #Butte_map,
+    twiddle_puzzle,
 ]
