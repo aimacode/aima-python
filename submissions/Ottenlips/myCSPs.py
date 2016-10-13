@@ -1,6 +1,6 @@
 import csp
 
-rgb = ['R', 'G', 'B']
+rgb = ['R', 'G', 'B','Y','H']
 
 domains = {
     # 'AM': rgb,
