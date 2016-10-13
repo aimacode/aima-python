@@ -37,7 +37,7 @@ for student in roster:
     scores[student] = []
     try:
         csps = submissions[student]
-        print('Games from:', student)
+        print('CSPs from:', student)
         try_csps(csps)
     except:
         traceback.print_exc()
