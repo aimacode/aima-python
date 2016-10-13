@@ -43,7 +43,7 @@ def constraints(A, a, B, b):
 
 myAus = csp.CSP(variables, domains, neighbors, constraints)
 
-domainsNAfrica = {
+domainsNWAfrica = {
     'WS': rgb,
     'Mor': rgb,
     'Alg': rgb,
@@ -56,7 +56,12 @@ domainsNAfrica = {
     'SieLeo': rgb,
     'Lib': rgb,
     'Cot': rgb,
-    'Ghana': rgb
+    'Ghana': rgb,
+    'Togo': rgb,
+    'Benin': rgb,
+    'BurFaso': rgb,
+    'Mali': rgb
+
 
 
 }
