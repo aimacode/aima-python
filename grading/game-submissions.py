@@ -2,6 +2,9 @@ import importlib
 import traceback
 from games import alphabeta_search
 from grading.util import roster, print_table
+from io import StringIO
+import sys
+
 
 class MyException(Exception):
     pass
@@ -92,7 +95,21 @@ def try_to_play(game):
             traceback.print_exc()
             done = True
 
-AB_searches = [ make_ab(d) for d in range(9)]
+def makeDisplayTable(game, states):
+    old_stdout = sys.stdout
+    displays = []
+    for state in states:
+        sys.stdout = mystdout = StringIO()
+        print(state)
+        game.display(state)
+        block = mystdout.getvalue()
+        displays.append(block)
+        mystdout.close()
+
+    old_stdout = sys.stdout
+    for display in displays:
+        lines = display.split('\n')
+        print(lines)
 
 def makeMoveTable(game, states):
     header = [['state:', 'moves']]
@@ -104,6 +121,8 @@ def makeMoveTable(game, states):
         row.append(moveString)
         table.append(row)
     print_table(table, header)
+
+AB_searches = [ make_ab(d) for d in range(9)]
 
 def makeABtable(game, states):
     topLeft = str(game)[1:-1]
@@ -133,7 +152,9 @@ def try_games(games):
         print()
         makeMoveTable(g, games[g])
         print()
-        try_to_play(g)
+        makeDisplayTable(g, games[g])
+        # print()
+        # try_to_play(g)
 
 submissions = {}
 scores = {}

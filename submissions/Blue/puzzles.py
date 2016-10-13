@@ -21,6 +21,7 @@ triangle_map = search.UndirectedGraph(dict(
       Raleigh=dict(Apex=21, Cary=17, Clayton=26, Durham=31, FuquayVarina=32, Garner=13, Knightdale=18, WakeForest=29),
       WakeForest=dict(Clayton=43, Durham=37, Raleigh=29, Youngsville=7),
       Wendell=dict(Clayton=19, Knightdale=12)))
+
       ## (x,y)
       #(Longitude, Latitude) coordinates
 triangle_map.locations = dict(
