@@ -1,6 +1,6 @@
 import csp
 
-rgb = ['R', 'G', 'B','K']
+rgb = ['R', 'G', 'B',]#'K']
 
 domains = {
     'AM': rgb,
@@ -65,13 +65,13 @@ domainsNWAfrica = {
 variablesAfrica = domainsNWAfrica.keys()
 
 neighborsAfrica = {
-    'WS': ['Mor','Maur'],
+    'WS': ['Mor','Maur','Alg',],
     'Mor': ['Alg','WS'],
     'Alg': ['Tun','Mali','Mor','Maur','WS'],
     'Tun': ['Alg'],
     'Maur': ['WS','Alg','Mali','Sen'],
     'Sen': ['Mali','Maur','TheGam','Gui-Bis','Gui'],
-    'TheGam': ['Sen',],
+    'TheGam': ['Sen'],
     'Gui-Bis': ['Sen','Gui'],
     'Gui': ['Gui-Bis','Sen','SieLeo','Lib','Mali','Cot'],
     'SieLeo': ['Gui','Lib'],
@@ -79,7 +79,7 @@ neighborsAfrica = {
     'Cot': ['Lib','Gui','Mali','BurFaso','Ghana'],
     'Ghana': ['Togo','BurFaso','Cot'],
     'Togo': ['BurFaso','Benin','Ghana'],
-    'Benin': ['Mali','Togo'],
+    'Benin': ['BurFaso','Togo'],
     'BurFaso': ['Benin','Togo','Ghana','Cot','Mali'],
     'Mali': ['Alg','Maur','Sen','Gui','Cot','BurFaso'],
 }
