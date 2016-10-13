@@ -3,9 +3,10 @@ import agents as ag
 import importlib
 import traceback
 import search
+
 from utils import isnumber, memoize
 from grading.util import roster, print_table
-from math import inf
+import inf
 
 class MyException(Exception):
     pass
