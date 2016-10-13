@@ -192,19 +192,23 @@ class CTT(Game):
     A state has the player to move and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
-    def __init__(self, h=7, v=7, k=3):
+    def __init__(self, h=7, v=7, k=3, depth=4):
         self.h = h
         self.v = v
         self.k = k
         self.initial = GameState(to_move='X', board={})
-        # self.invalidSpaces = {(1,2):'F', (1,3):'F', (1,4):'F', (1,5):'F', (1,6):'F', (2,1):'F', (2,3):'F',
-        #                       (2, 4): 'F', (2,5):'F', (2,7):'F', (3,1):'F', (3,2):'F', (3,4):'F', (3,6):'F',
-        #                       (3, 7): 'F', (4,1):'F', (4,2):'F', (4,3):'F', (4,4):'F',(4,5):'F',(4,6):'F',(4,7):'F',
-        #                       (5, 1): 'F',(5,2):'F',(5,4):'F',(5,6):'F',(5,7):'F',(6,1):'F',(6,3):'F',(6,4):'F',(6,5):'F',
-        #                       (6, 7): 'F',(7,2):'F',(7,3):'F',(7,4):'F',(7,5):'F',(7,6):'F'}
-        #Valid spaces make up the spaces within the 7x7 grid that are "allowable"
+        self.maxDepth = depth
+        self.invalidSpaces = {
+            (1,2):'H', (1,3):'H', (1,4):'H', (1,5):'H', (1,6):'H', (2,1):'H', (2,3):'H',
+            (2, 4):'H', (2,5):'H', (2,7):'H', (3,1):'H', (3,2):'H', (3,4):'H', (3,6):'H',
+            (3, 7):'H', (4,1):'H', (4,2):'H', (4,3):'H', (4,4):'H',(4,5):'H',(4,6):'H',(4,7):'H',
+            (5, 1):'H',(5,2):'H',(5,4):'H',(5,6):'H',(5,7):'H',(6,1):'H',(6,3):'H',(6,4):'H',(6,5):'H',
+            (6, 7):'H',(7,2):'H',(7,3):'H',(7,4):'H',(7,5):'H',(7,6):'H'
+        }
+        #Valid spaces make up the spaces within the 7x7 grid that are "allowable".
+        #This is set as an immutable Tuple since it will be true always and can't be changed.
         self.validSpaces = (
-        (1, 1), (1, 7), (2, 2), (2, 6), (3, 3), (3, 5), (5, 4), (6, 4),)
+        (1, 1), (1, 7), (2, 2), (2, 6), (3, 3), (3, 5), (5, 4), (6, 4),(7,4),)
         #c1, c2, c3, d1, d2, and d3 are the coordinates that make up the 6 winning states.
         #these will be checked when determining if the game is over.
         self.c1 = ((3,3), (3,5), (5,4),)
@@ -213,6 +217,8 @@ class CTT(Game):
         self.d1 = ((1,1), (2,2), (3,3),)
         self.d2 = ((1,7), (2,6), (3,5),)
         self.d3 = ((5,4), (6,4), (7,4),)
+
+
 
     def actions(self, state):
         try:
@@ -223,7 +229,7 @@ class CTT(Game):
         moves = []
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
-                if (x,y) in validSpaces():
+                if (x,y) in self.validSpaces:
                     if (x,y) not in state.board.keys():
                         moves.append((x,y))
                 # if (x,y) not in state.board.keys():
@@ -240,6 +246,7 @@ class CTT(Game):
         return None
 
     def result(self, state, move):
+
         if move not in self.actions(state):
             return state  # Illegal move has no effect
         board = state.board.copy()
@@ -263,36 +270,38 @@ class CTT(Game):
 
     # Did I win?
     def check_win(self, board, player):
+
         # check d1
-        for (x,y) in self.d1[1:length]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.d1,board,player) == 3:
+         return 1
         # check d2
-        for (x,y) in self.d2[1:length]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.d2,board,player) == 3:
+         return 1
         # check d3
-        for (x,y) in self.d3[1:length]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.d3,board,player) == 3:
+         return 1
         # check c1
-        for (x,y) in self.c1[1:length]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.c1,board,player) == 3:
+         return 1
         # check c2
-        for (x,y) in self.c2[1:length]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.c2,board,player) == 3:
+         return 1
         # check c3
-        for (x,y) in self.c3[1:length]:
-            if board.get((x,y)) == player:
-                return 1
+        if self.k_in_row(self.c3,board,player) == 3:
+         return 1
         return 0
 
-    # # does player have 3 in a row? return 1 if so, 0 if not
-    # def k_in_row(self, board, player, win):
-    #     while board.get
-    #     return 0
+    # does player have 3 in a row? return 1 if so, 0 if not
+    def k_in_row(self,list,board,player):
+        x=0
+        y=0
+        while x<3:
+            coordinate = list[x]
+            if board.get (coordinate) == player:
+                y += 1
+            x += 1
+        return y
+
 
     # def k_in_row(self, board, start, player, direction):
     #     "Return true if there is a line through start on board for player."
@@ -345,33 +354,35 @@ losein1 = GameState(
            (6, 4): 'O', (7, 4): 'O',
            },
     label = 'losein1'
-
-
-# winin2 = GameState(
-#     to_move = 'X',
-#     board = {(1,1): 'X', (1,2): 'X',
-#              (2,1): 'O', (2,2): 'O',
-#             },
-#     label = 'winin2'
-# )
-#
-# losein2 = GameState(
-#     to_move = 'O',
-#     board = {(1,1): 'X', (1,2): 'X',
-#              (2,1): 'O', (2,2): 'O',
-#              (3,1): 'X',
-#             },
-#     label = 'losein2'
 )
 
-# winin3 = GameState(
-#     to_move = 'X',
-#     board = {(1,1): 'X', (1,2): 'O',
-#              (2,1): 'X',
-#              (3,1): 'O',
-#             },
-#     label = 'winin3'
-# )
+
+winin2 = GameState(
+    to_move = 'X',
+    board = {(1,1): 'O', (1,7): 'X', (2,6): 'O',
+             (3,3): 'X', (6,4): 'X', (7,4): 'O'
+            },
+    label = 'winin2'
+)
+
+
+#
+stalemate = GameState(
+    to_move = 'X',
+    board = {(1,1): 'X', (1,7): 'O',
+             (2,2): 'O', (2,6): 'X',
+             (3,3): 'X',(3,5): 'O',(5,4): 'X',
+             (6,4): 'O',(7,4): 'X',
+            },
+    label = 'stalemate'
+)
+
+
+new = GameState(
+    to_move = 'X',
+    board = { },
+    label = 'new'
+)
 #
 # losein3 = GameState(
 #     to_move = 'O',
@@ -402,7 +413,8 @@ losein1 = GameState(
 myGames = {
     myGame: [
         won,
-        winin1, losein1
+        winin1, losein1,
+        winin2, stalemate, new
     ]
 }
 
