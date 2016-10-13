@@ -3,17 +3,17 @@ import csp
 rgb = ['R', 'G', 'B']
 
 domains = {
-    'AM': rgb,
-    'ES': rgb,
-    'LK': rgb,
-    'RB': rgb,
-    'FL': rgb,
-    'G': rgb,
-    'S': rgb,
-    'M': rgb,
-    'BL': rgb,
-    'C': rgb,
-    'H': rgb
+    'krasnoyarsk': rgb,
+    'tomsk': rgb,
+    'omsk': rgb,
+    'novobirsk': rgb,
+    'kemerovo': rgb,
+    'altai': rgb,
+    'khakassia': rgb,
+    'tuva': rgb,
+    'irkutsk': rgb,
+    'buryatia': rgb,
+    'chita': rgb,
 }
 
 variables = domains.keys()
@@ -33,14 +33,16 @@ neighbors = {
     'chita': ['irkutsk', 'buryatia'],
 }
 
+
 def constraints(A, a, B, b):
-    if A == B:      # e.g. NSW == NSW
+    if A == B:  # e.g. NSW == NSW
         return True
 
-    if a == b:      # e.g. WA = G and SA = G
+    if a == b:  # e.g. WA = G and SA = G
         return False
 
     return True
+
 
 myAus = csp.CSP(variables, domains, neighbors, constraints)
 
