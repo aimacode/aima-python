@@ -161,6 +161,7 @@ losein2 = GameState(
              [ 2 ,nan, 1]],
     label = 'losein2'
 )
+losein2.maxDepth = 3
 
 # http://www.kongregate.com/games/zolli/thinkahead-brain-trainer
 stolen = GameState(
@@ -201,6 +202,8 @@ myGames = {
         lost,
         winin1,
         losein1,
+        winin2,
+        losein2,
         stolen,
         choose1,
         winby10
