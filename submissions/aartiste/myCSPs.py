@@ -66,10 +66,12 @@ def constraints(A, a, B, b):
 
     return True
 
-myAus = csp.CSP(variables, domains, neighbors, constraints)
+colorUS = csp.CSP(variables, domains, neighbors, constraints)
 
 myCSPs = [
-    {'csp': myAus,
-     # 'select_unassigned_variable':csp.mrv,
+    {'csp': colorUS,
+     #'select_unassigned_variable': csp.mrv,
+     #'order_domain_values': csp.lcv,
+     'inference': csp.mac,
      }
 ]
