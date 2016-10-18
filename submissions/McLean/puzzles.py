@@ -30,6 +30,34 @@ Djibouti_puzzle.description = '''
 A map of cities and towns in Djibouti. The link costs are in killometers
 '''
 
+
+class redLightGreenLight(search.Problem):
+    def actions(self, state):
+        return ['red light', 'green light']
+
+    def result(self, state, action):
+        if action == 'green light':
+            return 'go'
+        elif action == 'yellow light':
+            return 'stop'
+        else:
+            return 'stop'
+
+    def goal_test(self, state):
+        return state == 'go'
+
+    def h(self, node):
+        state = node.state
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
+
+switch_puzzle = redLightGreenLight('stop')
+switch_puzzle.label = 'Light Switch'
+
 myPuzzles = [
-Djibouti_puzzle, Djibouti_puzzle
+
+    switch_puzzle,switch_puzzle
 ]
+
