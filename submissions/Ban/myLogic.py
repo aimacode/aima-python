@@ -1,33 +1,40 @@
 twilight = {
     'kb': '''
-Human(Bella)
-Vampire(Edward)
-Werewolf(Jacob)
-Dad(Charlie)
-Dad(Doctor)
-(Dad(d, h) & Human(h)) ==> Human(d)
-(Dad(d, w) & Werewolf(w)) ==> Werewolf(d)
-(Vampire(v, w) & Werewolf(w)) ==> Eats(v, w)
-(Werewolf(w, v) & Vampire(v)) ==> Eats(w, v)
-(Werewolf(w, h) & Human(h)) ==> Loves(w, h)
-(Vampire(v, h) & Human(h)) ==> Loves(v, h)
-(Vampire(v, h) & Human(h)) ==> Loves(v, h)
-(Vampire(v, h) & Human(h)) ==> Hunts(v, h)
-(Werewolf(w, v) & Vampire(v)) ==> Hunts(w, v)
-(Dad(d, v) & Vampire(v)) ==> Hunts(d, v)
-(Dad(d, w) & Werewolf(w)) ==> Hunts(d, w)
-(Dad(d, h) & Human(h)) ==> Hunts(d, h)
+Human(Bell)
+Vampire(Ed)
+Werewolf(Jake)
+Sheriff(Char)
+
+(Sheriff(s) & Human(h)) ==> Father(s, h)
+
+(Vampire(v) & Werewolf(w)) ==> Eats(v, w)
+(Werewolf(w) & Vampire(v)) ==> Eats(w, v)
+
 (Human(h)) ==> EmotionallyUnstable(h)
 (Vampire(v)) ==> EmotionallyUnstable(v)
 (Werewolf(w)) ==> EmotionallyUnstable(w)
-(Human(h, w, v) & Vampire(v) & Werewolf(w)) ==> Conflicted(h, w, v)
+
+(Vampire(v) & Human(h)) ==> Loves(v, h)
+(Werewolf(w) & Human(h)) ==> Loves(w, h)
+(Human(h) & Vampire(v)) ==> Loves(h, v)
+
+(Human(h) & Werewolf(w)) ==> Hunts(w, h)
+(Werewolf(w) & Vampire(v)) ==> Hunts(w, v)
+(Father(s, h) & Loves(h, y)) ==> Hunts(s, y)
+
+(Human(h) & Vampire(v) & Werewolf(w) & Loves(h, v) & Loves (h, w)) ==> Conflicted(h)
 ''',
     'queries':'''
+Human(x)
+Vampire(x)
+Werewolf(x)
+Sheriff(x)
+EmotionallyUnstable(x)
+Father(x, y)
 Eats(x, y)
 Loves(x, y)
-Conflicted(x, y, z)
+Conflicted(x)
 Hunts(x, y)
-EmotionallyUnstable(x)
 ''',
 }
 
