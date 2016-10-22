@@ -236,3 +236,87 @@ def have_cake_and_eat_cake_too():
     bake_cake = Action(expr('Bake(Cake)'), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [eat_cake, bake_cake], goal_test)
+
+
+
+class Level():
+    """
+    Contains the state of the planning problem
+    and exhaustive list of actions which use the
+    states as pre-condition.
+    """
+    def __init__(self, pdll, kb):
+        self.kb = kb
+        self.pos_states = kb.clauses
+        self.neg_states = 
+        self.actions = self.list_actions(pdll.kb.actions)
+        self.pos_eff = []
+        self.neg_eff = []
+        self.mutexes = self.find_mutex()
+
+    def __call__():
+        return self.perform_actions()
+
+    def find_mutex():
+
+
+    def list_actions(actions):
+        objects = set(arg for clause in self.kb.clauses for arg in clause.args)
+        possible_actions = []
+        for a in actions:
+            num_args = len(a.args)
+            possible_args = tuple(itertools.combinations(objects, num_args))
+            for arg in possible_args:
+                if a.check_precond(self.kb, args):
+                    possible_actions.append(Expr(a.op, *args))
+                    for clause in a.effect_add:
+                        self.pos_eff.append(a.substitute(clause, args))
+                    for clause in a.effect_rem:
+                        self.neg_eff.append(a.substitute(clause, args))
+                    
+        return possible_actions
+
+
+    def perform_actions(self):
+        new_kb = 
+        
+        return Level(self.pdll, )
+
+
+class Graph:
+    """
+    Contains levels of state and actions
+    Used in graph planning algorithm to extract a solution
+    """
+    
+    def __init__(self, pdll):
+        self.planning_problem = pdll
+        self.levels = [Level(pdll)]
+
+    def __call__():
+
+
+    def expand_graph():
+        last_level = self.levels[-1]
+        self.levels.append(last_level())
+
+    def check_leveloff():
+
+
+    def extract_solution():
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
