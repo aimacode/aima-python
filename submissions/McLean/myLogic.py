@@ -31,8 +31,8 @@ Name(w, x) & Name(x, y) ==> Related(x, y)
 Name(w, x) & Name2(x, y) ==> Called(y)
 Name(w, x) & Classification(y, w) ==> SameFamily1(y)
 Related(w, x) & Related(w, y) ==> SameFamily(x, y)
-Name(w, x) & Family(m) ==> TheGenus(w)
-Name(g, h) & Family(t) ==> TheSpecies(h)
+Name(w, x) & SameFamily1(m) ==> TheGenus(w)
+Name(g, h) & SameFamily1(t) ==> TheSpecies(h)
 Name(t, e) & Name(a, s) & SameFamily1(w) ==> TheFamily(w)
 
 ''',
