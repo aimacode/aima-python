@@ -18,7 +18,7 @@ Dog(Spot)
 Cat(Fluffy)
 Mouse(Jerry)
 Pet(Spot, Fluffy)
-Owner(Dan, Spot)
+Owner(Dan, Sally, Spot, Fluffy)
 Owner(Sally, Fluffy)
 Treat(Cheese)
 (Cat(c) & Dog(d)) ==> Hates(c, d)
@@ -31,11 +31,7 @@ Girl(g) ==> Buys(Cat(c))
 Boy(b) ==> Eats(Cheese(c))
 Boy(b) & Girl(g) ==> Loves(b, g)
 Girl(g) & Boy(b) ==> Hates(g, b)
-Girl(g) & Boy(b) ==> Human(h)
-
-
-
-
+Mouse(m) ==> Gets(Cheese(c))
 ''',
 
 
@@ -51,7 +47,7 @@ Loves(x, y)
 Wants(x)
 Eats(x)
 Buys(x)
-Human(h)
+Gets(x)
 ''',
 #    'limit': 1,
 }
