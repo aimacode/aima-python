@@ -9,7 +9,9 @@ roster = [
     'Karman','Kinley','LaMartina',
     'McLean','Miles','Ottenlips',
     'Porter','Sery','VanderKallen',
-    'aardvark','aartiste','zzzsolutions',
+    'aardvark',
+    'aartiste',
+    'zzzsolutions',
 ]
 
 def print_table(table, header=None, sep='   ',numfmt='%g',
