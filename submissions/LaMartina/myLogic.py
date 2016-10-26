@@ -39,44 +39,55 @@ Criminal(x)
 war = {
     'kb': '''
 Country(USA)
-Country(Iraq)
 Country(GreatBritain)
 Country(Iran)
 Country(France)
 Country(Germany)
-Country(Japan)
+Country(Iraq)
 Person(Jim)
 Person(Sam)
+Person(Carl)
 Allies(USA,GreatBritain)
 Allies(USA,France)
-Allies(USA, Germany)
-Allies(Iraq,Iran)
-Allies(Iraq, Japan)
-Allies(x,y) ==> Allies(y,x)
-Allies(x,y) & Allies(y,z) ==> Allies(x,z) & Allies(z,x)
-Attacks(Iraq,USA)
+Allies(USA,Germany)
 Attacks(Jim,Iran)
-Attacks(Jim,Sam)
+Attacks(Carl,Sam)
+Attacks(Iran,France)
+Attacks(Iraq,Germany)
+Region(MiddleEast)
+Contains(MiddleEast,Iran,Iraq)
 Person(x) & Country(y) & Attacks(x,y) ==> Dead(x)
-Country(x) & Country(y) & Attacks(x,y) ==> DeclaresWar(x,y) & DeclaresWar(y,x)
-DeclaresWar(x,y) ==> Attacks(x,y)
-DeclaresWar(x,y) & Allies(x,z) ==> DeclaresWar(z,y)
-DeclaresWar(USA,y) & DeclaresWar(Germany,y) & DeclaresWar(France,y) & DeclaresWar(GreatBritain,y) ==> Destroyed(y)
+Person(x) & Person(y) & Attacks(x,y) ==> Dead(y)
+Attacks(x,y) & Country(x) & Country(y) ==> DeclaresWar(y,x)
+DeclaresWar(x,y) & Allies(USA,x) ==> Destroyed(y)
+Region(x) & Contains(x,y,z) & Destroyed(y) & Destroyed(z) ==> Sad(x)
+Mother(Lucy,Sam)
+Mother(Linda,Carl)
+Mother(x,y) & Dead(y) ==> Sad(x)
+
 
 
 ''',
-    #Contains Countries who can be allies and attack eachother. When one country attacks another, war is declared and allies come
-    #to help. There are also persons who can attack countries, but cannot start wars and die because of their efforts.
-    #Certain groups of countries destroy others in war.
+    #Contains Countries who can be allies and attack eachother. When one country attacks another, war is declared.
+    # If the USA is an ally of an attacked country, then the attacker is destroyed.
+    # There are also persons who can attack countries, but cannot start wars and die because of their efforts.
+    # Persons can kill other persons as well. Persons also have mothers who are sad if their
+    # child is dead. Regions contain countries and are sad if all of their countries are destroyed.
+
     'queries':'''
-Allies(Germany,y)
 Dead(x)
 Destroyed(x)
-DeclaresWar(x,Iran)
+DeclaresWar(Germany, x)
+Sad(x)
+
 ''',
+
 }
 Examples = {
    # 'farmer': farmer,
    # 'weapons': weapons,
     'war': war,
 }
+#DeclaresWar(x,y) & ~(Attacks(x,y)) ==> Attacks(x,y)
+# Allies(x,y)  ==> Allies(y,x)
+# Allies(x,y) & Allies(y,z)  ==> Allies(x,z)
