@@ -1,29 +1,35 @@
-farmer = {
+genesis = {
     'kb': '''
 Father(Abraham, Isaac)
  Father(Isaac, Esau)
+  Father(Esau, Eliphaz)
+  Father(Esau, Jeush)
  Father(Isaac, Jacob)
   Father(Jacob, Reuben)
   Father(Jacob, Simeon)
   Father(Jacob, Levi)
-  Father(Jacob, Judah)
-  Father(Jacob, Benjamin)
 Father(Abraham, Ishmael)
  Father(Ishmael, Nebaioth)
  Father(Ishmael, Kedar)
+ Father(Kedar)
+IsMortal
 
-Father(w, x) & Father(w, y) ==> Sibling(x, y)
 Father(w, x) & Father(x, y) ==> Grandfather(w, y)
-Grandfather(w, x) & Grandfather(w, y) ==> Cousin(x, y)
+Father(w, x) & Father(w, y) ==> Sibling(x, y)
+
+Father(w, x) ==> Father(w)
+Father(w, x) & Father(y, z) & Sibling(w, y) ==> Cousin(x, z)
 ''',
-# Note that this order of conjuncts
-# would result in infinite recursion:
-# '(Human(h) & Mother(m, h)) ==> Human(m)'
     'queries':'''
+    #Grandfather(x, Esau)
+    Sibling(x, Esau)
+    #Sibling(Esau, x)
+    #Cousin(x, Esau)
+    #Cousin(Esau, y)
 ''',
-#    'limit': 1,
+   'limit': 100,
 }
 
 Examples = {
-    'farmer': farmer,
+    'genesis': genesis,
 }
