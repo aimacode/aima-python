@@ -23,6 +23,7 @@ class Connect4(Game):
         self.v = v
         self.k = k
         self.initial = GameState(to_move='X', board={})
+        ##this is a tests
 
     def land(self, board, column):
         # determines where the current top game piece is in a column
