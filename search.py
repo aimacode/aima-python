@@ -2,7 +2,14 @@
 
 The way to use this code is to subclass Problem to create a class of problems,
 then create problem instances and solve them with calls to the various search
-functions."""
+functions.
+"""
+
+from collections import defaultdict
+import math
+import random
+import sys
+import bisect
 
 from utils import (
     is_in, argmin, argmax, argmax_random_tie, probability,
@@ -11,24 +18,41 @@ from utils import (
 )
 from grid import distance
 
-from collections import defaultdict
-import math
-import random
-import sys
-import bisect
-
-infinity = float('inf')
 
 # ______________________________________________________________________________
+# Data definitions
+
+
+## State is any hashable object
+## interp. a state of the world (as represented inside of an agent)
+##
+## State has to be hashable because some of the search algorithms
+## keep track of explored states in a Set.
+
+
+## Action is any type.
+## interp. action to be applied to a state to produce a new state
+##
+## When writing a subclass of the Problem, one is free to choose
+## a representation for an action, but keep in mind that actions are
+## consumed by the RESULT(state, action) function/method.
+## RESULT function has to be able to apply the action provided
+## to the given state.
+
+
+infinity = float('inf')
+## interp. the cost to reach the node in a search tree
+##         (e.g. in RBFS algorithm)
 
 
 class Problem(object):
 
-    """The abstract class for a formal problem.  You should subclass
+    """The abstract class for a formal problem. You should subclass
     this and implement the methods actions and result, and possibly
     __init__, goal_test, and path_cost. Then you will create instances
     of your subclass and solve them with the various search functions."""
 
+    ## State State -> None
     def __init__(self, initial, goal=None):
         """The constructor specifies the initial state, and possibly a goal
         state, if there is a unique goal.  Your subclass's constructor can add
@@ -36,6 +60,7 @@ class Problem(object):
         self.initial = initial
         self.goal = goal
 
+    ## State -> (iterableof Action)
     def actions(self, state):
         """Return the actions that can be executed in the given
         state. The result would typically be a list, but if there are
@@ -43,12 +68,14 @@ class Problem(object):
         iterator, rather than building them all at once."""
         raise NotImplementedError
 
+    ## State Action -> State
     def result(self, state, action):
         """Return the state that results from executing the given
         action in the given state. The action must be one of
         self.actions(state)."""
         raise NotImplementedError
 
+    ## State -> Bool
     def goal_test(self, state):
         """Return True if the state is a goal. The default method compares the
         state to self.goal or checks for state in self.goal if it is a
@@ -59,19 +86,20 @@ class Problem(object):
         else:
             return state == self.goal
 
+    ## (union Int Float) State Action State -> (union Int Float)
     def path_cost(self, c, state1, action, state2):
         """Return the cost of a solution path that arrives at state2 from
         state1 via action, assuming cost c to get up to state1. If the problem
         is such that the path doesn't matter, this function will only look at
-        state2.  If the path does matter, it will consider c and maybe state1
+        state2. If the path does matter, it will consider c and maybe state1
         and action. The default method costs 1 for every step in the path."""
         return c + 1
 
+    ## State -> (union Int Float)
     def value(self, state):
         """For optimization problems, each state has a value.  Hill-climbing
         and related algorithms try to maximize this value."""
         raise NotImplementedError
-# ______________________________________________________________________________
 
 
 class Node:
@@ -85,8 +113,9 @@ class Node:
     an explanation of how the f and h values are handled. You will not need to
     subclass this class."""
 
+    ## State [Node] [Action] [(union Int Float)] -> None
     def __init__(self, state, parent=None, action=None, path_cost=0):
-        "Create a search tree Node, derived from a parent by an action."
+        """Create a search tree Node, derived from a parent by an action."""
         self.state = state
         self.parent = parent
         self.action = action
@@ -95,30 +124,38 @@ class Node:
         if parent:
             self.depth = parent.depth + 1
 
+    ## None -> String
     def __repr__(self):
         return "<Node %s>" % (self.state,)
 
+    ## Node -> Bool
     def __lt__(self, node):
         return self.state < node.state
 
+    ## Problem -> (listof Node)
     def expand(self, problem):
-        "List the nodes reachable in one step from this node."
+        """List the nodes reachable in one step from this node."""
         return [self.child_node(problem, action)
                 for action in problem.actions(self.state)]
 
+    ## Problem Action -> Node
     def child_node(self, problem, action):
-        "[Figure 3.10]"
+        """[Figure 3.10]"""
         next = problem.result(self.state, action)
         return Node(next, self, action,
                     problem.path_cost(self.path_cost, self.state,
                                       action, next))
 
+    ## None -> (listof Action)
     def solution(self):
-        "Return the sequence of actions to go from the root to this node."
+        """Return the sequence of actions to go from the root to this node."""
         return [node.action for node in self.path()[1:]]
 
+    ## None -> (listof Node)
     def path(self):
-        "Return a list of nodes forming the path from the root to this node."
+        """Return a list of nodes forming the path from the root
+        to this node.
+        """
         node, path_back = self, []
         while node:
             path_back.append(node)
@@ -130,9 +167,11 @@ class Node:
     # with the same state as equal. [Problem: this may not be what you
     # want in other contexts.]
 
+    ## Node -> Bool
     def __eq__(self, other):
         return isinstance(other, Node) and self.state == other.state
 
+    ## None -> Int
     def __hash__(self):
         return hash(self.state)
 
