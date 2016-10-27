@@ -83,6 +83,7 @@ for countyST in intersection:
     trumpECHP.target.append(tt)
 
 trumpECHP.feature_names = {
+    'target': 'Trump',
     'data': [
         # 'countyST',
         # 'ST',
@@ -92,7 +93,6 @@ trumpECHP.feature_names = {
         'Home',
         'Poverty'
     ],
-    'target': 'Trump'
 }
 
 # from sklearn.naive_bayes import GaussianNB
