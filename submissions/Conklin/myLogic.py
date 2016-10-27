@@ -31,7 +31,7 @@ heroesAndVillains = {
  goodAlliance(p,q)
  badAlliance(a,z)
  ''',
-
+#CHANGE
  }
 
 
