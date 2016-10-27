@@ -35,6 +35,15 @@ def printResults(query, gen, limit=3):
 
 def tryOne(label, frame):
     fit = gnb.fit(frame.data, frame.target)
+    print('')
+    print_table(fit.theta_,
+                header=[frame.feature_names],
+                topLeft=['Means:'],
+                leftColumn=frame.target_names,
+                numfmt='%6.3f',
+                njust='center',
+                tjust='rjust',
+                )
     y_pred = fit.predict(frame.data)
     print("Number of mislabeled points out of a total %d points : %d"
           % (len(frame.data), (frame.target != y_pred).sum()))
