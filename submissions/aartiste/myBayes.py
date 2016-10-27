@@ -6,12 +6,12 @@ from submissions.aartiste import county_demographics
 elections = election.get_results()
 demographics = county_demographics.get_all_counties()
 
-frame = {}
-frame['feature_names'] = [
-    'CountyST', # unique identifier, County + ST
-    'ST', 'Trump', # from elections
-    'College', 'Poverty', # from demographics
-]
+class DataFrame:
+    feature_names = []
+    data = []
+    target = []
+
+trumpECHP = DataFrame()
 
 joint = {}
 for county in elections:
@@ -30,20 +30,78 @@ for county in demographics:
         countyNames = county['County'].split()
         cName = ' '.join(countyNames[:-1])
         st = county['State']
-        countST = cName + st
+        countyST = cName + st
+        elderly = county['Age']["Percent 65 and Older"]
         college = county['Education']["Bachelor's Degree or Higher"]
+        home = county['Housing']["Homeownership Rate"]
         poverty = county['Income']["Persons Below Poverty Level"]
-        joint[countyST]['College'] = college
+        if countyST in joint:
+            joint[countyST]['Elderly'] = elderly
+            joint[countyST]['College'] = college
+            joint[countyST]['Home'] = home
+            joint[countyST]['Poverty'] = poverty
     except:
         traceback.print_exc()
 
+intersection = {}
+for countyST in joint:
+    if 'College' in joint[countyST]:
+        intersection[countyST] = joint[countyST]
 
-frame['data'] = []
+trumpECHP.data = []
+trumpECHP.target = []
 
-frame['target'] = []
+'''
+The Naive Bayesian network is a classifier,
+i.e. it sorts data points into bins.
+The best it can do to estimate a continuous variable
+is to break the domain into segments, and predict
+the segment into which the variable's value will fall.
+In this example, I'm breaking Trump's % into two
+arbitrary segments.
+'''
+def trumpTarget(percentage):
+    if percentage > 45:
+        return 1
+    return 0
 
-from sklearn.naive_bayes import GaussianNB
-gnb = GaussianNB()
-y_pred = gnb.fit(frame.data, frame.target).predict(frame.data)
-print("Number of mislabeled points out of a total %d points : %d"
-      % (frame.data.shape[0],(frame.target != y_pred).sum()))
+# Build the input frame and the target array,
+# row by row.
+for countyST in intersection:
+    # choose the input values
+    trumpECHP.data.append([
+        # countyST,
+        # intersection[countyST]['ST'],
+        # intersection[countyST]['Trump'],
+        intersection[countyST]['Elderly'],
+        intersection[countyST]['College'],
+        intersection[countyST]['Home'],
+        intersection[countyST]['Poverty'],
+    ])
+    # choose the target
+    tt = trumpTarget(intersection[countyST]['Trump'])
+    trumpECHP.target.append(tt)
+
+trumpECHP.feature_names = {
+    'target': 'Trump',
+    'data': [
+        # 'countyST',
+        # 'ST',
+        # 'Trump',
+        'Elderly',
+        'College',
+        'Home',
+        'Poverty'
+    ],
+}
+
+# from sklearn.naive_bayes import GaussianNB
+# gnb = GaussianNB()
+# fit = gnb.fit(trumpECHP.data, trumpECHP.target)
+# y_pred = fit.predict(trumpECHP.data)
+# print("Number of mislabeled points out of a total %d points : %d"
+#       % (len(trumpECHP.data), (trumpECHP.target != y_pred).sum()))
+
+Examples = {
+    'Trump': trumpECHP,
+}
