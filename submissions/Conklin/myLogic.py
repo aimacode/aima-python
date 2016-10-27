@@ -1,4 +1,4 @@
-heroesAndVillains = {
+videoGameLogic = {
      'kb': '''
  Protagonist(Geralt)
  Protagonist(Tidus)
@@ -37,5 +37,5 @@ heroesAndVillains = {
 
 
  Examples = {
-     'heroesAndVillains': heroesAndVillains,
+     'Video Game Logic': videoGameLogic,
  }
