@@ -27,7 +27,7 @@ videoGameLogic = {
      'queries':'''
  Protagonist(p)
  Antagonist(a)
- mortalEnemies(p,a)
+ conflict(p,a)
  goodAlliance(p,q)
  badAlliance(a,z)
  ''',
