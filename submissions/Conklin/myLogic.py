@@ -14,7 +14,6 @@ videoGameLogic = {
  mortalEnemies(Dante, Vergil)
 
 
- (Protagonist(p) & Antagonist(a)) ==> Conflict(p, a)
  mortalEnemies(p,a) & Antagonist(a) ==> Protagonist(p))
  Protagonist(p) & Protagonist(q) ==> goodAlliance(p,q)
  Antagonist(a) & Antagonist(z) ==> badAlliance(a,z)
@@ -27,7 +26,7 @@ videoGameLogic = {
      'queries':'''
  Protagonist(p)
  Antagonist(a)
- conflict(p,a)
+ mortalEnemies(p,a)
  goodAlliance(p,q)
  badAlliance(a,z)
  ''',
