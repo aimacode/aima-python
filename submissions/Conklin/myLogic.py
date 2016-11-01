@@ -1,40 +1,38 @@
 videoGameLogic = {
-     'kb': '''
- Protagonist(Geralt)
- Protagonist(Tidus)
- Protagonist(Dragonborn)
- Protagonist(Dante)
- Antagonist(Eredin)
- Antagonist(Jecht)
- Antagonist(Alduin)
- Antagonist(Vergil)
- mortalEnemies(Geralt, Eredin)
- mortalEnemies(Tidus, Jecht)
- mortalEnemies(Dragonborn, Alduin)
- mortalEnemies(Dante, Vergil)
+    'kb': '''
+Protagonist(Geralt)
+Protagonist(Tidus)
+Protagonist(Dragonborn)
+Protagonist(Dante)
+Antagonist(Eredin)
+Antagonist(Jecht)
+Antagonist(Alduin)
+Antagonist(Vergil)
+Antagonist(Imlerith)
+Antagonist(Caranthir)
+Antagonist(Nithral)
+Antagonist(Sin)
+designatedAntagonist(Geralt, Eredin)
+designatedAntagonist(Geralt, Imlerith)
+designatedAntagonist(Geralt, Nithral)
+designatedAntagonist(Tidus, Sin)
+designatedAntagonist(Tidus, Jecht)
+designatedAntagonist(Dragonborn, Alduin)
+designatedAntagonist(Dante, Vergil)
 
 
- mortalEnemies(p,a) & Antagonist(a) ==> Protagonist(p))
- Protagonist(p) & Protagonist(q) ==> goodAlliance(p,q)
- Antagonist(a) & Antagonist(z) ==> badAlliance(a,z)
+Protagonist(p) & Protagonist(y) ==> goodGuys(p,y)
+Protagonist(p) & Antagonist(a) ==> Enemies(p,a)
+''',
+    'queries':'''
+    Protagonist(p)
+    Antagonist(a)
+    designatedAntagonist(p,a)
+    Enemies(p,a)
+    goodGuys(p,y)
+''',
+}
 
-
-
-
- ''',
-
-     'queries':'''
- Protagonist(p)
- Antagonist(a)
- mortalEnemies(p,a)
- goodAlliance(p,q)
- badAlliance(a,z)
- ''',
-
- }
-
-
-
- Examples = {
-     'Video Game Logic': videoGameLogic,
- }
+Examples = {
+    'videoGameLogic': videoGameLogic,
+}
