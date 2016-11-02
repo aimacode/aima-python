@@ -1,19 +1,19 @@
 import csp
 
-rgb = ['R', 'G', 'B']
+rgba = ['R', 'G', 'B', 'A']
 
 domains = {
-    'krasnoyarsk': rgb,
-    'tomsk': rgb,
-    'omsk': rgb,
-    'novobirsk': rgb,
-    'kemerovo': rgb,
-    'altai': rgb,
-    'khakassia': rgb,
-    'tuva': rgb,
-    'irkutsk': rgb,
-    'buryatia': rgb,
-    'chita': rgb,
+    'krasnoyarsk': rgba,
+    'tomsk': rgba,
+    'omsk': rgba,
+    'novobirsk': rgba,
+    'kemerovo': rgba,
+    'altai': rgba,
+    'khakassia': rgba,
+    'tuva': rgba,
+    'irkutsk': rgba,
+    'buryatia': rgba,
+    'chita': rgba,
 }
 
 variables = domains.keys()
