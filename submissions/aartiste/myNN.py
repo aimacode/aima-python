@@ -43,10 +43,14 @@ for county in demographics:
         # poverty =
         if countyST in joint:
             joint[countyST]['Elderly'] = county['Age']["Percent 65 and Older"]
-            joint[countyST]['HighSchool'] = county['Education']["Bachelor's Degree or Higher"]
+            joint[countyST]['HighSchool'] = county['Education']["High School or Higher"]
             joint[countyST]['College'] = county['Education']["Bachelor's Degree or Higher"]
+            joint[countyST]['White'] = county['Ethnicities']["White Alone, not Hispanic or Latino"]
+            joint[countyST]['Persons'] = county['Housing']["Persons per Household"]
             joint[countyST]['Home'] = county['Housing']["Homeownership Rate"]
+            joint[countyST]['Income'] = county['Income']["Median Houseold Income"]
             joint[countyST]['Poverty'] = county['Income']["Persons Below Poverty Level"]
+            joint[countyST]['Sales'] = county['Sales']["Retail Sales per Capita"]
     except:
         traceback.print_exc()
 
@@ -65,25 +69,18 @@ Build the input frame, row by row.
 '''
 for countyST in intersection:
     # choose the input values
-    trumpECHP.data.append([
-        # countyST,
-        # intersection[countyST]['ST'],
-        # intersection[countyST]['Trump'],
-        intersection[countyST]['Elderly'],
-        intersection[countyST]['College'],
-        intersection[countyST]['Home'],
-        intersection[countyST]['Poverty'],
-    ])
+    row = []
+    for key in intersection[countyST]:
+        if key in ['ST', 'Trump']:
+            continue
+        row.append(intersection[countyST][key])
+    trumpECHP.data.append(row)
 
-trumpECHP.feature_names = [
-    # 'countyST',
-    # 'ST',
-    # 'Trump',
-    'Elderly',
-    'College',
-    'Home',
-    'Poverty',
-]
+firstCounty = next(iter(intersection.keys()))
+firstRow = intersection[firstCounty]
+trumpECHP.feature_names = list(firstRow.keys())
+trumpECHP.feature_names.remove('ST')
+trumpECHP.feature_names.remove('Trump')
 
 '''
 Build the target list,

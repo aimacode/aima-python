@@ -12,22 +12,22 @@ dataframe = DataFrame()
 
 medalofhonor = medal_of_honor.get_awardees(test=True)
 
-for issued in medalofhonor:
-    try:
-        #awardee = name['name']
-        date = 'issued'
-
-    except:
-        traceback.print_exc()
-
-'''
-Build the input frame, row by row.
-'''
+# for issued in medalofhonor:
+#     try:
+#         #awardee = name['name']
+#         date = 'issued'
+#
+#     except:
+#         traceback.print_exc()
+#
+# '''
+# Build the input frame, row by row.
+# '''
 for issued in medalofhonor:
     # choose the input values
     dataframe.data.append([
         # date awarded,
-        date,
+        issued['awarded']['location']['latitude'],
     ])
 
 dataframe.feature_names = [
