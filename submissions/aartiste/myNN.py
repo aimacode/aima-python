@@ -1,3 +1,5 @@
+from sklearn import datasets
+from sklearn.neural_network import MLPClassifier
 import traceback
 from submissions.aartiste import election
 from submissions.aartiste import county_demographics
@@ -35,15 +37,16 @@ for county in demographics:
         cName = ' '.join(countyNames[:-1])
         st = county['State']
         countyST = cName + st
-        elderly = county['Age']["Percent 65 and Older"]
-        college = county['Education']["Bachelor's Degree or Higher"]
-        home = county['Housing']["Homeownership Rate"]
-        poverty = county['Income']["Persons Below Poverty Level"]
+        # elderly =
+        # college =
+        # home =
+        # poverty =
         if countyST in joint:
-            joint[countyST]['Elderly'] = elderly
-            joint[countyST]['College'] = college
-            joint[countyST]['Home'] = home
-            joint[countyST]['Poverty'] = poverty
+            joint[countyST]['Elderly'] = county['Age']["Percent 65 and Older"]
+            joint[countyST]['HighSchool'] = county['Education']["Bachelor's Degree or Higher"]
+            joint[countyST]['College'] = county['Education']["Bachelor's Degree or Higher"]
+            joint[countyST]['Home'] = county['Housing']["Homeownership Rate"]
+            joint[countyST]['Poverty'] = county['Income']["Persons Below Poverty Level"]
     except:
         traceback.print_exc()
 
@@ -111,6 +114,17 @@ trumpECHP.target_names = [
     'Trump >  45%',
 ]
 
+mlpc = MLPClassifier(
+    solver='sgd',
+    learning_rate = 'adaptive',
+)
+
 Examples = {
-    'Trump': trumpECHP,
+    'TrumpDefault': {
+        'frame': trumpECHP,
+    },
+    'TrumpSGD': {
+        'frame': trumpECHP,
+        'mlpc': mlpc
+    },
 }
