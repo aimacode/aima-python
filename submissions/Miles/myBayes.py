@@ -18,15 +18,16 @@ Extract data from the CORGIS food.
 joint = {}
 
 food = food.get_reports()
-# for carbs in food:
-#     try:
-#         foodIT = carbs["Data"]["Carbohydrate"]
-#         joint[foodIT] = {}
-#         # joint[it]['IT']= it
-#         # joint[it]['Data'] = vit
-#     except:
-#         traceback.print_exc()
-#
+
+for fiber in food:
+    try:
+        foodIT = fiber["Data"]["Fiber"]
+        joint[foodIT] = {}
+        # joint[it]['IT']= it
+        # joint[it]['Data'] = vit
+    except:
+        traceback.print_exc()
+
 # demographics = county_demographics.get_all_counties()
 for item in food:
     try:
@@ -34,16 +35,16 @@ for item in food:
         # cName = ' '.join(countyNames[:-1])
         # st = county['State']
         # countyST = cName + st
-        foodIT = item["Data"]["Carbohydrate"]
+        # foodIT = item["Data"]["Carbohydrate"]
         category = item["Category"]
         description = item["Description"]
         NDBN = item["Nutrient Data Bank Number"]
         # vitamins = county2['Data']["Vitamins"]["Vitamin A - IU"]
-        if foodIT in joint:
-            joint[foodIT]["Category"] = category
-            joint[foodIT]["Description"] = description
-            joint[foodIT]["Nutrient Data Bank Number"] = NDBN
-           # joint[foodIT]['Vitamin A'] = vitamins
+        # if foodIT in joint:
+        #     joint[foodIT]["Category"] = category
+        #     joint[foodIT]["Description"] = description
+        #     joint[foodIT]["Nutrient Data Bank Number"] = NDBN
+        #    # joint[foodIT]['Vitamin A'] = vitamins
     except:
         traceback.print_exc()
 #
@@ -54,20 +55,20 @@ foodFF.data = []
 # '''
 # Build the input frame, row by row.
 # '''
-for foodIT in joint:
-    # choose the input values
-    foodFF.data.append([
-        foodIT,
-        joint[foodIT]['Carbohydrate'],
-        joint[foodIT]['Category'],
-        joint[foodIT]['Description'],
-        joint[foodIT]['Nutrient Data Bank Number'],
-
-    ])
+# for foodIT in joint:
+#     # choose the input values
+#     foodFF.data.append([
+#         foodIT,
+#         # joint[foodIT]['Fiber'],
+#         joint[foodIT]['Category'],
+#         joint[foodIT]['Description'],
+#         joint[foodIT]['Nutrient Data Bank Number'],
+#
+#     ])
 
 foodFF.feature_names = [
 
-    'Carbohydrates',
+    'Fiber',
     'Category',
     'Description',
     'Nutrient Data Bank Number',
@@ -98,8 +99,8 @@ def foodTarget(grams):
 #     trumpECHP.target.append(tt)
 #
 foodFF.target_names = [
-    'Carbohydrates <= 20',
-    'Carbohydrates >  20',
+    'Fiber <= 20',
+    'Fiber >  20',
 ]
 
 Examples = {
