@@ -11,14 +11,18 @@ Father(Abraham, Isaac)
 Father(Abraham, Ishmael)
  Father(Ishmael, Nebaioth)
  Father(Ishmael, Kedar)
+ Father(Kedar)
+IsMortal
 
 Father(w, x) & Father(x, y) ==> Grandfather(w, y)
 Father(w, x) & Father(w, y) ==> Sibling(x, y)
+
+Father(w, x) ==> Father(w)
 Father(w, x) & Father(y, z) & Sibling(w, y) ==> Cousin(x, z)
 ''',
     'queries':'''
-    Grandfather(x, y)
-    #Sibling(x, Esau)
+    #Grandfather(x, Esau)
+    Sibling(x, Esau)
     #Sibling(Esau, x)
     #Cousin(x, Esau)
     #Cousin(Esau, y)
