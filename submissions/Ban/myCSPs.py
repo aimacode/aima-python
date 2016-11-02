@@ -18,7 +18,7 @@ variables = domains.keys()
 neighbors = {
     'Du': ['Dr', 'Mu', 'Ca'],
     'Dr': ['Du', 'Cv'],
-    'Cv': ['Dr', 'Cv'],
+    'Cv': ['Dr', 'Mu'],
     'Ca': ['Du', 'Ki', 'At'],
     'Mu': ['Du', 'Cv', 'At'],
     'At': ['Mu', 'Ki', 'Ga'],
@@ -35,10 +35,10 @@ def constraints(A, a, B, b):
 
     return True
 
-myAus = csp.CSP(variables, domains, neighbors, constraints)
+myIre = csp.CSP(variables, domains, neighbors, constraints)
 
 myCSPs = [
-    {'csp': myAus,
+    {'csp': myIre,
      # 'select_unassigned_variable':csp.mrv,
      }
 ]

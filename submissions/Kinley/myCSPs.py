@@ -1,21 +1,21 @@
 import csp
 
-rgbp = ['R','G','B']
+rgbpw = ['R','G','B', 'P', 'W']
 
 domains = {
-    'Argentina': rgbp,
-'Bolivia': rgbp,
-'Brazil': rgbp,
-'Chile': rgbp,
-'Colombia': rgbp,
-'Ecuador': rgbp,
-'French': rgbp,
-'Guyana': rgbp,
-'Paraguay': rgbp,
-'Peru': rgbp,
-'Suriname': rgbp,
-'Uruguay': rgbp,
-'Venezuela': rgbp,
+    'Argentina': rgbpw,
+'Bolivia': rgbpw,
+'Brazil': rgbpw,
+'Chile': rgbpw,
+'Colombia': rgbpw,
+'Ecuador': rgbpw,
+'French': rgbpw,
+'Guyana': rgbpw,
+'Paraguay': rgbpw,
+'Peru': rgbpw,
+'Suriname': rgbpw,
+'Uruguay': rgbpw,
+'Venezuela': rgbpw,
 }
 
 neighbors = {

@@ -1,19 +1,22 @@
 import traceback
-
 from submissions.aartiste import election
 from submissions.aartiste import county_demographics
 
-elections = election.get_results()
-demographics = county_demographics.get_all_counties()
-
 class DataFrame:
-    feature_names = []
     data = []
+    feature_names = []
     target = []
+    target_names = []
 
 trumpECHP = DataFrame()
 
+'''
+Extract data from the CORGIS elections, and merge it with the
+CORGIS demographics.  Both data sets are organized by county and state.
+'''
 joint = {}
+
+elections = election.get_results()
 for county in elections:
     try:
         st = county['Location']['State Abbreviation']
@@ -25,6 +28,7 @@ for county in elections:
     except:
         traceback.print_exc()
 
+demographics = county_demographics.get_all_counties()
 for county in demographics:
     try:
         countyNames = county['County'].split()
@@ -43,30 +47,19 @@ for county in demographics:
     except:
         traceback.print_exc()
 
+'''
+Remove the counties that did not appear in both samples.
+'''
 intersection = {}
 for countyST in joint:
     if 'College' in joint[countyST]:
         intersection[countyST] = joint[countyST]
 
 trumpECHP.data = []
-trumpECHP.target = []
 
 '''
-The Naive Bayesian network is a classifier,
-i.e. it sorts data points into bins.
-The best it can do to estimate a continuous variable
-is to break the domain into segments, and predict
-the segment into which the variable's value will fall.
-In this example, I'm breaking Trump's % into two
-arbitrary segments.
+Build the input frame, row by row.
 '''
-def trumpTarget(percentage):
-    if percentage > 45:
-        return 1
-    return 0
-
-# Build the input frame and the target array,
-# row by row.
 for countyST in intersection:
     # choose the input values
     trumpECHP.data.append([
@@ -78,29 +71,45 @@ for countyST in intersection:
         intersection[countyST]['Home'],
         intersection[countyST]['Poverty'],
     ])
+
+trumpECHP.feature_names = [
+    # 'countyST',
+    # 'ST',
+    # 'Trump',
+    'Elderly',
+    'College',
+    'Home',
+    'Poverty',
+]
+
+'''
+Build the target list,
+one entry for each row in the input frame.
+
+The Naive Bayesian network is a classifier,
+i.e. it sorts data points into bins.
+The best it can do to estimate a continuous variable
+is to break the domain into segments, and predict
+the segment into which the variable's value will fall.
+In this example, I'm breaking Trump's % into two
+arbitrary segments.
+'''
+trumpECHP.target = []
+
+def trumpTarget(percentage):
+    if percentage > 45:
+        return 1
+    return 0
+
+for countyST in intersection:
     # choose the target
     tt = trumpTarget(intersection[countyST]['Trump'])
     trumpECHP.target.append(tt)
 
-trumpECHP.feature_names = {
-    'target': 'Trump',
-    'data': [
-        # 'countyST',
-        # 'ST',
-        # 'Trump',
-        'Elderly',
-        'College',
-        'Home',
-        'Poverty'
-    ],
-}
-
-# from sklearn.naive_bayes import GaussianNB
-# gnb = GaussianNB()
-# fit = gnb.fit(trumpECHP.data, trumpECHP.target)
-# y_pred = fit.predict(trumpECHP.data)
-# print("Number of mislabeled points out of a total %d points : %d"
-#       % (len(trumpECHP.data), (trumpECHP.target != y_pred).sum()))
+trumpECHP.target_names = [
+    'Trump <= 45%',
+    'Trump >  45%',
+]
 
 Examples = {
     'Trump': trumpECHP,
