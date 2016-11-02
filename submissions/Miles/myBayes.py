@@ -18,32 +18,32 @@ Extract data from the CORGIS food.
 joint = {}
 
 food = food.get_reports()
-for category in food:
-    try:
-        it = category['Category'] # ['Carbohydrate']
-        vit = category['Data']['Vitamins']['Vitamin A - IU']
-        joint[it] = {}
-        joint[it]['IT']= it
-        joint[it]['Data'] = vit
-    except:
-        traceback.print_exc()
+# for carbs in food:
+#     try:
+#         foodIT = carbs["Data"]["Carbohydrate"]
+#         joint[foodIT] = {}
+#         # joint[it]['IT']= it
+#         # joint[it]['Data'] = vit
+#     except:
+#         traceback.print_exc()
 #
 # demographics = county_demographics.get_all_counties()
-for county2 in food:
+for item in food:
     try:
         # countyNames = county['County'].split()
         # cName = ' '.join(countyNames[:-1])
         # st = county['State']
         # countyST = cName + st
-        carbs = county2["Data"]# ["Carbohydrate"]
-        fiber = county2['Data']["Fiber"]
-        NDBN = county2['Data'] # ["Nutrient Data Bank Number"]
-        vitamins = county2['Data']["Vitamins"]["Vitamin A - IU"]
-        if it in joint:
-            joint[it]['Carbohydrates'] = carbs
-            joint[it]['Fiber'] = fiber
-            joint[it]['Nutrient Data Bank Number'] = NDBN
-            joint[it]['Vitamin A'] = vitamins
+        foodIT = item["Data"]["Carbohydrate"]
+        category = item["Category"]
+        description = item["Description"]
+        NDBN = item["Nutrient Data Bank Number"]
+        # vitamins = county2['Data']["Vitamins"]["Vitamin A - IU"]
+        if foodIT in joint:
+            joint[foodIT]["Category"] = category
+            joint[foodIT]["Description"] = description
+            joint[foodIT]["Nutrient Data Bank Number"] = NDBN
+           # joint[foodIT]['Vitamin A'] = vitamins
     except:
         traceback.print_exc()
 #
@@ -54,25 +54,22 @@ foodFF.data = []
 # '''
 # Build the input frame, row by row.
 # '''
-for it in joint:
+for foodIT in joint:
     # choose the input values
     foodFF.data.append([
-        it,
-        joint[it]['IT'],
-        # joint[it]['Category'],
-        # joint[it]['Carbohydrates'],
-        # joint[it]['Vitamin A'],
-        # joint[it]['Fiber'],
-        # joint[it]['Nutrient Data Bank Number'],
+        foodIT,
+        joint[foodIT]['Carbohydrate'],
+        joint[foodIT]['Category'],
+        joint[foodIT]['Description'],
+        joint[foodIT]['Nutrient Data Bank Number'],
+
     ])
 
 foodFF.feature_names = [
-    'it',
-    'IT',
-    'Category',
+
     'Carbohydrates',
-    'Vitamin A',
-    'Fiber',
+    'Category',
+    'Description',
     'Nutrient Data Bank Number',
 ]
 #
@@ -88,22 +85,22 @@ foodFF.feature_names = [
 # In this example, I'm breaking Trump's % into two
 # arbitrary segments.
 # '''
-# trumpECHP.target = []
+foodFF.target = []
 #
-# def trumpTarget(percentage):
-#     if percentage > 45:
-#         return 1
-#     return 0
-#
+def foodTarget(grams):
+    if grams > 20:
+        return 1
+    return 0
+
 # for countyST in intersection:
 #     # choose the target
 #     tt = trumpTarget(intersection[countyST]['Trump'])
 #     trumpECHP.target.append(tt)
 #
-# trumpECHP.target_names = [
-#     'Trump <= 45%',
-#     'Trump >  45%',
-# ]
+foodFF.target_names = [
+    'Carbohydrates <= 20',
+    'Carbohydrates >  20',
+]
 
 Examples = {
     'Food': foodFF,
