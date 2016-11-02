@@ -1,7 +1,8 @@
 import traceback
 
-from submissions.aartiste import election
-from submissions.aartiste import county_demographics
+from submissions.Porter import billionaires
+
+
 
 class DataFrame:
     data = []
@@ -9,61 +10,19 @@ class DataFrame:
     target = []
     target_names = []
 
-trumpECHP = DataFrame()
+billionairesECHP = DataFrame()
 
-'''
-Extract data from the CORGIS elections, and merge it with the
-CORGIS demographics.  Both data sets are organized by county and state.
-'''
-joint = {}
 
-elections = election.get_results()
-for county in elections:
-    try:
-        st = county['Location']['State Abbreviation']
-        countyST = county['Location']['County'] + st
-        trump = county['Vote Data']['Donald Trump']['Percent of Votes']
-        joint[countyST] = {}
-        joint[countyST]['ST']= st
-        joint[countyST]['Trump'] = trump
-    except:
-        traceback.print_exc()
 
-demographics = county_demographics.get_all_counties()
-for county in demographics:
-    try:
-        countyNames = county['County'].split()
-        cName = ' '.join(countyNames[:-1])
-        st = county['State']
-        countyST = cName + st
-        elderly = county['Age']["Percent 65 and Older"]
-        college = county['Education']["Bachelor's Degree or Higher"]
-        home = county['Housing']["Homeownership Rate"]
-        poverty = county['Income']["Persons Below Poverty Level"]
-        if countyST in joint:
-            joint[countyST]['Elderly'] = elderly
-            joint[countyST]['College'] = college
-            joint[countyST]['Home'] = home
-            joint[countyST]['Poverty'] = poverty
-    except:
-        traceback.print_exc()
+billionaireInfo = billionaires.get_billionaires()
 
-'''
-Remove the counties that did not appear in both samples.
-'''
-intersection = {}
-for countyST in joint:
-    if 'College' in joint[countyST]:
-        intersection[countyST] = joint[countyST]
-
-trumpECHP.data = []
 
 '''
 Build the input frame, row by row.
 '''
 for countyST in intersection:
     # choose the input values
-    trumpECHP.data.append([
+    billionairesECHP5.data.append([
         # countyST,
         # intersection[countyST]['ST'],
         # intersection[countyST]['Trump'],
@@ -73,14 +32,14 @@ for countyST in intersection:
         intersection[countyST]['Poverty'],
     ])
 
-trumpECHP.feature_names = [
+billionairesECHP.feature_names = [
     # 'countyST',
     # 'ST',
     # 'Trump',
-    'Elderly',
-    'College',
-    'Home',
-    'Poverty',
+    'Political',
+    'Inherited',
+    'Gender',
+
 ]
 
 '''
@@ -95,7 +54,7 @@ the segment into which the variable's value will fall.
 In this example, I'm breaking Trump's % into two
 arbitrary segments.
 '''
-trumpECHP.target = []
+billionairesECHP.target = []
 
 def trumpTarget(percentage):
     if percentage > 45:
@@ -107,11 +66,11 @@ for countyST in intersection:
     tt = trumpTarget(intersection[countyST]['Trump'])
     trumpECHP.target.append(tt)
 
-trumpECHP.target_names = [
-    'Trump <= 45%',
-    'Trump >  45%',
+billionairesECHP.target_names = [
+    'New',
+    'Old',
 ]
 
 Examples = {
-    'Trump': trumpECHP,
+    'Billionaires': billionairesECHP,
 }
