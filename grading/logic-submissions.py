@@ -35,28 +35,34 @@ def tryKB(label, base):
     kb = FolKB([])
     for kbLine in kbString.split('\n'):
         s = kbLine.strip()
-        if len(s) > 0:
-            try:
-                sentence = expr(s)
-                kb.tell(sentence)
-            except:
-                traceback.print_exc()
+        if len(s) == 0:
+            continue
+        if(s[0] == '#'):
+            continue
+        try:
+            sentence = expr(s)
+            kb.tell(sentence)
+        except:
+            traceback.print_exc()
     printKB(label, kb)
     print(indent(2), 'queries:')
     queryString = base['queries']
     for qLine in queryString.split('\n'):
         s = qLine.strip()
-        if len(s) > 0:
-            try:
-                query = expr(s)
-                generator = kb.ask_generator(query)
-                print(indent(3), str(query) + '?', end=' ')
-                if 'limit' in base:
-                    printResults(query, generator, base['limit'])
-                else:
-                    printResults(query, generator)
-            except:
-                traceback.print_exc()
+        if len(s) == 0:
+            continue
+        if(s[0] == '#'):
+            continue
+        try:
+            query = expr(s)
+            generator = kb.ask_generator(query)
+            print(indent(3), str(query) + '?', end=' ')
+            if 'limit' in base:
+                printResults(query, generator, base['limit'])
+            else:
+                printResults(query, generator)
+        except:
+            traceback.print_exc()
 
 def try_kbs(bases):
     for label in bases:

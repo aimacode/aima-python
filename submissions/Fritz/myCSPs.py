@@ -1,21 +1,21 @@
 import csp
-
-rgb = ['R', 'G', 'B']
+#update
+rgbpw = ['R', 'G', 'B', 'P', 'W']
 
 domains = {
-    'VE': rgb,
-    'CO': rgb,
-    'EC': rgb,
-    'P': rgb,
-    'B': rgb,
-    'GU': rgb,
-    'S': rgb,
-    'FG': rgb,
-    'BO': rgb,
-    'CH': rgb,
-    'AR': rgb,
-    'PG': rgb,
-    'UG': rgb
+    'VE': rgbpw,
+    'CO': rgbpw,
+    'EC': rgbpw,
+    'P': rgbpw,
+    'B': rgbpw,
+    'GU': rgbpw,
+    'S': rgbpw,
+    'FG': rgbpw,
+    'BO': rgbpw,
+    'CH': rgbpw,
+    'AR': rgbpw,
+    'PG': rgbpw,
+    'UG': rgbpw
 }
 
 variables = domains.keys()
