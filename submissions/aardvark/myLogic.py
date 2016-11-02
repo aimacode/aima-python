@@ -7,8 +7,7 @@ Mother(MrsRabbit, Pete)
 (Rabbit(r) & Farmer(f)) ==> Hates(f, r)
 (Mother(m, c)) ==> Loves(m, c)
 (Mother(m, r) & Rabbit(r)) ==> Rabbit(m)
-(Farmer(f)) ==> Human(f)
-(Mother(m, h) & Human(h)) ==> Human(m)
+-(Mother(m, h) & Human(h)) ==> Human(m)
 ''',
 # Note that this order of conjuncts
 # would result in infinite recursion:
