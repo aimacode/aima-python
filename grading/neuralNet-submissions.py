@@ -19,7 +19,10 @@ def tryOne(label, fAndP):
         clf = fAndP['mlpc']
     else:
         clf = mlpc
-    fit = clf.fit(frame.data, frame.target)
+    try:
+        fit = clf.fit(frame.data, frame.target)
+    except:
+        pass
     print('')
     # print_table(fit.theta_,
     #             header=[frame.feature_names],
