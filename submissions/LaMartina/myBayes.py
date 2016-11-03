@@ -37,10 +37,46 @@ Build the input frame, row by row.
 for port in joint:
     # choose the input values
     flights.data.append([
-        port,
+        #port,
         joint[port]['Weather Delay Time'],
         joint[port]['Number of Flights'],
     ])
+flights.feature_names = [
+    'Weather Delay Time',
+    'Number of Flights',
+]
+'''
+Build the target list,
+one entry for each row in the input frame.
+
+The Naive Bayesian network is a classifier,
+i.e. it sorts data points into bins.
+The best it can do to estimate a continuous variable
+is to break the domain into segments, and predict
+the segment into which the variable's value will fall.
+In this example, I'm breaking Trump's % into two
+arbitrary segments.
+'''
+flights.target = []
+
+def flightsTarget(flightnum):
+    if flightnum > 600:
+        return 1
+    return 0
+
+for port in joint:
+    # choose the target
+    fl = flightsTarget(joint[port]['Number of Flights'])
+    flights.target.append(fl)
+
+flights.target_names = [
+    'Offered Flights <= 600',
+    'Offered Flights >  600',
+]
+
+Examples = {
+    'Flights': flights,
+}
 
 
 # for county in airlines:
