@@ -52,7 +52,7 @@ arbitrary segments.
 aidsECHP.target = []
 
 def aidsTarget(percentage):
-    if percentage > 4:
+    if percentage > 6:
         return 1
     return 0
 
@@ -62,8 +62,8 @@ for pre in target_data:
     aidsECHP.target.append(tt)
 
 aidsECHP.target_names = [
-    'HIV Prevalence <= 4%',
-    'HIV Prevalence > 4%',
+    'HIV Prevalence <= 6%',
+    'HIV Prevalence > 6%',
 ]
 
 Examples = {

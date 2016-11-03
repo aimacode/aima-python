@@ -8,50 +8,91 @@ class DataFrame:
     target = []
     target_names = []
 
-dataframe = DataFrame()
+honordata = DataFrame()
+honordata.data = []
+honortarget = []
+
+class DataFrame2:
+    data2 = []
+    feature_names2 = []
+    target2 = []
+    target_names2 = []
+
+honortarget2 = []
+honordata2 = DataFrame2()
+honordata2.data = []
 
 medalofhonor = medal_of_honor.get_awardees(test=True)
-
-# for issued in medalofhonor:
-#     try:
-#         #awardee = name['name']
-#         date = 'issued'
-#
-#     except:
-#         traceback.print_exc()
-#
-# '''
-# Build the input frame, row by row.
-# '''
 for issued in medalofhonor:
-    # choose the input values
-    dataframe.data.append([
-        # date awarded,
-        issued['awarded']['location']['latitude'],
-    ])
+    try:
+        date = int(issued['birth']["date"]["year"])
+        honortarget.append(date)
 
-dataframe.feature_names = [
-    # 'date awarded-',
-    'Date Awarded',
+        date = int(issued['birth']["date"]["month"])
+        honortarget2.append(date)
+
+
+        day = int(issued['awarded']['date']['day'])
+        month = int(issued['awarded']['date']['month'])
+        year = int(issued['awarded']['date']['year'])
+
+        #rank = str(issued['military record']['rank'])
+        #latitude = str(issued['awarded']["location"]["latitude"])
+        #longitude = str(issued['awarded']["location"]["longitude"])
+
+        honordata.data.append([day, month, year])
+        honordata2.data.append([day, month, year])
+
+    except:
+        traceback.print_exc()
+
+honordata.feature_names = [
+    'day',
+    'month',
+    'year',
 ]
 
-dataframe.target = []
+honordata2.feature_names = [
+    'day',
+    'month',
+    'year',
+]
 
-def targetDate(totalDate):
-    if totalDate.__contains__('1990'):
+
+honordata.target = []
+honordata2.target = []
+
+def targetdata(HDate):
+    if (HDate > 1950 and HDate != -1):
         return 1
     return 0
 
-for issued in medalofhonor:
-    # choose the target
-    TD = targetDate(date)
-    dataframe.target.append(TD)
+def targetdata2(HDate2):
+    if (HDate2 > 10 and HDate2 != -1):
+        return 1
+    return 0
 
-dataframe.target_names = [
-    'Date is in 1990',
-    'Date is not in 1990',
+for issued in honortarget:
+
+    TD = targetdata(issued)
+    honordata.target.append(TD)
+
+honordata.target_names = [
+    'Born before 1950',
+    'Born after 1950',
+]
+
+for issued2 in honortarget2:
+
+    TD2 = targetdata2(issued2)
+    honordata2.target.append(TD2)
+
+honordata2.target_names = [
+    'Born on or before October',
+    'Born after October',
 ]
 
 Examples = {
-    'Date': dataframe,
+    'Year Date': honordata,
+    'Month Date': honordata2,
 }

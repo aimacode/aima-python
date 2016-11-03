@@ -4,7 +4,7 @@ from copy import deepcopy
 
 
 class GameState:
-    def __init__(self, to_move, board, label=None, depth=8):
+    def __init__(self, to_move, board, label=None, depth=4):
         self.to_move = to_move
         self.board = board
         self.label = label
@@ -22,26 +22,68 @@ class DotsandBoxes(Game):
     the goal is to create a completed square first."""
 
 
-    def __init__(self, h=3, v=3):
-        self.h = h
-        self.v = v
-        self.initial = GameState(to_move='---', board={})
+    def __init__(self, width=3, height=3):
+        self.height = height
+        self.width = width
+        self.board = {}
+        self.squares = {}
+        self.coordinates = []
+        self.initial = GameState(to_move='---', board={'+', '+', '+',
+                                                       '+', '+', '+',
+                                                       '+', '+', '+',
+                                                       })
+        verticalMoves = [[(0, 0), (0, 1)], [(1, 0), (1, 1)], [(2, 0), (2, 1)], [(3, 0), (3, 1)],
+                         [(0, 1), (0, 2)], [(1, 1), (1, 2)], [(2, 1), (2, 2)], [(3, 1), (3, 2)],
+                         [(0, 2), (0, 3)], [(1, 2), (1, 3)], [(2, 2), (2, 3)], [(3, 2), (3, 3)],
+                         ]
+        horizontalMoves = [[(0, 0), (0, 1)], [(1, 0), (1, 1)], [(2, 0), (2, 1)], [(3, 0), (3, 1)],
+                           [(0, 1), (0, 2)], [(1, 1), (1, 2)], [(2, 1), (2, 2)], [(3, 1), (3, 2)],
+                           [(0, 2), (0, 3)], [(1, 2), (1, 3)], [(2, 2), (2, 3)], [(3, 2), (3, 3)],
+                           ]
+        coordinates = [verticalMoves, horizontalMoves]
+
 
 
     def actions(self, state):
+         try:
+             return state.moves
+         except:
+             pass
+         "Legal moves are any square not yet taken."
+         moves = []
+         for x in range(1, self.height + 1):
+             for y in range(1, self.width + 1):
+                 if (x,y) not in state.board:
+                     moves.append((x,y))
+         state.moves = moves
+         return moves
 
-        try:
-            return state.moves
-        except:
-            pass
-        "Legal moves are any square not yet taken."
-        moves = []
-        for x in range(1, self.h + 1):
-            for y in range(1, self.v + 1):
-                if (x, y) not in state.board:
-                    moves.append((x, y))
-        state.moves = moves
-        return moves
+
+    # def actionsTry2(self, move):
+    #     """another try for actions- giving me weird error messages
+    #      and not debugging easily
+    #     assert (self.GoodCoordinate(move[0]) and
+    #             self.GoodCoordinate(move[1])),
+    #     move = self._makeMove(move[0], move[1])
+    #     assert (not self.board.has_key(move)),
+    #     self.board[move] = self.player
+    #     ## Check if a square is completed.
+    #     square_corners = self._isSquareMove(move)
+    #     if square_corners:
+    #         for corner in square_corners:
+    #             self.squares[corner] = self.player
+    #     else:
+    #         self._switchPlayer()
+    #     return square_corners
+
+    # def GoodCoordinate(self, coord):
+    #     """Returns true if the given coordinate is good.
+    #           Must be in the game board and legal."""
+    #     return (0 <= coord[0] < self.width
+    #             and 0 <= coord[1] < self.height
+    #             and isinstance(coord[0], types.IntType)
+    #             and isinstance(coord[1], types.IntType))
+
 
     def _makeMove(self, line1, line2):
         """return a new move and makes sure it's legal"""
@@ -74,6 +116,13 @@ class DotsandBoxes(Game):
         return GameState(to_move=next_mover, board=board)
 
 
+    def GameOver(self):
+        """Returns true: no more moves can be made. Keeps track if the game can go on.
+        """
+        w, h = self.width, self.height
+        return len(self.board.keys()) == 2 * w * h - h - w
+
+
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
         try:
@@ -92,11 +141,12 @@ class DotsandBoxes(Game):
 
     def check_win(self, board, player):
         # check rows
-        for y in range(1, self.v + 1):
+        # not necessary for dotsAndboxes
+        for y in range(1, self.width + 1):
             if self.k_in_row(board, (1, y), player, (1, 0)):
                 return 1
         # check columns
-        for x in range(1, self.h + 1):
+        for x in range(1, self.height + 1):
             if self.k_in_row(board, (x, 1), player, (0, 1)):
                 return 1
         # check \ diagonal
@@ -125,7 +175,7 @@ class DotsandBoxes(Game):
         # n -= 1  # Because we counted start itself twice
 
         # n >=
-        return self.v
+        return self.height
 
     def _isSquareMove(self, move):
         b = self.board
@@ -167,11 +217,47 @@ class DotsandBoxes(Game):
 
 
     def display(self, state):
-        board = state.board
-        for x in range(1, self.h + 1):
-            for y in range(1, self.v + 1):
-                print(board.get((x, y), '.'), end=' ')
-            print()
+        """should return a display of the baord ."""
+        b = []
+
+        ## do the top line
+        for i in range(self.width - 1):
+            if self.board in ((i, self.height - 1), (i + 1, self.height - 1)):
+                b.append("---")
+            else:
+                b.append("+  ")
+        b.append("+\n")
+        ## and now do alternating vertical/horizontal passes
+        for j in range(self.height - 2, -1, -1):
+            ## vertical:
+            for i in range(self.width):
+                if self.board in ((i, j), (i, j + 1)):
+                    b.append("|")
+                else:
+                    b.append(" ")
+                if self.squares in (i, j):
+                    b.append("%s " % self.squares[i, j])
+                else:
+                    b.append("  ")
+            b.append("\n")
+
+            ## horizontal
+            for i in range(self.width - 1):
+                if self.board in ((i, j), (i + 1, j)):
+                    b.append("---")
+                else:
+                    b.append("+  ")
+            b.append("+\n")
+
+        return ''.join(b)
+
+
+
+        # board = state.board
+        # for x in range(1, self.h + 1):
+        #     for y in range(1, self.v + 1):
+        #         print(board.get((x, y), '.'), end=' ')
+        #     print()
 
 
 
