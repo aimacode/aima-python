@@ -22,9 +22,15 @@ for airport in airline:
         port = airport['airport']['code']
         #weatherdelay is the minutes of weather delay at that airport
         weatherdelay = airport['statistics']['minutes delayed']['weather']
+        aviationdelay = airport['statistics']['minutes delayed']['national aviation system']
+        securitydelay = airport['statistics']['minutes delayed']['security']
+        carrierdelay = airport['statistics']['minutes delayed']['carrier']
         totalflights = airport['statistics']['flights']['total']
         joint[port] = {}
         joint[port]['Weather Delay Time'] = weatherdelay
+        joint[port]['Aviation Delay Time'] = aviationdelay
+        joint[port]['Security Delay Time'] = securitydelay
+        joint[port]['Carrier Delay Time'] = carrierdelay
         joint[port]['Number of Flights'] = totalflights
     except:
         traceback.print_exc()
@@ -39,11 +45,16 @@ for port in joint:
     flights.data.append([
         #port,
         joint[port]['Weather Delay Time'],
-        joint[port]['Number of Flights'],
+        joint[port]['Aviation Delay Time'],
+        joint[port]['Security Delay Time'],
+        joint[port]['Carrier Delay Time'],
+        #joint[port]['Number of Flights'],
     ])
 flights.feature_names = [
     'Weather Delay Time',
-    'Number of Flights',
+    'Aviation Delay Time',
+    'Security Delay Time',
+    'Carrier Delay Time'
 ]
 '''
 Build the target list,
