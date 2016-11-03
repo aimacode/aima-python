@@ -8,7 +8,7 @@ class DataFrame:
     target = []
     target_names = []
 
-delays = DataFrame()
+flights = DataFrame()
 
 '''
 Extract data from the CORGIS airlines.
@@ -19,12 +19,29 @@ airline = airlines.get_reports()
 
 for airport in airline:
     try:
-        code = airport['airport']['code']
+        port = airport['airport']['code']
         #weatherdelay is the minutes of weather delay at that airport
         weatherdelay = airport['statistics']['minutes delayed']['weather']
-        joint[code] = weatherdelay
+        totalflights = airport['statistics']['flights']['total']
+        joint[port] = {}
+        joint[port]['Weather Delay Time'] = weatherdelay
+        joint[port]['Number of Flights'] = totalflights
     except:
         traceback.print_exc()
+
+flights.data = []
+
+'''
+Build the input frame, row by row.
+'''
+for port in joint:
+    # choose the input values
+    flights.data.append([
+        port,
+        joint[port]['Weather Delay Time'],
+        joint[port]['Number of Flights'],
+    ])
+
 
 # for county in airlines:
 #     try:
