@@ -15,7 +15,17 @@ Extract data from the CORGIS airlines.
 '''
 joint = {}
 
-airlines = airlines.get_reports()
+airline = airlines.get_reports()
+
+for airport in airline:
+    try:
+        code = airport['airport']['code']
+        #weatherdelay is the minutes of weather delay at that airport
+        weatherdelay = airport['statistics']['minutes delayed']['weather']
+        joint[code] = weatherdelay
+    except:
+        traceback.print_exc()
+
 # for county in airlines:
 #     try:
 #         st = county['Location']['State Abbreviation']
@@ -109,7 +119,7 @@ airlines = airlines.get_reports()
 #     'Trump <= 45%',
 #     'Trump >  45%',
 # ]
-#
+# #
 # Examples = {
-#     'Trump': trumpECHP,
-# }
+#    # 'Trump': trumpECHP,
+#     }
