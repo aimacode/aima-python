@@ -7,10 +7,11 @@ class DataFrame:
     target = []
     target_names = []
 
-slavevvv = DataFrame()
-
+slaveTot = DataFrame()
+slaveAS = DataFrame
 transactions = slavery.get_transaction()
-slavevvv.data = []
+slaveTot.data = []
+slaveAS.data = []
 
 def genderNumber(gender):
     if gender == 'M':
@@ -20,60 +21,51 @@ def genderNumber(gender):
 
 for seller in transactions:
     # choose the input values
-    slavevvv.data.append([
-        # countyST,
-        # intersection[countyST]['ST'],
-        # intersection[countyST]['Trump'],
-        #seller['Transaction']['Number of Child Slaves'],
-        #seller['Transaction']['Number of Adult Slaves'],
-        seller['Transaction']['Number of Total Slaves Purchased'],
+    slaveTot.data.append([
+        seller['Transaction']['Number of Child Slaves'],
+        seller['Transaction']['Number of Adult Slaves'],
+        ])
+    slaveAS.data.append([
         seller['Slave']['Age'],
-        #genderNumber(seller['Slave']['Gender']),
+        genderNumber(seller['Slave']['Gender']),
     ])
 
-slavevvv.feature_names = [
-    # 'countyST',
-    # 'ST',
-    # 'Trump',
-    #'Elderly',
-    #'College',
-    #'Home',
-    #'Children',
-    #'Adults',
-    'Total',
+slaveAS.feature_names = [
     'Age',
-    #'Gender',
+    'Gender',
 ]
 
-'''
-Build the target list,
-one entry for each row in the input frame.
+slaveTot.feature_names = [
+    'Children',
+    'Adults',
 
-The Naive Bayesian network is a classifier,
-i.e. it sorts data points into bins.
-The best it can do to estimate a continuous variable
-is to break the domain into segments, and predict
-the segment into which the variable's value will fall.
-In this example, I'm breaking Trump's % into two
-arbitrary segments.
-'''
-slavevvv.target = []
+]
+
+slaveTot.target = []
+slaveAS.target = []
 
 def priceTarget(price):
-    if price > 200:
+    if price < 410:
         return 1
     return 0
 
 for deal in transactions:
     # choose the target
     tt = priceTarget(deal['Transaction']['Sale Details']['Price'])
-    slavevvv.target.append(tt)
+    slaveTot.target.append(tt)
+    slaveAS.target.append(tt)
 
-slavevvv.target_names = [
-    'Price <= 1000',
-    'Price >  1000',
+slaveTot.target_names = [
+    'Price <= $410',
+    'Price >  $410',
+]
+
+slaveAS.target_names = [
+    'Price <= $410',
+    'Price >  $410',
 ]
 
 Examples = {
-    'Slavery': slavevvv,
+    'Sales by Children and Adults': slaveTot,
+    'Sales by Age and Sex': slaveAS
 }
