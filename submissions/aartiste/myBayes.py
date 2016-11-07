@@ -1,5 +1,4 @@
 import traceback
-
 from submissions.aartiste import election
 from submissions.aartiste import county_demographics
 
