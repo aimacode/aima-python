@@ -188,7 +188,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # g.mainloop()
 
 # Launch GUI of more complex environment
-v = VacuumEnvironment(6, 3)
+v = VacuumEnvironment(4, 2)
 #a = ModelBasedVacuumAgent()
 a = RandomVacuumAgent()
 a = ag.TraceAgent(a)
