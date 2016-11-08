@@ -23,6 +23,8 @@ for c in crime:
         stateyear = c['State'] + str(c['Year'])
         pop = c['Data']['Population']
         murder = c['Data']['Totals']['Violent']['Murder']
+        assault = c['Data']['Totals']['Violent']['Assault']
+        robbery = c['Data']['Totals']['Violent']['Robbery']
         rape = c['Data']['Totals']['Violent']['Rape']
         burg = c['Data']['Totals']['Property']['Burglary']
         joint[stateyear] = {}
@@ -30,6 +32,8 @@ for c in crime:
         joint[stateyear]['Murder Numbers'] = murder
         joint[stateyear]['Rape Numbers'] = rape
         joint[stateyear]['Burglary Numbers'] = burg
+        joint[stateyear]['Robbery Numbers'] = robbery
+        joint[stateyear]['Assault Numbers'] = assault
     except:
         traceback.print_exc()
 
@@ -42,14 +46,19 @@ for port in joint:
     # choose the input values
     crimes.data.append([
         #port,
-        joint[port]['Population'],
+        #joint[port]['Population'],
         joint[port]['Rape Numbers'],
-        joint[port]['Burglary Numbers'],
+        joint[port]['Robbery Numbers'],
+        joint[port]['Assault Numbers']
+
+        #joint[port]['Burglary Numbers'],
     ])
 crimes.feature_names = [
-    'Population',
+    #'Population',
     'Rape Numbers',
-    'Burglary Numbers',
+    #'Burglary Numbers',
+    'Robbery Numbers'
+    'Assault Numbers'
 ]
 '''
 Build the target list,
