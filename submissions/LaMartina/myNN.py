@@ -66,7 +66,7 @@ arbitrary segments.
 crimes.target = []
 
 def murderTarget(murdernum):
-    if murdernum > 600:
+    if murdernum > 800:
         return 1
     return 0
 
@@ -76,10 +76,12 @@ for cri in joint:
     crimes.target.append(c)
 
 crimes.target_names = [
-    'Murders <= 600',
-    'Murders >  600',
+    'Murders <= 800',
+    'Murders >  800',
 ]
 
 Examples = {
-    'Crimes': crimes,
+    'Crimes': {
+        'frame': crimes,
+    },
 }
