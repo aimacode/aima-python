@@ -39,7 +39,7 @@ Criminal(x)
 
 classroom = {
     'kb':'''
-    Teacher(Sally)
+    Human(Sally)
     Education(Sally,PHD)
     Education(Bob,Bachelors)
     Action(Lisa,yells)
@@ -47,7 +47,7 @@ classroom = {
     Student(John)
     Prepared(John)
     OnTime(John)
-    TA(Bob)
+    Human(Bob)
 
 
 
@@ -55,9 +55,7 @@ classroom = {
     (Argues(x,y)) ==> Detention(y,x)
     (Student(x) & GoodStudent(x)) ==> Pass(x)
     (Student(x) & Prepared(x) & OnTime(x))==> GoodStudent(x)
-    (Teacher(x)) ==> Human(x)
     (Student(x)) ==> Human(x)
-    (TA(x)) ==> Human(x)
     (Education(x,PHD) & Human(x)) ==> Teacher(x)
     (Education(x,Bachelors) & Human(x)) ==> TA(x)
 
