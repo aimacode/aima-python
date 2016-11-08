@@ -46,14 +46,7 @@ classroom = {
     Prepared(John)
     OnTime(John)
     TA(Bob)
-    Grade(A)
-    Grade(F)
-    Required(Pencil,Material)
-    Required(Notebook,Material)
-    Forbidden(Gum,Material)
-    Bad(ForgetHomework,Action)
-    Good(OnTime,Action)
-    Bad(Late,Action)
+
 
     (Student(x) & Action(x,yells)) ==> Argues(x,Sally)
     (Argues(x,y)) ==> Detention(y,x)
