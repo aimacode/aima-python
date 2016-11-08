@@ -40,21 +40,23 @@ Criminal(x)
 classroom = {
     'kb':'''
     Teacher(Sally)
-    Teacher(Bob)
-    Student(Lisa)
-    Student(John)
-    Student(Jane)
-    Grade(A)
-    Grade(F)
-    Detention(Sally,Lisa)
-    Material(Pencil,Required)
-    Material(Notebook,Required)
-    Material(Gum,Forbidden)
-    Action(Yell,Bad)
-    Action(ForgetHomework,Bad)
-    Action(OnTime,Good)
-    Action(Late,Good)
-    (Student(x) & Teacher(y) & Argues(x,y)) ==> Detention(y,x)
+    Action(Lisa,yells)
+    BadStudent(Lisa)
+    TA(Bob)
+    GoodStudent(John)
+    Pass(A)
+    Fail(F)
+    Required(Pencil,Material)
+    Required(Notebook,Material)
+    Forbidden(Gum,Material)
+    Bad(ForgetHomework,Action)
+    Good(OnTime,Action)
+    Bad(Late,Action)
+
+    (BadStudent(x) & Action(x,yells)) ==> Argues(x,Sally)
+    (Argues(x,y)) ==> Detention(y,x)
+
+
 
 
     ''',
