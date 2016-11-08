@@ -67,9 +67,10 @@ classroom = {
     ''',
     'queries':'''
     Teacher(x)
+    TA(x)
     Detention(y,x)
     Pass(x)
-    TA(x)
+
 
     ''',
 }
