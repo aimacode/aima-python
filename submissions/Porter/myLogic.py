@@ -43,9 +43,11 @@ classroom = {
     Action(Lisa,yells)
     Student(Lisa)
     Student(John)
+    Prepared(John)
+    OnTime(John)
     TA(Bob)
-    Pass(A)
-    Fail(F)
+    Grade(A)
+    Grade(F)
     Required(Pencil,Material)
     Required(Notebook,Material)
     Forbidden(Gum,Material)
@@ -55,6 +57,8 @@ classroom = {
 
     (Student(x) & Action(x,yells)) ==> Argues(x,Sally)
     (Argues(x,y)) ==> Detention(y,x)
+    (Student(x) & GoodStudent(x)) ==> Pass(x)
+    (Student(x) & Prepared(x) & OnTime(x))==> GoodStudent(x)
 
 
 
@@ -63,6 +67,7 @@ classroom = {
     ''',
     'queries':'''
     Detention(y,x)
+    Pass(x)
     ''',
 }
 
