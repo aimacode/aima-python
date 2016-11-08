@@ -46,8 +46,16 @@ classroom = {
     Student(Jane)
     Grade(A)
     Grade(F)
-    Detention(Detention)
+    Detention(Teacher,Student)
+    Material(Pencil,Required)
+    Material(Notebook,Required)
+    Material(Gum,Forbidden)
+    Action(Yell,Bad)
+    Action(ForgetHomework,Bad)
+    Action(OnTime,Good)
+    Action(Late,Good)
     (Student(x) & Teacher(y) & Argues(x,y)) ==> Detention(y,x)
+
     ''',
     'queries':'''
     Detention(y,x)
