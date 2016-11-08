@@ -41,9 +41,9 @@ classroom = {
     'kb':'''
     Teacher(Sally)
     Action(Lisa,yells)
-    BadStudent(Lisa)
+    Student(Lisa)
+    Student(John)
     TA(Bob)
-    GoodStudent(John)
     Pass(A)
     Fail(F)
     Required(Pencil,Material)
@@ -53,8 +53,9 @@ classroom = {
     Good(OnTime,Action)
     Bad(Late,Action)
 
-    (BadStudent(x) & Action(x,yells)) ==> Argues(x,Sally)
+    (Student(x) & Action(x,yells)) ==> Argues(x,Sally)
     (Argues(x,y)) ==> Detention(y,x)
+
 
 
 
