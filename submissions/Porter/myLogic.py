@@ -37,9 +37,27 @@ Criminal(x)
 ''',
 }
 
+classroom = {
+    'kb':'''
+    Teacher(Sally)
+    Teacher(Bob)
+    Student(Lisa)
+    Student(John)
+    Student(Jane)
+    Grade(A)
+    Grade(F)
+    Detention(Detention)
+    (Student(x) & Teacher(y) & Argues(x,y)) ==> Detention(y,x)
+    ''',
+    'queries':'''
+    Detention(y,x)
+    ''',
+}
+
 
 
 Examples = {
-    'farmer': farmer,
-    'weapons': weapons,
+    # 'farmer': farmer,
+    # 'weapons': weapons,
+    'classroom': classroom,
 }
