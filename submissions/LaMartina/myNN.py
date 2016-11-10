@@ -89,8 +89,49 @@ crimes.target_names = [
     'Murders >  800',
 ]
 
+'''
+Try scaling the data.
+'''
+crimesScaled = DataFrame()
+
+def setupScales(grid):
+    global min, max
+    min = list(grid[0])
+    max = list(grid[0])
+    for row in range(1, len(grid)):
+        for col in range(len(grid[row])):
+            cell = grid[row][col]
+            if cell < min[col]:
+                min[col] = cell
+            if cell > max[col]:
+                max[col] = cell
+
+def scaleGrid(grid):
+    newGrid = []
+    for row in range(len(grid)):
+        newRow = []
+        for col in range(len(grid[row])):
+            try:
+                cell = grid[row][col]
+                scaled = (cell - min[col]) \
+                         / (max[col] - min[col])
+                newRow.append(scaled)
+            except:
+                pass
+        newGrid.append(newRow)
+    return newGrid
+
+setupScales(crimes.data)
+crimesScaled.data = scaleGrid(crimes.data)
+crimesScaled.feature_names = crimes.feature_names
+crimesScaled.target = crimes.target
+crimesScaled.target_names = crimes.target_names
+
 Examples = {
     'Crimes': {
         'frame': crimes,
+    },
+    'CrimesScaled': {
+        'frame': crimesScaled,
     },
 }
