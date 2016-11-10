@@ -43,10 +43,14 @@ for county in demographics:
         # poverty =
         if countyST in joint:
             joint[countyST]['Elderly'] = county['Age']["Percent 65 and Older"]
-            joint[countyST]['HighSchool'] = county['Education']["Bachelor's Degree or Higher"]
+            joint[countyST]['HighSchool'] = county['Education']["High School or Higher"]
             joint[countyST]['College'] = county['Education']["Bachelor's Degree or Higher"]
+            joint[countyST]['White'] = county['Ethnicities']["White Alone, not Hispanic or Latino"]
+            joint[countyST]['Persons'] = county['Housing']["Persons per Household"]
             joint[countyST]['Home'] = county['Housing']["Homeownership Rate"]
+            joint[countyST]['Income'] = county['Income']["Median Houseold Income"]
             joint[countyST]['Poverty'] = county['Income']["Persons Below Poverty Level"]
+            joint[countyST]['Sales'] = county['Sales']["Retail Sales per Capita"]
     except:
         traceback.print_exc()
 
@@ -65,25 +69,18 @@ Build the input frame, row by row.
 '''
 for countyST in intersection:
     # choose the input values
-    trumpECHP.data.append([
-        # countyST,
-        # intersection[countyST]['ST'],
-        # intersection[countyST]['Trump'],
-        intersection[countyST]['Elderly'],
-        intersection[countyST]['College'],
-        intersection[countyST]['Home'],
-        intersection[countyST]['Poverty'],
-    ])
+    row = []
+    for key in intersection[countyST]:
+        if key in ['ST', 'Trump']:
+            continue
+        row.append(intersection[countyST][key])
+    trumpECHP.data.append(row)
 
-trumpECHP.feature_names = [
-    # 'countyST',
-    # 'ST',
-    # 'Trump',
-    'Elderly',
-    'College',
-    'Home',
-    'Poverty',
-]
+firstCounty = next(iter(intersection.keys()))
+firstRow = intersection[firstCounty]
+trumpECHP.feature_names = list(firstRow.keys())
+trumpECHP.feature_names.remove('ST')
+trumpECHP.feature_names.remove('Trump')
 
 '''
 Build the target list,
@@ -114,10 +111,69 @@ trumpECHP.target_names = [
     'Trump >  45%',
 ]
 
+'''
+Make a customn classifier,
+'''
 mlpc = MLPClassifier(
-    solver='sgd',
-    learning_rate = 'adaptive',
+    # hidden_layer_sizes = (100,),
+    # activation = 'relu',
+    solver='sgd', # 'adam',
+    # alpha = 0.0001,
+    # batch_size='auto',
+    learning_rate = 'adaptive', # 'constant',
+    # power_t = 0.5,
+    max_iter = 1000, # 200,
+    # shuffle = True,
+    # random_state = None,
+    # tol = 1e-4,
+    # verbose = False,
+    # warm_start = False,
+    # momentum = 0.9,
+    # nesterovs_momentum = True,
+    # early_stopping = False,
+    # validation_fraction = 0.1,
+    # beta_1 = 0.9,
+    # beta_2 = 0.999,
+    # epsilon = 1e-8,
 )
+
+'''
+Try scaling the data.
+'''
+trumpScaled = DataFrame()
+
+def setupScales(grid):
+    global min, max
+    min = list(grid[0])
+    max = list(grid[0])
+    for row in range(1, len(grid)):
+        for col in range(len(grid[row])):
+            cell = grid[row][col]
+            if cell < min[col]:
+                min[col] = cell
+            if cell > max[col]:
+                max[col] = cell
+
+def scaleGrid(grid):
+    newGrid = []
+    for row in range(len(grid)):
+        newRow = []
+        for col in range(len(grid[row])):
+            try:
+                cell = grid[row][col]
+                scaled = (cell - min[col]) \
+                         / (max[col] - min[col])
+                newRow.append(scaled)
+            except:
+                pass
+        newGrid.append(newRow)
+    return newGrid
+
+setupScales(trumpECHP.data)
+trumpScaled.data = scaleGrid(trumpECHP.data)
+trumpScaled.feature_names = trumpECHP.feature_names
+trumpScaled.target = trumpECHP.target
+trumpScaled.target_names = trumpECHP.target_names
 
 Examples = {
     'TrumpDefault': {
@@ -126,5 +182,8 @@ Examples = {
     'TrumpSGD': {
         'frame': trumpECHP,
         'mlpc': mlpc
+    },
+    'TrumpScaled': {
+        'frame': trumpScaled,
     },
 }
