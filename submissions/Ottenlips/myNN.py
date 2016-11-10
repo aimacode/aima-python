@@ -112,16 +112,14 @@ billScaled.target_names = bill.target_names
 
 Examples = {
 
-'Bill': {'frame':bill},
-
    'BillMLPC': {
-
         'frame': bill,
         'mlpc': mlpc,
 },
     'BillScaled':{
         'frame':billScaled,
     },
+'Bill': {'frame':bill},
 
 }
 #
