@@ -229,6 +229,14 @@ nonVicrimes.feature_names = [
 nonVicrimes.target = crimes.target
 nonVicrimes.target_names = crimes.target_names
 
+#Scaled non-violent crimes data frame
+nonVicrimesScaled = DataFrame()
+setupScales(nonVicrimes.data)
+nonVicrimesScaled.data = scaleGrid(nonVicrimes.data)
+nonVicrimesScaled.feature_names = crimes.feature_names
+nonVicrimesScaled.target = crimes.target
+nonVicrimesScaled.target_names = crimes.target_names
+
 Examples = {
     'Crimes': {
         'frame': crimes,
@@ -258,5 +266,8 @@ Examples = {
     # },
     'Non-Violent Crimes': {
         'frame': nonVicrimes,
+    },
+    'Non-Violent Crimes Scaled': {
+        'frame': nonVicrimesScaled,
     },
 }
