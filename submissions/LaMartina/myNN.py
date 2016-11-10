@@ -177,7 +177,7 @@ mlp3 = MLPClassifier(
 #New classifier that messes with mulitple dials to get the best results
 mlp4 = MLPClassifier(
     hidden_layer_sizes = (100,100,),
-    # activation = 'relu',
+    #activation = 'logistic',
     #solver='sgd', # 'adam',
     #alpha = 1,
     #batch_size=1000,
@@ -221,4 +221,8 @@ Examples = {
         'frame': crimes,
         'mlp4': mlp4
     },
+    # 'CrimesMLP4Scaled': {
+    #     'frame': crimesScaled,
+    #     'mlp4': mlp4
+    # },
 }
