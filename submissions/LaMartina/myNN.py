@@ -174,6 +174,29 @@ mlp3 = MLPClassifier(
     # beta_2 = 0.999,
     # epsilon = 1e-8,
 )
+#New classifier that messes with mulitple dials to get the best results
+mlp4 = MLPClassifier(
+    hidden_layer_sizes = (100,100,),
+    # activation = 'relu',
+    #solver='sgd', # 'adam',
+    #alpha = 1,
+    #batch_size=1000,
+    #learning_rate = 'adaptive', # 'constant',
+    # power_t = 0.5,
+    max_iter = 1000, # 200,
+    # shuffle = True,
+    # random_state = None,
+    # tol = 1e-4,
+    # verbose = False,
+    # warm_start = False,
+    # momentum = 0.9,
+    # nesterovs_momentum = True,
+    # early_stopping = False,
+    # validation_fraction = 0.1,
+    # beta_1 = 0.9,
+    # beta_2 = 0.999,
+    # epsilon = 1e-8,
+)
 
 Examples = {
     'Crimes': {
@@ -193,5 +216,9 @@ Examples = {
     'CrimesMLP3': {
         'frame': crimes,
         'mlp3': mlp3
+    },
+    'CrimesMLP4': {
+        'frame': crimes,
+        'mlp4': mlp4
     },
 }
