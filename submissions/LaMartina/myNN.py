@@ -1,5 +1,6 @@
 import traceback
 from submissions.LaMartina import state_crime
+from sklearn.neural_network import MLPClassifier
 
 
 class DataFrame:
@@ -120,12 +121,36 @@ def scaleGrid(grid):
                 pass
         newGrid.append(newRow)
     return newGrid
-
+#The scaled data frame
 setupScales(crimes.data)
 crimesScaled.data = scaleGrid(crimes.data)
 crimesScaled.feature_names = crimes.feature_names
 crimesScaled.target = crimes.target
 crimesScaled.target_names = crimes.target_names
+
+#New
+mlp2 = MLPClassifier(
+    # hidden_layer_sizes = (100,),
+    # activation = 'relu',
+    #solver='sgd', # 'adam',
+    # alpha = 0.0001,
+    # batch_size='auto',
+    learning_rate = 'adaptive', # 'constant',
+    # power_t = 0.5,
+    max_iter = 1000, # 200,
+    # shuffle = True,
+    # random_state = None,
+    # tol = 1e-4,
+    # verbose = False,
+    # warm_start = False,
+    # momentum = 0.9,
+    # nesterovs_momentum = True,
+    # early_stopping = False,
+    # validation_fraction = 0.1,
+    # beta_1 = 0.9,
+    # beta_2 = 0.999,
+    # epsilon = 1e-8,
+)
 
 Examples = {
     'Crimes': {
@@ -133,5 +158,13 @@ Examples = {
     },
     'CrimesScaled': {
         'frame': crimesScaled,
+    },
+    'CrimesMLP2': {
+        'frame': crimes,
+        'mlp2': mlp2
+    },
+    'CrimesMLP2Scaled': {
+        'frame': crimesScaled,
+        'mlp2': mlp2
     },
 }
