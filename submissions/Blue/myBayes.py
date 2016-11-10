@@ -23,7 +23,6 @@ for song in allSongs:
     try:
         length = float(song['song']["duration"])
         musicTarget.append(length)
-
         genre = song['artist']['terms'] #String
         title = song['song']['title'] #String
         # release = float(song['song']['Release'])
