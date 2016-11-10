@@ -28,6 +28,8 @@ for c in crime:
         robbery = c['Data']['Totals']['Violent']['Robbery']
         rape = c['Data']['Totals']['Violent']['Rape']
         burg = c['Data']['Totals']['Property']['Burglary']
+        larceny = c['Data']['Totals']['Property']['Larceny']
+        motor = c['Data']['Totals']['Property']['Motor']
         joint[stateyear] = {}
         joint[stateyear]['Population'] = pop
         joint[stateyear]['Murder Numbers'] = murder
@@ -35,6 +37,8 @@ for c in crime:
         joint[stateyear]['Burglary Numbers'] = burg
         joint[stateyear]['Robbery Numbers'] = robbery
         joint[stateyear]['Assault Numbers'] = assault
+        joint[stateyear]['Larceny Numbers'] = larceny
+        joint[stateyear]['Motor Crime Numbers'] = motor
     except:
         traceback.print_exc()
 
@@ -197,6 +201,33 @@ mlp4 = MLPClassifier(
     # beta_2 = 0.999,
     # epsilon = 1e-8,
 )
+#data frame for nonviolent crimes and using them to predict murder
+nonVicrimes = DataFrame()
+nonVicrimes.data = []
+
+'''
+Build the input frame, row by row.
+'''
+for port in joint:
+    # choose the input values
+    nonVicrimes.data.append([
+        #port,
+        #joint[port]['Population'],
+        joint[port]['Burglary Numbers'],
+        joint[port]['Larceny Numbers'],
+        joint[port]['Motor Crime Numbers']
+
+        #joint[port]['Burglary Numbers'],
+    ])
+nonVicrimes.feature_names = [
+    #'Population',
+    'Burglary Numbers',
+    #'Burglary Numbers',
+    'Larceny Numbers'
+    'Motor Crime Numbers'
+]
+nonVicrimes.target = crimes.target
+nonVicrimes.target_names = crimes.target_names
 
 Examples = {
     'Crimes': {
@@ -225,4 +256,7 @@ Examples = {
     #     'frame': crimesScaled,
     #     'mlp4': mlp4
     # },
+    'Non-Violent Crimes': {
+        'frame': nonVicrimes,
+    },
 }
