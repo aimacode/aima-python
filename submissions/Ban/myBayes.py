@@ -23,23 +23,26 @@ def alumniTarget(string):
 demographics = county_demographics.get_all_counties()
 for student in demographics:
     try:
-        alumni.target.append(alumniTarget(student['Education']["Bachelor's Degree or Higher"]))
+        alumni.target.append(alumniTarget(student['Education']["High School or Higher"]))
 
-        college = float(student['Education']["Bachelor's Degree or Higher"])
+        college = float(student['Education']["High School or Higher"])
         poverty = float(student['Income']["Persons Below Poverty Level"])
+        ethnicity = float(student['Ethnicities']["White Alone"])
 
-        alumni.data.append([college, poverty])
+        alumni.data.append([college, poverty, ethnicity])
     except:
         traceback.print_exc()
 
 alumni.feature_names = [
-    "Bachelor's Degree or Higher",
+    "High School or Higher",
     "Persons Below Poverty Level",
+    "White Alone",
 ]
 
 alumni.target_names = [
-    'Most Do Not Have Degree',
-    'Most Have Degree',
+    'Most did not graduate college',
+    'Most did graduate college',
+    'Ethnicity',
 ]
 
 Examples = {
