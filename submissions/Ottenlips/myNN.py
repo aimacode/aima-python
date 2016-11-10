@@ -52,7 +52,7 @@ bill.target_names = [
 Make a customn classifier,
 '''
 mlpc = MLPClassifier(
-            hidden_layer_sizes = (100,),
+            hidden_layer_sizes = (10,),
             # activation = 'relu',
             solver='sgd',
             #alpha = 0.0001,
@@ -73,7 +73,28 @@ mlpc = MLPClassifier(
             # beta_2 = 0.999,
             # epsilon = 1e-8,
 )
-
+mlpcTwo = MLPClassifier(
+            hidden_layer_sizes = (1000,),
+            # activation = 'relu',
+            solver='sgd',
+            #alpha = 0.0001,
+            # batch_size='auto',
+            learning_rate = 'adaptive',
+            # power_t = 0.5,
+            max_iter = 1000, # 200,
+            shuffle = True,
+            # random_state = None,
+            # tol = 1e-4,
+            # verbose = True,
+            # warm_start = False,
+            # momentum = 0.9,
+            # nesterovs_momentum = True,
+            # early_stopping = False,
+            # validation_fraction = 0.1,
+            # beta_1 = 0.9,
+            # beta_2 = 0.999,
+            # epsilon = 1e-8,
+)
 
 billScaled = DataFrame()
 
@@ -116,12 +137,20 @@ Examples = {
         'frame': bill,
         'mlpc': mlpc,
 },
+ 'BillMLPCTwo': {
+        'frame': bill,
+        'mlpc': mlpcTwo,
+},
     'BillScaled':{
         'frame':billScaled,
     },
-'Bill': {'frame':bill},
+'BillScaled':{
+        'frame':billScaled,
+    },
+    'Bill': {'frame':bill},
 
 }
+
 #
 # billTwo = DataFrame()
 #
