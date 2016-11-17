@@ -1,8 +1,8 @@
 """Planning (Chapters 10-11)
 """
 import copy
-from logic import fol_bc_ask, fol_bc_and, variables
-from utils import expr, Expr, partition, first
+from logic import fol_bc_and
+from utils import expr, Expr, partition
 from search import Problem, astar_search
 
 
@@ -22,10 +22,6 @@ class PlanningKB:
             raise NotImplementedError
         return self.clause_set == other.clause_set
 
-    def __ne__(self, other):
-        """__ne__ is easy to implement in terms of __eq__ for completeness."""
-        return not self.__eq__(other)
-
     def __lt__(self, other):
         """Goals must be part of each PlanningKB because search.Node has a __lt__ method that compares state to state
         (used for ordering the priority queue). As a result, states must be compared by how close they are to the goal
@@ -43,28 +39,6 @@ class PlanningKB:
 
     def __repr__(self):
         return '{}({}, {})'.format(self.__class__.__name__, list(self.goal_clauses), list(self.clause_set))
-
-    def ask(self, query):
-        """Return a substitution that makes the query true, or, failing that, return False."""
-        return first(self.ask_generator(query), default=False)
-
-    def ask_generator(self, query):
-        """Yield all the substitutions that make query true."""
-        if not variables(query):
-            if query in self.clause_set:
-                for arg in query.args:
-                    yield {arg: arg}
-        else:
-            for item in fol_bc_ask(self, query):
-                yield item
-
-    def tell(self, sentence):
-        """ KB can't be altered since its state is frozen after __init__ """
-        raise NotImplementedError
-
-    def retract(self, sentence):
-        """ KB can't be altered since its state is frozen after __init__ """
-        raise NotImplementedError
 
     def goal_test(self):
         """ Goal is satisfied when KB at least contains all goal clauses. """
@@ -141,9 +115,9 @@ class Action:
         self.effect_rem = set(e.args[0] for e in effect_rem)  # change the negative Exprs to positive
 
     def __repr__(self):
-        return 'Action({}, {}, {})'.format(Expr(self.name, self.args),
-                                           list(self.precond_pos) + ['~{0}'.format(p) for p in self.precond_neg],
-                                           list(self.effect_add) + ['~{0}'.format(e) for e in self.effect_rem])
+        return '{}({}, {}, {})'.format(self.__class__.__name__, Expr(self.name, self.args),
+                                       list(self.precond_pos) + ['~{0}'.format(p) for p in self.precond_neg],
+                                       list(self.effect_add) + ['~{0}'.format(e) for e in self.effect_rem])
 
     def substitute(self, subst, e):
         """Replaces variables in expression with the same substitution used for the precondition. """
@@ -270,7 +244,7 @@ def spare_tire():
     print_solution(n)
 
 
-def blocks_world():
+def three_block_tower():
     goals = [expr('On(A, B)'), expr('On(B, C)')]
     init = PlanningKB(goals,
                       [expr('On(A, Table)'),
@@ -332,6 +306,6 @@ if __name__ == '__main__':
     print()
     spare_tire()
     print()
-    blocks_world()
+    three_block_tower()
     print()
     sussman_anomaly()
