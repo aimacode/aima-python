@@ -29,8 +29,7 @@ class PlanningKB:
         if not isinstance(other, self.__class__):
             return NotImplementedError
 
-        # heuristic is just whether remaining unresolved goals in the current KB are less than the remaining unsolved
-        # goals in the other KB.
+        # heuristic is whether there are fewer unresolved goals in the current KB than the other KB.
         return len(self.goal_clauses - self.clause_set) < len(self.goal_clauses - other.clause_set)
 
     def __hash__(self):
