@@ -13,8 +13,20 @@ import math
 # Functions on Sequences and Iterables
 
 
+def partition(seq, fn):
+    """Partitions one sequence into two sequences, by testing whether each element
+    satisfies fn or not. """
+    pos, neg = [], []
+    for elt in seq:
+        if fn(elt):
+            pos.append(elt)
+        else:
+            neg.append(elt)
+    return pos, neg
+
+
 def sequence(iterable):
-    "Coerce iterable to sequence, if it is not already one."
+    """Coerce iterable to sequence, if it is not already one."""
     return (iterable if isinstance(iterable, collections.abc.Sequence)
             else tuple(iterable))
 
@@ -46,7 +58,7 @@ def product(numbers):
 
 
 def first(iterable, default=None):
-    "Return the first element of an iterable or the next element of a generator; or default."
+    """Return the first element of an iterable or the next element of a generator; or default."""
     try:
         return iterable[0]
     except IndexError:
@@ -74,22 +86,19 @@ def argmin_random_tie(seq, key=identity):
 
 
 def argmax_random_tie(seq, key=identity):
-    "Return an element with highest fn(seq[i]) score; break ties at random."
+    """Return an element with highest fn(seq[i]) score; break ties at random."""
     return argmax(shuffled(seq), key=key)
 
 
 def shuffled(iterable):
-    "Randomly shuffle a copy of iterable."
+    """Randomly shuffle a copy of iterable."""
     items = list(iterable)
     random.shuffle(items)
     return items
 
 
-
 # ______________________________________________________________________________
 # Statistical and mathematical functions
-
-
 def histogram(values, mode=0, bin_function=None):
     """Return a list of (value, count) pairs, summarizing the input values.
     Sorted by increasing value, or if mode=1, by decreasing count.
@@ -160,7 +169,6 @@ def vector_to_diagonal(v):
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
     return tuple(map(operator.add, a, b))
-
 
 
 def scalar_vector_product(X, Y):
