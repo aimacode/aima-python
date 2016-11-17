@@ -1,38 +1,117 @@
 """Planning (Chapters 10-11)
 """
+import copy
+from logic import fol_bc_ask, fol_bc_and, variables
+from utils import expr, Expr, partition, first
+from search import Problem, astar_search
 
-from utils import Expr, expr, first
-from logic import FolKB
 
+class PlanningKB:
+    """ A PlanningKB contains a set of Expr objects that are immutable and hashable.
+     With its goal clauses and its accompanying h function, the KB
+     can be used by the A* algorithm in its search Nodes. (search.py) """
+    def __init__(self, goals, initial_clauses=None):
+        if initial_clauses is None:
+            initial_clauses = []
+        self.goal_clauses = frozenset(goals)
+        self.clause_set = frozenset(initial_clauses)
 
-class PDLL:
-    """
-    PDLL used to define a search problem
-    It stores states in a knowledge base consisting of first order logic statements
-    The conjunction of these logical statements completely define a state
-    """
+    def __eq__(self, other):
+        """search.Node has a __eq__ method for each state, so this method must be implemented too."""
+        if not isinstance(other, self.__class__):
+            raise NotImplementedError
+        return self.clause_set == other.clause_set
 
-    def __init__(self, initial_state, actions, goal_test):
-        self.kb = FolKB(initial_state)
-        self.actions = actions
-        self.goal_test_func = goal_test
+    def __ne__(self, other):
+        """__ne__ is easy to implement in terms of __eq__ for completeness."""
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        """Goals must be part of each PlanningKB because search.Node has a __lt__ method that compares state to state
+        (used for ordering the priority queue). As a result, states must be compared by how close they are to the goal
+        using a heuristic."""
+        if not isinstance(other, self.__class__):
+            return NotImplementedError
+
+        # heuristic is just whether remaining unresolved goals in the current KB are less than the remaining unsolved
+        # goals in the other KB.
+        return len(self.goal_clauses - self.clause_set) < len(self.goal_clauses - other.clause_set)
+
+    def __hash__(self):
+        """search.Node has a __hash__ method for each state, so this method must be implemented too."""
+        return hash(self.clause_set)
+
+    def __repr__(self):
+        return '{}({}, {})'.format(self.__class__.__name__, list(self.goal_clauses), list(self.clause_set))
+
+    def ask(self, query):
+        """Return a substitution that makes the query true, or, failing that, return False."""
+        return first(self.ask_generator(query), default=False)
+
+    def ask_generator(self, query):
+        """Yield all the substitutions that make query true."""
+        if not variables(query):
+            if query in self.clause_set:
+                for arg in query.args:
+                    yield {arg: arg}
+        else:
+            for item in fol_bc_ask(self, query):
+                yield item
+
+    def tell(self, sentence):
+        """ KB can't be altered since its state is frozen after __init__ """
+        raise NotImplementedError
+
+    def retract(self, sentence):
+        """ KB can't be altered since its state is frozen after __init__ """
+        raise NotImplementedError
 
     def goal_test(self):
-        return self.goal_test_func(self.kb)
+        """ Goal is satisfied when KB at least contains all goal clauses. """
+        return self.clause_set >= self.goal_clauses
 
-    def act(self, action):
-        """
-        Performs the action given as argument
-        Note that action is an Expr like expr('Remove(Glass, Table)') or expr('Eat(Sandwich)')
-        """
-        action_name = action.op
-        args = action.args
-        list_action = first(a for a in self.actions if a.name == action_name)
-        if list_action is None:
-            raise Exception("Action '{}' not found".format(action_name))
-        if not list_action.check_precond(self.kb, args):
-            raise Exception("Action '{}' pre-conditions not satisfied".format(action))
-        list_action(self.kb, args)
+    def h(self):
+        """ Returns: number of remaining goal clauses to be satisfied """
+        return len(self.goal_clauses - self.clause_set)
+
+    def fetch_rules_for_goal(self, goal):
+        return self.clause_set
+
+
+class PlanningProblem(Problem):
+    """
+    Used to define a planning problem.
+    It stores states in a knowledge base consisting of first order logic statements.
+    The conjunction of these logical statements completely define a state.
+    """
+    def __init__(self, initial_state, actions, goals):
+        super().__init__(initial_state, goals)
+        self.action_list = actions
+
+    def __repr__(self):
+        return '{}({}, {}, {})'.format(self.__class__.__name__, self.initial, self.action_list, self.goal)
+
+    def actions(self, state):
+        for action in self.action_list:
+            for subst in action.check_precond(state):
+                new_action = copy.deepcopy(action)
+                new_action.subst = subst
+                yield new_action
+
+    def goal_test(self, state):
+        return state.goal_test()
+
+    def result(self, state, action):
+        return action.act(action.subst, state)
+
+    def h(self, node):
+        return node.state.h()
+
+    def value(self, state):
+        """For optimization problems, each state has a value.  Hill-climbing
+        and related algorithms try to maximize this value."""
+        raise NotImplementedError
+
 
 class Action:
     """
@@ -41,198 +120,218 @@ class Action:
     action is an Expr where variables are given as arguments(args)
     Precondition and effect are both lists with positive and negated literals
     Example:
-    precond_pos = [expr("Human(person)"), expr("Hungry(Person)")]
-    precond_neg = [expr("Eaten(food)")]
-    effect_add = [expr("Eaten(food)")]
-    effect_rem = [expr("Hungry(person)")]
-    eat = Action(expr("Eat(person, food)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    precond = [expr("Human(person)"), expr("Hungry(Person)"), expr("~Eaten(food)")]
+    effect = [expr("Eaten(food)"), expr("~Hungry(person)")]
+    eat = Action(expr("Eat(person, food)"), precond, effect)
     """
 
-    def __init__(self, action, precond, effect):
-        self.name = action.op
-        self.args = action.args
-        self.precond_pos = precond[0]
-        self.precond_neg = precond[1]
-        self.effect_add = effect[0]
-        self.effect_rem = effect[1]
+    def __init__(self, expression, precond, effect):
+        self.name = expression.op
+        self.args = expression.args
+        self.subst = None
 
-    def __call__(self, kb, args):
-        return self.act(kb, args)
+        def is_negative_clause(e):
+            return e.op == '~' and len(e.args) == 1
 
-    def substitute(self, e, args):
-        """Replaces variables in expression with their respective Propostional symbol"""
-        new_args = list(e.args)
-        for num, x in enumerate(e.args):
-            for i in range(len(self.args)):
-                if self.args[i] == x:
-                    new_args[num] = args[i]
+        precond_neg, precond_pos = partition(precond, is_negative_clause)
+        self.precond_pos = set(precond_pos)
+        self.precond_neg = set(e.args[0] for e in precond_neg)  # change the negative Exprs to positive
+        effect_rem, effect_add = partition(effect, is_negative_clause)
+        self.effect_add = set(effect_add)
+        self.effect_rem = set(e.args[0] for e in effect_rem)  # change the negative Exprs to positive
+
+    def __repr__(self):
+        return 'Action({}, {}, {})'.format(Expr(self.name, self.args),
+                                           list(self.precond_pos) + ['~{0}'.format(p) for p in self.precond_neg],
+                                           list(self.effect_add) + ['~{0}'.format(e) for e in self.effect_rem])
+
+    def substitute(self, subst, e):
+        """Replaces variables in expression with the same substitution used for the precondition. """
+        new_args = [subst.get(x, x) for x in e.args]
         return Expr(e.op, *new_args)
 
-    def check_precond(self, kb, args):
-        """Checks if the precondition is satisfied in the current state"""
-        # check for positive clauses
-        for clause in self.precond_pos:
-            if self.substitute(clause, args) not in kb.clauses:
-                return False
-        # check for negative clauses
-        for clause in self.precond_neg:
-            if self.substitute(clause, args) in kb.clauses:
-                return False
-        return True
+    def check_neg_precond(self, kb, precond, subst):
+        for s in subst:
+            for _ in fol_bc_and(kb, list(precond), s):
+                # if any negative preconditions are satisfied by the substitution, then exit loop.
+                if precond:
+                    break
+            else:
+                neg_precond = frozenset(self.substitute(s, x) for x in precond)
+                clause_set = kb.fetch_rules_for_goal(None)
+                # negative preconditions succeed if none of them are found in the KB.
+                if clause_set.isdisjoint(neg_precond):
+                    yield s
 
-    def act(self, kb, args):
+    def check_pos_precond(self, kb, precond, subst):
+        clause_set = kb.fetch_rules_for_goal(None)
+        for s in fol_bc_and(kb, list(precond), subst):
+            pos_precond = frozenset(self.substitute(s, x) for x in precond)
+            # are all preconds found in the KB?
+            if clause_set.issuperset(pos_precond):
+                yield s
+
+    def check_precond(self, kb):
+        """Checks if preconditions are satisfied in the current state"""
+        yield from self.check_neg_precond(kb, self.precond_neg, self.check_pos_precond(kb, self.precond_pos, {}))
+
+    def act(self, subst, kb):
+        new_kb = PlanningKB(kb.goal_clauses, kb.clause_set)
         """Executes the action on the state's kb"""
-        # check if the preconditions are satisfied
-        if not self.check_precond(kb, args):
-            raise Exception("Action pre-conditions not satisfied")
+        clause_set = set(new_kb.clause_set)
         # remove negative literals
         for clause in self.effect_rem:
-            kb.retract(self.substitute(clause, args))
+            subst_clause = self.substitute(subst, clause)
+            clause_set.discard(subst_clause)
         # add positive literals
         for clause in self.effect_add:
-            kb.tell(self.substitute(clause, args))
+            subst_clause = self.substitute(subst, clause)
+            clause_set.add(subst_clause)
+        new_kb.clause_set = frozenset(clause_set)
+        return new_kb
+
+
+def print_solution(node):
+    for action in node.solution():
+        print(action.name, end='(')
+        for a in action.args[:-1]:
+            print('{},'.format(action.subst.get(a, a)), end=' ')
+        print('{})'.format(action.subst.get(action.args[-1], action.args[-1])))
 
 
 def air_cargo():
-    init = [expr('At(C1, SFO)'),
-            expr('At(C2, JFK)'),
-            expr('At(P1, SFO)'),
-            expr('At(P2, JFK)'),
-            expr('Cargo(C1)'),
-            expr('Cargo(C2)'),
-            expr('Plane(P1)'),
-            expr('Plane(P2)'),
-            expr('Airport(JFK)'),
-            expr('Airport(SFO)')]
+    goals = [expr('At(C1, JFK)'), expr('At(C2, SFO)')]
 
-    def goal_test(kb):
-        required = [expr('At(C1 , JFK)'), expr('At(C2 ,SFO)')]
-        for q in required:
-            if kb.ask(q) is False:
-                return False
-        return True
+    init = PlanningKB(goals,
+                      [expr('At(C1, SFO)'),
+                       expr('At(C2, JFK)'),
+                       expr('At(P1, SFO)'),
+                       expr('At(P2, JFK)'),
+                       expr('Cargo(C1)'),
+                       expr('Cargo(C2)'),
+                       expr('Plane(P1)'),
+                       expr('Plane(P2)'),
+                       expr('Airport(JFK)'),
+                       expr('Airport(SFO)')])
 
-    ## Actions
+    # Actions
     #  Load
-    precond_pos = [expr("At(c, a)"), expr("At(p, a)"), expr("Cargo(c)"), expr("Plane(p)"), expr("Airport(a)")]
-    precond_neg = []
-    effect_add = [expr("In(c, p)")]
-    effect_rem = [expr("At(c, a)")]
-    load = Action(expr("Load(c, p, a)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    precond = [expr('At(c, a)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
+    effect = [expr('In(c, p)'), expr('~At(c, a)')]
+    load = Action(expr('Load(c, p, a)'), precond, effect)
 
     #  Unload
-    precond_pos = [expr("In(c, p)"), expr("At(p, a)"), expr("Cargo(c)"), expr("Plane(p)"), expr("Airport(a)")]
-    precond_neg = []
-    effect_add = [expr("At(c, a)")]
-    effect_rem = [expr("In(c, p)")]
-    unload = Action(expr("Unload(c, p, a)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    precond = [expr('In(c, p)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
+    effect = [expr('At(c, a)'), expr('~In(c, p)')]
+    unload = Action(expr('Unload(c, p, a)'), precond, effect)
 
     #  Fly
-    #  Used 'f' instead of 'from' because 'from' is a python keyword and expr uses eval() function
-    precond_pos = [expr("At(p, f)"), expr("Plane(p)"), expr("Airport(f)"), expr("Airport(to)")]
-    precond_neg = []
-    effect_add = [expr("At(p, to)")]
-    effect_rem = [expr("At(p, f)")]
-    fly = Action(expr("Fly(p, f, to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    #  Used used 'f' instead of 'from' because 'from' is a python keyword and expr uses eval() function
+    precond = [expr('At(p, f)'), expr('Plane(p)'), expr('Airport(f)'), expr('Airport(to)')]
+    effect = [expr('At(p, to)'), expr('~At(p, f)')]
+    fly = Action(expr('Fly(p, f, to)'), precond, effect)
 
-    return PDLL(init, [load, unload, fly], goal_test)
+    p = PlanningProblem(init, [load, unload, fly], goals)
+    n = astar_search(p)
+    print_solution(n)
 
 
 def spare_tire():
-    init = [expr('Tire(Flat)'),
-            expr('Tire(Spare)'),
-            expr('At(Flat, Axle)'),
-            expr('At(Spare, Trunk)')]
+    goals = [expr('At(Spare, Axle)')]
 
-    def goal_test(kb):
-        required = [expr('At(Spare, Axle)'), expr('At(Flat, Ground)')]
-        for q in required:
-            if kb.ask(q) is False:
-                return False
-        return True
+    init = PlanningKB(goals,
+                      [expr('At(Flat, Axle)'),
+                       expr('At(Spare, Trunk)')])
 
-    ##Actions
-    #Remove
-    precond_pos = [expr("At(obj, loc)")]
-    precond_neg = []
-    effect_add = [expr("At(obj, Ground)")]
-    effect_rem = [expr("At(obj, loc)")]
-    remove = Action(expr("Remove(obj, loc)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    # Actions
+    #  Remove(Spare, Trunk)
+    precond = [expr('At(Spare, Trunk)')]
+    effect = [expr('At(Spare, Ground)'), expr('~At(Spare, Trunk)')]
+    remove_spare = Action(expr('Remove(Spare, Trunk)'), precond, effect)
 
-    #PutOn
-    precond_pos = [expr("Tire(t)"), expr("At(t, Ground)")]
-    precond_neg = [expr("At(Flat, Axle)")]
-    effect_add = [expr("At(t, Axle)")]
-    effect_rem = [expr("At(t, Ground)")]
-    put_on = Action(expr("PutOn(t, Axle)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    #  Remove(Flat, Axle)
+    precond = [expr('At(Flat, Axle)')]
+    effect = [expr('At(Flat, Ground)'), expr('~At(Flat, Axle)')]
+    remove_flat = Action(expr('Remove(Flat, Axle)'), precond, effect)
 
-    #LeaveOvernight
-    precond_pos = []
-    precond_neg = []
-    effect_add = []
-    effect_rem = [expr("At(Spare, Ground)"), expr("At(Spare, Axle)"), expr("At(Spare, Trunk)"),
-                  expr("At(Flat, Ground)"), expr("At(Flat, Axle)"), expr("At(Flat, Trunk)")]
-    leave_overnight = Action(expr("LeaveOvernight"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    #  PutOn(Spare, Axle)
+    precond = [expr('At(Spare, Ground)'), expr('~At(Flat, Axle)')]
+    effect = [expr('At(Spare, Axle)'), expr('~At(Spare, Ground)')]
+    put_on_spare = Action(expr('PutOn(Spare, Axle)'), precond, effect)
 
-    return PDLL(init, [remove, put_on, leave_overnight], goal_test)
+    #  LeaveOvernight
+    precond = []
+    effect = [expr('~At(Spare, Ground)'), expr('~At(Spare, Axle)'), expr('~At(Spare, Trunk)'),
+              expr('~At(Flat, Ground)'), expr('~At(Flat, Axle)')]
+    leave_overnight = Action(expr('LeaveOvernight'), precond, effect)
 
-def three_block_tower():
-    init = [expr('On(A, Table)'),
-            expr('On(B, Table)'),
-            expr('On(C, A)'),
-            expr('Block(A)'),
-            expr('Block(B)'),
-            expr('Block(C)'),
-            expr('Clear(B)'),
-            expr('Clear(C)')]
+    p = PlanningProblem(init, [remove_spare, remove_flat, put_on_spare, leave_overnight], goals)
+    n = astar_search(p)
+    print_solution(n)
 
-    def goal_test(kb):
-        required = [expr('On(A, B)'), expr('On(B, C)')]
-        for q in required:
-            if kb.ask(q) is False:
-                return False
-        return True
 
-    ## Actions
-    #  Move
-    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)'), expr('Block(y)')]
-    precond_neg = []
-    effect_add = [expr('On(b, y)'), expr('Clear(x)')]
-    effect_rem = [expr('On(b, x)'), expr('Clear(y)')]
-    move = Action(expr('Move(b, x, y)'), [precond_pos, precond_neg], [effect_add, effect_rem])
-    
-    #  MoveToTable
-    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
-    precond_neg = []
-    effect_add = [expr('On(b, Table)'), expr('Clear(x)')]
-    effect_rem = [expr('On(b, x)')]
-    moveToTable = Action(expr('MoveToTable(b, x)'), [precond_pos, precond_neg], [effect_add, effect_rem])
+def blocks_world():
+    goals = [expr('On(A, B)'), expr('On(B, C)')]
+    init = PlanningKB(goals,
+                      [expr('On(A, Table)'),
+                       expr('On(B, Table)'),
+                       expr('On(C, Table)'),
+                       expr('Block(A)'),
+                       expr('Block(B)'),
+                       expr('Block(C)'),
+                       expr('Clear(A)'),
+                       expr('Clear(B)'),
+                       expr('Clear(C)')])
 
-    return PDLL(init, [move, moveToTable], goal_test)
+    # Actions
+    #  Move(b, x, y)
+    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)')]
+    effect = [expr('On(b, y)'), expr('Clear(x)'), expr('~On(b, x)'), expr('~Clear(y)')]
+    move = Action(expr('Move(b, x, y)'), precond, effect)
 
-def have_cake_and_eat_cake_too():
-    init = [expr('Have(Cake)')]
+    #  MoveToTable(b, x)
+    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
+    effect = [expr('On(b, Table)'), expr('Clear(x)'), expr('~On(b, x)')]
+    move_to_table = Action(expr('MoveToTable(b, x)'), precond, effect)
 
-    def goal_test(kb):
-        required = [expr('Have(Cake)'), expr('Eaten(Cake)')]
-        for q in required:
-            if kb.ask(q) is False:
-                return False
-        return True
+    p = PlanningProblem(init, [move, move_to_table], goals)
+    n = astar_search(p)
+    print_solution(n)
 
-    ##Actions
-    # Eat cake
-    precond_pos = [expr('Have(Cake)')]
-    precond_neg = []
-    effect_add = [expr('Eaten(Cake)')]
-    effect_rem = [expr('Have(Cake)')]
-    eat_cake = Action(expr('Eat(Cake)'), [precond_pos, precond_neg], [effect_add, effect_rem])
 
-    #Bake Cake
-    precond_pos = []
-    precond_neg = [expr('Have(Cake)')]
-    effect_add = [expr('Have(Cake)')]
-    effect_rem = []
-    bake_cake = Action(expr('Bake(Cake)'), [precond_pos, precond_neg], [effect_add, effect_rem])
+def sussman_anomaly():
+    goals = [expr('On(A, B)'), expr('On(B, C)')]
+    init = PlanningKB(goals,
+                      [expr('On(A, Table)'),
+                       expr('On(B, Table)'),
+                       expr('On(C, A)'),
+                       expr('Block(A)'),
+                       expr('Block(B)'),
+                       expr('Block(C)'),
+                       expr('Clear(B)'),
+                       expr('Clear(C)')])
 
-    return PDLL(init, [eat_cake, bake_cake], goal_test)
+    # Actions
+    #  Move(b, x, y)
+    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)')]
+    effect = [expr('On(b, y)'), expr('Clear(x)'), expr('~On(b, x)'), expr('~Clear(y)')]
+    move = Action(expr('Move(b, x, y)'), precond, effect)
+
+    #  MoveToTable(b, x)
+    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
+    effect = [expr('On(b, Table)'), expr('Clear(x)'), expr('~On(b, x)')]
+    move_to_table = Action(expr('MoveToTable(b, x)'), precond, effect)
+
+    p = PlanningProblem(init, [move, move_to_table], goals)
+    n = astar_search(p)
+    print_solution(n)
+
+
+if __name__ == '__main__':
+    air_cargo()
+    print()
+    spare_tire()
+    print()
+    blocks_world()
+    print()
+    sussman_anomaly()
