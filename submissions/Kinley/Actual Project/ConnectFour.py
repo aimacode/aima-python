@@ -1,7 +1,46 @@
+from games import Game
+from copy import deepcopy
+
+class C4Game(Game):
+    def __init__(self, state):
+        self.initial = state
+
+    def actions(self, state):
+        columns = [ 0, 1, 2, 3, 4, 5, 6 ]
+        # remove the columns that are full
+        return columns
+
+    # defines the order of play
+    # def opponent(self, player):
+    #     if player == 'H':
+    #         return 'V'
+    #     if player == 'V':
+    #         return 'H'
+    #     return None
+
+    '''
+    state is an instance of ConnectFour
+    move is 0..6
+    '''
+    def result(self, state, move):
+        newState = deepcopy(state)
+        # drop the move into the newState
+        newState.drop(move)
+        return newState
+
+    def utility(self, state, player):
+        "Player relative score"
+        return 0
+
+    def terminal_test(self, state):
+        "A state is terminal there's 4 in a row or the board is full"
+        return state.check() != False
+
+
 class ConnectFour:
     def __init__(self, columns=7, rows=6, player1='X', player2='O'):
         self.size = {'c': columns, 'r': rows}
-        self.grid = []
+        # self.grid = []
         self.first_player = True
         self.players = {True: player1, False: player2}
         self.game_over = False
