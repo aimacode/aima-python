@@ -21,7 +21,7 @@ def tryOne(label, fAndP):
     try:
         fit = clf.fit(frame.data, frame.target)
     except:
-        pass
+        traceback.print_exc()
     print(label + ':')
     # print_table(fit.theta_,
     #             header=[frame.feature_names],
