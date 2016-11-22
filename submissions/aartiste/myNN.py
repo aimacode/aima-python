@@ -115,7 +115,7 @@ trumpECHP.target_names = [
 Make a customn classifier,
 '''
 mlpc = MLPClassifier(
-    # hidden_layer_sizes = (100,),
+    hidden_layer_sizes = (100, 50, ),
     # activation = 'relu',
     solver='sgd', # 'adam',
     # alpha = 0.0001,
