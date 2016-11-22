@@ -152,7 +152,7 @@ trumpScaled.target_names = trumpECHP.target_names
 Make a customn classifier,
 '''
 km = KMeans(
-    # n_clusters=2,
+    n_clusters=2,
     # max_iter=300,
     # n_init=10,
     # init='k-means++',
