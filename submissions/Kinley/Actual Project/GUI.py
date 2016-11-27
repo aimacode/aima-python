@@ -1,19 +1,18 @@
 from tkinter import *
-from ConnectFour import ConnectFour
+import ConnectFour
 from random import randint
-from games import (Game)
 
-class GameState:
-    def __init__(self, to_move, board, label=None, depth=8):
-        self.to_move= to_move
-        self.bard = board
-        self.label = label
-        self.maxDepth = depth
-
-        def __str__(self):
-            if self.label == None:
-                return super(GameState, self).__str__()
-            return self.label
+# class GameState:
+#     def __init__(self, to_move, board, label=None, depth=8):
+#         self.to_move= to_move
+#         self.board = board
+#         self.label = label
+#         self.maxDepth = depth
+# 
+#         def __str__(self):
+#             if self.label == None:
+#                 return super(GameState, self).__str__()
+#             return self.label
 
 class GUI:
     elementSize = 50
@@ -57,9 +56,9 @@ class GUI:
 
 
     def cpuDrop1(self):
-        if(self.game.first_player == True):
+        if(self.gameState.first_player == True):
             if not self.gameOn: return
-            if self.game.game_over: return
+            if self.gameState.game_over: return
             self.adrop(self)
             self.master.update()
             self.drawGrid()
@@ -67,20 +66,20 @@ class GUI:
             self._updateCurrentPlayer()
 
 
-            if self.game.game_over:
+            if self.gameState.game_over:
                 x = self.canvas.winfo_width() // 2
                 y = self.canvas.winfo_height() // 2
-                if self.game.game_over == 'draw':
+                if self.gameState.game_over == 'draw':
                     t = 'DRAW!'
                 else:
-                    winner = self.p1 if self.game.first_player else self.p2
+                    winner = self.p1 if self.gameState.first_player else self.p2
                     t = winner + ' won!'
                 self.canvas.create_text(x, y, text=t, font=("Helvetica", 32), fill="#333")
 
     def cpuDrop2(self):
-        if(self.game.first_player == False):
+        if(self.gameState.first_player == False):
             if not self.gameOn: return
-            if self.game.game_over: return
+            if self.gameState.game_over: return
 
             self.bdrop(self)
             self.master.update()
@@ -89,26 +88,26 @@ class GUI:
             self._updateCurrentPlayer()
 
 
-            if self.game.game_over:
+            if self.gameState.game_over:
                 x = self.canvas.winfo_width() // 2
                 y = self.canvas.winfo_height() // 2
-                if self.game.game_over == 'draw':
+                if self.gameState.game_over == 'draw':
                     t = 'DRAW!'
                 else:
-                    winner = self.p1 if self.game.first_player else self.p2
+                    winner = self.p1 if self.gameState.first_player else self.p2
                     t = winner + ' won!'
                 self.canvas.create_text(x, y, text=t, font=("Helvetica", 32), fill="#333")
 
     def draw(self):
-        for c in range(self.game.size['c']):
-            for r in range(self.game.size['r']):
-                if r >= len(self.game.grid[c]): continue
+        for c in range(self.gameState.size['c']):
+            for r in range(self.gameState.size['r']):
+                if r >= len(self.gameState.grid[c]): continue
 
                 x0 = c * self.elementSize
                 y0 = r * self.elementSize
                 x1 = (c + 1) * self.elementSize
                 y1 = (r + 1) * self.elementSize
-                fill = self.p1Color if self.game.grid[c][r] == self.game.players[True] else self.p2Color
+                fill = self.p1Color if self.gameState.grid[c][r] == self.gameState.players[True] else self.p2Color
                 self.canvas.create_oval(x0 + 2,
                                         self.canvas.winfo_height() - (y0 + 2),
                                         x1 - 2,
@@ -117,50 +116,50 @@ class GUI:
 
     def drawGrid(self):
         x0, x1 = 0, self.canvas.winfo_width()
-        for r in range(1, self.game.size['r']):
+        for r in range(1, self.gameState.size['r']):
             y = r * self.elementSize
             self.canvas.create_line(x0, y, x1, y, fill=self.gridColor)
 
         y0, y1 = 0, self.canvas.winfo_height()
-        for c in range(1, self.game.size['c']):
+        for c in range(1, self.gameState.size['c']):
             x = c * self.elementSize
             self.canvas.create_line(x, y0, x, y1, fill=self.gridColor)
 
     # def drop(self, column):
-    #     return self.game.drop(column)
+    #     return self.gameState.drop(column)
 
     def drop(self, column):
-            return self.game.drop(column)
+            return self.gameState.drop(column)
 
     def adrop(self,column):
-        if(self.game.first_player):
+        if(self.gameState.first_player):
 
             #print(test)
-            print(column.game.grid)
+            print(column.gameState.grid)
             guess = randint(0,6)
-            return self.game.drop(guess)
+            return self.gameState.drop(guess)
         else:
-            return self.game.drop(column)
+            return self.gameState.drop(column)
 
     def bdrop(self, column):
-        if(self.game.first_player):
-         #   self.game.grid
-         #   print(column.game.grid)
+        if(self.gameState.first_player):
+         #   self.gameState.grid
+         #   print(column.gameState.grid)
 
-            return self.game.drop(column)
+            return self.gameState.drop(column)
 
         else:
             for x in range(0,7):
-                for y in range(0,len(column.game.grid[x])):
-                    print(column.game.grid[x][y])
-                #d = {column.game.grid[x], x}
+                for y in range(0,len(column.gameState.grid[x])):
+                    print(column.gameState.grid[x][y])
+                #d = {column.gameState.grid[x], x}
 
-                #print(column.game.grid[x])
+                #print(column.gameState.grid[x])
             #print(b)
             guess = randint(0, 6)
            # print(d)
-          #  print(column.game.grid)
-            return self.game.drop(guess)
+          #  print(column.gameState.grid)
+            return self.gameState.drop(guess)
 
 
 
@@ -171,11 +170,12 @@ class GUI:
         columns = 7
         rows = 6
 
-        self.game = ConnectFour(columns=columns, rows=rows)
+        self.gameState = ConnectFour.ConnectFour(columns=columns, rows=rows)
+
 
         self.canvas.delete(ALL)
-        self.canvas.config(width=(self.elementSize) * self.game.size['c'],
-                           height=(self.elementSize) * self.game.size['r'])
+        self.canvas.config(width=(self.elementSize) * self.gameState.size['c'],
+                           height=(self.elementSize) * self.gameState.size['r'])
         self.master.update()
         self.drawGrid()
         self.draw()
@@ -185,27 +185,27 @@ class GUI:
         self.gameOn = True
 
     def _updateCurrentPlayer(self):
-        p = self.p1 if self.game.first_player else self.p2
+        p = self.p1 if self.gameState.first_player else self.p2
         self.currentPlayerVar.set('Current player: ' + p)
 
     def _canvasClick(self, event):
         if not self.gameOn: return
-        if self.game.game_over: return
+        if self.gameState.game_over: return
 
         c = event.x // self.elementSize
 
-        if (0 <= c < self.game.size['c']):
+        if (0 <= c < self.gameState.size['c']):
             self.drop(c)
             self.draw()
             self._updateCurrentPlayer()
 
-        if self.game.game_over:
+        if self.gameState.game_over:
             x = self.canvas.winfo_width() // 2
             y = self.canvas.winfo_height() // 2
-            if self.game.game_over == 'draw':
+            if self.gameState.game_over == 'draw':
                 t = 'DRAW!'
             else:
-                winner = self.p1 if self.game.first_player else self.p2
+                winner = self.p1 if self.gameState.first_player else self.p2
                 t = winner + ' won!'
           #  self.canvas.create_text(x, y, text=t, font=("Times New Roman", 42), fill="#333")
             self.canvas.create_text(175, y-120, text=t, font=("Times New Roman", 42), fill="#333")
