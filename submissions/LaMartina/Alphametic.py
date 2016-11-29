@@ -4,7 +4,9 @@
 from tkinter import *
 from tkinter import ttk
 from submissions.LaMartina import GoogleCSPSolver
-
+from submissions.LaMartina import GoogleCSPSolverForMultiplication
+from submissions.LaMartina import GoogleCSPSolverForSubtraction
+from submissions.LaMartina import GoogleCSPSolverForDivision
 #GoogleCSPSolver.main(problem_str="SEND+MORE=MONEY", base = 10)
 
 # def calculate(*args):
@@ -14,8 +16,10 @@ from submissions.LaMartina import GoogleCSPSolver
 #     except ValueError:
 #         pass
 
+#Solves the puzzle for addition
 def solve(*args):
     try:
+        #sign.set("+")
         setInputString(topWord,botWord,answer)
         if inputString.get() == "":
             solution.set("Please input 3 Numbers!")
@@ -28,6 +32,57 @@ def solve(*args):
         # solution.set((0.3048 * value * 10000.0 + 0.5) / 10000.0)
     except ValueError:
         pass
+
+def solveMultiply(*args):
+    try:
+        setInputString(topWord, botWord, answer)
+        # sign.set("*")
+        if inputString.get() == "":
+            solution.set("Please input 3 Numbers!")
+        else:
+            solution.set("")
+            GoogleCSPSolverForMultiplication.main(problem_str=inputString.get(), base=10)
+            stringprint = GoogleCSPSolverForMultiplication.Stringtoprint
+            solution.set(stringprint)
+            # value = float(topWord.get())
+            # solution.set((0.3048 * value * 10000.0 + 0.5) / 10000.0)
+    except ValueError:
+        pass
+
+def solveSubtract(*args):
+    try:
+        setInputString(topWord, botWord, answer)
+        # sign.set("*")
+        if inputString.get() == "":
+            solution.set("Please input 3 Numbers!")
+        else:
+            solution.set("")
+            GoogleCSPSolverForSubtraction.main(problem_str=inputString.get(), base=10)
+            stringprint = GoogleCSPSolverForSubtraction.Stringtoprint
+            solution.set(stringprint)
+            # value = float(topWord.get())
+            # solution.set((0.3048 * value * 10000.0 + 0.5) / 10000.0)
+    except ValueError:
+        pass
+
+def solveDivide(*args):
+    try:
+        setInputString(topWord, botWord, answer)
+        # sign.set("*")
+        if inputString.get() == "":
+            solution.set("Please input 3 Numbers!")
+        else:
+            solution.set("")
+            GoogleCSPSolverForDivision.main(problem_str=inputString.get(), base=10)
+            stringprint = GoogleCSPSolverForDivision.Stringtoprint
+            solution.set(stringprint)
+            # value = float(topWord.get())
+            # solution.set((0.3048 * value * 10000.0 + 0.5) / 10000.0)
+    except ValueError:
+        pass
+
+
+#Creates the input string from what the user types in the GUI
 def setInputString(top, bottom, sum):
     try:
         if top.get() == "" or bottom.get() == "" or sum.get() == "":
@@ -55,6 +110,8 @@ botWord = StringVar()
 answer = StringVar()
 solution = StringVar()
 inputString = StringVar()
+# sign = StringVar()
+# sign.set("??")
 
 
 # topWord.set("")
@@ -76,12 +133,15 @@ answer_entry = ttk.Entry(mainframe, width=7, textvariable=answer)
 answer_entry.grid(column=2, row=5, sticky=(W, E))
 
 #ttk.Label(mainframe, textvariable=meters).grid(column=2, row=2, sticky=(W, E))
-ttk.Button(mainframe, text="Solve", command=solve).grid(column=3, row=7, sticky=W)
+ttk.Button(mainframe, text="Add", command=solve).grid(column=3, row=7, sticky=W)
+ttk.Button(mainframe, text="Multiply", command=solveMultiply).grid(column=3, row=8, sticky=W)
+ttk.Button(mainframe, text="Subtract", command=solveSubtract).grid(column=3, row=9, sticky=W)
+ttk.Button(mainframe, text="Divide", command=solveDivide).grid(column=3, row=10, sticky=W)
 ttk.Label(mainframe, textvariable=solution).grid(column=2, row=6, sticky=(W, E))
 
 ttk.Label(mainframe, text="Insert a two Word Alphametric Problem!").grid(column=2, row=1, sticky=W)
 ttk.Label(mainframe, text="Top Word").grid(column=3, row=2, sticky=W)
-ttk.Label(mainframe, text="+").grid(column=1, row=3, sticky=E)
+ttk.Label(mainframe, text="+,*,-,/").grid(column=1, row=3, sticky=E)
 ttk.Label(mainframe, text="Bottom Word").grid(column=3, row=3, sticky=W)
 ttk.Label(mainframe, text ="___________________________________________").grid(column=2, row=4, sticky=(W,E))
 ttk.Label(mainframe, text="Sum").grid(column=3, row=5, sticky=W)

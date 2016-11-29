@@ -164,7 +164,7 @@ def main(problem_str="SEND+MORE=MONEY", base=10):
                 if level == 0:
                     Stringtoprint += "  "
                 if level == 1:
-                    Stringtoprint += "+"
+                    Stringtoprint += "*"
                 if level == 2:
                     Stringtoprint += "______________\n  "
                 level += 1
@@ -201,7 +201,7 @@ def main(problem_str="SEND+MORE=MONEY", base=10):
     #Stringtoprint += "\nbranches:" + str(solver.Branches())
     #Stringtoprint += "\nWallTime:" + str(solver.WallTime())
 
-    print(Stringtoprint)
+    #print(Stringtoprint)
     #print("\nnum_solutions:", num_solutions)
     # print("failures:", solver.Failures())
     # print("branches:", solver.Branches())
@@ -262,4 +262,4 @@ problem = "SEND+MORE=MONEY"
 #     test_problems(base)
 #   else:
 #     main(problem, base)
-test_problems()
+#test_problems()
