@@ -96,7 +96,14 @@ def main(problem_str="SEND+MORE=MONEY", base=10):
         ix += 1
 
   # the last number is the sum of the previous numbers
-    solver.Add(solver.Sum([sums[i] for i in range(p_len - 1)]) == sums[-1])
+    #for i in range(p_len-1):
+    #r = sums[2]
+    #q = sums[i-1]
+
+    #the last number must be the product of the first two
+    solver.Add(sums[2] == sums[1] * sums[0])
+
+    #solver.Add(solver.Sum([sums[i] for i in range(p_len - 1)]) == sums[-1])
   #
   # solution and search
   #
