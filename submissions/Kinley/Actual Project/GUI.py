@@ -1,10 +1,6 @@
 from tkinter import *
 import ConnectFour
-from ConnectFour import C4Game
 from random import randint
-import games
-
-g = C4Game
 
 # class GameState:
 #     def __init__(self, to_move, board, label=None, depth=8):
@@ -160,9 +156,7 @@ class GUI:
 
                 #print(column.gameState.grid[x])
             #print(b)
-            #guess = randint(0, 6)
-            # guess = g.utility(self, self.gameState, self.currentPlayerLabel)
-            guess = games.alphabeta_search(self.gameState, self.game, 1)
+            guess = randint(0, 6)
            # print(d)
           #  print(column.gameState.grid)
             return self.gameState.drop(guess)
@@ -177,7 +171,7 @@ class GUI:
         rows = 6
 
         self.gameState = ConnectFour.ConnectFour(columns=columns, rows=rows)
-        self.game = ConnectFour.C4Game(self.gameState)
+
 
         self.canvas.delete(ALL)
         self.canvas.config(width=(self.elementSize) * self.gameState.size['c'],
@@ -218,11 +212,6 @@ class GUI:
 
     def _newGameButton(self):
         self.newGame()
-
-    def check_win(self, board):
-        if board[0] == 0 and board[1] == 0 and board[2] == 0:
-            return 1
-        return 0
 
 
 

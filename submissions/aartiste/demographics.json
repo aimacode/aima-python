@@ -1,0 +1,74 @@
+{
+  "Ethnicities": {
+    "White Alone, not Hispanic or Latino": 75.6,
+    "Two or More Races": 1.8,
+    "Asian Alone": 1.1,
+    "Native Hawaiian and Other Pacific Islander Alone": 0.1,
+    "White Alone": 77.9,
+    "Hispanic or Latino": 2.7,
+    "Black Alone": 18.7,
+    "American Indian and Alaska Native Alone": 0.5
+  },
+  "Age": {
+    "Percent Under 18 Years": 25.2,
+    "Percent 65 and Older": 13.8,
+    "Percent Under 5 Years": 6
+  },
+  "Miscellaneous": {
+    "Manufacturers Shipments": 0,
+    "Foreign Born": 1.6,
+    "Percent Female": 51.4,
+    "Language Other than English at Home": 3.5,
+    "Living in Same House +1 Years": 85,
+    "Mean Travel Time to Work": 26.2,
+    "Building Permits": 131,
+    "Veterans": 5922,
+    "Land Area": 594.44
+  },
+  "Sales": {
+    "Retail Sales": 5981,
+    "Merchant Wholesaler Sales": 0,
+    "Accommodation and Food Services Sales": 881,
+    "Retail Sales per Capita": 12003
+  },
+  "County": "Autauga County",
+  "State": "AL",
+  "Income": {
+    "Median Houseold Income": 53682,
+    "Per Capita Income": 24571,
+    "Persons Below Poverty Level": 12.1
+  },
+  "Education": {
+    "Bachelor's Degree or Higher": 20.9,
+    "High School or Higher": 85.6
+  },
+  "Employment": {
+    "Private Non-farm Establishments": 817,
+    "Private Non-farm Employment Percent Change": 2.1,
+    "Firms": {
+      "Total": 4067,
+      "Hispanic-Owned": 0.7,
+      "Native Hawaiian and Other Pacific Islander-Owned": 0,
+      "American Indian-Owned": 0,
+      "Black-Owned": 15.2,
+      "Asian-Owned": 1.3,
+      "Women-Owned": 31.7
+    },
+    "Nonemployer Establishments": 2947,
+    "Private Non-farm Employment": 10120
+  },
+  "Housing": {
+    "Housing Units": 22751,
+    "Units in Multi-Unit Structures": 8.3,
+    "Median Value of Owner-Occupied Units": 136200,
+    "Households": 20071,
+    "Persons per Household": 2.71,
+    "Homeownership Rate": 76.8
+  },
+  "Population": {
+    "2014 Population": 55395,
+    "2010 Population": 54571,
+    "Population per Square Mile": 91.8,
+    "Population Percent Change": 1.5
+  }
+}

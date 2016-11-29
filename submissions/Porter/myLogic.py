@@ -37,9 +37,48 @@ Criminal(x)
 ''',
 }
 
+classroom = {
+    'kb':'''
+    Human(Sally)
+    Education(Sally,PHD)
+    Education(Bob,Bachelors)
+    Action(Lisa,yells)
+    Student(Lisa)
+    Student(John)
+    Prepared(John)
+    OnTime(John)
+    Human(Bob)
+
+
+
+    (Student(x) & Action(x,yells)) ==> Argues(x,Sally)
+    (Argues(x,y)) ==> Detention(y,x)
+    (Student(x) & GoodStudent(x)) ==> Pass(x)
+    (Student(x) & Prepared(x) & OnTime(x))==> GoodStudent(x)
+    (Student(x)) ==> Human(x)
+    (Education(x,PHD) & Human(x)) ==> Teacher(x)
+    (Education(x,Bachelors) & Human(x)) ==> TA(x)
+
+
+
+
+
+
+    ''',
+    'queries':'''
+    Teacher(x)
+    TA(x)
+    Detention(y,x)
+    Pass(x)
+
+
+    ''',
+}
+
 
 
 Examples = {
-    'farmer': farmer,
-    'weapons': weapons,
+    # 'farmer': farmer,
+    # 'weapons': weapons,
+    'classroom': classroom,
 }
