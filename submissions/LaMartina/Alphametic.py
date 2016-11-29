@@ -33,7 +33,7 @@ def setInputString(top, bottom, sum):
         if top.get() == "" or bottom.get() == "" or sum.get() == "":
             inputString.set("")
         else:
-            inputString.set(top.get().capitalize() + "+" + bottom.get().capitalize() + "=" + sum.get().capitalize())
+            inputString.set(top.get().upper() + "+" + bottom.get().upper() + "=" + sum.get().upper())
 
     except ValueError:
         pass
@@ -55,6 +55,7 @@ botWord = StringVar()
 answer = StringVar()
 solution = StringVar()
 inputString = StringVar()
+
 
 # topWord.set("")
 # botWord.set("")
