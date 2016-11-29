@@ -2,6 +2,7 @@ from tkinter import *
 import ConnectFour
 from ConnectFour import C4Game
 from random import randint
+import games
 
 g = C4Game
 
@@ -160,7 +161,8 @@ class GUI:
                 #print(column.gameState.grid[x])
             #print(b)
             #guess = randint(0, 6)
-            guess = g.utility(self, self.gameState, self.currentPlayerLabel)
+            # guess = g.utility(self, self.gameState, self.currentPlayerLabel)
+            guess = games.alphabeta_search(self.gameState, self.game, 1)
            # print(d)
           #  print(column.gameState.grid)
             return self.gameState.drop(guess)
@@ -175,7 +177,7 @@ class GUI:
         rows = 6
 
         self.gameState = ConnectFour.ConnectFour(columns=columns, rows=rows)
-
+        self.game = ConnectFour.C4Game(self.gameState)
 
         self.canvas.delete(ALL)
         self.canvas.config(width=(self.elementSize) * self.gameState.size['c'],
