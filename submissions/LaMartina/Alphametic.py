@@ -6,7 +6,7 @@ from tkinter import ttk
 from submissions.LaMartina import GoogleCSPSolver
 from submissions.LaMartina import GoogleCSPSolverForMultiplication
 from submissions.LaMartina import GoogleCSPSolverForSubtraction
-from submissions.LaMartina import GoogleCSPSolverForDivision
+#from submissions.LaMartina import GoogleCSPSolverForDivision
 #GoogleCSPSolver.main(problem_str="SEND+MORE=MONEY", base = 10)
 
 # def calculate(*args):
@@ -33,6 +33,7 @@ def solve(*args):
     except ValueError:
         pass
 
+#Solves the puzzle for multiplication
 def solveMultiply(*args):
     try:
         setInputString(topWord, botWord, answer)
@@ -49,6 +50,7 @@ def solveMultiply(*args):
     except ValueError:
         pass
 
+#solves the puzzle for subtraction
 def solveSubtract(*args):
     try:
         setInputString(topWord, botWord, answer)
@@ -65,6 +67,7 @@ def solveSubtract(*args):
     except ValueError:
         pass
 
+#solves for division, not used currently because could not get CSP division to work
 def solveDivide(*args):
     try:
         setInputString(topWord, botWord, answer)
@@ -136,12 +139,12 @@ answer_entry.grid(column=2, row=5, sticky=(W, E))
 ttk.Button(mainframe, text="Add", command=solve).grid(column=3, row=7, sticky=W)
 ttk.Button(mainframe, text="Multiply", command=solveMultiply).grid(column=3, row=8, sticky=W)
 ttk.Button(mainframe, text="Subtract", command=solveSubtract).grid(column=3, row=9, sticky=W)
-ttk.Button(mainframe, text="Divide", command=solveDivide).grid(column=3, row=10, sticky=W)
+#ttk.Button(mainframe, text="Divide", command=solveDivide).grid(column=3, row=10, sticky=W)
 ttk.Label(mainframe, textvariable=solution).grid(column=2, row=6, sticky=(W, E))
 
 ttk.Label(mainframe, text="Insert a two Word Alphametric Problem!").grid(column=2, row=1, sticky=W)
 ttk.Label(mainframe, text="Top Word").grid(column=3, row=2, sticky=W)
-ttk.Label(mainframe, text="+,*,-,/").grid(column=1, row=3, sticky=E)
+ttk.Label(mainframe, text="+,*,-").grid(column=1, row=3, sticky=E)
 ttk.Label(mainframe, text="Bottom Word").grid(column=3, row=3, sticky=W)
 ttk.Label(mainframe, text ="___________________________________________").grid(column=2, row=4, sticky=(W,E))
 ttk.Label(mainframe, text="Sum").grid(column=3, row=5, sticky=W)

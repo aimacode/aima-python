@@ -101,8 +101,8 @@ def main(problem_str="SEND+MORE=MONEY", base=10):
     #q = sums[i-1]
 
     #the last number must be the product of the first two
-    solver.Add(sums[2] == sums[0] / sums[1])
-
+    y = sums[0]
+    solver.Add(sums[2].Value() == sums[0].Value() / sums[1].Value())
     #solver.Add(solver.Sum([sums[i] for i in range(p_len - 1)]) == sums[-1])
   #
   # solution and search
