@@ -1,10 +1,10 @@
 import importlib
 import traceback
 from grading.util import roster, print_table
-# from logic import FolKB
-# from utils import expr
 import os
-from sklearn.neural_network import MLPClassifier
+from sklearn.cluster import KMeans
+from sklearn import metrics
+from numpy import unique
 
 def indent(howMuch = 1):
     space = ' '
@@ -14,12 +14,13 @@ def indent(howMuch = 1):
 
 def tryOne(label, fAndP):
     frame = fAndP['frame']
-    if 'mlpc' in fAndP.keys():
-        clf = fAndP['mlpc']
+    if 'kmeans' in fAndP.keys():
+        kmeans = fAndP['kmeans']
     else:
-        clf = MLPClassifier()
+        nc = len(unique(frame.target))
+        kmeans = KMeans(n_clusters=nc)
     try:
-        fit = clf.fit(frame.data, frame.target)
+        fit = kmeans.fit(frame.data)
     except:
         traceback.print_exc()
     print(label + ':')
@@ -31,14 +32,16 @@ def tryOne(label, fAndP):
     #             njust='center',
     #             tjust='rjust',
     #             )
-    y_pred = fit.predict(frame.data)
-    tot = len(frame.data)
-    mis = (frame.target != y_pred).sum()
-    cor = 1 - mis / tot
-    print(
-        "  Number of mislabeled points out of a total {0} points : {1} ({2:.0%} correct)"
-            .format(tot, mis, cor)
-    )
+    # y_pred = fit.predict(frame.data)
+    # tot = len(frame.data)
+    # mis = (frame.target != y_pred).sum()
+    # cor = 1 - mis / tot
+    # print(
+    #     "  Number of mislabeled points out of a total {0} points : {1} ({2:.0%} correct)"
+    #         .format(tot, mis, cor)
+    # )
+    score = metrics.adjusted_rand_score(frame.target, fit.labels_)
+    print('Adjusted Rand index: ', score)
 
 def tryExamples(examples):
     for label in examples:
@@ -59,7 +62,7 @@ for student in roster:
     try:
         os.chdir(root + '/submissions/' + student)
         # http://stackoverflow.com/a/17136796/2619926
-        mod = importlib.import_module('submissions.' + student + '.myNN')
+        mod = importlib.import_module('submissions.' + student + '.myKMeans')
         submissions[student] = mod.Examples
         message1 += ' ' + student
     except ImportError:
@@ -78,7 +81,7 @@ for student in roster:
     scores[student] = []
     try:
         examples = submissions[student]
-        print('Neural Networks from:', student)
+        print('K Means Samples from:', student)
         tryExamples(examples)
     except:
         traceback.print_exc()

@@ -1,5 +1,4 @@
-from sklearn import datasets
-from sklearn.neural_network import MLPClassifier
+from sklearn.cluster import KMeans
 import traceback
 from submissions.aartiste import election
 from submissions.aartiste import county_demographics
@@ -112,32 +111,6 @@ trumpECHP.target_names = [
 ]
 
 '''
-Make a customn classifier,
-'''
-mlpc = MLPClassifier(
-    hidden_layer_sizes = (100, 50, ),
-    # activation = 'relu',
-    solver='sgd', # 'adam',
-    # alpha = 0.0001,
-    # batch_size='auto',
-    learning_rate = 'adaptive', # 'constant',
-    # power_t = 0.5,
-    max_iter = 1000, # 200,
-    # shuffle = True,
-    # random_state = None,
-    # tol = 1e-4,
-    # verbose = False,
-    # warm_start = False,
-    # momentum = 0.9,
-    # nesterovs_momentum = True,
-    # early_stopping = False,
-    # validation_fraction = 0.1,
-    # beta_1 = 0.9,
-    # beta_2 = 0.999,
-    # epsilon = 1e-8,
-)
-
-'''
 Try scaling the data.
 '''
 trumpScaled = DataFrame()
@@ -176,52 +149,28 @@ trumpScaled.target = trumpECHP.target
 trumpScaled.target_names = trumpECHP.target_names
 
 '''
-Teach a Neural net to count 2
+Make a customn classifier,
 '''
-count22 = DataFrame()
-count22.data = [[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1],
-                [1, 0, 0], [1, 0, 1], [1, 1, 0], [1, 1, 1]]
-count22.feature_names = ['a', 'b', 'c']
-count22.target = [0, 0, 0, 1,
-                  0, 1, 1, 0]
-count22.target_names = ['Two']
-
-countMLPC = MLPClassifier(
-    hidden_layer_sizes = (3,), # (100,),
-    # activation = 'relu',
-    solver='sgd', # 'adam',
-    # alpha = 0.0001,
-    # batch_size='auto',
-    # learning_rate = 'constant',
-    # power_t = 0.5,
-    max_iter = 10, # 200,
-    # shuffle = True,
-    # random_state = None,
-    # tol = 1e-4,
-    verbose = True # False,
-    # warm_start = False,
-    # momentum = 0.9,
-    # nesterovs_momentum = True,
-    # early_stopping = False,
-    # validation_fraction = 0.1,
-    # beta_1 = 0.9,
-    # beta_2 = 0.999,
-    # epsilon = 1e-8,
+km = KMeans(
+    n_clusters=2,
+    # max_iter=300,
+    # n_init=10,
+    # init='k-means++',
+    # algorithm='auto',
+    # precompute_distances='auto',
+    # tol=1e-4,
+    # n_jobs=-1,
+    # random_state=numpy.RandomState,
+    # verbose=0,
+    # copy_x=True,
 )
 
 Examples = {
-    # 'TrumpDefault': {
-    #     'frame': trumpECHP,
-    # },
-    # 'TrumpSGD': {
-    #     'frame': trumpECHP,
-    #     'mlpc': mlpc
-    # },
-    # 'TrumpScaled': {
-    #     'frame': trumpScaled,
-    # },
-    'Count to 2': {
-        'frame': count22,
-        'mlpc': countMLPC
-    }
+    'Trump': {
+        'frame': trumpScaled,
+    },
+    'TrumpCustom': {
+        'frame': trumpScaled,
+        'kmeans': km
+    },
 }

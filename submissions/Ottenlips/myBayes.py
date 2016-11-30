@@ -16,8 +16,10 @@ list_of_billionaire = billionaires.get_billionaires()
 def billTarget(string):
     if(billionaires['demographics']['age']<30 and billionaires['demographics']['age'] != -1):
         return 1
-    else:
+    elif(billionaires['demographics']['age'] != -1):
         return 0
+    else:
+        return 2
 
 for billionaires in list_of_billionaire:
     # print(billionaires['wealth']['type'])
@@ -35,15 +37,16 @@ for billionaires in list_of_billionaire:
 
 
 bill.feature_names = [
-    'gdp',
+    'gdp of origin country',
     'worth',
     'rank',
-    'age',
+    # 'age',
 ]
 
 bill.target_names = [
    'old',
     'young',
+    'age not listed'
 ]
 
 Examples = {
