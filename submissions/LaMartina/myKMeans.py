@@ -154,6 +154,14 @@ larcenycr.target_names = [
     'Murders >  100,000',
 ]
 
+#Creating the scaled larceny frame
+larcenyScaled = DataFrame()
+setupScales(larcenycr.data)
+larcenyScaled.data = scaleGrid(larcenycr.data)
+larcenyScaled.feature_names = larcenycr.feature_names
+larcenyScaled.target = larcenycr.target
+larcenyScaled.target_names = larcenycr.target_names
+
 #New MLPClassifier that adjusts learning rate and iterations
 # mlp2 = MLPClassifier(
 #     # hidden_layer_sizes = (100,),
@@ -262,12 +270,27 @@ larcenycr.target_names = [
 '''
 Make a customn classifier,
 '''
+#classifier 2
 km = KMeans(
     n_clusters=6,
     # max_iter=300,
     # n_init=10,
     # init='k-means++',
     algorithm='elkan',
+    # precompute_distances='auto',
+    # tol=1e-4,
+    # n_jobs=-1,
+    # random_state=numpy.RandomState,
+    # verbose=0,
+    #copy_x=False,
+)
+#classifer 3
+km2 = KMeans(
+    n_clusters=15,
+    # max_iter=300,
+    # n_init=10,
+    # init='k-means++',
+    #algorithm='elkan',
     # precompute_distances='auto',
     # tol=1e-4,
     # n_jobs=-1,
@@ -296,12 +319,16 @@ Examples = {
         #'kmeans': km
     },
     'LarcenyScaled':{
-        'frame': larcenyscaled
-    }
-    # 'CrimesMLP3': {
-    #     'frame': crimes,
-    #     'mlp3': mlp3
-    # },
+        'frame': larcenyScaled
+    },
+    'LarcenyClassifier3': {
+        'frame': larcenycr,
+        'kmeans': km2
+    },
+    'LarcenyClassifier3Scaled': {
+        'frame': larcenyScaled,
+        'kmeans': km2
+    },
     # 'CrimesMLP4': {
     #     'frame': crimes,
     #     'mlp4': mlp4
