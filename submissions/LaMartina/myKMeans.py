@@ -1,6 +1,7 @@
 import traceback
 from submissions.LaMartina import state_crime
-from sklearn.neural_network import MLPClassifier
+#from sklearn.neural_network import MLPClassifier
+from sklearn.cluster import KMeans
 
 
 class DataFrame:
@@ -237,6 +238,23 @@ crimesScaled.target_names = crimes.target_names
 # nonVicrimesScaled.target = crimes.target
 # nonVicrimesScaled.target_names = crimes.target_names
 
+'''
+Make a customn classifier,
+'''
+km = KMeans(
+    n_clusters=8,
+    # max_iter=300,
+    # n_init=10,
+    # init='k-means++',
+    algorithm='elkan',
+    # precompute_distances='auto',
+    # tol=1e-4,
+    # n_jobs=-1,
+    # random_state=numpy.RandomState,
+    # verbose=0,
+    # copy_x=True,
+)
+
 Examples = {
     'Crimes': {
         'frame': crimes,
@@ -244,14 +262,14 @@ Examples = {
     'CrimesScaled': {
         'frame': crimesScaled,
     },
-    # 'CrimesMLP2': {
-    #     'frame': crimes,
-    #     'mlp2': mlp2
-    # },
-    # 'CrimesMLP2Scaled': {
-    #     'frame': crimesScaled,
-    #     'mlp2': mlp2
-    # },
+    'CrimesClassifier2': {
+        'frame': crimes,
+        'kmeans': km
+    },
+    'CrimesClassifier2Scaled': {
+        'frame': crimesScaled,
+        'kmeans': km
+    },
     # 'CrimesMLP3': {
     #     'frame': crimes,
     #     'mlp3': mlp3
