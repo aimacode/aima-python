@@ -252,7 +252,7 @@ km = KMeans(
     # n_jobs=-1,
     # random_state=numpy.RandomState,
     # verbose=0,
-    # copy_x=True,
+    #copy_x=False,
 )
 
 Examples = {
