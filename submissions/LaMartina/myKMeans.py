@@ -242,7 +242,7 @@ crimesScaled.target_names = crimes.target_names
 Make a customn classifier,
 '''
 km = KMeans(
-    n_clusters=8,
+    n_clusters=6,
     # max_iter=300,
     # n_init=10,
     # init='k-means++',
