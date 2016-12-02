@@ -11,6 +11,7 @@ class DataFrame:
     target_names = []
 
 crimes = DataFrame()
+larcenycr = DataFrame()
 
 '''
 Extract data from the CORGIS state_crime.
@@ -132,6 +133,26 @@ crimesScaled.data = scaleGrid(crimes.data)
 crimesScaled.feature_names = crimes.feature_names
 crimesScaled.target = crimes.target
 crimesScaled.target_names = crimes.target_names
+
+#Creating the data frame that uses number of Larceny crimes as a target
+larcenycr.data = crimes.data
+larcenycr.feature_names = crimes.feature_names
+larcenycr.target = []
+
+def larcenyTarget(larcenynum):
+    if larcenynum > 100000:
+        return 1
+    return 0
+
+for larc in joint:
+    # choose the target
+    l = larcenyTarget(joint[larc]['Larceny Numbers'])
+    larcenycr.target.append(l)
+
+larcenycr.target_names = [
+    'Larceny <= 100,000',
+    'Murders >  100,000',
+]
 
 #New MLPClassifier that adjusts learning rate and iterations
 # mlp2 = MLPClassifier(
@@ -270,6 +291,13 @@ Examples = {
         'frame': crimesScaled,
         'kmeans': km
     },
+    'Larceny': {
+        'frame': larcenycr,
+        #'kmeans': km
+    },
+    'LarcenyScaled':{
+        'frame': larcenyscaled
+    }
     # 'CrimesMLP3': {
     #     'frame': crimes,
     #     'mlp3': mlp3
