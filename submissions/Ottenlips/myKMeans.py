@@ -28,12 +28,13 @@ def billtarget(billions):
 for billionaires in list_of_billionaire:
     # print(billionaires['wealth']['type'])
     # print(billionaires)
-    bill.target.append(billtarget(billionaires['wealth']['worth in billions']))
+    bill.target.append(billtarget(billionaires['location']['gdp']))
     # bill.target.append(billionaires['wealth']['how']['inherited'])
     bill.data.append([
-        float(billionaires['demographics']['age']),
-        float(billionaires['location']['gdp']),
-        float(billionaires['rank']),
+        # billionaires['wealth']['worth in billions']
+         float(billionaires['demographics']['age']),
+         float(billionaires['location']['gdp']),
+         float(billionaires['rank']),
     ])
 
 
@@ -53,7 +54,7 @@ bill.target_names = [
 Make a customn classifier,
 '''
 km = KMeans(
-    n_clusters=2,
+    n_clusters=8,
     # max_iter=300,
     # n_init=10,
     # init='k-means++',
@@ -107,17 +108,17 @@ Examples = {
         'frame': bill,
         'kmeans': km,
 },
- 'BillMLPCTwo': {
-        'frame': bill,
-        'kmeans': km,
-},
-    'BillScaled':{
-        'frame':billScaled,
-    },
-'BillScaled':{
-        'frame':billScaled,
-    },
-    'Bill': {'frame':bill},
+#  'BillMLPCTwo': {
+#         'frame': bill,
+#         'kmeans': km,
+# },
+#     'BillScaled':{
+#         'frame':billScaled,
+#     },
+# 'BillScaled':{
+#         'frame':billScaled,
+#     },
+#     'Bill': {'frame':bill},
 
 }
 
