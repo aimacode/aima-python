@@ -1,6 +1,7 @@
 from sklearn import datasets
 
 from sklearn.cluster import KMeans
+# import numpy
 import traceback
 from submissions.Ottenlips import billionaires
 
@@ -54,16 +55,16 @@ bill.target_names = [
 Make a customn classifier,
 '''
 km = KMeans(
-    n_clusters=8,
+    n_clusters=15,
     # max_iter=300,
-    # n_init=10,
+    #  n_init=10,
     # init='k-means++',
-    # algorithm='auto',
-    # precompute_distances='auto',
+    #  algorithm='auto',
+    #  precompute_distances='auto',
     # tol=1e-4,
-    # n_jobs=-1,
-    # random_state=numpy.RandomState,
-    # verbose=0,
+    #  n_jobs=-1,
+    #  random_state=numpy.RandomState,
+    #  verbose=1,
     # copy_x=True,
 )
 
@@ -104,21 +105,15 @@ billScaled.target_names = bill.target_names
 
 Examples = {
 
-   'BillMLPC': {
+   'Bill': {
         'frame': bill,
         'kmeans': km,
 },
-#  'BillMLPCTwo': {
-#         'frame': bill,
-#         'kmeans': km,
-# },
-#     'BillScaled':{
-#         'frame':billScaled,
-#     },
-# 'BillScaled':{
-#         'frame':billScaled,
-#     },
-#     'Bill': {'frame':bill},
+
+    # 'BillScaled':{
+    #     'frame':billScaled,
+    #     'kmeans':km,
+    # },
 
 }
 
