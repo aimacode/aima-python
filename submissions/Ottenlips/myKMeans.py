@@ -19,11 +19,13 @@ bill = DataFrame()
 list_of_billionaire = billionaires.get_billionaires()
 
 
-def billtarget(age):
-    if age<40:
+def billTarget(string):
+    if(billionaires['demographics']['age']<30 and billionaires['demographics']['age'] != -1):
         return 1
-    else:
+    elif(billionaires['demographics']['age'] != -1):
         return 0
+    else:
+        return 2
 
 
 for billionaires in list_of_billionaire:
@@ -47,8 +49,9 @@ bill.feature_names = [
 ]
 
 bill.target_names = [
-    'Young',
-    'Old',
+    'old',
+    'young',
+    'age not listed'
 ]
 
 
@@ -56,17 +59,17 @@ bill.target_names = [
 Make a customn classifier,
 '''
 km = KMeans(
-    n_clusters=15,
-     # max_iter=3000,
-    #  n_init=10,
-    # init='k-means++',
+    n_clusters=3,
+      # max_iter=3000,
+     # n_init=1,
+     init='k-means++',
     #  algorithm='auto',
-    #  precompute_distances='auto',
-    # tol=1e-4,
+      precompute_distances='auto',
+    #  tol=1e-4,
     #  n_jobs=-1,
     #  random_state=numpy.RandomState,
     #  verbose=1,
-    #  copy_x=True,
+      copy_x=True,
 )
 
 billScaled = DataFrame()
