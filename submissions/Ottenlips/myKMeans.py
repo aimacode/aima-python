@@ -19,10 +19,14 @@ bill = DataFrame()
 list_of_billionaire = billionaires.get_billionaires()
 
 def billtarget(num):
-    if num<100:
+
+    if num>200:
+        return 0
+
+    if num>500:
         return 1
     else:
-        return 0
+        return 2
 
 
 for billionaires in list_of_billionaire:
@@ -50,8 +54,11 @@ bill.feature_names = [
 ]
 
 bill.target_names = [
+
     'high rank',
-    'low rank'
+    'med rank',
+    'lowest rank',
+
 ]
 
 
