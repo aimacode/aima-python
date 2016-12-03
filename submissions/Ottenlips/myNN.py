@@ -151,31 +151,3 @@ Examples = {
 
 }
 
-#
-# billTwo = DataFrame()
-#
-#
-#
-# for billionaires in list_of_billionaire:
-#     # print(billionaires['wealth']['type'])
-#     #print(billionaires)
-#     billTwo.target.append(float(billionaires['wealth']['worth in billions']))
-#     # bill.target.append(billionaires['wealth']['how']['inherited'])
-#     billTwo.data.append([
-#         float(billionaires['location']['gdp']),
-#         float(billionaires['rank']),
-#         float(billionaires['demographics']['age']),
-#     ])
-#
-#
-#
-#
-# billTwo.feature_names = [
-#         'gdp of origin country',
-#         'rank',
-#         'age',
-#     ]
-#
-# billTwo.target_names = [
-#         'worth',
-#     ]
