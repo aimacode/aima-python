@@ -41,9 +41,10 @@ for billionaires in list_of_billionaire:
 
 bill.feature_names = [
     # 'age',
-    'wealth',
-'gdp of origin country',
-    'age'
+   'wealth',
+'age',
+   'gdp of origin country',
+
     # 'gdp of origin country',
     # 'rank',
 ]
