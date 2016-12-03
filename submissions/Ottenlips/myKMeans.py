@@ -18,40 +18,38 @@ bill = DataFrame()
 
 list_of_billionaire = billionaires.get_billionaires()
 
-
-def billTarget(string):
-    if(billionaires['demographics']['age']<30 and billionaires['demographics']['age'] != -1):
+def billtarget(num):
+    if num<100:
         return 1
-    elif(billionaires['demographics']['age'] != -1):
-        return 0
     else:
-        return 2
+        return 0
 
 
 for billionaires in list_of_billionaire:
     # print(billionaires['wealth']['type'])
     # print(billionaires)
-    bill.target.append(billionaires['demographics']['age'])
+    bill.target.append(billtarget(float(billionaires['rank'])))
     # bill.target.append(billionaires['wealth']['how']['inherited'])
     bill.data.append([
-         float( billionaires['wealth']['worth in billions']),
-        #float(billionaires['demographics']['age']),
-          # float(billionaires['location']['gdp']),
-         float(billionaires['rank']),
+        billionaires['wealth']['worth in billions'],
+        float(billionaires['demographics']['age']),
+        float(billionaires['location']['gdp']),
+
     ])
+
 
 
 bill.feature_names = [
     # 'age',
-    'wealth'
+    'wealth',
+    'age'
     # 'gdp of origin country',
-    'rank',
+    # 'rank',
 ]
 
 bill.target_names = [
-    'old',
-    'young',
-    'age not listed'
+    'high rank',
+    'low rank'
 ]
 
 
@@ -59,17 +57,17 @@ bill.target_names = [
 Make a customn classifier,
 '''
 km = KMeans(
-    n_clusters=3,
-      # max_iter=3000,
+    n_clusters=12,
+       # max_iter=1,
      # n_init=1,
-     init='k-means++',
+     #  init='k-means++',
     #  algorithm='auto',
-      precompute_distances='auto',
+       precompute_distances='auto',
     #  tol=1e-4,
-    #  n_jobs=-1,
+    #    n_jobs=-1,
     #  random_state=numpy.RandomState,
     #  verbose=1,
-      copy_x=True,
+    #   copy_x=True,
 )
 
 billScaled = DataFrame()
