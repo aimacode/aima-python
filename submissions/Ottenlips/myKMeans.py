@@ -104,16 +104,16 @@ billScaled.target = bill.target
 billScaled.target_names = bill.target_names
 
 Examples = {
+    'Billdefault': {
+        'frame': bill,
+    },
 
-   'Bill': {
+   'BillKMClassifier': {
         'frame': bill,
         'kmeans': km,
 },
 
-    # 'BillScaled':{
-    #     'frame':billScaled,
-    #     'kmeans':km,
-    # },
+
 
 }
 
