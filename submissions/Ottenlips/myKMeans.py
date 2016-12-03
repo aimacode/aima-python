@@ -61,15 +61,28 @@ Make a customn classifier,
 km = KMeans(
     n_clusters=12,
        # max_iter=1,
-     # n_init=1,
-     #  init='k-means++',
+     # n_init=12,
+     #   init='',
     #  algorithm='auto',
        precompute_distances='auto',
     #  tol=1e-4,
-    #    n_jobs=-1,
+    #  n_jobs=-1,
     #  random_state=numpy.RandomState,
     #  verbose=1,
-    #   copy_x=True,
+    #  copy_x=True,
+)
+km2 = KMeans(
+    n_clusters=2,
+     # max_iter=20,
+      n_init=50,
+       init='random',
+      algorithm='auto',
+    #    precompute_distances='auto',
+    #  tol=1e-4,
+    #   n_jobs=-1,
+    #  random_state=numpy.RandomState,
+    #  verbose=1,
+    #  copy_x=True,
 )
 
 billScaled = DataFrame()
@@ -116,7 +129,10 @@ Examples = {
         'frame': bill,
         'kmeans': km,
 },
-
+ 'BillKMClassifierScaled': {
+        'frame': billScaled,
+        'kmeans': km2,
+},
 
 
 }
