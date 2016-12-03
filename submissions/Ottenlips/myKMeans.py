@@ -19,8 +19,8 @@ bill = DataFrame()
 list_of_billionaire = billionaires.get_billionaires()
 
 
-def billtarget(billions):
-    if billions<3.0:
+def billtarget(age):
+    if age<40:
         return 1
     else:
         return 0
@@ -29,25 +29,26 @@ def billtarget(billions):
 for billionaires in list_of_billionaire:
     # print(billionaires['wealth']['type'])
     # print(billionaires)
-    bill.target.append(billtarget(billionaires['location']['gdp']))
+    bill.target.append(billionaires['demographics']['age'])
     # bill.target.append(billionaires['wealth']['how']['inherited'])
     bill.data.append([
-        # billionaires['wealth']['worth in billions']
-         float(billionaires['demographics']['age']),
-         float(billionaires['location']['gdp']),
+         float( billionaires['wealth']['worth in billions']),
+        #float(billionaires['demographics']['age']),
+          # float(billionaires['location']['gdp']),
          float(billionaires['rank']),
     ])
 
 
 bill.feature_names = [
-    'age',
-    'gdp of origin country',
+    # 'age',
+    'wealth'
+    # 'gdp of origin country',
     'rank',
 ]
 
 bill.target_names = [
-    'very rich',
-    'less rich',
+    'Young',
+    'Old',
 ]
 
 
@@ -56,7 +57,7 @@ Make a customn classifier,
 '''
 km = KMeans(
     n_clusters=15,
-    # max_iter=300,
+     # max_iter=3000,
     #  n_init=10,
     # init='k-means++',
     #  algorithm='auto',
@@ -65,7 +66,7 @@ km = KMeans(
     #  n_jobs=-1,
     #  random_state=numpy.RandomState,
     #  verbose=1,
-    # copy_x=True,
+    #  copy_x=True,
 )
 
 billScaled = DataFrame()
