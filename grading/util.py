@@ -5,10 +5,11 @@ roster = [
 
  #   'Anderson','Ban','Becker',
  #   'Blue','Capps','Conklin',
- ##   'Dickenson','Fritz','Haller',
+ #   'Dickenson','Fritz','Haller',
   #  'Hawley','Hess','Johnson',
   #  'Karman','Kinley','LaMartina',
-  #  'McLean','Miles','Ottenlips',
+  #  'McLean','Miles',
+    'Ottenlips',
   #  'Porter','Sery','VanderKallen',
     'aardvark',
    # 'aartiste',
