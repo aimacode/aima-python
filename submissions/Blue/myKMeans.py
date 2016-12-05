@@ -1,5 +1,4 @@
-from sklearn import datasets
-from sklearn.neural_network import MLPClassifier
+from sklearn.cluster import KMeans
 import traceback
 from submissions.Blue import music
 
@@ -63,32 +62,6 @@ Examples = {
 }
 
 '''
-Make a customn classifier,
-'''
-mlpc = MLPClassifier(
-    hidden_layer_sizes = (5000,),
-    activation = 'relu',
-    solver='sgd', # 'adam',
-    # alpha = 0.0001,
-    # batch_size='auto',
-    learning_rate = 'adaptive', # 'constant',
-    # power_t = 0.5,
-    max_iter = 1000, # 200,
-    shuffle = False,
-    # random_state = None,
-    # tol = 1e-4,
-    # verbose = False,
-    # warm_start = False,
-    momentum = 0.4,
-    # nesterovs_momentum = True,
-    # early_stopping = False,
-    # validation_fraction = 0.1,
-    # beta_1 = 0.9,
-    beta_2 = 0.999,
-    # epsilon = 1e-8,
-)
-
-'''
 Try scaling the data.
 '''
 musicScaled = DataFrame()
@@ -126,17 +99,30 @@ musicScaled.feature_names = musicATRB.feature_names
 musicScaled.target = musicATRB.target
 musicScaled.target_names = musicATRB.target_names
 
-
+'''
+Make a custom classifier,
+'''
+km = KMeans(
+    n_clusters=2,
+    # max_iter=300,
+    # n_init=10,
+    # init='k-means++',
+    algorithm='auto',
+    # precompute_distances='auto',
+    # tol=1e-4,
+    # n_jobs=-1,
+    # random_state=numpy.RandomState,
+    verbose=0,
+    # copy_x=True,
+)
 
 Examples = {
     'musicDefault': {
         'frame': musicATRB,
     },
-    'MusicSGD': {
-        'frame': musicATRB,
-        'mlpc': mlpc
-    },
+
     'MusicScaled': {
         'frame': musicScaled,
+        'kmeans' : km
     },
 }
