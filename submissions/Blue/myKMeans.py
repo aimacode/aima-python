@@ -12,6 +12,7 @@ class DataFrame:
 musicATRB = DataFrame()
 musicATRB.data = []
 targetData = []
+
 '''
 Extract data from the CORGIS Music Library.
 
@@ -26,8 +27,9 @@ for song in allSongs:
 
         genre = song['artist']['terms'] #String
         title = song['song']['title'] #String
-        # release = float(song['song']['Release'])
-
+        length = float(song['song']['duration'])
+        year = float(song['song']['year'])
+        catchy = float(song['song']['familiarity'])
         musicATRB.data.append([genre, title])
 
     except:
@@ -36,17 +38,18 @@ for song in allSongs:
 musicATRB.feature_names = [
     'Genre',
     'Title',
-    'Release',
+    'Year',
     'Length',
+    'Familiarity'
 ]
 
 musicATRB.target = []
 
-def musicTarget(release):
-    if (length <= 210
-        ): #if the song is less that 3.5 minutes (210 seconds) long
+def musicTarget(length):
+    if (length <= 210 and ("pop" in genre) ): #if the song is less that 3.5 minutes (210 seconds) long and if has 'pop' its description
         return 1
     return 0
+
 
 for i in targetData:
     tt = musicTarget(i)
@@ -65,6 +68,7 @@ Examples = {
 Try scaling the data.
 '''
 musicScaled = DataFrame()
+
 
 def setupScales(grid):
     global min, max
@@ -93,26 +97,70 @@ def scaleGrid(grid):
         newGrid.append(newRow)
     return newGrid
 
+
 setupScales(musicATRB.data)
 musicScaled.data = scaleGrid(musicATRB.data)
 musicScaled.feature_names = musicATRB.feature_names
 musicScaled.target = musicATRB.target
 musicScaled.target_names = musicATRB.target_names
+catchy.data = musicATRB.data
+catchy.feature_names = musicATRB.feature_names
+
+
+catchy.target = []
+
+catchy.target_names = [
+    'Catchy'
+    'Not Catchy'
+]
+
+
+def catchyTarget(catchy):
+    if (catchy >= 0.5):
+        return 1
+    return 0
+
+for i in targetData:
+    tt = musicTarget(i)
+    catchy.target.append(tt)
+
+
+catchyScaled = DataFrame()
+setupScales(catchy.data)
+catchyScaled.data = scaleGrid(catchy.data)
+catchyScaled.feature_names = catchy.feature_names
+catchyScaled.target = catchy.target
+catchyScaled.target_names = catchy.target_names
+
 
 '''
 Make a custom classifier,
 '''
 km = KMeans(
     n_clusters=2,
-    # max_iter=300,
+    max_iter=300,
+    # n_init=10,
+    init='k-means++',
+    algorithm='auto',
+    # precompute_distances='auto',
+    # tol=1e-4,
+    n_jobs=-1,
+    # random_state=numpy.RandomState,
+    verbose=0,
+    # copy_x=True,
+)
+
+km_1 = KMeans(
+    n_clusters=4,
+    max_iter=500,
     # n_init=10,
     # init='k-means++',
-    algorithm='auto',
+    algorithm='full',
     # precompute_distances='auto',
     # tol=1e-4,
     # n_jobs=-1,
     # random_state=numpy.RandomState,
-    verbose=0,
+    verbose=1,
     # copy_x=True,
 )
 
@@ -124,5 +172,17 @@ Examples = {
     'MusicScaled': {
         'frame': musicScaled,
         'kmeans' : km
+    },
+    'CatchyScaled': {
+        'frame': catchyScaled,
+        'kmeans': km
+    },
+'MusicScaled': {
+        'frame': musicScaled,
+        'kmeans' : km_1
+    },
+    'CatchyScaled': {
+        'frame': catchyScaled,
+        'kmeans': km_1
     },
 }
