@@ -96,17 +96,17 @@ def try_to_play(game):
             done = True
 
 def makeDisplayTable(game, states):
-    old_stdout = sys.stdout
+    # old_stdout = sys.stdout
     displays = []
     for state in states:
-        sys.stdout = mystdout = StringIO()
+        # sys.stdout = mystdout = StringIO()
         print(state)
         game.display(state)
-        block = mystdout.getvalue()
-        displays.append(block)
-        mystdout.close()
+        # block = mystdout.getvalue()
+        # displays.append(block)
+        # mystdout.close()
 
-    old_stdout = sys.stdout
+    # old_stdout = sys.stdout
     for display in displays:
         lines = display.split('\n')
         print(lines)

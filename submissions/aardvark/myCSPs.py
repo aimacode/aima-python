@@ -3,25 +3,33 @@ import csp
 rgb = ['R', 'G', 'B']
 
 domains = {
-    'WA': rgb,
-    'NT': rgb,
-    'SA': rgb,
-    'Q': rgb,
-    'NSW': rgb,
-    'V': rgb,
-    'T': rgb
+    'AM': rgb,
+    'ES': rgb,
+    'LK': rgb,
+    'RB': rgb,
+    'FL': rgb,
+    'G': rgb,
+    'S': rgb,
+    'M': rgb,
+    'BL': rgb,
+    'C': rgb,
+    'H': rgb
 }
 
 variables = domains.keys()
 
 neighbors = {
-    'SA': ['WA', 'NT', 'Q', 'NSW', 'V'],
-    'WA': ['NT', 'SA'],
-    'NT': ['WA', 'SA', 'Q'],
-    'Q': ['NT', 'SA', 'NSW'],
-    'NSW': ['Q', 'SA', 'V'],
-    'V': ['SA', 'NSW'],
-    'T': []
+    'AM': ['LK', 'ES'],
+    'ES': ['BL', 'M'],
+    'LK': ['RB', 'FL', 'AM'],
+    'RB': ['LK', 'FL', 'H'],
+    'FL': ['G', 'LK', 'RB'],
+    'G': ['FL', 'S'],
+    'S': ['G', 'M'],
+    'M': ['ES', 'BL', 'S'],
+    'BL': ['ES', 'C', 'M'],
+    'C': ['BL', 'H'],
+    'H': ['C', 'RB']
 }
 
 def constraints(A, a, B, b):
