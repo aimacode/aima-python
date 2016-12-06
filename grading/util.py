@@ -9,9 +9,9 @@ roster = [
  # 'Hawley','Hess','Johnson',
  # 'Karman','Kinley','LaMartina',
  # 'McLean','Miles','Ottenlips',
- 'Porter',
-    # 'Sery','VanderKallen',
- # 'aardvark',
+ # 'Porter',
+ # 'Sery','VanderKallen',
+ 'aardvark',
  # 'aartiste',
  # 'zzzsolutions',
 ]
