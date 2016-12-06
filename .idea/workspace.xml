@@ -46,7 +46,7 @@
         <entry file="file://$PROJECT_DIR$/grading/util.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="225">
-              <caret line="15" column="20" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
+              <caret line="15" column="3" selection-start-line="15" selection-start-column="3" selection-end-line="15" selection-end-column="18" />
               <folding />
             </state>
           </provider>
@@ -525,7 +525,14 @@
       <option name="project" value="LOCAL" />
       <updated>1480985707334</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Work on Kmeans.  Transferred my working Bayesian network code into kMeans but can't get it to compile and not getting any error messages.">
+      <created>1481045707923</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1481045707923</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -945,7 +952,7 @@
     <entry file="file://$PROJECT_DIR$/grading/util.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
-          <caret line="15" column="20" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
+          <caret line="15" column="3" selection-start-line="15" selection-start-column="3" selection-end-line="15" selection-end-column="18" />
           <folding />
         </state>
       </provider>
