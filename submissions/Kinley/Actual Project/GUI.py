@@ -1,18 +1,10 @@
 from tkinter import *
 import ConnectFour
+from ConnectFour import C4Game
 from random import randint
+import games
 
-# class GameState:
-#     def __init__(self, to_move, board, label=None, depth=8):
-#         self.to_move= to_move
-#         self.board = board
-#         self.label = label
-#         self.maxDepth = depth
-# 
-#         def __str__(self):
-#             if self.label == None:
-#                 return super(GameState, self).__str__()
-#             return self.label
+g = C4Game
 
 class GUI:
     elementSize = 50
@@ -125,17 +117,11 @@ class GUI:
             x = c * self.elementSize
             self.canvas.create_line(x, y0, x, y1, fill=self.gridColor)
 
-    # def drop(self, column):
-    #     return self.gameState.drop(column)
-
     def drop(self, column):
             return self.gameState.drop(column)
 
     def adrop(self,column):
         if(self.gameState.first_player):
-
-            #print(test)
-            print(column.gameState.grid)
             guess = randint(0,6)
             return self.gameState.drop(guess)
         else:
@@ -143,45 +129,26 @@ class GUI:
 
     def bdrop(self, column):
         if(self.gameState.first_player):
-         #   self.gameState.grid
-         #   print(column.gameState.grid)
-
             return self.gameState.drop(column)
 
         else:
-            for x in range(0,7):
-                for y in range(0,len(column.gameState.grid[x])):
-                    print(column.gameState.grid[x][y])
-                #d = {column.gameState.grid[x], x}
-
-                #print(column.gameState.grid[x])
-            #print(b)
-            guess = randint(0, 6)
-           # print(d)
-          #  print(column.gameState.grid)
+            guess = games.alphabeta_search(self.gameState, self.game, 4)
             return self.gameState.drop(guess)
-
-
-
 
     def newGame(self):
         self.p1 = 'Player 1'
         self.p2 = 'Player 2'
         columns = 7
         rows = 6
-
         self.gameState = ConnectFour.ConnectFour(columns=columns, rows=rows)
-
-
+        self.game = ConnectFour.C4Game(self.gameState)
         self.canvas.delete(ALL)
         self.canvas.config(width=(self.elementSize) * self.gameState.size['c'],
                            height=(self.elementSize) * self.gameState.size['r'])
         self.master.update()
         self.drawGrid()
         self.draw()
-
         self._updateCurrentPlayer()
-
         self.gameOn = True
 
     def _updateCurrentPlayer(self):
@@ -207,17 +174,17 @@ class GUI:
             else:
                 winner = self.p1 if self.gameState.first_player else self.p2
                 t = winner + ' won!'
-          #  self.canvas.create_text(x, y, text=t, font=("Times New Roman", 42), fill="#333")
             self.canvas.create_text(175, y-120, text=t, font=("Times New Roman", 42), fill="#333")
 
     def _newGameButton(self):
         self.newGame()
 
-
+    def check_win(self, board):
+        if board[0] == 0 and board[1] == 0 and board[2] == 0:
+            return 1
+        return 0
 
 root = Tk()
-
-#root.configure(background="purple")
 app = GUI(root)
 root.wm_iconbitmap('4.ico')
 root.mainloop()
