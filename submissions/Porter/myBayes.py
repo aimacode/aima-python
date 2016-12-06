@@ -10,7 +10,7 @@ class DataFrame:
     target = []
     target_names = []
 
-billionairesECHP = DataFrame()
+billionairesPIG = DataFrame()
 
 
 
@@ -22,7 +22,7 @@ Build the input frame, row by row.
 '''
 for countyST in intersection:
     # choose the input values
-    billionairesECHP5.data.append([
+    billionairesPIG.data.append([
         # countyST,
         # intersection[countyST]['ST'],
         # intersection[countyST]['Trump'],
@@ -32,7 +32,7 @@ for countyST in intersection:
         intersection[countyST]['Poverty'],
     ])
 
-billionairesECHP.feature_names = [
+billionairesPIG.feature_names = [
     # 'countyST',
     # 'ST',
     # 'Trump',
@@ -54,7 +54,7 @@ the segment into which the variable's value will fall.
 In this example, I'm breaking Trump's % into two
 arbitrary segments.
 '''
-billionairesECHP.target = []
+billionairesPIG.target = []
 
 def trumpTarget(percentage):
     if percentage > 45:
@@ -66,7 +66,7 @@ for countyST in intersection:
     tt = trumpTarget(intersection[countyST]['Trump'])
     trumpECHP.target.append(tt)
 
-billionairesECHP.target_names = [
+billionairesPIG.target_names = [
     'New',
     'Old',
 ]
