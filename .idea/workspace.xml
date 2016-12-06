@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c0d5b11-9838-459c-818c-2b175619ce26" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Porter/myNN.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/submissions/Porter/myBayes.py" afterPath="$PROJECT_DIR$/submissions/Porter/myBayes.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/submissions/Porter/myKMeans.py" afterPath="$PROJECT_DIR$/submissions/Porter/myKMeans.py" />
     </list>
     <list id="cb321768-febf-4d6f-9fbf-16cd6098702b" name="ignore" comment="" />
     <ignored path="aima-python.iws" />
@@ -20,11 +21,12 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
+    <SUITE FILE_PATH="coverage/aima_python 9-1-2016$neuralNet_submissions.coverage" NAME="neuralNet-submissions Coverage Results" MODIFIED="1480984912703" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/aima-python$py_test_in_aima_python.coverage" NAME="py.test in aima-python Coverage Results" MODIFIED="1472607099769" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/aima_python 9-1-2016$bayesian_submissions.coverage" NAME="bayesian-submissions Coverage Results" MODIFIED="1480984772901" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/aima-python$vacuum2.coverage" NAME="vacuum2 Coverage Results" MODIFIED="1472749571512" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/submissions/aardvark" />
     <SUITE FILE_PATH="coverage/aima-python$vaccuum__2_.coverage" NAME="vaccuum (2) Coverage Results" MODIFIED="1472681984761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/aima_python 9-1-2016$kMeans_submissions.coverage" NAME="kMeans-submissions Coverage Results" MODIFIED="1480967270171" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/grading" />
+    <SUITE FILE_PATH="coverage/aima_python 9-1-2016$kMeans_submissions.coverage" NAME="kMeans-submissions Coverage Results" MODIFIED="1480985641314" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/aima_python 9-1-2016$Output.coverage" NAME="Output Coverage Results" MODIFIED="1480966843919" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/submissions/Porter/project" />
     <SUITE FILE_PATH="coverage/aima_python 9-1-2016$myKMeans.coverage" NAME="myKMeans Coverage Results" MODIFIED="1480966978043" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/submissions/Porter" />
     <SUITE FILE_PATH="coverage/aima-python$vacuum2Runner.coverage" NAME="vacuum2Runner Coverage Results" MODIFIED="1472749595161" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -41,59 +43,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="myBayes.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/submissions/Porter/myBayes.py">
+      <file leaf-file-name="myKMeans.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/submissions/Porter/myKMeans.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="260">
-              <caret line="58" column="16" selection-start-line="58" selection-start-column="16" selection-end-line="58" selection-end-column="16" />
+            <state relative-caret-position="725">
+              <caret line="291" column="4" selection-start-line="291" selection-start-column="6" selection-end-line="294" selection-end-column="8" />
               <folding>
-                <element signature="e#0#16#0" expanded="true" />
-                <element signature="e#290#321#0" expanded="false" />
-                <element signature="e#1409#1791#1" expanded="false" />
-                <element signature="e#1792#1821#0" expanded="false" />
+                <element signature="e#0#34#0" expanded="true" />
+                <element signature="e#190#215#0" expanded="false" />
+                <element signature="e#5763#6145#1" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="validation.py" pinned="false" current-in-tab="false">
-        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/sklearn/utils/validation.py">
+      <file leaf-file-name="myKMeans.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/submissions/aartiste/myKMeans.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
-              <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="arraysetops.py" pinned="false" current-in-tab="false">
-        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/numpy/lib/arraysetops.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
-              <caret line="197" column="0" selection-start-line="197" selection-start-column="0" selection-end-line="197" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="myBayes.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/submissions/Ottenlips/myBayes.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="16" column="18" selection-start-line="16" selection-start-column="18" selection-end-line="16" selection-end-column="18" />
+            <state relative-caret-position="2535">
+              <caret line="169" column="18" selection-start-line="169" selection-start-column="18" selection-end-line="169" selection-end-column="18" />
               <folding>
-                <element signature="e#0#16#0" expanded="true" />
+                <element signature="e#0#34#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="myBayes.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/submissions/aartiste/myBayes.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1215">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -101,18 +72,8 @@
       <file leaf-file-name="util.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/grading/util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="55" column="30" selection-start-line="55" selection-start-column="30" selection-end-line="55" selection-end-column="30" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="_methods.py" pinned="false" current-in-tab="false">
-        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/numpy/core/_methods.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="176">
-              <caret line="90" column="0" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
+            <state relative-caret-position="225">
+              <caret line="15" column="1" selection-start-line="15" selection-start-column="1" selection-end-line="15" selection-end-column="1" />
               <folding />
             </state>
           </provider>
@@ -143,9 +104,9 @@
         <option value="$PROJECT_DIR$/submissions/Capps/vaccuum.py" />
         <option value="$PROJECT_DIR$/submissions/aardvark/vacuum2Runner.py" />
         <option value="$PROJECT_DIR$/submissions/aardvark/vacuum2.py" />
-        <option value="$PROJECT_DIR$/submissions/Porter/myKMeans.py" />
-        <option value="$PROJECT_DIR$/grading/util.py" />
         <option value="$PROJECT_DIR$/submissions/Porter/myBayes.py" />
+        <option value="$PROJECT_DIR$/grading/util.py" />
+        <option value="$PROJECT_DIR$/submissions/Porter/myKMeans.py" />
       </list>
     </option>
   </component>
@@ -157,7 +118,7 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="32" />
-    <option name="y" value="38" />
+    <option name="y" value="37" />
     <option name="width" value="1290" />
     <option name="height" value="909" />
   </component>
@@ -265,42 +226,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="submissions" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Ottenlips" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="aima_python 9-1-2016" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="aima_python 9-1-2016" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="submissions" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Capps" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="aima_python 9-1-2016" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="aima_python 9-1-2016" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="grading" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -326,7 +251,7 @@
       <recent name="$PROJECT_DIR$/submissions/Porter/project" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.bayesian-submissions">
+  <component name="RunManager" selected="Python.kMeans-submissions">
     <configuration default="false" name="Output" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -370,7 +295,7 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/grading" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -395,6 +320,24 @@
       <module name="aima_python 9-1-2016" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grading/bayesian-submissions.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="neuralNet-submissions" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="aima_python 9-1-2016" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/grading/neuralNet-submissions.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -607,18 +550,20 @@
       <option name="USE_KEYWORD" value="false" />
       <method />
     </configuration>
-    <list size="4">
+    <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.Output" />
       <item index="1" class="java.lang.String" itemvalue="Python.myKMeans" />
       <item index="2" class="java.lang.String" itemvalue="Python.kMeans-submissions" />
       <item index="3" class="java.lang.String" itemvalue="Python.bayesian-submissions" />
+      <item index="4" class="java.lang.String" itemvalue="Python.neuralNet-submissions" />
     </list>
     <recent_temporary>
-      <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python.bayesian-submissions" />
-        <item index="1" class="java.lang.String" itemvalue="Python.kMeans-submissions" />
-        <item index="2" class="java.lang.String" itemvalue="Python.myKMeans" />
-        <item index="3" class="java.lang.String" itemvalue="Python.Output" />
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.kMeans-submissions" />
+        <item index="1" class="java.lang.String" itemvalue="Python.neuralNet-submissions" />
+        <item index="2" class="java.lang.String" itemvalue="Python.bayesian-submissions" />
+        <item index="3" class="java.lang.String" itemvalue="Python.myKMeans" />
+        <item index="4" class="java.lang.String" itemvalue="Python.Output" />
       </list>
     </recent_temporary>
   </component>
@@ -658,7 +603,14 @@
       <option name="project" value="LOCAL" />
       <updated>1480984041813</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Submission for Bayesian Network">
+      <created>1480984795638</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1480984795638</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -691,7 +643,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="32" y="38" width="1290" height="909" extended-state="0" />
+    <frame x="32" y="37" width="1290" height="909" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19871795" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -751,13 +703,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/agents.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/PIL/Image.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34185">
@@ -1018,26 +963,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/submissions/Porter/myKMeans.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="22" selection-start-line="6" selection-start-column="22" selection-end-line="6" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#34#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/submissions/aartiste/myKMeans.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#34#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/grading/kMeans-submissions.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="236">
@@ -1112,14 +1037,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/grading/util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="55" column="30" selection-start-line="55" selection-start-column="30" selection-end-line="55" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/numpy/lib/arraysetops.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
@@ -1136,15 +1053,55 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/submissions/Porter/myNN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/submissions/Porter/myBayes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="58" column="16" selection-start-line="58" selection-start-column="16" selection-end-line="58" selection-end-column="16" />
+        <state relative-caret-position="410">
+          <caret line="101" column="0" selection-start-line="101" selection-start-column="0" selection-end-line="103" selection-end-column="1" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
             <element signature="e#290#321#0" expanded="false" />
             <element signature="e#1409#1791#1" expanded="false" />
             <element signature="e#1792#1821#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/submissions/aartiste/myKMeans.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2535">
+          <caret line="169" column="18" selection-start-line="169" selection-start-column="18" selection-end-line="169" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/grading/util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="1" selection-start-line="15" selection-start-column="1" selection-end-line="15" selection-end-column="1" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/submissions/Porter/myKMeans.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="725">
+          <caret line="291" column="4" selection-start-line="291" selection-start-column="6" selection-end-line="294" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+            <element signature="e#190#215#0" expanded="false" />
+            <element signature="e#5763#6145#1" expanded="false" />
           </folding>
         </state>
       </provider>
