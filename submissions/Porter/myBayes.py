@@ -34,10 +34,10 @@ Build the input frame, row by row.
 #         intersection[countyST]['Poverty'],
 #     ])
 
-def gender(string):
-    if string == "male":
+def type(string):
+    if string == "new":
         return 1
-    if string == "female":
+    if string == "aquired":
         return 2
     else:
         return 0
@@ -46,32 +46,32 @@ def political(value):
         return 1
     else:
         return 0
-# def worth(number):
-#     if value
-#         return 1
-#     else:
-#         return 0
+def citizen(country):
+    if country == 'United States':
+        return 1
+    else:
+        return 0
 
-
+def gender(string):
+    if string == 'male':
+        return 1
+    else:
+        return 0
 
 for x in billionaires:
-    Frame.target.append(gender(x['demographics']['gender']))
-    if x['wealth']['worth in billions'] > 2:
-        Frame.data.append([
+    Frame.target.append(type(x['company']['type']))
+
+    Frame.data.append([
         political(x['wealth']['how']['was political']),
-        1,
-            0
-        ])
-    else:
-        Frame.data.append([
-            political(x['wealth']['how']['was political']),
-            0,
-            1,
+        citizen(x['location']['citizenship']),
+        gender(x['demographics']['gender'])
+
         ])
 
 
 
-Frame.feature_names = ['Political','Worth > 2 billion','Worth <= 2 billion']
+
+Frame.feature_names = ['Political','US Citizen','Male']
 
 '''
 Build the target list,
@@ -97,7 +97,7 @@ arbitrary segments.
 #     tt = trumpTarget(intersection[countyST]['Trump'])
 #     trumpECHP.target.append(tt)
 
-Frame.target_names = ['Male', 'Female', 'Not Stated']
+Frame.target_names = ['New', 'Aquired', 'Not Stated']
 
 Examples = {
     'Billionaires': Frame
