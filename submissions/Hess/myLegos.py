@@ -11,20 +11,23 @@ armMotor = LargeMotor(OUTPUT_B)
 baseMotor = LargeMotor(OUTPUT_C)
 
 
-ev3.Sound.speak("Now moving claw.").wait()
+
+ev3.Sound.speak("Now opening claw.").wait()
 clawMotor.run_forever(speed_sp = 100)
 time.sleep(.5)
 clawMotor.stop()
 
-ev3.Sound.speak("Now moving arm.").wait()
-armMotor.run_forever(speed_sp = 100)
+ev3.Sound.speak("Now moving arm down.").wait()
+armMotor.run_forever(speed_sp = 120)
 time.sleep(2.5)
 armMotor.stop()
 
+ev3.Sound.speak("Now closing claw.").wait()
 clawMotor.run_forever(speed_sp = -100)
 time.sleep(2)
 
-armMotor.run_forever(speed_sp = -100)
+ev3.Sound.speak("Now moving arm up.").wait()
+armMotor.run_forever(speed_sp = -120)
 time.sleep(2)
 armMotor.stop()
 
@@ -33,11 +36,15 @@ baseMotor.run_forever(speed_sp = -130)
 time.sleep(2)
 baseMotor.stop()
 
+ev3.Sound.speak("Now releasing claw.").wait()
 clawMotor.stop()
 
+ev3.Sound.speak("Now returning to start point.").wait()
 baseMotor.run_forever(speed_sp = 130)
 time.sleep(2)
 baseMotor.stop()
+
+ev3.Sound.speak("Task complete, please give us an A+.").wait()
 
 
 
