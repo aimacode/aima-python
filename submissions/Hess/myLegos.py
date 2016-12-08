@@ -2,6 +2,7 @@ from ev3dev.auto import OUTPUT_A, OUTPUT_B, OUTPUT_C, LargeMotor, MediumMotor
 from ev3dev.auto import INPUT_1, INPUT_2, INPUT_3, TouchSensor, ColorSensor
 import time
 import ev3dev.ev3 as ev3
+import ev3dev.core.Sensor
 
 
     # def __init__(self):
@@ -33,12 +34,13 @@ clawMotor.stop()
 armtouch = False
 basetouch = False
 while(basetouch == False):
-    baseMotor.run_forever(speep_sp = 360)
-    time.sleep(1)
+    baseMotor.run_forever(speep_sp = 100)
+    time.sleep(5)
     baseMotor.stop()
     basetouch = baseTouch.is_pressed
+
 while(armtouch == False):
-    armMotor.run_forever(speed_sp = -360)
-    time.sleep(1)
+    armMotor.run_forever(speed_sp = 100)
+    time.sleep(5)
     armMotor.stop()
     armtouch = armTouch.is_pressed
