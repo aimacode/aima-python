@@ -28,7 +28,7 @@ time.sleep(2)
 
 ev3.Sound.speak("Now moving arm up.").wait()
 armMotor.run_forever(speed_sp = -360)
-time.sleep(1)
+time.sleep(.75)
 armMotor.stop()
 
 ev3.Sound.speak("Now moving base.").wait()
