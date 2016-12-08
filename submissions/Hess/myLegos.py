@@ -28,7 +28,12 @@ baseMotor = LargeMotor(OUTPUT_C)
 # armMotor.stop()
 
 ev3.Sound.speak("Now moving base.").wait()
-baseMotor.run_forever(speed_sp = -100)
+baseMotor.run_forever(speed_sp = -130)
+time.sleep(2)
+baseMotor.stop()
+
+ev3.Sound.speak("Now moving base.").wait()
+baseMotor.run_forever(speed_sp = 130)
 time.sleep(2)
 baseMotor.stop()
 
