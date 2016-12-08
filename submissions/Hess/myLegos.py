@@ -17,26 +17,28 @@ baseMotor = LargeMotor(OUTPUT_C)
     # def test(self):
 ev3.Sound.speak("Hello, how are you").wait()
 ev3.Sound.speak("Now moving base.").wait()
-baseMotor.run_forever(speed_sp = 500)
-time.sleep(2)
+baseMotor.run_forever(speed_sp = 100)
+time.sleep(3)
 baseMotor.stop()
 ev3.Sound.speak("Now moving arm.").wait()
-armMotor.run_forever(speed_sp = 500)
-time.sleep(2)
+armMotor.run_forever(speed_sp = 100)
+time.sleep(3)
 armMotor.stop()
 ev3.Sound.speak("Now moving claw.").wait()
-clawMotor.run_forever(speed_sp = 500)
-time.sleep(2)
+clawMotor.run_forever(speed_sp = 100)
+time.sleep(3)
 clawMotor.stop()
 
-    # def reset(self):
-# armtouch = False
-# basetouch = False
-# while(basetouch == False):
-#     baseMotor.run_forever(speep_sp = 360)
-#     time.sleep(1)
-#     basetouch = baseTouch.is_pressed
-# while(armtouch == False):
-#     armMotor.run_forever(speed_sp = -360)
-#     time.sleep(1)
-#     armtouch = armTouch.is_pressed
+
+armtouch = False
+basetouch = False
+while(basetouch == False):
+    baseMotor.run_forever(speep_sp = 360)
+    time.sleep(1)
+    baseMotor.stop()
+    basetouch = baseTouch.is_pressed
+while(armtouch == False):
+    armMotor.run_forever(speed_sp = -360)
+    time.sleep(1)
+    armMotor.stop()
+    armtouch = armTouch.is_pressed
