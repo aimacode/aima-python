@@ -22,10 +22,10 @@ time.sleep(2.5)
 armMotor.stop()
 
 clawMotor.run_forever(speed_sp = -100)
-time.sleep(10)
+time.sleep(2)
 
 armMotor.run_forever(speed_sp = -100)
-time.sleep(4)
+time.sleep(2)
 armMotor.stop()
 
 ev3.Sound.speak("Now moving base.").wait()
