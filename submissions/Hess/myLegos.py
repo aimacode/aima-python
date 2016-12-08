@@ -28,7 +28,7 @@ time.sleep(2)
 
 ev3.Sound.speak("Now moving arm up.").wait()
 armMotor.run_forever(speed_sp = -360)
-time.sleep(.75)
+time.sleep(.85)
 armMotor.stop()
 
 ev3.Sound.speak("Now moving base.").wait()
@@ -41,11 +41,11 @@ clawMotor.stop()
 
 ev3.Sound.speak("Now returning to start point.").wait()
 baseMotor.run_forever(speed_sp = 130)
-time.sleep(2)
+time.sleep(2.25)
 baseMotor.stop()
 
 ev3.Sound.speak("Task complete!").wait()
-ev3.Sound.speak("Dr. Hooper, Please Give Us an A Plus!").wait()
+ev3.Sound.speak("Dr. Hooper, Please Give Us an Ay Plus!").wait()
 
 
 
