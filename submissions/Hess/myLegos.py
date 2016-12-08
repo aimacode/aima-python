@@ -36,8 +36,8 @@ basetouch = False
 while(basetouch == False):
     baseMotor.run_forever(speep_sp = 360)
     time.sleep(1)
-    basetouch = baseTouch.is_pressed()
+    basetouch = baseTouch.is_pressed
 while(armtouch == False):
     armMotor.run_forever(speed_sp = -360)
     time.sleep(1)
-    armtouch = armTouch.is_pressed()
+    armtouch = armTouch.is_pressed
