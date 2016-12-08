@@ -13,7 +13,7 @@ baseMotor = LargeMotor(OUTPUT_C)
 
 ev3.Sound.speak("Now moving claw.").wait()
 clawMotor.run_forever(speed_sp = 100)
-time.sleep(1)
+time.sleep(1.5)
 clawMotor.stop()
 
 ev3.Sound.speak("Now moving arm.").wait()
