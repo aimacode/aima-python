@@ -27,8 +27,8 @@ clawMotor.run_forever(speed_sp = -100)
 time.sleep(2)
 
 ev3.Sound.speak("Now moving arm up.").wait()
-armMotor.run_forever(speed_sp = -100)
-time.sleep(1.7)
+armMotor.run_forever(speed_sp = -360)
+time.sleep(1)
 armMotor.stop()
 
 ev3.Sound.speak("Now moving base.").wait()
