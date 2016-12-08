@@ -45,7 +45,7 @@ time.sleep(2.25)
 baseMotor.stop()
 
 ev3.Sound.speak("Task complete!").wait()
-ev3.Sound.speak("Dr. Hooper, Please Give Us a good grade!").wait()
+ev3.Sound.speak("Dr. Hooper, Please Give Us an Aye Plus!").wait()
 
 
 
