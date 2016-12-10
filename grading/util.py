@@ -9,7 +9,7 @@ roster = [
   #  'Hawley','Hess','Johnson',
   #  'Karman','Kinley','LaMartina',
   #  'McLean','Miles',
-    'Ottenlips',
+   # 'Ottenlips',
   #  'Porter','Sery','VanderKallen',
     'aardvark',
    # 'aartiste',
