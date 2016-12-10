@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c0d5b11-9838-459c-818c-2b175619ce26" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/submissions/Porter/Robot1.ev3" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/submissions/Porter/Robot1.ev3" afterPath="$PROJECT_DIR$/submissions/Porter/myLegos.ev3" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/submissions/Porter/myLegos.py" afterPath="$PROJECT_DIR$/submissions/Porter/myLegos.py" />
     </list>
     <list id="cb321768-febf-4d6f-9fbf-16cd6098702b" name="ignore" comment="" />
     <ignored path="aima-python.iws" />
@@ -42,20 +41,7 @@
     <favorites_list name="aima-python" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="myLegos.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/submissions/Porter/myLegos.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
-              <folding>
-                <element signature="e#241#254#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -614,7 +600,14 @@
       <option name="project" value="LOCAL" />
       <updated>1481046738542</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Finished Lego Project in ev3">
+      <created>1481333823076</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1481333823076</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -685,7 +678,8 @@
     <MESSAGE value="My homework submission #1" />
     <MESSAGE value="Submission for Bayesian Network" />
     <MESSAGE value="Work on Kmeans.  Transferred my working Bayesian network code into kMeans but can't get it to compile and not getting any error messages." />
-    <option name="LAST_COMMIT_MESSAGE" value="Work on Kmeans.  Transferred my working Bayesian network code into kMeans but can't get it to compile and not getting any error messages." />
+    <MESSAGE value="Finished Lego Project in ev3" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finished Lego Project in ev3" />
     <option name="PRESELECT_EXISTING_CHANGELIST" value="false" />
   </component>
   <component name="XDebuggerManager">
