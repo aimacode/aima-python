@@ -28,7 +28,7 @@ mright = LargeMotor(OUTPUT_C)
 mup.run_timed(speed_sp = 360, time_sp = 600)
 #grab the object
 time.sleep(1)
-mgrab.run_timed(speed_sp = 360, time_sp = 500)
+mgrab.run_timed(speed_sp = 720, time_sp = 500)
 # move arm back up
 time.sleep(1)
 mup.run_timed(speed_sp = -360, time_sp = 600)
