@@ -3,8 +3,7 @@ from utils import isnumber
 
 roster = [
  #   'Anderson','Ban','Becker',
-   'Blue',
-    # 'Capps','Conklin',
+ #  'Blue', 'Capps','Conklin',
  ##   'Dickenson','Fritz','Haller',
   #  'Hawley','Hess','Johnson',
   #  'Karman','Kinley','LaMartina',
