@@ -17,11 +17,11 @@ mup = LargeMotor(OUTPUT_D)
 # print('Hooray')
 
 #move the arm down
-mup.run_timed(speed_sp = -360, time_sp = 705)
-# mgrab = MediumMotor(OUTPUT_A)
+# mup.run_timed(speed_sp = -360, time_sp = 705)
+mgrab = MediumMotor(OUTPUT_A)
 # #grab the object
-# mgrab.run_timed(speed_sp = 100, time_sp = 300)
-# #move arm back up
+mgrab.run_timed(speed_sp = 100, time_sp = 300)
+#move arm back up
 # mup.run_timed(speed_sp = -40, time_sp = 705)
 # mright = LargeMotor(OUTPUT_C)
 # #move arm right
