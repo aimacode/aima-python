@@ -23,13 +23,14 @@ honordata2 = DataFrame2()
 honordata2.data = []
 
 medalofhonor = medal_of_honor.get_awardees(test=True)
+
 for issued in medalofhonor:
     try:
         date = int(issued['birth']["date"]["year"])
         honortarget.append(date)
 
-        date = int(issued['birth']["date"]["month"])
-        honortarget2.append(date)
+        date2 = int(issued['birth']["date"]["month"])
+        honortarget2.append(date2)
 
 
         day = int(issued['awarded']['date']['day'])
