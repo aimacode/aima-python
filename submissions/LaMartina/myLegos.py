@@ -18,11 +18,11 @@ mright = LargeMotor(OUTPUT_C)
 # m.stop()
 # print('Hooray')
 
-mright.run_timed(speed_sp = -360, time_sp = 200)
+# mright.run_timed(speed_sp = -360, time_sp = 200)
 
-# mup.run_timed(speed_sp = -360, time_sp = 500)
-# mright.run_timed(speed_sp = -360, time_sp = 100)
-# mgrab.run_timed(speed_sp = -360, time_sp = 400)
+mup.run_timed(speed_sp = -360, time_sp = 500)
+mright.run_timed(speed_sp = -360, time_sp = 200)
+mgrab.run_timed(speed_sp = -360, time_sp = 400)
 
 # #move the arm down
 # mup.run_timed(speed_sp = 360, time_sp = 705)
