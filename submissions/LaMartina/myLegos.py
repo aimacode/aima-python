@@ -17,19 +17,19 @@ mup = LargeMotor(OUTPUT_D)
 # print('Hooray')
 
 #move the arm down
-mup.run_timed(speed_sp = 40, time_sp = 705)
-mgrab = MediumMotor(OUTPUT_A)
-#grab the object
-mgrab.run_timed(speed_sp = 100, time_sp = 300)
-#move arm back up
-mup.run_timed(speed_sp = -40, time_sp = 705)
-mright = LargeMotor(OUTPUT_C)
-#move arm right
-mright.run_timed(speed_sp = 40, time_sp = 1000)
-#move arm down at target location
-mup.run_timed(speed_sp = 40, time_sp = 705)
-#release the object
-mgrab.run_timed(speed_sp = -10, time_sp = 300)
-#reset position
-mup.run_timed(speed_sp = -40, time_sp = 705)
-mright.run_timed(speed_sp =-40, time_sp = 1000)
+mup.run_timed(speed_sp = 360, time_sp = 705)
+# mgrab = MediumMotor(OUTPUT_A)
+# #grab the object
+# mgrab.run_timed(speed_sp = 100, time_sp = 300)
+# #move arm back up
+# mup.run_timed(speed_sp = -40, time_sp = 705)
+# mright = LargeMotor(OUTPUT_C)
+# #move arm right
+# mright.run_timed(speed_sp = 40, time_sp = 1000)
+# #move arm down at target location
+# mup.run_timed(speed_sp = 40, time_sp = 705)
+# #release the object
+# mgrab.run_timed(speed_sp = -10, time_sp = 300)
+# #reset position
+# mup.run_timed(speed_sp = -40, time_sp = 705)
+# mright.run_timed(speed_sp =-40, time_sp = 1000)
