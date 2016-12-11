@@ -20,7 +20,7 @@ mup = LargeMotor(OUTPUT_D)
 # mup.run_timed(speed_sp = -360, time_sp = 705)
 mgrab = MediumMotor(OUTPUT_A)
 # #grab the object
-mgrab.run_timed(speed_sp = 360, time_sp = 705)
+mgrab.run_timed(speed_sp = -360, time_sp = 705)
 #move arm back up
 # mup.run_timed(speed_sp = -40, time_sp = 705)
 # mright = LargeMotor(OUTPUT_C)
