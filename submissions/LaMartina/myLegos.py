@@ -20,7 +20,7 @@ mright = LargeMotor(OUTPUT_C)
 
 # mright.run_timed(speed_sp = -360, time_sp = 200)
 
-mup.run_timed(speed_sp = -360, time_sp = 300)
+mup.run_timed(speed_sp = -360, time_sp = 200)
 # mright.run_timed(speed_sp = -360, time_sp = 200)
 # mgrab.run_timed(speed_sp = -360, time_sp = 400)
 
