@@ -20,22 +20,22 @@ mright = LargeMotor(OUTPUT_C)
 
 # mright.run_timed(speed_sp = -360, time_sp = 200)
 
-#mup.run_timed(speed_sp = -360, time_sp = 200)
+mup.run_timed(speed_sp = -360, time_sp = 200)
 # mright.run_timed(speed_sp = -360, time_sp = 200)
-# mgrab.run_timed(speed_sp = 360, time_sp = 400)
+mgrab.run_timed(speed_sp = 360, time_sp = 400)
 
 #move the arm down
-mup.run_timed(speed_sp = 360, time_sp = 705)
-#grab the object
-mgrab.run_timed(speed_sp = 360, time_sp = 400)
-#move arm back up
-mup.run_timed(speed_sp = -360, time_sp = 705)
-#move arm right
-mright.run_timed(speed_sp = 360, time_sp = 300)
-#move arm down at target location
-mup.run_timed(speed_sp = 360, time_sp = 705)
-#release the object
-mgrab.run_timed(speed_sp = -360, time_sp = 400)
-#reset position
-mup.run_timed(speed_sp = -360, time_sp = 705)
-mright.run_timed(speed_sp =-360, time_sp = 300)
+# mup.run_timed(speed_sp = 360, time_sp = 705)
+# #grab the object
+# mgrab.run_timed(speed_sp = 360, time_sp = 400)
+# #move arm back up
+# mup.run_timed(speed_sp = -360, time_sp = 705)
+# #move arm right
+# mright.run_timed(speed_sp = 360, time_sp = 300)
+# #move arm down at target location
+# mup.run_timed(speed_sp = 360, time_sp = 705)
+# #release the object
+# mgrab.run_timed(speed_sp = -360, time_sp = 400)
+# #reset position
+# mup.run_timed(speed_sp = -360, time_sp = 705)
+# mright.run_timed(speed_sp =-360, time_sp = 300)
