@@ -1,4 +1,4 @@
-# common utilities for grading
+
 from utils import isnumber
 
 roster = [

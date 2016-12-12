@@ -10,37 +10,68 @@ class DataFrame:
     target = []
     target_names = []
 
-billionairesPIG = DataFrame()
+Frame = DataFrame()
+Frame.data = []
 
 
 
-billionaireInfo = billionaires.get_billionaires()
+
+billionaires = billionaires.get_billionaires()
 
 
 '''
 Build the input frame, row by row.
 '''
-for countyST in intersection:
-    # choose the input values
-    billionairesPIG.data.append([
-        # countyST,
-        # intersection[countyST]['ST'],
-        # intersection[countyST]['Trump'],
-        intersection[countyST]['Elderly'],
-        intersection[countyST]['College'],
-        intersection[countyST]['Home'],
-        intersection[countyST]['Poverty'],
-    ])
+# for countyST in intersection:
+#     # choose the input values
+#     billionairesPIG.data.append([
+#         # countyST,
+#         # intersection[countyST]['ST'],
+#         # intersection[countyST]['Trump'],
+#         intersection[countyST]['Elderly'],
+#         intersection[countyST]['College'],
+#         intersection[countyST]['Home'],
+#         intersection[countyST]['Poverty'],
+#     ])
 
-billionairesPIG.feature_names = [
-    # 'countyST',
-    # 'ST',
-    # 'Trump',
-    'Political',
-    'Inherited',
-    'Gender',
+def type(string):
+    if string == "new":
+        return 1
+    if string == "aquired":
+        return 2
+    else:
+        return 0
+def political(value):
+    if value:
+        return 1
+    else:
+        return 0
+def citizen(country):
+    if country == 'United States':
+        return 1
+    else:
+        return 0
 
-]
+def gender(string):
+    if string == 'male':
+        return 1
+    else:
+        return 0
+
+for x in billionaires:
+    Frame.target.append(type(x['company']['type']))
+
+    Frame.data.append([
+        political(x['wealth']['how']['was political']),
+        citizen(x['location']['citizenship']),
+        gender(x['demographics']['gender'])
+
+        ])
+
+
+
+
+Frame.feature_names = ['Political','US Citizen','Male']
 
 '''
 Build the target list,
@@ -54,23 +85,20 @@ the segment into which the variable's value will fall.
 In this example, I'm breaking Trump's % into two
 arbitrary segments.
 '''
-billionairesPIG.target = []
+# billionairesPIG.target = []
 
-def trumpTarget(percentage):
-    if percentage > 45:
-        return 1
-    return 0
+# def trumpTarget(percentage):
+#     if percentage > 45:
+#         return 1
+#     return 0
 
-for countyST in intersection:
-    # choose the target
-    tt = trumpTarget(intersection[countyST]['Trump'])
-    trumpECHP.target.append(tt)
+# for countyST in intersection:
+#     # choose the target
+#     tt = trumpTarget(intersection[countyST]['Trump'])
+#     trumpECHP.target.append(tt)
 
-billionairesPIG.target_names = [
-    'New',
-    'Old',
-]
+Frame.target_names = ['New', 'Aquired', 'Not Stated']
 
 Examples = {
-    'Billionaires': billionairesECHP,
+    'Billionaires': Frame
 }

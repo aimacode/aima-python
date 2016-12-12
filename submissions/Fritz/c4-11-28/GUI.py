@@ -163,6 +163,7 @@ class GUI:
             #guess = randint(0, 6)
             # guess = g.utility(self, self.gameState, self.currentPlayerLabel)
             guess = games.alphabeta_search(self.gameState, self.game, 1)
+            newguess = guess
            # print(d)
           #  print(column.gameState.grid)
             return self.gameState.drop(guess)

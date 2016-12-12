@@ -1,18 +1,25 @@
 from games import Game
 from copy import deepcopy
 
+
 class C4Game(Game):
+
     def __init__(self, state):
         self.initial = state
 
+
     def actions(self, state):
-        columns = { 0, 1, 2, 3, 4, 5, 6 }
+        columns = {0, 1, 2, 3, 4, 5, 6}
         # remove the columns that are full
         #.grid[column]) >= self.size['r']
-        for c in [ 0, 1, 2, 3, 4, 5, 6 ]:
-            if state.grid[c] >= state.size['r']:
+        for c in [0, 1, 2, 3, 4, 5, 6]:
+            if len(state.grid[c]) >= 6:
                 columns.remove(c)
         return list(columns)
+    #    for c in [ 0, 1, 2, 3, 4, 5, 6 ]:
+    #        if state.grid[c] >= state.size['r']:
+    #            columns.remove(c)
+    #    return list(columns)
 
     # defines the order of play
     def opponent(self, player):
@@ -22,13 +29,21 @@ class C4Game(Game):
             return 'X'
         return None
 
+    def to_move(self, player):
+        if player.first_player == False:
+            return 'O'
+        if player.first_player == True:
+            return 'X'
+        return None
+
+
     def vertical4(self, state, player):
         for c in range(state.size['c']):
             height = len(state.grid[c])
             if height < 4:
                 return 0
             count = 0
-            for r in range(height-4, height):
+            for r in range(height):
                 if state.grid[c][r] != player:
                     count += 1
                 else:
@@ -39,7 +54,19 @@ class C4Game(Game):
 
 
     def horizontal4(self, state, player):
-        pass
+        for r in range(state.size['r']):
+            width = len(state.grid[r])
+            if width < 4:
+                return 0
+            count = 0
+            for c in range(width):
+                if state.grid[r][c] != player:
+                    count += 1
+                else:
+                    break
+            if count == 4:
+                return 1
+        return 0
 
     def rightDiagonal4(self, state, player):
         pass
@@ -49,28 +76,51 @@ class C4Game(Game):
 
     def utility(self, state, player):
         "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
-        if self.vertical4(state, player):
-            return 1
-        if self.horizontal4(state, player):
-            return 1
-        if self.rightDiagonal4(state, player):
-            return 1
-        if self.leftDiagonal4(state, player):
-            return 1
+     #   if self.vertical4(state, player):
+     #       return 1
+     #   if self.horizontal4(state, player):
+     #       return 1
+        #if self.rightDiagonal4(state, player):
+        #    return 1
+        #if self.leftDiagonal4(state, player):
+        #    return 1
+
 
         opponent = self.opponent(player)
-        if self.vertical4(state, opponent):
+        if ConnectFour.drop(state,0) < 0 :
+            #ConnectFour.drop(state,0)
             return -1
-        if self.horizontal4(state, opponent):
+        if ConnectFour.drop(state, 1) < 0:
             return -1
-        if self.rightDiagonal4(state, opponent):
+        if ConnectFour.drop(state, 2) < 0:
             return -1
-        if self.leftDiagonal4(state, opponent):
+        if ConnectFour.drop(state, 3) < 0:
             return -1
+        if ConnectFour.drop(state, 4) < 0:
+            return -1
+        if ConnectFour.drop(state, 5) < 0:
+            return -1
+        if ConnectFour.drop(state, 6) < 0:
+            return -1
+        if ConnectFour.drop(state, 7) < 0:
+            return -1
+        else:
+            return 0
+
+     #   if self.vertical4(state, opponent):
+     #       return -1
+     #   if self.horizontal4(state, opponent):
+     #       return -1
+     #   if self.rightDiagonal4(state, opponent):
+     #       return -1
+     #   if self.leftDiagonal4(state, opponent):
+     #       return -1
 
         # add other heuristics
 
         return 0
+
+
         # try:
         #     return state.utility if player == 'X' else -state.utility
         # except:
@@ -124,7 +174,7 @@ class ConnectFour:
         self.grid = [[] for i in range(self.size['c'])]
 
     def drop(self, column):
-        if self.game_over: return False
+     #   if self.game_over: return False
 
         if column < 0 or column >= self.size['c']:
             return False
@@ -136,10 +186,11 @@ class ConnectFour:
         c = self.check()
         if c == False:
             self.first_player = not self.first_player
-            return True
+            return 1
         else:
             self.game_over = c
-            return True
+            return -1
+
 
     def check(self):
         d = 0
@@ -151,7 +202,7 @@ class ConnectFour:
 
                 if v:
                     if 1 == len(set(self.grid[i][j:j + 4])):
-                        return 'win'
+                        return True
 
                 if h:
                     if len(self.grid[i]) > j and len(self.grid[i + 1]) > j and len(self.grid[i + 2]) > j and len(
@@ -160,7 +211,7 @@ class ConnectFour:
                         for k in range(4):
                             s_r.add(self.grid[i + k][j])
                         if 1 == len(s_r):
-                            return 'win'
+                            return True
 
                 if h:
                     s = set()
@@ -170,7 +221,7 @@ class ConnectFour:
                         else:
                             s.add('??')
                     if 1 == len(s):
-                        return 'win'
+                        return True
 
                 if h and j - 4 + 1 >= 0:
                     s = set()
@@ -180,9 +231,10 @@ class ConnectFour:
                         else:
                             s.add('??')
                     if 1 == len(s):
-                        return 'win'
+                        return -1
 
         if d == self.size['c'] * self.size['r']:
             return 'draw'
+
 
         return False
