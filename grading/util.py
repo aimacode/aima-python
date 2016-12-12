@@ -1,4 +1,4 @@
-# common utilities for grading
+
 from utils import isnumber
 
 roster = [
@@ -6,7 +6,9 @@ roster = [
     'Blue','Capps','Conklin',
     'Dickenson','Fritz','Haller',
     'Hawley','Hess','Johnson',
-    'Karman','Kinley','LaMartina',
+    'Karman',
+    'Kinley',
+    'LaMartina',
     'McLean','Miles','Ottenlips',
     'Porter','Sery','VanderKallen',
     'aardvark',

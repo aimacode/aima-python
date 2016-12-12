@@ -5,7 +5,6 @@ from grading.util import roster, print_table
 # from utils import expr
 import os
 from sklearn.neural_network import MLPClassifier
-mlpc = MLPClassifier()
 
 def indent(howMuch = 1):
     space = ' '
@@ -18,12 +17,12 @@ def tryOne(label, fAndP):
     if 'mlpc' in fAndP.keys():
         clf = fAndP['mlpc']
     else:
-        clf = mlpc
+        clf = MLPClassifier()
     try:
         fit = clf.fit(frame.data, frame.target)
     except:
-        pass
-    print('')
+        traceback.print_exc()
+    print(label + ':')
     # print_table(fit.theta_,
     #             header=[frame.feature_names],
     #             topLeft=[label],
@@ -33,8 +32,13 @@ def tryOne(label, fAndP):
     #             tjust='rjust',
     #             )
     y_pred = fit.predict(frame.data)
-    print("Number of mislabeled points out of a total %d points : %d"
-          % (len(frame.data), (frame.target != y_pred).sum()))
+    tot = len(frame.data)
+    mis = (frame.target != y_pred).sum()
+    cor = 1 - mis / tot
+    print(
+        "  Number of mislabeled points out of a total {0} points : {1} ({2:.0%} correct)"
+            .format(tot, mis, cor)
+    )
 
 def tryExamples(examples):
     for label in examples:
@@ -74,7 +78,7 @@ for student in roster:
     scores[student] = []
     try:
         examples = submissions[student]
-        print('Bayesian Networks from:', student)
+        print('Neural Networks from:', student)
         tryExamples(examples)
     except:
         traceback.print_exc()
