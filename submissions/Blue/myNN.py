@@ -44,7 +44,7 @@ musicATRB.feature_names = [
 musicATRB.target = []
 
 def musicTarget(release):
-    if (song['song']['duration'] <= 210
+    if (length <= 210
         ): #if the song is less that 3.5 minutes (210 seconds) long
         return 1
     return 0
@@ -66,25 +66,25 @@ Examples = {
 Make a customn classifier,
 '''
 mlpc = MLPClassifier(
-    hidden_layer_sizes = (100,),
+    hidden_layer_sizes = (5000,),
     activation = 'relu',
     solver='sgd', # 'adam',
-    alpha = 0.0001,
+    # alpha = 0.0001,
     # batch_size='auto',
     learning_rate = 'adaptive', # 'constant',
     # power_t = 0.5,
     max_iter = 1000, # 200,
-    shuffle = True,
+    shuffle = False,
     # random_state = None,
     # tol = 1e-4,
     # verbose = False,
     # warm_start = False,
-    # momentum = 0.9,
+    momentum = 0.4,
     # nesterovs_momentum = True,
     # early_stopping = False,
     # validation_fraction = 0.1,
     # beta_1 = 0.9,
-    # beta_2 = 0.999,
+    beta_2 = 0.999,
     # epsilon = 1e-8,
 )
 
@@ -126,6 +126,8 @@ musicScaled.feature_names = musicATRB.feature_names
 musicScaled.target = musicATRB.target
 musicScaled.target_names = musicATRB.target_names
 
+
+
 Examples = {
     'musicDefault': {
         'frame': musicATRB,
@@ -134,7 +136,7 @@ Examples = {
         'frame': musicATRB,
         'mlpc': mlpc
     },
-    'MusisScaled': {
+    'MusicScaled': {
         'frame': musicScaled,
     },
 }

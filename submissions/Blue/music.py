@@ -135,7 +135,7 @@ def get_song_by_name(title):
         return _Auxiliary._byteify(data)
         
 
-def get_songs_by_artist(artist, test=True):
+def get_songs_by_artist(artist, test=False):
     """
     Given the name of an artist, returns all the songs by that artist in the database.
     
@@ -171,7 +171,7 @@ def get_songs_by_artist(artist, test=True):
         return _Auxiliary._byteify(data)
         
 
-def get_songs(test=True):
+def get_songs(test=False):
     """
     Gets a list of all the songs in the database.
     
@@ -212,7 +212,7 @@ def _test_interfaces():
     # Production test
     print("Production get_songs_by_artist")
     start_time = _default_timer()
-    result = get_songs_by_artist("Aerosmith", test=False)
+    result = get_songs_by_artist("Aerosmith")
     
     print("{} entries found.".format(len(result)))
     _pprint(_Auxiliary._guess_schema(result))
@@ -221,7 +221,7 @@ def _test_interfaces():
     # Test test
     print("Test get_songs_by_artist")
     start_time = _default_timer()
-    result = get_songs_by_artist("Aerosmith")
+    result = get_songs_by_artist("Aerosmith", test=True)
     
     print("{} entries found.".format(len(result)))
     _pprint(_Auxiliary._guess_schema(result))
@@ -231,7 +231,7 @@ def _test_interfaces():
     # Production test
     print("Production get_songs")
     start_time = _default_timer()
-    result = get_songs(test=False)
+    result = get_songs()
     
     print("{} entries found.".format(len(result)))
     _pprint(_Auxiliary._guess_schema(result))
@@ -240,7 +240,7 @@ def _test_interfaces():
     # Test test
     print("Test get_songs")
     start_time = _default_timer()
-    result = get_songs()
+    result = get_songs(test=True)
     
     print("{} entries found.".format(len(result)))
     _pprint(_Auxiliary._guess_schema(result))
@@ -254,13 +254,7 @@ if __name__ == '__main__':
     _parser.add_option("-t", "--test", action="store_true",
                       default=False,
                       help="Execute the interfaces to test them.")
-    _parser.add_option("-r", "--reset", action="store_true",
-                      default=False,
-                      help="Reset the cache")
     (_options, _args) = _parser.parse_args()
     
     if _options.test:
         _test_interfaces()
-
-    if _options.reset:
-        _modify_self()
