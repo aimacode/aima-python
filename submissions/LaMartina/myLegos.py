@@ -6,6 +6,8 @@
 #     method=nxt.locator.Method(
 #         bluetooth=False, fantomusb=True, fantombt=False, usb=False))
 
+#The instructions for building the crane can be found at http://robotsquare.com/wp-content/uploads/2013/10/45544_robotarmh25.pdf
+
 from ev3dev.auto import OUTPUT_D, LargeMotor, OUTPUT_A, MediumMotor, OUTPUT_C
 import time
 
