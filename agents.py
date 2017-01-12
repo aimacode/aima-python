@@ -325,7 +325,7 @@ class Environment(object):
 class Direction():
     '''A direction class for agents that want to move in a 2D plane
         Usage:
-            d = Direction("Down")
+            d = Direction("down")
             To change directions:
             d = d + "right" or d = d + Direction.R #Both do the same thing
             Note that the argument to __add__ must be a string and not a Direction object.
