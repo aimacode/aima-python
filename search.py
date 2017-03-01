@@ -389,13 +389,14 @@ def simulated_annealing(problem, schedule=exp_schedule()):
 
 
 def and_or_graph_search(problem):
-    """Used when the environment is  nondeterministic and completely observable
-    Contains OR nodes where the agent is free to choose any action
+    """Used when the environment is nondeterministic and completely observable.
+    Contains OR nodes where the agent is free to choose any action.
     After every action there is an AND node which contains all possible states
-    the agent may reach due to stochastic nature of environment
-    The agent must be able to handle all possible states of the AND node(as it
-    may end up in any of them) returns a conditional plan to reach goal state,
-    or failure if the former is not possible"""
+    the agent may reach due to stochastic nature of environment.
+    The agent must be able to handle all possible states of the AND node (as it
+    may end up in any of them).
+    Returns a conditional plan to reach goal state,
+    or failure if the former is not possible."""
     "[Figure 4.11]"
 
     # functions used by and_or_search
@@ -411,7 +412,7 @@ def and_or_graph_search(problem):
                 return [action, plan]
 
     def and_search(states, problem, path):
-        "returns plan in form of dictionary where we take action plan[s] if we reach state s"  # noqa
+        "Returns plan in form of dictionary where we take action plan[s] if we reach state s."  # noqa
         plan = {}
         for s in states:
             plan[s] = or_search(s, problem, path)
@@ -497,7 +498,7 @@ class OnlineSearchProblem(Problem):
 
     def c(self, s, a, s1):
         """
-        Returns a cost estimate for an agent to move from state 's' to state 's1'
+        Returns a cost estimate for an agent to move from state 's' to state 's1'.
         """
         return 1
 
@@ -516,7 +517,7 @@ class LRTAStarAgent:
     Abstract class for LRTA*-Agent. A problem needs to be
     provided which is an instanace of a subclass of Problem Class.
 
-    Takes a OnlineSearchProblem [Figure 4.23] as a problem
+    Takes a OnlineSearchProblem [Figure 4.23] as a problem.
     """
 
     def __init__(self, problem):
@@ -552,7 +553,7 @@ class LRTAStarAgent:
     def LRTA_cost(self, s, a, s1, H):
         """
         Returns cost to move from state 's' to state 's1' plus
-        estimated cost to get to goal from s1
+        estimated cost to get to goal from s1.
         """
         print(s, a, s1)
         if s1 is None:
@@ -817,10 +818,10 @@ class GraphProblem(Problem):
 class GraphProblemStochastic(GraphProblem):
     """
     A version of GraphProblem where an action can lead to
-    nondeterministic output i.e. multiple possible states
+    nondeterministic output i.e. multiple possible states.
 
     Define the graph as dict(A = dict(Action = [[<Result 1>, <Result 2>, ...], <cost>], ...), ...)
-    A the dictionary format is different, make sure the graph is created as a directed graph
+    A the dictionary format is different, make sure the graph is created as a directed graph.
     """
 
     def result(self, state, action):
@@ -1006,7 +1007,7 @@ class Wordlist:
 
 class BoggleFinder:
 
-    """A class that allows you to find all the words in a Boggle board. """
+    """A class that allows you to find all the words in a Boggle board."""
 
     wordlist = None  # A class variable, holding a wordlist
 
