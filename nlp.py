@@ -52,7 +52,7 @@ class Grammar:
         return cat in self.categories[word]
 
     def __repr__(self):
-        return '<Grammar %s>' % self.name
+        return '<Grammar {0!r}>'.format(self.name)
 
 E0 = Grammar('E0',
              Rules(  # Grammar for E_0 [Figure 22.4]
@@ -158,7 +158,7 @@ class Chart:
         if edge not in self.chart[end]:
             self.chart[end].append(edge)
             if self.trace:
-                print('Chart: added %s' % (edge,))
+                print('Chart: added {}'.format(edge))
             if not expects:
                 self.extender(edge)
             else:
