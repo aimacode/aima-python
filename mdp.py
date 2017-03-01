@@ -80,7 +80,7 @@ class GridMDP(MDP):
                     (0.1, self.go(state, turn_left(action)))]
 
     def go(self, state, direction):
-        "Return the state that results from going in this direction."
+        """Return the state that results from going in this direction."""
         state1 = vector_add(state, direction)
         return state1 if state1 in self.states else state
 
@@ -110,7 +110,7 @@ sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
 
 
 def value_iteration(mdp, epsilon=0.001):
-    "Solving an MDP by value iteration. [Figure 17.4]"
+    """Solving an MDP by value iteration. [Figure 17.4]"""
     U1 = {s: 0 for s in mdp.states}
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
     while True:
@@ -134,14 +134,14 @@ def best_policy(mdp, U):
 
 
 def expected_utility(a, s, U, mdp):
-    "The expected utility of doing a in state s, according to the MDP and U."
+    """The expected utility of doing a in state s, according to the MDP and U."""
     return sum([p * U[s1] for (p, s1) in mdp.T(s, a)])
 
 # ______________________________________________________________________________
 
 
 def policy_iteration(mdp):
-    "Solve an MDP by policy iteration [Figure 17.7]"
+    """Solve an MDP by policy iteration [Figure 17.7]"""
     U = {s: 0 for s in mdp.states}
     pi = {s: random.choice(mdp.actions(s)) for s in mdp.states}
     while True:
