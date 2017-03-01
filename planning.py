@@ -7,9 +7,9 @@ from logic import FolKB
 
 class PDLL:
     """
-    PDLL used to define a search problem
-    It stores states in a knowledge base consisting of first order logic statements
-    The conjunction of these logical statements completely define a state
+    PDLL used to define a search problem.
+    It stores states in a knowledge base consisting of first order logic statements.
+    The conjunction of these logical statements completely defines a state.
     """
 
     def __init__(self, initial_state, actions, goal_test):
@@ -22,7 +22,7 @@ class PDLL:
 
     def act(self, action):
         """
-        Performs the action given as argument
+        Performs the action given as argument.
         Note that action is an Expr like expr('Remove(Glass, Table)') or expr('Eat(Sandwich)')
         """
         action_name = action.op
@@ -36,10 +36,10 @@ class PDLL:
 
 class Action:
     """
-    Defines an action schema using preconditions and effects
-    Use this to describe actions in PDDL
-    action is an Expr where variables are given as arguments(args)
-    Precondition and effect are both lists with positive and negated literals
+    Defines an action schema using preconditions and effects.
+    Use this to describe actions in PDDL.
+    action is an Expr where variables are given as arguments(args).
+    Precondition and effect are both lists with positive and negated literals.
     Example:
     precond_pos = [expr("Human(person)"), expr("Hungry(Person)")]
     precond_neg = [expr("Eaten(food)")]
