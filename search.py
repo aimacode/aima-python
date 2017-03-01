@@ -789,25 +789,25 @@ australia_map.locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
 
 class GraphProblem(Problem):
 
-    "The problem of searching a graph from one node to another."
+    """The problem of searching a graph from one node to another."""
 
     def __init__(self, initial, goal, graph):
         Problem.__init__(self, initial, goal)
         self.graph = graph
 
     def actions(self, A):
-        "The actions at a graph node are just its neighbors."
+        """The actions at a graph node are just its neighbors."""
         return list(self.graph.get(A).keys())
 
     def result(self, state, action):
-        "The result of going to a neighbor is just that neighbor."
+        """The result of going to a neighbor is just that neighbor."""
         return action
 
     def path_cost(self, cost_so_far, A, action, B):
         return cost_so_far + (self.graph.get(A, B) or infinity)
 
     def h(self, node):
-        "h function is straight-line distance from a node's state to goal."
+        """h function is straight-line distance from a node's state to goal."""
         locs = getattr(self.graph, 'locations', None)
         if locs:
             return int(distance(locs[node.state], locs[self.goal]))
@@ -850,7 +850,7 @@ class NQueensProblem(Problem):
         self.initial = [None] * N
 
     def actions(self, state):
-        "In the leftmost empty column, try all non-conflicting rows."
+        """In the leftmost empty column, try all non-conflicting rows."""
         if state[-1] is not None:
             return []  # All columns filled; no successors
         else:
@@ -859,26 +859,26 @@ class NQueensProblem(Problem):
                     if not self.conflicted(state, row, col)]
 
     def result(self, state, row):
-        "Place the next queen at the given row."
+        """Place the next queen at the given row."""
         col = state.index(None)
         new = state[:]
         new[col] = row
         return new
 
     def conflicted(self, state, row, col):
-        "Would placing a queen at (row, col) conflict with anything?"
+        """Would placing a queen at (row, col) conflict with anything?"""
         return any(self.conflict(row, col, state[c], c)
                    for c in range(col))
 
     def conflict(self, row1, col1, row2, col2):
-        "Would putting two queens in (row1, col1) and (row2, col2) conflict?"
+        """Would putting two queens in (row1, col1) and (row2, col2) conflict?"""
         return (row1 == row2 or  # same row
                 col1 == col2 or  # same column
                 row1 - col1 == row2 - col2 or  # same \ diagonal
                 row1 + col1 == row2 + col2)   # same / diagonal
 
     def goal_test(self, state):
-        "Check if all columns filled, no conflicts."
+        """Check if all columns filled, no conflicts."""
         if state[-1] is None:
             return False
         return not any(self.conflicted(state, state[col], col)
@@ -910,7 +910,7 @@ boyan_best = list('RSTCSDEIAEGNLRPEATESMSSID')
 
 
 def print_boggle(board):
-    "Print the board in a 2-d array."
+    """Print the board in a 2-d array."""
     n2 = len(board)
     n = exact_sqrt(n2)
     for i in range(n2):
@@ -958,7 +958,7 @@ def boggle_neighbors(n2, cache={}):
 
 
 def exact_sqrt(n2):
-    "If n2 is a perfect square, return its square root, else raise error."
+    """If n2 is a perfect square, return its square root, else raise error."""
     n = int(math.sqrt(n2))
     assert n * n == n2
     return n
