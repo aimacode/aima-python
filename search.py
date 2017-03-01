@@ -96,7 +96,7 @@ class Node:
             self.depth = parent.depth + 1
 
     def __repr__(self):
-        return "<Node %s>" % (self.state,)
+        return "<Node {0!r}>".format(self.state)
 
     def __lt__(self, node):
         return self.state < node.state
@@ -1132,7 +1132,7 @@ class InstrumentedProblem(Problem):
         return getattr(self.problem, attr)
 
     def __repr__(self):
-        return '<%4d/%4d/%4d/%s>' % (self.succs, self.goal_tests,
+        return '<{:4d}/{:4d}/{:4d}/{}>'.format(self.succs, self.goal_tests,
                                      self.states, str(self.found)[:4])
 
 
