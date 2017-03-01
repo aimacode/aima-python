@@ -217,7 +217,8 @@ def rounder(numbers, d=4):
 
 def num_or_str(x):
     """The argument is a string; convert to a number if
-       possible, or strip it."""
+       possible, or strip it.
+    """
     try:
         return int(x)
     except ValueError:
