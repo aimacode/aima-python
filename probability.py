@@ -80,7 +80,7 @@ class ProbDist:
                           for (v, p) in sorted(self.prob.items())])
 
     def __repr__(self):
-        return "P(%s)" % self.varname
+        return "P({0!r})".format(self.varname)
 
 
 class JointProbDist(ProbDist):
@@ -117,7 +117,7 @@ class JointProbDist(ProbDist):
         return self.vals[var]
 
     def __repr__(self):
-        return "P(%s)" % self.variables
+        return "P({0!r})".format(self.variables)
 
 
 def event_values(event, variables):
@@ -192,14 +192,14 @@ class BayesNet:
         for n in self.nodes:
             if n.variable == var:
                 return n
-        raise Exception("No such variable: %s" % var)
+        raise Exception("No such variable: {}".format(var))
 
     def variable_values(self, var):
         "Return the domain of var."
         return [True, False]
 
     def __repr__(self):
-        return 'BayesNet(%r)' % self.nodes
+        return 'BayesNet({0!r})'.format(self.nodes)
 
 
 class BayesNode:
