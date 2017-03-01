@@ -14,7 +14,7 @@ import math
 
 
 def sequence(iterable):
-    "Coerce iterable to sequence, if it is not already one."
+    """Coerce iterable to sequence, if it is not already one."""
     return (iterable if isinstance(iterable, collections.abc.Sequence)
             else tuple(iterable))
 
@@ -46,7 +46,7 @@ def product(numbers):
 
 
 def first(iterable, default=None):
-    "Return the first element of an iterable or the next element of a generator; or default."
+    """Return the first element of an iterable or the next element of a generator; or default."""
     try:
         return iterable[0]
     except IndexError:
@@ -74,12 +74,12 @@ def argmin_random_tie(seq, key=identity):
 
 
 def argmax_random_tie(seq, key=identity):
-    "Return an element with highest fn(seq[i]) score; break ties at random."
+    """Return an element with highest fn(seq[i]) score; break ties at random."""
     return argmax(shuffled(seq), key=key)
 
 
 def shuffled(iterable):
-    "Randomly shuffle a copy of iterable."
+    """Randomly shuffle a copy of iterable."""
     items = list(iterable)
     random.shuffle(items)
     return items
@@ -184,7 +184,7 @@ def inverse_matrix(X):
 
 
 def probability(p):
-    "Return true with probability p."
+    """Return true with probability p."""
     return p > random.uniform(0.0, 1.0)
 
 
@@ -198,7 +198,7 @@ def weighted_sample_with_replacement(seq, weights, n):
 
 
 def weighted_sampler(seq, weights):
-    "Return a random-sample function that picks from seq weighted by weights."
+    """Return a random-sample function that picks from seq weighted by weights."""
     totals = []
     for w in weights:
         totals.append(w + totals[-1] if totals else w)
@@ -207,7 +207,7 @@ def weighted_sampler(seq, weights):
 
 
 def rounder(numbers, d=4):
-    "Round a single number, or sequence of numbers, to d decimal places."
+    """Round a single number, or sequence of numbers, to d decimal places."""
     if isinstance(numbers, (int, float)):
         return round(numbers, d)
     else:
@@ -258,7 +258,7 @@ try:  # math.isclose was added in Python 3.5; but we might be in 3.4
     from math import isclose
 except ImportError:
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
-        "Return true if numbers a and b are close to each other."
+        """Return true if numbers a and b are close to each other."""
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 # ______________________________________________________________________________
@@ -292,19 +292,19 @@ def memoize(fn, slot=None):
 
 
 def name(obj):
-    "Try to find some reasonable name for the object."
+    """Try to find some reasonable name for the object."""
     return (getattr(obj, 'name', 0) or getattr(obj, '__name__', 0) or
             getattr(getattr(obj, '__class__', 0), '__name__', 0) or
             str(obj))
 
 
 def isnumber(x):
-    "Is x a number?"
+    """Is x a number?"""
     return hasattr(x, '__int__')
 
 
 def issequence(x):
-    "Is x a sequence?"
+    """Is x a sequence?"""
     return isinstance(x, collections.abc.Sequence)
 
 
@@ -332,7 +332,7 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
 
 
 def AIMAFile(components, mode='r'):
-    "Open a file based at the AIMA root directory."
+    """Open a file based at the AIMA root directory."""
     aima_root = os.path.dirname(__file__)
 
     aima_file = os.path.join(aima_root, *components)
@@ -436,17 +436,17 @@ Expression = (Expr, Number)
 
 
 def Symbol(name):
-    "A Symbol is just an Expr with no args."
+    """A Symbol is just an Expr with no args."""
     return Expr(name)
 
 
 def symbols(names):
-    "Return a tuple of Symbols; names is a comma/whitespace delimited str."
+    """Return a tuple of Symbols; names is a comma/whitespace delimited str."""
     return tuple(Symbol(name) for name in names.replace(',', ' ').split())
 
 
 def subexpressions(x):
-    "Yield the subexpressions of an Expression (including x itself)."
+    """Yield the subexpressions of an Expression (including x itself)."""
     yield x
     if isinstance(x, Expr):
         for arg in x.args:
@@ -454,7 +454,7 @@ def subexpressions(x):
 
 
 def arity(expression):
-    "The number of sub-expressions in this expression."
+    """The number of sub-expressions in this expression."""
     if isinstance(expression, Expr):
         return len(expression.args)
     else:  # expression is a number
