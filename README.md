@@ -114,7 +114,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`](../master/rl.py) |
 | 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`](../master/rl.py) |
 | 21.8    | Q-Learning-Agent   | `QLearningAgent` | [`rl.py`](../master/rl.py) |
-| 22.1    | HITS               |         |         |
+| 22.1    | HITS               | `HITS`  | [`nlp.py`](../master/nlp.py) |
 | 23      | Chart-Parse        | `Chart` | [`nlp.py`](../master/nlp.py) |
 | 23.5    | CYK-Parse          | `CYK_parse` | [`nlp.py`](../master/nlp.py) |
 | 25.9    | Monte-Carlo-Localization|       |

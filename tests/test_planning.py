@@ -34,3 +34,38 @@ def test_air_cargo():
         p.act(action)
 
     assert p.goal_test()
+    
+def test_spare_tire():
+    p = spare_tire()
+    assert p.goal_test() is False
+    solution = [expr("Remove(Flat, Axle)"),
+                expr("Remove(Spare, Trunk)"),
+                expr("PutOn(Spare, Axle)")]
+
+    for action in solution:
+        p.act(action)
+        
+    assert p.goal_test()
+
+def test_three_block_tower():
+    p = three_block_tower()
+    assert p.goal_test() is False
+    solution = [expr("MoveToTable(C, A)"),
+                expr("Move(B, Table, C)"),
+                expr("Move(A, Table, B)")]
+
+    for action in solution:
+        p.act(action)
+        
+    assert p.goal_test()
+
+def test_have_cake_and_eat_cake_too():
+    p = have_cake_and_eat_cake_too()
+    assert p.goal_test() is False
+    solution = [expr("Eat(Cake)"),
+                expr("Bake(Cake)")]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()

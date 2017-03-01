@@ -647,15 +647,14 @@ def Linearlearner(dataset, learning_rate=0.01, epochs=100):
         err = []
         # Pass over all examples
         for example in examples:
-            x = [example[i] for i in range(idx_i)]
-            x = [1] + x
+            x = [1] + example
             y = dotproduct(w, x)
             t = example[idx_t]
             err.append(t - y)
 
         # update weights
         for i in range(len(w)):
-            w[i] = w[i] - dotproduct(err, X_col[i])
+            w[i] = w[i] - learning_rate * dotproduct(err, X_col[i])
 
     def predict(example):
         x = [1] + example

@@ -175,3 +175,64 @@ def spare_tire():
     leave_overnight = Action(expr("LeaveOvernight"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [remove, put_on, leave_overnight], goal_test)
+
+def three_block_tower():
+    init = [expr('On(A, Table)'),
+            expr('On(B, Table)'),
+            expr('On(C, A)'),
+            expr('Block(A)'),
+            expr('Block(B)'),
+            expr('Block(C)'),
+            expr('Clear(B)'),
+            expr('Clear(C)')]
+
+    def goal_test(kb):
+        required = [expr('On(A, B)'), expr('On(B, C)')]
+        for q in required:
+            if kb.ask(q) is False:
+                return False
+        return True
+
+    ## Actions
+    #  Move
+    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)'), expr('Block(y)')]
+    precond_neg = []
+    effect_add = [expr('On(b, y)'), expr('Clear(x)')]
+    effect_rem = [expr('On(b, x)'), expr('Clear(y)')]
+    move = Action(expr('Move(b, x, y)'), [precond_pos, precond_neg], [effect_add, effect_rem])
+    
+    #  MoveToTable
+    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
+    precond_neg = []
+    effect_add = [expr('On(b, Table)'), expr('Clear(x)')]
+    effect_rem = [expr('On(b, x)')]
+    moveToTable = Action(expr('MoveToTable(b, x)'), [precond_pos, precond_neg], [effect_add, effect_rem])
+
+    return PDLL(init, [move, moveToTable], goal_test)
+
+def have_cake_and_eat_cake_too():
+    init = [expr('Have(Cake)')]
+
+    def goal_test(kb):
+        required = [expr('Have(Cake)'), expr('Eaten(Cake)')]
+        for q in required:
+            if kb.ask(q) is False:
+                return False
+        return True
+
+    ##Actions
+    # Eat cake
+    precond_pos = [expr('Have(Cake)')]
+    precond_neg = []
+    effect_add = [expr('Eaten(Cake)')]
+    effect_rem = [expr('Have(Cake)')]
+    eat_cake = Action(expr('Eat(Cake)'), [precond_pos, precond_neg], [effect_add, effect_rem])
+
+    #Bake Cake
+    precond_pos = []
+    precond_neg = [expr('Have(Cake)')]
+    effect_add = [expr('Have(Cake)')]
+    effect_rem = []
+    bake_cake = Action(expr('Bake(Cake)'), [precond_pos, precond_neg], [effect_add, effect_rem])
+
+    return PDLL(init, [eat_cake, bake_cake], goal_test)
