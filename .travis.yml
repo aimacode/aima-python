@@ -8,6 +8,7 @@ before_install:
   - git submodule update --remote
 
 install:
+  - pip install six
   - pip install flake8
   - pip install jupyter
   - pip install -r requirements.txt
