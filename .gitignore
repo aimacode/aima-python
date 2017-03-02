@@ -70,3 +70,7 @@ target/
 
 # dotenv
 .env
+
+# pycharm
+.idea/
+submissions/zzzsolutions/
