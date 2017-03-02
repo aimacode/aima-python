@@ -80,7 +80,7 @@ class ProbDist:
                           for (v, p) in sorted(self.prob.items())])
 
     def __repr__(self):
-        return "P({0!r})".format(self.varname)
+        return "P({})".format(self.varname)
 
 
 class JointProbDist(ProbDist):
@@ -117,7 +117,7 @@ class JointProbDist(ProbDist):
         return self.vals[var]
 
     def __repr__(self):
-        return "P({0!r})".format(self.variables)
+        return "P({})".format(self.variables)
 
 
 def event_values(event, variables):

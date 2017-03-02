@@ -52,7 +52,7 @@ class Grammar:
         return cat in self.categories[word]
 
     def __repr__(self):
-        return '<Grammar {0!r}>'.format(self.name)
+        return '<Grammar {}>'.format(self.name)
 
 E0 = Grammar('E0',
              Rules(  # Grammar for E_0 [Figure 22.4]

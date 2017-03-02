@@ -317,7 +317,7 @@ class DecisionFork:
             subtree.display(indent + 1)
 
     def __repr__(self):
-        return ('DecisionFork({}, {}, {})'
+        return ('DecisionFork({0!r}, {0!r}, {0!r})'
                 .format(self.attr, self.attrname, self.branches))
 
 
