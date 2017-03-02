@@ -22,7 +22,7 @@ When complete, this project will have Python code for all the pseudocode algorit
 
 # Index of Code
 
-Here is a table of algorithms, the figure, name of the code in the book and in the repository, and the file where they are implemented in the code. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. You can see a [pdf file of all the algorithms](http://aima.cs.berkeley.edu/algorithms.pdf) from the book.
+Here is a table of algorithms, the figure, name of the code in the book and in the repository, and the file where they are implemented in the code. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book.
 
 
 | **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File**
