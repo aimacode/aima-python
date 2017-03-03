@@ -69,3 +69,13 @@ def test_have_cake_and_eat_cake_too():
         p.act(action)
 
     assert p.goal_test()
+
+def test_graph_call():
+    pdll = spare_tire()
+    negkb = FolKB([expr('At(Flat, Trunk)')])
+    graph = Graph(pdll, negkb)
+
+    levels_size = len(graph.levels)
+    graph()
+
+    assert levels_size == len(graph.levels) - 1
