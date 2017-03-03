@@ -1,14 +1,12 @@
-from planning import *
+from planning import *  # noqa
 from utils import expr
 from logic import FolKB
 
 
 def test_action():
-    precond = [[expr("P(x)"), expr("Q(y, z)")]
-               ,[expr("Q(x)")]]
-    effect = [[expr("Q(x)")]
-              , [expr("P(x)")]]
-    a=Action(expr("A(x,y,z)"),precond, effect)
+    precond = [[expr("P(x)"), expr("Q(y, z)")], [expr("Q(x)")]]
+    effect = [[expr("Q(x)")], [expr("P(x)")]]
+    a=Action(expr("A(x,y,z)"), precond, effect)
     args = [expr("A"), expr("B"), expr("C")]
     assert a.substitute(expr("P(x, z, y)"), args) == expr("P(A, C, B)")
     test_kb = FolKB([expr("P(A)"), expr("Q(B, C)"), expr("R(D)")])
@@ -34,7 +32,8 @@ def test_air_cargo():
         p.act(action)
 
     assert p.goal_test()
-    
+
+
 def test_spare_tire():
     p = spare_tire()
     assert p.goal_test() is False
@@ -44,8 +43,9 @@ def test_spare_tire():
 
     for action in solution:
         p.act(action)
-        
+
     assert p.goal_test()
+
 
 def test_three_block_tower():
     p = three_block_tower()
@@ -56,8 +56,9 @@ def test_three_block_tower():
 
     for action in solution:
         p.act(action)
-        
+
     assert p.goal_test()
+
 
 def test_have_cake_and_eat_cake_too():
     p = have_cake_and_eat_cake_too()
@@ -69,6 +70,7 @@ def test_have_cake_and_eat_cake_too():
         p.act(action)
 
     assert p.goal_test()
+
 
 def test_graph_call():
     pdll = spare_tire()

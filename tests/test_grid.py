@@ -17,5 +17,6 @@ def test_distance2():
 def test_vector_clip():
     assert vector_clip((-1, 10), (0, 0), (9, 9)) == (0, 9)
 
+
 if __name__ == '__main__':
     pytest.main()

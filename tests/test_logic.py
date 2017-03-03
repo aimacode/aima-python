@@ -1,6 +1,6 @@
 import pytest
-from logic import *
-from utils import expr_handle_infix_ops, count
+from logic import *  # noqa
+from utils import expr_handle_infix_ops, count, Symbol
 
 
 def test_expr():
@@ -56,10 +56,10 @@ def test_KB_wumpus():
     assert kb_wumpus.ask(~P[1, 2]) == {}
 
     # Statement: There is a pit in [2,2].
-    assert kb_wumpus.ask(P[2, 2]) == False
+    assert kb_wumpus.ask(P[2, 2]) is False
 
     # Statement: There is a pit in [3,1].
-    assert kb_wumpus.ask(P[3, 1]) == False
+    assert kb_wumpus.ask(P[3, 1]) is False
 
     # Statement: Neither [1,2] nor [2,1] contains a pit.
     assert kb_wumpus.ask(~P[1, 2] & ~P[2, 1]) == {}
@@ -112,7 +112,7 @@ def test_dpll():
                              & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D))
             == {B: False, C: True, A: True, F: False, D: True, E: False})
     assert dpll_satisfiable(A & ~B) == {A: True, B: False}
-    assert dpll_satisfiable(P & ~P) == False
+    assert dpll_satisfiable(P & ~P) is False
 
 
 def test_unify():
@@ -159,7 +159,7 @@ def test_move_not_inwards():
 def test_to_cnf():
     assert (repr(to_cnf(wumpus_world_inference & ~expr('~P12'))) ==
             "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)")
-    assert repr(to_cnf((P&Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
+    assert repr(to_cnf((P & Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
     assert repr(to_cnf("B <=> (P1 | P2)")) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
     assert repr(to_cnf("a | (b & c) | d")) == '((b | a | d) & (c | a | d))'
     assert repr(to_cnf("A & (B | (D & E))")) == '(A & (D | B) & (E | B))'
@@ -169,7 +169,7 @@ def test_to_cnf():
 def test_standardize_variables():
     e = expr('F(a, b, c) & G(c, A, 23)')
     assert len(variables(standardize_variables(e))) == 3
-    #assert variables(e).intersection(variables(standardize_variables(e))) == {}
+    # assert variables(e).intersection(variables(standardize_variables(e))) == {}
     assert is_variable(standardize_variables(expr('x')))
 
 
