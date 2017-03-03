@@ -1,6 +1,6 @@
 """A lightweight test suite for games.py"""
 
-# You can run this test suite by doing: py.test tests/games.py
+# You can run this test suite by doing: py.test tests/test_games.py
 # Of course you need to have py.test installed to do this.
 
 import pytest
