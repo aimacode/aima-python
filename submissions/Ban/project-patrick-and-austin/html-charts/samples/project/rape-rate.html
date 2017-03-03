@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Bar Chart Multi Axis</title>
+    <script src="../../dist/Chart.bundle.js"></script>
+    <script src="../utils.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet", href="index.css">
+    <style>
+    canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="center-it" style="width: 90%">
+        <canvas id="canvas"></canvas>
+    </div>
+    <li><a href="index.html" class="back-button">Home</a></li>
+    <p>Number of mislabeled points out of a total 50 points : 4</p>
+    <script>
+    var barChartData = {
+        labels: ["Attendance Rate",    "Black",   "Hispanic or Latino",    "White"],
+        datasets: [{
+            label: ">= 20% Rape Rate",
+            backgroundColor: window.chartColors.blue,
+            yAxisID: "y-axis-1",
+            data: [
+                77.335,
+                14.040,
+                13.660,
+                76.580
+            ]
+        }, {
+            label: "< 20% Rape Rate",
+            backgroundColor: window.chartColors.yellow,
+            yAxisID: "y-axis-2",
+            data: [
+                89.311,
+                11.604,
+                11.318,
+                79.107
+            ]
+        }]
+
+    };
+    window.onload = function() {
+        var ctx = document.getElementById("canvas").getContext("2d");
+        window.myBar = new Chart(ctx, {
+            type: 'bar',
+            data: barChartData,
+            options: {
+                responsive: true,
+                title:{
+                    display:true,
+                    text:"How attendance and race affect rape rate"
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: true
+                },
+                scales: {
+                    yAxes: [{
+                        type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                        display: true,
+                        position: "left",
+                        id: "y-axis-1",
+                    }, {
+                        type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                        display: true,
+                        position: "right",
+                        id: "y-axis-2",
+                        gridLines: {
+                            drawOnChartArea: false
+                        }
+                    }],
+                }
+            }
+        });
+    };
+
+    document.getElementById('randomizeData').addEventListener('click', function() {
+        barChartData.datasets.forEach(function(dataset, i) {
+            dataset.data = dataset.data.map(function() {
+                return randomScalingFactor();
+            });
+        });
+        window.myBar.update();
+    });
+    </script>
+</body>
+
+</html>
