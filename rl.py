@@ -24,7 +24,7 @@ class PassiveADPAgent:
 
         def T(self, s, a):
             """Returns a list of tuples with probabilities for states
-            based on the learnt model P. """
+            based on the learnt model P."""
             return [(prob, res) for (res, prob) in self.P[(s, a)].items()]
 
     def __init__(self, pi, mdp):
@@ -62,7 +62,7 @@ class PassiveADPAgent:
 
     def update_state(self, percept):
         ''' To be overridden in most cases. The default case
-        assumes th percept to be of type (state, reward)'''
+        assumes the percept to be of type (state, reward)'''
         return percept
 
 
@@ -70,7 +70,7 @@ class PassiveTDAgent:
     """The abstract class for a Passive (non-learning) agent that uses
     temporal differences to learn utility estimates. Override update_state
     method to convert percept to state and reward. The mdp being provided
-    should be an instance of a subclass of the MDP Class.[Figure 21.4]
+    should be an instance of a subclass of the MDP Class. [Figure 21.4]
     """
 
     def __init__(self, pi, mdp, alpha=None):
@@ -106,7 +106,7 @@ class PassiveTDAgent:
 
     def update_state(self, percept):
         ''' To be overridden in most cases. The default case
-        assumes th percept to be of type (state, reward)'''
+        assumes the percept to be of type (state, reward)'''
         return percept
 
 

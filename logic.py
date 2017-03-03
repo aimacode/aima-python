@@ -670,7 +670,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 
 class HybridWumpusAgent(agents.Agent):
 
-    "An agent for the wumpus world that does logical inference. [Figure 7.20]"""
+    """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
     def __init__(self):
         raise NotImplementedError
@@ -789,7 +789,7 @@ def unify(x, y, s):
 
 
 def is_variable(x):
-    "A variable is an Expr with no args and a lowercase symbol as the op."
+    """A variable is an Expr with no args and a lowercase symbol as the op."""
     return isinstance(x, Expr) and not x.args and x.op[0].islower()
 
 
@@ -819,7 +819,7 @@ def occur_check(var, x, s):
 
 
 def extend(s, var, val):
-    "Copy the substitution s and extend it by setting var to val; return copy."
+    """Copy the substitution s and extend it by setting var to val; return copy."""
     s2 = s.copy()
     s2[var] = val
     return s2
@@ -932,7 +932,7 @@ crime_kb = FolKB(
 
 def fol_bc_ask(KB, query):
     """A simple backward-chaining algorithm for first-order logic. [Figure 9.6]
-    KB should be an instance of FolKB, and query an atomic sentence. """
+    KB should be an instance of FolKB, and query an atomic sentence."""
     return fol_bc_or(KB, query, {})
 
 
@@ -995,7 +995,7 @@ def diff(y, x):
 
 
 def simp(x):
-    "Simplify the expression x."
+    """Simplify the expression x."""
     if isnumber(x) or not x.args:
         return x
     args = list(map(simp, x.args))
@@ -1058,5 +1058,5 @@ def simp(x):
 
 
 def d(y, x):
-    "Differentiate and then simplify."
+    """Differentiate and then simplify."""
     return simp(diff(y, x))

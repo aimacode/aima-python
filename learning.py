@@ -499,9 +499,9 @@ class NNUnit:
 
 def network(input_units, hidden_layer_sizes, output_units):
     """
-    Create of Directed Acyclic Network of given number layers
+    Create Directed Acyclic Network of given number layers.
     hidden_layers_sizes : list number of neuron units in each hidden layer
-    excluding input and output layers.
+    excluding input and output layers
     """
     # Check for PerceptronLearner
     if hidden_layer_sizes:
@@ -523,7 +523,7 @@ def network(input_units, hidden_layer_sizes, output_units):
 
 
 def BackPropagationLearner(dataset, net, learning_rate, epoches):
-    "[Figure 18.23] The back-propagation algorithm for multilayer network"
+    """[Figure 18.23] The back-propagation algorithm for multilayer network"""
     # Initialise weights
     for layer in net:
         for node in layer:
@@ -826,7 +826,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     """
     Fig 18.8
     Return the optimal value of size having minimum error
-    on validataion set
+    on validataion set.
     err_train: a training error array, indexed by size
     err_val: a validataion error array, indexed by size
     """
