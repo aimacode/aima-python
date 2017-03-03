@@ -17,7 +17,7 @@ def test_csp_unassign():
     assignment = {var: 5}
     australia.unassign(var, assignment)
 
-    assert (var in assignment) == False
+    assert var not in assignment
 
 
 def test_csp_nconflits():
@@ -49,15 +49,15 @@ def test_csp_actions():
 
 
 def test_backtracking_search():
-    assert (backtracking_search(australia) is not None) == True
-    assert (backtracking_search(australia, select_unassigned_variable=mrv) is not None) == True
-    assert (backtracking_search(australia, order_domain_values=lcv) is not None) == True
-    assert (backtracking_search(australia, select_unassigned_variable=mrv,
-                                order_domain_values=lcv) is not None) == True
-    assert (backtracking_search(australia, inference=forward_checking) is not None) == True
-    assert (backtracking_search(australia, inference=mac) is not None) == True
-    assert (backtracking_search(usa, select_unassigned_variable=mrv,
-                                order_domain_values=lcv, inference=mac) is not None) == True
+    assert backtracking_search(australia)
+    assert backtracking_search(australia, select_unassigned_variable=mrv)
+    assert backtracking_search(australia, order_domain_values=lcv)
+    assert backtracking_search(australia, select_unassigned_variable=mrv,
+                               order_domain_values=lcv)
+    assert backtracking_search(australia, inference=forward_checking)
+    assert backtracking_search(australia, inference=mac)
+    assert backtracking_search(usa, select_unassigned_variable=mrv,
+                               order_domain_values=lcv, inference=mac)
 
 
 def test_universal_dict():
@@ -67,7 +67,6 @@ def test_universal_dict():
 
 def test_parse_neighbours():
     assert parse_neighbors('X: Y Z; Y: Z') == {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
-
 
 
 if __name__ == "__main__":
