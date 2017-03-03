@@ -34,7 +34,7 @@ def Lexicon(**rules):
 class Grammar:
 
     def __init__(self, name, rules, lexicon):
-        "A grammar has a set of rules and a lexicon."
+        """A grammar has a set of rules and a lexicon."""
         self.name = name
         self.rules = rules
         self.lexicon = lexicon
@@ -44,11 +44,11 @@ class Grammar:
                 self.categories[word].append(lhs)
 
     def rewrites_for(self, cat):
-        "Return a sequence of possible rhs's that cat can be rewritten as."
+        """Return a sequence of possible rhs's that cat can be rewritten as."""
         return self.rules.get(cat, ())
 
     def isa(self, word, cat):
-        "Return True iff word is of category cat"
+        """Return True iff word is of category cat"""
         return cat in self.categories[word]
 
     def __repr__(self):
@@ -293,8 +293,8 @@ def expand_pages( pages ):
     return expanded
 
 def relevant_pages(query):
-    """relevant pages are pages that contain the query in its entireity.
-    If a page's content contains the query it is returned by the function"""
+    """Relevant pages are pages that contain the query in its entireity.
+    If a page's content contains the query it is returned by the function."""
     relevant = {}
     print("pagesContent in function: ", pagesContent)
     for addr, page in pagesIndex.items():

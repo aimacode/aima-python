@@ -1,6 +1,6 @@
 # OK, the following are not as widely useful utilities as some of the other
 # functions here, but they do show up wherever we have 2D grids: Wumpus and
-# Vacuum worlds, TicTacToe and Checkers, and markov decision Processes.
+# Vacuum worlds, TicTacToe and Checkers, and Markov Decision Processes.
 # __________________________________________________________________________
 import math
 

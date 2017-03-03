@@ -18,11 +18,11 @@ When complete, this project will have Python code for all the pseudocode algorit
 
 - `logic.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
 - `logic.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
-- `tests/logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/).
+- `tests/logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
 
 # Index of Code
 
-Here is a table of algorithms, the figure, name of the code in the book and in the repository, and the file where they are implemented in the code. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue.
+Here is a table of algorithms, the figure, name of the code in the book and in the repository, and the file where they are implemented in the code. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book.
 
 | **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File**
 |:--------|:-------------------|:---------|:-----------|
@@ -113,7 +113,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`][rl] |
 | 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`][rl] |
 | 21.8    | Q-Learning-Agent   | `QLearningAgent` | [`rl.py`][rl] |
-| 22.1    | HITS               |         |         |
+| 22.1    | HITS               | `HITS`  | [`nlp.py`][nlp] |
 | 23      | Chart-Parse        | `Chart` | [`nlp.py`][nlp] |
 | 23.5    | CYK-Parse          | `CYK_parse` | [`nlp.py`][nlp] |
 | 25.9    | Monte-Carlo-Localization|       |

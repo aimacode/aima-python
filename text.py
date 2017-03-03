@@ -153,17 +153,17 @@ class IRSystem:
         return heapq.nlargest(n, ((self.total_score(qwords, docid), docid) for docid in docids))
 
     def score(self, word, docid):
-        "Compute a score for this word on the document with this docid."
+        """Compute a score for this word on the document with this docid."""
         # There are many options; here we take a very simple approach
         return (log(1 + self.index[word][docid]) /
                 log(1 + self.documents[docid].nwords))
 
     def total_score(self, words, docid):
-        "Compute the sum of the scores of these words on the document with this docid."
+        """Compute the sum of the scores of these words on the document with this docid."""
         return sum(self.score(word, docid) for word in words)
 
     def present(self, results):
-        "Present the results as a list."
+        """Present the results as a list."""
         for (score, docid) in results:
             doc = self.documents[docid]
             print(
@@ -171,7 +171,7 @@ class IRSystem:
                                             doc.title[:45].expandtabs())))
 
     def present_results(self, query_text, n=10):
-        "Get results for the query and present them."
+        """Get results for the query and present them."""
         self.present(self.query(query_text, n))
 
 
@@ -264,7 +264,7 @@ def maketrans(from_, to_):
 
 
 def encode(plaintext, code):
-    "Encodes text, using a code which is a permutation of the alphabet."
+    """Encodes text, using a code which is a permutation of the alphabet."""
     trans = maketrans(alphabet + alphabet.upper(), code + code.upper())
 
     return translate(plaintext, trans)
@@ -293,7 +293,7 @@ class ShiftDecoder:
         self.P2 = CountingProbDist(bigrams(training_text), default=1)
 
     def score(self, plaintext):
-        "Return a score for text based on how common letters pairs are."
+        """Return a score for text based on how common letters pairs are."""
 
         s = 1.0
         for bi in bigrams(plaintext):
@@ -302,7 +302,7 @@ class ShiftDecoder:
         return s
 
     def decode(self, ciphertext):
-        "Return the shift decoding of text with the best score."
+        """Return the shift decoding of text with the best score."""
 
         list_ = [(self.score(shift), shift)
                  for shift in all_shifts(ciphertext)]
@@ -310,7 +310,7 @@ class ShiftDecoder:
 
 
 def all_shifts(text):
-    "Return a list of all 26 possible encodings of text by a shift cipher."
+    """Return a list of all 26 possible encodings of text by a shift cipher."""
 
     yield from (shift_encode(text, i) for i, _ in enumerate(alphabet))
 
@@ -339,7 +339,7 @@ class PermutationDecoder:
         self.P2 = NgramTextModel(2, training_text)  # By letter pair
 
     def decode(self, ciphertext):
-        "Search for a decoding of the ciphertext."
+        """Search for a decoding of the ciphertext."""
         self.ciphertext = ciphertext
         problem = PermutationDecoderProblem(decoder=self)
         return search.best_first_tree_search(
@@ -368,5 +368,5 @@ class PermutationDecoderProblem(search.Problem):
         succs = [extend(state, plainchar, cipherchar)]  # ???? # noqa
 
     def goal_test(self, state):
-        "We're done when we get all 26 letters assigned."
+        """We're done when we get all 26 letters assigned."""
         return len(state) >= 26
