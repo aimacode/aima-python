@@ -96,7 +96,7 @@ class Node:
             self.depth = parent.depth + 1
 
     def __repr__(self):
-        return "<Node %s>" % (self.state,)
+        return "<Node {}>".format(self.state)
 
     def __lt__(self, node):
         return self.state < node.state
@@ -389,13 +389,14 @@ def simulated_annealing(problem, schedule=exp_schedule()):
 
 
 def and_or_graph_search(problem):
-    """Used when the environment is  nondeterministic and completely observable
-    Contains OR nodes where the agent is free to choose any action
+    """Used when the environment is nondeterministic and completely observable.
+    Contains OR nodes where the agent is free to choose any action.
     After every action there is an AND node which contains all possible states
-    the agent may reach due to stochastic nature of environment
-    The agent must be able to handle all possible states of the AND node(as it
-    may end up in any of them) returns a conditional plan to reach goal state,
-    or failure if the former is not possible"""
+    the agent may reach due to stochastic nature of environment.
+    The agent must be able to handle all possible states of the AND node (as it
+    may end up in any of them).
+    Returns a conditional plan to reach goal state,
+    or failure if the former is not possible."""
     "[Figure 4.11]"
 
     # functions used by and_or_search
@@ -411,7 +412,7 @@ def and_or_graph_search(problem):
                 return [action, plan]
 
     def and_search(states, problem, path):
-        "returns plan in form of dictionary where we take action plan[s] if we reach state s"  # noqa
+        "Returns plan in form of dictionary where we take action plan[s] if we reach state s."  # noqa
         plan = {}
         for s in states:
             plan[s] = or_search(s, problem, path)
@@ -497,7 +498,7 @@ class OnlineSearchProblem(Problem):
 
     def c(self, s, a, s1):
         """
-        Returns a cost estimate for an agent to move from state 's' to state 's1'
+        Returns a cost estimate for an agent to move from state 's' to state 's1'.
         """
         return 1
 
@@ -516,7 +517,7 @@ class LRTAStarAgent:
     Abstract class for LRTA*-Agent. A problem needs to be
     provided which is an instanace of a subclass of Problem Class.
 
-    Takes a OnlineSearchProblem [Figure 4.23] as a problem
+    Takes a OnlineSearchProblem [Figure 4.23] as a problem.
     """
 
     def __init__(self, problem):
@@ -552,7 +553,7 @@ class LRTAStarAgent:
     def LRTA_cost(self, s, a, s1, H):
         """
         Returns cost to move from state 's' to state 's1' plus
-        estimated cost to get to goal from s1
+        estimated cost to get to goal from s1.
         """
         print(s, a, s1)
         if s1 is None:
@@ -584,7 +585,7 @@ def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
     "[Figure 4.8]"
     for i in range(ngen):
         new_population = []
-        for i in len(population):
+        for i in range(len(population)):
             fitnesses = map(fitness_fn, population)
             p1, p2 = weighted_sample_with_replacement(population, fitnesses, 2)
             child = p1.mate(p2)
@@ -788,25 +789,25 @@ australia_map.locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
 
 class GraphProblem(Problem):
 
-    "The problem of searching a graph from one node to another."
+    """The problem of searching a graph from one node to another."""
 
     def __init__(self, initial, goal, graph):
         Problem.__init__(self, initial, goal)
         self.graph = graph
 
     def actions(self, A):
-        "The actions at a graph node are just its neighbors."
+        """The actions at a graph node are just its neighbors."""
         return list(self.graph.get(A).keys())
 
     def result(self, state, action):
-        "The result of going to a neighbor is just that neighbor."
+        """The result of going to a neighbor is just that neighbor."""
         return action
 
     def path_cost(self, cost_so_far, A, action, B):
         return cost_so_far + (self.graph.get(A, B) or infinity)
 
     def h(self, node):
-        "h function is straight-line distance from a node's state to goal."
+        """h function is straight-line distance from a node's state to goal."""
         locs = getattr(self.graph, 'locations', None)
         if locs:
             return int(distance(locs[node.state], locs[self.goal]))
@@ -817,10 +818,10 @@ class GraphProblem(Problem):
 class GraphProblemStochastic(GraphProblem):
     """
     A version of GraphProblem where an action can lead to
-    nondeterministic output i.e. multiple possible states
+    nondeterministic output i.e. multiple possible states.
 
     Define the graph as dict(A = dict(Action = [[<Result 1>, <Result 2>, ...], <cost>], ...), ...)
-    A the dictionary format is different, make sure the graph is created as a directed graph
+    A the dictionary format is different, make sure the graph is created as a directed graph.
     """
 
     def result(self, state, action):
@@ -849,7 +850,7 @@ class NQueensProblem(Problem):
         self.initial = [None] * N
 
     def actions(self, state):
-        "In the leftmost empty column, try all non-conflicting rows."
+        """In the leftmost empty column, try all non-conflicting rows."""
         if state[-1] is not None:
             return []  # All columns filled; no successors
         else:
@@ -858,26 +859,26 @@ class NQueensProblem(Problem):
                     if not self.conflicted(state, row, col)]
 
     def result(self, state, row):
-        "Place the next queen at the given row."
+        """Place the next queen at the given row."""
         col = state.index(None)
         new = state[:]
         new[col] = row
         return new
 
     def conflicted(self, state, row, col):
-        "Would placing a queen at (row, col) conflict with anything?"
+        """Would placing a queen at (row, col) conflict with anything?"""
         return any(self.conflict(row, col, state[c], c)
                    for c in range(col))
 
     def conflict(self, row1, col1, row2, col2):
-        "Would putting two queens in (row1, col1) and (row2, col2) conflict?"
+        """Would putting two queens in (row1, col1) and (row2, col2) conflict?"""
         return (row1 == row2 or  # same row
                 col1 == col2 or  # same column
                 row1 - col1 == row2 - col2 or  # same \ diagonal
                 row1 + col1 == row2 + col2)   # same / diagonal
 
     def goal_test(self, state):
-        "Check if all columns filled, no conflicts."
+        """Check if all columns filled, no conflicts."""
         if state[-1] is None:
             return False
         return not any(self.conflicted(state, state[col], col)
@@ -909,7 +910,7 @@ boyan_best = list('RSTCSDEIAEGNLRPEATESMSSID')
 
 
 def print_boggle(board):
-    "Print the board in a 2-d array."
+    """Print the board in a 2-d array."""
     n2 = len(board)
     n = exact_sqrt(n2)
     for i in range(n2):
@@ -957,7 +958,7 @@ def boggle_neighbors(n2, cache={}):
 
 
 def exact_sqrt(n2):
-    "If n2 is a perfect square, return its square root, else raise error."
+    """If n2 is a perfect square, return its square root, else raise error."""
     n = int(math.sqrt(n2))
     assert n * n == n2
     return n
@@ -1006,7 +1007,7 @@ class Wordlist:
 
 class BoggleFinder:
 
-    """A class that allows you to find all the words in a Boggle board. """
+    """A class that allows you to find all the words in a Boggle board."""
 
     wordlist = None  # A class variable, holding a wordlist
 
@@ -1132,7 +1133,7 @@ class InstrumentedProblem(Problem):
         return getattr(self.problem, attr)
 
     def __repr__(self):
-        return '<%4d/%4d/%4d/%s>' % (self.succs, self.goal_tests,
+        return '<{:4d}/{:4d}/{:4d}/{}>'.format(self.succs, self.goal_tests,
                                      self.states, str(self.found)[:4])
 
 

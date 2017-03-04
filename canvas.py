@@ -12,8 +12,8 @@ _canvas = """
 class Canvas:
     """Inherit from this class to manage the HTML canvas element in jupyter notebooks.
     To create an object of this class any_name_xyz = Canvas("any_name_xyz")
-    The first argument given must be the name of the object being create
-    IPython must be able to refernce the variable name that is being passed
+    The first argument given must be the name of the object being created.
+    IPython must be able to refernce the variable name that is being passed.
     """
 
     def __init__(self, varname, id=None, width=800, height=600):

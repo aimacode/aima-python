@@ -80,7 +80,7 @@ class ProbDist:
                           for (v, p) in sorted(self.prob.items())])
 
     def __repr__(self):
-        return "P(%s)" % self.varname
+        return "P({})".format(self.varname)
 
 
 class JointProbDist(ProbDist):
@@ -117,7 +117,7 @@ class JointProbDist(ProbDist):
         return self.vals[var]
 
     def __repr__(self):
-        return "P(%s)" % self.variables
+        return "P({})".format(self.variables)
 
 
 def event_values(event, variables):
@@ -192,14 +192,14 @@ class BayesNet:
         for n in self.nodes:
             if n.variable == var:
                 return n
-        raise Exception("No such variable: %s" % var)
+        raise Exception("No such variable: {}".format(var))
 
     def variable_values(self, var):
         "Return the domain of var."
         return [True, False]
 
     def __repr__(self):
-        return 'BayesNet(%r)' % self.nodes
+        return 'BayesNet({0!r})'.format(self.nodes)
 
 
 class BayesNode:
@@ -357,7 +357,7 @@ def pointwise_product(factors, bn):
 
 
 def sum_out(var, factors, bn):
-    "Eliminate var from all factors by summing over its values."
+    """Eliminate var from all factors by summing over its values."""
     result, var_factors = [], []
     for f in factors:
         (var_factors if var in f.variables else result).append(f)
@@ -367,21 +367,21 @@ def sum_out(var, factors, bn):
 
 class Factor:
 
-    "A factor in a joint distribution."
+    """A factor in a joint distribution."""
 
     def __init__(self, variables, cpt):
         self.variables = variables
         self.cpt = cpt
 
     def pointwise_product(self, other, bn):
-        "Multiply two factors, combining their variables."
+        """Multiply two factors, combining their variables."""
         variables = list(set(self.variables) | set(other.variables))
         cpt = {event_values(e, variables): self.p(e) * other.p(e)
                for e in all_events(variables, bn, {})}
         return Factor(variables, cpt)
 
     def sum_out(self, var, bn):
-        "Make a factor eliminating var by summing over its values."
+        """Make a factor eliminating var by summing over its values."""
         variables = [X for X in self.variables if X != var]
         cpt = {event_values(e, variables): sum(self.p(extend(e, var, val))
                                                for val in bn.variable_values(var))
@@ -389,18 +389,18 @@ class Factor:
         return Factor(variables, cpt)
 
     def normalize(self):
-        "Return my probabilities; must be down to one variable."
+        """Return my probabilities; must be down to one variable."""
         assert len(self.variables) == 1
         return ProbDist(self.variables[0],
                         {k: v for ((k,), v) in self.cpt.items()})
 
     def p(self, e):
-        "Look up my value tabulated for e."
+        """Look up my value tabulated for e."""
         return self.cpt[event_values(e, self.variables)]
 
 
 def all_events(variables, bn, e):
-    "Yield every way of extending e with values for all variables."
+    """Yield every way of extending e with values for all variables."""
     if not variables:
         yield e
     else:
@@ -453,7 +453,7 @@ def rejection_sampling(X, e, bn, N):
 
 
 def consistent_with(event, evidence):
-    "Is event consistent with the given evidence?"
+    """Is event consistent with the given evidence?"""
     return all(evidence.get(k, v) == v
                for k, v in event.items())
 
@@ -527,7 +527,7 @@ def markov_blanket_sample(X, e, bn):
 
 class HiddenMarkovModel:
 
-    """ A Hidden markov model which takes Transition model and Sensor model as inputs"""
+    """A Hidden markov model which takes Transition model and Sensor model as inputs"""
 
     def __init__(self, transition_model, sensor_model, prior=[0.5, 0.5]):
         self.transition_model = transition_model

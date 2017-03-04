@@ -145,10 +145,10 @@ def SimpleReflexAgentProgram(rules, interpret_input):
     return program
 
 
-def ModelBasedReflexAgentProgram(rules, update_state):
-    "This agent takes action based on the percept and state. [Figure 2.12]"
+def ModelBasedReflexAgentProgram(rules, update_state, model):
+    "This agent takes action based on the percept and state. [Figure 2.8]"
     def program(percept):
-        program.state = update_state(program.state, program.action, percept)
+        program.state = update_state(program.state, program.action, percept, model)
         rule = rule_match(program.state, rules)
         action = rule.action
         return action
@@ -325,11 +325,11 @@ class Environment(object):
 class Direction():
     '''A direction class for agents that want to move in a 2D plane
         Usage:
-            d = Direction("Down")
+            d = Direction("down")
             To change directions:
             d = d + "right" or d = d + Direction.R #Both do the same thing
             Note that the argument to __add__ must be a string and not a Direction object.
-            Also, it (the argument) can only be right or left. '''
+            Also, it (the argument) can only be right or left.'''
 
     R = "right"
     L = "left"
@@ -428,8 +428,8 @@ class XYEnvironment(Environment):
         return (random.choice(self.width), random.choice(self.height))
 
     def move_to(self, thing, destination):
-        '''Move a thing to a new location. Returns True on success or False if there is an Obstacle
-            If thing is grabbing anything, they move with him '''
+        '''Move a thing to a new location. Returns True on success or False if there is an Obstacle.
+            If thing is holding anything, they move with him.'''
         thing.bump = self.some_things_at(destination, Obstacle)
         if not thing.bump:
             thing.location = destination
@@ -451,7 +451,7 @@ class XYEnvironment(Environment):
     def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items=False):
         '''Adds things to the world.
             If (exclude_duplicate_class_items) then the item won't be added if the location
-            has at least one item of the same class'''
+            has at least one item of the same class.'''
         if (self.is_inbounds(location)):
             if (exclude_duplicate_class_items and
                 any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):
@@ -526,7 +526,7 @@ class Wall(Obstacle):
 # Continuous environment
 
 class ContinuousWorld(Environment):
-    """ Model for Continuous World. """
+    """ Model for Continuous World."""
     def __init__(self, width=10, height=10):
         super(ContinuousWorld, self).__init__()
         self.width = width
@@ -538,7 +538,7 @@ class ContinuousWorld(Environment):
 
 class PolygonObstacle(Obstacle):
     def __init__(self, coordinates):
-        """ Coordinates is a list of tuples. """
+        """ Coordinates is a list of tuples."""
         super(PolygonObstacle, self).__init__()
         self.coordinates = coordinates
 
@@ -715,7 +715,7 @@ class WumpusEnvironment(XYEnvironment):
         self.add_thing(Explorer(program), (1, 1), True)
 
     def get_world(self, show_walls=True):
-        '''returns the items in the world'''
+        '''Returns the items in the world'''
         result = []
         x_start, y_start = (0, 0) if show_walls else (1, 1)
         x_end, y_end = (self.width, self.height) if show_walls else (self.width - 1, self.height - 1)
@@ -765,8 +765,8 @@ class WumpusEnvironment(XYEnvironment):
         return result
 
     def execute_action(self, agent, action):
-        '''Modify the state of the environment based on the agent's actions
-            Performance score taken directly out of the book'''
+        '''Modify the state of the environment based on the agent's actions.
+            Performance score taken directly out of the book.'''
 
         if isinstance(agent, Explorer) and self.in_danger(agent):
             return
@@ -818,7 +818,7 @@ class WumpusEnvironment(XYEnvironment):
 
     def is_done(self):
         '''The game is over when the Explorer is killed
-            or if he climbs out of the cave only at (1,1)'''
+            or if he climbs out of the cave only at (1,1).'''
         explorer = [agent for agent in self.agents if isinstance(agent, Explorer) ]
         if len(explorer):
                 if explorer[0].alive:

@@ -139,8 +139,8 @@ class DataSet:
         if self.values:
             for a in self.attrs:
                 if example[a] not in self.values[a]:
-                    raise ValueError('Bad value %s for attribute %s in %s' %
-                                     (example[a], self.attrnames[a], example))
+                    raise ValueError('Bad value {} for attribute {} in {}'
+                                     .format(example[a], self.attrnames[a], example))
 
     def attrnum(self, attr):
         "Returns the number used for attr, which can be a name, or -n .. n-1."
@@ -157,7 +157,7 @@ class DataSet:
                 for i, attr_i in enumerate(example)]
 
     def __repr__(self):
-        return '<DataSet(%s): %d examples, %d attributes>' % (
+        return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
             self.name, len(self.examples), len(self.attrs))
 
 # ______________________________________________________________________________
@@ -317,8 +317,8 @@ class DecisionFork:
             subtree.display(indent + 1)
 
     def __repr__(self):
-        return ('DecisionFork(%r, %r, %r)'
-                % (self.attr, self.attrname, self.branches))
+        return ('DecisionFork({0!r}, {1!r}, {2!r})'
+                .format(self.attr, self.attrname, self.branches))
 
 
 class DecisionLeaf:
@@ -370,7 +370,7 @@ def DecisionTreeLearner(dataset):
 
     def count(attr, val, examples):
         "Count the number of examples that have attr = val."
-        return count(e[attr] == val for e in examples)
+        return len(e[attr] == val for e in examples) #count(e[attr] == val for e in examples)
 
     def all_same_class(examples):
         "Are all these examples in the same target class?"
@@ -499,9 +499,9 @@ class NNUnit:
 
 def network(input_units, hidden_layer_sizes, output_units):
     """
-    Create of Directed Acyclic Network of given number layers
+    Create Directed Acyclic Network of given number layers.
     hidden_layers_sizes : list number of neuron units in each hidden layer
-    excluding input and output layers.
+    excluding input and output layers
     """
     # Check for PerceptronLearner
     if hidden_layer_sizes:
@@ -523,7 +523,7 @@ def network(input_units, hidden_layer_sizes, output_units):
 
 
 def BackPropagationLearner(dataset, net, learning_rate, epoches):
-    "[Figure 18.23] The back-propagation algorithm for multilayer network"
+    """[Figure 18.23] The back-propagation algorithm for multilayer network"""
     # Initialise weights
     for layer in net:
         for node in layer:
@@ -771,9 +771,9 @@ def test(predict, dataset, examples=None, verbose=0):
         if output == desired:
             right += 1
             if verbose >= 2:
-                print('   OK: got %s for %s' % (desired, example))
+                print('   OK: got {} for {}'.format(desired, example))
         elif verbose:
-            print('WRONG: got %s, expected %s for %s' % (
+            print('WRONG: got {}, expected {} for {}'.format(
                 output, desired, example))
     return 1 - (right / len(examples))
 
@@ -826,7 +826,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     """
     Fig 18.8
     Return the optimal value of size having minimum error
-    on validataion set
+    on validataion set.
     err_train: a training error array, indexed by size
     err_val: a validataion error array, indexed by size
     """
