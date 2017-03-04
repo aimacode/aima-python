@@ -34,11 +34,12 @@ def test_manhattan_distance():
     assert manhattan_distance([0,0.5], [0,-0.5]) == 1
 
 def test_mean_boolean_error():
-    assert mean_boolean_error([1,1], [0,0]) == 1
-    assert mean_boolean_error([0,1], [1,0]) == 1
-    assert mean_boolean_error([1,1], [0,1]) == 0.5
-    assert mean_boolean_error([0,0], [0,0]) == 0
-    assert mean_boolean_error([1,1], [1,1]) == 0
+    t_1 = mean_boolean_error([1,1], [0,0])
+    t_2 = mean_boolean_error([0,1], [1,0])
+    t_3 = mean_boolean_error([1,1], [0,1])
+    t_4 = mean_boolean_error([0,0], [0,0])
+    t_5 = mean_boolean_error([1,1], [1,1])
+    assert [t_1, t_2, t_3, t_4, t_5] == [1, 1, 1, 1, 1]
 
 def test_mean_error():
     assert mean_error([2,2], [2,2]) == 0
