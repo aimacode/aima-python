@@ -6,6 +6,7 @@ from learning import (
     information_content
 )
 from utils import rounder
+import statistics
 
 
 def test_parse_csv():
@@ -34,6 +35,10 @@ def test_manhattan_distance():
     assert manhattan_distance([0,0.5], [0,-0.5]) == 1
 
 def test_mean_boolean_error():
+    assert statistics.mean([1, 1]) == 1
+    assert 1 + 1 == 2
+    assert True + True == 2
+    assert statistics.mean([True, True]) == 1
     t_1 = mean_boolean_error([1,1], [0,0])
     t_2 = mean_boolean_error([0,1], [1,0])
     t_3 = mean_boolean_error([1,1], [0,1])
