@@ -234,20 +234,20 @@ class CountingProbDist:
 # ______________________________________________________________________________
 
 
-def PluralityLearner(dataset):
+def PluralityLearner(dataset,example):
     """A very dumb algorithm: always pick the result that was most popular
     in the training data.  Makes a baseline for comparison."""
-    most_popular = mode([e[dataset.target] for e in dataset.examples])
 
-    def predict(example):
+    def predict():
         "Always return same result: the most popular from the training set."
+        most_popular = mode([e[dataset.target] for e in dataset.examples])
         return most_popular
-    return predict
+    return predict()
 
 # ______________________________________________________________________________
 
 
-def NaiveBayesLearner(dataset):
+def NaiveBayesLearner(dataset,example):
     """Just count how many times each value of each input attribute
     occurs, conditional on the target value. Count the different
     target values too."""
@@ -257,11 +257,11 @@ def NaiveBayesLearner(dataset):
     attr_dists = {(gv, attr): CountingProbDist(dataset.values[attr])
                   for gv in targetvals
                   for attr in dataset.inputs}
-    for example in dataset.examples:
-        targetval = example[dataset.target]
+    for e in dataset.examples:
+        targetval = e[dataset.target]
         target_dist.add(targetval)
         for attr in dataset.inputs:
-            attr_dists[targetval, attr].add(example[attr])
+            attr_dists[targetval, attr].add(e[attr])
 
     def predict(example):
         """Predict the target value for example. Consider each possible value,
@@ -271,20 +271,19 @@ def NaiveBayesLearner(dataset):
                     product(attr_dists[targetval, attr][example[attr]]
                             for attr in dataset.inputs))
         return argmax(targetvals, key=class_probability)
-
-    return predict
+    return predict(example)
 
 # ______________________________________________________________________________
 
 
-def NearestNeighborLearner(dataset, k=1):
+def NearestNeighborLearner(dataset, example, k=1):
     "k-NearestNeighbor: the k nearest neighbors vote."
-    def predict(example):
+    def predict():
         "Find the k closest, and have them vote for the best."
         best = heapq.nsmallest(k, ((dataset.distance(e, example), e)
                                    for e in dataset.examples))
         return mode(e[dataset.target] for (d, e) in best)
-    return predict
+    return predict()
 
 # ______________________________________________________________________________
 
