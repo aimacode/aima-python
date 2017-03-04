@@ -120,7 +120,7 @@ class DataSet:
         self.check_me()
 
     def check_me(self):
-        "Check that my fields make sense."
+        """Check that my fields make sense."""
         assert len(self.attrnames) == len(self.attrs)
         assert self.target in self.attrs
         assert self.target not in self.inputs
@@ -130,12 +130,12 @@ class DataSet:
             list(map(self.check_example, self.examples))
 
     def add_example(self, example):
-        "Add an example to the list of examples, checking it first."
+        """Add an example to the list of examples, checking it first."""
         self.check_example(example)
         self.examples.append(example)
 
     def check_example(self, example):
-        "Raise ValueError if example has any invalid values."
+        """Raise ValueError if example has any invalid values."""
         if self.values:
             for a in self.attrs:
                 if example[a] not in self.values[a]:
@@ -143,7 +143,7 @@ class DataSet:
                                      .format(example[a], self.attrnames[a], example))
 
     def attrnum(self, attr):
-        "Returns the number used for attr, which can be a name, or -n .. n-1."
+        """Returns the number used for attr, which can be a name, or -n .. n-1."""
         if isinstance(attr, str):
             return self.attrnames.index(attr)
         elif attr < 0:
@@ -152,7 +152,7 @@ class DataSet:
             return attr
 
     def sanitize(self, example):
-        "Return a copy of example, with non-input attributes replaced by None."
+        """Return a copy of example, with non-input attributes replaced by None."""
         return [attr_i if i in self.inputs else None
                 for i, attr_i in enumerate(example)]
 
@@ -164,13 +164,12 @@ class DataSet:
 
 
 def parse_csv(input, delim=','):
-    r"""Input is a string consisting of lines, each line has comma-delimited
-    fields.  Convert this into a list of lists.  Blank lines are skipped.
+    """Input is a string consisting of lines, each line has comma-delimited
+    fields.  Convert this into a list of lists. Blank lines are skipped.
     Fields that look like numbers are converted to numbers.
     The delim defaults to ',' but '\t' and None are also reasonable values.
     >>> parse_csv('1, 2, 3 \n 0, 2, na')
-    [[1, 2, 3], [0, 2, 'na']]
-    """
+    [[1, 2, 3], [0, 2, 'na']]"""
     lines = [line for line in input.splitlines() if line.strip()]
     return [list(map(num_or_str, line.split(delim))) for line in lines]
 
@@ -199,7 +198,7 @@ class CountingProbDist:
             self.add(o)
 
     def add(self, o):
-        "Add an observation o to the distribution."
+        """Add an observation o to the distribution."""
         self.smooth_for(o)
         self.dictionary[o] += 1
         self.n_obs += 1
@@ -214,18 +213,18 @@ class CountingProbDist:
             self.sampler = None
 
     def __getitem__(self, item):
-        "Return an estimate of the probability of item."
+        """Return an estimate of the probability of item."""
         self.smooth_for(item)
         return self.dictionary[item] / self.n_obs
 
     # (top() and sample() are not used in this module, but elsewhere.)
 
     def top(self, n):
-        "Return (count, obs) tuples for the n most frequent observations."
+        """Return (count, obs) tuples for the n most frequent observations."""
         return heapq.nlargest(n, [(v, k) for (k, v) in self.dictionary.items()])
 
     def sample(self):
-        "Return a random sample from the distribution."
+        """Return a random sample from the distribution."""
         if self.sampler is None:
             self.sampler = weighted_sampler(list(self.dictionary.keys()),
                                             list(self.dictionary.values()))
@@ -239,8 +238,8 @@ def PluralityLearner(dataset):
     in the training data.  Makes a baseline for comparison."""
     most_popular = mode([e[dataset.target] for e in dataset.examples])
 
-    def predict(example):
-        "Always return same result: the most popular from the training set."
+    def predict(example=[]):
+        """Always return same result: the most popular from the training set."""
         return most_popular
     return predict
 
@@ -278,9 +277,9 @@ def NaiveBayesLearner(dataset):
 
 
 def NearestNeighborLearner(dataset, k=1):
-    "k-NearestNeighbor: the k nearest neighbors vote."
+    """k-NearestNeighbor: the k nearest neighbors vote."""
     def predict(example):
-        "Find the k closest, and have them vote for the best."
+        """Find the k closest items, and have them vote for the best."""
         best = heapq.nsmallest(k, ((dataset.distance(e, example), e)
                                    for e in dataset.examples))
         return mode(e[dataset.target] for (d, e) in best)
@@ -295,18 +294,18 @@ class DecisionFork:
     of branches, one for each of the attribute's values."""
 
     def __init__(self, attr, attrname=None, branches=None):
-        "Initialize by saying what attribute this node tests."
+        """Initialize by saying what attribute this node tests."""
         self.attr = attr
         self.attrname = attrname or attr
         self.branches = branches or {}
 
     def __call__(self, example):
-        "Given an example, classify it using the attribute and the branches."
+        """Given an example, classify it using the attribute and the branches."""
         attrvalue = example[self.attr]
         return self.branches[attrvalue](example)
 
     def add(self, val, subtree):
-        "Add a branch.  If self.attr = val, go to the given subtree."
+        """Add a branch.  If self.attr = val, go to the given subtree."""
         self.branches[val] = subtree
 
     def display(self, indent=0):
@@ -323,7 +322,7 @@ class DecisionFork:
 
 class DecisionLeaf:
 
-    "A leaf of a decision tree holds just a result."
+    """A leaf of a decision tree holds just a result."""
 
     def __init__(self, result):
         self.result = result
@@ -341,7 +340,7 @@ class DecisionLeaf:
 
 
 def DecisionTreeLearner(dataset):
-    "[Figure 18.5]"
+    """[Figure 18.5]"""
 
     target, values = dataset.target, dataset.values
 
@@ -369,21 +368,21 @@ def DecisionTreeLearner(dataset):
         return DecisionLeaf(popular)
 
     def count(attr, val, examples):
-        "Count the number of examples that have attr = val."
+        """Count the number of examples that have attr = val."""
         return len(e[attr] == val for e in examples) #count(e[attr] == val for e in examples)
 
     def all_same_class(examples):
-        "Are all these examples in the same target class?"
+        """Check if all the examples are in the same target class"""
         class0 = examples[0][target]
         return all(e[target] == class0 for e in examples)
 
     def choose_attribute(attrs, examples):
-        "Choose the attribute with the highest information gain."
+        """Choose the attribute with the highest information gain."""
         return argmax_random_tie(attrs,
                                  key=lambda a: information_gain(a, examples))
 
     def information_gain(attr, examples):
-        "Return the expected reduction in entropy from splitting by attr."
+        """Return the expected reduction in entropy from splitting by attr."""
         def I(examples):
             return information_content([count(target, v, examples)
                                         for v in values[target]])
@@ -393,7 +392,7 @@ def DecisionTreeLearner(dataset):
         return I(examples) - remainder
 
     def split_by(attr, examples):
-        "Return a list of (val, examples) pairs for each val of attr."
+        """Return a list of (val, examples) pairs for each val of attr."""
         return [(v, [e for e in examples if e[attr] == v])
                 for v in values[attr]]
 
@@ -401,7 +400,7 @@ def DecisionTreeLearner(dataset):
 
 
 def information_content(values):
-    "Number of bits to represent the probability distribution in values."
+    """Number of bits to represent the probability distribution in values."""
     probabilities = normalize(removeall(0, values))
     return sum(-p * math.log2(p) for p in probabilities)
 
@@ -427,11 +426,11 @@ def DecisionListLearner(dataset):
         raise NotImplementedError
 
     def passes(example, test):
-        "Does the example pass the test?"
+        """Does the example pass the test?"""
         raise NotImplementedError
 
     def predict(example):
-        "Predict the outcome for the first passing test."
+        """Predict the outcome for the first passing test."""
         for test, outcome in predict.decision_list:
             if passes(example, test):
                 return outcome
@@ -447,7 +446,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     """
     Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
-    learning_rate: Learning rate of gradient decent
+    learning_rate: Learning rate of gradient descent
     epoches: Number of passes over the dataset
     """
 
@@ -487,7 +486,7 @@ class NNUnit:
     """
     Single Unit of Multiple Layer Neural Network
     inputs: Incoming connections
-    weights: weights to incoming connections
+    weights: Weights to incoming connections
     """
 
     def __init__(self, weights=None, inputs=None):
@@ -500,7 +499,7 @@ class NNUnit:
 def network(input_units, hidden_layer_sizes, output_units):
     """
     Create Directed Acyclic Network of given number layers.
-    hidden_layers_sizes : list number of neuron units in each hidden layer
+    hidden_layers_sizes : List number of neuron units in each hidden layer
     excluding input and output layers
     """
     # Check for PerceptronLearner
@@ -627,8 +626,8 @@ def PerceptronLearner(dataset, learning_rate=0.01, epoches=100):
 # ______________________________________________________________________________
 
 
-def Linearlearner(dataset, learning_rate=0.01, epochs=100):
-    """Define with learner = Linearlearner(data); infer with learner(x)."""
+def LinearLearner(dataset, learning_rate=0.01, epochs=100):
+    """Define with learner = LinearLearner(data); infer with learner(x)."""
     idx_i = dataset.inputs
     idx_t = dataset.target  # As of now, dataset.target gives only one index.
     examples = dataset.examples
@@ -702,7 +701,7 @@ def AdaBoost(L, K):
 
 
 def WeightedMajority(predictors, weights):
-    "Return a predictor that takes a weighted vote."
+    """Return a predictor that takes a weighted vote."""
     def predict(example):
         return weighted_mode((predictor(example) for predictor in predictors),
                              weights)
@@ -712,7 +711,8 @@ def WeightedMajority(predictors, weights):
 def weighted_mode(values, weights):
     """Return the value with the greatest total weight.
     >>> weighted_mode('abbaa', [1,2,3,1,2])
-    'b'"""
+    'b'
+    """
     totals = defaultdict(int)
     for v, w in zip(values, weights):
         totals[v] += w
@@ -731,7 +731,7 @@ def WeightedLearner(unweighted_learner):
 
 
 def replicated_dataset(dataset, weights, n=None):
-    "Copy dataset, replicating each example in proportion to its weight."
+    """Copy dataset, replicating each example in proportion to its weight."""
     n = n or len(dataset.examples)
     result = copy.copy(dataset)
     result.examples = weighted_replicate(dataset.examples, weights, n)
@@ -743,7 +743,8 @@ def weighted_replicate(seq, weights, n):
     seq proportional to the corresponding weight (filling in fractions
     randomly).
     >>> weighted_replicate('ABC', [1,2,1], 4)
-    ['A', 'B', 'B', 'C']"""
+    ['A', 'B', 'B', 'C']
+    """
     assert len(seq) == len(weights)
     weights = normalize(weights)
     wholes = [int(w * n) for w in weights]
@@ -759,7 +760,7 @@ def flatten(seqs): return sum(seqs, [])
 
 
 def test(predict, dataset, examples=None, verbose=0):
-    "Return the proportion of the examples that are NOT correctly predicted."
+    """Return the proportion of the examples that are NOT correctly predicted."""
     if examples is None:
         examples = dataset.examples
     if len(examples) == 0:
@@ -791,7 +792,7 @@ def train_and_test(dataset, start, end):
 def cross_validation(learner, size, dataset, k=10, trials=1):
     """Do k-fold cross_validate and return their mean.
     That is, keep out 1/k of the examples for testing on each of k runs.
-    Shuffle the examples first; If trials>1, average over several shuffles.
+    Shuffle the examples first; if trials>1, average over several shuffles.
     Returns Training error, Validataion error"""
     if k is None:
         k = len(dataset.examples)
@@ -824,11 +825,11 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
 
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     """
-    Fig 18.8
+    [Fig 18.8]
     Return the optimal value of size having minimum error
     on validataion set.
-    err_train: a training error array, indexed by size
-    err_val: a validataion error array, indexed by size
+    err_train: A training error array, indexed by size
+    err_val: A validataion error array, indexed by size
     """
     err_val = []
     err_train = []
@@ -847,7 +848,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
 
 
 def leave_one_out(learner, dataset):
-    "Leave one out cross-validation over the dataset."
+    """Leave one out cross-validation over the dataset."""
     return cross_validation(learner, size, dataset, k=len(dataset.examples))
 
 
@@ -882,7 +883,7 @@ iris = DataSet(name="iris", target="class",
 
 
 def RestaurantDataSet(examples=None):
-    "Build a DataSet of Restaurant waiting examples. [Figure 18.3]"
+    """Build a DataSet of Restaurant waiting examples. [Figure 18.3]"""
     return DataSet(name='restaurant', target='Wait', examples=examples,
                    attrnames='Alternate Bar Fri/Sat Hungry Patrons Price ' +
                    'Raining Reservation Type WaitEstimate Wait')
@@ -921,7 +922,7 @@ waiting_decision_tree = T('Patrons',
 
 
 def SyntheticRestaurant(n=20):
-    "Generate a DataSet with n examples."
+    """Generate a DataSet with n examples."""
     def gen():
         example = list(map(random.choice, restaurant.values))
         example[restaurant.target] = waiting_decision_tree(example)
