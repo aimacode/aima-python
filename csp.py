@@ -344,7 +344,7 @@ class UniversalDict:
 
     def __getitem__(self, key): return self.value
 
-    def __repr__(self): return '{Any: %r}' % self.value
+    def __repr__(self): return '{{Any: {0!r}}}'.format(self.value)
 
 
 def different_values_constraint(A, a, B, b):

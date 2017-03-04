@@ -139,8 +139,8 @@ class DataSet:
         if self.values:
             for a in self.attrs:
                 if example[a] not in self.values[a]:
-                    raise ValueError('Bad value %s for attribute %s in %s' %
-                                     (example[a], self.attrnames[a], example))
+                    raise ValueError('Bad value {} for attribute {} in {}'
+                                     .format(example[a], self.attrnames[a], example))
 
     def attrnum(self, attr):
         "Returns the number used for attr, which can be a name, or -n .. n-1."
@@ -157,7 +157,7 @@ class DataSet:
                 for i, attr_i in enumerate(example)]
 
     def __repr__(self):
-        return '<DataSet(%s): %d examples, %d attributes>' % (
+        return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
             self.name, len(self.examples), len(self.attrs))
 
 # ______________________________________________________________________________
@@ -317,8 +317,8 @@ class DecisionFork:
             subtree.display(indent + 1)
 
     def __repr__(self):
-        return ('DecisionFork(%r, %r, %r)'
-                % (self.attr, self.attrname, self.branches))
+        return ('DecisionFork({0!r}, {1!r}, {2!r})'
+                .format(self.attr, self.attrname, self.branches))
 
 
 class DecisionLeaf:
@@ -771,9 +771,9 @@ def test(predict, dataset, examples=None, verbose=0):
         if output == desired:
             right += 1
             if verbose >= 2:
-                print('   OK: got %s for %s' % (desired, example))
+                print('   OK: got {} for {}'.format(desired, example))
         elif verbose:
-            print('WRONG: got %s, expected %s for %s' % (
+            print('WRONG: got {}, expected {} for {}'.format(
                 output, desired, example))
     return 1 - (right / len(examples))
 
