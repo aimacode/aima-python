@@ -164,7 +164,7 @@ class DataSet:
 
 
 def parse_csv(input, delim=','):
-    """Input is a string consisting of lines, each line has comma-delimited
+    r"""Input is a string consisting of lines, each line has comma-delimited
     fields.  Convert this into a list of lists. Blank lines are skipped.
     Fields that look like numbers are converted to numbers.
     The delim defaults to ',' but '\t' and None are also reasonable values.
