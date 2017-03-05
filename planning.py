@@ -405,8 +405,8 @@ class Graph:
         self.levels = [Level(pdll.kb, negkb)]
         self.objects = set(arg for clause in pdll.kb.clauses + negkb.clauses for arg in clause.args)
 
-    def __call__():
-        expand_graph()
+    def __call__(self):
+        self.expand_graph()
 
     def expand_graph(self):
         last_level = self.levels[-1]
