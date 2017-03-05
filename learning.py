@@ -238,7 +238,7 @@ def PluralityLearner(dataset):
     in the training data.  Makes a baseline for comparison."""
     most_popular = mode([e[dataset.target] for e in dataset.examples])
 
-    def predict(example=[]):
+    def predict(example):
         """Always return same result: the most popular from the training set."""
         return most_popular
     return predict
@@ -372,7 +372,7 @@ def DecisionTreeLearner(dataset):
         return len(e[attr] == val for e in examples) #count(e[attr] == val for e in examples)
 
     def all_same_class(examples):
-        """Check if all the examples are in the same target class"""
+        """Are all these examples in the same target class?"""
         class0 = examples[0][target]
         return all(e[target] == class0 for e in examples)
 
