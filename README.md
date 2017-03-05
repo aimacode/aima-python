@@ -20,7 +20,7 @@ When complete, this project will have Python code for all the pseudocode algorit
 - `logic.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
 - `tests/logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
 
-# Index of Code
+# Index of Algorithms
 
 Here is a table of algorithms, the figure, name of the code in the book and in the repository, and the file where they are implemented in the code. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book.
 
