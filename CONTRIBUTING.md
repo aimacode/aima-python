@@ -1,7 +1,13 @@
 How to Contribute to aima-python
 ==========================
 
-Thanks for considering contributing to `aima-python`! Here is some of the work that needs to be done:
+Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5663121491361792/) student, or an independent contributor, here is a guide to how you can help:
+
+## Read the Code and Start on an Issue
+
+- First, read and understand the code to get a feel for the extent and the style.
+- Look at the [issues](https://github.com/aimacode/aima-python/issues) and pick one to work on.
+- One of the issues is that some algorithms are missing from the [list of algorithms](https://github.com/aimacode/aima-python/blob/master/README.md#index-of-algorithms).
 
 ## Port to Python 3; Pythonic Idioms; py.test
 
