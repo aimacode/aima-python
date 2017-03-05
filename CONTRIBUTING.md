@@ -31,7 +31,8 @@ Beyond the above rules, we use [Pep 8](https://www.python.org/dev/peps/pep-0008)
 - I have set `--max-line-length 100`, not 79.
 - You don't need two spaces after a sentence-ending period.
 - Strunk and White is [not a good guide for English](http://chronicle.com/article/50-Years-of-Stupid-Grammar/25497).
-- I prefer more concise docstrings; I don't follow [Pep 257](https://www.python.org/dev/peps/pep-0257/).
+- I prefer more concise docstrings; I don't follow [Pep 257](https://www.python.org/dev/peps/pep-0257/). In most cases,
+a one-line docstring suffices. It is rarely necessary to list what each argument does; the name of the argument usually is enough.
 - Not all constants have to be UPPERCASE.
 - At some point I may add [Pep 484](https://www.python.org/dev/peps/pep-0484/) type annotations, but I think I'll hold off for now;
   I want to get more experience with them, and some people may still be in Python 3.4.
@@ -40,7 +41,7 @@ Beyond the above rules, we use [Pep 8](https://www.python.org/dev/peps/pep-0008)
 Contributing a Patch
 ====================
 
-1. Submit an issue describing your proposed change to the repo in question.
+1. Submit an issue describing your proposed change to the repo in question (or work on an existing issue).
 1. The repo owner will respond to your issue promptly.
 1. Fork the desired repo, develop and test your code changes.
 1. Submit a pull request.
@@ -88,15 +89,15 @@ Then you can run the testsuite with::
 # Choice of Programming Languages
 
 Are we right to concentrate on Java and Python versions of the code? I think so; both languages are popular; Java is
-fast enough for our purposes, and has reasonable type declarations (but can be verbose); Python is popular and has a very direct mapping to the pseudocode in the book (but lacks type declarations and can be slow). The [TIOBE Index](http://www.tiobe.com/tiobe_index) says the top five most popular languages are:
+fast enough for our purposes, and has reasonable type declarations (but can be verbose); Python is popular and has a very direct mapping to the pseudocode in the book (but lacks type declarations and can be slow). The [TIOBE Index](http://www.tiobe.com/tiobe_index) says the top seven most popular languages, in order, are:
 
-        Java, C, C++, C#, Python
+        Java, C, C++, C#, Python, PHP, Javascript
 
-So it might be reasonable to also support C++/C# at some point in the future. It might also be reasonable to support a language that combines the terse readability of Python with the type safety and speed of Java; perhaps Go or Julia. And finally, Javascript is the language of the browser; it would be nice to have code that runs in the browser, in Javascript or a variant such as Typescript.
+So it might be reasonable to also support C++/C# at some point in the future. It might also be reasonable to support a language that combines the terse readability of Python with the type safety and speed of Java; perhaps Go or Julia. I see no reason to support PHP. Javascript is the language of the browser; it would be nice to have code that runs in the browser without need for any downloads; this would be in Javascript or a variant such as Typescript.
 
-There is also a `aima-lisp` project; in 1995 when we wrote the first edition of the book, Lisp was the right choice, but today it is less popular.
+There is also a `aima-lisp` project; in 1995 when we wrote the first edition of the book, Lisp was the right choice, but today it is less popular (currently #31 on the TIOBE index).
 
-What languages are instructors recommending for their AI class? To get an approximate idea, I gave the query <tt>[norvig russell "Modern Approach"](https://www.google.com/webhp#q=russell%20norvig%20%22modern%20approach%22%20java)</tt> along with the names of various languages and looked at the estimated counts of results on
+What languages are instructors recommending for their AI class? To get an approximate idea, I gave the query <tt>[\[norvig russell "Modern Approach"\]](https://www.google.com/webhp#q=russell%20norvig%20%22modern%20approach%22%20java)</tt> along with the names of various languages and looked at the estimated counts of results on
 various dates. However, I don't have much confidence in these figures...
 
 |Language  |2004  |2005  |2007  |2010  |2016  |
