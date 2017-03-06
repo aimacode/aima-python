@@ -1,7 +1,20 @@
 import pytest
 from learning import parse_csv, weighted_mode, weighted_replicate, DataSet, \
-                     PluralityLearner, NaiveBayesLearner, NearestNeighborLearner
+                     PluralityLearner, NaiveBayesLearner, NearestNeighborLearner, mode
 from utils import DataFile
+
+
+def test_mode():
+    zoo = DataSet(name='zoo')
+    data = [e[zoo.target] for e in zoo.examples]
+
+    assert mode(data) == 'mammal'
+
+    zoo = DataSet(name='iris')
+    data = [e[zoo.target] for e in zoo.examples]
+    data.append('setosa')
+
+    assert mode(data) == 'setosa'
 
 
 def test_parse_csv():
