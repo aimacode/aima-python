@@ -785,7 +785,7 @@ def train_and_test(dataset, start, end):
     return train, val
 
 
-def cross_validation(learner, size, dataset, k=10, trials=1):
+def cross_validation(learner, dataset, k=10, trials=1):
     """Do k-fold cross_validate and return their mean.
     That is, keep out 1/k of the examples for testing on each of k runs.
     Shuffle the examples first; if trials>1, average over several shuffles.
@@ -811,7 +811,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
             train_data, val_data = train_and_test(dataset, fold * (n / k),
                                                   (fold + 1) * (n / k))
             dataset.examples = train_data
-            h = learner(dataset, size)
+            h = learner(dataset)
             fold_errT += test(h, dataset, train_data)
             fold_errV += test(h, dataset, val_data)
             # Reverting back to original once test is completed
@@ -844,8 +844,8 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
 
 
 def leave_one_out(learner, dataset):
-    """Leave one out cross-validation over the dataset."""
-    return cross_validation(learner, size, dataset, k=len(dataset.examples))
+    "Leave one out cross-validation over the dataset."
+    return cross_validation(learner, dataset, k=len(dataset.examples))
 
 
 def learningcurve(learner, dataset, trials=10, sizes=None):
