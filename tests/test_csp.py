@@ -43,9 +43,127 @@ def test_csp_actions():
     state = {'A': '1', 'C': '2'}
     assert map_coloring_test.actions(state) == [('B', '3')]
 
+    state = (('A', '1'), ('B', '3'))
+    assert map_coloring_test.actions(state) == [('C', '2')]
+
     state = {'A': '1'}
     assert (map_coloring_test.actions(state) == [('C', '2'), ('C', '3')] or
             map_coloring_test.actions(state) == [('B', '2'), ('B', '3')])
+
+
+def test_csp_result():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+
+    state = (('A', '1'), ('B', '3'))
+    action = ('C', '2')
+
+    assert map_coloring_test.result(state, action) == (('A', '1'), ('B', '3'), ('C', '2'))
+
+
+def test_csp_goal_test():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    state = (('A', '1'), ('B', '3'), ('C', '2'))
+    assert map_coloring_test.goal_test(state) is True
+
+    state = (('A', '1'), ('C', '2'))
+    assert map_coloring_test.goal_test(state) is False
+
+
+def test_csp_support_pruning():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    map_coloring_test.support_pruning()
+    assert map_coloring_test.curr_domains == {'A': ['1', '2', '3'], 'B': ['1', '2', '3'],
+                                              'C': ['1', '2', '3']}
+
+
+def test_csp_suppose():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    var = 'A'
+    value = '1'
+
+    removals = map_coloring_test.suppose(var, value)
+
+    assert removals == [('A', '2'), ('A', '3')]
+    assert map_coloring_test.curr_domains == {'A': ['1'], 'B': ['1', '2', '3'],
+                                              'C': ['1', '2', '3']}
+
+
+def test_csp_prune():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    removals = None
+    var = 'A'
+    value = '3'
+
+    map_coloring_test.support_pruning()
+    map_coloring_test.prune(var, value, removals)
+    assert map_coloring_test.curr_domains == {'A': ['1', '2'], 'B': ['1', '2', '3'],
+                                              'C': ['1', '2', '3']}
+    assert removals is None
+
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    removals = [('A', '2')]
+    map_coloring_test.support_pruning()
+    map_coloring_test.prune(var, value, removals)
+    assert map_coloring_test.curr_domains == {'A': ['1', '2'], 'B': ['1', '2', '3'],
+                                              'C': ['1', '2', '3']}
+    assert removals == [('A', '2'), ('A', '3')]
+
+
+def test_csp_choices():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    var = 'A'
+    assert map_coloring_test.choices(var) == ['1', '2', '3']
+
+    map_coloring_test.support_pruning()
+    removals = None
+    value = '3'
+    map_coloring_test.prune(var, value, removals)
+    assert map_coloring_test.choices(var) == ['1', '2']
+
+
+def test_csp_infer_assignement():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    map_coloring_test.infer_assignment() == {}
+
+    var = 'A'
+    value = '3'
+    map_coloring_test.prune(var, value, None)
+    value = '1'
+    map_coloring_test.prune(var, value, None)
+
+    map_coloring_test.infer_assignment() == {'A': '2'}
+
+
+def test_csp_restore():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    map_coloring_test.curr_domains = {'A': ['2', '3'], 'B': ['1'], 'C': ['2', '3']}
+    removals = [('A', '1'), ('B', '2'), ('B', '3')]
+
+    map_coloring_test.restore(removals)
+
+    assert map_coloring_test.curr_domains == {'A': ['2', '3', '1'], 'B': ['1', '2', '3'],
+                                              'C': ['2', '3']}
+
+
+def test_csp_conflicted_vars():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+
+    current = {}
+    var = 'A'
+    val = '1'
+    map_coloring_test.assign(var, val, current)
+
+    var = 'B'
+    val = '3'
+    map_coloring_test.assign(var, val, current)
+
+    var = 'C'
+    val = '3'
+    map_coloring_test.assign(var, val, current)
+
+    conflicted_vars = map_coloring_test.conflicted_vars(current)
+
+    assert (conflicted_vars == ['B', 'C'] or conflicted_vars == ['C', 'B'])
 
 
 def test_backtracking_search():
