@@ -18,7 +18,7 @@ from collections import defaultdict, Counter
 
 def mode(data): 
     """Return the most common data item. If there are ties, return any one of them."""
-    (item, count) = Counter(data).most_common(1)
+    (item, count) = Counter(data).most_common(1)[0]
     return item
 
 def rms_error(predictions, targets):
