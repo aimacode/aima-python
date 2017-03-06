@@ -11,14 +11,15 @@ import heapq
 import math
 import random
 
-# XXX statistics.mode is not quite the same as the old utils.mode:
-#  it insists on there being a unique most-frequent value. Code using mode
-#  needs to be revisited, or we need to restore utils.mode.
-from statistics import mean, mode
-from collections import defaultdict
+from statistics import mean
+from collections import defaultdict, Counter
 
 # ______________________________________________________________________________
 
+def mode(data): 
+    """Return the most common data item. If there are ties, return any one of them."""
+    (item, count) = Counter(data).most_common(1)
+    return item
 
 def rms_error(predictions, targets):
     return math.sqrt(ms_error(predictions, targets))
