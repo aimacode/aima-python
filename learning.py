@@ -413,7 +413,7 @@ def DecisionListLearner(dataset):
             return [(True, False)]
         t, o, examples_t = find_examples(examples)
         if not t:
-            raise Failure
+            raise ValueError
         return [(t, o)] + decision_list_learning(examples - examples_t)
 
     def find_examples(examples):
