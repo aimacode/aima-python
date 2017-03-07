@@ -61,7 +61,7 @@ def is_in(elt, seq):
 
 def mode(data): 
     """Return the most common data item. If there are ties, return any one of them."""
-    [(item, count)] = Counter(data).most_common(1)
+    [(item, count)] = collections.Counter(data).most_common(1)
     return item
 
 # ______________________________________________________________________________
