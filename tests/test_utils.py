@@ -97,7 +97,8 @@ def test_scalar_vector_product():
 
 
 def test_scalar_matrix_product():
-    assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20], [0, -30]]
+    assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20],
+                                                                            [0, -30]]
     assert rounder(scalar_matrix_product(0.2, [[1, 2], [2, 3]])) == [[0.2, 0.4], [0.4, 0.6]]
 
 
@@ -167,7 +168,7 @@ def test_Expr():
 def test_expr():
     P, Q, x, y, z, GP = symbols('P, Q, x, y, z, GP')
     assert (expr(y + 2 * x)
-            == expr('y + 2 * x') 
+            == expr('y + 2 * x')
             == Expr('+', y, Expr('*', 2, x)))
     assert expr('P & Q ==> P') == Expr('==>', P & Q, P)
     assert expr('P & Q <=> Q & P') == Expr('<=>', (P & Q), (Q & P))
@@ -175,6 +176,7 @@ def test_expr():
     # x is grandparent of z if x is parent of y and y is parent of z:
     assert (expr('GP(x, z) <== P(x, y) & P(y, z)')
             == Expr('<==', GP(x, z), P(x, y) & P(y, z)))
+
 
 if __name__ == '__main__':
     pytest.main()
