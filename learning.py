@@ -37,8 +37,7 @@ def manhattan_distance(predictions, targets):
 
 
 def mean_boolean_error(predictions, targets):
-    errors = [(p != t) for p, t in zip(predictions, targets)]
-    return sum(errors)/len(errors)
+    return mean(int(p != t) for p, t in zip(predictions, targets))
 
 # ______________________________________________________________________________
 
