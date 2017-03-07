@@ -152,6 +152,14 @@ class DataSet:
         return [attr_i if i in self.inputs else None
                 for i, attr_i in enumerate(example)]
 
+    def classes_to_numbers(self,classes=None):
+        """Converts class names to numbers."""
+        if not classes:
+            # If classes were not given, extract them from values
+            classes = sorted(self.values[self.target])
+        for item in self.examples:
+            item[self.target] = classes.index(item[self.target])
+
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
             self.name, len(self.examples), len(self.attrs))
