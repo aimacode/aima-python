@@ -381,7 +381,7 @@ class XYEnvironment(Environment):
     that are held."""
 
     def __init__(self, width=10, height=10):
-        super(XYEnvironment, self).__init__()
+        super().__init__()
 
         self.width = width
         self.height = height
@@ -452,7 +452,7 @@ class XYEnvironment(Environment):
             if (exclude_duplicate_class_items and
                 any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):
                     return
-            super(XYEnvironment, self).add_thing(thing, location)
+            super().add_thing(thing, location)
 
     def is_inbounds(self, location):
         """Checks to make sure that the location is inbounds (within walls if we have walls)"""
@@ -471,11 +471,11 @@ class XYEnvironment(Environment):
         """Deletes thing, and everything it is holding (if thing is an agent)"""
         if isinstance(thing, Agent):
             for obj in thing.holding:
-                super(XYEnvironment, self).delete_thing(obj)
+                super().delete_thing(obj)
                 for obs in self.observers:
                     obs.thing_deleted(obj)
 
-        super(XYEnvironment, self).delete_thing(thing)
+        super().delete_thing(thing)
         for obs in self.observers:
             obs.thing_deleted(thing)
 
@@ -525,7 +525,7 @@ class ContinuousWorld(Environment):
     """Model for Continuous World."""
 
     def __init__(self, width=10, height=10):
-        super(ContinuousWorld, self).__init__()
+        super().__init__()
         self.width = width
         self.height = height
 
@@ -536,8 +536,8 @@ class ContinuousWorld(Environment):
 class PolygonObstacle(Obstacle):
 
     def __init__(self, coordinates):
-        """Coordinates is a list of tuples."""
-        super(PolygonObstacle, self).__init__()
+        """ Coordinates is a list of tuples."""
+        super().__init__()
         self.coordinates = coordinates
 
 # ______________________________________________________________________________
@@ -556,7 +556,7 @@ class VacuumEnvironment(XYEnvironment):
     each turn taken."""
 
     def __init__(self, width=10, height=10):
-        super(VacuumEnvironment, self).__init__(width, height)
+        super().__init__(width, height)
         self.add_walls()
 
     def thing_classes(self):
@@ -579,7 +579,7 @@ class VacuumEnvironment(XYEnvironment):
                 agent.performance += 100
                 self.delete_thing(dirt)
         else:
-            super(VacuumEnvironment, self).execute_action(agent, action)
+            super().execute_action(agent, action)
 
         if action != 'NoOp':
             agent.performance -= 1
@@ -593,7 +593,7 @@ class TrivialVacuumEnvironment(Environment):
     Environment."""
 
     def __init__(self):
-        super(TrivialVacuumEnvironment, self).__init__()
+        super().__init__()
         self.status = {loc_A: random.choice(['Clean', 'Dirty']),
                        loc_B: random.choice(['Clean', 'Dirty'])}
 
@@ -677,7 +677,7 @@ class WumpusEnvironment(XYEnvironment):
     # Room should be 4x4 grid of rooms. The extra 2 for walls
 
     def __init__(self, agent_program, width=6, height=6):
-        super(WumpusEnvironment, self).__init__(width, height)
+        super().__init__(width, height)
         self.init_world(agent_program)
 
     def init_world(self, program):
