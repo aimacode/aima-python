@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import (
-    removeall, unique, product, argmax, argmax_random_tie, isclose,
+    removeall, unique, product, mode, argmax, argmax_random_tie, isclose,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile
 )
@@ -15,11 +15,6 @@ from statistics import mean
 from collections import defaultdict, Counter
 
 # ______________________________________________________________________________
-
-def mode(data): 
-    """Return the most common data item. If there are ties, return any one of them."""
-    (item, count) = Counter(data).most_common(1)
-    return item
 
 def rms_error(predictions, targets):
     return math.sqrt(ms_error(predictions, targets))
