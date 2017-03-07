@@ -59,6 +59,11 @@ def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
+def mode(data): 
+    """Return the most common data item. If there are ties, return any one of them."""
+    [(item, count)] = Counter(data).most_common(1)
+    return item
+
 # ______________________________________________________________________________
 # argmin and argmax
 

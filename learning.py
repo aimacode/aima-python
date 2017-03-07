@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import (
-    removeall, unique, product, argmax, argmax_random_tie, isclose,
+    removeall, unique, product, mode, argmax, argmax_random_tie, isclose,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile
 )
@@ -11,14 +11,10 @@ import heapq
 import math
 import random
 
-# XXX statistics.mode is not quite the same as the old utils.mode:
-#  it insists on there being a unique most-frequent value. Code using mode
-#  needs to be revisited, or we need to restore utils.mode.
-from statistics import mean, mode
-from collections import defaultdict
+from statistics import mean
+from collections import defaultdict, Counter
 
 # ______________________________________________________________________________
-
 
 def rms_error(predictions, targets):
     return math.sqrt(ms_error(predictions, targets))
@@ -37,7 +33,7 @@ def manhattan_distance(predictions, targets):
 
 
 def mean_boolean_error(predictions, targets):
-    return mean([(p != t) for p, t in zip(predictions, targets)])
+    return mean(int(p != t) for p, t in zip(predictions, targets))
 
 # ______________________________________________________________________________
 
