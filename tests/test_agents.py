@@ -36,5 +36,5 @@ def test_add():
     l1 = d + Direction.R
     l2 = d + Direction.L
     assert l1.direction == Direction.U
-    #assert l2.direction == Direction.D currently gives an error - need to fix bug in agents.py
+    assert l2.direction == Direction.D #fixed
 
