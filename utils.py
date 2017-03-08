@@ -311,6 +311,18 @@ def issequence(x):
     return isinstance(x, collections.abc.Sequence)
 
 
+def format_table_value(value, numfmt):
+    if isnumber(value):
+        value = numfmt.format(value)
+    elif type(value) is tuple:
+        tmp = []
+        for v in value:
+            tmp.append(format_table_value(v, numfmt))
+        value = tuple(tmp)
+
+    return value
+
+
 def print_table(table, header=None, sep='   ', numfmt='{}'):
     """Print a list of lists as a table, so that columns line up nicely.
     header, if specified, will be printed as the first row.
@@ -322,7 +334,7 @@ def print_table(table, header=None, sep='   ', numfmt='{}'):
     if header:
         table.insert(0, header)
 
-    table = [[numfmt.format(x) if isnumber(x) else x for x in row]
+    table = [[format_table_value(x, numfmt) for x in row]
              for row in table]
 
     sizes = list(
