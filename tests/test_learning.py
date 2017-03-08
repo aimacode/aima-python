@@ -1,9 +1,8 @@
 from learning import parse_csv, weighted_mode, weighted_replicate, DataSet, \
                      PluralityLearner, NaiveBayesLearner, NearestNeighborLearner, \
                      NeuralNetLearner, PerceptronLearner, DecisionTreeLearner, \
-                     euclidean_distance, grade_learner, err_ratio
+                     euclidean_distance, grade_learner, err_ratio, train_and_test
 from utils import DataFile
-
 
 
 def test_euclidean():
@@ -124,3 +123,14 @@ def test_perceptron():
 
     assert grade_learner(perceptron, tests) > 1/2
     assert err_ratio(perceptron, iris) < 0.4
+
+
+def test_train_and_test():
+    dataset = DataSet(name="iris")
+    start = 50
+    end = 100
+
+    train_set, validation_set = train_and_test(dataset, start, end)
+
+    assert len(train_set) == 100
+    assert len(validation_set) == 50
