@@ -159,6 +159,10 @@ class DataSet:
             classes = sorted(self.values[self.target])
         for item in self.examples:
             item[self.target] = classes.index(item[self.target])
+            
+    def remove_examples(self,value=""):
+        """Remove examples that contain given value."""
+        self.examples = [x for x in self.examples if value not in x]
 
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
