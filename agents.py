@@ -518,9 +518,12 @@ class Wall(Obstacle):
 
 # ______________________________________________________________________________
 
-from ipythonblocks import BlockGrid
-from IPython.display import HTML, display
-from time import sleep
+try:
+    from ipythonblocks import BlockGrid
+    from IPython.display import HTML, display
+    from time import sleep
+except:
+    pass
 
 class GraphicEnvironment(XYEnvironment):
     def __init__(self, width=10, height=10, boundary=True, color={}, display=False):
