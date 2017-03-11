@@ -570,7 +570,7 @@ class LRTAStarAgent:
 # Genetic Algorithm
 
 
-def genetic_search(problem, fitness_fn,ngen=1000, pmut=0.1, n=20,initial_population=None):
+def genetic_search(problem, fitness_fn,gene_bound,ngen=1000, pmut=0.1, n=20,initial_population=None):
     """
     Call genetic_algorithm on the appropriate parts of a problem.
     This requires the problem to have states that can mate and mutate,
@@ -582,10 +582,10 @@ def genetic_search(problem, fitness_fn,ngen=1000, pmut=0.1, n=20,initial_populat
         random.shuffle(initial_population)
         newfitness_fn = lambda inidividual : fitness_fn(inidividual.genes)
         population = [GAState(initial_population[i]) for i in range(len(initial_population))]
-        best_individual = genetic_algorithm(population[:n],newfitness_fn,gene_bound,optimal_value, ngen, pmut)
+        best_individual = genetic_algorithm(population[:n],newfitness_fn,gene_bound, ngen, pmut)
         return best_individual.genes
 
-def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
+def genetic_algorithm(population, fitness_fn, gene_bound, ngen=1000, pmut=0.1):
     "[Figure 4.8]"
     for i in range(ngen):
         new_population = []
@@ -594,7 +594,7 @@ def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
             p1, p2 = weighted_sample_with_replacement(population, fitnesses, 2)
             child = p1.mate(p2)
             if random.uniform(0, 1) < pmut:
-                child.mutate()
+                child.mutate(gene_bound)
             new_population.append(child)
         population = new_population
     return argmax(population, key=fitness_fn)
@@ -612,9 +612,10 @@ class GAState:
         c = random.randrange(len(self.genes))
         return self.__class__(self.genes[:c] + other.genes[c:])
 
-    def mutate(self):
-        "Change a few of my genes."
-        raise NotImplementedError
+    def mutate(self,gene_bound) :
+        "Change one of my genes."
+        index = random.choice(range(len(self.genes)))
+        self.genes[index] = random.choice(range(gene_bound[0],gene_bound[1]))
 
 # _____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
