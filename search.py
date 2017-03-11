@@ -570,16 +570,20 @@ class LRTAStarAgent:
 # Genetic Algorithm
 
 
-def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
+def genetic_search(problem, fitness_fn,ngen=1000, pmut=0.1, n=20,initial_population=None):
     """
     Call genetic_algorithm on the appropriate parts of a problem.
     This requires the problem to have states that can mate and mutate,
-    plus a value method that scores states."""
-    s = problem.initial_state
-    states = [problem.result(s, a) for a in problem.actions(s)]
-    random.shuffle(states)
-    return genetic_algorithm(states[:n], problem.value, ngen, pmut)
-
+    plus a value method that scores states.These states are passed as initial
+    population to the search"""
+    if(initial_population == None) :
+        raise Exception("Initial population not given in genetic search")
+    else :
+        random.shuffle(initial_population)
+        newfitness_fn = lambda inidividual : fitness_fn(inidividual.genes)
+        population = [GAState(initial_population[i]) for i in range(len(initial_population))]
+        best_individual = genetic_algorithm(population[:n],newfitness_fn,gene_bound,optimal_value, ngen, pmut)
+        return best_individual.genes
 
 def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
     "[Figure 4.8]"
