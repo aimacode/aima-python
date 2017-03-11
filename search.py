@@ -570,7 +570,7 @@ class LRTAStarAgent:
 # Genetic Algorithm
 
 
-def genetic_search(problem, fitness_fn,gene_bound,ngen=1000, pmut=0.1, n=20,initial_population=None):
+def genetic_search(problem, fitness_fn,gene_bound,ngen=1000, optimal_value=10000000,pmut=0.1, n=20,initial_population=None):
     """
     Call genetic_algorithm on the appropriate parts of a problem.
     This requires the problem to have states that can mate and mutate,
@@ -582,12 +582,12 @@ def genetic_search(problem, fitness_fn,gene_bound,ngen=1000, pmut=0.1, n=20,init
         random.shuffle(initial_population)
         newfitness_fn = lambda inidividual : fitness_fn(inidividual.genes)
         population = [GAState(initial_population[i]) for i in range(len(initial_population))]
-        best_individual = genetic_algorithm(population[:n],newfitness_fn,gene_bound, ngen, pmut)
+        best_individual = genetic_algorithm(population[:n],newfitness_fn,gene_bound,optimal_value, ngen, pmut)
         return best_individual.genes
 
-def genetic_algorithm(population, fitness_fn, gene_bound, ngen=1000, pmut=0.1):
+def genetic_algorithm(population, fitness_fn, gene_bound,optimal_value=10000000, ngen=1000, pmut=0.1):
     "[Figure 4.8]"
-    for i in range(ngen):
+    for i in range(int(ngen)):
         new_population = []
         for j in range(len(population)):
             fitnesses = map(fitness_fn, population)
@@ -597,7 +597,10 @@ def genetic_algorithm(population, fitness_fn, gene_bound, ngen=1000, pmut=0.1):
                 child.mutate(gene_bound)
             new_population.append(child)
         population = new_population
-    return argmax(population, key=fitness_fn)
+        current_bestindividual = argmax(population, key=fitness_fn)
+        if(fitness_fn(current_bestindividual) >= optimal_value) :
+            return current_bestindividual
+    return current_bestindividual
 
 
 class GAState:
