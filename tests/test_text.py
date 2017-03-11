@@ -6,7 +6,7 @@ from text import *  # noqa
 from utils import isclose, DataFile
 
 
-def test_ngram_models():
+def test_text_models():
     flatland = DataFile("EN-text/flatland.txt").read()
     wordseq = words(flatland)
     P1 = UnigramTextModel(wordseq)
