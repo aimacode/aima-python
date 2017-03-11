@@ -884,6 +884,16 @@ class NQueensProblem(Problem):
         return not any(self.conflicted(state, state[col], col)
                        for col in range(len(state)))
 
+    def value(self,state):
+        """Returns value corresponding to a state where value is defined as
+        the number of pairs of non-attacking queens"""
+        attacking_sum = 0
+        for c1 in range(len(state)):
+            if not state[c1] == None :
+                for c2 in range(c1+1,len(state)):
+                    if not state[c2] == None :
+                        attacking_sum += self.conflict(state[c1],c1,state[c2],c2)
+        return (self.N*(self.N - 1))/2 - attacking_sum
 # ______________________________________________________________________________
 # Inverse Boggle: Search for a high-scoring Boggle board. A good domain for
 # iterative-repair and related search techniques, as suggested by Justin Boyan.
