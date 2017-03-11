@@ -27,7 +27,7 @@ with open('js/continuousworld.js', 'r') as js_file:
 
 
 class ContinuousWorldView:
-    ''' View for continuousworld Implementation in agents.py '''
+    """ View for continuousworld Implementation in agents.py """
 
     def __init__(self, world, fill="#AAA"):
         self.time = time.time()

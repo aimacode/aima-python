@@ -27,7 +27,7 @@ def distance(a, b):
 
 
 def distance2(a, b):
-    "The square of the distance between two (x, y) points."
+    """The square of the distance between two (x, y) points."""
     return (a[0] - b[0])**2 + (a[1] - b[1])**2
 
 
