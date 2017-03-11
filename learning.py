@@ -159,7 +159,7 @@ class DataSet:
 
 
 def parse_csv(input, delim=','):
-    """Input is a string consisting of lines, each line has comma-delimited
+    r"""Input is a string consisting of lines, each line has comma-delimited
     fields.  Convert this into a list of lists. Blank lines are skipped.
     Fields that look like numbers are converted to numbers.
     The delim defaults to ',' but '\t' and None are also reasonable values.
@@ -813,7 +813,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
 
 
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
-    """ [Fig 18.8]
+    """[Fig 18.8]
     Return the optimal value of size having minimum error
     on validataion set.
     err_train: A training error array, indexed by size
