@@ -589,7 +589,7 @@ def genetic_algorithm(population, fitness_fn, gene_bound, ngen=1000, pmut=0.1):
     "[Figure 4.8]"
     for i in range(ngen):
         new_population = []
-        for i in range(len(population)):
+        for j in range(len(population)):
             fitnesses = map(fitness_fn, population)
             p1, p2 = weighted_sample_with_replacement(population, fitnesses, 2)
             child = p1.mate(p2)
