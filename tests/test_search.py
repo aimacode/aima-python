@@ -86,6 +86,18 @@ def test_LRTAStarAgent():
     my_agent = LRTAStarAgent(LRTA_problem)
     assert my_agent('State_5') is None
 
+def test_genetic_search():
+    N = 5
+    nqueens_problem = NQueensProblem(N)
+    initial_population = []
+    gene_bound = (0,N)
+    for i in range(N * 20) :
+        population = [random.choice(range(N)) for gene in range(N)]
+        initial_population.append(population)
+    result = genetic_search(nqueens_problem,nqueens_problem.value,gene_bound,(N*(N-1))/2,1000,0.1,N * 20,initial_population)
+    for col1 in range(len(result)) :
+        for col2 in range(col1+1,len(result)) :
+            assert nqueens_problem.conflict(result[col1],col1,result[col2],col2) == False
 
 # TODO: for .ipynb:
 """
