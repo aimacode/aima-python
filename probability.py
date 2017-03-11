@@ -600,7 +600,7 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
         B = matrix_multiplication(inverse_matrix(O_tmd), inverse_matrix(T_model), B, T_model, O_t)
     else:
         B = matrix_multiplication(B, T_model, O_t)
-    t = t + 1
+    t += 1
 
     if t > d:
         # always returns a 1x2 matrix
@@ -613,18 +613,15 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
 
 def particle_filtering(e, N, HMM):
     """Particle filtering considering two states variables."""
-    s = []
     dist = [0.5, 0.5]
-    # State Initialization
-    s = ['A' if probability(dist[0]) else 'B' for i in range(N)]
     # Weight Initialization
-    w = [0 for i in range(N)]
+    w = [0 for _ in range(N)]
     # STEP 1
     # Propagate one step using transition model given prior state
     dist = vector_add(scalar_vector_product(dist[0], HMM.transition_model[0]),
                       scalar_vector_product(dist[1], HMM.transition_model[1]))
     # Assign state according to probability
-    s = ['A' if probability(dist[0]) else 'B' for i in range(N)]
+    s = ['A' if probability(dist[0]) else 'B' for _ in range(N)]
     w_tot = 0
     # Calculate importance weight given evidence e
     for i in range(N):
