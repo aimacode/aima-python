@@ -60,7 +60,7 @@ class KB:
         raise NotImplementedError
 
     def tell(self, sentence):
-        "Add the sentence to the KB."
+        """Add the sentence to the KB."""
         raise NotImplementedError
 
     def ask(self, query):
@@ -68,17 +68,16 @@ class KB:
         return first(self.ask_generator(query), default=False)
 
     def ask_generator(self, query):
-        "Yield all the substitutions that make query true."
+        """Yield all the substitutions that make query true."""
         raise NotImplementedError
 
     def retract(self, sentence):
-        "Remove sentence from the KB."
+        """Remove sentence from the KB."""
         raise NotImplementedError
 
 
 class PropKB(KB):
-
-    "A KB for propositional logic. Inefficient, with no indexing."
+    """A KB for propositional logic. Inefficient, with no indexing."""
 
     def __init__(self, sentence=None):
         self.clauses = []
@@ -86,22 +85,22 @@ class PropKB(KB):
             self.tell(sentence)
 
     def tell(self, sentence):
-        "Add the sentence's clauses to the KB."
+        """Add the sentence's clauses to the KB."""
         self.clauses.extend(conjuncts(to_cnf(sentence)))
 
     def ask_generator(self, query):
-        "Yield the empty substitution {} if KB entails query; else no results."
+        """Yield the empty substitution {} if KB entails query; else no results."""
         if tt_entails(Expr('&', *self.clauses), query):
             yield {}
 
     def ask_if_true(self, query):
-        "Return True if the KB entails query, else return False."
+        """Return True if the KB entails query, else return False."""
         for _ in self.ask_generator(query):
             return True
         return False
 
     def retract(self, sentence):
-        "Remove the sentence's clauses from the KB."
+        """Remove the sentence's clauses from the KB."""
         for c in conjuncts(to_cnf(sentence)):
             if c in self.clauses:
                 self.clauses.remove(c)
@@ -120,25 +119,25 @@ def KB_AgentProgram(KB):
         KB.tell(make_action_sentence(action, t))
         return action
 
-    def make_percept_sentence(self, percept, t):
+    def make_percept_sentence(percept, t):
         return Expr("Percept")(percept, t)
 
-    def make_action_query(self, t):
+    def make_action_query(t):
         return expr("ShouldDo(action, {})".format(t))
 
-    def make_action_sentence(self, action, t):
+    def make_action_sentence(action, t):
         return Expr("Did")(action[expr('action')], t)
 
     return program
 
 
 def is_symbol(s):
-    "A string s is a symbol if it starts with an alphabetic char."
+    """A string s is a symbol if it starts with an alphabetic char."""
     return isinstance(s, str) and s[:1].isalpha()
 
 
 def is_var_symbol(s):
-    "A logic variable symbol is an initial-lowercase string."
+    """A logic variable symbol is an initial-lowercase string."""
     return is_symbol(s) and s[0].islower()
 
 
@@ -156,7 +155,7 @@ def variables(s):
 
 
 def is_definite_clause(s):
-    """returns True for exprs s of the form A & B & ... & C ==> D,
+    """Returns True for exprs s of the form A & B & ... & C ==> D,
     where all literals are positive.  In clause form, this is
     ~A | ~B | ... | ~C | D, where exactly one clause is positive.
     >>> is_definite_clause(expr('Farmer(Mac)'))
@@ -173,7 +172,7 @@ def is_definite_clause(s):
 
 
 def parse_definite_clause(s):
-    "Return the antecedents and the consequent of a definite clause."
+    """Return the antecedents and the consequent of a definite clause."""
     assert is_definite_clause(s)
     if is_symbol(s.op):
         return [], s
@@ -200,7 +199,7 @@ def tt_entails(kb, alpha):
 
 
 def tt_check_all(kb, alpha, symbols, model):
-    "Auxiliary routine to implement tt_entails."
+    """Auxiliary routine to implement tt_entails."""
     if not symbols:
         if pl_true(kb, model):
             result = pl_true(alpha, model)
@@ -215,7 +214,7 @@ def tt_check_all(kb, alpha, symbols, model):
 
 
 def prop_symbols(x):
-    "Return a list of all propositional symbols in x."
+    """Return a list of all propositional symbols in x."""
     if not isinstance(x, Expr):
         return []
     elif is_prop_symbol(x.op):
@@ -305,7 +304,7 @@ def to_cnf(s):
 
 
 def eliminate_implications(s):
-    "Change implications into equivalent form with only &, |, and ~ as logical operators."
+    """Change implications into equivalent form with only &, |, and ~ as logical operators."""
     s = expr(s)
     if not s.args or is_symbol(s.op):
         return s  # Atoms are unchanged.
@@ -433,7 +432,7 @@ def disjuncts(s):
 
 
 def pl_resolution(KB, alpha):
-    "Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]"
+    """Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]"""
     clauses = KB.clauses + conjuncts(to_cnf(~alpha))
     new = set()
     while True:
@@ -467,16 +466,15 @@ def pl_resolve(ci, cj):
 
 
 class PropDefiniteKB(PropKB):
-
-    "A KB of propositional definite clauses."
+    """A KB of propositional definite clauses."""
 
     def tell(self, sentence):
-        "Add a definite clause to this KB."
+        """Add a definite clause to this KB."""
         assert is_definite_clause(sentence), "Must be definite clause"
         self.clauses.append(sentence)
 
     def ask_generator(self, query):
-        "Yield the empty substitution if KB implies query; else nothing."
+        """Yield the empty substitution if KB implies query; else nothing."""
         if pl_fc_entails(self.clauses, query):
             yield {}
 
@@ -542,7 +540,7 @@ def dpll_satisfiable(s):
 
 
 def dpll(clauses, symbols, model):
-    "See if the clauses are true in a partial model."
+    """See if the clauses are true in a partial model."""
     unknown_clauses = []  # clauses with an unknown truth value
     for c in clauses:
         val = pl_true(c, model)
@@ -669,7 +667,6 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 
 
 class HybridWumpusAgent(agents.Agent):
-
     """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
     def __init__(self):
@@ -869,7 +866,6 @@ standardize_variables.counter = itertools.count()
 
 
 class FolKB(KB):
-
     """A knowledge base consisting of first-order definite clauses.
     >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Pete)'),
     ...              expr('(Rabbit(r) & Farmer(f)) ==> Hates(f, r)')])
