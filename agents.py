@@ -35,7 +35,7 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 #
 # Speed control in GUI does not have any effect -- fix it.
 
-from grid import distance2, turn_heading
+from grid import distance_square_root, turn_heading
 from statistics import mean
 
 import random
@@ -397,8 +397,8 @@ class XYEnvironment(Environment):
         if radius is None:
             radius = self.perceptible_distance
         radius2 = radius * radius
-        return [(thing, radius2 - distance2(location, thing.location)) for thing in self.things
-                if distance2(location, thing.location) <= radius2]
+        return [(thing, radius2 - distance_square_root(location, thing.location)) for thing in self.things
+                if distance_square_root(location, thing.location) <= radius2]
 
     def percept(self, agent):
         """By default, agent perceives things within a default radius."""
