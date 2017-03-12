@@ -13,7 +13,6 @@ import random
 
 
 class MDP:
-
     """A Markov Decision Process, defined by an initial state, transition model,
     and reward function. We also keep track of a gamma value, for use by
     algorithms. The transition model is represented somewhat differently from
@@ -33,7 +32,7 @@ class MDP:
         self.reward = {}
 
     def R(self, state):
-        "Return a numeric reward for this state."
+        """Return a numeric reward for this state."""
         return self.reward[state]
 
     def T(self, state, action):
@@ -52,7 +51,6 @@ class MDP:
 
 
 class GridMDP(MDP):
-
     """A two-dimensional grid MDP, as in [Figure 17.1].  All you have to do is
     specify the grid as a list of lists of rewards; use None for an obstacle
     (unreachable state).  Also, you should specify the terminal states.
