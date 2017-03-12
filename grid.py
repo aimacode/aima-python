@@ -21,13 +21,13 @@ def turn_left(heading):
     return turn_heading(heading, +1)
 
 
-def distance(a, b):
+def distance_square_root(a, b):
     """The distance between two (x, y) points."""
     return math.hypot((a[0] - b[0]), (a[1] - b[1]))
 
 
-def distance2(a, b):
-    "The square of the distance between two (x, y) points."
+def distance_square_root(a, b):
+    """The square of the distance between two (x, y) points."""
     return (a[0] - b[0])**2 + (a[1] - b[1])**2
 
 
