@@ -10,8 +10,8 @@ def test_distance():
     assert distance((1, 2), (5, 5)) == 5.0
 
 
-def test_distance_square_root():
-    assert distance_square_root((1, 2), (5, 5)) == 25.0
+def test_distance_square():
+    assert distance_square((1, 2), (5, 5)) == 25.0
 
 
 def test_vector_clip():
