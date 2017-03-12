@@ -1,22 +1,38 @@
-import pytest
-from grid import *  # noqa
+# OK, the following are not as widely useful utilities as some of the other
+# functions here, but they do show up wherever we have 2D grids: Wumpus and
+# Vacuum worlds, TicTacToe and Checkers, and Markov Decision Processes.
+# __________________________________________________________________________
+import math
+
+from utils import clip
+
+orientations = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
 
-def compare_list(x, y):
-    return all([elm_x == y[i] for i, elm_x in enumerate(x)])
+def turn_heading(heading, inc, headings=orientations):
+    return headings[(headings.index(heading) + inc) % len(headings)]
 
 
-def test_distance():
-    assert distance((1, 2), (5, 5)) == 5.0
+def turn_right(heading):
+    return turn_heading(heading, -1)
 
 
-def test_distance2():
-    assert distance2((1, 2), (5, 5)) == 25.0
+def turn_left(heading):
+    return turn_heading(heading, +1)
 
 
-def test_vector_clip():
-    assert vector_clip((-1, 10), (0, 0), (9, 9)) == (0, 9)
+def distance(a, b):
+    """The distance between two (x, y) points."""
+    return math.hypot((a[0] - b[0]), (a[1] - b[1]))
 
 
-if __name__ == '__main__':
-    pytest.main()
+def distance_square_root(a, b):
+    """The square of the distance between two (x, y) points."""
+    return (a[0] - b[0])**2 + (a[1] - b[1])**2
+
+
+def vector_clip(vector, lowest, highest):
+    """Return vector, except if any element is less than the corresponding
+    value of lowest or more than the corresponding value of highest, clip to
+    those values."""
+    return type(vector)(map(clip, vector, lowest, highest))
