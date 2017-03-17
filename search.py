@@ -378,10 +378,10 @@ def simulated_annealing(problem, schedule=exp_schedule()):
     for t in range(sys.maxsize):
         T = schedule(t)
         if T == 0:
-            return current
+            return current.state
         neighbors = current.expand(problem)
         if not neighbors:
-            return current
+            return current.state
         next = random.choice(neighbors)
         delta_e = problem.value(next.state) - problem.value(current.state)
         if delta_e > 0 or probability(math.exp(delta_e / T)):
