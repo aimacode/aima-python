@@ -1,4 +1,5 @@
 from agents import Direction
+from agents import Agent
 
 
 def test_move_forward():
@@ -39,3 +40,11 @@ def test_add():
     l2 = d + Direction.L
     assert l1.direction == Direction.U
     assert l2.direction == Direction.D  # fixed
+
+
+def test_Agent():
+    def prog(percept):
+        return percept
+    agent = Agent(prog)
+    result = agent.program(5)
+    assert result == 5
