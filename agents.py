@@ -343,7 +343,7 @@ class Direction:
         elif self.direction == self.L:
             return{
                 self.R: Direction(self.U),
-                self.L: Direction(self.L),
+                self.L: Direction(self.D),
             }.get(heading, None)
         elif self.direction == self.U:
             return{
