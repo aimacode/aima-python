@@ -39,7 +39,6 @@ def mean_boolean_error(predictions, targets):
 
 
 class DataSet:
-
     """A data set for a machine learning problem.  It has the following fields:
 
     d.examples   A list of examples.  Each one is a list of attribute values.
@@ -173,7 +172,6 @@ def parse_csv(input, delim=','):
 
 
 class CountingProbDist:
-
     """A probability distribution formed by observing and counting examples.
     If p is an instance of this class and o is an observed value, then
     there are 3 main operations:
@@ -285,7 +283,6 @@ def NearestNeighborLearner(dataset, k=1):
 
 
 class DecisionFork:
-
     """A fork of a decision tree holds an attribute to test, and a dict
     of branches, one for each of the attribute's values."""
 
@@ -317,7 +314,6 @@ class DecisionFork:
 
 
 class DecisionLeaf:
-
     """A leaf of a decision tree holds just a result."""
 
     def __init__(self, result):
@@ -413,7 +409,7 @@ def DecisionListLearner(dataset):
             return [(True, False)]
         t, o, examples_t = find_examples(examples)
         if not t:
-            raise Failure
+            raise Exception
         return [(t, o)] + decision_list_learning(examples - examples_t)
 
     def find_examples(examples):
@@ -439,8 +435,7 @@ def DecisionListLearner(dataset):
 
 def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
                      learning_rate=0.01, epochs=100):
-    """
-    Layered feed-forward network.
+    """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
     learning_rate: Learning rate of gradient descent
     epochs: Number of passes over the dataset
@@ -479,8 +474,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
 
 
 class NNUnit:
-    """
-    Single Unit of Multiple Layer Neural Network
+    """Single Unit of Multiple Layer Neural Network
     inputs: Incoming connections
     weights: Weights to incoming connections
     """
@@ -493,8 +487,7 @@ class NNUnit:
 
 
 def network(input_units, hidden_layer_sizes, output_units):
-    """
-    Create Directed Acyclic Network of given number layers.
+    """Create Directed Acyclic Network of given number layers.
     hidden_layers_sizes : List number of neuron units in each hidden layer
     excluding input and output layers
     """
@@ -632,11 +625,11 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
 
     # Add dummy
-    ones = [1 for i in range(len(examples))]
+    ones = [1 for _ in range(len(examples))]
     X_col = ones + X_col
 
     # Initialize random weigts
-    w = [random(-0.5, 0.5) for i in range(len(idx_i) + 1)]
+    w = [random.randrange(-0.5, 0.5) for _ in range(len(idx_i) + 1)]
 
     for epoch in range(epochs):
         err = []
@@ -746,7 +739,7 @@ def weighted_replicate(seq, weights, n):
     wholes = [int(w * n) for w in weights]
     fractions = [(w * n) % 1 for w in weights]
     return (flatten([x] * nx for x, nx in zip(seq, wholes)) +
-            weighted_sample_with_replacement(seq, fractions, n - sum(wholes)))
+            weighted_sample_with_replacement(n - sum(wholes),seq, fractions, ))
 
 
 def flatten(seqs): return sum(seqs, [])
@@ -820,8 +813,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
 
 
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
-    """
-    [Fig 18.8]
+    """[Fig 18.8]
     Return the optimal value of size having minimum error
     on validataion set.
     err_train: A training error array, indexed by size
