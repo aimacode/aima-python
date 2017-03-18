@@ -45,8 +45,7 @@ import collections
 # ______________________________________________________________________________
 
 
-class Thing(object):
-
+class Thing:
     """This represents any physical object that can appear in an Environment.
     You subclass Thing to get the things you want.  Each thing can have a
     .__name__  slot (used for output only)."""
@@ -69,7 +68,6 @@ class Thing(object):
 
 
 class Agent(Thing):
-
     """An Agent is a subclass of Thing with one required slot,
     .program, which should hold a function that takes one argument, the
     percept, and returns an action. (What counts as a percept or action
@@ -222,8 +220,7 @@ def ModelBasedVacuumAgent():
 # ______________________________________________________________________________
 
 
-class Environment(object):
-
+class Environment:
     """Abstract class representing an Environment.  'Real' Environment classes
     inherit from this. Your Environment will typically need to implement:
         percept:           Define the percept that an agent sees.
@@ -319,7 +316,8 @@ class Environment(object):
         if thing in self.agents:
             self.agents.remove(thing)
 
-class Direction():
+
+class Direction:
     """A direction class for agents that want to move in a 2D plane
         Usage:
             d = Direction("down")
@@ -371,7 +369,6 @@ class Direction():
 
 
 class XYEnvironment(Environment):
-
     """This class is for environments on a 2D plane, with locations
     labelled by (x, y) points, either discrete or continuous.
 
@@ -507,7 +504,6 @@ class XYEnvironment(Environment):
 
 
 class Obstacle(Thing):
-
     """Something that can cause a bump, preventing an agent from
     moving into the same square it's in."""
     pass
@@ -724,7 +720,8 @@ class WumpusEnvironment(XYEnvironment):
         return result
 
     def percepts_from(self, agent, location, tclass=Thing):
-        """Returns percepts from a given location, and replaces some items with percepts from chapter 7."""
+        """Returns percepts from a given location,
+        and replaces some items with percepts from chapter 7."""
         thing_percepts = {
             Gold: Glitter(),
             Wall: Bump(),

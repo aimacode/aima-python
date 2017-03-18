@@ -135,7 +135,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
 
 def query_player(game, state):
-    "Make a move by querying standard input."
+    """Make a move by querying standard input."""
     move_string = input('Your move? ')
     try:
         move = eval(move_string)
@@ -145,7 +145,7 @@ def query_player(game, state):
 
 
 def random_player(game, state):
-    "A player that chooses a legal move at random."
+    """A player that chooses a legal move at random."""
     return random.choice(game.actions(state))
 
 
@@ -179,27 +179,27 @@ class Game:
     be done in the constructor."""
 
     def actions(self, state):
-        "Return a list of the allowable moves at this point."
+        """Return a list of the allowable moves at this point."""
         raise NotImplementedError
 
     def result(self, state, move):
-        "Return the state that results from making a move from a state."
+        """Return the state that results from making a move from a state."""
         raise NotImplementedError
 
     def utility(self, state, player):
-        "Return the value of this final state to player."
+        """Return the value of this final state to player."""
         raise NotImplementedError
 
     def terminal_test(self, state):
-        "Return True if this is a final state for the game."
+        """Return True if this is a final state for the game."""
         return not self.actions(state)
 
     def to_move(self, state):
-        "Return the player whose move it is in this state."
+        """Return the player whose move it is in this state."""
         return state.to_move
 
     def display(self, state):
-        "Print or otherwise display the state."
+        """Print or otherwise display the state."""
         print(state)
 
     def __repr__(self):
@@ -250,7 +250,7 @@ class TicTacToe(Game):
         self.initial = GameState(to_move='X', utility=0, board={}, moves=moves)
 
     def actions(self, state):
-        "Legal moves are any square not yet taken."
+        """Legal moves are any square not yet taken."""
         return state.moves
 
     def result(self, state, move):
@@ -265,11 +265,11 @@ class TicTacToe(Game):
                          board=board, moves=moves)
 
     def utility(self, state, player):
-        "Return the value to player; 1 for win, -1 for loss, 0 otherwise."
+        """Return the value to player; 1 for win, -1 for loss, 0 otherwise."""
         return state.utility if player == 'X' else -state.utility
 
     def terminal_test(self, state):
-        "A state is terminal if it is won or there are no empty squares."
+        """A state is terminal if it is won or there are no empty squares."""
         return state.utility != 0 or len(state.moves) == 0
 
     def display(self, state):
@@ -280,7 +280,7 @@ class TicTacToe(Game):
             print()
 
     def compute_utility(self, board, move, player):
-        "If 'X' wins with this move, return 1; if 'O' wins return -1; else return 0."
+        """If 'X' wins with this move, return 1; if 'O' wins return -1; else return 0."""
         if (self.k_in_row(board, move, player, (0, 1)) or
                 self.k_in_row(board, move, player, (1, 0)) or
                 self.k_in_row(board, move, player, (1, -1)) or
@@ -290,7 +290,7 @@ class TicTacToe(Game):
             return 0
 
     def k_in_row(self, board, move, player, delta_x_y):
-        "Return true if there is a line through move on board for player."
+        """Return true if there is a line through move on board for player."""
         (delta_x, delta_y) = delta_x_y
         x, y = move
         n = 0  # n is number of moves in row
