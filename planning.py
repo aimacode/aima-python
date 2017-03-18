@@ -558,7 +558,3 @@ def double_tennis_problem():
     go = Action(expr("Go(actor,to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [hit, go], goal_test)
-
-
-
-
