@@ -54,7 +54,7 @@ def test_viterbi_segmentation():
     P = UnigramTextModel(wordseq)
     text = "itiseasytoreadwordswithoutspaces"
 
-    s, p = viterbi_segment(text,P)
+    s, p = viterbi_segment(text, P)
     assert s == [
         'it', 'is', 'easy', 'to', 'read', 'words', 'without', 'spaces']
 
