@@ -16,8 +16,8 @@ def test_move_forward():
     assert l1 == (-1, 0)
     l2 = d.move_forward((1, 0))
     assert l2 == (0, 0)
-    
-    
+
+
 def test_add():
     d = Direction(Direction.U)
     l1 = d + "right"
