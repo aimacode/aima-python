@@ -153,18 +153,6 @@ def alphabeta_player(game, state):
     return alphabeta_full_search(state, game)
 
 
-def play_game(game, *players):
-    """Play an n-person, move-alternating game."""
-
-    state = game.initial
-    while True:
-        for player in players:
-            move = player(game, state)
-            state = game.result(state, move)
-            if game.terminal_test(state):
-                game.display(state)
-                return game.utility(state, game.to_move(game.initial))
-
 # ______________________________________________________________________________
 # Some Sample Games
 
@@ -204,6 +192,17 @@ class Game:
 
     def __repr__(self):
         return '<{}>'.format(self.__class__.__name__)
+    
+    def play_game(self, *players):
+        """Play an n-person, move-alternating game."""
+        state = self.initial
+        while True:
+            for player in players:
+                move = player(self, state)
+                state = self.result(state, move)
+                if self.terminal_test(state):
+                    self.display(state)
+                    return self.utility(state, self.to_move(self.initial))
 
 
 class Fig52Game(Game):
