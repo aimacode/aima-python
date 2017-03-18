@@ -136,7 +136,10 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
 def query_player(game, state):
     """Make a move by querying standard input."""
+    print("current state:")
     game.display(state)
+    print("available moves: {}".format(game.actions(state)))
+    print("")
     move_string = input('Your move? ')
     try:
         move = eval(move_string)
