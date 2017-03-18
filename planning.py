@@ -536,7 +536,7 @@ def double_tennis_problem():
             expr('Partner(A,B)')]
 
     def goal_test(kb):
-        required = [expr('Goal(Returned(Ball'), expr('At(a, RightNet)'), expr('At(a, LeftNet)')]
+        required = [expr('Goal(Returned(Ball))'), expr('At(a, RightNet)'), expr('At(a, LeftNet)')]
         for q in required:
             if kb.ask(q) is False:
                 return False
