@@ -746,7 +746,7 @@ def weighted_replicate(seq, weights, n):
     wholes = [int(w * n) for w in weights]
     fractions = [(w * n) % 1 for w in weights]
     return (flatten([x] * nx for x, nx in zip(seq, wholes)) +
-            weighted_sample_with_replacement(n - sum(wholes),seq, fractions, ))
+            weighted_sample_with_replacement(n - sum(wholes), seq, fractions))
 
 
 def flatten(seqs): return sum(seqs, [])
