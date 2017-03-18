@@ -61,7 +61,7 @@ def is_in(elt, seq):
 
 def mode(data): 
     """Return the most common data item. If there are ties, return any one of them."""
-    [(item, count)] = Counter(data).most_common(1)
+    [(item, count)] = collections.Counter(data).most_common(1)
     return item
 
 # ______________________________________________________________________________
@@ -194,7 +194,7 @@ def probability(p):
     return p > random.uniform(0.0, 1.0)
 
 
-def weighted_sample_with_replacement(seq, weights, n):
+def weighted_sample_with_replacement(n,seq, weights):
     """Pick n samples from seq at random, with replacement, with the
     probability of each element in proportion to its corresponding
     weight."""

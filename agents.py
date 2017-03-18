@@ -35,7 +35,7 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 #
 # Speed control in GUI does not have any effect -- fix it.
 
-from grid import distance2, turn_heading
+from grid import distance_squared, turn_heading
 from statistics import mean
 
 import random
@@ -45,8 +45,7 @@ import collections
 # ______________________________________________________________________________
 
 
-class Thing(object):
-
+class Thing:
     """This represents any physical object that can appear in an Environment.
     You subclass Thing to get the things you want.  Each thing can have a
     .__name__  slot (used for output only)."""
@@ -69,7 +68,6 @@ class Thing(object):
 
 
 class Agent(Thing):
-
     """An Agent is a subclass of Thing with one required slot,
     .program, which should hold a function that takes one argument, the
     percept, and returns an action. (What counts as a percept or action
@@ -222,8 +220,7 @@ def ModelBasedVacuumAgent():
 # ______________________________________________________________________________
 
 
-class Environment(object):
-
+class Environment:
     """Abstract class representing an Environment.  'Real' Environment classes
     inherit from this. Your Environment will typically need to implement:
         percept:           Define the percept that an agent sees.
@@ -319,7 +316,8 @@ class Environment(object):
         if thing in self.agents:
             self.agents.remove(thing)
 
-class Direction():
+
+class Direction:
     """A direction class for agents that want to move in a 2D plane
         Usage:
             d = Direction("down")
@@ -345,7 +343,7 @@ class Direction():
         elif self.direction == self.L:
             return{
                 self.R: Direction(self.U),
-                self.L: Direction(self.L),
+                self.L: Direction(self.D),
             }.get(heading, None)
         elif self.direction == self.U:
             return{
@@ -371,7 +369,6 @@ class Direction():
 
 
 class XYEnvironment(Environment):
-
     """This class is for environments on a 2D plane, with locations
     labelled by (x, y) points, either discrete or continuous.
 
@@ -397,8 +394,8 @@ class XYEnvironment(Environment):
         if radius is None:
             radius = self.perceptible_distance
         radius2 = radius * radius
-        return [(thing, radius2 - distance2(location, thing.location)) for thing in self.things
-                if distance2(location, thing.location) <= radius2]
+        return [(thing, radius2 - distance_squared(location, thing.location)) for thing in self.things
+                if distance_squared(location, thing.location) <= radius2]
 
     def percept(self, agent):
         """By default, agent perceives things within a default radius."""
@@ -507,7 +504,6 @@ class XYEnvironment(Environment):
 
 
 class Obstacle(Thing):
-
     """Something that can cause a bump, preventing an agent from
     moving into the same square it's in."""
     pass
@@ -515,6 +511,109 @@ class Obstacle(Thing):
 
 class Wall(Obstacle):
     pass
+
+# ______________________________________________________________________________
+
+try:
+    from ipythonblocks import BlockGrid
+    from IPython.display import HTML, display
+    from time import sleep
+except:
+    pass
+
+class GraphicEnvironment(XYEnvironment):
+    def __init__(self, width=10, height=10, boundary=True, color={}, display=False):
+        """define all the usual XYEnvironment characteristics, 
+        but initialise a BlockGrid for GUI too"""
+        super().__init__(width, height)
+        self.grid = BlockGrid(width, height, fill=(200,200,200))
+        if display:
+            self.grid.show()
+            self.visible = True
+        else:
+            self.visible = False
+        self.bounded = boundary
+        self.colors = color
+    
+    #def list_things_at(self, location, tclass=Thing): # need to override because locations
+    #    """Return all things exactly at a given location."""
+    #    return [thing for thing in self.things
+    #            if thing.location == location and isinstance(thing, tclass)]
+    
+    def get_world(self):
+        """Returns all the items in the world in a format 
+        understandable by the ipythonblocks BlockGrid"""
+        result = []
+        x_start, y_start = (0, 0)
+        x_end, y_end = self.width, self.height
+        for x in range(x_start, x_end):
+            row = []
+            for y in range(y_start, y_end):
+                row.append(self.list_things_at([x, y]))
+            result.append(row)
+        return result
+    
+    """def run(self, steps=1000, delay=1):
+        "" "Run the Environment for given number of time steps, 
+        but update the GUI too." ""
+        for step in range(steps):
+            sleep(delay)
+            if self.visible:
+                self.reveal()
+            if self.is_done():
+                if self.visible:
+                    self.reveal()
+                return
+            self.step()
+        if self.visible:
+            self.reveal()
+    """
+    def run(self, steps=1000, delay=1):
+        """Run the Environment for given number of time steps, 
+        but update the GUI too."""
+        for step in range(steps):
+            self.update(delay)
+            if self.is_done():
+                break
+            self.step()
+        self.update(delay)
+    
+    def update(self, delay=1):
+        sleep(delay)
+        if self.visible:
+            self.conceal()
+            self.reveal()
+        else:
+            self.reveal()
+    
+    def reveal(self):
+        """display the BlockGrid for this world - the last thing to be added 
+        at a location defines the location color"""
+        #print("Grid={}".format(self.grid))
+        self.draw_world()
+        #if not self.visible == True:
+        #    self.grid.show()
+        self.grid.show()
+        self.visible == True
+    
+    def draw_world(self):
+        self.grid[:] = (200, 200, 200)
+        world = self.get_world()
+        #print("world {}".format(world))
+        for x in range(0, len(world)):
+            for y in range(0, len(world[x])):
+                if len(world[x][y]):
+                    self.grid[y, x] = self.colors[world[x][y][-1].__class__.__name__]
+                    #print('location: ({}, {}) got color: {}'
+                    #.format(y, x, self.colors[world[x][y][-1].__class__.__name__]))
+    
+    def conceal(self):
+        """hide the BlockGrid for this world"""
+        self.visible = False
+        display(HTML(''))
+    
+    
+    
 
 
 
@@ -724,7 +823,8 @@ class WumpusEnvironment(XYEnvironment):
         return result
 
     def percepts_from(self, agent, location, tclass=Thing):
-        """Returns percepts from a given location, and replaces some items with percepts from chapter 7."""
+        """Returns percepts from a given location,
+        and replaces some items with percepts from chapter 7."""
         thing_percepts = {
             Gold: Glitter(),
             Wall: Bump(),

@@ -8,7 +8,8 @@ LRTA_problem = OnlineSearchProblem('State_3', 'State_5', one_dim_state_space)
 
 
 def test_breadth_first_tree_search():
-    assert breadth_first_tree_search(romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
+    assert breadth_first_tree_search(
+        romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
 
 
 def test_breadth_first_search():
@@ -16,7 +17,8 @@ def test_breadth_first_search():
 
 
 def test_uniform_cost_search():
-    assert uniform_cost_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+    assert uniform_cost_search(
+        romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
 
 
 def test_depth_first_graph_search():
@@ -25,7 +27,8 @@ def test_depth_first_graph_search():
 
 
 def test_iterative_deepening_search():
-    assert iterative_deepening_search(romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
+    assert iterative_deepening_search(
+        romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
 
 
 def test_depth_limited_search():
@@ -41,7 +44,8 @@ def test_astar_search():
 
 
 def test_recursive_best_first_search():
-    assert recursive_best_first_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+    assert recursive_best_first_search(
+        romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
 
 
 def test_BoggleFinder():
@@ -62,7 +66,7 @@ def test_and_or_graph_search():
             return True
         if len(plan) is not 2:
             return False
-        predicate = lambda x : run_plan(x, problem, plan[1][x])
+        predicate = lambda x: run_plan(x, problem, plan[1][x])
         return all(predicate(r) for r in problem.result(state, plan[0]))
     plan = and_or_graph_search(vacumm_world)
     assert run_plan('State_1', vacumm_world, plan)
@@ -81,6 +85,7 @@ def test_LRTAStarAgent():
 
     my_agent = LRTAStarAgent(LRTA_problem)
     assert my_agent('State_5') is None
+
 
 # TODO: for .ipynb:
 """

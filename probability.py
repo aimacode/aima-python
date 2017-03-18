@@ -16,7 +16,7 @@ from functools import reduce
 
 
 def DTAgentProgram(belief_state):
-    "A decision-theoretic agent. [Figure 13.1]"
+    """A decision-theoretic agent. [Figure 13.1]"""
     def program(percept):
         belief_state.observe(program.action, percept)
         program.action = argmax(belief_state.actions(),
@@ -29,8 +29,7 @@ def DTAgentProgram(belief_state):
 
 
 class ProbDist:
-
-    """A discrete probability distribution.  You name the random variable
+    """A discrete probability distribution. You name the random variable
     in the constructor, then assign and query probability of values.
     >>> P = ProbDist('Flip'); P['H'], P['T'] = 0.25, 0.75; P['H']
     0.25
@@ -40,8 +39,8 @@ class ProbDist:
     """
 
     def __init__(self, varname='?', freqs=None):
-        """If freqs is given, it is a dictionary of value: frequency pairs,
-        and the ProbDist then is normalized."""
+        """If freqs is given, it is a dictionary of values - frequency pairs,
+        then ProbDist is normalized."""
         self.prob = {}
         self.varname = varname
         self.values = []
@@ -51,14 +50,14 @@ class ProbDist:
             self.normalize()
 
     def __getitem__(self, val):
-        "Given a value, return P(value)."
+        """Given a value, return P(value)."""
         try:
             return self.prob[val]
         except KeyError:
             return 0
 
     def __setitem__(self, val, p):
-        "Set P(val) = p."
+        """Set P(val) = p."""
         if val not in self.values:
             self.values.append(val)
         self.prob[val] = p
@@ -98,7 +97,7 @@ class JointProbDist(ProbDist):
         self.vals = defaultdict(list)
 
     def __getitem__(self, values):
-        "Given a tuple or dict of values, return P(values)."
+        """Given a tuple or dict of values, return P(values)."""
         values = event_values(values, self.variables)
         return ProbDist.__getitem__(self, values)
 
@@ -113,7 +112,7 @@ class JointProbDist(ProbDist):
                 self.vals[var].append(val)
 
     def values(self, var):
-        "Return the set of possible values for a variable."
+        """Return the set of possible values for a variable."""
         return self.vals[var]
 
     def __repr__(self):
@@ -164,11 +163,10 @@ def enumerate_joint(variables, e, P):
 
 
 class BayesNet:
-
-    "Bayesian network containing only boolean-variable nodes."
+    """Bayesian network containing only boolean-variable nodes."""
 
     def __init__(self, node_specs=[]):
-        "nodes must be ordered with parents before children."
+        """Nodes must be ordered with parents before children."""
         self.nodes = []
         self.variables = []
         for node_spec in node_specs:
@@ -195,7 +193,7 @@ class BayesNet:
         raise Exception("No such variable: {}".format(var))
 
     def variable_values(self, var):
-        "Return the domain of var."
+        """Return the domain of var."""
         return [True, False]
 
     def __repr__(self):
@@ -203,7 +201,6 @@ class BayesNet:
 
 
 class BayesNode:
-
     """A conditional probability distribution for a boolean variable,
     P(X | parents). Part of a BayesNet."""
 
@@ -337,7 +334,7 @@ def elimination_ask(X, e, bn):
 
 
 def is_hidden(var, X, e):
-    "Is var a hidden variable when querying P(X|e)?"
+    """Is var a hidden variable when querying P(X|e)?"""
     return var != X and var not in e
 
 
@@ -366,7 +363,6 @@ def sum_out(var, factors, bn):
 
 
 class Factor:
-
     """A factor in a joint distribution."""
 
     def __init__(self, variables, cpt):
@@ -526,7 +522,6 @@ def markov_blanket_sample(X, e, bn):
 
 
 class HiddenMarkovModel:
-
     """A Hidden markov model which takes Transition model and Sensor model as inputs"""
 
     def __init__(self, transition_model, sensor_model, prior=[0.5, 0.5]):
@@ -605,7 +600,7 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
         B = matrix_multiplication(inverse_matrix(O_tmd), inverse_matrix(T_model), B, T_model, O_t)
     else:
         B = matrix_multiplication(B, T_model, O_t)
-    t = t + 1
+    t += 1
 
     if t > d:
         # always returns a 1x2 matrix
@@ -618,18 +613,15 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
 
 def particle_filtering(e, N, HMM):
     """Particle filtering considering two states variables."""
-    s = []
     dist = [0.5, 0.5]
-    # State Initialization
-    s = ['A' if probability(dist[0]) else 'B' for i in range(N)]
     # Weight Initialization
-    w = [0 for i in range(N)]
+    w = [0 for _ in range(N)]
     # STEP 1
     # Propagate one step using transition model given prior state
     dist = vector_add(scalar_vector_product(dist[0], HMM.transition_model[0]),
                       scalar_vector_product(dist[1], HMM.transition_model[1]))
     # Assign state according to probability
-    s = ['A' if probability(dist[0]) else 'B' for i in range(N)]
+    s = ['A' if probability(dist[0]) else 'B' for _ in range(N)]
     w_tot = 0
     # Calculate importance weight given evidence e
     for i in range(N):
@@ -651,5 +643,5 @@ def particle_filtering(e, N, HMM):
         w[i] = float("{0:.4f}".format(w[i]))
 
     # STEP 2
-    s = weighted_sample_with_replacement(s, w, N)
+    s = weighted_sample_with_replacement(N,s,w)
     return s
