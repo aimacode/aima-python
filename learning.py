@@ -376,7 +376,7 @@ def DecisionTreeLearner(dataset):
 
     def count(attr, val, examples):
         """Count the number of examples that have attr = val."""
-        return len(e[attr] == val for e in examples) #count(e[attr] == val for e in examples)
+        return sum(e[attr] == val for e in examples) #count(e[attr] == val for e in examples)
 
     def all_same_class(examples):
         """Are all these examples in the same target class?"""
