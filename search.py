@@ -378,10 +378,10 @@ def simulated_annealing(problem, schedule=exp_schedule()):
     for t in range(sys.maxsize):
         T = schedule(t)
         if T == 0:
-            return current
+            return current.state
         neighbors = current.expand(problem)
         if not neighbors:
-            return current
+            return current.state
         next = random.choice(neighbors)
         delta_e = problem.value(next.state) - problem.value(current.state)
         if delta_e > 0 or probability(math.exp(delta_e / T)):
@@ -587,7 +587,7 @@ def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
         new_population = []
         for i in range(len(population)):
             fitnesses = map(fitness_fn, population)
-            p1, p2 = weighted_sample_with_replacement(population, fitnesses, 2)
+            p1, p2 = weighted_sample_with_replacement(2,population, fitnesses)
             child = p1.mate(p2)
             if random.uniform(0, 1) < pmut:
                 child.mutate()

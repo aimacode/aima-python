@@ -793,6 +793,8 @@ def is_variable(x):
 def unify_var(var, x, s):
     if var in s:
         return unify(s[var], x, s)
+    elif x in s:
+        return unify(var, s[x], s)
     elif occur_check(var, x, s):
         return None
     else:
