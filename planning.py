@@ -535,11 +535,8 @@ def double_tennis_problem():
             expr('Partner(A,B)'),
             expr('Partner(A,B)')]
 
-
     def goal_test(kb):
-        required = [expr('Goal(Returned(Ball'),
-           expr('At(a, RightNet)'),
-            expr('At(a, LeftNet)')]
+        required = [expr('Goal(Returned(Ball'), expr('At(a, RightNet)'), expr('At(a, LeftNet)')]
         for q in required:
             if kb.ask(q) is False:
                 return False
@@ -548,18 +545,18 @@ def double_tennis_problem():
 
     ###actions
     #hit
-    precond_pos=[expr('Approaching(Ball,loc'),expr('At(actor,loc')]
+    precond_pos=[expr("Approaching(Ball,loc)"), expr("At(actor,loc)")]
     precond_neg=[]
-    effect_add=[expr('Returned(Ball')]
+    effect_add=[expr("Returned(Ball)")]
     effect_rem = []
-    hit = Action(expr('Hit(actor,Ball'), [precond_pos, precond_neg], [effect_add, effect_rem])
+    hit = Action(expr("Hit(actor,Ball)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     ##go
-    precond_pos = [ expr('At(actor,loc')]
+    precond_pos = [ expr("At(actor,loc)")]
     precond_neg = []
-    effect_add = [expr('At(actor,to')]
-    effect_rem = [expr('At(actor,loc')]
-    go = Action(expr('Go(actor,to'), [precond_pos, precond_neg], [effect_add, effect_rem])
+    effect_add = [expr("At(actor,to)")]
+    effect_rem = [expr("At(actor,loc)")]
+    go = Action(expr("Go(actor,to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [hit, go], goal_test)
 
