@@ -174,6 +174,7 @@ def scalar_vector_product(X, Y):
 
 
 def scalar_matrix_product(X, Y):
+    """Return matrix as a product of a scalar and a matrix"""
     return [scalar_vector_product(X, y) for y in Y]
 
 
