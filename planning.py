@@ -542,8 +542,7 @@ def double_tennis_problem():
                 return False
         return True
 
-
-    ###actions
+    ##actions
     #hit
     precond_pos=[expr("Approaching(Ball,loc)"), expr("At(actor,loc)")]
     precond_neg=[]
@@ -551,7 +550,7 @@ def double_tennis_problem():
     effect_rem = []
     hit = Action(expr("Hit(actor,Ball)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
-    ##go
+    #go
     precond_pos = [ expr("At(actor,loc)")]
     precond_neg = []
     effect_add = [expr("At(actor,to)")]
