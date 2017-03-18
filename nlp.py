@@ -32,7 +32,6 @@ def Lexicon(**rules):
 
 
 class Grammar:
-
     def __init__(self, name, rules, lexicon):
         """A grammar has a set of rules and a lexicon."""
         self.name = name
@@ -53,6 +52,7 @@ class Grammar:
 
     def __repr__(self):
         return '<Grammar {}>'.format(self.name)
+
 
 E0 = Grammar('E0',
              Rules(  # Grammar for E_0 [Figure 22.4]
@@ -112,12 +112,12 @@ def generate_random(grammar=E_, s='S'):
 
     return ' '.join(rewrite(s.split(), []))
 
+
 # ______________________________________________________________________________
 # Chart Parsing
 
 
 class Chart:
-
     """Class for parsing sentences using a chart data structure. [Figure 22.7]
     >>> chart = Chart(E0);
     >>> len(chart.parses('the stench is in 2 2'))
@@ -146,14 +146,14 @@ class Chart:
     def parse(self, words, S='S'):
         """Parse a list of words; according to the grammar.
         Leave results in the chart."""
-        self.chart = [[] for i in range(len(words)+1)]
+        self.chart = [[] for _ in range(len(words)+1)]
         self.add_edge([0, 0, 'S_', [], [S]])
         for i in range(len(words)):
             self.scanner(i, words[i])
         return self.chart
 
     def add_edge(self, edge):
-        "Add edge to chart, and see if it extends or predicts another edge."
+        """Add edge to chart, and see if it extends or predicts another edge."""
         start, end, lhs, found, expects = edge
         if edge not in self.chart[end]:
             self.chart[end].append(edge)
@@ -165,13 +165,13 @@ class Chart:
                 self.predictor(edge)
 
     def scanner(self, j, word):
-        "For each edge expecting a word of this category here, extend the edge."  # noqa
+        """For each edge expecting a word of this category here, extend the edge."""  # noqa
         for (i, j, A, alpha, Bb) in self.chart[j]:
             if Bb and self.grammar.isa(word, Bb[0]):
                 self.add_edge([i, j+1, A, alpha + [(Bb[0], word)], Bb[1:]])
 
     def predictor(self, edge):
-        "Add to chart any rules for B that could help extend this edge."
+        """Add to chart any rules for B that could help extend this edge."""
         (i, j, A, alpha, Bb) = edge
         B = Bb[0]
         if B in self.grammar.rules:
@@ -179,7 +179,7 @@ class Chart:
                 self.add_edge([j, j, B, [], rhs])
 
     def extender(self, edge):
-        "See what edges can be extended by this edge."
+        """See what edges can be extended by this edge."""
         (j, k, B, _, _) = edge
         for (i, j, A, alpha, B1b) in self.chart[j]:
             if B1b and B == B1b[0]:
@@ -190,7 +190,7 @@ class Chart:
 # CYK Parsing
 
 def CYK_parse(words, grammar):
-    "[Figure 23.5]"
+    """[Figure 23.5]"""
     # We use 0-based indexing instead of the book's 1-based.
     N = len(words)
     P = defaultdict(float)
@@ -215,41 +215,44 @@ def CYK_parse(words, grammar):
 
 # First entry in list is the base URL, and then following are relative URL pages
 examplePagesSet = ["https://en.wikipedia.org/wiki/", "Aesthetics", "Analytic_philosophy",
-                   "Ancient_Greek", "Aristotle", "Astrology","Atheism", "Baruch_Spinoza",
+                   "Ancient_Greek", "Aristotle", "Astrology", "Atheism", "Baruch_Spinoza",
                    "Belief", "Betrand Russell", "Confucius", "Consciousness",
                    "Continental Philosophy", "Dialectic", "Eastern_Philosophy",
                    "Epistemology", "Ethics", "Existentialism", "Friedrich_Nietzsche",
                    "Idealism", "Immanuel_Kant", "List_of_political_philosophers", "Logic",
                    "Metaphysics", "Philosophers", "Philosophy", "Philosophy_of_mind", "Physics",
-                   "Plato", "Political_philosophy", "Pythagoras", "Rationalism","Social_philosophy",
+                   "Plato", "Political_philosophy", "Pythagoras", "Rationalism", "Social_philosophy",
                    "Socrates", "Subjectivity", "Theology", "Truth", "Western_philosophy"]
 
 
-def loadPageHTML( addressList ):
+def loadPageHTML(addressList):
     """Download HTML page content for every URL address passed as argument"""
     contentDict = {}
     for addr in addressList:
         with urllib.request.urlopen(addr) as response:
             raw_html = response.read().decode('utf-8')
-            # Strip raw html of unnessecary content. Basically everything that isn't link or text
+            # Strip raw html of unnecessary content. Basically everything that isn't link or text
             html = stripRawHTML(raw_html)
             contentDict[addr] = html
     return contentDict
 
-def initPages( addressList ):
+
+def initPages(addressList):
     """Create a dictionary of pages from a list of URL addresses"""
     pages = {}
     for addr in addressList:
         pages[addr] = Page(addr)
     return pages
 
-def stripRawHTML( raw_html ):
-    """Remove the <head> section of the HTML which contains links to stylesheets etc.,
-    and remove all other unnessecary HTML"""
-    # TODO: Strip more out of the raw html
-    return re.sub("<head>.*?</head>", "", raw_html, flags=re.DOTALL) # remove <head> section
 
-def determineInlinks( page ):
+def stripRawHTML(raw_html):
+    """Remove the <head> section of the HTML which contains links to stylesheets etc.,
+    and remove all other unnecessary HTML"""
+    # TODO: Strip more out of the raw html
+    return re.sub("<head>.*?</head>", "", raw_html, flags=re.DOTALL)  # remove <head> section
+
+
+def determineInlinks(page):
     """Given a set of pages that have their outlinks determined, we can fill
     out a page's inlinks by looking through all other page's outlinks"""
     inlinks = []
@@ -260,28 +263,30 @@ def determineInlinks( page ):
             inlinks.append(addr)
     return inlinks
 
-def findOutlinks( page, handleURLs=None ):
+
+def findOutlinks(page, handleURLs=None):
     """Search a page's HTML content for URL links to other pages"""
     urls = re.findall(r'href=[\'"]?([^\'" >]+)', pagesContent[page.address])
     if handleURLs:
         urls = handleURLs(urls)
     return urls
 
-def onlyWikipediaURLS( urls ):
+
+def onlyWikipediaURLS(urls):
     """Some example HTML page data is from wikipedia. This function converts
     relative wikipedia links to full wikipedia URLs"""
     wikiURLs = [url for url in urls if url.startswith('/wiki/')]
-    return ["https://en.wikipedia.org"+url for url in wikiURLs]
+    return ["https://en.wikipedia.org" + url for url in wikiURLs]
 
 
 # ______________________________________________________________________________
 # HITS Helper Functions
 
-def expand_pages( pages ):
+def expand_pages(pages):
     """From Textbook: adds in every page that links to or is linked from one of
     the relevant pages."""
     expanded = {}
-    for addr,page in pages.items():
+    for addr, page in pages.items():
         if addr not in expanded:
             expanded[addr] = page
         for inlink in page.inlinks:
@@ -291,6 +296,7 @@ def expand_pages( pages ):
             if outlink not in expanded:
                 expanded[outlink] = pagesIndex[outlink]
     return expanded
+
 
 def relevant_pages(query):
     """Relevant pages are pages that contain the query in its entireity.
@@ -302,20 +308,23 @@ def relevant_pages(query):
             relevant[addr] = page
     return relevant
 
-def normalize( pages ):
+
+def normalize(pages):
     """From the pseudocode: Normalize divides each page's score by the sum of
     the squares of all pages' scores (separately for both the authority and hubs scores).
     """
-    summed_hub = sum(page.hub**2 for _,page in pages.items())
-    summed_auth = sum(page.authority**2 for _,page in pages.items())
+    summed_hub = sum(page.hub**2 for _, page in pages.items())
+    summed_auth = sum(page.authority**2 for _, page in pages.items())
     for _, page in pages.items():
         page.hub /= summed_hub
         page.authority /= summed_auth
+
 
 class ConvergenceDetector(object):
     """If the hub and authority values of the pages are no longer changing, we have
     reached a convergence and further iterations will have no effect. This detects convergence
     so that we can stop the HITS algorithm as early as possible."""
+
     def __init__(self):
         self.hub_history = None
         self.auth_history = None
@@ -326,7 +335,7 @@ class ConvergenceDetector(object):
     def detect(self):
         curr_hubs = [page.hub for addr, page in pagesIndex.items()]
         curr_auths = [page.authority for addr, page in pagesIndex.items()]
-        if self.hub_history == None:
+        if self.hub_history is None:
             self.hub_history, self.auth_history = [],[]
         else:
             diffsHub = [abs(x-y) for x, y in zip(curr_hubs,self.hub_history[-1])]
@@ -343,10 +352,11 @@ class ConvergenceDetector(object):
         return False
 
 
-def getInlinks( page ):
+def getInlinks(page):
     if not page.inlinks:
         page.inlinks = determineInlinks(page)
-    return [p for addr, p in pagesIndex.items() if addr in page.inlinks ]
+    return [p for addr, p in pagesIndex.items() if addr in page.inlinks]
+
 
 def getOutlinks( page ):
     if not page.outlinks:
@@ -368,6 +378,7 @@ class Page(object):
 pagesContent = {} # maps Page relative or absolute URL/location to page's HTML content
 pagesIndex = {}
 convergence = ConvergenceDetector() # assign function to variable to mimic pseudocode's syntax
+
 
 def HITS(query):
     """The HITS algorithm for computing hubs and authorities with respect to a query."""
