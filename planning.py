@@ -237,7 +237,6 @@ def have_cake_and_eat_cake_too():
 
     return PDLL(init, [eat_cake, bake_cake], goal_test)
 
-
 def double_tennis_problem():
     init = [expr('At(A, LeftBaseLine)'),
             expr('At(B, RightNet)'),
@@ -268,7 +267,6 @@ def double_tennis_problem():
     go = Action(expr("Go(actor,to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [hit, go], goal_test)
-
 
 class Level():
     """
