@@ -1,21 +1,23 @@
 from agents import Direction
 
+
 def test_move_forward():
     d = Direction("up")
-    l1 = d.move_forward((0,0))
-    assert l1 == (0,-1)
+    l1 = d.move_forward((0, 0))
+    assert l1 == (0, -1)
     d = Direction(Direction.R)
-    l1 = d.move_forward((0,0))
-    assert l1 == (1,0)
+    l1 = d.move_forward((0, 0))
+    assert l1 == (1, 0)
     d = Direction(Direction.D)
-    l1 = d.move_forward((0,0))
-    assert l1 == (0,1)
+    l1 = d.move_forward((0, 0))
+    assert l1 == (0, 1)
     d = Direction("left")
-    l1 = d.move_forward((0,0))
-    assert l1 == (-1,0)
-    l2 = d.move_forward((1,0))
-    assert l2 == (0,0)
+    l1 = d.move_forward((0, 0))
+    assert l1 == (-1, 0)
+    l2 = d.move_forward((1, 0))
+    assert l2 == (0, 0)
 
+    
 def test_add():
     d = Direction(Direction.U)
     l1 = d + "right"
@@ -36,5 +38,4 @@ def test_add():
     l1 = d + Direction.R
     l2 = d + Direction.L
     assert l1.direction == Direction.U
-    assert l2.direction == Direction.D #fixed
-
+    assert l2.direction == Direction.D # fixed
