@@ -144,15 +144,15 @@ class SimpleProblemSolvingAgentProgram:
     """Abstract framework for a problem-solving agent. [Figure 3.1]"""
 
     def __init__(self, initial_state=None):
-    """State is an sbstract representation of the state 
-    of the world, and seq is the list of actions required 
-    to get to a particular state from the initial state(root)."""
+        """State is an sbstract representation of the state
+        of the world, and seq is the list of actions required
+        to get to a particular state from the initial state(root)."""
         self.state = initial_state
         self.seq = []
 
     def __call__(self, percept):
-    """[Figure 3.1] Formulate a goal and problem, then
-    search for a sequence of actions to solve it."""
+        """[Figure 3.1] Formulate a goal and problem, then
+        search for a sequence of actions to solve it."""
         self.state = self.update_state(self.state, percept)
         if not self.seq:
             goal = self.formulate_goal(self.state)
@@ -309,6 +309,7 @@ def iterative_deepening_search(problem):
 # ______________________________________________________________________________
 # Informed (Heuristic) Search
 
+
 greedy_best_first_graph_search = best_first_graph_search
 # Greedy best-first search is accomplished by specifying f(n) = h(n).
 
@@ -378,7 +379,7 @@ def exp_schedule(k=20, lam=0.005, limit=100):
 
 
 def simulated_annealing(problem, schedule=exp_schedule()):
-    """[Figure 4.5] CAUTION: This differs from the pseudocode as it 
+    """[Figure 4.5] CAUTION: This differs from the pseudocode as it
     returns a state instead of a Node."""
     current = Node(problem.initial)
     for t in range(sys.maxsize):
@@ -406,7 +407,7 @@ def and_or_graph_search(problem):
 
     # functions used by and_or_search
     def or_search(state, problem, path):
-    """returns a plan as a list of actions"""
+        """returns a plan as a list of actions"""
         if problem.goal_test(state):
             return []
         if state in path:
@@ -432,9 +433,9 @@ def and_or_graph_search(problem):
 
 class OnlineDFSAgent:
 
-    """[Figure 4.21] The abstract class for an OnlineDFSAgent. Override 
-    update_state method to convert percept to state. While initializing 
-    the subclass a problem needs to be provided which is an instance of 
+    """[Figure 4.21] The abstract class for an OnlineDFSAgent. Override
+    update_state method to convert percept to state. While initializing
+    the subclass a problem needs to be provided which is an instance of
     a subclass of the Problem class."""
 
     def __init__(self, problem):
@@ -484,7 +485,7 @@ class OnlineSearchProblem(Problem):
     A problem which is solved by an agent executing
     actions, rather than by just computation.
     Carried in a deterministic and a fully observable environment."""
-    
+
     def __init__(self, initial, goal, graph):
         self.initial = initial
         self.goal = goal
@@ -540,8 +541,8 @@ class LRTAStarAgent:
                 # self.result[(self.s, self.a)] = s1    # no need as we are using problem.output
 
                 # minimum cost for action b in problem.actions(s)
-                self.H[self.s] = min(self.LRTA_cost(self.s, b, self.problem.output(self.s, b), self.H)
-                                     for b in self.problem.actions(self.s))
+                self.H[self.s] = min(self.LRTA_cost(self.s, b, self.problem.output(self.s, b),
+                                     self.H) for b in self.problem.actions(self.s))
 
             # costs for action b in problem.actions(s1)
             costs = [self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H)
@@ -586,7 +587,7 @@ def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
         new_population = []
         for i in range(len(population)):
             fitnesses = map(fitness_fn, population)
-            p1, p2 = weighted_sample_with_replacement(2,population, fitnesses)
+            p1, p2 = weighted_sample_with_replacement(2, population, fitnesses)
             child = p1.mate(p2)
             if random.uniform(0, 1) < pmut:
                 child.mutate()
@@ -642,8 +643,8 @@ class Graph:
     def make_undirected(self):
         """Make a digraph into an undirected graph by adding symmetric edges."""
         for a in list(self.dict.keys()):
-            for (b, distance) in self.dict[a].items():
-                self.connect1(b, a, distance)
+            for (b, dist) in self.dict[a].items():
+                self.connect1(b, a, dist)
 
     def connect(self, A, B, distance=1):
         """Add a link from A and B of given distance, and also add the inverse
@@ -704,6 +705,7 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
                 g.connect(node, neighbor, int(d))
     return g
 
+
 """ [Figure 3.2]
 Simplified road map of Romania
 """
@@ -733,7 +735,8 @@ romania_map.locations = dict(
 """ [Figure 4.9]
 Eight possible states of the vacumm world
 Each state is represented as
-   *       "State of the left room"      "State of the right room"   "Room in which the agent is present"
+   *       "State of the left room"      "State of the right room"   "Room in which the agent
+                                                                      is present"
 1 - DDL     Dirty                         Dirty                       Left
 2 - DDR     Dirty                         Dirty                       Right
 3 - DCL     Dirty                         Clean                       Left
@@ -744,14 +747,14 @@ Each state is represented as
 8 - CCR     Clean                         Clean                       Right
 """
 vacumm_world = Graph(dict(
-    State_1 = dict(Suck = ['State_7', 'State_5'], Right = ['State_2']),
-    State_2 = dict(Suck = ['State_8', 'State_4'], Left = ['State_2']),
-    State_3 = dict(Suck = ['State_7'], Right = ['State_4']),
-    State_4 = dict(Suck = ['State_4', 'State_2'], Left = ['State_3']),
-    State_5 = dict(Suck = ['State_5', 'State_1'], Right = ['State_6']),
-    State_6 = dict(Suck = ['State_8'], Left = ['State_5']),
-    State_7 = dict(Suck = ['State_7', 'State_3'], Right = ['State_8']),
-    State_8 = dict(Suck = ['State_8', 'State_6'], Left = ['State_7'])
+    State_1=dict(Suck=['State_7', 'State_5'], Right=['State_2']),
+    State_2=dict(Suck=['State_8', 'State_4'], Left=['State_2']),
+    State_3=dict(Suck=['State_7'], Right=['State_4']),
+    State_4=dict(Suck=['State_4', 'State_2'], Left=['State_3']),
+    State_5=dict(Suck=['State_5', 'State_1'], Right=['State_6']),
+    State_6=dict(Suck=['State_8'], Left=['State_5']),
+    State_7=dict(Suck=['State_7', 'State_3'], Right=['State_8']),
+    State_8=dict(Suck=['State_8', 'State_6'], Left=['State_7'])
     ))
 
 """ [Figure 4.23]
@@ -887,6 +890,7 @@ class NQueensProblem(Problem):
 # Inverse Boggle: Search for a high-scoring Boggle board. A good domain for
 # iterative-repair and related search techniques, as suggested by Justin Boyan.
 
+
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 cubes16 = ['FORIXB', 'MOQABJ', 'GURILW', 'SETUPL',
@@ -904,6 +908,7 @@ def random_boggle(n=4):
 
 # The best 5x5 board found by Boyan, with our word list this board scores
 # 2274 words, for a score of 9837
+
 
 boyan_best = list('RSTCSDEIAEGNLRPEATESMSSID')
 
@@ -1133,7 +1138,7 @@ class InstrumentedProblem(Problem):
 
     def __repr__(self):
         return '<{:4d}/{:4d}/{:4d}/{}>'.format(self.succs, self.goal_tests,
-                                     self.states, str(self.found)[:4])
+                                               self.states, str(self.found)[:4])
 
 
 def compare_searchers(problems, header,
