@@ -268,9 +268,10 @@ def best_first_graph_search(problem, f):
     return None
 
 
-def uniform_cost_search(problem, costfn=lambda node: node.path_cost):
-    """[Figure 3.14]"""
-    frontier = FrontierPQ(Node(problem.initial), costfn)
+def uniform_cost_search(problem, costfn = lambda node: node.path_cost):
+    "[Figure 3.14]"
+    node = Node(problem.initial)    
+    frontier = PriorityQueue(node, costfn)
     explored = set()
     while frontier:
         node = frontier.pop()
