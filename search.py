@@ -268,23 +268,9 @@ def best_first_graph_search(problem, f):
     return None
 
 
-def uniform_cost_search(problem, costfn = lambda node: node.path_cost):
+def uniform_cost_search(problem):
     "[Figure 3.14]"
-    node = Node(problem.initial)    
-    frontier = PriorityQueue(node, costfn)
-    explored = set()
-    while frontier:
-        node = frontier.pop()
-        if problem.is_goal(node.state):
-            return node
-        explored.add(node.state)
-        for action in problem.actions(node.state):
-            child = node.child(problem, action)
-            if child.state not in explored and child not in frontier:
-                frontier.add(child)
-            elif child in frontier and frontier.cost[child] < child.path_cost:
-                frontier.replace(child)
-    return None
+return best_first_graph_search(problem, lambda node: node.path_cost)
 
 
 def depth_limited_search(problem, limit=50):
