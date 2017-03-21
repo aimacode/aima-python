@@ -449,7 +449,7 @@ class OnlineDFSAgent:
             if self.s is not None:
                 if s1 != self.result[(self.s, self.a)]:
                     self.result[(self.s, self.a)] = s1
-                    unbacktracked[s1].insert(0, self.s)
+                    self.unbacktracked[s1].insert(0, self.s)
             if len(self.untried[s1]) == 0:
                 if len(self.unbacktracked[s1]) == 0:
                     self.a = None
@@ -827,7 +827,7 @@ class GraphProblemStochastic(GraphProblem):
     def result(self, state, action):
         return self.graph.get(state, action)
 
-    def path_cost():
+    def path_cost(self):
         raise NotImplementedError
 
 
