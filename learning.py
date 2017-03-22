@@ -850,7 +850,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
         size += 1
 
 
-def leave_one_out(learner, dataset):
+def leave_one_out(learner, dataset, size=None):
     """Leave one out cross-validation over the dataset."""
     return cross_validation(learner, size, dataset, k=len(dataset.examples))
 

@@ -1,4 +1,5 @@
 from agents import Direction
+from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment
 
 
 def test_move_forward():
@@ -39,3 +40,28 @@ def test_add():
     l2 = d + Direction.L
     assert l1.direction == Direction.U
     assert l2.direction == Direction.D
+
+def test_ReflexVacuumAgent() :
+    # create an object of the ReflexVacuumAgent
+    agent = ReflexVacuumAgent()
+    # create an object of TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # add agent to the environment
+    environment.add_thing(agent)
+    # run the environment
+    environment.run()
+    # check final status of the environment
+    assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+
+def test_ModelBasedVacuumAgent() :
+    # create an object of the ModelBasedVacuumAgent
+    agent = ModelBasedVacuumAgent()
+    # create an object of TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # add agent to the environment
+    environment.add_thing(agent)
+    # run the environment
+    environment.run()
+    # check final status of the environment
+    assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+

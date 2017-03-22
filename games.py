@@ -136,6 +136,10 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
 def query_player(game, state):
     """Make a move by querying standard input."""
+    print("current state:")
+    game.display(state)
+    print("available moves: {}".format(game.actions(state)))
+    print("")
     move_string = input('Your move? ')
     try:
         move = eval(move_string)
@@ -152,18 +156,6 @@ def random_player(game, state):
 def alphabeta_player(game, state):
     return alphabeta_full_search(state, game)
 
-
-def play_game(game, *players):
-    """Play an n-person, move-alternating game."""
-
-    state = game.initial
-    while True:
-        for player in players:
-            move = player(game, state)
-            state = game.result(state, move)
-            if game.terminal_test(state):
-                game.display(state)
-                return game.utility(state, game.to_move(game.initial))
 
 # ______________________________________________________________________________
 # Some Sample Games
@@ -204,6 +196,17 @@ class Game:
 
     def __repr__(self):
         return '<{}>'.format(self.__class__.__name__)
+    
+    def play_game(self, *players):
+        """Play an n-person, move-alternating game."""
+        state = self.initial
+        while True:
+            for player in players:
+                move = player(self, state)
+                state = self.result(state, move)
+                if self.terminal_test(state):
+                    self.display(state)
+                    return self.utility(state, self.to_move(self.initial))
 
 
 class Fig52Game(Game):
@@ -255,7 +258,9 @@ class TicTacToe(Game):
 
     def result(self, state, move):
         if move not in state.moves:
-            return state  # Illegal move has no effect
+            return GameState(to_move=('O' if state.to_move == 'X' else 'X'),
+                         utility=self.compute_utility(state.board, move, state.to_move),
+                         board=state.board, moves=state.moves)  # Illegal move has no effect
         board = state.board.copy()
         board[move] = state.to_move
         moves = list(state.moves)
