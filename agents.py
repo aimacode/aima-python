@@ -144,7 +144,7 @@ def SimpleReflexAgentProgram(rules, interpret_input):
 
 
 def ModelBasedReflexAgentProgram(rules, update_state, model):
-    """This agent takes action based on the percept and state. [Figure 2.8]"""
+    """This agent takes action based on the percept and state. [Figure 2.12]"""
     def program(percept):
         program.state = update_state(program.state, program.action, percept, model)
         rule = rule_match(program.state, rules)
@@ -443,7 +443,7 @@ class XYEnvironment(Environment):
     #         obs.thing_added(thing)
 
     def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items=False):
-        """Adds things to the world. If (exclude_duplicate_class_items) then the item won't be 
+        """Adds things to the world. If (exclude_duplicate_class_items) then the item won't be
         added if the location has at least one item of the same class."""
         if (self.is_inbounds(location)):
             if (exclude_duplicate_class_items and
@@ -523,7 +523,7 @@ except:
 
 class GraphicEnvironment(XYEnvironment):
     def __init__(self, width=10, height=10, boundary=True, color={}, display=False):
-        """define all the usual XYEnvironment characteristics, 
+        """define all the usual XYEnvironment characteristics,
         but initialise a BlockGrid for GUI too"""
         super().__init__(width, height)
         self.grid = BlockGrid(width, height, fill=(200,200,200))
@@ -534,14 +534,14 @@ class GraphicEnvironment(XYEnvironment):
             self.visible = False
         self.bounded = boundary
         self.colors = color
-    
+
     #def list_things_at(self, location, tclass=Thing): # need to override because locations
     #    """Return all things exactly at a given location."""
     #    return [thing for thing in self.things
     #            if thing.location == location and isinstance(thing, tclass)]
-    
+
     def get_world(self):
-        """Returns all the items in the world in a format 
+        """Returns all the items in the world in a format
         understandable by the ipythonblocks BlockGrid"""
         result = []
         x_start, y_start = (0, 0)
@@ -552,9 +552,9 @@ class GraphicEnvironment(XYEnvironment):
                 row.append(self.list_things_at([x, y]))
             result.append(row)
         return result
-    
+
     """def run(self, steps=1000, delay=1):
-        "" "Run the Environment for given number of time steps, 
+        "" "Run the Environment for given number of time steps,
         but update the GUI too." ""
         for step in range(steps):
             sleep(delay)
@@ -569,7 +569,7 @@ class GraphicEnvironment(XYEnvironment):
             self.reveal()
     """
     def run(self, steps=1000, delay=1):
-        """Run the Environment for given number of time steps, 
+        """Run the Environment for given number of time steps,
         but update the GUI too."""
         for step in range(steps):
             self.update(delay)
@@ -577,7 +577,7 @@ class GraphicEnvironment(XYEnvironment):
                 break
             self.step()
         self.update(delay)
-    
+
     def update(self, delay=1):
         sleep(delay)
         if self.visible:
@@ -585,9 +585,9 @@ class GraphicEnvironment(XYEnvironment):
             self.reveal()
         else:
             self.reveal()
-    
+
     def reveal(self):
-        """display the BlockGrid for this world - the last thing to be added 
+        """display the BlockGrid for this world - the last thing to be added
         at a location defines the location color"""
         #print("Grid={}".format(self.grid))
         self.draw_world()
@@ -595,7 +595,7 @@ class GraphicEnvironment(XYEnvironment):
         #    self.grid.show()
         self.grid.show()
         self.visible == True
-    
+
     def draw_world(self):
         self.grid[:] = (200, 200, 200)
         world = self.get_world()
@@ -606,14 +606,14 @@ class GraphicEnvironment(XYEnvironment):
                     self.grid[y, x] = self.colors[world[x][y][-1].__class__.__name__]
                     #print('location: ({}, {}) got color: {}'
                     #.format(y, x, self.colors[world[x][y][-1].__class__.__name__]))
-    
+
     def conceal(self):
         """hide the BlockGrid for this world"""
         self.visible = False
         display(HTML(''))
-    
-    
-    
+
+
+
 
 
 
