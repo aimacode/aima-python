@@ -154,13 +154,13 @@ class QLearningAgent:
         s1, r1 = self.update_state(percept)
         Q, Nsa, s, a, r = self.Q, self.Nsa, self.s, self.a, self.r
         alpha, gamma, terminals, actions_in_state = self.alpha, self.gamma, self.terminals, self.actions_in_state
-        if s1 in terminals:
-            Q[s1, None] = r1
+        if s in terminals:
+            Q[s, None] = r1
         if s is not None:
             Nsa[s, a] += 1
             Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1] for a1 in actions_in_state(s1))
                                              - Q[s, a])
-        if s1 in terminals:
+        if s in terminals:
             self.s = self.a = self.r = None
         else:
             self.s, self.r = s1, r1
