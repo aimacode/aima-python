@@ -829,7 +829,7 @@ class GraphProblemStochastic(GraphProblem):
     def result(self, state, action):
         return self.graph.get(state, action)
 
-    def path_cost():
+    def path_cost(self):
         raise NotImplementedError
 
 
