@@ -1,5 +1,6 @@
 from agents import Direction
 from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment
+from agents import compare_agents
 
 
 def test_move_forward():
@@ -65,3 +66,19 @@ def test_ModelBasedVacuumAgent() :
     # check final status of the environment
     assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
 
+def test_compare_agents() :
+    # choose the environment , we will use the TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment
+    # agents choosen for comparison are ModelBasedVacuumAgent and ReflexVacuumAgent
+    agents = [ModelBasedVacuumAgent,ReflexVacuumAgent]
+    # run the comapre function
+    result = compare_agents(environment,agents)
+    preformance_ModelBasedVacummAgent = result[0][1]
+    preformance_ReflexVacummAgent = result[1][1]
+    # the performance of ModelBasedVacuumAgent will be atleast as good as that of
+    # ReflexVacuumAgent as since ModelBasedVacuumAgent can identify when it has
+    # reached the terminal state ( both locations being clean) and will perform
+    # NoOp leading to 0 performance change , whereas ReflexVacuumAgent cannot
+    # identify the terminal state and thus would keep moving , leading to worse
+    # performance as compare to ModelBasedVacuumAgent
+    assert preformance_ReflexVacummAgent <= preformance_ModelBasedVacummAgent
