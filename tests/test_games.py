@@ -60,13 +60,13 @@ def test_alphabeta_full_search():
 
 
 def test_random_tests():
-    assert play_game(Fig52Game(), alphabeta_player, alphabeta_player) == 3
+    assert Fig52Game().play_game(alphabeta_player, alphabeta_player) == 3
 
     # The player 'X' (one who plays first) in TicTacToe never loses:
-    assert play_game(ttt, alphabeta_player, alphabeta_player) >= 0
+    assert ttt.play_game(alphabeta_player, alphabeta_player) >= 0
 
     # The player 'X' (one who plays first) in TicTacToe never loses:
-    assert play_game(ttt, alphabeta_player, random_player) >= 0
+    assert ttt.play_game(alphabeta_player, random_player) >= 0
 
 
 if __name__ == '__main__':
