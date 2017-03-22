@@ -274,6 +274,18 @@ def test_universal_dict():
 def test_parse_neighbours():
     assert parse_neighbors('X: Y Z; Y: Z') == {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
 
+def test_topological_sort():
+    root = 'NT'
+    Sort, Parents = topological_sort(australia,root)
+    
+    assert Sort == ['NT','SA','Q','NSW','V','WA']
+    assert Parents['NT'] == None
+    assert Parents['SA'] == 'NT'
+    assert Parents['Q'] == 'SA'
+    assert Parents['NSW'] == 'Q'
+    assert Parents['V'] == 'NSW'
+    assert Parents['WA'] == 'SA'
+
 
 if __name__ == "__main__":
     pytest.main()
