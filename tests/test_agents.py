@@ -1,5 +1,5 @@
 from agents import Direction
-from agents import ReflexVacuumAgent , ModelBasedVacuumAgent ,TrivialVacuumEnvironment
+from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment
 
 def test_move_forward():
     d = Direction("up")
