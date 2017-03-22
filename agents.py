@@ -85,10 +85,9 @@ class Agent(Thing):
         self.bump = False
         self.holding = []
         self.performance = 0
-        if program is None:
+        if program is None or not isinstance(program, collections.Callable):
             def program(percept):
                 return eval(input('Percept={}; action? '.format(percept)))
-        assert isinstance(program, collections.Callable)
         self.program = program
 
     def can_grab(self, thing):
