@@ -6,7 +6,7 @@ as a dictionary of {state:action} pairs, and a Utility function as a
 dictionary of {state:number} pairs.  We then define the value_iteration
 and policy_iteration algorithms."""
 
-from utils import argmax, vector_add, print_table
+from utils import argmax, vector_add, print_table  # noqa
 from grid import orientations, turn_right, turn_left
 
 import random
@@ -97,12 +97,13 @@ class GridMDP(MDP):
 
 # ______________________________________________________________________________
 
+
 """ [Figure 17.1]
 A 4x3 grid environment that presents the agent with a sequential decision problem.
 """
 
 sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
-                                           [-0.04, None,  -0.04, -1],
+                                           [-0.04, None, -0.04, -1],
                                            [-0.04, -0.04, -0.04, -0.04]],
                                           terminals=[(3, 2), (3, 1)])
 
@@ -165,6 +166,7 @@ def policy_evaluation(pi, U, mdp, k=20):
             U[s] = R(s) + gamma * sum([p * U[s1] for (p, s1) in T(s, pi[s])])
     return U
 
+
 __doc__ += """
 >>> pi = best_policy(sequential_decision_environment, value_iteration(sequential_decision_environment, .01))
 
@@ -180,4 +182,4 @@ __doc__ += """
 >   >      >   .
 ^   None   ^   .
 ^   >      ^   <
-"""
+"""  # noqa

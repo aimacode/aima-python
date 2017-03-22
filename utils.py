@@ -3,7 +3,6 @@
 import bisect
 import collections
 import collections.abc
-import functools
 import operator
 import os.path
 import random
@@ -59,13 +58,15 @@ def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
-def mode(data): 
+
+def mode(data):
     """Return the most common data item. If there are ties, return any one of them."""
     [(item, count)] = collections.Counter(data).most_common(1)
     return item
 
 # ______________________________________________________________________________
 # argmin and argmax
+
 
 identity = lambda x: x
 
@@ -88,7 +89,6 @@ def shuffled(iterable):
     items = list(iterable)
     random.shuffle(items)
     return items
-
 
 
 # ______________________________________________________________________________
@@ -165,7 +165,6 @@ def vector_to_diagonal(v):
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
     return tuple(map(operator.add, a, b))
-
 
 
 def scalar_vector_product(X, Y):
@@ -258,6 +257,7 @@ def sigmoid(x):
 def step(x):
     """Return activation value of x with sign function"""
     return 1 if x >= 0 else 0
+
 
 try:  # math.isclose was added in Python 3.5; but we might be in 3.4
     from math import isclose
@@ -367,21 +367,50 @@ class Expr(object):
         self.args = args
 
     # Operator overloads
-    def __neg__(self):      return Expr('-', self)
-    def __pos__(self):      return Expr('+', self)
-    def __invert__(self):   return Expr('~', self)
-    def __add__(self, rhs): return Expr('+', self, rhs)
-    def __sub__(self, rhs): return Expr('-', self, rhs)
-    def __mul__(self, rhs): return Expr('*', self, rhs)
-    def __pow__(self, rhs): return Expr('**',self, rhs)
-    def __mod__(self, rhs): return Expr('%', self, rhs)
-    def __and__(self, rhs): return Expr('&', self, rhs)
-    def __xor__(self, rhs): return Expr('^', self, rhs)
-    def __rshift__(self, rhs):   return Expr('>>', self, rhs)
-    def __lshift__(self, rhs):   return Expr('<<', self, rhs)
-    def __truediv__(self, rhs):  return Expr('/',  self, rhs)
-    def __floordiv__(self, rhs): return Expr('//', self, rhs)
-    def __matmul__(self, rhs):   return Expr('@',  self, rhs)
+    def __neg__(self):
+        return Expr('-', self)
+
+    def __pos__(self):
+        return Expr('+', self)
+
+    def __invert__(self):
+        return Expr('~', self)
+
+    def __add__(self, rhs):
+        return Expr('+', self, rhs)
+
+    def __sub__(self, rhs):
+        return Expr('-', self, rhs)
+
+    def __mul__(self, rhs):
+        return Expr('*', self, rhs)
+
+    def __pow__(self, rhs):
+        return Expr('**', self, rhs)
+
+    def __mod__(self, rhs):
+        return Expr('%', self, rhs)
+
+    def __and__(self, rhs):
+        return Expr('&', self, rhs)
+
+    def __xor__(self, rhs):
+        return Expr('^', self, rhs)
+
+    def __rshift__(self, rhs):
+        return Expr('>>', self, rhs)
+
+    def __lshift__(self, rhs):
+        return Expr('<<', self, rhs)
+
+    def __truediv__(self, rhs):
+        return Expr('/', self, rhs)
+
+    def __floordiv__(self, rhs):
+        return Expr('//', self, rhs)
+
+    def __matmul__(self, rhs):
+        return Expr('@', self, rhs)
 
     def __or__(self, rhs):
         """Allow both P | Q, and P |'==>'| Q."""
@@ -391,20 +420,47 @@ class Expr(object):
             return PartialExpr(rhs, self)
 
     # Reverse operator overloads
-    def __radd__(self, lhs): return Expr('+',  lhs, self)
-    def __rsub__(self, lhs): return Expr('-',  lhs, self)
-    def __rmul__(self, lhs): return Expr('*',  lhs, self)
-    def __rdiv__(self, lhs): return Expr('/',  lhs, self)
-    def __rpow__(self, lhs): return Expr('**', lhs, self)
-    def __rmod__(self, lhs): return Expr('%',  lhs, self)
-    def __rand__(self, lhs): return Expr('&',  lhs, self)
-    def __rxor__(self, lhs): return Expr('^',  lhs, self)
-    def __ror__(self, lhs):  return Expr('|',  lhs, self)
-    def __rrshift__(self, lhs):   return Expr('>>',  lhs, self)
-    def __rlshift__(self, lhs):   return Expr('<<',  lhs, self)
-    def __rtruediv__(self, lhs):  return Expr('/',  lhs, self)
-    def __rfloordiv__(self, lhs): return Expr('//',  lhs, self)
-    def __rmatmul__(self, lhs):   return Expr('@', lhs, self)
+    def __radd__(self, lhs):
+        return Expr('+', lhs, self)
+
+    def __rsub__(self, lhs):
+        return Expr('-', lhs, self)
+
+    def __rmul__(self, lhs):
+        return Expr('*', lhs, self)
+
+    def __rdiv__(self, lhs):
+        return Expr('/', lhs, self)
+
+    def __rpow__(self, lhs):
+        return Expr('**', lhs, self)
+
+    def __rmod__(self, lhs):
+        return Expr('%', lhs, self)
+
+    def __rand__(self, lhs):
+        return Expr('&', lhs, self)
+
+    def __rxor__(self, lhs):
+        return Expr('^', lhs, self)
+
+    def __ror__(self, lhs):
+        return Expr('|', lhs, self)
+
+    def __rrshift__(self, lhs):
+        return Expr('>>', lhs, self)
+
+    def __rlshift__(self, lhs):
+        return Expr('<<', lhs, self)
+
+    def __rtruediv__(self, lhs):
+        return Expr('/', lhs, self)
+
+    def __rfloordiv__(self, lhs):
+        return Expr('//', lhs, self)
+
+    def __rmatmul__(self, lhs):
+        return Expr('@', lhs, self)
 
     def __call__(self, *args):
         "Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."
@@ -435,6 +491,7 @@ class Expr(object):
 
 # An 'Expression' is either an Expr or a Number.
 # Symbol is not an explicit type; it is any Expr with 0 args.
+
 
 Number = (int, float, complex)
 Expression = (Expr, Number)
@@ -470,9 +527,14 @@ def arity(expression):
 
 class PartialExpr:
     """Given 'P |'==>'| Q, first form PartialExpr('==>', P), then combine with Q."""
-    def __init__(self, op, lhs): self.op, self.lhs = op, lhs
-    def __or__(self, rhs):       return Expr(self.op, self.lhs, rhs)
-    def __repr__(self):          return "PartialExpr('{}', {})".format(self.op, self.lhs)
+    def __init__(self, op, lhs):
+        self.op, self.lhs = op, lhs
+
+    def __or__(self, rhs):
+        return Expr(self.op, self.lhs, rhs)
+
+    def __repr__(self):
+        return "PartialExpr('{}', {})".format(self.op, self.lhs)
 
 
 def expr(x):
@@ -487,6 +549,7 @@ def expr(x):
         return eval(expr_handle_infix_ops(x), defaultkeydict(Symbol))
     else:
         return x
+
 
 infix_ops = '==> <== <=>'.split()
 
@@ -619,6 +682,7 @@ class PriorityQueue(Queue):
 class Bool(int):
     """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'"""
     __str__ = __repr__ = lambda self: 'T' if self else 'F'
+
 
 T = Bool(True)
 F = Bool(False)

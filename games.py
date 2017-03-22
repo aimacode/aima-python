@@ -196,7 +196,7 @@ class Game:
 
     def __repr__(self):
         return '<{}>'.format(self.__class__.__name__)
-    
+
     def play_game(self, *players):
         """Play an n-person, move-alternating game."""
         state = self.initial
@@ -259,8 +259,8 @@ class TicTacToe(Game):
     def result(self, state, move):
         if move not in state.moves:
             return GameState(to_move=('O' if state.to_move == 'X' else 'X'),
-                         utility=self.compute_utility(state.board, move, state.to_move),
-                         board=state.board, moves=state.moves)  # Illegal move has no effect
+                             utility=self.compute_utility(state.board, move, state.to_move),
+                             board=state.board, moves=state.moves)  # Illegal move has no effect
         board = state.board.copy()
         board[move] = state.to_move
         moves = list(state.moves)
@@ -327,7 +327,8 @@ class Canvas_TicTacToe(Canvas):
     """Play a 3x3 TicTacToe game on HTML canvas
     TODO: Add restart button
     """
-    def __init__(self, varname, player_1='human', player_2='random', id=None, width=300, height=300):
+    def __init__(self, varname, player_1='human', player_2='random', id=None,
+                 width=300, height=300):
         valid_players = ('human', 'random', 'alphabeta')
         if player_1 not in valid_players or player_2 not in valid_players:
             raise TypeError("Players must be one of {}".format(valid_players))
@@ -381,7 +382,8 @@ class Canvas_TicTacToe(Canvas):
             else:
                 self.text_n('Player {} wins!'.format(1 if utility > 0 else 2), 0.1, 0.1)
         else:  # Print which player's turn it is
-            self.text_n("Player {}'s move({})".format(self.turn+1, self.players[self.turn]), 0.1, 0.1)
+            self.text_n("Player {}'s move({})".format(self.turn+1, self.players[self.turn]),
+                        0.1, 0.1)
 
         self.update()
 
