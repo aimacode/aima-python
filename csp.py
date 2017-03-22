@@ -342,9 +342,7 @@ def topological_sort(X, root):
     nodes = X.variables
     neighbors = X.neighbors
 
-    visited = {}
-    for x in nodes:
-        visited[x] = False
+    visited = defaultdict(lambda: False)
 
     stack = []
     parents = {}
