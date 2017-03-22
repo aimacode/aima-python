@@ -297,12 +297,14 @@ class Environment:
         for it. (Shouldn't need to override this."""
         if not isinstance(thing, Thing):
             thing = Agent(thing)
-        assert thing not in self.things, "Don't add the same thing twice"
-        thing.location = location if location is not None else self.default_location(thing)
-        self.things.append(thing)
-        if isinstance(thing, Agent):
-            thing.performance = 0
-            self.agents.append(thing)
+        if thing in self.things:
+            print("Can't add the same thing twice")
+        else:
+            thing.location = location if location is not None else self.default_location(thing)
+            self.things.append(thing)
+            if isinstance(thing, Agent):
+                thing.performance = 0
+                self.agents.append(thing)
 
     def delete_thing(self, thing):
         """Remove a thing from the environment."""
