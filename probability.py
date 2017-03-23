@@ -644,6 +644,6 @@ def particle_filtering(e, N, HMM):
 
     # STEP 2
 
-    s = weighted_sample_with_replacement(N ,s ,w)
+    s = weighted_sample_with_replacement(N, s, w)
 
     return s

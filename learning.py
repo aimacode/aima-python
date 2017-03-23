@@ -756,8 +756,6 @@ def weighted_replicate(seq, weights, n):
     return (flatten([x] * nx for x, nx in zip(seq, wholes)) +
             weighted_sample_with_replacement(n - sum(wholes), seq, fractions))
 
-
-
 def flatten(seqs): return sum(seqs, [])
 
 # _____________________________________________________________________________
@@ -851,7 +849,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
         size += 1
 
 
-def leave_one_out(learner, dataset):
+def leave_one_out(learner, dataset, size=None):
     """Leave one out cross-validation over the dataset."""
     return cross_validation(learner, size, dataset, k=len(dataset.examples))
 
