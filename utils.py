@@ -8,6 +8,7 @@ import operator
 import os.path
 import random
 import math
+import queue
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -59,7 +60,7 @@ def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
-def mode(data): 
+def mode(data):
     """Return the most common data item. If there are ties, return any one of them."""
     [(item, count)] = collections.Counter(data).most_common(1)
     return item
@@ -514,7 +515,7 @@ class defaultkeydict(collections.defaultdict):
 # ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
 
-# TODO: Possibly use queue.Queue, queue.PriorityQueue
+# TODO: queue.PriorityQueue
 # TODO: Priority queues may not belong here -- see treatment in search.py
 
 
@@ -545,34 +546,42 @@ def Stack():
     """Return an empty list, suitable as a Last-In-First-Out Queue."""
     return []
 
-
 class FIFOQueue(Queue):
 
     """A First-In-First-Out Queue."""
 
     def __init__(self):
-        self.A = []
-        self.start = 0
+        self.queue = queue.Queue()
 
     def append(self, item):
-        self.A.append(item)
+        # Add an element to the back of the queue
+        if not self.queue.full() :
+            self.queue.put(item)
+        else :
+            raise Exception('FIFOQueue is full')
 
     def __len__(self):
-        return len(self.A) - self.start
-
-    def extend(self, items):
-        self.A.extend(items)
+        # returns the total number of elements currently present in the queue
+        return self.queue.qsize()
 
     def pop(self):
-        e = self.A[self.start]
-        self.start += 1
-        if self.start > 5 and self.start > len(self.A) / 2:
-            self.A = self.A[self.start:]
-            self.start = 0
-        return e
+        # return the element at the front of the queue
+        if not self.queue.empty() :
+            return self.queue.get()
+        else :
+            raise Exception('FIFOQueue is empty')
 
     def __contains__(self, item):
-        return item in self.A[self.start:]
+        # Checks if the given element is in the queue or not
+        # returns bool as result
+        ispresent = False
+        for i in range(self.queue.qsize()) :
+            temp_item = self.queue.get()
+            if temp_item == item :
+                ispresent = True
+            self.queue.put(temp_item)
+
+        return ispresent
 
 
 class PriorityQueue(Queue):
