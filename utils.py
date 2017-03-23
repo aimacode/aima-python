@@ -270,13 +270,10 @@ except ImportError:
 # Misc Functions
 
 
-# TODO: Use functools.lru_cache memoization decorator
-
-
-def memoize(fn, slot=None):
+def memoize(fn, slot=None, maxsize=32):
     """Memoize fn: make it remember the computed value for any argument list.
     If slot is specified, store result in that slot of first argument.
-    If slot is false, store results in a dictionary."""
+    If slot is false, use lru_cache for caching the values."""
     if slot:
         def memoized_fn(obj, *args):
             if hasattr(obj, slot):
@@ -286,12 +283,9 @@ def memoize(fn, slot=None):
                 setattr(obj, slot, val)
                 return val
     else:
+        @functools.lru_cache(maxsize=maxsize)
         def memoized_fn(*args):
-            if args not in memoized_fn.cache:
-                memoized_fn.cache[args] = fn(*args)
-            return memoized_fn.cache[args]
-
-        memoized_fn.cache = {}
+            return fn(*args)
 
     return memoized_fn
 
