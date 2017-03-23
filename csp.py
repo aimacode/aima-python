@@ -308,12 +308,9 @@ def tree_csp_solver(csp):
     """[Figure 6.11]"""
     assignment = {}
     root = csp.variables[0]
+    root = 'NT'
     X, parent = topological_sort(csp, root)
-    for Xj in reversed(X):
-        if(Xj == root):
-            # THIS SHOULD BE REMOVED
-            continue
-
+    for Xj in reversed(X[1:]):
         if not make_arc_consistent(parent[Xj], Xj, csp):
             return None
     for Xi in X:
