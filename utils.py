@@ -550,8 +550,8 @@ class FIFOQueue(Queue):
 
     """A First-In-First-Out Queue."""
 
-    def __init__(self):
-        self.queue = queue.Queue()
+    def __init__(self,maxsize=0):
+        self.queue = queue.Queue(maxsize)
 
     def append(self, item):
         # Add an element to the back of the queue

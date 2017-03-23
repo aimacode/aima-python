@@ -180,9 +180,9 @@ def test_expr():
 def test_FIFOQueue() :
     # Create an object
     queue = FIFOQueue()
-    # Genrate an array of number to be used for testing
+    # Generate an array of number to be used for testing
     test_data = [ random.choice(range(100)) for i in range(100) ]
-    # Index of the element to be added into the queue
+    # Index of the element to be added in the queue
     front_head = 0
     # Index of the element to be removed from the queue
     back_head = 0
