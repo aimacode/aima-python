@@ -80,7 +80,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 10.2    | Spare-Tire-Problem |  spare_tire        |[planning.py][planning]|
 | 10.3    | Three-Block-Tower  |  three_block_tower        |[planning.py][planning]|
 | 10.7    | Cake-Problem       |   have_cake_and_eat_cake_too       |[planning.py][planning]|
-| 10.9    | Graphplan          |          |
+| 10.9    | Graphplan          |    GraphPlan      |[planning.py][planning]|
 | 10.13   | Partial-Order-Planner |          |
 | 11.1    | Job-Shop-Problem-With-Resources |          |
 | 11.5    | Hierarchical-Search |          |
