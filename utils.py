@@ -195,7 +195,6 @@ def probability(p):
 
 
 def weighted_sample_with_replacement(n, seq, weights):
-
     """Pick n samples from seq at random, with replacement, with the
     probability of each element in proportion to its corresponding
     weight."""
