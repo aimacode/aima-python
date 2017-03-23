@@ -35,11 +35,13 @@ def manhattan_distance(predictions, targets):
 def mean_boolean_error(predictions, targets):
     return mean(int(p != t) for p, t in zip(predictions, targets))
 
+def hamming_distance(predictions, targets):
+    return sum(p != t for p, t in zip(predictions, targets))
+
 # ______________________________________________________________________________
 
 
 class DataSet:
-
     """A data set for a machine learning problem.  It has the following fields:
 
     d.examples   A list of examples.  Each one is a list of attribute values.
@@ -152,6 +154,18 @@ class DataSet:
         return [attr_i if i in self.inputs else None
                 for i, attr_i in enumerate(example)]
 
+    def classes_to_numbers(self,classes=None):
+        """Converts class names to numbers."""
+        if not classes:
+            # If classes were not given, extract them from values
+            classes = sorted(self.values[self.target])
+        for item in self.examples:
+            item[self.target] = classes.index(item[self.target])
+            
+    def remove_examples(self,value=""):
+        """Remove examples that contain given value."""
+        self.examples = [x for x in self.examples if value not in x]
+
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
             self.name, len(self.examples), len(self.attrs))
@@ -173,7 +187,6 @@ def parse_csv(input, delim=','):
 
 
 class CountingProbDist:
-
     """A probability distribution formed by observing and counting examples.
     If p is an instance of this class and o is an observed value, then
     there are 3 main operations:
@@ -285,7 +298,6 @@ def NearestNeighborLearner(dataset, k=1):
 
 
 class DecisionFork:
-
     """A fork of a decision tree holds an attribute to test, and a dict
     of branches, one for each of the attribute's values."""
 
@@ -317,7 +329,6 @@ class DecisionFork:
 
 
 class DecisionLeaf:
-
     """A leaf of a decision tree holds just a result."""
 
     def __init__(self, result):
@@ -365,7 +376,7 @@ def DecisionTreeLearner(dataset):
 
     def count(attr, val, examples):
         """Count the number of examples that have attr = val."""
-        return len(e[attr] == val for e in examples) #count(e[attr] == val for e in examples)
+        return sum(e[attr] == val for e in examples) #count(e[attr] == val for e in examples)
 
     def all_same_class(examples):
         """Are all these examples in the same target class?"""
@@ -413,7 +424,7 @@ def DecisionListLearner(dataset):
             return [(True, False)]
         t, o, examples_t = find_examples(examples)
         if not t:
-            raise Failure
+            raise Exception
         return [(t, o)] + decision_list_learning(examples - examples_t)
 
     def find_examples(examples):
@@ -438,12 +449,11 @@ def DecisionListLearner(dataset):
 
 
 def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
-                     learning_rate=0.01, epoches=100):
-    """
-    Layered feed-forward network.
+                     learning_rate=0.01, epochs=100):
+    """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
     learning_rate: Learning rate of gradient descent
-    epoches: Number of passes over the dataset
+    epochs: Number of passes over the dataset
     """
 
     i_units = len(dataset.inputs)
@@ -452,7 +462,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     # construct a network
     raw_net = network(i_units, hidden_layer_sizes, o_units)
     learned_net = BackPropagationLearner(dataset, raw_net,
-                                         learning_rate, epoches)
+                                         learning_rate, epochs)
 
     def predict(example):
 
@@ -479,8 +489,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
 
 
 class NNUnit:
-    """
-    Single Unit of Multiple Layer Neural Network
+    """Single Unit of Multiple Layer Neural Network
     inputs: Incoming connections
     weights: Weights to incoming connections
     """
@@ -493,8 +502,7 @@ class NNUnit:
 
 
 def network(input_units, hidden_layer_sizes, output_units):
-    """
-    Create Directed Acyclic Network of given number layers.
+    """Create Directed Acyclic Network of given number layers.
     hidden_layers_sizes : List number of neuron units in each hidden layer
     excluding input and output layers
     """
@@ -517,7 +525,7 @@ def network(input_units, hidden_layer_sizes, output_units):
     return net
 
 
-def BackPropagationLearner(dataset, net, learning_rate, epoches):
+def BackPropagationLearner(dataset, net, learning_rate, epochs):
     """[Figure 18.23] The back-propagation algorithm for multilayer network"""
     # Initialise weights
     for layer in net:
@@ -537,7 +545,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epoches):
     o_nodes = net[-1]
     i_nodes = net[0]
 
-    for epoch in range(epoches):
+    for epoch in range(epochs):
         # Iterate over each example
         for e in examples:
             i_val = [e[i] for i in idx_i]
@@ -590,13 +598,13 @@ def BackPropagationLearner(dataset, net, learning_rate, epoches):
     return net
 
 
-def PerceptronLearner(dataset, learning_rate=0.01, epoches=100):
+def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
     """Logistic Regression, NO hidden layer"""
     i_units = len(dataset.inputs)
     o_units = 1  # As of now, dataset.target gives only one index.
     hidden_layer_sizes = []
     raw_net = network(i_units, hidden_layer_sizes, o_units)
-    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epoches)
+    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs)
 
     def predict(example):
         # Input nodes
@@ -632,11 +640,11 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
 
     # Add dummy
-    ones = [1 for i in range(len(examples))]
+    ones = [1 for _ in range(len(examples))]
     X_col = ones + X_col
 
     # Initialize random weigts
-    w = [random(-0.5, 0.5) for i in range(len(idx_i) + 1)]
+    w = [random.randrange(-0.5, 0.5) for _ in range(len(idx_i) + 1)]
 
     for epoch in range(epochs):
         err = []
@@ -746,8 +754,7 @@ def weighted_replicate(seq, weights, n):
     wholes = [int(w * n) for w in weights]
     fractions = [(w * n) % 1 for w in weights]
     return (flatten([x] * nx for x, nx in zip(seq, wholes)) +
-            weighted_sample_with_replacement(seq, fractions, n - sum(wholes)))
-
+            weighted_sample_with_replacement(n - sum(wholes), seq, fractions))
 
 def flatten(seqs): return sum(seqs, [])
 
@@ -820,8 +827,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
 
 
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
-    """
-    [Fig 18.8]
+    """[Fig 18.8]
     Return the optimal value of size having minimum error
     on validataion set.
     err_train: A training error array, indexed by size
@@ -843,7 +849,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
         size += 1
 
 
-def leave_one_out(learner, dataset):
+def leave_one_out(learner, dataset, size=None):
     """Leave one out cross-validation over the dataset."""
     return cross_validation(learner, size, dataset, k=len(dataset.examples))
 

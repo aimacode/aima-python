@@ -86,7 +86,7 @@ class Node:
     subclass this class."""
 
     def __init__(self, state, parent=None, action=None, path_cost=0):
-        "Create a search tree Node, derived from a parent by an action."
+        """Create a search tree Node, derived from a parent by an action."""
         self.state = state
         self.parent = parent
         self.action = action
@@ -102,23 +102,23 @@ class Node:
         return self.state < node.state
 
     def expand(self, problem):
-        "List the nodes reachable in one step from this node."
+        """List the nodes reachable in one step from this node."""
         return [self.child_node(problem, action)
                 for action in problem.actions(self.state)]
 
     def child_node(self, problem, action):
-        "[Figure 3.10]"
+        """[Figure 3.10]"""
         next = problem.result(self.state, action)
         return Node(next, self, action,
                     problem.path_cost(self.path_cost, self.state,
                                       action, next))
 
     def solution(self):
-        "Return the sequence of actions to go from the root to this node."
+        """Return the sequence of actions to go from the root to this node."""
         return [node.action for node in self.path()[1:]]
 
     def path(self):
-        "Return a list of nodes forming the path from the root to this node."
+        """Return a list of nodes forming the path from the root to this node."""
         node, path_back = self, []
         while node:
             path_back.append(node)
@@ -144,10 +144,15 @@ class SimpleProblemSolvingAgentProgram:
     """Abstract framework for a problem-solving agent. [Figure 3.1]"""
 
     def __init__(self, initial_state=None):
+        """State is an sbstract representation of the state
+        of the world, and seq is the list of actions required
+        to get to a particular state from the initial state(root)."""
         self.state = initial_state
         self.seq = []
 
     def __call__(self, percept):
+        """[Figure 3.1] Formulate a goal and problem, then
+        search for a sequence of actions to solve it."""
         self.state = self.update_state(self.state, percept)
         if not self.seq:
             goal = self.formulate_goal(self.state)
@@ -204,22 +209,22 @@ def graph_search(problem, frontier):
 
 
 def breadth_first_tree_search(problem):
-    "Search the shallowest nodes in the search tree first."
+    """Search the shallowest nodes in the search tree first."""
     return tree_search(problem, FIFOQueue())
 
 
 def depth_first_tree_search(problem):
-    "Search the deepest nodes in the search tree first."
+    """Search the deepest nodes in the search tree first."""
     return tree_search(problem, Stack())
 
 
 def depth_first_graph_search(problem):
-    "Search the deepest nodes in the search tree first."
+    """Search the deepest nodes in the search tree first."""
     return graph_search(problem, Stack())
 
 
 def breadth_first_search(problem):
-    "[Figure 3.11]"
+    """[Figure 3.11]"""
     node = Node(problem.initial)
     if problem.goal_test(node.state):
         return node
@@ -269,12 +274,12 @@ def best_first_graph_search(problem, f):
 
 
 def uniform_cost_search(problem):
-    "[Figure 3.14]"
+    """[Figure 3.14]"""
     return best_first_graph_search(problem, lambda node: node.path_cost)
 
 
 def depth_limited_search(problem, limit=50):
-    "[Figure 3.17]"
+    """[Figure 3.17]"""
     def recursive_dls(node, problem, limit):
         if problem.goal_test(node.state):
             return node
@@ -295,7 +300,7 @@ def depth_limited_search(problem, limit=50):
 
 
 def iterative_deepening_search(problem):
-    "[Figure 3.18]"
+    """[Figure 3.18]"""
     for depth in range(sys.maxsize):
         result = depth_limited_search(problem, depth)
         if result != 'cutoff':
@@ -303,6 +308,7 @@ def iterative_deepening_search(problem):
 
 # ______________________________________________________________________________
 # Informed (Heuristic) Search
+
 
 greedy_best_first_graph_search = best_first_graph_search
 # Greedy best-first search is accomplished by specifying f(n) = h(n).
@@ -320,7 +326,7 @@ def astar_search(problem, h=None):
 
 
 def recursive_best_first_search(problem, h=None):
-    "[Figure 3.26]"
+    """[Figure 3.26]"""
     h = memoize(h or problem.h, 'h')
 
     def RBFS(problem, node, flimit):
@@ -368,20 +374,21 @@ def hill_climbing(problem):
 
 
 def exp_schedule(k=20, lam=0.005, limit=100):
-    "One possible schedule function for simulated annealing"
+    """One possible schedule function for simulated annealing"""
     return lambda t: (k * math.exp(-lam * t) if t < limit else 0)
 
 
 def simulated_annealing(problem, schedule=exp_schedule()):
-    "[Figure 4.5]"
+    """[Figure 4.5] CAUTION: This differs from the pseudocode as it
+    returns a state instead of a Node."""
     current = Node(problem.initial)
     for t in range(sys.maxsize):
         T = schedule(t)
         if T == 0:
-            return current
+            return current.state
         neighbors = current.expand(problem)
         if not neighbors:
-            return current
+            return current.state
         next = random.choice(neighbors)
         delta_e = problem.value(next.state) - problem.value(current.state)
         if delta_e > 0 or probability(math.exp(delta_e / T)):
@@ -389,7 +396,7 @@ def simulated_annealing(problem, schedule=exp_schedule()):
 
 
 def and_or_graph_search(problem):
-    """Used when the environment is nondeterministic and completely observable.
+    """[Figure 4.11]Used when the environment is nondeterministic and completely observable.
     Contains OR nodes where the agent is free to choose any action.
     After every action there is an AND node which contains all possible states
     the agent may reach due to stochastic nature of environment.
@@ -397,10 +404,10 @@ def and_or_graph_search(problem):
     may end up in any of them).
     Returns a conditional plan to reach goal state,
     or failure if the former is not possible."""
-    "[Figure 4.11]"
 
     # functions used by and_or_search
     def or_search(state, problem, path):
+        """returns a plan as a list of actions"""
         if problem.goal_test(state):
             return []
         if state in path:
@@ -412,7 +419,7 @@ def and_or_graph_search(problem):
                 return [action, plan]
 
     def and_search(states, problem, path):
-        "Returns plan in form of dictionary where we take action plan[s] if we reach state s."  # noqa
+        """Returns plan in form of dictionary where we take action plan[s] if we reach state s."""  # noqa
         plan = {}
         for s in states:
             plan[s] = or_search(s, problem, path)
@@ -426,10 +433,10 @@ def and_or_graph_search(problem):
 
 class OnlineDFSAgent:
 
-    """The abstract class for an OnlineDFSAgent. Override update_state
-    method to convert percept to state. While initializing the subclass
-    a problem needs to be provided which is an instance of a subclass
-    of the Problem class. [Figure 4.21] """
+    """[Figure 4.21] The abstract class for an OnlineDFSAgent. Override
+    update_state method to convert percept to state. While initializing
+    the subclass a problem needs to be provided which is an instance of
+    a subclass of the Problem class."""
 
     def __init__(self, problem):
         self.problem = problem
@@ -449,7 +456,7 @@ class OnlineDFSAgent:
             if self.s is not None:
                 if s1 != self.result[(self.s, self.a)]:
                     self.result[(self.s, self.a)] = s1
-                    unbacktracked[s1].insert(0, self.s)
+                    self.unbacktracked[s1].insert(0, self.s)
             if len(self.untried[s1]) == 0:
                 if len(self.unbacktracked[s1]) == 0:
                     self.a = None
@@ -466,8 +473,8 @@ class OnlineDFSAgent:
         return self.a
 
     def update_state(self, percept):
-        '''To be overridden in most cases. The default case
-        assumes the percept to be of type state.'''
+        """To be overridden in most cases. The default case
+        assumes the percept to be of type state."""
         return percept
 
 # ______________________________________________________________________________
@@ -477,8 +484,8 @@ class OnlineSearchProblem(Problem):
     """
     A problem which is solved by an agent executing
     actions, rather than by just computation.
-    Carried in a deterministic and a fully observable environment.
-    """
+    Carried in a deterministic and a fully observable environment."""
+
     def __init__(self, initial, goal, graph):
         self.initial = initial
         self.goal = goal
@@ -491,15 +498,11 @@ class OnlineSearchProblem(Problem):
         return self.graph.dict[state][action]
 
     def h(self, state):
-        """
-        Returns least possible cost to reach a goal for the given state.
-        """
+        """Returns least possible cost to reach a goal for the given state."""
         return self.graph.least_costs[state]
 
     def c(self, s, a, s1):
-        """
-        Returns a cost estimate for an agent to move from state 's' to state 's1'.
-        """
+        """Returns a cost estimate for an agent to move from state 's' to state 's1'."""
         return 1
 
     def update_state(self, percept):
@@ -538,8 +541,8 @@ class LRTAStarAgent:
                 # self.result[(self.s, self.a)] = s1    # no need as we are using problem.output
 
                 # minimum cost for action b in problem.actions(s)
-                self.H[self.s] = min(self.LRTA_cost(self.s, b, self.problem.output(self.s, b), self.H)
-                                     for b in self.problem.actions(self.s))
+                self.H[self.s] = min(self.LRTA_cost(self.s, b, self.problem.output(self.s, b),
+                                     self.H) for b in self.problem.actions(self.s))
 
             # costs for action b in problem.actions(s1)
             costs = [self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H)
@@ -551,10 +554,8 @@ class LRTAStarAgent:
             return self.a
 
     def LRTA_cost(self, s, a, s1, H):
-        """
-        Returns cost to move from state 's' to state 's1' plus
-        estimated cost to get to goal from s1.
-        """
+        """Returns cost to move from state 's' to state 's1' plus
+        estimated cost to get to goal from s1."""
         print(s, a, s1)
         if s1 is None:
             return self.problem.h(s)
@@ -571,8 +572,7 @@ class LRTAStarAgent:
 
 
 def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
-    """
-    Call genetic_algorithm on the appropriate parts of a problem.
+    """Call genetic_algorithm on the appropriate parts of a problem.
     This requires the problem to have states that can mate and mutate,
     plus a value method that scores states."""
     s = problem.initial_state
@@ -582,12 +582,12 @@ def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
 
 
 def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
-    "[Figure 4.8]"
+    """[Figure 4.8]"""
     for i in range(ngen):
         new_population = []
         for i in range(len(population)):
             fitnesses = map(fitness_fn, population)
-            p1, p2 = weighted_sample_with_replacement(population, fitnesses, 2)
+            p1, p2 = weighted_sample_with_replacement(2, population, fitnesses)
             child = p1.mate(p2)
             if random.uniform(0, 1) < pmut:
                 child.mutate()
@@ -598,18 +598,18 @@ def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
 
 class GAState:
 
-    "Abstract class for individuals in a genetic search."
+    """Abstract class for individuals in a genetic search."""
 
     def __init__(self, genes):
         self.genes = genes
 
     def mate(self, other):
-        "Return a new individual crossing self and other."
+        """Return a new individual crossing self and other."""
         c = random.randrange(len(self.genes))
         return self.__class__(self.genes[:c] + other.genes[c:])
 
     def mutate(self):
-        "Change a few of my genes."
+        """Change a few of my genes."""
         raise NotImplementedError
 
 # _____________________________________________________________________________
@@ -641,10 +641,10 @@ class Graph:
             self.make_undirected()
 
     def make_undirected(self):
-        "Make a digraph into an undirected graph by adding symmetric edges."
+        """Make a digraph into an undirected graph by adding symmetric edges."""
         for a in list(self.dict.keys()):
-            for (b, distance) in self.dict[a].items():
-                self.connect1(b, a, distance)
+            for (b, dist) in self.dict[a].items():
+                self.connect1(b, a, dist)
 
     def connect(self, A, B, distance=1):
         """Add a link from A and B of given distance, and also add the inverse
@@ -654,7 +654,7 @@ class Graph:
             self.connect1(B, A, distance)
 
     def connect1(self, A, B, distance):
-        "Add a link from A to B of given distance, in one direction only."
+        """Add a link from A to B of given distance, in one direction only."""
         self.dict.setdefault(A, {})[B] = distance
 
     def get(self, a, b=None):
@@ -668,12 +668,12 @@ class Graph:
             return links.get(b)
 
     def nodes(self):
-        "Return a list of nodes in the graph."
+        """Return a list of nodes in the graph."""
         return list(self.dict.keys())
 
 
 def UndirectedGraph(dict=None):
-    "Build a Graph where every edge (including future ones) goes both ways."
+    """Build a Graph where every edge (including future ones) goes both ways."""
     return Graph(dict=dict, directed=False)
 
 
@@ -705,6 +705,7 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
                 g.connect(node, neighbor, int(d))
     return g
 
+
 """ [Figure 3.2]
 Simplified road map of Romania
 """
@@ -734,7 +735,8 @@ romania_map.locations = dict(
 """ [Figure 4.9]
 Eight possible states of the vacumm world
 Each state is represented as
-   *       "State of the left room"      "State of the right room"   "Room in which the agent is present"
+   *       "State of the left room"      "State of the right room"   "Room in which the agent
+                                                                      is present"
 1 - DDL     Dirty                         Dirty                       Left
 2 - DDR     Dirty                         Dirty                       Right
 3 - DCL     Dirty                         Clean                       Left
@@ -745,14 +747,14 @@ Each state is represented as
 8 - CCR     Clean                         Clean                       Right
 """
 vacumm_world = Graph(dict(
-    State_1 = dict(Suck = ['State_7', 'State_5'], Right = ['State_2']),
-    State_2 = dict(Suck = ['State_8', 'State_4'], Left = ['State_2']),
-    State_3 = dict(Suck = ['State_7'], Right = ['State_4']),
-    State_4 = dict(Suck = ['State_4', 'State_2'], Left = ['State_3']),
-    State_5 = dict(Suck = ['State_5', 'State_1'], Right = ['State_6']),
-    State_6 = dict(Suck = ['State_8'], Left = ['State_5']),
-    State_7 = dict(Suck = ['State_7', 'State_3'], Right = ['State_8']),
-    State_8 = dict(Suck = ['State_8', 'State_6'], Left = ['State_7'])
+    State_1=dict(Suck=['State_7', 'State_5'], Right=['State_2']),
+    State_2=dict(Suck=['State_8', 'State_4'], Left=['State_2']),
+    State_3=dict(Suck=['State_7'], Right=['State_4']),
+    State_4=dict(Suck=['State_4', 'State_2'], Left=['State_3']),
+    State_5=dict(Suck=['State_5', 'State_1'], Right=['State_6']),
+    State_6=dict(Suck=['State_8'], Left=['State_5']),
+    State_7=dict(Suck=['State_7', 'State_3'], Right=['State_8']),
+    State_8=dict(Suck=['State_8', 'State_6'], Left=['State_7'])
     ))
 
 """ [Figure 4.23]
@@ -827,7 +829,7 @@ class GraphProblemStochastic(GraphProblem):
     def result(self, state, action):
         return self.graph.get(state, action)
 
-    def path_cost():
+    def path_cost(self):
         raise NotImplementedError
 
 
@@ -888,6 +890,7 @@ class NQueensProblem(Problem):
 # Inverse Boggle: Search for a high-scoring Boggle board. A good domain for
 # iterative-repair and related search techniques, as suggested by Justin Boyan.
 
+
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 cubes16 = ['FORIXB', 'MOQABJ', 'GURILW', 'SETUPL',
@@ -905,6 +908,7 @@ def random_boggle(n=4):
 
 # The best 5x5 board found by Boyan, with our word list this board scores
 # 2274 words, for a score of 9837
+
 
 boyan_best = list('RSTCSDEIAEGNLRPEATESMSSID')
 
@@ -1019,7 +1023,7 @@ class BoggleFinder:
             self.set_board(board)
 
     def set_board(self, board=None):
-        "Set the board, and find all the words in it."
+        """Set the board, and find all the words in it."""
         if board is None:
             board = random_boggle()
         self.board = board
@@ -1050,17 +1054,17 @@ class BoggleFinder:
             visited.pop()
 
     def words(self):
-        "The words found."
+        """The words found."""
         return list(self.found.keys())
 
     scores = [0, 0, 0, 0, 1, 2, 3, 5] + [11] * 100
 
     def score(self):
-        "The total score for the words found, according to the rules."
+        """The total score for the words found, according to the rules."""
         return sum([self.scores[len(w)] for w in self.words()])
 
     def __len__(self):
-        "The number of words found."
+        """The number of words found."""
         return len(self.found)
 
 # _____________________________________________________________________________
@@ -1134,7 +1138,7 @@ class InstrumentedProblem(Problem):
 
     def __repr__(self):
         return '<{:4d}/{:4d}/{:4d}/{}>'.format(self.succs, self.goal_tests,
-                                     self.states, str(self.found)[:4])
+                                               self.states, str(self.found)[:4])
 
 
 def compare_searchers(problems, header,
