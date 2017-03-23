@@ -76,16 +76,16 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 9.3     | FOL-FC-Ask         | `fol_fc_ask` | [`logic.py`][logic] |
 | 9.6     | FOL-BC-Ask         | `fol_bc_ask` | [`logic.py`][logic] |
 | 9.8     | Append             |            |              |
-| 10.1    | Air-Cargo-problem    |          |
-| 10.2    | Spare-Tire-Problem |          |
-| 10.3    | Three-Block-Tower  |          |
-| 10.7    | Cake-Problem       |          |
+| 10.1    | Air-Cargo-problem    |air_cargo          |[planning.py][planning]|
+| 10.2    | Spare-Tire-Problem |  spare_tire        |[planning.py][planning]|
+| 10.3    | Three-Block-Tower  |  three_block_tower        |[planning.py][planning]|
+| 10.7    | Cake-Problem       |   have_cake_and_eat_cake_too       |[planning.py][planning]|
 | 10.9    | Graphplan          |          |
 | 10.13   | Partial-Order-Planner |          |
 | 11.1    | Job-Shop-Problem-With-Resources |          |
 | 11.5    | Hierarchical-Search |          |
 | 11.8    | Angelic-Search   |          |
-| 11.10   | Doubles-tennis     |          |
+| 11.10   | Doubles-tennis     | double_tennis_problem          |[planning.py][planning]|
 | 13      | Discrete Probability Distribution | `ProbDist` | [`probability.py`][probability] |
 | 13.1    | DT-Agent           | `DTAgent` | [`probability.py`][probability] |
 | 14.9    | Enumeration-Ask    | `enumeration_ask` | [`probability.py`][probability] |
