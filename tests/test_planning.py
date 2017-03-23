@@ -83,12 +83,10 @@ def test_graph_call():
     assert levels_size == len(graph.levels) - 1
 
 
-
-
 def test_double_tennis_problem():
     p = double_tennis_problem()
     assert p.goal_test() is False
-    solution = [expr("Go(A, RightBaseLine)"), expr("Hit(A, Ball)")]
+    solution = [expr('Go(A, RightBaseLine)'), expr('Hit(A, Ball)')]
 
     for action in solution:
         p.act(action)
