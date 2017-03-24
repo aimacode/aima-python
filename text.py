@@ -26,6 +26,7 @@ class UnigramTextModel(CountingProbDist):
         return ' '.join(self.sample() for i in range(n))
 
 
+
 class NgramTextModel(CountingProbDist):
 
     """This is a discrete probability distribution over n-tuples of words.
@@ -50,11 +51,15 @@ class NgramTextModel(CountingProbDist):
             self.cond_prob[ngram[:-1]] = CountingProbDist()
         self.cond_prob[ngram[:-1]].add(ngram[-1])
 
+    def add_empty(self, words, n):
+        return ['', ] * (n - 1) + words
+
     def add_sequence(self, words):
         """Add each of the tuple words[i:i+n], using a sliding window.
         Prefix some copies of the empty word, '', to make the start work."""
         n = self.n
-        words = ['', ] * (n - 1) + words
+        words = self.add_empty(words, n)
+
         for i in range(len(words) - n):
             self.add(tuple(words[i:i + n]))
 
@@ -71,6 +76,15 @@ class NgramTextModel(CountingProbDist):
             output.append(wn)
             nminus1gram = nminus1gram[1:] + (wn,)
         return ' '.join(output)
+
+
+class NgramCharModel(NgramTextModel):
+    def add_empty(self, words, n):
+        return  ' ' * (n - 1) + words
+
+    def add_sequence(self, words):
+        for word in words:
+            super().add_sequence(word)
 
 # ______________________________________________________________________________
 
