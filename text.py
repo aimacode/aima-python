@@ -55,7 +55,7 @@ class NgramTextModel(CountingProbDist):
         Prefix some copies of the empty word, '', to make the start work."""
         n = self.n
         words = ['', ] * (n - 1) + words
-        for i in range(len(words) - n):
+        for i in range(len(words) - n + 1):
             self.add(tuple(words[i:i + n]))
 
     def samples(self, nwords):
