@@ -641,10 +641,10 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
 
     # Add dummy
     ones = [1 for _ in range(len(examples))]
-    X_col = ones + X_col
+    X_col = [ones] + X_col
 
     # Initialize random weigts
-    w = [random.randrange(-0.5, 0.5) for _ in range(len(idx_i) + 1)]
+    w = [random.uniform(-0.5, 0.5) for _ in range(len(idx_i) + 1)]
 
     for epoch in range(epochs):
         err = []
