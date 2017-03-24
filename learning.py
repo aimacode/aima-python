@@ -116,7 +116,7 @@ class DataSet:
             self.inputs = [a for a in self.attrs
                            if a != self.target and a not in exclude]
         if not self.values:
-            self.values = list(map(unique, zip(*self.examples)))
+            self.update_values()
         self.check_me()
 
     def check_me(self):
@@ -151,6 +151,9 @@ class DataSet:
         else:
             return attr
 
+    def update_values(self):
+        self.values = list(map(unique, zip(*self.examples)))
+
     def sanitize(self, example):
         """Return a copy of example, with non-input attributes replaced by None."""
         return [attr_i if i in self.inputs else None
@@ -167,7 +170,7 @@ class DataSet:
     def remove_examples(self,value=""):
         """Remove examples that contain given value."""
         self.examples = [x for x in self.examples if value not in x]
-        self.values = list(map(unique, zip(*self.examples)))
+        self.update_values()
 
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
