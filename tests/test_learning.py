@@ -4,6 +4,10 @@ from learning import parse_csv, weighted_mode, weighted_replicate, DataSet, \
 from utils import DataFile
 
 
+def test_exclude():
+    iris = DataSet(name='iris', exclude=[3])
+    assert iris.inputs == [0, 1, 2]
+
 
 def test_parse_csv():
     Iris = DataFile('iris.csv').read()
@@ -37,6 +41,7 @@ def test_k_nearest_neighbors():
 
     kNN = NearestNeighborLearner(iris,k=3)
     assert kNN([5,3,1,0.1]) == "setosa"
+
 
 def test_decision_tree_learner():
     iris = DataSet(name="iris")
