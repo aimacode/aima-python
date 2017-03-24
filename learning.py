@@ -35,6 +35,7 @@ def manhattan_distance(predictions, targets):
 def mean_boolean_error(predictions, targets):
     return mean(int(p != t) for p, t in zip(predictions, targets))
 
+
 def hamming_distance(predictions, targets):
     return sum(p != t for p, t in zip(predictions, targets))
 
