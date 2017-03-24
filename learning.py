@@ -635,6 +635,7 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     idx_i = dataset.inputs
     idx_t = dataset.target  # As of now, dataset.target gives only one index.
     examples = dataset.examples
+    num_examples = len(examples)
 
     # X transpose
     X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
@@ -657,7 +658,8 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
 
         # update weights
         for i in range(len(w)):
-            w[i] = w[i] - learning_rate * dotproduct(err, X_col[i])
+            w[i] = w[i] + learning_rate * (dotproduct(err, X_col[i]) / num_examples)
+
 
     def predict(example):
         x = [1] + example
