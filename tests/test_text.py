@@ -47,6 +47,32 @@ def test_text_models():
 
     assert P3.cond_prob['in', 'order'].dictionary == {'to': 6}
 
+    test_string = 'unigram'
+    wordseq = words(test_string)
+
+    P1 = UnigramTextModel(wordseq)
+
+    assert P1.dictionary == {('unigram'): 1}
+
+    test_string = 'bigram text'
+    wordseq = words(test_string)
+
+    P2 = NgramTextModel(2, wordseq)
+
+    assert (P2.dictionary == {('', 'bigram'): 1, ('bigram', 'text'): 1} or
+            P2.dictionary == {('bigram', 'text'): 1, ('', 'bigram'): 1})
+
+
+    test_string = 'test trigram text'
+    wordseq = words(test_string)
+
+    P3 = NgramTextModel(3, wordseq)
+
+    assert ('', '', 'test') in P3.dictionary
+    assert ('', 'test', 'trigram') in P3.dictionary
+    assert ('test', 'trigram', 'text') in P3.dictionary
+    assert len(P3.dictionary) == 3
+
 
 def test_viterbi_segmentation():
     flatland = DataFile("EN-text/flatland.txt").read()
