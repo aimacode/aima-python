@@ -87,9 +87,9 @@ def viterbi_segment(text, P):
     for i in range(n+1):
         for j in range(0, i):
             w = text[j:i]
-            newbest = P[w] * best[i - len(w)]
-            if newbest >= best[i]:
-                best[i] = newbest
+            new_best = P[w] * best[i - len(w)]
+            if new_best >= best[i]:
+                best[i] = new_best
                 words[i] = w
     # Now recover the sequence of best words
     sequence = []
