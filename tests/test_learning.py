@@ -47,21 +47,23 @@ def test_decision_tree_learner():
 
 def test_neural_network_learner():
     iris = DataSet(name="iris")
-    classes = ["setosa","versicolor","virginica"]
+    iris.remove_examples("virginica")
 
+    classes = ["setosa","versicolor","virginica"]
     iris.classes_to_numbers()
 
     nNL = NeuralNetLearner(iris)
-    # NeuralNetLearner might be wrong. Just check if prediction is in range
+    # NeuralNetLearner might be wrong. Just check if prediction is in range.
     assert nNL([5,3,1,0.1]) in range(len(classes))
 
 
 def test_perceptron():
     iris = DataSet(name="iris")
-    classes = ["setosa","versicolor","virginica"]
+    iris.remove_examples("virginica")
 
+    classes = ["setosa","versicolor","virginica"]
     iris.classes_to_numbers()
 
     perceptron = PerceptronLearner(iris)
-    # PerceptronLearner might be wrong. Just check if prediction is in range
+    # PerceptronLearner might be wrong. Just check if prediction is in range.
     assert perceptron([5,3,1,0.1]) in range(len(classes))
