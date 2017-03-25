@@ -80,7 +80,7 @@ class NgramTextModel(CountingProbDist):
 
 class NgramCharModel(NgramTextModel):
     def add_empty(self, words, n):
-        return  ' ' * (n - 1) + words
+        return ' ' * (n - 1) + words
 
     def add_sequence(self, words):
         for word in words:
