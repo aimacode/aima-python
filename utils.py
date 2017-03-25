@@ -58,7 +58,7 @@ def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
-  
+
 def mode(data):
     """Return the most common data item. If there are ties, return any one of them."""
     [(item, count)] = collections.Counter(data).most_common(1)
@@ -602,27 +602,28 @@ def Stack():
     """Return an empty list, suitable as a Last-In-First-Out Queue."""
     return []
 
+
 class FIFOQueue(Queue):
 
     """A First-In-First-Out Queue."""
 
     def __init__(self, maxlen=None, items=[]):
-        self.queue = collections.deque(items,maxlen)
+        self.queue = collections.deque(items, maxlen)
 
     def append(self, item):
-        if not self.queue.maxlen or len(self.queue) < self.queue.maxlen :
+        if not self.queue.maxlen or len(self.queue) < self.queue.maxlen:
             self.queue.append(item)
-        else :
+        else:
             raise Exception('FIFOQueue is full')
 
     def extend(self, items):
-        if not self.queue.maxlen or len(self.queue) + len(items) <= self.queue.maxlen :
+        if not self.queue.maxlen or len(self.queue) + len(items) <= self.queue.maxlen:
             self.queue.extend(items)
-        else :
+        else:
             raise Exception('FIFOQueue max length exceeded')
 
     def pop(self):
-        if len(self.queue) > 0 :
+        if len(self.queue) > 0:
             return self.queue.popleft()
         else :
             raise Exception('FIFOQueue is empty')
@@ -632,6 +633,7 @@ class FIFOQueue(Queue):
 
     def __contains__(self, item):
         return item in self.queue
+
 
 class PriorityQueue(Queue):
 
