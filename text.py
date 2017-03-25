@@ -60,7 +60,7 @@ class NgramTextModel(CountingProbDist):
         n = self.n
         words = self.add_empty(words, n)
 
-        for i in range(len(words) - n):
+        for i in range(len(words) - n + 1):
             self.add(tuple(words[i:i + n]))
 
     def samples(self, nwords):
