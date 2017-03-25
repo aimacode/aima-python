@@ -645,5 +645,7 @@ def particle_filtering(e, N, HMM):
         w[i] = float("{0:.4f}".format(w[i]))
 
     # STEP 2
+
     s = weighted_sample_with_replacement(N, s, w)
+
     return s
