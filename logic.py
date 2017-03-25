@@ -890,8 +890,7 @@ class FolKB(KB):
     >>> kb0.retract(expr('Rabbit(Pete)'))
     >>> kb0.ask(expr('Hates(Mac, x)'))[x]
     Flopsie
-    >>> kb0.ask(expr('Wife(Pete, x)'))"""A simple backward-chaining algorithm for first-order logic. [Figure 9.6]
-    KB should be an instance of FolKB, and query an atomic sentence."""
+    >>> kb0.ask(expr('Wife(Pete, x)'))
     False
     """
 
