@@ -12,9 +12,10 @@ import math
 import random
 
 from statistics import mean
-from collections import defaultdict, Counter
+from collections import defaultdict
 
 # ______________________________________________________________________________
+
 
 def rms_error(predictions, targets):
     return math.sqrt(ms_error(predictions, targets))
@@ -160,15 +161,15 @@ class DataSet:
         return [attr_i if i in self.inputs else None
                 for i, attr_i in enumerate(example)]
 
-    def classes_to_numbers(self,classes=None):
+    def classes_to_numbers(self, classes=None):
         """Converts class names to numbers."""
         if not classes:
             # If classes were not given, extract them from values
             classes = sorted(self.values[self.target])
         for item in self.examples:
             item[self.target] = classes.index(item[self.target])
-            
-    def remove_examples(self,value=""):
+
+    def remove_examples(self, value=""):
         """Remove examples that contain given value."""
         self.examples = [x for x in self.examples if value not in x]
         self.update_values()
@@ -383,7 +384,7 @@ def DecisionTreeLearner(dataset):
 
     def count(attr, val, examples):
         """Count the number of examples that have attr = val."""
-        return sum(e[attr] == val for e in examples) #count(e[attr] == val for e in examples)
+        return sum(e[attr] == val for e in examples)
 
     def all_same_class(examples):
         """Are all these examples in the same target class?"""
@@ -877,6 +878,7 @@ def learningcurve(learner, dataset, trials=10, sizes=None):
 # ______________________________________________________________________________
 # The rest of this file gives datasets for machine learning problems.
 
+
 orings = DataSet(name='orings', target='Distressed',
                  attrnames="Rings Distressed Temp Pressure Flightnum")
 
@@ -900,6 +902,7 @@ def RestaurantDataSet(examples=None):
                    attrnames='Alternate Bar Fri/Sat Hungry Patrons Price ' +
                    'Raining Reservation Type WaitEstimate Wait')
 
+
 restaurant = RestaurantDataSet()
 
 
@@ -909,28 +912,29 @@ def T(attrname, branches):
                 for value, child in branches.items()}
     return DecisionFork(restaurant.attrnum(attrname), attrname, branches)
 
+
 """ [Figure 18.2]
 A decision tree for deciding whether to wait for a table at a hotel.
 """
 
 waiting_decision_tree = T('Patrons',
-               {'None': 'No', 'Some': 'Yes', 'Full':
-                T('WaitEstimate',
-                  {'>60': 'No', '0-10': 'Yes',
-                   '30-60':
-                   T('Alternate', {'No':
-                                   T('Reservation', {'Yes': 'Yes', 'No':
-                                                     T('Bar', {'No': 'No',
-                                                               'Yes': 'Yes'
-                                                               })}),
-                                   'Yes':
-                                   T('Fri/Sat', {'No': 'No', 'Yes': 'Yes'})}),
-                   '10-30':
-                   T('Hungry', {'No': 'Yes', 'Yes':
-                                T('Alternate',
-                                  {'No': 'Yes', 'Yes':
-                                   T('Raining', {'No': 'No', 'Yes': 'Yes'})
-                                   })})})})
+                          {'None': 'No', 'Some': 'Yes',
+                           'Full': T('WaitEstimate',
+                                     {'>60': 'No', '0-10': 'Yes',
+                                      '30-60': T('Alternate',
+                                                 {'No': T('Reservation',
+                                                          {'Yes': 'Yes',
+                                                           'No': T('Bar', {'No': 'No',
+                                                                           'Yes': 'Yes'})}),
+                                                  'Yes': T('Fri/Sat', {'No': 'No', 'Yes': 'Yes'})}
+                                                 ),
+                                      '10-30': T('Hungry',
+                                                 {'No': 'Yes',
+                                                  'Yes': T('Alternate',
+                                                           {'No': 'Yes',
+                                                            'Yes': T('Raining',
+                                                                     {'No': 'No',
+                                                                      'Yes': 'Yes'})})})})})
 
 
 def SyntheticRestaurant(n=20):

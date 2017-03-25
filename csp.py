@@ -414,6 +414,7 @@ def parse_neighbors(neighbors, variables=[]):
             dic[B].append(A)
     return dic
 
+
 australia = MapColoringCSP(list('RGB'),
                            'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
 
@@ -584,7 +585,8 @@ class Sudoku(CSP):
     >>> h = Sudoku(harder1)
     >>> backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking) is not None
     True
-    """
+    """  # noqa
+
     R3 = _R3
     Cell = _CELL
     bgrid = _BGRID

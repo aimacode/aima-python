@@ -272,6 +272,7 @@ class BayesNode:
     def __repr__(self):
         return repr((self.variable, ' '.join(self.parents)))
 
+
 # Burglary example [Figure 14.2]
 
 T, F = True, False
@@ -408,6 +409,7 @@ def all_events(variables, bn, e):
 # ______________________________________________________________________________
 
 # [Figure 14.12a]: sprinkler network
+
 
 sprinkler = BayesNet([
     ('Cloudy', '', 0.5),
