@@ -855,9 +855,9 @@ def fol_fc_ask(KB, alpha):
                 if p != p_:
                     for theta in (subst(theta, p) == subst(theta, p_)):
                         q_ = subst(theta, q)
-                        if  not unify(q_,KB.sentence in KB) or not unify(q_, new):
+                        if not unify(q_, KB.sentence in KB) or not unify(q_, new):
                             new.append(q_)
-                            phi = unify(q_,alpha)
+                            phi = unify(q_, alpha)
                             if phi is not None:
                                 return phi
         KB.tell(new)
