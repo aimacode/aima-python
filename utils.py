@@ -8,7 +8,6 @@ import operator
 import os.path
 import random
 import math
-import queue
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -550,39 +549,32 @@ class FIFOQueue(Queue):
 
     """A First-In-First-Out Queue."""
 
-    def __init__(self,maxsize=0):
-        self.queue = queue.Queue(maxsize)
+    def __init__(self, maxlen=None, items=[]):
+        self.queue = collections.deque(items,maxlen)
 
     def append(self, item):
-        # Add an element to the back of the queue
-        if not self.queue.full() :
-            self.queue.put(item)
+        if not self.queue.maxlen or len(self.queue) < self.queue.maxlen :
+            self.queue.append(item)
         else :
             raise Exception('FIFOQueue is full')
 
-    def __len__(self):
-        # returns the total number of elements currently present in the queue
-        return self.queue.qsize()
+    def extend(self, items):
+        if not self.queue.maxlen or len(self.queue) + len(items) <= self.queue.maxlen :
+            self.queue.extend(items)
+        else :
+            raise Exception('FIFOQueue max length exceeded')
 
     def pop(self):
-        # return the element at the front of the queue
-        if not self.queue.empty() :
-            return self.queue.get()
+        if len(self.queue) > 0 :
+            return self.queue.popleft()
         else :
             raise Exception('FIFOQueue is empty')
 
+    def __len__(self):
+        return len(self.queue)
+
     def __contains__(self, item):
-        # Checks if the given element is in the queue or not
-        # returns bool as result
-        ispresent = False
-        for i in range(self.queue.qsize()) :
-            temp_item = self.queue.get()
-            if temp_item == item :
-                ispresent = True
-            self.queue.put(temp_item)
-
-        return ispresent
-
+        return item in self.queue
 
 class PriorityQueue(Queue):
 
