@@ -232,12 +232,13 @@ class CountingProbDist:
         """Return (count, obs) tuples for the n most frequent observations."""
         return heapq.nlargest(n, [(v, k) for (k, v) in self.dictionary.items()])
 
+    @property
     def sample(self):
         """Return a random sample from the distribution."""
         if self.sampler is None:
             self.sampler = weighted_sampler(list(self.dictionary.keys()),
                                             list(self.dictionary.values()))
-        return self.sampler()
+        return self.sampler
 
 # ______________________________________________________________________________
 
