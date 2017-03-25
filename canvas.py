@@ -1,4 +1,4 @@
-from IPython.display import HTML, display, clear_output
+from IPython.display import HTML, display
 
 _canvas = """
 <script type="text/javascript" src="./js/canvas.js"></script>
@@ -7,7 +7,8 @@ _canvas = """
 </div>
 
 <script> var {0}_canvas_object = new Canvas("{0}");</script>
-"""
+"""  # noqa
+
 
 class Canvas:
     """Inherit from this class to manage the HTML canvas element in jupyter notebooks.
@@ -81,9 +82,10 @@ class Canvas:
         "Draw an arc with (x, y) as centre, 'r' as radius from angles 'start' to 'stop'"
         self.execute("arc({0}, {1}, {2}, {3}, {4})".format(x, y, r, start, stop))
 
-    def arc_n(self, xn ,yn, rn, start, stop):
+    def arc_n(self, xn, yn, rn, start, stop):
         """Similar to arc(), but the dimensions are normalized to fall between 0 and 1
-        The normalizing factor for radius is selected between width and height by seeing which is smaller
+        The normalizing factor for radius is selected between width and height by
+        seeing which is smaller
         """
         x = round(xn * self.width)
         y = round(yn * self.height)

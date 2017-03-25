@@ -5,6 +5,7 @@ import itertools
 from utils import Expr, expr, first
 from logic import FolKB
 
+
 class PDLL:
     """
     PDLL used to define a search problem.
@@ -33,6 +34,7 @@ class PDLL:
         if not list_action.check_precond(self.kb, args):
             raise Exception("Action '{}' pre-conditions not satisfied".format(action))
         list_action(self.kb, args)
+
 
 class Action:
     """
@@ -112,16 +114,19 @@ def air_cargo():
                 return False
         return True
 
-    ## Actions
+    # Actions
+
     #  Load
-    precond_pos = [expr("At(c, a)"), expr("At(p, a)"), expr("Cargo(c)"), expr("Plane(p)"), expr("Airport(a)")]
+    precond_pos = [expr("At(c, a)"), expr("At(p, a)"), expr("Cargo(c)"), expr("Plane(p)"),
+                   expr("Airport(a)")]
     precond_neg = []
     effect_add = [expr("In(c, p)")]
     effect_rem = [expr("At(c, a)")]
     load = Action(expr("Load(c, p, a)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     #  Unload
-    precond_pos = [expr("In(c, p)"), expr("At(p, a)"), expr("Cargo(c)"), expr("Plane(p)"), expr("Airport(a)")]
+    precond_pos = [expr("In(c, p)"), expr("At(p, a)"), expr("Cargo(c)"), expr("Plane(p)"),
+                   expr("Airport(a)")]
     precond_neg = []
     effect_add = [expr("At(c, a)")]
     effect_rem = [expr("In(c, p)")]
@@ -151,30 +156,33 @@ def spare_tire():
                 return False
         return True
 
-    ##Actions
-    #Remove
+    # Actions
+
+    # Remove
     precond_pos = [expr("At(obj, loc)")]
     precond_neg = []
     effect_add = [expr("At(obj, Ground)")]
     effect_rem = [expr("At(obj, loc)")]
     remove = Action(expr("Remove(obj, loc)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
-    #PutOn
+    # PutOn
     precond_pos = [expr("Tire(t)"), expr("At(t, Ground)")]
     precond_neg = [expr("At(Flat, Axle)")]
     effect_add = [expr("At(t, Axle)")]
     effect_rem = [expr("At(t, Ground)")]
     put_on = Action(expr("PutOn(t, Axle)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
-    #LeaveOvernight
+    # LeaveOvernight
     precond_pos = []
     precond_neg = []
     effect_add = []
     effect_rem = [expr("At(Spare, Ground)"), expr("At(Spare, Axle)"), expr("At(Spare, Trunk)"),
                   expr("At(Flat, Ground)"), expr("At(Flat, Axle)"), expr("At(Flat, Trunk)")]
-    leave_overnight = Action(expr("LeaveOvernight"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    leave_overnight = Action(expr("LeaveOvernight"), [precond_pos, precond_neg],
+                             [effect_add, effect_rem])
 
     return PDLL(init, [remove, put_on, leave_overnight], goal_test)
+
 
 def three_block_tower():
     init = [expr('On(A, Table)'),
@@ -193,22 +201,26 @@ def three_block_tower():
                 return False
         return True
 
-    ## Actions
+    # Actions
+
     #  Move
-    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)'), expr('Block(y)')]
+    precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)'),
+                   expr('Block(y)')]
     precond_neg = []
     effect_add = [expr('On(b, y)'), expr('Clear(x)')]
     effect_rem = [expr('On(b, x)'), expr('Clear(y)')]
     move = Action(expr('Move(b, x, y)'), [precond_pos, precond_neg], [effect_add, effect_rem])
-    
+
     #  MoveToTable
     precond_pos = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
     precond_neg = []
     effect_add = [expr('On(b, Table)'), expr('Clear(x)')]
     effect_rem = [expr('On(b, x)')]
-    moveToTable = Action(expr('MoveToTable(b, x)'), [precond_pos, precond_neg], [effect_add, effect_rem])
+    moveToTable = Action(expr('MoveToTable(b, x)'), [precond_pos, precond_neg],
+                         [effect_add, effect_rem])
 
     return PDLL(init, [move, moveToTable], goal_test)
+
 
 def have_cake_and_eat_cake_too():
     init = [expr('Have(Cake)')]
@@ -220,7 +232,8 @@ def have_cake_and_eat_cake_too():
                 return False
         return True
 
-    ##Actions
+    # Actions
+
     # Eat cake
     precond_pos = [expr('Have(Cake)')]
     precond_neg = []
@@ -228,7 +241,7 @@ def have_cake_and_eat_cake_too():
     effect_rem = [expr('Have(Cake)')]
     eat_cake = Action(expr('Eat(Cake)'), [precond_pos, precond_neg], [effect_add, effect_rem])
 
-    #Bake Cake
+    # Bake Cake
     precond_pos = []
     precond_neg = [expr('Have(Cake)')]
     effect_add = [expr('Have(Cake)')]
@@ -236,6 +249,7 @@ def have_cake_and_eat_cake_too():
     bake_cake = Action(expr('Bake(Cake)'), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [eat_cake, bake_cake], goal_test)
+
 
 class Level():
     """
@@ -246,69 +260,63 @@ class Level():
 
     def __init__(self, poskb, negkb):
         self.poskb = poskb
-        #Current state
+        # Current state
         self.current_state_pos = poskb.clauses
         self.current_state_neg = negkb.clauses
-        #Current action to current state link
+        # Current action to current state link
         self.current_action_links_pos = {}
         self.current_action_links_neg = {}
-        #Current state to action link      
+        # Current state to action link
         self.current_state_links_pos = {}
         self.current_state_links_neg = {}
-        #Current action to next state link
+        # Current action to next state link
         self.next_action_links = {}
-        #Next state to current action link
+        # Next state to current action link
         self.next_state_links_pos = {}
         self.next_state_links_neg = {}
         self.mutex = []
-
 
     def __call__(self, actions, objects):
         self.build(actions, objects)
         self.find_mutex()
 
-
     def find_mutex(self):
-        #Inconsistent effects
+        # Inconsistent effects
         for poseff in self.next_state_links_pos:
-            #negeff = Expr('not'+poseff.op, poseff.args)
             negeff = poseff
             if negeff in self.next_state_links_neg:
                 for a in self.next_state_links_pos[poseff]:
                     for b in self.next_state_links_neg[negeff]:
-                        if set([a,b]) not in self.mutex:
-                            self.mutex.append(set([a,b]))
+                        if set([a, b]) not in self.mutex:
+                            self.mutex.append(set([a, b]))
 
-        #Interference
+        # Interference
         for posprecond in self.current_state_links_pos:
-            #negeff = Expr('not'+posprecond.op, posprecond.args)
             negeff = posprecond
             if negeff in self.next_state_links_neg:
                 for a in self.current_state_links_pos[posprecond]:
                     for b in self.next_state_links_neg[negeff]:
-                        if set([a,b]) not in self.mutex:
-                            self.mutex.append(set([a,b]))
+                        if set([a, b]) not in self.mutex:
+                            self.mutex.append(set([a, b]))
 
         for negprecond in self.current_state_links_neg:
-            #poseff = Expr(negprecond.op[3:], negprecond.args)
             poseff = negprecond
             if poseff in self.next_state_links_pos:
                 for a in self.next_state_links_pos[poseff]:
                     for b in self.current_state_links_neg[negprecond]:
-                        if set([a,b]) not in self.mutex:
-                            self.mutex.append(set([a,b]))
+                        if set([a, b]) not in self.mutex:
+                            self.mutex.append(set([a, b]))
 
-        #Competing needs
+        # Competing needs
         for posprecond in self.current_state_links_pos:
-            #negprecond = Expr('not'+posprecond.op, posprecond.args)
             negprecond = posprecond
             if negprecond in self.current_state_links_neg:
                 for a in self.current_state_links_pos[posprecond]:
                     for b in self.current_state_links_neg[negprecond]:
-                        if set([a,b]) not in self.mutex:
-                            self.mutex.append(set([a,b]))
+                        if set([a, b]) not in self.mutex:
+                            self.mutex.append(set([a, b]))
 
-        #Inconsistent support
+        # Inconsistent support
         state_mutex = []
         for pair in self.mutex:
             next_state_0 = self.next_action_links[list(pair)[0]]
@@ -321,22 +329,22 @@ class Level():
 
         self.mutex = self.mutex+state_mutex
 
-
     def build(self, actions, objects):
 
-        #Add persistence actions for positive states
+        # Add persistence actions for positive states
         for clause in self.current_state_pos:
             self.current_action_links_pos[Expr('Persistence', clause)] = [clause]
             self.next_action_links[Expr('Persistence', clause)] = [clause]
             self.current_state_links_pos[clause] = [Expr('Persistence', clause)]
             self.next_state_links_pos[clause] = [Expr('Persistence', clause)]
 
-        #Add persistence actions for negative states
+        # Add persistence actions for negative states
         for clause in self.current_state_neg:
-            self.current_action_links_neg[Expr('Persistence', Expr('not'+clause.op, clause.args))] = [clause]
-            self.next_action_links[Expr('Persistence', Expr('not'+clause.op, clause.args))] = [clause]
-            self.current_state_links_neg[clause] = [Expr('Persistence', Expr('not'+clause.op, clause.args))]
-            self.next_state_links_neg[clause] = [Expr('Persistence', Expr('not'+clause.op, clause.args))]
+            not_expr = Expr('not'+clause.op, clause.args)
+            self.current_action_links_neg[Expr('Persistence', not_expr)] = [clause]
+            self.next_action_links[Expr('Persistence', not_expr)] = [clause]
+            self.current_state_links_neg[clause] = [Expr('Persistence', not_expr)]
+            self.next_state_links_neg[clause] = [Expr('Persistence', not_expr)]
 
         for a in actions:
             num_args = len(a.args)
@@ -364,7 +372,6 @@ class Level():
 
                     for clause in a.precond_neg:
                         new_clause = a.substitute(clause, arg)
-                        #new_clause = Expr('not'+new_clause.op, new_clause.arg)
                         self.current_action_links_neg[new_action].append(new_clause)
                         if new_clause in self.current_state_links_neg:
                             self.current_state_links_neg[new_clause].append(new_action)
@@ -388,9 +395,10 @@ class Level():
                         else:
                             self.next_state_links_neg[new_clause] = [new_action]
 
-
     def perform_actions(self):
-        new_kb_pos, new_kb_neg = FolKB(list(set(self.next_state_links_pos.keys()))), FolKB(list(set(self.next_state_links_neg.keys())))
+        new_kb_pos = FolKB(list(set(self.next_state_links_pos.keys())))
+        new_kb_neg = FolKB(list(set(self.next_state_links_neg.keys())))
+
         return Level(new_kb_pos, new_kb_neg)
 
 
@@ -434,7 +442,12 @@ class GraphPlan:
         self.solution = []
 
     def check_leveloff(self):
-        if (set(self.graph.levels[-1].current_state_pos) == set(self.graph.levels[-2].current_state_pos)) and (set(lf.graph.levels[-1].current_state_neg) == set(self.graph.levels[-2].current_state_neg)):
+        first_check = (set(self.graph.levels[-1].current_state_pos) ==
+                       set(self.graph.levels[-2].current_state_pos))
+        second_check = (set(self.graph.levels[-1].current_state_neg) ==
+                        set(self.graph.levels[-2].current_state_neg))
+
+        if first_check and second_check:
             return True
 
     def extract_solution(self, goals_pos, goals_neg, index):
@@ -445,7 +458,7 @@ class GraphPlan:
 
         level = self.graph.levels[index-1]
 
-        #Create all combinations of actions that satisfy the goal
+        # Create all combinations of actions that satisfy the goal
         actions = []
         for goal in goals_pos:
             actions.append(level.next_state_links_pos[goal])
@@ -455,7 +468,7 @@ class GraphPlan:
 
         all_actions = list(itertools.product(*actions))
 
-        #Filter out the action combinations which contain mutexes
+        # Filter out the action combinations which contain mutexes
         non_mutex_actions = []
         for action_tuple in all_actions:
             action_pairs = itertools.combinations(list(set(action_tuple)), 2)
@@ -465,7 +478,7 @@ class GraphPlan:
                     non_mutex_actions.pop(-1)
                     break
 
-        #Recursion
+        # Recursion
         for action_list in non_mutex_actions:
             if [action_list, index] not in self.solution:
                 self.solution.append([action_list, index])
@@ -487,7 +500,7 @@ class GraphPlan:
                 else:
                     self.extract_solution(new_goals_pos, new_goals_neg, index-1)
 
-        #Level-Order multiple solutions
+        # Level-Order multiple solutions
         solution = []
         for item in self.solution:
             if item[1] == -1:
@@ -514,12 +527,14 @@ def spare_tire_graphplan():
     pdll = spare_tire()
     negkb = FolKB([expr('At(Flat, Trunk)')])
     graphplan = GraphPlan(pdll, negkb)
-    ##Not sure
+
+    # Not sure
     goals_pos = [expr('At(Spare, Axle)'), expr('At(Flat, Ground)')]
     goals_neg = []
 
     while True:
-        if goal_test(graphplan.graph.levels[-1].poskb, goals_pos) and graphplan.graph.non_mutex_goals(goals_pos+goals_neg, -1):
+        if (goal_test(graphplan.graph.levels[-1].poskb, goals_pos) and
+                graphplan.graph.non_mutex_goals(goals_pos+goals_neg, -1)):
             solution = graphplan.extract_solution(goals_pos, goals_neg, -1)
             if solution:
                 return solution
@@ -527,12 +542,13 @@ def spare_tire_graphplan():
         if len(graphplan.graph.levels)>=2 and graphplan.check_leveloff():
             return None
 
+
 def double_tennis_problem():
     init = [expr('At(A, LeftBaseLine)'),
             expr('At(B, RightNet)'),
             expr('Approaching(Ball, RightBaseLine)'),
-            expr('Partner(A,B)'),
-            expr('Partner(A,B)')]
+            expr('Partner(A, B)'),
+            expr('Partner(B, A)')]
 
     def goal_test(kb):
         required = [expr('Goal(Returned(Ball))'), expr('At(a, RightNet)'), expr('At(a, LeftNet)')]
@@ -541,19 +557,20 @@ def double_tennis_problem():
                 return False
         return True
 
-    ##actions
-    #hit
-    precond_pos=[expr("Approaching(Ball,loc)"), expr("At(actor,loc)")]
-    precond_neg=[]
-    effect_add=[expr("Returned(Ball)")]
-    effect_rem = []
-    hit = Action(expr("Hit(actor,Ball)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    # Actions
 
-    #go
-    precond_pos = [ expr("At(actor,loc)")]
+    # Hit
+    precond_pos = [expr("Approaching(Ball,loc)"), expr("At(actor,loc)")]
     precond_neg = []
-    effect_add = [expr("At(actor,to)")]
-    effect_rem = [expr("At(actor,loc)")]
-    go = Action(expr("Go(actor,to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    effect_add = [expr("Returned(Ball)")]
+    effect_rem = []
+    hit = Action(expr("Hit(actor, Ball)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+
+    # Go
+    precond_pos = [expr("At(actor, loc)")]
+    precond_neg = []
+    effect_add = [expr("At(actor, to)")]
+    effect_rem = [expr("At(actor, loc)")]
+    go = Action(expr("Go(actor, to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [hit, go], goal_test)
