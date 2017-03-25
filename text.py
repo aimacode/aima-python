@@ -52,7 +52,7 @@ class NgramTextModel(CountingProbDist):
         self.cond_prob[ngram[:-1]].add(ngram[-1])
 
     def add_empty(self, words, n):
-        return ['', ] * (n - 1) + words
+        return [''] * (n - 1) + words
 
     def add_sequence(self, words):
         """Add each of the tuple words[i:i+n], using a sliding window.
