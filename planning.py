@@ -681,7 +681,7 @@ class Problem(PDLL):
         if list_action is None:
             raise Exception("Action '{}' not found".format(action.name))
         list_action.do_action(self.jobs, self.resources, self.kb, args)
-        print(self.resources)
+        # print(self.resources)
 
 
 def job_shop_problem():
