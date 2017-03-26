@@ -589,28 +589,44 @@ class HLA(Action):
         self.consumes = consume
         self.uses = use
         self.completed = False
-        self.priority = -1 #  must be assigned in relation to other HLAs
-        self.job_group = -1 #  must be assigned in relation to other HLAs
+        #self.priority = -1 #  must be assigned in relation to other HLAs
+        #self.job_group = -1 #  must be assigned in relation to other HLAs
     
-    def __call__(self, kb, args, resources):
-        if self.check_resources(resources):
-            return self.act(kb, args)
+    def has_consumable_resource(self, available_resources):
+        for resource in self.consumes:
+            if available_resources.get(resource) is None:
+                return False
+            if available_resources[resource] < self.consumes[resource]:
+                return False
+        return True
+
+    def has_usable_resource(self, available_resources):
+        for resource in self.uses:
+            if available_resources.get(resource) is None:
+                return False
+            if available_resources[resource] < self.uses[resource]:
+                return False
+        return True
     
-    def order(hlas):
-        global unique_group
-        i = 1
-        for hla in hlas:
-            if (hla.job_group == -1): #  could replace if-test with assert
-                hla.priority = i
-                hla.job_group = unique_group
-                i += 1
-            else:
-                raise Exception("Can't order HLA across job groups")
-        unique_group += 1
-    
-    def check_resources(self, resources):
-        """Checks if the resources conditions are satisfied"""
-        pass
+    #def __call__(self, kb, args, resources):
+    #    if self.check_resources(resources):
+    #        return self.act(kb, args)
+    #
+    #def order(hlas):
+    #    global unique_group
+    #    i = 1
+    #    for hla in hlas:
+    #        if (hla.job_group == -1): #  could replace if-test with assert
+    #            hla.priority = i
+    #            hla.job_group = unique_group
+    #            i += 1
+    #        else:
+    #            raise Exception("Can't order HLA across job groups")
+    #    unique_group += 1
+    #
+    #def check_resources(self, resources):
+    #    """Checks if the resources conditions are satisfied"""
+    #    pass
 
 class Problem(PDLL):
     """
