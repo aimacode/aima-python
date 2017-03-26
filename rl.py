@@ -29,7 +29,7 @@ class PassiveADPAgent:
 
     def __init__(self, pi, mdp):
         self.pi = pi
-        self.mdp = PassiveADPAgent.ModelMDP(mdp.init, mdp.actlist, 
+        self.mdp = PassiveADPAgent.ModelMDP(mdp.init, mdp.actlist,
                                             mdp.terminals, mdp.gamma, mdp.states)
         self.U = {}
         self.Nsa = defaultdict(int)
@@ -91,7 +91,7 @@ class PassiveTDAgent:
 
     def __call__(self, percept):
         s1, r1 = self.update_state(percept)
-        pi, U, Ns, s, a, r = self.pi, self.U, self.Ns, self.s, self.a, self.r
+        pi, U, Ns, s, r = self.pi, self.U, self.Ns, self.s, self.r
         alpha, gamma, terminals = self.alpha, self.gamma, self.terminals
         if not Ns[s1]:
             U[s1] = r1
@@ -153,13 +153,15 @@ class QLearningAgent:
     def __call__(self, percept):
         s1, r1 = self.update_state(percept)
         Q, Nsa, s, a, r = self.Q, self.Nsa, self.s, self.a, self.r
-        alpha, gamma, terminals, actions_in_state = self.alpha, self.gamma, self.terminals, self.actions_in_state
+        alpha, gamma, terminals = self.alpha, self.gamma, self.terminals,
+        actions_in_state = self.actions_in_state
+
         if s in terminals:
             Q[s, None] = r1
         if s is not None:
             Nsa[s, a] += 1
-            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1] for a1 in actions_in_state(s1))
-                                             - Q[s, a])
+            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1]
+                                           for a1 in actions_in_state(s1)) - Q[s, a])
         if s in terminals:
             self.s = self.a = self.r = None
         else:

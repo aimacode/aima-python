@@ -54,6 +54,7 @@ class Grammar:
     def __repr__(self):
         return '<Grammar {}>'.format(self.name)
 
+
 E0 = Grammar('E0',
              Rules(  # Grammar for E_0 [Figure 22.4]
                  S='NP VP | S Conjunction S',
@@ -196,15 +197,15 @@ def CYK_parse(words, grammar):
     P = defaultdict(float)
     # Insert lexical rules for each word.
     for (i, word) in enumerate(words):
-        for (X, p) in grammar.categories[word]: # XXX grammar.categories needs changing, above
+        for (X, p) in grammar.categories[word]:  # XXX grammar.categories needs changing, above
             P[X, i, 1] = p
     # Combine first and second parts of right-hand sides of rules,
     # from short to long.
     for length in range(2, N+1):
         for start in range(N-length+1):
-            for len1 in range(1, length): # N.B. the book incorrectly has N instead of length
+            for len1 in range(1, length):  # N.B. the book incorrectly has N instead of length
                 len2 = length - len1
-                for (X, Y, Z, p) in grammar.cnf_rules(): # XXX grammar needs this method
+                for (X, Y, Z, p) in grammar.cnf_rules():  # XXX grammar needs this method
                     P[X, start, length] = max(P[X, start, length],
                                               P[Y, start, len1] * P[Z, start+len1, len2] * p)
     return P
@@ -215,17 +216,18 @@ def CYK_parse(words, grammar):
 
 # First entry in list is the base URL, and then following are relative URL pages
 examplePagesSet = ["https://en.wikipedia.org/wiki/", "Aesthetics", "Analytic_philosophy",
-                   "Ancient_Greek", "Aristotle", "Astrology","Atheism", "Baruch_Spinoza",
+                   "Ancient_Greek", "Aristotle", "Astrology", "Atheism", "Baruch_Spinoza",
                    "Belief", "Betrand Russell", "Confucius", "Consciousness",
                    "Continental Philosophy", "Dialectic", "Eastern_Philosophy",
                    "Epistemology", "Ethics", "Existentialism", "Friedrich_Nietzsche",
                    "Idealism", "Immanuel_Kant", "List_of_political_philosophers", "Logic",
                    "Metaphysics", "Philosophers", "Philosophy", "Philosophy_of_mind", "Physics",
-                   "Plato", "Political_philosophy", "Pythagoras", "Rationalism","Social_philosophy",
-                   "Socrates", "Subjectivity", "Theology", "Truth", "Western_philosophy"]
+                   "Plato", "Political_philosophy", "Pythagoras", "Rationalism",
+                   "Social_philosophy", "Socrates", "Subjectivity", "Theology",
+                   "Truth", "Western_philosophy"]
 
 
-def loadPageHTML( addressList ):
+def loadPageHTML(addressList):
     """Download HTML page content for every URL address passed as argument"""
     contentDict = {}
     for addr in addressList:
@@ -236,20 +238,23 @@ def loadPageHTML( addressList ):
             contentDict[addr] = html
     return contentDict
 
-def initPages( addressList ):
+
+def initPages(addressList):
     """Create a dictionary of pages from a list of URL addresses"""
     pages = {}
     for addr in addressList:
         pages[addr] = Page(addr)
     return pages
 
-def stripRawHTML( raw_html ):
+
+def stripRawHTML(raw_html):
     """Remove the <head> section of the HTML which contains links to stylesheets etc.,
     and remove all other unnessecary HTML"""
     # TODO: Strip more out of the raw html
-    return re.sub("<head>.*?</head>", "", raw_html, flags=re.DOTALL) # remove <head> section
+    return re.sub("<head>.*?</head>", "", raw_html, flags=re.DOTALL)  # remove <head> section
 
-def determineInlinks( page ):
+
+def determineInlinks(page):
     """Given a set of pages that have their outlinks determined, we can fill
     out a page's inlinks by looking through all other page's outlinks"""
     inlinks = []
@@ -260,14 +265,16 @@ def determineInlinks( page ):
             inlinks.append(addr)
     return inlinks
 
-def findOutlinks( page, handleURLs=None ):
+
+def findOutlinks(page, handleURLs=None):
     """Search a page's HTML content for URL links to other pages"""
     urls = re.findall(r'href=[\'"]?([^\'" >]+)', pagesContent[page.address])
     if handleURLs:
         urls = handleURLs(urls)
     return urls
 
-def onlyWikipediaURLS( urls ):
+
+def onlyWikipediaURLS(urls):
     """Some example HTML page data is from wikipedia. This function converts
     relative wikipedia links to full wikipedia URLs"""
     wikiURLs = [url for url in urls if url.startswith('/wiki/')]
@@ -277,11 +284,11 @@ def onlyWikipediaURLS( urls ):
 # ______________________________________________________________________________
 # HITS Helper Functions
 
-def expand_pages( pages ):
+def expand_pages(pages):
     """From Textbook: adds in every page that links to or is linked from one of
     the relevant pages."""
     expanded = {}
-    for addr,page in pages.items():
+    for addr, page in pages.items():
         if addr not in expanded:
             expanded[addr] = page
         for inlink in page.inlinks:
@@ -291,6 +298,7 @@ def expand_pages( pages ):
             if outlink not in expanded:
                 expanded[outlink] = pagesIndex[outlink]
     return expanded
+
 
 def relevant_pages(query):
     """Relevant pages are pages that contain the query in its entireity.
@@ -302,15 +310,17 @@ def relevant_pages(query):
             relevant[addr] = page
     return relevant
 
-def normalize( pages ):
+
+def normalize(pages):
     """From the pseudocode: Normalize divides each page's score by the sum of
     the squares of all pages' scores (separately for both the authority and hubs scores).
     """
-    summed_hub = sum(page.hub**2 for _,page in pages.items())
-    summed_auth = sum(page.authority**2 for _,page in pages.items())
+    summed_hub = sum(page.hub**2 for _, page in pages.items())
+    summed_auth = sum(page.authority**2 for _, page in pages.items())
     for _, page in pages.items():
         page.hub /= summed_hub
         page.authority /= summed_auth
+
 
 class ConvergenceDetector(object):
     """If the hub and authority values of the pages are no longer changing, we have
@@ -326,16 +336,16 @@ class ConvergenceDetector(object):
     def detect(self):
         curr_hubs = [page.hub for addr, page in pagesIndex.items()]
         curr_auths = [page.authority for addr, page in pagesIndex.items()]
-        if self.hub_history == None:
-            self.hub_history, self.auth_history = [],[]
+        if self.hub_history is None:
+            self.hub_history, self.auth_history = [], []
         else:
-            diffsHub = [abs(x-y) for x, y in zip(curr_hubs,self.hub_history[-1])]
-            diffsAuth = [abs(x-y) for x, y in zip(curr_auths,self.auth_history[-1])]
+            diffsHub = [abs(x-y) for x, y in zip(curr_hubs, self.hub_history[-1])]
+            diffsAuth = [abs(x-y) for x, y in zip(curr_auths, self.auth_history[-1])]
             aveDeltaHub  = sum(diffsHub)/float(len(pagesIndex))
             aveDeltaAuth = sum(diffsAuth)/float(len(pagesIndex))
-            if aveDeltaHub < 0.01 and aveDeltaAuth < 0.01: # may need tweaking
+            if aveDeltaHub < 0.01 and aveDeltaAuth < 0.01:  # may need tweaking
                 return True
-        if len(self.hub_history) > 2: # prevent list from getting long
+        if len(self.hub_history) > 2:  # prevent list from getting long
             del self.hub_history[0]
             del self.auth_history[0]
         self.hub_history.append([x for x in curr_hubs])
@@ -343,12 +353,13 @@ class ConvergenceDetector(object):
         return False
 
 
-def getInlinks( page ):
+def getInlinks(page):
     if not page.inlinks:
         page.inlinks = determineInlinks(page)
-    return [p for addr, p in pagesIndex.items() if addr in page.inlinks ]
+    return [p for addr, p in pagesIndex.items() if addr in page.inlinks]
 
-def getOutlinks( page ):
+
+def getOutlinks(page):
     if not page.outlinks:
         page.outlinks = findOutlinks(page)
     return [p for addr, p in pagesIndex.items() if addr in page.outlinks]
@@ -365,20 +376,22 @@ class Page(object):
         self.inlinks = inlinks
         self.outlinks = outlinks
 
-pagesContent = {} # maps Page relative or absolute URL/location to page's HTML content
+
+pagesContent = {}  # maps Page relative or absolute URL/location to page's HTML content
 pagesIndex = {}
-convergence = ConvergenceDetector() # assign function to variable to mimic pseudocode's syntax
+convergence = ConvergenceDetector()  # assign function to variable to mimic pseudocode's syntax
+
 
 def HITS(query):
     """The HITS algorithm for computing hubs and authorities with respect to a query."""
-    pages = expand_pages(relevant_pages(query)) # in order to 'map' faithfully to pseudocode we
-    for p in pages:                             # won't pass the list of pages as an argument
+    pages = expand_pages(relevant_pages(query))  # in order to 'map' faithfully to pseudocode we
+    for p in pages:                              # won't pass the list of pages as an argument
         p.authority = 1
         p.hub = 1
-    while True: # repeat until... convergence
+    while True:  # repeat until... convergence
         for p in pages:
             p.authority = sum(x.hub for x in getInlinks(p))  # p.authority ← ∑i Inlinki(p).Hub
-            p.hub = sum(x.authority for x in getOutlinks(p)) # p.hub ← ∑i Outlinki(p).Authority
+            p.hub = sum(x.authority for x in getOutlinks(p))  # p.hub ← ∑i Outlinki(p).Authority
         normalize(pages)
         if convergence():
             break

@@ -33,7 +33,7 @@ And a few other functions:
 
 from utils import (
     removeall, unique, first, argmax, probability,
-    isnumber, issequence, Symbol, Expr, expr, subexpressions
+    isnumber, issequence, Expr, expr, subexpressions
 )
 import agents
 
@@ -179,6 +179,7 @@ def parse_definite_clause(s):
     else:
         antecedent, consequent = s.args
         return conjuncts(antecedent), consequent
+
 
 # Useful constant Exprs used in examples and code:
 A, B, C, D, E, F, G, P, Q, x, y, z = map(Expr, 'ABCDEFGPQxyz')
@@ -391,6 +392,7 @@ def associate(op, args):
     else:
         return Expr(op, *args)
 
+
 _op_identity = {'&': True, '|': False, '+': 0, '*': 1}
 
 
@@ -510,6 +512,7 @@ def pl_fc_entails(KB, q):
                 if count[c] == 0:
                     agenda.append(c.args[1])
     return False
+
 
 """ [Figure 7.13]
 Simple inference in a wumpus world example
@@ -707,7 +710,8 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
                 s_ = transition[s][action]
                 for t in range(time):
                     # Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[s, action, t] = Expr("Transition_{}".format(next(transition_counter)))
+                    action_sym[s, action, t] = Expr(
+                        "Transition_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
                     clauses.append(action_sym[s, action, t] |'==>'| state_sym[s, t])
@@ -732,7 +736,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
             clauses.append(associate('|', [action_sym[tr] for tr in transitions_t]))
 
             for tr in transitions_t:
-                for tr_ in transitions_t[transitions_t.index(tr) + 1 :]:
+                for tr_ in transitions_t[transitions_t.index(tr) + 1:]:
                     # there cannot be two transitions tr and tr_ at time t
                     clauses.append(~action_sym[tr] | ~action_sym[tr_])
 
@@ -841,28 +845,23 @@ def subst(s, x):
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
 
- def fol_fc_ask(KB, alpha):
-     """A simple forward-chaining algorithm. [Figure 9.3]"""
-     while True:
-         new = []
-         for rule in KB.clauses:
-             p, q = parse_definite_clause(standardize_variables(rule))
-             for p_ in KB.clauses:
-                 if p != p_:
-                      for theta in KB.clauses:
-                           if subst(theta, p) == subst(theta, p_):
-                             q_ = subst(theta, q)
-                             if not unify(q_,KB.sentence in KB) or not unify(q_, new):
-                                 new.append(q_)
-                                 phi = unify(q_,alpha)
-                                 if phi is not None:
-                                     return phi
-         KB.tell(new)
-         if new is None:
-             break
-     return None
-
-fol_fc_ask(crime_kb, 'Criminal(x)')
+def fol_fc_ask(KB, alpha):
+    """A simple forward-chaining algorithm. [Figure 9.3]"""
+    while new is not None:
+        new = []
+        for rule in KB:
+            p, q = parse_definite_clause(standardize_variables(rule))
+            for p_ in random.KB.clauses:
+                if p != p_:
+                    for theta in (subst(theta, p) == subst(theta, p_)):
+                        q_ = subst(theta, q)
+                        if  not unify(q_,KB.sentence in KB) or not unify(q_, new):
+                            new.append(q_)
+                            phi = unify(q_,alpha)
+                            if phi is not None:
+                                return phi
+        KB.tell(new)
+    return None
 
 
 def standardize_variables(sentence, dic=None):
@@ -881,6 +880,7 @@ def standardize_variables(sentence, dic=None):
     else:
         return Expr(sentence.op,
                     *[standardize_variables(a, dic) for a in sentence.args])
+
 
 standardize_variables.counter = itertools.count()
 
