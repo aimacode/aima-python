@@ -676,3 +676,76 @@ class Problem(PDLL):
             raise Exception("Action '{}' not found".format(action.name))
         list_action.do_action(self.jobs, self.resources, self.kb, args)
 
+def job_shop_problem():
+    init = [expr('Car(C1)'),
+            expr('Car(C2)'),
+            expr('Wheels(W1)'),
+            expr('Wheels(W2)'),
+            expr('Engine(E2)'),
+            expr('Engine(E2)'),]
+
+    def goal_test(kb):
+        #print(kb.clauses)
+        required = [expr('Has(C1, W1)'), expr('Has(C1, E1)'), expr('Inspected(C1)'),
+                    expr('Has(C2, W2)'), expr('Has(C2, E2)'), expr('Inspected(C2)')]
+        for q in required:
+            #print(q)
+            #print(kb.ask(q))
+            if kb.ask(q) is False:
+                return False
+        return True
+    
+    #AddEngine1
+    precond_pos = []
+    precond_neg = [expr("Has(C1,E1)")]
+    effect_add = [expr("Has(C1,E1)")]
+    effect_rem = []
+    add_engine1 = HLA(expr("AddEngine1"),
+                      [precond_pos, precond_neg], [effect_add, effect_rem],
+                      duration=30, use={'EngineHoists':1})
+
+    #AddEngine2
+    precond_pos = []
+    precond_neg = [expr("Has(C2,E2)")]
+    effect_add = [expr("Has(C2,E2)")]
+    effect_rem = []
+    add_engine2 = HLA(expr("AddEngine2"),
+                      [precond_pos, precond_neg], [effect_add, effect_rem],
+                      duration=60, use={'EngineHoists':1})
+
+    #AddWheels1
+    precond_pos = []
+    precond_neg = [expr("Has(C1,W1)")]
+    effect_add = [expr("Has(C1,W1)")]
+    effect_rem = []
+    add_wheels1 = HLA(expr("AddWheels1"),
+                      [precond_pos, precond_neg], [effect_add, effect_rem],
+                      duration=30, consume={'LugNuts':20}, use={'WheelStations':1})
+
+    #AddWheels2
+    precond_pos = []
+    precond_neg = [expr("Has(C2,W2)")]
+    effect_add = [expr("Has(C2,W2)")]
+    effect_rem = []
+    add_wheels2 = HLA(expr("AddWheels2"),
+                      [precond_pos, precond_neg], [effect_add, effect_rem],
+                      duration=15, consume={'LugNuts':20}, use={'WheelStations':1})
+
+    #Inspect1
+    precond_pos = []
+    precond_neg = [expr("Inspected(C1)")]
+    effect_add = [expr("Inspected(C1)")]
+    effect_rem = []
+    inspect1 = HLA(expr("Inspect1"),
+                      [precond_pos, precond_neg], [effect_add, effect_rem],
+                      duration=10, use={'Inspectors':1})
+
+    #Inspect2
+    precond_pos = []
+    precond_neg = [expr("Inspected(C2)")]
+    effect_add = [expr("Inspected(C2)")]
+    effect_rem = []
+    inspect2 = HLA(expr("Inspect2"),
+                      [precond_pos, precond_neg], [effect_add, effect_rem],
+                      duration=10, use={'Inspectors':1})
+
