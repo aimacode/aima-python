@@ -585,6 +585,12 @@ class HLA(Action):
 
     def __init__(self, action, precond=[None, None], effect=[None, None], duration=0,
                  consume={}, use={}):
+        """
+        As opposed to actions, to define HLA, we have added constraints.
+        duration holds the amount of time required to execute the task
+        consumes holds a dictionary representing the resources the task consumes
+        uses holds a dictionary representing the resources the task uses
+        """
         super().__init__(action, precond, effect)
         self.duration = duration
         self.consumes = consume
@@ -594,6 +600,10 @@ class HLA(Action):
         # self.job_group = -1 #  must be assigned in relation to other HLAs
 
     def do_action(self, job_order, available_resources, kb, args):
+        """
+        An HLA based version of act - along with knowledge base updation, it handles
+        resource checks, and ensures the actions are executed in the correct order.
+        """
         # print(self.name)
         if not self.has_usable_resource(available_resources):
             raise Exception('Not enough usable resources to execute {}'.format(self.name))
@@ -608,6 +618,9 @@ class HLA(Action):
         self.completed = True  # set the task status to complete
 
     def has_consumable_resource(self, available_resources):
+        """
+        Ensure there are enough consumable resources for this action to execute.
+        """
         for resource in self.consumes:
             if available_resources.get(resource) is None:
                 return False
@@ -616,6 +629,9 @@ class HLA(Action):
         return True
 
     def has_usable_resource(self, available_resources):
+        """
+        Ensure there are enough usable resources for this action to execute.
+        """
         for resource in self.uses:
             if available_resources.get(resource) is None:
                 return False
@@ -624,6 +640,10 @@ class HLA(Action):
         return True
 
     def inorder(self, job_order):
+        """
+        Ensure that all the jobs that had to be executed before the current one have been
+        successfully executed.
+        """
         for jobs in job_order:
             if self in jobs:
                 for job in jobs:
@@ -661,9 +681,33 @@ class Problem(PDLL):
         if list_action is None:
             raise Exception("Action '{}' not found".format(action.name))
         list_action.do_action(self.jobs, self.resources, self.kb, args)
+        print(self.resources)
 
 
 def job_shop_problem():
+    """
+    [figure 11.1] JOB-SHOP-PROBLEM
+
+    A job-shop scheduling problem for assembling two cars,
+    with resource and ordering constraints.
+
+    Example:
+    >>> from planning import *
+    >>> p = job_shop_problem()
+    >>> p.goal_test()
+    False
+    >>> p.act(p.jobs[1][0])
+    >>> p.act(p.jobs[1][1])
+    >>> p.act(p.jobs[1][2])
+    >>> p.act(p.jobs[0][0])
+    >>> p.act(p.jobs[0][1])
+    >>> p.goal_test()
+    False
+    >>> p.act(p.jobs[0][2])
+    >>> p.goal_test()
+    True
+    >>>
+    """
     init = [expr('Car(C1)'),
             expr('Car(C2)'),
             expr('Wheels(W1)'),
