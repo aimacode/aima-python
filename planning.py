@@ -695,6 +695,8 @@ def job_shop_problem():
                 return False
         return True
     
+    resources = {'EngineHoists':1, 'WheelStations':2, 'Inspectors':2, 'LugNuts':500}
+
     #AddEngine1
     precond_pos = []
     precond_neg = [expr("Has(C1,E1)")]
@@ -748,4 +750,10 @@ def job_shop_problem():
     inspect2 = HLA(expr("Inspect2"),
                       [precond_pos, precond_neg], [effect_add, effect_rem],
                       duration=10, use={'Inspectors':1})
+    
+    job_group1 = [add_engine1, add_wheels1, inspect1]
+    job_group2 = [add_engine2, add_wheels2, inspect2]
+
+    return Problem(init, [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2],
+                   goal_test, [job_group1, job_group2], resources)
 
