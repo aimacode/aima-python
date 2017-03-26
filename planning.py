@@ -574,3 +574,40 @@ def double_tennis_problem():
     go = Action(expr("Go(actor, to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDLL(init, [hit, go], goal_test)
+
+
+class HLA(Action):
+    """
+    Define Actions for the real-world (that may be refined further), and satisfy resource
+    constraints.
+    """
+    unique_group = 1
+    
+    def __init__(self, action, precond=[None,None], effect=[None,None], duration=0, consume={}, use={}):
+        super().__init__(action, precond, effect)
+        self.duration = duration
+        self.consumes = consume
+        self.uses = use
+        self.completed = False
+        self.priority = -1 #  must be assigned in relation to other HLAs
+        self.job_group = -1 #  must be assigned in relation to other HLAs
+    
+    def __call__(self, kb, args, resources):
+        if self.check_resources(resources):
+            return self.act(kb, args)
+    
+    def order(hlas):
+        global unique_group
+        i = 1
+        for hla in hlas:
+            if (hla.job_group == -1): #  could replace if-test with assert
+                hla.priority = i
+                hla.job_group = unique_group
+                i += 1
+            else:
+                raise Exception("Can't order HLA across job groups")
+        unique_group += 1
+    
+    def check_resources(self, resources):
+        """Checks if the resources conditions are satisfied"""
+        pass
