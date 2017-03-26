@@ -592,6 +592,16 @@ class HLA(Action):
         #self.priority = -1 #  must be assigned in relation to other HLAs
         #self.job_group = -1 #  must be assigned in relation to other HLAs
     
+    def do_action(self, job_order, available_resources, kb, args):
+        #print(self.name)
+        if (not self.has_usable_resource(available_resources) or
+            not self.has_consumable_resource(available_resources) ):
+            raise Exception('Not enough resources to execute {}'.format(self.name))
+        if not self.inorder(job_order):
+            raise Exception("Can't execute {} - execute prerequisite actions first".format(self.name))
+        super().act(kb, args)
+        self.completed = True
+    
     def has_consumable_resource(self, available_resources):
         for resource in self.consumes:
             if available_resources.get(resource) is None:
@@ -617,7 +627,7 @@ class HLA(Action):
                     if job.completed == False:
                         return False
         return True
-    
+
     #def __call__(self, kb, args, resources):
     #    if self.check_resources(resources):
     #        return self.act(kb, args)
@@ -650,4 +660,19 @@ class Problem(PDLL):
         super().__init__(initial_state, actions, goal_test)
         self.jobs = jobs
         self.resources = resources
+    
+    def act(self, action):
+        """
+        Performs the HLA given as argument.
+        
+        Note that this is different from the superclass action - where the parameter was an
+        Expression. For real world problems, an Expr object isn't enough to capture all the
+        detail required for executing the action - resources, preconditions, etc need to be
+        checked for too.
+        """
+        args = action.args
+        list_action = first(a for a in self.actions if a.name == action.name)
+        if list_action is None:
+            raise Exception("Action '{}' not found".format(action.name))
+        list_action.do_action(self.jobs, self.resources, self.kb, args)
 
