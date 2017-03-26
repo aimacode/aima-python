@@ -608,6 +608,16 @@ class HLA(Action):
                 return False
         return True
     
+    def inorder(self, job_order):
+        for jobs in job_order:
+            if self in jobs:
+                for job in jobs:
+                    if job is self:
+                        return True
+                    if job.completed == False:
+                        return False
+        return True
+    
     #def __call__(self, kb, args, resources):
     #    if self.check_resources(resources):
     #        return self.act(kb, args)
