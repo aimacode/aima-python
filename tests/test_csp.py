@@ -166,6 +166,94 @@ def test_csp_conflicted_vars():
     assert (conflicted_vars == ['B', 'C'] or conflicted_vars == ['C', 'B'])
 
 
+def test_revise():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0], 'B': [4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x+y) == 4
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+    Xi = 'A'
+    Xj = 'B'
+    removals = []
+
+    assert revise(csp, Xi, Xj, removals) is False
+    assert len(removals) == 0
+
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+
+    assert revise(csp, Xi, Xj, removals) is True
+    assert removals == [('A', 1), ('A', 3)]
+
+
+def test_AC3():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x+y) == 4 and y % 2 != 0
+    removals = []
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert AC3(csp, removals=removals) is False
+
+    constraints = lambda X, x, Y, y: (x % 2) == 0 and (x+y) == 4
+    removals = []
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert AC3(csp, removals=removals) is True
+    assert (removals == [('A', 1), ('A', 3), ('B', 1), ('B', 3)] or
+            removals == [('B', 1), ('B', 3), ('A', 1), ('A', 3)])
+
+
+def test_first_unassigned_variable():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    assignment = {'A': '1', 'B': '2'}
+    assert first_unassigned_variable(assignment, map_coloring_test) == 'C'
+
+    assignment = {'B': '1'}
+    assert (first_unassigned_variable(assignment, map_coloring_test) == 'A' or
+            first_unassigned_variable(assignment, map_coloring_test) == 'C')
+
+
+def test_num_legal_values():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    map_coloring_test.support_pruning()
+    var = 'A'
+    assignment = {}
+
+    assert num_legal_values(map_coloring_test, var, assignment) == 3
+
+    map_coloring_test = MapColoringCSP(list('RGB'), 'A: B C; B: C; C: ')
+    assignment = {'A': 'R', 'B': 'G'}
+    var = 'C'
+
+    assert num_legal_values(map_coloring_test, var, assignment) == 1
+
+
+def test_mrv():
+    neighbors = parse_neighbors('A: B; B: C; C: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [4], 'C': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x+y) == 4
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    assignment = {'A': 0}
+
+    assert mrv(assignment, csp) == 'B'
+
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4], 'C': [0, 1, 2, 3, 4]}
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert (mrv(assignment, csp) == 'B' or
+            mrv(assignment, csp) == 'C')
+
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 5, 6], 'C': [0, 1, 2, 3, 4]}
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+
+    assert mrv(assignment, csp) == 'C'
+
+
 def test_backtracking_search():
     assert backtracking_search(australia)
     assert backtracking_search(australia, select_unassigned_variable=mrv)
