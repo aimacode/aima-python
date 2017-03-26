@@ -611,3 +611,17 @@ class HLA(Action):
     def check_resources(self, resources):
         """Checks if the resources conditions are satisfied"""
         pass
+
+class Problem(PDLL):
+    """
+    Define real-world problems by aggregating resources as numerical quantities instead of
+    named entities.
+    
+    This class is identical to PDLL, except that it overloads the act function to handle
+    resource and ordering conditions imposed by HLA as opposed to Action.
+    """
+    def __init__(self, initial_state, actions, goal_test, jobs=None, resources={}):
+        super().__init__(initial_state, actions, goal_test)
+        self.jobs = jobs
+        self.resources = resources
+
