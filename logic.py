@@ -841,28 +841,25 @@ def subst(s, x):
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
 
- def fol_fc_ask(KB, alpha):
+def fol_fc_ask(KB, alpha):
      """A simple forward-chaining algorithm. [Figure 9.3]"""
-     while True:
-         new = []
-         for rule in KB.clauses:
-             p, q = parse_definite_clause(standardize_variables(rule))
-             for p_ in KB.clauses:
-                 if p != p_:
-                      for theta in KB.clauses:
-                           if subst(theta, p) == subst(theta, p_):
-                             q_ = subst(theta, q)
-                             if not unify(q_,KB.sentence in KB) or not unify(q_, new):
-                                 new.append(q_)
-                                 phi = unify(q_,alpha)
-                                 if phi is not None:
-                                     return phi
-         KB.tell(new)
-         if new is None:
-             break
-     return None
-
-fol_fc_ask(crime_kb, 'Criminal(x)')
+    while True:
+        new = []
+        for rule in KB.clauses:
+            p, q = parse_definite_clause(standardize_variables(rule))
+            for p_ in KB.clauses:
+                if p != p_:
+                     for theta in (subst(theta, p) == subst(theta, p_)):
+                            q_ = subst(theta, q)
+                            if not unify(q_,KB.sentence in KB) or not unify(q_, new):
+                                new.append(q_)
+                                phi = unify(q_,alpha)
+                                if phi is not None:
+                                    return phi
+        KB.tell(new)
+        if new is None:
+            break
+    return None
 
 
 def standardize_variables(sentence, dic=None):
