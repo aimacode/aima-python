@@ -604,7 +604,7 @@ class HLA(Action):
                             format(self.name))
         super().act(kb, args)  # update knowledge base
         for resource in self.consumes:  # remove consumed resources
-            return available_resources[resource] -= self.consumes[resource] 
+            available_resources[resource] -= self.consumes[resource]
         self.completed = True  # set the task status to complete
 
     def has_consumable_resource(self, available_resources):
