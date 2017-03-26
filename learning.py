@@ -12,9 +12,10 @@ import math
 import random
 
 from statistics import mean
-from collections import defaultdict, Counter
+from collections import defaultdict
 
 # ______________________________________________________________________________
+
 
 def rms_error(predictions, targets):
     return math.sqrt(ms_error(predictions, targets))
@@ -35,6 +36,7 @@ def manhattan_distance(predictions, targets):
 def mean_boolean_error(predictions, targets):
     return mean(int(p != t) for p, t in zip(predictions, targets))
 
+
 def hamming_distance(predictions, targets):
     return sum(p != t for p, t in zip(predictions, targets))
 
@@ -42,9 +44,9 @@ def hamming_distance(predictions, targets):
 
 
 class DataSet:
-    """A data set for a machine learning problem.  It has the following fields:
+    """A data set for a machine learning problem. It has the following fields:
 
-    d.examples   A list of examples.  Each one is a list of attribute values.
+    d.examples   A list of examples. Each one is a list of attribute values.
     d.attrs      A list of integers to index into an example, so example[attr]
                  gives a value. Normally the same as range(len(d.examples[0])).
     d.attrnames  Optional list of mnemonic names for corresponding attrs.
@@ -60,6 +62,8 @@ class DataSet:
                  since that can handle any field types.
     d.name       Name of the data set (for output display only).
     d.source     URL or other source where the data came from.
+    d.exclude    A list of attribute indexes to exclude from d.inputs. Elements
+                 of this list can either be integers (attrs) or attrnames.
 
     Normally, you call the constructor and you're done; then you just
     access fields like d.examples and d.target and d.inputs."""
@@ -67,7 +71,7 @@ class DataSet:
     def __init__(self, examples=None, attrs=None, attrnames=None, target=-1,
                  inputs=None, values=None, distance=mean_boolean_error,
                  name='', source='', exclude=()):
-        """Accepts any of DataSet's fields.  Examples can also be a
+        """Accepts any of DataSet's fields. Examples can also be a
         string or file from which to parse examples using parse_csv.
         Optional parameter: exclude, as documented in .setproblem().
         >>> DataSet(examples='1, 2, 3')
@@ -107,14 +111,14 @@ class DataSet:
         to not use in inputs. Attributes can be -n .. n, or an attrname.
         Also computes the list of possible values, if that wasn't done yet."""
         self.target = self.attrnum(target)
-        exclude = map(self.attrnum, exclude)
+        exclude = list(map(self.attrnum, exclude))
         if inputs:
             self.inputs = removeall(self.target, inputs)
         else:
             self.inputs = [a for a in self.attrs
                            if a != self.target and a not in exclude]
         if not self.values:
-            self.values = list(map(unique, zip(*self.examples)))
+            self.update_values()
         self.check_me()
 
     def check_me(self):
@@ -149,22 +153,26 @@ class DataSet:
         else:
             return attr
 
+    def update_values(self):
+        self.values = list(map(unique, zip(*self.examples)))
+
     def sanitize(self, example):
         """Return a copy of example, with non-input attributes replaced by None."""
         return [attr_i if i in self.inputs else None
                 for i, attr_i in enumerate(example)]
 
-    def classes_to_numbers(self,classes=None):
+    def classes_to_numbers(self, classes=None):
         """Converts class names to numbers."""
         if not classes:
             # If classes were not given, extract them from values
             classes = sorted(self.values[self.target])
         for item in self.examples:
             item[self.target] = classes.index(item[self.target])
-            
-    def remove_examples(self,value=""):
+
+    def remove_examples(self, value=""):
         """Remove examples that contain given value."""
         self.examples = [x for x in self.examples if value not in x]
+        self.update_values()
 
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
@@ -376,7 +384,7 @@ def DecisionTreeLearner(dataset):
 
     def count(attr, val, examples):
         """Count the number of examples that have attr = val."""
-        return sum(e[attr] == val for e in examples) #count(e[attr] == val for e in examples)
+        return sum(e[attr] == val for e in examples)
 
     def all_same_class(examples):
         """Are all these examples in the same target class?"""
@@ -635,16 +643,17 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     idx_i = dataset.inputs
     idx_t = dataset.target  # As of now, dataset.target gives only one index.
     examples = dataset.examples
+    num_examples = len(examples)
 
     # X transpose
     X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
 
     # Add dummy
     ones = [1 for _ in range(len(examples))]
-    X_col = ones + X_col
+    X_col = [ones] + X_col
 
     # Initialize random weigts
-    w = [random.randrange(-0.5, 0.5) for _ in range(len(idx_i) + 1)]
+    w = [random.uniform(-0.5, 0.5) for _ in range(len(idx_i) + 1)]
 
     for epoch in range(epochs):
         err = []
@@ -657,7 +666,8 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
 
         # update weights
         for i in range(len(w)):
-            w[i] = w[i] - learning_rate * dotproduct(err, X_col[i])
+            w[i] = w[i] + learning_rate * (dotproduct(err, X_col[i]) / num_examples)
+
 
     def predict(example):
         x = [1] + example
@@ -868,6 +878,7 @@ def learningcurve(learner, dataset, trials=10, sizes=None):
 # ______________________________________________________________________________
 # The rest of this file gives datasets for machine learning problems.
 
+
 orings = DataSet(name='orings', target='Distressed',
                  attrnames="Rings Distressed Temp Pressure Flightnum")
 
@@ -891,6 +902,7 @@ def RestaurantDataSet(examples=None):
                    attrnames='Alternate Bar Fri/Sat Hungry Patrons Price ' +
                    'Raining Reservation Type WaitEstimate Wait')
 
+
 restaurant = RestaurantDataSet()
 
 
@@ -900,28 +912,29 @@ def T(attrname, branches):
                 for value, child in branches.items()}
     return DecisionFork(restaurant.attrnum(attrname), attrname, branches)
 
+
 """ [Figure 18.2]
 A decision tree for deciding whether to wait for a table at a hotel.
 """
 
 waiting_decision_tree = T('Patrons',
-               {'None': 'No', 'Some': 'Yes', 'Full':
-                T('WaitEstimate',
-                  {'>60': 'No', '0-10': 'Yes',
-                   '30-60':
-                   T('Alternate', {'No':
-                                   T('Reservation', {'Yes': 'Yes', 'No':
-                                                     T('Bar', {'No': 'No',
-                                                               'Yes': 'Yes'
-                                                               })}),
-                                   'Yes':
-                                   T('Fri/Sat', {'No': 'No', 'Yes': 'Yes'})}),
-                   '10-30':
-                   T('Hungry', {'No': 'Yes', 'Yes':
-                                T('Alternate',
-                                  {'No': 'Yes', 'Yes':
-                                   T('Raining', {'No': 'No', 'Yes': 'Yes'})
-                                   })})})})
+                          {'None': 'No', 'Some': 'Yes',
+                           'Full': T('WaitEstimate',
+                                     {'>60': 'No', '0-10': 'Yes',
+                                      '30-60': T('Alternate',
+                                                 {'No': T('Reservation',
+                                                          {'Yes': 'Yes',
+                                                           'No': T('Bar', {'No': 'No',
+                                                                           'Yes': 'Yes'})}),
+                                                  'Yes': T('Fri/Sat', {'No': 'No', 'Yes': 'Yes'})}
+                                                 ),
+                                      '10-30': T('Hungry',
+                                                 {'No': 'Yes',
+                                                  'Yes': T('Alternate',
+                                                           {'No': 'Yes',
+                                                            'Yes': T('Raining',
+                                                                     {'No': 'No',
+                                                                      'Yes': 'Yes'})})})})})
 
 
 def SyntheticRestaurant(n=20):
