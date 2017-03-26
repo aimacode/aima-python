@@ -582,26 +582,29 @@ class HLA(Action):
     constraints.
     """
     unique_group = 1
-    
-    def __init__(self, action, precond=[None,None], effect=[None,None], duration=0, consume={}, use={}):
+
+    def __init__(self, action, precond=[None, None], effect=[None, None], duration=0,
+                 consume={}, use={}):
         super().__init__(action, precond, effect)
         self.duration = duration
         self.consumes = consume
         self.uses = use
         self.completed = False
-        #self.priority = -1 #  must be assigned in relation to other HLAs
-        #self.job_group = -1 #  must be assigned in relation to other HLAs
-    
+        # self.priority = -1 #  must be assigned in relation to other HLAs
+        # self.job_group = -1 #  must be assigned in relation to other HLAs
+
     def do_action(self, job_order, available_resources, kb, args):
-        #print(self.name)
-        if (not self.has_usable_resource(available_resources) or
-            not self.has_consumable_resource(available_resources) ):
-            raise Exception('Not enough resources to execute {}'.format(self.name))
+        # print(self.name)
+        if not self.has_usable_resource(available_resources):
+            raise Exception('Not enough usable resources to execute {}'.format(self.name))
+        if not self.has_consumable_resource(available_resources):
+            raise Exception('Not enough consumable resources to execute {}'.format(self.name))
         if not self.inorder(job_order):
-            raise Exception("Can't execute {} - execute prerequisite actions first".format(self.name))
-        super().act(kb, args)
-        self.completed = True
-    
+            raise Exception("Can't execute {} - execute prerequisite actions first".
+                            format(self.name))
+        super().act(kb, args)  # update knowledge base
+        self.completed = True  # set the task status to complete
+
     def has_consumable_resource(self, available_resources):
         for resource in self.consumes:
             if available_resources.get(resource) is None:
@@ -617,42 +620,23 @@ class HLA(Action):
             if available_resources[resource] < self.uses[resource]:
                 return False
         return True
-    
+
     def inorder(self, job_order):
         for jobs in job_order:
             if self in jobs:
                 for job in jobs:
                     if job is self:
                         return True
-                    if job.completed == False:
+                    if not job.completed:
                         return False
         return True
 
-    #def __call__(self, kb, args, resources):
-    #    if self.check_resources(resources):
-    #        return self.act(kb, args)
-    #
-    #def order(hlas):
-    #    global unique_group
-    #    i = 1
-    #    for hla in hlas:
-    #        if (hla.job_group == -1): #  could replace if-test with assert
-    #            hla.priority = i
-    #            hla.job_group = unique_group
-    #            i += 1
-    #        else:
-    #            raise Exception("Can't order HLA across job groups")
-    #    unique_group += 1
-    #
-    #def check_resources(self, resources):
-    #    """Checks if the resources conditions are satisfied"""
-    #    pass
 
 class Problem(PDLL):
     """
     Define real-world problems by aggregating resources as numerical quantities instead of
     named entities.
-    
+
     This class is identical to PDLL, except that it overloads the act function to handle
     resource and ordering conditions imposed by HLA as opposed to Action.
     """
@@ -660,11 +644,11 @@ class Problem(PDLL):
         super().__init__(initial_state, actions, goal_test)
         self.jobs = jobs
         self.resources = resources
-    
+
     def act(self, action):
         """
         Performs the HLA given as argument.
-        
+
         Note that this is different from the superclass action - where the parameter was an
         Expression. For real world problems, an Expr object isn't enough to capture all the
         detail required for executing the action - resources, preconditions, etc need to be
@@ -676,84 +660,84 @@ class Problem(PDLL):
             raise Exception("Action '{}' not found".format(action.name))
         list_action.do_action(self.jobs, self.resources, self.kb, args)
 
+
 def job_shop_problem():
     init = [expr('Car(C1)'),
             expr('Car(C2)'),
             expr('Wheels(W1)'),
             expr('Wheels(W2)'),
             expr('Engine(E2)'),
-            expr('Engine(E2)'),]
+            expr('Engine(E2)')]
 
     def goal_test(kb):
-        #print(kb.clauses)
+        # print(kb.clauses)
         required = [expr('Has(C1, W1)'), expr('Has(C1, E1)'), expr('Inspected(C1)'),
                     expr('Has(C2, W2)'), expr('Has(C2, E2)'), expr('Inspected(C2)')]
         for q in required:
-            #print(q)
-            #print(kb.ask(q))
+            # print(q)
+            # print(kb.ask(q))
             if kb.ask(q) is False:
                 return False
         return True
-    
-    resources = {'EngineHoists':1, 'WheelStations':2, 'Inspectors':2, 'LugNuts':500}
 
-    #AddEngine1
+    resources = {'EngineHoists': 1, 'WheelStations': 2, 'Inspectors': 2, 'LugNuts': 500}
+
+    # AddEngine1
     precond_pos = []
     precond_neg = [expr("Has(C1,E1)")]
     effect_add = [expr("Has(C1,E1)")]
     effect_rem = []
     add_engine1 = HLA(expr("AddEngine1"),
                       [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=30, use={'EngineHoists':1})
+                      duration=30, use={'EngineHoists': 1})
 
-    #AddEngine2
+    # AddEngine2
     precond_pos = []
     precond_neg = [expr("Has(C2,E2)")]
     effect_add = [expr("Has(C2,E2)")]
     effect_rem = []
     add_engine2 = HLA(expr("AddEngine2"),
                       [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=60, use={'EngineHoists':1})
+                      duration=60, use={'EngineHoists': 1})
 
-    #AddWheels1
+    # AddWheels1
     precond_pos = []
     precond_neg = [expr("Has(C1,W1)")]
     effect_add = [expr("Has(C1,W1)")]
     effect_rem = []
     add_wheels1 = HLA(expr("AddWheels1"),
                       [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=30, consume={'LugNuts':20}, use={'WheelStations':1})
+                      duration=30, consume={'LugNuts': 20}, use={'WheelStations': 1})
 
-    #AddWheels2
+    # AddWheels2
     precond_pos = []
     precond_neg = [expr("Has(C2,W2)")]
     effect_add = [expr("Has(C2,W2)")]
     effect_rem = []
     add_wheels2 = HLA(expr("AddWheels2"),
                       [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=15, consume={'LugNuts':20}, use={'WheelStations':1})
+                      duration=15, consume={'LugNuts': 20}, use={'WheelStations': 1})
 
-    #Inspect1
+    # Inspect1
     precond_pos = []
     precond_neg = [expr("Inspected(C1)")]
     effect_add = [expr("Inspected(C1)")]
     effect_rem = []
     inspect1 = HLA(expr("Inspect1"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=10, use={'Inspectors':1})
+                   [precond_pos, precond_neg], [effect_add, effect_rem],
+                   duration=10, use={'Inspectors': 1})
 
-    #Inspect2
+    # Inspect2
     precond_pos = []
     precond_neg = [expr("Inspected(C2)")]
     effect_add = [expr("Inspected(C2)")]
     effect_rem = []
     inspect2 = HLA(expr("Inspect2"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=10, use={'Inspectors':1})
-    
+                   [precond_pos, precond_neg], [effect_add, effect_rem],
+                   duration=10, use={'Inspectors': 1})
+
     job_group1 = [add_engine1, add_wheels1, inspect1]
     job_group2 = [add_engine2, add_wheels2, inspect2]
 
     return Problem(init, [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2],
                    goal_test, [job_group1, job_group2], resources)
-
