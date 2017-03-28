@@ -290,7 +290,7 @@ def test_topological_sort():
 
 def test_tree_csp_solver():
     australia_small = MapColoringCSP(list('RB'),
-                           'NT: WA Q; NSW: Q V; T: ')
+                           'NT: WA Q; NSW: Q V')
     tcs = tree_csp_solver(australia_small)
     assert (tcs['NT'] == 'R' and tcs['WA'] == 'B' and tcs['Q'] == 'B' and tcs['NSW'] == 'R' and tcs['V'] == 'B') or \
            (tcs['NT'] == 'B' and tcs['WA'] == 'R' and tcs['Q'] == 'R' and tcs['NSW'] == 'B' and tcs['V'] == 'R')
