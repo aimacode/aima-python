@@ -85,7 +85,7 @@ class CSP(search.Problem):
         # Subclasses can print in a prettier way, or display with a GUI
         print('CSP:', self, 'with assignment:', assignment)
 
-    # These methods are for the tree- and graph-search interface:
+    # These methods are for the tree and graph-search interface:
 
     def actions(self, state):
         """Return a list of applicable actions: nonconflicting
@@ -152,6 +152,13 @@ class CSP(search.Problem):
         """Return a list of variables in current assignment that are in conflict"""
         return [var for var in self.variables
                 if self.nconflicts(var, current[var], current) > 0]
+
+    # This is for tree_csp_solver
+
+    def node_domains(self):
+        """To be used only if self.domains is a UniversalDict.
+        Converts self.domains to a built-in dictionary."""
+        return defaultdict(lambda: self.domains.value)
 
 # ______________________________________________________________________________
 # Constraint Propagation with AC-3
@@ -308,15 +315,18 @@ def tree_csp_solver(csp):
     """[Figure 6.11]"""
     assignment = {}
     root = csp.variables[0]
-    root = 'NT'
     X, parent = topological_sort(csp, root)
+
+    csp.curr_domains = csp.node_domains()
     for Xj in reversed(X[1:]):
         if not make_arc_consistent(parent[Xj], Xj, csp):
             return None
-    for Xi in X:
+
+    assignment[root] = csp.curr_domains[root][0]
+    for Xi in X[1:]:
         if not csp.curr_domains[Xi]:
             return None
-        assignment[Xi] = csp.curr_domains[Xi][0]
+        assignment[Xi] = assign(parent[Xi], Xi, csp, assignment)
     return assignment
 
 
@@ -347,6 +357,7 @@ def topological_sort(X, root):
     build_topological(root, None, neighbors, visited, stack, parents)
     return stack, parents
 
+
 def build_topological(node, parent, neighbors, visited, stack, parents):
     """Builds the topological sort and the parents of each node in the graph"""
     visited[node] = True
@@ -360,7 +371,30 @@ def build_topological(node, parent, neighbors, visited, stack, parents):
 
 
 def make_arc_consistent(Xj, Xk, csp):
-    raise NotImplementedError
+    """Make arc between parent (Xj) and child (Xk) consistent under the csp's constraints,
+    by removing the possible values of Xj that cause inconsistencies."""
+    csp.curr_domains[Xj] = []
+    for val1 in csp.domains[Xj]:
+        keep = False # Keep or remove val1
+        for val2 in csp.domains[Xk]:
+            if csp.constraints(Xj, val1, Xk, val2):
+                # Found a consistent assignment for val1, keep it
+                keep = True
+                break
+        if keep:
+            # Keep val1
+            csp.curr_domains[Xj].append(val1)
+
+    return csp.curr_domains[Xj]
+
+
+def assign(Xj, Xk, csp, assignment):
+    """Assign a value to Xk given Xj's (Xk's parent) assignment.
+    Return the first value that satisfies the constraints."""
+    parent_assignment = assignment[Xj]
+    for val in csp.curr_domains[Xk]:
+        if csp.constraints(Xj, parent_assignment, Xk, val):
+            return val
 
 # ______________________________________________________________________________
 # Map-Coloring Problems
@@ -388,8 +422,8 @@ def different_values_constraint(A, a, B, b):
 
 def MapColoringCSP(colors, neighbors):
     """Make a CSP for the problem of coloring a map with different colors
-    for any two adjacent regions.  Arguments are a list of colors, and a
-    dict of {region: [neighbor,...]} entries.  This dict may also be
+    for any two adjacent regions. Arguments are a list of colors, and a
+    dict of {region: [neighbor,...]} entries. This dict may also be
     specified as a string of the form defined by parse_neighbors."""
     if isinstance(neighbors, str):
         neighbors = parse_neighbors(neighbors)
@@ -399,9 +433,9 @@ def MapColoringCSP(colors, neighbors):
 
 def parse_neighbors(neighbors, variables=[]):
     """Convert a string of the form 'X: Y Z; Y: Z' into a dict mapping
-    regions to neighbors.  The syntax is a region name followed by a ':'
+    regions to neighbors. The syntax is a region name followed by a ':'
     followed by zero or more region names, followed by ';', repeated for
-    each region name.  If you say 'X: Y' you don't need 'Y: X'.
+    each region name. If you say 'X: Y' you don't need 'Y: X'.
     >>> parse_neighbors('X: Y Z; Y: Z') == {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
     True
     """
