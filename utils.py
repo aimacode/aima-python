@@ -249,6 +249,10 @@ def clip(x, lowest, highest):
     return max(lowest, min(x, highest))
 
 
+def sigmoid_derivative(value):
+    return value * (1 - value)
+
+
 def sigmoid(x):
     """Return activation value of x with sigmoid function"""
     return 1/(1 + math.exp(-x))

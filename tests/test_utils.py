@@ -154,6 +154,14 @@ def test_gaussian():
     assert gaussian(3,1,3) == 0.3989422804014327
 
 
+def test_sigmoid_derivative():
+    value = 1
+    assert sigmoid_derivative(value) == 0
+
+    value = 3
+    assert sigmoid_derivative(value) == -6
+
+
 def test_step():
     assert step(1) == step(0.5) == 1
     assert step(0) == 1

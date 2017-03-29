@@ -3,7 +3,8 @@
 from utils import (
     removeall, unique, product, mode, argmax, argmax_random_tie, isclose, gaussian,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
-    weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile
+    weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table,
+    DataFile, sigmoid_derivative
 )
 
 import copy
@@ -616,10 +617,11 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs):
             delta = [[] for i in range(n_layers)]
 
             # Compute outer layer delta
-            err = [t_val[i] - o_nodes[i].value
-                   for i in range(o_units)]
-            delta[-1] = [(o_nodes[i].value) * (1 - o_nodes[i].value) *
-                         (err[i]) for i in range(o_units)]
+
+            # Error for the MSE cost function
+            err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
+            # The activation function used is the sigmoid function
+            delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
 
             # Backward pass
             h_layers = n_layers - 2
@@ -628,11 +630,9 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs):
                 h_units = len(layer)
                 nx_layer = net[i+1]
                 # weights from each ith layer node to each i + 1th layer node
-                w = [[node.weights[k] for node in nx_layer]
-                     for k in range(h_units)]
+                w = [[node.weights[k] for node in nx_layer] for k in range(h_units)]
 
-                delta[i] = [(layer[j].value) * (1 - layer[j].value) *
-                            dotproduct(w[j], delta[i+1])
+                delta[i] = [sigmoid_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
                             for j in range(h_units)]
 
             #  Update weights
