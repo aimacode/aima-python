@@ -568,13 +568,17 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     return predict
 
 
+def random_weights(min_value, max_value, num_weights):
+    return [random.uniform(min_value, max_value) for i in range(num_weights)]
+
+
 def BackPropagationLearner(dataset, net, learning_rate, epochs):
     """[Figure 18.23] The back-propagation algorithm for multilayer network"""
     # Initialise weights
     for layer in net:
         for node in layer:
-            node.weights = [random.uniform(-0.5, 0.5)
-                            for i in range(len(node.weights))]
+            node.weights = random_weights(min_value=-0.5, max_value=0.5,
+                                          num_weights=len(node.weights))
 
     examples = dataset.examples
     '''
@@ -754,7 +758,8 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     X_col = [ones] + X_col
 
     # Initialize random weigts
-    w = [random.uniform(-0.5, 0.5) for _ in range(len(idx_i) + 1)]
+    num_weights = len(idx_i) + 1
+    w = random_weights(min_value=-0.5, max_value=0.5, num_weights=num_weights)
 
     for epoch in range(epochs):
         err = []
@@ -768,7 +773,6 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         # update weights
         for i in range(len(w)):
             w[i] = w[i] + learning_rate * (dotproduct(err, X_col[i]) / num_examples)
-
 
     def predict(example):
         x = [1] + example
