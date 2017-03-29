@@ -338,6 +338,8 @@ def NaiveBayesDiscrete(dataset):
 
 
 def NaiveBayesContinuous(dataset):
+    """Count how many times each target value occurs.
+    Also, find the means and deviations of input attribute values for each target value."""
     means, deviations = dataset.find_means_and_deviations()
 
     target_vals = dataset.values[dataset.target]
