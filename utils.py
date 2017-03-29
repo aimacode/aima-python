@@ -258,6 +258,10 @@ def step(x):
     """Return activation value of x with sign function"""
     return 1 if x >= 0 else 0
 
+def gaussian(mean, st_dev, x):
+    """Given the mean and standard deviation of a distribution, it returns the probability of x."""
+    return 1/(math.sqrt(2*math.pi)*st_dev)*math.e**(-0.5*(float(x-mean)/st_dev)**2)
+
 
 try:  # math.isclose was added in Python 3.5; but we might be in 3.4
     from math import isclose
