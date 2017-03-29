@@ -2,7 +2,7 @@ import pytest
 import nlp
 from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
-from nlp import getOutlinks, Page, determineInlinks
+from nlp import getOutlinks, Page, determineInlinks, HITS
 from nlp import Rules, Lexicon
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by function's within nlp.py
@@ -131,8 +131,11 @@ def test_getOutlinks():
 
 
 def test_HITS():
-    # TODO
-    assert True  # leave for now
+    HITS('inherit')
+    auth_list = [pA.authority, pB.authority, pC.authority, pD.authority, pE.authority, pF.authority]
+    hub_list = [pA.hub, pB.hub, pC.hub, pD.hub, pE.hub, pF.hub]
+    assert max(auth_list) == pD.authority
+    assert max(hub_list) == pE.hub
 
 
 if __name__ == '__main__':
