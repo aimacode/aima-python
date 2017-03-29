@@ -2,7 +2,7 @@ import pytest
 import nlp
 from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
-from nlp import getOutlinks, Page
+from nlp import getOutlinks, Page, determineInlinks
 from nlp import Rules, Lexicon
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by function's within nlp.py
@@ -61,9 +61,9 @@ def test_stripRawHTML():
 
 
 def test_determineInlinks():
-    # TODO
-    assert True
-
+    assert set(determineInlinks(pA)) == set(['B', 'C', 'E'])
+    assert set(determineInlinks(pE)) == set([])
+    assert set(determineInlinks(pF)) == set(['E'])
 
 def test_findOutlinks_wiki():
     testPage = pageDict[pA.address]
