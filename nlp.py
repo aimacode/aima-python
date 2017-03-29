@@ -318,8 +318,8 @@ def normalize(pages):
     summed_hub = sum(page.hub**2 for _, page in pages.items())
     summed_auth = sum(page.authority**2 for _, page in pages.items())
     for _, page in pages.items():
-        page.hub /= summed_hub
-        page.authority /= summed_auth
+        page.hub /= summed_hub**0.5
+        page.authority /= summed_auth**0.5
 
 
 class ConvergenceDetector(object):
