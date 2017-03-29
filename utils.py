@@ -7,6 +7,7 @@ import operator
 import os.path
 import random
 import math
+import functools
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables

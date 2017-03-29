@@ -668,7 +668,6 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         for i in range(len(w)):
             w[i] = w[i] + learning_rate * (dotproduct(err, X_col[i]) / num_examples)
 
-
     def predict(example):
         x = [1] + example
         return dotproduct(w, x)
