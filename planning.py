@@ -109,10 +109,7 @@ def air_cargo():
 
     def goal_test(kb):
         required = [expr('At(C1 , JFK)'), expr('At(C2 ,SFO)')]
-        for q in required:
-            if kb.ask(q) is False:
-                return False
-        return True
+        return all([kb.ask(q) is not False for q in required])
 
     # Actions
 
@@ -151,10 +148,7 @@ def spare_tire():
 
     def goal_test(kb):
         required = [expr('At(Spare, Axle)')]
-        for q in required:
-            if kb.ask(q) is False:
-                return False
-        return True
+        return all(kb.ask(q) is not False for q in required)
 
     # Actions
 
@@ -196,10 +190,7 @@ def three_block_tower():
 
     def goal_test(kb):
         required = [expr('On(A, B)'), expr('On(B, C)')]
-        for q in required:
-            if kb.ask(q) is False:
-                return False
-        return True
+        return all(kb.ask(q) is not False for q in required)
 
     # Actions
 
@@ -227,10 +218,7 @@ def have_cake_and_eat_cake_too():
 
     def goal_test(kb):
         required = [expr('Have(Cake)'), expr('Eaten(Cake)')]
-        for q in required:
-            if kb.ask(q) is False:
-                return False
-        return True
+        return all(kb.ask(q) is not False for q in required)
 
     # Actions
 
@@ -522,10 +510,7 @@ def spare_tire_graphplan():
     graphplan = GraphPlan(pdll, negkb)
 
     def goal_test(kb, goals):
-        for q in goals:
-            if kb.ask(q) is False:
-                return False
-        return True
+        return all(kb.ask(q) is not False for q in goals)
 
     # Not sure
     goals_pos = [expr('At(Spare, Axle)'), expr('At(Flat, Ground)')]
@@ -551,10 +536,7 @@ def double_tennis_problem():
 
     def goal_test(kb):
         required = [expr('Goal(Returned(Ball))'), expr('At(a, RightNet)'), expr('At(a, LeftNet)')]
-        for q in required:
-            if kb.ask(q) is False:
-                return False
-        return True
+        return all(kb.ask(q) is not False for q in required)
 
     # Actions
 
