@@ -3,6 +3,34 @@ from logic import *  # noqa
 from utils import expr_handle_infix_ops, count, Symbol
 
 
+def test_is_symbol():
+    assert is_symbol('x')
+    assert is_symbol('X')
+    assert is_symbol('N245')
+    assert not is_symbol('')
+    assert not is_symbol('1L')
+    assert not is_symbol([1, 2, 3])
+
+
+def test_is_var_symbol():
+    assert is_var_symbol('xt')
+    assert not is_var_symbol('Txt')
+    assert not is_var_symbol('')
+    assert not is_var_symbol('52')
+
+
+def test_is_prop_symbol():
+    assert not is_prop_symbol('xt')
+    assert is_prop_symbol('Txt')
+    assert not is_prop_symbol('')
+    assert not is_prop_symbol('52')
+
+
+def test_variables():
+    assert variables(expr('F(x, x) & G(x, y) & H(y, z) & R(A, z, 2)')) == {x, y, z}
+    assert variables(expr('(x ==> y) & B(x, y) & A')) == {x, y}
+
+
 def test_expr():
     assert repr(expr('P <=> Q(1)')) == '(P <=> Q(1))'
     assert repr(expr('P & Q | ~R(x, F(x))')) == '((P & Q) | ~R(x, F(x)))'
@@ -12,6 +40,10 @@ def test_expr():
 
 def test_extend():
     assert extend({x: 1}, y, 2) == {x: 1, y: 2}
+
+
+def test_subst():
+    assert subst({x: 42, y:0}, F(x) + y) == (F(42) + 0)
 
 
 def test_PropKB():
@@ -68,13 +100,19 @@ def test_KB_wumpus():
     assert kb_wumpus.ask(P[2, 2] | P[3, 1]) == {}
 
 
-def test_definite_clause():
+def test_is_definite_clause():
     assert is_definite_clause(expr('A & B & C & D ==> E'))
     assert is_definite_clause(expr('Farmer(Mac)'))
     assert not is_definite_clause(expr('~Farmer(Mac)'))
     assert is_definite_clause(expr('(Farmer(f) & Rabbit(r)) ==> Hates(f, r)'))
     assert not is_definite_clause(expr('(Farmer(f) & ~Rabbit(r)) ==> Hates(f, r)'))
     assert not is_definite_clause(expr('(Farmer(f) | Rabbit(r)) ==> Hates(f, r)'))
+
+
+def test_parse_definite_clause():
+    assert parse_definite_clause(expr('A & B & C & D ==> E')) == ([A, B, C, D], E)
+    assert parse_definite_clause(expr('Farmer(Mac)')) == ([], expr('Farmer(Mac)'))
+    assert parse_definite_clause(expr('(Farmer(f) & Rabbit(r)) ==> Hates(f, r)')) == ([expr('Farmer(f)'), expr('Rabbit(r)')], expr('Hates(f, r)'))
 
 
 def test_pl_true():
@@ -115,6 +153,22 @@ def test_dpll():
     assert dpll_satisfiable(P & ~P) is False
 
 
+def test_find_pure_symbol():
+    assert find_pure_symbol([A, B, C], [A|~B,~B|~C,C|A]) == (A, True)
+    assert find_pure_symbol([A, B, C], [~A|~B,~B|~C,C|A]) == (B, False)
+    assert find_pure_symbol([A, B, C], [~A|B,~B|~C,C|A]) == (None, None)
+
+
+def test_unit_clause_assign():
+    assert unit_clause_assign(A|B|C, {A:True}) == (None, None)
+    assert unit_clause_assign(B|C, {A:True}) == (None, None)
+    assert unit_clause_assign(B|~A, {A:True}) == (B, True)
+
+
+def test_find_unit_clause():
+    assert find_unit_clause([A|B|C, B|~C, ~A|~B], {A:True}) == (B, False)
+    
+
 def test_unify():
     assert unify(x, x, {}) == {}
     assert unify(x, 3, {}) == {x: 3}
@@ -129,6 +183,11 @@ def test_tt_entails():
     assert tt_entails(P & Q, Q)
     assert not tt_entails(P | Q, Q)
     assert tt_entails(A & (B | C) & E & F & ~(P | Q), A & E & F & ~P & ~Q)
+
+
+def test_prop_symbols():
+    assert set(prop_symbols(expr('x & y & z | A'))) == {A}
+    assert set(prop_symbols(expr('(x & B(z)) ==> Farmer(y) | A'))) == {A, expr('Farmer(y)'), expr('B(z)')}
 
 
 def test_eliminate_implications():
@@ -155,6 +214,18 @@ def test_move_not_inwards():
     assert repr(move_not_inwards(~(A & B))) == '(~A | ~B)'
     assert repr(move_not_inwards(~(~(A | ~B) | ~~C))) == '((A | ~B) & ~C)'
 
+
+def test_distribute_and_over_or():
+    def test_enatilment(s, has_and = False):
+        result = distribute_and_over_or(s)
+        if has_and:
+            assert result.op == '&'
+        assert tt_entails(s, result)
+        assert tt_entails(result, s)
+    test_enatilment((A & B) | C, True)
+    test_enatilment((A | B) & C, True)
+    test_enatilment((A | B) | C, False)
+    test_enatilment((A & B) | (C | D), True)
 
 def test_to_cnf():
     assert (repr(to_cnf(wumpus_world_inference & ~expr('~P12'))) ==
