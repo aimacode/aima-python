@@ -25,3 +25,17 @@ def test_best_policy():
     assert sequential_decision_environment.to_arrows(pi) == [['>', '>', '>', '.'],
                                                              ['^', None, '^', '.'],
                                                              ['^', '>', '^', '<']]
+
+
+def test_transition_model():
+    transition_model = {
+        "A": {"a1": (0.3, "B"), "a2": (0.7, "C")},
+        "B": {"a1": (0.5, "B"), "a2": (0.5, "A")},
+        "C": {"a1": (0.9, "A"), "a2": (0.1, "B")},
+    }
+
+    mdp = MDP(init="A", actlist={"a1","a2"}, terminals={"C"}, states={"A","B","C"}, transitions=transition_model)
+
+    assert mdp.T("A","a1") == (0.3, "B")
+    assert mdp.T("B","a2") == (0.5, "A")
+    assert mdp.T("C","a1") == (0.9, "A")
