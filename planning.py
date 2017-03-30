@@ -150,7 +150,7 @@ def spare_tire():
             expr('At(Spare, Trunk)')]
 
     def goal_test(kb):
-        required = [expr('At(Spare, Axle)'), expr('At(Flat, Ground)')]
+        required = [expr('At(Spare, Axle)')]
         for q in required:
             if kb.ask(q) is False:
                 return False
