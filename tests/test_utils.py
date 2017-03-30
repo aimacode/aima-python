@@ -136,6 +136,12 @@ def test_sigmoid():
     assert isclose(0.2689414213699951, sigmoid(-1))
 
 
+def test_gaussian():
+    assert gaussian(1,0.5,0.7) == 0.6664492057835993
+    assert gaussian(5,2,4.5) == 0.19333405840142462
+    assert gaussian(3,1,3) == 0.3989422804014327
+
+
 def test_step():
     assert step(1) == step(0.5) == 1
     assert step(0) == 1
