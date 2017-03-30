@@ -516,17 +516,16 @@ class GraphPlan:
         return solution
 
 
-def goal_test(kb, goals):
-    for q in goals:
-        if kb.ask(q) is False:
-            return False
-    return True
-
-
 def spare_tire_graphplan():
     pdll = spare_tire()
     negkb = FolKB([expr('At(Flat, Trunk)')])
     graphplan = GraphPlan(pdll, negkb)
+
+    def goal_test(kb, goals):
+        for q in goals:
+            if kb.ask(q) is False:
+                return False
+        return True
 
     # Not sure
     goals_pos = [expr('At(Spare, Axle)'), expr('At(Flat, Ground)')]
