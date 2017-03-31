@@ -99,6 +99,19 @@ def test_shift_decoding():
     assert msg == 'This is a secret message.'
 
 
+def test_permutation_decoder():
+    gutenberg = DataFile("EN-text/gutenberg.txt").read()
+    flatland = DataFile("EN-text/flatland.txt").read()
+    
+    pd = PermutationDecoder(canonicalize(gutenberg))
+    msg = pd.decode('aba')
+    assert msg == 'txt'
+    
+    pd = PermutationDecoder(canonicalize(flatland))
+    msg = pd.decode('aba')
+    assert msg == 'eye'
+
+
 def test_rot13_encoding():
     code = rot13('Hello, world!')
 
