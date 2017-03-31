@@ -17,6 +17,10 @@ from collections import defaultdict
 # ______________________________________________________________________________
 
 
+def euclidean_distance(X, Y):
+    return math.sqrt(sum([(x - y)**2 for x, y in zip(X,Y)]))
+
+
 def rms_error(X, Y):
     return math.sqrt(ms_error(X, Y))
 
