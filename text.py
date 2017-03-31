@@ -318,7 +318,7 @@ class ShiftDecoder:
     def decode(self, ciphertext):
         """Return the shift decoding of text with the best score."""
 
-        return max(all_shifts(ciphertext), key=lambda shift: self.score(shift))
+        return argmax(all_shifts(ciphertext), key=lambda shift: self.score(shift))
 
 
 def all_shifts(text):
