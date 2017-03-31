@@ -355,6 +355,8 @@ class PermutationDecoder:
     def decode(self, ciphertext):
         """Search for a decoding of the ciphertext."""
         self.ciphertext = canonicalize(ciphertext)
+        # reduce domain to speed up search
+        self.chardomain = {c for c in self.ciphertext if c is not ' '}
         problem = PermutationDecoderProblem(decoder=self)
         solution =  search.best_first_graph_search(
             problem, lambda node: self.score(node.state))
@@ -369,7 +371,8 @@ class PermutationDecoder:
 
         # remake code dictionary to contain translation for all characters
         full_code = code.copy()
-        full_code.update({x:x for x in alphabet + ' ' if x not in code})
+        full_code.update({x:x for x in self.chardomain if x not in code})
+        full_code[' '] = ' '
         text = translate(self.ciphertext, lambda c: full_code[c])
 
         # add small positive value to prevent computing log(0)
@@ -387,7 +390,7 @@ class PermutationDecoderProblem(search.Problem):
         self.decoder = decoder
 
     def actions(self, state):
-        search_list = [c for c in alphabet if c not in state]
+        search_list = [c for c in self.decoder.chardomain if c not in state]
         target_list = [c for c in alphabet if c not in state.values()]
         # Find the best charater to replace
         plainchar = argmax(search_list, key=lambda c: self.decoder.P1[c])
@@ -401,5 +404,5 @@ class PermutationDecoderProblem(search.Problem):
         return new_state
 
     def goal_test(self, state):
-        """We're done when we get all 26 letters assigned."""
-        return len(state) >= 26
+        """We're done when all letters in search domain are assigned."""
+        return len(state) >= len(self.decoder.chardomain)
