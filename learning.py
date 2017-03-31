@@ -17,28 +17,28 @@ from collections import defaultdict
 # ______________________________________________________________________________
 
 
-def rms_error(predictions, targets):
-    return math.sqrt(ms_error(predictions, targets))
+def rms_error(X, Y):
+    return math.sqrt(ms_error(X, Y))
 
 
-def ms_error(predictions, targets):
-    return mean([(p - t)**2 for p, t in zip(predictions, targets)])
+def ms_error(X, Y):
+    return mean([(x - y)**2 for x, y in zip(X, Y)])
 
 
-def mean_error(predictions, targets):
-    return mean([abs(p - t) for p, t in zip(predictions, targets)])
+def mean_error(X, Y):
+    return mean([abs(x - y) for x, y in zip(X, Y)])
 
 
-def manhattan_distance(predictions, targets):
-    return sum([abs(p - t) for p, t in zip(predictions, targets)])
+def manhattan_distance(X, Y):
+    return sum([abs(x - y) for x, y in zip(X, Y)])
 
 
-def mean_boolean_error(predictions, targets):
-    return mean(int(p != t) for p, t in zip(predictions, targets))
+def mean_boolean_error(X, Y):
+    return mean(int(x != y) for x, y in zip(X, Y))
 
 
-def hamming_distance(predictions, targets):
-    return sum(p != t for p, t in zip(predictions, targets))
+def hamming_distance(X, Y):
+    return sum(x != y for x, y in zip(X, Y))
 
 # ______________________________________________________________________________
 
