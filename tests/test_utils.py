@@ -18,6 +18,11 @@ def test_unique():
     assert unique([1, 5, 6, 7, 6, 5]) == [1, 5, 6, 7]
 
 
+def test_count():
+    assert count([1, 2, 3, 4, 2, 3, 4]) == 7
+    assert count("aldpeofmhngvia") == 14
+
+
 def test_product():
     assert product([1, 2, 3, 4]) == 24
     assert product(list(range(1, 11))) == 3628800
@@ -36,6 +41,11 @@ def test_is_in():
     e = []
     assert is_in(e, [1, e, 3]) is True
     assert is_in(e, [1, [], 3]) is False
+
+
+def test_mode():
+    assert mode([12, 32, 2, 1, 2, 3, 2, 3, 2, 3, 44, 3, 12, 4, 9, 0, 3, 45, 3]) == 3
+    assert mode("absndkwoajfkalwpdlsdlfllalsflfdslgflal") == 'l'
 
 
 def test_argminmax():
