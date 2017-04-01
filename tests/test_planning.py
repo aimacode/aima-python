@@ -18,17 +18,33 @@ def test_action():
     assert not a.check_precond(test_kb, args)
 
 
-def test_air_cargo():
+def test_air_cargo_1():
     p = air_cargo()
     assert p.goal_test() is False
-    solution = [expr("Load(C1 , P1, SFO)"),
+    solution_1 = [expr("Load(C1 , P1, SFO)"),
                 expr("Fly(P1, SFO, JFK)"),
                 expr("Unload(C1, P1, JFK)"),
                 expr("Load(C2, P2, JFK)"),
                 expr("Fly(P2, JFK, SFO)"),
-                expr("Unload (C2, P2, SFO)")]
+                expr("Unload (C2, P2, SFO)")]  
 
-    for action in solution:
+    for action in solution_1:
+        p.act(action)
+
+    assert p.goal_test()
+
+
+def test_air_cargo_2():
+    p = air_cargo()
+    assert p.goal_test() is False
+    solution_2 = [expr("Load(C2, P2, JFK)"),
+                 expr("Fly(P2, JFK, SFO)"),
+                 expr("Unload (C2, P2, SFO)"),
+                 expr("Load(C1 , P1, SFO)"),
+                 expr("Fly(P1, SFO, JFK)"),
+                 expr("Unload(C1, P1, JFK)")]
+
+    for action in solution_2:
         p.act(action)
 
     assert p.goal_test()
