@@ -1,5 +1,4 @@
-from agents import Direction
-from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment
+from agents import *
 
 
 def test_move_forward():
@@ -41,7 +40,8 @@ def test_add():
     assert l1.direction == Direction.U
     assert l2.direction == Direction.D
 
-def test_ReflexVacuumAgent() :
+
+def test_ReflexVacuumAgent():
     # create an object of the ReflexVacuumAgent
     agent = ReflexVacuumAgent()
     # create an object of TrivialVacuumEnvironment
@@ -53,7 +53,8 @@ def test_ReflexVacuumAgent() :
     # check final status of the environment
     assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
 
-def test_ModelBasedVacuumAgent() :
+
+def test_ModelBasedVacuumAgent():
     # create an object of the ModelBasedVacuumAgent
     agent = ModelBasedVacuumAgent()
     # create an object of TrivialVacuumEnvironment
@@ -63,5 +64,20 @@ def test_ModelBasedVacuumAgent() :
     # run the environment
     environment.run()
     # check final status of the environment
-    assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+    assert environment.status == {(1, 0): 'Clean', (0, 0): 'Clean'}
 
+
+def test_RandomVacuumAgent():
+    agent = RandomVacuumAgent()
+    environment = TrivialVacuumEnvironment()
+    environment.add_thing(agent)
+    environment.run()
+    assert environment.status == {(1, 0): 'Clean', (0, 0): 'Clean'}
+
+
+def test_RandomAgentProgram():
+    agent = RandomAgentProgram(['Right', 'Left', 'Suck', 'NoOp'])
+    environment = TrivialVacuumEnvironment()
+    environment.add_thing(agent)
+    environment.run()
+    assert environment.status == {(1, 0): 'Clean', (0, 0): 'Clean'}
