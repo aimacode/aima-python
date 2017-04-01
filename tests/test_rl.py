@@ -22,7 +22,6 @@ def test_PassiveADPAgent():
 	for i in range(75):
 		run_single_trial(agent,sequential_decision_environment)
 	
-	assert agent.U == 0
 	# Agent does not always produce same results.
 	# Check if results are good enough.
 	assert agent.U[(0, 0)] > 0.15 # In reality around 0.3
