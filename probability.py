@@ -72,10 +72,10 @@ class ProbDist:
                 self.prob[val] /= total
         return self
 
-    def show_approx(self, numfmt='3g'):
+    def show_approx(self, numfmt='{:.3g}'):
         """Show the probabilities rounded and sorted by key, for the
         sake of portable doctests."""
-        return ', '.join([('{0}: {1:.' + numfmt + '}').format(v, p)
+        return ', '.join([('{}: ' + numfmt).format(v, p)
                           for (v, p) in sorted(self.prob.items())])
 
     def __repr__(self):
