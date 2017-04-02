@@ -6,9 +6,9 @@ from utils import Expr, expr, first
 from logic import FolKB
 
 
-class PDLL:
+class PDDL:
     """
-    PDLL used to define a search problem.
+    Planning Domain Definition Language (PDDL) used to define a search problem.
     It stores states in a knowledge base consisting of first order logic statements.
     The conjunction of these logical statements completely defines a state.
     """
@@ -140,7 +140,7 @@ def air_cargo():
     effect_rem = [expr("At(p, f)")]
     fly = Action(expr("Fly(p, f, to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
-    return PDLL(init, [load, unload, fly], goal_test)
+    return PDDL(init, [load, unload, fly], goal_test)
 
 
 def spare_tire():
@@ -181,7 +181,7 @@ def spare_tire():
     leave_overnight = Action(expr("LeaveOvernight"), [precond_pos, precond_neg],
                              [effect_add, effect_rem])
 
-    return PDLL(init, [remove, put_on, leave_overnight], goal_test)
+    return PDDL(init, [remove, put_on, leave_overnight], goal_test)
 
 
 def three_block_tower():
@@ -219,7 +219,7 @@ def three_block_tower():
     moveToTable = Action(expr('MoveToTable(b, x)'), [precond_pos, precond_neg],
                          [effect_add, effect_rem])
 
-    return PDLL(init, [move, moveToTable], goal_test)
+    return PDDL(init, [move, moveToTable], goal_test)
 
 
 def have_cake_and_eat_cake_too():
@@ -248,7 +248,7 @@ def have_cake_and_eat_cake_too():
     effect_rem = []
     bake_cake = Action(expr('Bake(Cake)'), [precond_pos, precond_neg], [effect_add, effect_rem])
 
-    return PDLL(init, [eat_cake, bake_cake], goal_test)
+    return PDDL(init, [eat_cake, bake_cake], goal_test)
 
 
 class Level():
@@ -408,17 +408,17 @@ class Graph:
     Used in graph planning algorithm to extract a solution
     """
 
-    def __init__(self, pdll, negkb):
-        self.pdll = pdll
-        self.levels = [Level(pdll.kb, negkb)]
-        self.objects = set(arg for clause in pdll.kb.clauses + negkb.clauses for arg in clause.args)
+    def __init__(self, pddl, negkb):
+        self.pddl = pddl
+        self.levels = [Level(pddl.kb, negkb)]
+        self.objects = set(arg for clause in pddl.kb.clauses + negkb.clauses for arg in clause.args)
 
     def __call__(self):
         self.expand_graph()
 
     def expand_graph(self):
         last_level = self.levels[-1]
-        last_level(self.pdll.actions, self.objects)
+        last_level(self.pddl.actions, self.objects)
         self.levels.append(last_level.perform_actions())
 
     def non_mutex_goals(self, goals, index):
@@ -436,8 +436,8 @@ class GraphPlan:
     Returns solution for the planning problem
     """
 
-    def __init__(self, pdll, negkb):
-        self.graph = Graph(pdll, negkb)
+    def __init__(self, pddl, negkb):
+        self.graph = Graph(pddl, negkb)
         self.nogoods = []
         self.solution = []
 
@@ -524,9 +524,9 @@ def goal_test(kb, goals):
 
 
 def spare_tire_graphplan():
-    pdll = spare_tire()
+    pddl = spare_tire()
     negkb = FolKB([expr('At(Flat, Trunk)')])
-    graphplan = GraphPlan(pdll, negkb)
+    graphplan = GraphPlan(pddl, negkb)
 
     # Not sure
     goals_pos = [expr('At(Spare, Axle)'), expr('At(Flat, Ground)')]
@@ -573,4 +573,4 @@ def double_tennis_problem():
     effect_rem = [expr("At(actor, loc)")]
     go = Action(expr("Go(actor, to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
-    return PDLL(init, [hit, go], goal_test)
+    return PDDL(init, [hit, go], goal_test)
