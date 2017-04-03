@@ -3,10 +3,11 @@
 The way to use this code is to subclass Problem to create a class of problems,
 then create problem instances and solve them with calls to the various search
 functions."""
-
+from fuzzywuzzy import fuzz
+import string
 from utils import (
-    is_in, argmin, argmax, argmax_random_tie, probability,
-    weighted_sample_with_replacement, memoize, print_table, DataFile, Stack,
+    is_in, argmin, argmax_random_tie, probability,
+    memoize, print_table, DataFile, Stack,
     FIFOQueue, PriorityQueue, name
 )
 from grid import distance
@@ -19,11 +20,11 @@ import bisect
 
 infinity = float('inf')
 
+
 # ______________________________________________________________________________
 
 
 class Problem(object):
-
     """The abstract class for a formal problem.  You should subclass
     this and implement the methods actions and result, and possibly
     __init__, goal_test, and path_cost. Then you will create instances
@@ -71,19 +72,21 @@ class Problem(object):
         """For optimization problems, each state has a value.  Hill-climbing
         and related algorithms try to maximize this value."""
         raise NotImplementedError
+
+
 # ______________________________________________________________________________
 
 
 class Node:
-
-    """A node in a search tree. Contains a pointer to the parent (the node
-    that this is a successor of) and to the actual state for this node. Note
-    that if a state is arrived at by two paths, then there are two nodes with
-    the same state.  Also includes the action that got us to this state, and
-    the total path_cost (also known as g) to reach the node.  Other functions
-    may add an f and h value; see best_first_graph_search and astar_search for
-    an explanation of how the f and h values are handled. You will not need to
-    subclass this class."""
+    """A node in a search tree. Contains a pointer to the parent
+    (the node that this is a successor of) and to the actual state
+    for this node. Note that if a state is arrived at by two paths,
+    then there are two nodes with the same state.  Also includes the
+    action that got us to this state, and the total path_cost (also
+    known as g) to reach the node.  Other functions may add an f and
+    h value; see best_first_graph_search and astar_search for an
+    explanation of how the f and h values are handled. You will not
+    need to subclass this class."""
 
     def __init__(self, state, parent=None, action=None, path_cost=0):
         """Create a search tree Node, derived from a parent by an action."""
@@ -118,7 +121,8 @@ class Node:
         return [node.action for node in self.path()[1:]]
 
     def path(self):
-        """Return a list of nodes forming the path from the root to this node."""
+        """Return a list of nodes forming the path from the
+        root to this node."""
         node, path_back = self, []
         while node:
             path_back.append(node)
@@ -136,11 +140,11 @@ class Node:
     def __hash__(self):
         return hash(self.state)
 
-# ______________________________________________________________________________
+
+# ________________________________________________________________
 
 
 class SimpleProblemSolvingAgentProgram:
-
     """Abstract framework for a problem-solving agent. [Figure 3.1]"""
 
     def __init__(self, initial_state=None):
@@ -174,7 +178,8 @@ class SimpleProblemSolvingAgentProgram:
     def search(self, problem):
         raise NotImplementedError
 
-# ______________________________________________________________________________
+
+# _______________________________________________________________
 # Uninformed Search algorithms
 
 
@@ -280,6 +285,7 @@ def uniform_cost_search(problem):
 
 def depth_limited_search(problem, limit=50):
     """[Figure 3.17]"""
+
     def recursive_dls(node, problem, limit):
         if problem.goal_test(node.state):
             return node
@@ -306,11 +312,14 @@ def iterative_deepening_search(problem):
         if result != 'cutoff':
             return result
 
+
 # ______________________________________________________________________________
 # Informed (Heuristic) Search
 
 
 greedy_best_first_graph_search = best_first_graph_search
+
+
 # Greedy best-first search is accomplished by specifying f(n) = h(n).
 
 
@@ -320,6 +329,7 @@ def astar_search(problem, h=None):
     else in your Problem subclass."""
     h = memoize(h or problem.h, 'h')
     return best_first_graph_search(problem, lambda n: n.path_cost + h(n))
+
 
 # ______________________________________________________________________________
 # Other search algorithms
@@ -331,7 +341,7 @@ def recursive_best_first_search(problem, h=None):
 
     def RBFS(problem, node, flimit):
         if problem.goal_test(node.state):
-            return node, 0   # (The second value is immaterial)
+            return node, 0  # (The second value is immaterial)
         successors = node.expand(problem)
         if len(successors) == 0:
             return None, infinity
@@ -365,8 +375,8 @@ def hill_climbing(problem):
         neighbors = current.expand(problem)
         if not neighbors:
             break
-        neighbor = argmax_random_tie(neighbors,
-                                     key=lambda node: problem.value(node.state))
+        neighbor = argmax_random_tie(
+            neighbors, key=lambda node: problem.value(node.state))
         if problem.value(neighbor.state) <= problem.value(current.state):
             break
         current = neighbor
@@ -390,18 +400,20 @@ def simulated_annealing(problem, schedule=exp_schedule()):
         if not neighbors:
             return current.state
         next = random.choice(neighbors)
-        delta_e = problem.value(next.state) - problem.value(current.state)
+        delta_e = problem.value(
+            next.state) - problem.value(current.state)
         if delta_e > 0 or probability(math.exp(delta_e / T)):
             current = next
 
 
 def and_or_graph_search(problem):
-    """[Figure 4.11]Used when the environment is nondeterministic and completely observable.
-    Contains OR nodes where the agent is free to choose any action.
-    After every action there is an AND node which contains all possible states
-    the agent may reach due to stochastic nature of environment.
-    The agent must be able to handle all possible states of the AND node (as it
-    may end up in any of them).
+    """[Figure 4.11]Used when the environment is nondeterministic
+     and completely observable. Contains OR nodes where the agent
+    is free to choose any action.After every action there is an AND
+    node which contains all possible states the agent may reach due
+    to stochastic nature of environment. The agent must be able to
+    handle all possible states of the AND node (as it may end up in
+    any of them).
     Returns a conditional plan to reach goal state,
     or failure if the former is not possible."""
 
@@ -419,7 +431,8 @@ def and_or_graph_search(problem):
                 return [action, plan]
 
     def and_search(states, problem, path):
-        """Returns plan in form of dictionary where we take action plan[s] if we reach state s."""  # noqa
+        """Returns plan in form of dictionary where we take action plan[s]
+         if we reach state s."""  # noqa
         plan = {}
         for s in states:
             plan[s] = or_search(s, problem, path)
@@ -432,7 +445,6 @@ def and_or_graph_search(problem):
 
 
 class OnlineDFSAgent:
-
     """[Figure 4.21] The abstract class for an OnlineDFSAgent. Override
     update_state method to convert percept to state. While initializing
     the subclass a problem needs to be provided which is an instance of
@@ -461,7 +473,8 @@ class OnlineDFSAgent:
                 if len(self.unbacktracked[s1]) == 0:
                     self.a = None
                 else:
-                    # else a <- an action b such that result[s', b] = POP(unbacktracked[s'])  # noqa
+                    # else a <- an action b such that result[s', b] =
+                    # POP(unbacktracked[s'])  # noqa
                     unbacktracked_pop = self.unbacktracked[s1].pop(0)  # noqa
                     for (s, b) in self.result.keys():
                         if self.result[(s, b)] == unbacktracked_pop:
@@ -476,6 +489,7 @@ class OnlineDFSAgent:
         """To be overridden in most cases. The default case
         assumes the percept to be of type state."""
         return percept
+
 
 # ______________________________________________________________________________
 
@@ -502,7 +516,8 @@ class OnlineSearchProblem(Problem):
         return self.graph.least_costs[state]
 
     def c(self, s, a, s1):
-        """Returns a cost estimate for an agent to move from state 's' to state 's1'."""
+        """Returns a cost estimate for an agent to move from state
+         's' to state 's1'."""
         return 1
 
     def update_state(self, percept):
@@ -515,7 +530,6 @@ class OnlineSearchProblem(Problem):
 
 
 class LRTAStarAgent:
-
     """ [Figure 4.24]
     Abstract class for LRTA*-Agent. A problem needs to be
     provided which is an instanace of a subclass of Problem Class.
@@ -530,7 +544,7 @@ class LRTAStarAgent:
         self.s = None
         self.a = None
 
-    def __call__(self, s1):     # as of now s1 is a state rather than a percept
+    def __call__(self, s1):  # as of now s1 is a state rather than a percept
         if self.problem.goal_test(s1):
             self.a = None
             return self.a
@@ -538,11 +552,13 @@ class LRTAStarAgent:
             if s1 not in self.H:
                 self.H[s1] = self.problem.h(s1)
             if self.s is not None:
-                # self.result[(self.s, self.a)] = s1    # no need as we are using problem.output
+                # self.result[(self.s, self.a)] = s1
+                #  no need as we are using problem.output
 
                 # minimum cost for action b in problem.actions(s)
-                self.H[self.s] = min(self.LRTA_cost(self.s, b, self.problem.output(self.s, b),
-                                     self.H) for b in self.problem.actions(self.s))
+                self.H[self.s] = min(
+                    self.LRTA_cost(self.s, b, self.problem.output(
+                        self.s, b), self.H) for b in self.problem.actions(self.s))  # noqa
 
             # costs for action b in problem.actions(s1)
             costs = [self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H)
@@ -561,56 +577,116 @@ class LRTAStarAgent:
             return self.problem.h(s)
         else:
             # sometimes we need to get H[s1] which we haven't yet added to H
-            # to replace this try, except: we can initialize H with values from problem.h
+            # to replace this try, except: we can initialize H with values
+            # from problem.h
             try:
                 return self.problem.c(s, a, s1) + self.H[s1]
             except:
                 return self.problem.c(s, a, s1) + self.problem.h(s1)
 
-# ______________________________________________________________________________
+
+# ___________________________________________________________________________
 # Genetic Algorithm
 
 
-def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
-    """Call genetic_algorithm on the appropriate parts of a problem.
-    This requires the problem to have states that can mate and mutate,
-    plus a value method that scores states."""
-    s = problem.initial_state
-    states = [problem.result(s, a) for a in problem.actions(s)]
-    random.shuffle(states)
-    return genetic_algorithm(states[:n], problem.value, ngen, pmut)
-
-
-def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
-    """[Figure 4.8]"""
-    for i in range(ngen):
-        new_population = []
-        for i in range(len(population)):
-            fitnesses = map(fitness_fn, population)
-            p1, p2 = weighted_sample_with_replacement(2, population, fitnesses)
-            child = p1.mate(p2)
-            if random.uniform(0, 1) < pmut:
-                child.mutate()
-            new_population.append(child)
-        population = new_population
-    return argmax(population, key=fitness_fn)
+"""
+Naming convention:
+Instead of gene or chromosome, the name individual has been used.
+What makes an individual unique from the set of individuals is
+the genes\chromosomes. Thus, considering that individuals crossover and
+individuals mutate.
+"""
 
 
 class GAState:
+    def __init__(self, length):
+        self.string = ''.join(random.choice(string.ascii_letters)
+                              for _ in range(length))
+        self.fitness = -1
 
-    """Abstract class for individuals in a genetic search."""
 
-    def __init__(self, genes):
-        self.genes = genes
+def ga(in_str=None, population=20, generations=10000):
+    in_str_len = len(in_str)
+    individuals = init_individual(population, in_str_len)
 
-    def mate(self, other):
-        """Return a new individual crossing self and other."""
-        c = random.randrange(len(self.genes))
-        return self.__class__(self.genes[:c] + other.genes[c:])
+    for generation in range(generations):
 
-    def mutate(self):
-        """Change a few of my genes."""
-        raise NotImplementedError
+        individuals = fitness(individuals, in_str)
+        individuals = selection(individuals)
+        individuals = crossover(individuals, population, in_str_len)
+
+        if any(individual.fitness >= 90 for individual in individuals):
+            """
+            individuals[0] is the individual with the highest fitness,
+            because individuals is sorted in the selection function.
+            Thus we return the individual with the highest fitness value,
+            among the individuals whose fitness is equal to or greater
+            than 90.
+            """
+
+            return individuals[0]
+
+        individuals = mutation(individuals, in_str_len)
+
+    """
+    sufficient number of generations have passed and the individuals
+    could not evolve to match the desired fitness value.
+    thus we return the fittest individual among the individuals.
+    Since individuals are sorted according to their fitness
+    individuals[0] is the fittest.
+    """
+    return individuals[0]
+
+
+def init_individual(population, length):
+    return [GAState(length) for _ in range(population)]
+
+
+def fitness(individuals, in_str):
+    for individual in individuals:
+        individual.fitness = fuzz.ratio(individual.string, in_str)
+
+    return individuals
+
+
+def selection(individuals):
+    individuals = sorted(
+        individuals, key=lambda individual: individual.fitness, reverse=True)
+
+    individuals = individuals[:int(0.2 * len(individuals))]
+    return individuals
+
+
+def crossover(individuals, population, in_str_len):
+    offspring = []
+    for _ in range(int((population - len(individuals)) / 2)):
+        parent1 = random.choice(individuals)
+        parent2 = random.choice(individuals)
+        child1 = GAState(in_str_len)
+        child2 = GAState(in_str_len)
+        split = random.randint(0, in_str_len)
+        child1.string = parent1.string[0:split] + parent2.string[
+                                                  split:in_str_len]
+        child2.string = parent2.string[0:split] + parent1.string[
+                                                  split:in_str_len]
+        offspring.append(child1)
+        offspring.append(child2)
+
+    individuals.extend(offspring)
+    return individuals
+
+
+def mutation(individuals, in_str_len):
+    for individual in individuals:
+
+        for idx, param in enumerate(individual.string):
+            if random.uniform(0.0, 1.0) <= 0.1:
+                individual.string = individual.string[0:idx] \
+                                    + random.choice(string.ascii_letters) \
+                                    + individual.string[idx + 1:in_str_len]
+
+    return individuals
+
 
 # _____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
@@ -620,7 +696,6 @@ class GAState:
 
 
 class Graph:
-
     """A graph connects nodes (verticies) by edges (links).  Each edge can also
     have a length associated with it.  The constructor call is something like:
         g = Graph({'A': {'B': 1, 'C': 2})
@@ -641,14 +716,15 @@ class Graph:
             self.make_undirected()
 
     def make_undirected(self):
-        """Make a digraph into an undirected graph by adding symmetric edges."""
+        """Make a digraph into an undirected graph by adding symmetric
+        edges."""
         for a in list(self.dict.keys()):
             for (b, dist) in self.dict[a].items():
                 self.connect1(b, a, dist)
 
     def connect(self, A, B, distance=1):
-        """Add a link from A and B of given distance, and also add the inverse
-        link if the graph is undirected."""
+        """Add a link from A and B of given distance, and also add the
+        inverse link if the graph is undirected."""
         self.connect1(A, B, distance)
         if not self.directed:
             self.connect1(B, A, distance)
@@ -673,7 +749,8 @@ class Graph:
 
 
 def UndirectedGraph(dict=None):
-    """Build a Graph where every edge (including future ones) goes both ways."""
+    """Build a Graph where every edge (including future ones) goes both
+     ways."""
     return Graph(dict=dict, directed=False)
 
 
@@ -700,6 +777,7 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
                     if n is node or g.get(node, n):
                         return infinity
                     return distance(g.locations[n], here)
+
                 neighbor = argmin(nodes, key=distance_to_node)
                 d = distance(g.locations[neighbor], here) * curvature()
                 g.connect(node, neighbor, int(d))
@@ -735,8 +813,8 @@ romania_map.locations = dict(
 """ [Figure 4.9]
 Eight possible states of the vacumm world
 Each state is represented as
-   *       "State of the left room"      "State of the right room"   "Room in which the agent
-                                                                      is present"
+   *"State of the left room" "State of the right room" "Room in which the agent
+    is present"
 1 - DDL     Dirty                         Dirty                       Left
 2 - DDR     Dirty                         Dirty                       Right
 3 - DCL     Dirty                         Clean                       Left
@@ -755,7 +833,7 @@ vacumm_world = Graph(dict(
     State_6=dict(Suck=['State_8'], Left=['State_5']),
     State_7=dict(Suck=['State_7', 'State_3'], Right=['State_8']),
     State_8=dict(Suck=['State_8', 'State_6'], Left=['State_7'])
-    ))
+))
 
 """ [Figure 4.23]
 One-dimensional state space Graph
@@ -767,7 +845,7 @@ one_dim_state_space = Graph(dict(
     State_4=dict(Right='State_5', Left='State_3'),
     State_5=dict(Right='State_6', Left='State_4'),
     State_6=dict(Left='State_5')
-    ))
+))
 one_dim_state_space.least_costs = dict(
     State_1=8,
     State_2=9,
@@ -790,7 +868,6 @@ australia_map.locations = dict(WA=(120, 24), NT=(135, 20), SA=(135, 30),
 
 
 class GraphProblem(Problem):
-
     """The problem of searching a graph from one node to another."""
 
     def __init__(self, initial, goal, graph):
@@ -822,8 +899,10 @@ class GraphProblemStochastic(GraphProblem):
     A version of GraphProblem where an action can lead to
     nondeterministic output i.e. multiple possible states.
 
-    Define the graph as dict(A = dict(Action = [[<Result 1>, <Result 2>, ...], <cost>], ...), ...)
-    A the dictionary format is different, make sure the graph is created as a directed graph.
+    Define the graph as
+    dict(A = dict(Action = [[<Result 1>, <Result 2>, ...], <cost>], ...), ...)
+    A the dictionary format is different, make sure the graph is created as
+    a directed graph.
     """
 
     def result(self, state, action):
@@ -837,7 +916,6 @@ class GraphProblemStochastic(GraphProblem):
 
 
 class NQueensProblem(Problem):
-
     """The problem of placing N queens on an NxN board with none attacking
     each other.  A state is represented as an N-element array, where
     a value of r in the c-th entry means there is a queen at column c,
@@ -873,11 +951,12 @@ class NQueensProblem(Problem):
                    for c in range(col))
 
     def conflict(self, row1, col1, row2, col2):
-        """Would putting two queens in (row1, col1) and (row2, col2) conflict?"""
+        """Would putting two queens in (row1, col1) and
+         (row2, col2) conflict?"""
         return (row1 == row2 or  # same row
                 col1 == col2 or  # same column
                 row1 - col1 == row2 - col2 or  # same \ diagonal
-                row1 + col1 == row2 + col2)   # same / diagonal
+                row1 + col1 == row2 + col2)  # same / diagonal
 
     def goal_test(self, state):
         """Check if all columns filled, no conflicts."""
@@ -885,6 +964,7 @@ class NQueensProblem(Problem):
             return False
         return not any(self.conflicted(state, state[col], col)
                        for col in range(len(state)))
+
 
 # ______________________________________________________________________________
 # Inverse Boggle: Search for a high-scoring Boggle board. A good domain for
@@ -905,6 +985,7 @@ def random_boggle(n=4):
     cubes = [cubes16[i % 16] for i in range(n * n)]
     random.shuffle(cubes)
     return list(map(random.choice, cubes))
+
 
 # The best 5x5 board found by Boyan, with our word list this board scores
 # 2274 words, for a score of 9837
@@ -928,7 +1009,7 @@ def print_boggle(board):
     print()
 
 
-def boggle_neighbors(n2, cache={}):
+def boggle_neighbors(n2, cache={}):  # noqa
     """Return a list of lists, where the i-th element is the list of indexes
     for the neighbors of square i."""
     if cache.get(n2):
@@ -940,7 +1021,7 @@ def boggle_neighbors(n2, cache={}):
         on_top = i < n
         on_bottom = i >= n2 - n
         on_left = i % n == 0
-        on_right = (i+1) % n == 0
+        on_right = (i + 1) % n == 0
         if not on_top:
             neighbors[i].append(i - n)
             if not on_left:
@@ -967,11 +1048,11 @@ def exact_sqrt(n2):
     assert n * n == n2
     return n
 
+
 # _____________________________________________________________________________
 
 
 class Wordlist:
-
     """This class holds a list of words. You can use (word in wordlist)
     to check if a word is in the list, or wordlist.lookup(prefix)
     to see if prefix starts any of the words in the list."""
@@ -1006,11 +1087,11 @@ class Wordlist:
     def __len__(self):
         return len(self.words)
 
+
 # _____________________________________________________________________________
 
 
 class BoggleFinder:
-
     """A class that allows you to find all the words in a Boggle board."""
 
     wordlist = None  # A class variable, holding a wordlist
@@ -1067,6 +1148,7 @@ class BoggleFinder:
         """The number of words found."""
         return len(self.found)
 
+
 # _____________________________________________________________________________
 
 
@@ -1098,13 +1180,13 @@ def mutate_boggle(board):
     board[i] = random.choice(random.choice(cubes16))
     return i, oldc
 
+
 # ______________________________________________________________________________
 
 # Code to compare searchers on various problems.
 
 
 class InstrumentedProblem(Problem):
-
     """Delegates to a problem, and keeps statistics."""
 
     def __init__(self, problem):
@@ -1138,7 +1220,7 @@ class InstrumentedProblem(Problem):
 
     def __repr__(self):
         return '<{:4d}/{:4d}/{:4d}/{}>'.format(self.succs, self.goal_tests,
-                                               self.states, str(self.found)[:4])
+                                               self.states, str(self.found)[:4])  # noqa
 
 
 def compare_searchers(problems, header,
@@ -1152,6 +1234,7 @@ def compare_searchers(problems, header,
         p = InstrumentedProblem(problem)
         searcher(p)
         return p
+
     table = [[name(s)] + [do(s, p) for p in problems] for s in searchers]
     print_table(table, header)
 
