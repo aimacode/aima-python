@@ -568,6 +568,33 @@ class defaultkeydict(collections.defaultdict):
         return result
 
 
+class hashabledict(dict):
+    """Allows hashing by representing a dictionary as tuple of key:value pairs
+       May cause problems as the hash value may change during runtime
+    """
+    def __tuplify__(self):
+        return tuple(sorted(self.items()))
+
+    def __hash__(self):
+        return hash(self.__tuplify__())
+
+    def __lt__(self, odict):
+        assert type(odict) is hashabledict
+        return self.__tuplify__() < odict.__tuplify__()
+
+    def __gt__(self, odict):
+        assert type(odict) is hashabledict
+        return self.__tuplify__() > odict.__tuplify__()
+
+    def __le__(self, odict):
+        assert type(odict) is hashabledict
+        return self.__tuplify__() <= odict.__tuplify__()
+
+    def __ge__(self, odict):
+        assert type(odict) is hashabledict
+        return self.__tuplify__() >= odict.__tuplify__()
+
+
 # ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
 

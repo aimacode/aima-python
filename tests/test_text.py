@@ -99,6 +99,17 @@ def test_shift_decoding():
     assert msg == 'This is a secret message.'
 
 
+def test_permutation_decoder():
+    gutenberg = DataFile("EN-text/gutenberg.txt").read()
+    flatland = DataFile("EN-text/flatland.txt").read()
+    
+    pd = PermutationDecoder(canonicalize(gutenberg))
+    assert pd.decode('aba') in ('ece', 'ete', 'tat', 'tit', 'txt')
+    
+    pd = PermutationDecoder(canonicalize(flatland))
+    assert pd.decode('aba') in ('ded', 'did', 'ece', 'ele', 'eme', 'ere', 'eve', 'eye', 'iti', 'mom', 'ses', 'tat', 'tit')
+
+
 def test_rot13_encoding():
     code = rot13('Hello, world!')
 
