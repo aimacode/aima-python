@@ -60,7 +60,7 @@ class NgramTextModel(CountingProbDist):
         n = self.n
         words = self.add_empty(words, n)
 
-        for i in range(len(words) - n):
+        for i in range(len(words) - n + 1):
             self.add(tuple(words[i:i + n]))
 
     def samples(self, nwords):
@@ -318,9 +318,7 @@ class ShiftDecoder:
     def decode(self, ciphertext):
         """Return the shift decoding of text with the best score."""
 
-        list_ = [(self.score(shift), shift)
-                 for shift in all_shifts(ciphertext)]
-        return max(list_, key=lambda elm: elm[0])[1]
+        return argmax(all_shifts(ciphertext), key=lambda shift: self.score(shift))
 
 
 def all_shifts(text):
@@ -380,8 +378,9 @@ class PermutationDecoderProblem(search.Problem):
 
     def actions(self, state):
         # Find the best
-        p, plainchar = max([(self.decoder.P1[c], c)
-                            for c in alphabet if c not in state])
+                            
+        search_list = [c for c in alphabet if c not in state]
+        plainchar = argmax(search_list, key=lambda c: self.decoder.P1[c])
         succs = [extend(state, plainchar, cipherchar)]  # ???? # noqa
 
     def goal_test(self, state):
