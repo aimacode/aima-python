@@ -4,7 +4,7 @@ and show the Viterbi algorithm for segmentatioon of letters into words.
 Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
-from utils import argmin
+from utils import argmin, argmax
 from learning import CountingProbDist
 import search
 
@@ -60,7 +60,7 @@ class NgramTextModel(CountingProbDist):
         n = self.n
         words = self.add_empty(words, n)
 
-        for i in range(len(words) - n):
+        for i in range(len(words) - n + 1):
             self.add(tuple(words[i:i + n]))
 
     def samples(self, nwords):
@@ -318,9 +318,7 @@ class ShiftDecoder:
     def decode(self, ciphertext):
         """Return the shift decoding of text with the best score."""
 
-        list_ = [(self.score(shift), shift)
-                 for shift in all_shifts(ciphertext)]
-        return max(list_, key=lambda elm: elm[0])[1]
+        return argmax(all_shifts(ciphertext), key=lambda shift: self.score(shift))
 
 
 def all_shifts(text):
