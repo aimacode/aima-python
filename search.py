@@ -544,11 +544,9 @@ class LRTAStarAgent:
                 self.H[self.s] = min(self.LRTA_cost(self.s, b, self.problem.output(self.s, b),
                                      self.H) for b in self.problem.actions(self.s))
 
-            # costs for action b in problem.actions(s1)
-            costs = [self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H)
-                     for b in self.problem.actions(s1)]
             # an action b in problem.actions(s1) that minimizes costs
-            self.a = list(self.problem.actions(s1))[costs.index(min(costs))]
+            self.a = argmin(self.problem.actions(s1),
+                            key=lambda b:self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H))
 
             self.s = s1
             return self.a

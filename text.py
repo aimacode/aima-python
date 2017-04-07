@@ -318,9 +318,7 @@ class ShiftDecoder:
     def decode(self, ciphertext):
         """Return the shift decoding of text with the best score."""
 
-        list_ = [(self.score(shift), shift)
-                 for shift in all_shifts(ciphertext)]
-        return max(list_, key=lambda elm: elm[0])[1]
+        return argmax(all_shifts(ciphertext), key=lambda shift: self.score(shift))
 
 
 def all_shifts(text):
@@ -360,7 +358,7 @@ class PermutationDecoder:
         problem = PermutationDecoderProblem(decoder=self)
         solution =  search.best_first_graph_search(
             problem, lambda node: self.score(node.state))
-        print(solution.state, len(solution.state))
+
         solution.state[' '] = ' '
         return translate(self.ciphertext, lambda c: solution.state[c])
 
