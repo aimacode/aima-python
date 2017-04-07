@@ -35,20 +35,6 @@ def test_weighted_replicate():
     assert weighted_replicate('ABC', [1, 2, 1], 4) == ['A', 'B', 'B', 'C']
 
 
-def test_means_and_deviation():
-    iris = DataSet(name="iris")
-
-    means, deviations = iris.find_means_and_deviations()
-    
-    assert means["setosa"] == [5.006, 3.418, 1.464, 0.244]
-    assert means["versicolor"] == [5.936, 2.77, 4.26, 1.326]
-    assert means["virginica"] == [6.588, 2.974, 5.552, 2.026]
-
-    assert round(deviations["setosa"][0],3) == 0.352
-    assert round(deviations["versicolor"][0],3) == 0.516
-    assert round(deviations["virginica"][0],3) == 0.636
-
-
 def test_plurality_learner():
     zoo = DataSet(name="zoo")
 
@@ -64,7 +50,6 @@ def test_naive_bayes():
     assert nBD([5,3,1,0.1]) == "setosa"
     assert nBD([6,5,3,1.5]) == "versicolor"
     assert nBD([7,3,6.5,2]) == "virginica"
-
 
     # Continuous
     nBC = NaiveBayesLearner(iris, continuous=True)
