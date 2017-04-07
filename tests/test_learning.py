@@ -49,10 +49,13 @@ def test_naive_bayes():
     # Discrete
     nBD = NaiveBayesLearner(iris)
     assert nBD([5,3,1,0.1]) == "setosa"
+    assert nBD([6,5,3,1.5]) == "versicolor"
+    assert nBD([7,3,6.5,2]) == "virginica"
 
     # Continuous
     nBC = NaiveBayesLearner(iris, continuous=True)
     assert nBC([5,3,1,0.1]) == "setosa"
+    assert nBC([6,5,3,1.5]) == "versicolor"
     assert nBC([7,3,6.5,2]) == "virginica"
 
 
