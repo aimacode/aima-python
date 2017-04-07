@@ -1,7 +1,20 @@
 from learning import parse_csv, weighted_mode, weighted_replicate, DataSet, \
                      PluralityLearner, NaiveBayesLearner, NearestNeighborLearner, \
-                     NeuralNetLearner, PerceptronLearner, DecisionTreeLearner
+                     NeuralNetLearner, PerceptronLearner, DecisionTreeLearner, \
+                     euclidean_distance
 from utils import DataFile
+
+
+
+def test_euclidean():
+    distance = euclidean_distance([1,2], [3,4])
+    assert round(distance, 2) == 2.83
+
+    distance = euclidean_distance([1,2,3], [4,5,6])
+    assert round(distance, 2) == 5.2
+
+    distance = euclidean_distance([0,0,0], [0,0,0])
+    assert distance == 0
 
 
 def test_exclude():
@@ -51,6 +64,7 @@ def test_naive_bayes():
     assert nBD([5,3,1,0.1]) == "setosa"
     assert nBD([6,5,3,1.5]) == "versicolor"
     assert nBD([7,3,6.5,2]) == "virginica"
+
 
     # Continuous
     nBC = NaiveBayesLearner(iris, continuous=True)
