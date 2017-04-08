@@ -663,7 +663,7 @@ def init_examples(examples, idx_i, idx_t, o_units):
 
 def find_max_node(nodes):
     index = -1
-    max_score = -1
+    max_score = 0
     # Find max hypothesis
     for i in range(len(nodes)):
         curr_score = nodes[i].value
