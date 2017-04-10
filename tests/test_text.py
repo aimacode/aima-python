@@ -47,6 +47,32 @@ def test_text_models():
 
     assert P3.cond_prob['in', 'order'].dictionary == {'to': 6}
 
+    test_string = 'unigram'
+    wordseq = words(test_string)
+
+    P1 = UnigramTextModel(wordseq)
+
+    assert P1.dictionary == {('unigram'): 1}
+
+    test_string = 'bigram text'
+    wordseq = words(test_string)
+
+    P2 = NgramTextModel(2, wordseq)
+
+    assert (P2.dictionary == {('', 'bigram'): 1, ('bigram', 'text'): 1} or
+            P2.dictionary == {('bigram', 'text'): 1, ('', 'bigram'): 1})
+
+
+    test_string = 'test trigram text'
+    wordseq = words(test_string)
+
+    P3 = NgramTextModel(3, wordseq)
+
+    assert ('', '', 'test') in P3.dictionary
+    assert ('', 'test', 'trigram') in P3.dictionary
+    assert ('test', 'trigram', 'text') in P3.dictionary
+    assert len(P3.dictionary) == 3
+
 
 def test_viterbi_segmentation():
     flatland = DataFile("EN-text/flatland.txt").read()
@@ -54,7 +80,7 @@ def test_viterbi_segmentation():
     P = UnigramTextModel(wordseq)
     text = "itiseasytoreadwordswithoutspaces"
 
-    s, p = viterbi_segment(text,P)
+    s, p = viterbi_segment(text, P)
     assert s == [
         'it', 'is', 'easy', 'to', 'read', 'words', 'without', 'spaces']
 
@@ -71,6 +97,17 @@ def test_shift_decoding():
     msg = ring.decode('Kyzj zj r jvtivk dvjjrxv.')
 
     assert msg == 'This is a secret message.'
+
+
+def test_permutation_decoder():
+    gutenberg = DataFile("EN-text/gutenberg.txt").read()
+    flatland = DataFile("EN-text/flatland.txt").read()
+    
+    pd = PermutationDecoder(canonicalize(gutenberg))
+    assert pd.decode('aba') in ('ece', 'ete', 'tat', 'tit', 'txt')
+    
+    pd = PermutationDecoder(canonicalize(flatland))
+    assert pd.decode('aba') in ('ded', 'did', 'ece', 'ele', 'eme', 'ere', 'eve', 'eye', 'iti', 'mom', 'ses', 'tat', 'tit')
 
 
 def test_rot13_encoding():

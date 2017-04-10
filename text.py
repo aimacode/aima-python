@@ -4,7 +4,7 @@ and show the Viterbi algorithm for segmentatioon of letters into words.
 Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
-from utils import argmin
+from utils import argmin, argmax, hashabledict
 from learning import CountingProbDist
 import search
 
@@ -24,6 +24,7 @@ class UnigramTextModel(CountingProbDist):
     def samples(self, n):
         "Return a string of n words, random according to the model."
         return ' '.join(self.sample() for i in range(n))
+
 
 
 class NgramTextModel(CountingProbDist):
@@ -50,12 +51,16 @@ class NgramTextModel(CountingProbDist):
             self.cond_prob[ngram[:-1]] = CountingProbDist()
         self.cond_prob[ngram[:-1]].add(ngram[-1])
 
+    def add_empty(self, words, n):
+        return [''] * (n - 1) + words
+
     def add_sequence(self, words):
         """Add each of the tuple words[i:i+n], using a sliding window.
         Prefix some copies of the empty word, '', to make the start work."""
         n = self.n
-        words = ['', ] * (n - 1) + words
-        for i in range(len(words) - n):
+        words = self.add_empty(words, n)
+
+        for i in range(len(words) - n + 1):
             self.add(tuple(words[i:i + n]))
 
     def samples(self, nwords):
@@ -71,6 +76,15 @@ class NgramTextModel(CountingProbDist):
             output.append(wn)
             nminus1gram = nminus1gram[1:] + (wn,)
         return ' '.join(output)
+
+
+class NgramCharModel(NgramTextModel):
+    def add_empty(self, words, n):
+        return  ' ' * (n - 1) + words
+
+    def add_sequence(self, words):
+        for word in words:
+            super().add_sequence(word)
 
 # ______________________________________________________________________________
 
@@ -336,37 +350,59 @@ class PermutationDecoder:
     def __init__(self, training_text, ciphertext=None):
         self.Pwords = UnigramTextModel(words(training_text))
         self.P1 = UnigramTextModel(training_text)  # By letter
-        self.P2 = NgramTextModel(2, training_text)  # By letter pair
+        self.P2 = NgramTextModel(2, words(training_text))  # By letter pair
 
     def decode(self, ciphertext):
         """Search for a decoding of the ciphertext."""
-        self.ciphertext = ciphertext
+        self.ciphertext = canonicalize(ciphertext)
+        # reduce domain to speed up search
+        self.chardomain = {c for c in self.ciphertext if c is not ' '}
         problem = PermutationDecoderProblem(decoder=self)
-        return search.best_first_tree_search(
+        solution =  search.best_first_graph_search(
             problem, lambda node: self.score(node.state))
+        print(solution.state, len(solution.state))
+        solution.state[' '] = ' '
+        return translate(self.ciphertext, lambda c: solution.state[c])
+
 
     def score(self, code):
         """Score is product of word scores, unigram scores, and bigram scores.
         This can get very small, so we use logs and exp."""
-        text = permutation_decode(self.ciphertext, code)
-        logP = (sum([log(self.Pwords[word]) for word in words(text)]) +
-                sum([log(self.P1[c]) for c in text]) +
-                sum([log(self.P2[b]) for b in bigrams(text)]))
-        return exp(logP)
+
+        # remake code dictionary to contain translation for all characters
+        full_code = code.copy()
+        full_code.update({x:x for x in self.chardomain if x not in code})
+        full_code[' '] = ' '
+        text = translate(self.ciphertext, lambda c: full_code[c])
+
+        # add small positive value to prevent computing log(0)
+        # TODO: Modify the values to make score more accurate
+        logP = (sum([log(self.Pwords[word] + 1e-20) for word in words(text)]) +
+                sum([log(self.P1[c] + 1e-5) for c in text]) +
+                sum([log(self.P2[b] + 1e-10) for b in bigrams(text)]))
+        return -exp(logP)
 
 
 class PermutationDecoderProblem(search.Problem):
 
     def __init__(self, initial=None, goal=None, decoder=None):
-        self.initial = initial or {}
+        self.initial = initial or hashabledict()
         self.decoder = decoder
 
     def actions(self, state):
-        # Find the best
-        p, plainchar = max([(self.decoder.P1[c], c)
-                            for c in alphabet if c not in state])
-        succs = [extend(state, plainchar, cipherchar)]  # ???? # noqa
+        search_list = [c for c in self.decoder.chardomain if c not in state]
+        target_list = [c for c in alphabet if c not in state.values()]
+        # Find the best charater to replace
+        plainchar = argmax(search_list, key=lambda c: self.decoder.P1[c])
+        for cipherchar in target_list:
+            yield (plainchar, cipherchar)
+
+    def result(self, state, action):
+        new_state = hashabledict(state)  # copy to prevent hash issues
+        assert type(new_state) == hashabledict
+        new_state[action[0]] = action[1]
+        return new_state
 
     def goal_test(self, state):
-        """We're done when we get all 26 letters assigned."""
-        return len(state) >= 26
+        """We're done when all letters in search domain are assigned."""
+        return len(state) >= len(self.decoder.chardomain)
