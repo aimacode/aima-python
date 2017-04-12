@@ -469,7 +469,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     """
 
     i_units = len(dataset.inputs)
-    o_units = 1  # As of now, dataset.target gives only one index.
+    o_units = len(dataset.values[dataset.target])
 
     # construct a network
     raw_net = network(i_units, hidden_layer_sizes, o_units)
@@ -494,8 +494,115 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
 
         # Hypothesis
         o_nodes = learned_net[-1]
-        pred = [o_nodes[i].value for i in range(o_units)]
-        return 1 if pred[0] >= 0.5 else 0
+        prediction = find_max_node(o_nodes)
+        return prediction
+
+    return predict
+
+
+def BackPropagationLearner(dataset, net, learning_rate, epochs):
+    """[Figure 18.23] The back-propagation algorithm for multilayer network"""
+    # Initialise weights
+    for layer in net:
+        for node in layer:
+            node.weights = [random.uniform(-0.5, 0.5)
+                            for i in range(len(node.weights))]
+
+    examples = dataset.examples
+    '''
+    As of now dataset.target gives an int instead of list,
+    Changing dataset class will have effect on all the learners.
+    Will be taken care of later
+    '''
+    o_nodes = net[-1]
+    i_nodes = net[0]
+    o_units = len(o_nodes)
+    idx_t = dataset.target
+    idx_i = dataset.inputs
+    n_layers = len(net)
+
+    inputs, targets = init_examples(examples, idx_i, idx_t, o_units)
+
+    for epoch in range(epochs):
+        # Iterate over each example
+        for e in range(len(examples)):
+            i_val = inputs[e]
+            t_val = targets[e]
+
+            # Activate input layer
+            for v, n in zip(i_val, i_nodes):
+                n.value = v
+
+            # Forward pass
+            for layer in net[1:]:
+                for node in layer:
+                    inc = [n.value for n in node.inputs]
+                    in_val = dotproduct(inc, node.weights)
+                    node.value = node.activation(in_val)
+
+            # Initialize delta
+            delta = [[] for i in range(n_layers)]
+
+            # Compute outer layer delta
+            err = [t_val[i] - o_nodes[i].value
+                   for i in range(o_units)]
+            delta[-1] = [(o_nodes[i].value) * (1 - o_nodes[i].value) *
+                         (err[i]) for i in range(o_units)]
+
+            # Backward pass
+            h_layers = n_layers - 2
+            for i in range(h_layers, 0, -1):
+                layer = net[i]
+                h_units = len(layer)
+                nx_layer = net[i+1]
+                # weights from each ith layer node to each i + 1th layer node
+                w = [[node.weights[k] for node in nx_layer]
+                     for k in range(h_units)]
+
+                delta[i] = [(layer[j].value) * (1 - layer[j].value) *
+                            dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+
+            #  Update weights
+            for i in range(1, n_layers):
+                layer = net[i]
+                inc = [node.value for node in net[i-1]]
+                units = len(layer)
+                for j in range(units):
+                    layer[j].weights = vector_add(layer[j].weights,
+                                                  scalar_vector_product(
+                                                  learning_rate * delta[i][j], inc))
+
+    return net
+
+
+def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
+    """Logistic Regression, NO hidden layer"""
+    i_units = len(dataset.inputs)
+    o_units = len(dataset.values[dataset.target])
+    hidden_layer_sizes = []
+    raw_net = network(i_units, hidden_layer_sizes, o_units)
+    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs)
+
+    def predict(example):
+        # Input nodes
+        i_nodes = learned_net[0]
+
+        # Activate input layer
+        for v, n in zip(example, i_nodes):
+            n.value = v
+
+        # Forward pass
+        for layer in learned_net[1:]:
+            for node in layer:
+                inc = [n.value for n in node.inputs]
+                in_val = dotproduct(inc, node.weights)
+                node.value = node.activation(in_val)
+
+        # Hypothesis
+        o_nodes = learned_net[-1]
+        prediction = find_max_node(o_nodes)
+        return prediction
 
     return predict
 
@@ -537,108 +644,30 @@ def network(input_units, hidden_layer_sizes, output_units):
     return net
 
 
-def BackPropagationLearner(dataset, net, learning_rate, epochs):
-    """[Figure 18.23] The back-propagation algorithm for multilayer network"""
-    # Initialise weights
-    for layer in net:
-        for node in layer:
-            node.weights = [random.uniform(-0.5, 0.5)
-                            for i in range(len(node.weights))]
+def init_examples(examples, idx_i, idx_t, o_units):
+    inputs = {}
+    targets = {}
 
-    examples = dataset.examples
-    '''
-    As of now dataset.target gives an int instead of list,
-    Changing dataset class will have effect on all the learners.
-    Will be taken care of later
-    '''
-    idx_t = [dataset.target]
-    idx_i = dataset.inputs
-    n_layers = len(net)
-    o_nodes = net[-1]
-    i_nodes = net[0]
+    for i in range(len(examples)):
+        e = examples[i]
+        # Input values of e
+        inputs[i] = [e[i] for i in idx_i]
 
-    for epoch in range(epochs):
-        # Iterate over each example
-        for e in examples:
-            i_val = [e[i] for i in idx_i]
-            t_val = [e[i] for i in idx_t]
-            # Activate input layer
-            for v, n in zip(i_val, i_nodes):
-                n.value = v
+        if o_units > 1:
+            # One-Hot representation of e's target
+            t = [0 for i in range(o_units)]
+            t[e[idx_t]] = 1
+            targets[i] = t
+        else:
+            # Target value of e
+            targets[i] = [e[idx_t]]
 
-            # Forward pass
-            for layer in net[1:]:
-                for node in layer:
-                    inc = [n.value for n in node.inputs]
-                    in_val = dotproduct(inc, node.weights)
-                    node.value = node.activation(in_val)
-
-            # Initialize delta
-            delta = [[] for i in range(n_layers)]
-
-            # Compute outer layer delta
-            o_units = len(o_nodes)
-            err = [t_val[i] - o_nodes[i].value
-                   for i in range(o_units)]
-            delta[-1] = [(o_nodes[i].value) * (1 - o_nodes[i].value) *
-                         (err[i]) for i in range(o_units)]
-
-            # Backward pass
-            h_layers = n_layers - 2
-            for i in range(h_layers, 0, -1):
-                layer = net[i]
-                h_units = len(layer)
-                nx_layer = net[i+1]
-                # weights from each ith layer node to each i + 1th layer node
-                w = [[node.weights[k] for node in nx_layer]
-                     for k in range(h_units)]
-
-                delta[i] = [(layer[j].value) * (1 - layer[j].value) *
-                            dotproduct(w[j], delta[i+1])
-                            for j in range(h_units)]
-
-            #  Update weights
-            for i in range(1, n_layers):
-                layer = net[i]
-                inc = [node.value for node in net[i-1]]
-                units = len(layer)
-                for j in range(units):
-                    layer[j].weights = vector_add(layer[j].weights,
-                                                  scalar_vector_product(
-                                                  learning_rate * delta[i][j], inc))
-
-    return net
+    return inputs, targets
 
 
-def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
-    """Logistic Regression, NO hidden layer"""
-    i_units = len(dataset.inputs)
-    o_units = 1  # As of now, dataset.target gives only one index.
-    hidden_layer_sizes = []
-    raw_net = network(i_units, hidden_layer_sizes, o_units)
-    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs)
+def find_max_node(nodes):
+    return nodes.index(argmax(nodes, key=lambda node: node.value))
 
-    def predict(example):
-        # Input nodes
-        i_nodes = learned_net[0]
-
-        # Activate input layer
-        for v, n in zip(example, i_nodes):
-            n.value = v
-
-        # Forward pass
-        for layer in learned_net[1:]:
-            for node in layer:
-                inc = [n.value for n in node.inputs]
-                in_val = dotproduct(inc, node.weights)
-                node.value = node.activation(in_val)
-
-        # Hypothesis
-        o_nodes = learned_net[-1]
-        pred = [o_nodes[i].value for i in range(o_units)]
-        return 1 if pred[0] >= 0.5 else 0
-
-    return predict
 # ______________________________________________________________________________
 
 
