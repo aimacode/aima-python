@@ -1,5 +1,3 @@
-from IPython.display import HTML, display
-
 _canvas = """
 <script type="text/javascript" src="./js/canvas.js"></script>
 <div>
@@ -25,7 +23,7 @@ class Canvas:
         self.height = height
         self.html = _canvas.format(self.id, self.width, self.height, self.name)
         self.exec_list = []
-        display(HTML(self.html))
+        display_html(self.html)
 
     def mouse_click(self, x, y):
         "Override this method to handle mouse click at position (x, y)"
@@ -115,10 +113,14 @@ class Canvas:
 
     def alert(self, message):
         "Immediately display an alert"
-        display(HTML('<script>alert("{0}")</script>'.format(message)))
+        display_html('<script>alert("{0}")</script>'.format(message))
 
     def update(self):
         "Execute the JS code to execute the commands queued by execute()"
         exec_code = "<script>\n" + '\n'.join(self.exec_list) + "\n</script>"
         self.exec_list = []
-        display(HTML(exec_code))
+        display_html(exec_code)
+
+def display_html(html_string):
+    from IPython.display import HTML, display
+    display(HTML(html_string))
