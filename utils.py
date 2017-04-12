@@ -579,19 +579,19 @@ class hashabledict(dict):
         return hash(self.__tuplify__())
 
     def __lt__(self, odict):
-        assert type(odict) is hashabledict
+        assert isinstance(odict, hashabledict)
         return self.__tuplify__() < odict.__tuplify__()
 
     def __gt__(self, odict):
-        assert type(odict) is hashabledict
+        assert isinstance(odict, hashabledict)
         return self.__tuplify__() > odict.__tuplify__()
 
     def __le__(self, odict):
-        assert type(odict) is hashabledict
+        assert isinstance(odict, hashabledict)
         return self.__tuplify__() <= odict.__tuplify__()
 
     def __ge__(self, odict):
-        assert type(odict) is hashabledict
+        assert isinstance(odict, hashabledict)
         return self.__tuplify__() >= odict.__tuplify__()
 
 

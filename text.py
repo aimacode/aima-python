@@ -399,7 +399,6 @@ class PermutationDecoderProblem(search.Problem):
 
     def result(self, state, action):
         new_state = hashabledict(state)  # copy to prevent hash issues
-        assert type(new_state) == hashabledict
         new_state[action[0]] = action[1]
         return new_state
 
