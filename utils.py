@@ -307,10 +307,10 @@ def issequence(x):
     return isinstance(x, collections.abc.Sequence)
 
 
-def print_table(table, header=None, sep='   ', numfmt='%g'):
+def print_table(table, header=None, sep='   ', numfmt='{}'):
     """Print a list of lists as a table, so that columns line up nicely.
     header, if specified, will be printed as the first row.
-    numfmt is the format for all numbers; you might want e.g. '%6.2f'.
+    numfmt is the format for all numbers; you might want e.g. '{:.2f}'.
     (If you want different formats in different columns,
     don't use print_table.) sep is the separator between columns."""
     justs = ['rjust' if isnumber(x) else 'ljust' for x in table[0]]
@@ -566,6 +566,33 @@ class defaultkeydict(collections.defaultdict):
     def __missing__(self, key):
         self[key] = result = self.default_factory(key)
         return result
+
+
+class hashabledict(dict):
+    """Allows hashing by representing a dictionary as tuple of key:value pairs
+       May cause problems as the hash value may change during runtime
+    """
+    def __tuplify__(self):
+        return tuple(sorted(self.items()))
+
+    def __hash__(self):
+        return hash(self.__tuplify__())
+
+    def __lt__(self, odict):
+        assert isinstance(odict, hashabledict)
+        return self.__tuplify__() < odict.__tuplify__()
+
+    def __gt__(self, odict):
+        assert isinstance(odict, hashabledict)
+        return self.__tuplify__() > odict.__tuplify__()
+
+    def __le__(self, odict):
+        assert isinstance(odict, hashabledict)
+        return self.__tuplify__() <= odict.__tuplify__()
+
+    def __ge__(self, odict):
+        assert isinstance(odict, hashabledict)
+        return self.__tuplify__() >= odict.__tuplify__()
 
 
 # ______________________________________________________________________________

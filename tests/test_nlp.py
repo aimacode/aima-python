@@ -95,7 +95,7 @@ def test_relevant_pages():
 def test_normalize():
     normalize(pageDict)
     print(page.hub for addr, page in nlp.pagesIndex.items())
-    expected_hub = [1/91, 2/91, 3/91, 4/91, 5/91, 6/91]  # Works only for sample data above
+    expected_hub = [1/91**0.5, 2/91**0.5, 3/91**0.5, 4/91**0.5, 5/91**0.5, 6/91**0.5]  # Works only for sample data above
     expected_auth = list(reversed(expected_hub))
     assert len(expected_hub) == len(expected_auth) == len(nlp.pagesIndex)
     assert expected_hub == [page.hub for addr, page in sorted(nlp.pagesIndex.items())]
