@@ -389,9 +389,14 @@ def HITS(query):
         p.authority = 1
         p.hub = 1
     while True:  # repeat until... convergence
-        for p in pages.values():
-            p.authority = sum(x.hub for x in getInlinks(p))  # p.authority ← ∑i Inlinki(p).Hub
-            p.hub = sum(x.authority for x in getOutlinks(p))  # p.hub ← ∑i Outlinki(p).Authority
+        updated_authority = {}
+        updated_hub = {}
+        for p in pages:
+            updated_authority[p] = sum(x.hub for x in getInlinks(pages[p]))  # p.authority ← ∑i Inlinki(p).Hub
+            updated_hub[p] = sum(x.authority for x in getOutlinks(pages[p]))  # p.hub ← ∑i Outlinki(p).Authority
+        for p in pages:
+            pages[p].authority = updated_authority[p]
+            pages[p].hub = updated_hub[p]
         normalize(pages)
         if convergence():
             break
