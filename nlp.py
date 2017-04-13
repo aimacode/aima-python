@@ -301,14 +301,17 @@ def expand_pages(pages):
 
 
 def relevant_pages(query):
-    """Relevant pages are pages that contain the query in its entireity.
-    If a page's content contains the query it is returned by the function."""
-    relevant = {}
-    print("pagesContent in function: ", pagesContent)
-    for addr, page in pagesIndex.items():
-        if query.lower() in pagesContent[addr].lower():
-            relevant[addr] = page
-    return relevant
+    """Relevant pages are pages that contain all of the query words. They are obtained by 
+    intersecting the hit lists of the query words."""
+    intersection = set()
+    query_words = query.split()
+    for query_word in query_words:
+        hit_list = set()
+        for addr in pagesIndex:
+            if query_word.lower() in pagesContent[addr].lower():
+                hit_list.add(addr)
+        intersection = hit_list if not intersection else intersection.intersection(hit_list)
+    return {addr: pagesIndex[addr] for addr in intersection}
 
 
 def normalize(pages):

@@ -26,7 +26,7 @@ testHTML = """Keyword String 1: A man is a male human.
             href="https://google.com.au"
             < href="/wiki/TestThing" > href="/wiki/TestBoy"
             href="/wiki/TestLiving" href="/wiki/TestMan" >"""
-testHTML2 = "Nothing"
+testHTML2 = "a mom and a dad"
 
 pA = Page("A", 1, 6, ["B", "C", "E"], ["D"])
 pB = Page("B", 2, 5, ["E"], ["A", "C", "D"])
@@ -87,9 +87,13 @@ def test_expand_pages():
 
 
 def test_relevant_pages():
-    pages = relevant_pages("male")
-    assert all((x in pages.keys()) for x in ['A', 'C', 'E'])
+    pages = relevant_pages("his dad")
+    assert all((x in pages) for x in ['A', 'C', 'E'])
     assert all((x not in pages) for x in ['B', 'D', 'F'])
+    pages = relevant_pages("mom and dad")
+    assert all((x in pages) for x in ['A', 'B', 'C', 'D', 'E', 'F'])
+    pages = relevant_pages("philosophy")
+    assert all((x not in pages) for x in ['A', 'B', 'C', 'D', 'E', 'F'])
 
 
 def test_normalize():
