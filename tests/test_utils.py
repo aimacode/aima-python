@@ -21,6 +21,8 @@ def test_unique():
 def test_count():
     assert count([1, 2, 3, 4, 2, 3, 4]) == 7
     assert count("aldpeofmhngvia") == 14
+    assert count([True, False, True, True, False]) == 3
+    assert count([5 > 1, len("abc") == 3, 3+1 == 5]) == 2
 
 
 def test_product():
