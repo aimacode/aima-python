@@ -936,10 +936,10 @@ def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
             for A in AgentFactories]
 
 
-def test_agent(AgentFactory, steps, envs):
+def test_agent(AgentFactories, steps, envs):
     """Return the mean score of running an agent in each of the envs, for steps"""
     def score(env):
-        agent = AgentFactory()
+        agent = AgentFactories()
         env.add_thing(agent)
         env.run(steps)
         return agent.performance
