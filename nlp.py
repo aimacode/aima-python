@@ -356,13 +356,13 @@ class ConvergenceDetector(object):
 def getInlinks(page):
     if not page.inlinks:
         page.inlinks = determineInlinks(page)
-    return [p for addr, p in pagesIndex.items() if addr in page.inlinks]
+    return [addr for addr, p in pagesIndex.items() if addr in page.inlinks]
 
 
 def getOutlinks(page):
     if not page.outlinks:
         page.outlinks = findOutlinks(page)
-    return [p for addr, p in pagesIndex.items() if addr in page.outlinks]
+    return [addr for addr, p in pagesIndex.items() if addr in page.outlinks]
 
 
 # ______________________________________________________________________________
@@ -389,14 +389,11 @@ def HITS(query):
         p.authority = 1
         p.hub = 1
     while True:  # repeat until... convergence
-        updated_authority = {}
-        updated_hub = {}
+        authority = {p: pages[p].authority for p in pages}
+        hub = {p: pages[p].hub for p in pages}
         for p in pages:
-            updated_authority[p] = sum(x.hub for x in getInlinks(pages[p]))  # p.authority ← ∑i Inlinki(p).Hub
-            updated_hub[p] = sum(x.authority for x in getOutlinks(pages[p]))  # p.hub ← ∑i Outlinki(p).Authority
-        for p in pages:
-            pages[p].authority = updated_authority[p]
-            pages[p].hub = updated_hub[p]
+            pages[p].authority = sum(hub[x] for x in getInlinks(pages[p]))  # p.authority ← ∑i Inlinki(p).Hub
+            pages[p].hub = sum(authority[x] for x in getOutlinks(pages[p]))  # p.hub ← ∑i Outlinki(p).Authority
         normalize(pages)
         if convergence():
             break

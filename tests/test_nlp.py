@@ -122,12 +122,12 @@ def test_detectConvergence():
 
 def test_getInlinks():
     inlnks = getInlinks(pageDict['A'])
-    assert sorted([page.address for page in inlnks]) == pageDict['A'].inlinks
+    assert sorted(inlnks) == pageDict['A'].inlinks
 
 
 def test_getOutlinks():
     outlnks = getOutlinks(pageDict['A'])
-    assert sorted([page.address for page in outlnks]) == pageDict['A'].outlinks
+    assert sorted(outlnks) == pageDict['A'].outlinks
 
 
 def test_HITS():
