@@ -40,13 +40,13 @@ def test_means_and_deviation():
 
     means, deviations = iris.find_means_and_deviations()
 
-    assert means["setosa"] == [5.006, 3.418, 1.464, 0.244]
-    assert means["versicolor"] == [5.936, 2.77, 4.26, 1.326]
-    assert means["virginica"] == [6.588, 2.974, 5.552, 2.026]
+    assert round(means["setosa"][0], 3) == 5.006
+    assert round(means["versicolor"][0], 3) == 5.936
+    assert round(means["virginica"][0], 3) == 6.588
 
-    assert round(deviations["setosa"][0],3) == 0.352
-    assert round(deviations["versicolor"][0],3) == 0.516
-    assert round(deviations["virginica"][0],3) == 0.636
+    assert round(deviations["setosa"][0], 3) == 0.352
+    assert round(deviations["versicolor"][0], 3) == 0.516
+    assert round(deviations["virginica"][0], 3) == 0.636
 
 
 def test_plurality_learner():
