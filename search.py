@@ -4,18 +4,21 @@ The way to use this code is to subclass Problem to create a class of problems,
 then create problem instances and solve them with calls to the various search
 functions."""
 
-from utils import (
-    is_in, argmin, argmax, argmax_random_tie, probability,
-    weighted_sample_with_replacement, memoize, print_table, DataFile, Stack,
-    FIFOQueue, PriorityQueue, name
-)
-from grid import distance
-
-from collections import defaultdict
+import bisect
 import math
 import random
+import string
 import sys
-import bisect
+from collections import defaultdict
+
+from fuzzywuzzy import fuzz
+
+from grid import distance
+from utils import (
+    is_in, argmin, argmax_random_tie, probability,
+    memoize, print_table, DataFile, Stack,
+    FIFOQueue, PriorityQueue, name
+)
 
 infinity = float('inf')
 
@@ -569,46 +572,94 @@ class LRTAStarAgent:
 # Genetic Algorithm
 
 
-def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
-    """Call genetic_algorithm on the appropriate parts of a problem.
-    This requires the problem to have states that can mate and mutate,
-    plus a value method that scores states."""
-    s = problem.initial_state
-    states = [problem.result(s, a) for a in problem.actions(s)]
-    random.shuffle(states)
-    return genetic_algorithm(states[:n], problem.value, ngen, pmut)
-
-
-def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
-    """[Figure 4.8]"""
-    for i in range(ngen):
-        new_population = []
-        for i in range(len(population)):
-            fitnesses = map(fitness_fn, population)
-            p1, p2 = weighted_sample_with_replacement(2, population, fitnesses)
-            child = p1.mate(p2)
-            if random.uniform(0, 1) < pmut:
-                child.mutate()
-            new_population.append(child)
-        population = new_population
-    return argmax(population, key=fitness_fn)
-
-
 class GAState:
+    def __init__(self, length):
+        self.string = ''.join(random.choice(string.ascii_letters)
+                              for _ in range(length))
+        self.fitness = -1
 
-    """Abstract class for individuals in a genetic search."""
 
-    def __init__(self, genes):
-        self.genes = genes
+def ga(in_str=None, population=20, generations=10000):
+    in_str_len = len(in_str)
+    individuals = init_individual(population, in_str_len)
 
-    def mate(self, other):
-        """Return a new individual crossing self and other."""
-        c = random.randrange(len(self.genes))
-        return self.__class__(self.genes[:c] + other.genes[c:])
+    for generation in range(generations):
 
-    def mutate(self):
-        """Change a few of my genes."""
-        raise NotImplementedError
+        individuals = fitness(individuals, in_str)
+        individuals = selection(individuals)
+        individuals = crossover(individuals, population, in_str_len)
+
+        if any(individual.fitness >= 90 for individual in individuals):
+            """
+            individuals[0] is the individual with the highest fitness,
+            because individuals is sorted in the selection function.
+            Thus we return the individual with the highest fitness value,
+            among the individuals whose fitness is equal to or greater
+            than 90.
+            """
+
+            return individuals[0]
+
+        individuals = mutation(individuals, in_str_len)
+
+    """
+    sufficient number of generations have passed and the individuals
+    could not evolve to match the desired fitness value.
+    thus we return the fittest individual among the individuals.
+    Since individuals are sorted according to their fitness
+    individuals[0] is the fittest.
+    """
+    return individuals[0]
+
+
+def init_individual(population, length):
+    return [GAState(length) for _ in range(population)]
+
+
+def fitness(individuals, in_str):
+    for individual in individuals:
+        individual.fitness = fuzz.ratio(individual.string, in_str)  # noqa
+
+    return individuals
+
+
+def selection(individuals):
+    individuals = sorted(
+        individuals, key=lambda individual: individual.fitness, reverse=True)
+
+    individuals = individuals[:int(0.2 * len(individuals))]
+    return individuals
+
+
+def crossover(individuals, population, in_str_len):
+    offspring = []
+    for _ in range(int((population - len(individuals)) / 2)):
+        parent1 = random.choice(individuals)
+        parent2 = random.choice(individuals)
+        child1 = GAState(in_str_len)
+        child2 = GAState(in_str_len)
+        split = random.randint(0, in_str_len)
+        child1.string = parent1.string[0:split] + parent2.string[
+                                                  split:in_str_len]
+        child2.string = parent2.string[0:split] + parent1.string[
+                                                  split:in_str_len]
+        offspring.append(child1)
+        offspring.append(child2)
+
+    individuals.extend(offspring)
+    return individuals
+
+
+def mutation(individuals, in_str_len):
+    for individual in individuals:
+
+        for idx, param in enumerate(individual.string):
+            if random.uniform(0.0, 1.0) <= 0.1:
+                individual.string = individual.string[0:idx] \
+                                    + random.choice(string.ascii_letters) \
+                                    + individual.string[idx + 1:in_str_len]
+
+    return individuals
 
 # _____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
@@ -926,7 +977,7 @@ def print_boggle(board):
     print()
 
 
-def boggle_neighbors(n2, cache={}):
+def boggle_neighbors(n2, cache={}):  # noqa
     """Return a list of lists, where the i-th element is the list of indexes
     for the neighbors of square i."""
     if cache.get(n2):
