@@ -806,8 +806,9 @@ def flatten(seqs): return sum(seqs, [])
 # Functions for testing learners on examples
 
 
-def test(predict, dataset, examples=None, verbose=0):
+def err_ratio(predict, dataset, examples=None, verbose=0):
     """Return the proportion of the examples that are NOT correctly predicted."""
+    """verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct"""
     if examples is None:
         examples = dataset.examples
     if len(examples) == 0:
@@ -824,6 +825,12 @@ def test(predict, dataset, examples=None, verbose=0):
             print('WRONG: got {}, expected {} for {}'.format(
                 output, desired, example))
     return 1 - (right / len(examples))
+
+
+def grade_learner(predict, tests):
+    """Grades the given learner based on how many tests it passes.
+    tests is a list with each element in the form: (values, output)."""
+    return mean(int(predict(X) == y) for X, y in tests)
 
 
 def train_and_test(dataset, start, end):
@@ -863,8 +870,8 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
                                                   (fold + 1) * (n / k))
             dataset.examples = train_data
             h = learner(dataset, size)
-            fold_errT += test(h, dataset, train_data)
-            fold_errV += test(h, dataset, val_data)
+            fold_errT += err_ratio(h, dataset, train_data)
+            fold_errV += err_ratio(h, dataset, val_data)
             # Reverting back to original once test is completed
             dataset.examples = examples
         return fold_errT / k, fold_errV / k
@@ -907,16 +914,6 @@ def learningcurve(learner, dataset, trials=10, sizes=None):
         return train_and_test(learner, dataset, 0, size)
     return [(size, mean([score(learner, size) for t in range(trials)]))
             for size in sizes]
-
-
-def grade_learner(predict, tests):
-    """Grades the given learner based on how many tests it passes.
-    tests is a list with each element in the form: (values, output)."""
-    correct = 0
-    for t in tests:
-        if predict(t[0]) == t[1]:
-            correct += 1
-    return correct
 
 # ______________________________________________________________________________
 # The rest of this file gives datasets for machine learning problems.
