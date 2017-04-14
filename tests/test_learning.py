@@ -1,7 +1,7 @@
 from learning import parse_csv, weighted_mode, weighted_replicate, DataSet, \
                      PluralityLearner, NaiveBayesLearner, NearestNeighborLearner, \
                      NeuralNetLearner, PerceptronLearner, DecisionTreeLearner, \
-                     euclidean_distance, grade_learner
+                     euclidean_distance, grade_learner, err_ratio
 from utils import DataFile
 
 
@@ -83,6 +83,7 @@ def test_neural_network_learner():
              ([7, 3, 6, 2.5], 2)]
 
     assert grade_learner(nNL, tests) >= 2/3
+    assert err_ratio(nNL, iris) < 0.25
 
 
 def test_perceptron():
@@ -100,3 +101,4 @@ def test_perceptron():
              ([7, 3, 6, 2.5], 2)]
 
     assert grade_learner(perceptron, tests) > 1/2
+    assert err_ratio(perceptron, iris) < 0.4
