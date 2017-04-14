@@ -11,8 +11,6 @@ import string
 import sys
 from collections import defaultdict
 
-from fuzzywuzzy import fuzz
-
 from grid import distance
 from utils import (
     is_in, argmin, argmax_random_tie, probability,
@@ -617,8 +615,11 @@ def init_individual(population, length):
 
 
 def fitness(individuals, in_str):
+    def fitness_ration(str_1, str_2):
+        return 100*sum(p == t for p,t in zip(str_1, str_2))/len(str_1)
+        
     for individual in individuals:
-        individual.fitness = fuzz.ratio(individual.string, in_str)  # noqa
+        individual.fitness = fitness_ratio(individual.string, in_str)
 
     return individuals
 
