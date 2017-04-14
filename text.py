@@ -19,10 +19,10 @@ class UnigramTextModel(CountingProbDist):
 
     """This is a discrete probability distribution over words, so you
     can add, sample, or get P[word], just like with CountingProbDist.  You can
-    also generate a random text n words long with P.samples(n)"""
+    also generate a random text n words long with P.samples(n)."""
 
     def samples(self, n):
-        "Return a string of n words, random according to the model."
+        """Return a string of n words, random according to the model."""
         return ' '.join(self.sample() for i in range(n))
 
 
@@ -97,12 +97,13 @@ def viterbi_segment(text, P):
     n = len(text)
     words = [''] + list(text)
     best = [1.0] + [0.0] * n
-    # Fill in the vectors best, words via dynamic programming
+    # Fill in the vectors best words via dynamic programming
     for i in range(n+1):
         for j in range(0, i):
             w = text[j:i]
-            if P[w] * best[i - len(w)] >= best[i]:
-                best[i] = P[w] * best[i - len(w)]
+            curr_score = P[w] * best[i - len(w)]
+            if curr_score >= best[i]:
+                best[i] = curr_score
                 words[i] = w
     # Now recover the sequence of best words
     sequence = []
@@ -124,7 +125,7 @@ class IRSystem:
     The constructor s = IRSystem('the a') builds an empty system with two
     stopwords. Next, index several documents with s.index_document(text, url).
     Then ask queries with s.query('query words', n) to retrieve the top n
-    matching documents.  Queries are literal words from the document,
+    matching documents. Queries are literal words from the document,
     except that stopwords are ignored, and there is one special syntax:
     The query "learn: man cat", for example, runs "man cat" and indexes it."""
 
@@ -137,14 +138,14 @@ class IRSystem:
         self.documents = []
 
     def index_collection(self, filenames):
-        "Index a whole collection of files."
+        """Index a whole collection of files."""
         prefix = os.path.dirname(__file__)
         for filename in filenames:
             self.index_document(open(filename).read(),
                                 os.path.relpath(filename, prefix))
 
     def index_document(self, text, url):
-        "Index the text of a document."
+        """Index the text of a document."""
         # For now, use first line for title
         title = text[:text.index('\n')].strip()
         docwords = words(text)
@@ -278,7 +279,7 @@ def maketrans(from_, to_):
 
 
 def encode(plaintext, code):
-    """Encodes text, using a code which is a permutation of the alphabet."""
+    """Encode text using a code which is a permutation of the alphabet."""
     trans = maketrans(alphabet + alphabet.upper(), code + code.upper())
 
     return translate(plaintext, trans)
@@ -318,9 +319,7 @@ class ShiftDecoder:
     def decode(self, ciphertext):
         """Return the shift decoding of text with the best score."""
 
-        list_ = [(self.score(shift), shift)
-                 for shift in all_shifts(ciphertext)]
-        return max(list_, key=lambda elm: elm[0])[1]
+        return argmax(all_shifts(ciphertext), key=lambda shift: self.score(shift))
 
 
 def all_shifts(text):
@@ -333,19 +332,18 @@ def all_shifts(text):
 
 class PermutationDecoder:
 
-    """This is a much harder problem than the shift decoder.  There are 26!
-    permutations, so we can't try them all.  Instead we have to search.
+    """This is a much harder problem than the shift decoder. There are 26!
+    permutations, so we can't try them all. Instead we have to search.
     We want to search well, but there are many things to consider:
     Unigram probabilities (E is the most common letter); Bigram probabilities
     (TH is the most common bigram); word probabilities (I and A are the most
     common one-letter words, etc.); etc.
-      We could represent a search state as a permutation of the 26 letters,
-    and alter the solution through hill climbing.  With an initial guess
+    We could represent a search state as a permutation of the 26 letters,
+    and alter the solution through hill climbing. With an initial guess
     based on unigram probabilities, this would probably fare well. However,
     I chose instead to have an incremental representation. A state is
     represented as a letter-to-letter map; for example {'z': 'e'} to
-    represent that 'z' will be translated to 'e'.
-    """
+    represent that 'z' will be translated to 'e'."""
 
     def __init__(self, training_text, ciphertext=None):
         self.Pwords = UnigramTextModel(words(training_text))
@@ -360,7 +358,7 @@ class PermutationDecoder:
         problem = PermutationDecoderProblem(decoder=self)
         solution =  search.best_first_graph_search(
             problem, lambda node: self.score(node.state))
-        print(solution.state, len(solution.state))
+
         solution.state[' '] = ' '
         return translate(self.ciphertext, lambda c: solution.state[c])
 
@@ -399,7 +397,6 @@ class PermutationDecoderProblem(search.Problem):
 
     def result(self, state, action):
         new_state = hashabledict(state)  # copy to prevent hash issues
-        assert type(new_state) == hashabledict
         new_state[action[0]] = action[1]
         return new_state
 

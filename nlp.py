@@ -318,8 +318,8 @@ def normalize(pages):
     summed_hub = sum(page.hub**2 for _, page in pages.items())
     summed_auth = sum(page.authority**2 for _, page in pages.items())
     for _, page in pages.items():
-        page.hub /= summed_hub
-        page.authority /= summed_auth
+        page.hub /= summed_hub**0.5
+        page.authority /= summed_auth**0.5
 
 
 class ConvergenceDetector(object):
@@ -385,11 +385,11 @@ convergence = ConvergenceDetector()  # assign function to variable to mimic pseu
 def HITS(query):
     """The HITS algorithm for computing hubs and authorities with respect to a query."""
     pages = expand_pages(relevant_pages(query))  # in order to 'map' faithfully to pseudocode we
-    for p in pages:                              # won't pass the list of pages as an argument
+    for p in pages.values():                              # won't pass the list of pages as an argument
         p.authority = 1
         p.hub = 1
     while True:  # repeat until... convergence
-        for p in pages:
+        for p in pages.values():
             p.authority = sum(x.hub for x in getInlinks(p))  # p.authority ← ∑i Inlinki(p).Hub
             p.hub = sum(x.authority for x in getOutlinks(p))  # p.hub ← ∑i Outlinki(p).Authority
         normalize(pages)

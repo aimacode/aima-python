@@ -1,11 +1,15 @@
 import pytest
 import nlp
+
 from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
 from nlp import getOutlinks, Page
 from nlp import Rules, Lexicon
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by function's within nlp.py
+
+from unittest.mock import patch
+from io import BytesIO
 
 
 def test_rules():
@@ -27,6 +31,19 @@ testHTML = """Keyword String 1: A man is a male human.
             < href="/wiki/TestThing" > href="/wiki/TestBoy"
             href="/wiki/TestLiving" href="/wiki/TestMan" >"""
 testHTML2 = "Nothing"
+testHTML3 = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>Page Title</title>
+            </head>
+            <body>
+
+            <p>AIMA book</p>
+
+            </body>
+            </html>
+            """
 
 pA = Page("A", 1, 6, ["B", "C", "E"], ["D"])
 pB = Page("B", 2, 5, ["E"], ["A", "C", "D"])
@@ -52,12 +69,14 @@ nlp.pagesContent ={pA.address: testHTML, pB.address: testHTML2,
 #     assert all(loadedPages.get(key,"") != "" for key in addresses)
 
 
-def test_stripRawHTML():
+@patch('urllib.request.urlopen', return_value=BytesIO(testHTML3.encode()))
+def test_stripRawHTML(html_mock):
     addr = "https://en.wikipedia.org/wiki/Ethics"
     aPage = loadPageHTML([addr])
     someHTML = aPage[addr]
     strippedHTML = stripRawHTML(someHTML)
     assert "<head>" not in strippedHTML and "</head>" not in strippedHTML
+    assert "AIMA book" in someHTML and "AIMA book" in strippedHTML
 
 
 def test_determineInlinks():
@@ -95,7 +114,7 @@ def test_relevant_pages():
 def test_normalize():
     normalize(pageDict)
     print(page.hub for addr, page in nlp.pagesIndex.items())
-    expected_hub = [1/91, 2/91, 3/91, 4/91, 5/91, 6/91]  # Works only for sample data above
+    expected_hub = [1/91**0.5, 2/91**0.5, 3/91**0.5, 4/91**0.5, 5/91**0.5, 6/91**0.5]  # Works only for sample data above
     expected_auth = list(reversed(expected_hub))
     assert len(expected_hub) == len(expected_auth) == len(nlp.pagesIndex)
     assert expected_hub == [page.hub for addr, page in sorted(nlp.pagesIndex.items())]

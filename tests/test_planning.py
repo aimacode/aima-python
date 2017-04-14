@@ -73,9 +73,9 @@ def test_have_cake_and_eat_cake_too():
 
 
 def test_graph_call():
-    pdll = spare_tire()
+    pddl = spare_tire()
     negkb = FolKB([expr('At(Flat, Trunk)')])
-    graph = Graph(pdll, negkb)
+    graph = Graph(pddl, negkb)
 
     levels_size = len(graph.levels)
     graph()
