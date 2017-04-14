@@ -572,94 +572,58 @@ class LRTAStarAgent:
 # Genetic Algorithm
 
 
-class GAState:
-    def __init__(self, length):
-        self.string = ''.join(random.choice(string.ascii_letters)
-                              for _ in range(length))
-        self.fitness = -1
+def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], fit_threshold=None, ngen=1000, pmut=0.1):
+    """[Figure 4.8]"""
+    for i in range(ngen):
+        new_population = []
+        for j in range(len(population)):
+            fitnesses = map(fitness_fn, population)
+            p1, p2 = weighted_sample_with_replacement(2, population, fitnesses)
+            child = reproduce(p1, p2)
+            if random.uniform(0, 1) < pmut:
+                child = mutate(child, gene_pool)
+            new_population.append(child)
+
+        population = new_population
+
+        if fit_threshold:
+            fittest_individual = argmax(population, key=fitness_fn)
+            if fitness_fn(fittest_individual) >= fit_threshold:
+                return fittest_individual
+
+    return argmax(population, key=fitness_fn)
 
 
-def ga(in_str=None, population=20, generations=10000):
-    in_str_len = len(in_str)
-    individuals = init_individual(population, in_str_len)
+def init_population(pop_number, gene_pool, length):
+    """Initializes population for genetic algorithm
+    pop_number:  Number of individuals in population
+    gene_pool :  List of possible values for individuals
+                 (char only)
+    length    :  The length of each individual"""
+    g = len(gene_pool)
+    population = []
+    for i in range(pop_number):
+        new_individual = ''.join([gene_pool[random.randrange(0, g)]
+                                  for j in range(length)])
+        population.append(new_individual)
 
-    for generation in range(generations):
-
-        individuals = fitness(individuals, in_str)
-        individuals = selection(individuals)
-        individuals = crossover(individuals, population, in_str_len)
-
-        if any(individual.fitness >= 90 for individual in individuals):
-            """
-            individuals[0] is the individual with the highest fitness,
-            because individuals is sorted in the selection function.
-            Thus we return the individual with the highest fitness value,
-            among the individuals whose fitness is equal to or greater
-            than 90.
-            """
-
-            return individuals[0]
-
-        individuals = mutation(individuals, in_str_len)
-
-    """
-    sufficient number of generations have passed and the individuals
-    could not evolve to match the desired fitness value.
-    thus we return the fittest individual among the individuals.
-    Since individuals are sorted according to their fitness
-    individuals[0] is the fittest.
-    """
-    return individuals[0]
+    return population
 
 
-def init_individual(population, length):
-    return [GAState(length) for _ in range(population)]
+def reproduce(x, y):
+    n = len(x)
+    c = random.randrange(0, n)
+    return x[:c] + y[c:]
 
 
-def fitness(individuals, in_str):
-    for individual in individuals:
-        individual.fitness = fuzz.ratio(individual.string, in_str)  # noqa
+def mutate(x, gene_pool):
+    n = len(x)
+    g = len(gene_pool)
+    c = random.randrange(0, n)
+    r = random.randrange(0, g)
 
-    return individuals
-
-
-def selection(individuals):
-    individuals = sorted(
-        individuals, key=lambda individual: individual.fitness, reverse=True)
-
-    individuals = individuals[:int(0.2 * len(individuals))]
-    return individuals
-
-
-def crossover(individuals, population, in_str_len):
-    offspring = []
-    for _ in range(int((population - len(individuals)) / 2)):
-        parent1 = random.choice(individuals)
-        parent2 = random.choice(individuals)
-        child1 = GAState(in_str_len)
-        child2 = GAState(in_str_len)
-        split = random.randint(0, in_str_len)
-        child1.string = parent1.string[0:split] + parent2.string[
-                                                  split:in_str_len]
-        child2.string = parent2.string[0:split] + parent1.string[
-                                                  split:in_str_len]
-        offspring.append(child1)
-        offspring.append(child2)
-
-    individuals.extend(offspring)
-    return individuals
-
-
-def mutation(individuals, in_str_len):
-    for individual in individuals:
-
-        for idx, param in enumerate(individual.string):
-            if random.uniform(0.0, 1.0) <= 0.1:
-                individual.string = individual.string[0:idx] \
-                                    + random.choice(string.ascii_letters) \
-                                    + individual.string[idx + 1:in_str_len]
-
-    return individuals
+    new_gene = gene_pool[r]
+    return x[:c] + new_gene + x[c+1:]
 
 # _____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
