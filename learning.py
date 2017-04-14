@@ -908,6 +908,16 @@ def learningcurve(learner, dataset, trials=10, sizes=None):
     return [(size, mean([score(learner, size) for t in range(trials)]))
             for size in sizes]
 
+
+def grade_learner(predict, tests):
+    """Grades the given learner based on how many tests it passes.
+    tests is a list with each element in the form: (values, output)."""
+    correct = 0
+    for t in tests:
+        if predict(t[0]) == t[1]:
+            correct += 1
+    return correct
+
 # ______________________________________________________________________________
 # The rest of this file gives datasets for machine learning problems.
 
