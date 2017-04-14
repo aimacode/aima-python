@@ -572,7 +572,21 @@ class LRTAStarAgent:
 # Genetic Algorithm
 
 
-def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], fit_threshold=None, ngen=1000, pmut=0.1):
+def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
+    """Call genetic_algorithm on the appropriate parts of a problem.
+    This requires the problem to have states that can mate and mutate,
+    plus a value method that scores states."""
+    
+    # NOTE: This is not tested and might not work.
+    # TODO: Use this function to make Problems work with genetic_algorithm.
+    
+    s = problem.initial_state
+    states = [problem.result(s, a) for a in problem.actions(s)]
+    random.shuffle(states)
+    return genetic_algorithm(states[:n], problem.value, ngen, pmut)
+
+
+def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], f_thres=None, ngen=1000, pmut=0.1):
     """[Figure 4.8]"""
     for i in range(ngen):
         new_population = []
@@ -586,9 +600,9 @@ def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], fit_threshol
 
         population = new_population
 
-        if fit_threshold:
+        if f_thres:
             fittest_individual = argmax(population, key=fitness_fn)
-            if fitness_fn(fittest_individual) >= fit_threshold:
+            if fitness_fn(fittest_individual) >= f_thres:
                 return fittest_individual
 
     return argmax(population, key=fitness_fn)
