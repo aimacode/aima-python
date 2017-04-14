@@ -1,2 +1,3 @@
+fuzzywuzzy==0.15
 networkx==1.11
 jupyter
