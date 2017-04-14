@@ -87,6 +87,23 @@ def test_LRTAStarAgent():
     assert my_agent('State_5') is None
 
 
+def test_genetic_algorithm():
+    edges = {
+        'A': [0, 1],
+        'B': [0, 3],
+        'C': [1, 2],
+        'D': [2, 3]
+    }
+
+    population = init_population(8, ['0', '1'], 4)
+
+    def fitness(c):
+        return sum(c[n1] != c[n2] for (n1, n2) in edges.values())
+
+    solution = genetic_algorithm(population, fitness)
+    assert solution == "0101" or solution == "1010"
+
+
 # TODO: for .ipynb:
 """
 >>> compare_graph_searchers()
