@@ -88,6 +88,7 @@ def test_LRTAStarAgent():
 
 
 def test_genetic_algorithm():
+    # Graph coloring
     edges = {
         'A': [0, 1],
         'B': [0, 3],
@@ -102,6 +103,27 @@ def test_genetic_algorithm():
 
     solution = genetic_algorithm(population, fitness)
     assert solution == "0101" or solution == "1010"
+
+    # Queens Problem
+    population = init_population(100, [str(i) for i in range(8)], 8)
+
+    def fitness(q):
+        non_attacking = 0
+        for row1 in range(len(q)):
+            for row2 in range(row1+1, len(q)):
+                col1 = int(q[row1])
+                col2 = int(q[row2])
+                row_diff = row1 - row2
+                col_diff = col1 - col2
+
+                if col1 != col2 and row_diff != col_diff and row_diff != -col_diff:
+                    non_attacking += 1
+
+        return non_attacking
+
+
+    solution = genetic_algorithm(population, fitness, f_thres=25)
+    assert fitness(solution) == 25
 
 
 # TODO: for .ipynb:
