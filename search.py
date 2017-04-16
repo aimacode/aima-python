@@ -605,17 +605,17 @@ def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], f_thres=None
     return argmax(population, key=fitness_fn)
 
 
-def init_population(pop_number, gene_pool, length):
+def init_population(pop_number, gene_pool, state_length):
     """Initializes population for genetic algorithm
-    pop_number:  Number of individuals in population
-    gene_pool :  List of possible values for individuals
-                 (char only)
-    length    :  The length of each individual"""
+    pop_number  :  Number of individuals in population
+    gene_pool   :  List of possible values for individuals
+                   (char only)
+    state_length:  The length of each individual"""
     g = len(gene_pool)
     population = []
     for i in range(pop_number):
         new_individual = ''.join([gene_pool[random.randrange(0, g)]
-                                  for j in range(length)])
+                                  for j in range(state_length)])
         population.append(new_individual)
 
     return population
