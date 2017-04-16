@@ -586,9 +586,9 @@ def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
 def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], f_thres=None, ngen=1000, pmut=0.1):
     """[Figure 4.8]"""
     for i in range(ngen):
-        fitnesses = map(fitness_fn, population)
         new_population = []
         for j in range(len(population)):
+            fitnesses = map(fitness_fn, population)
             p1, p2 = weighted_sample_with_replacement(2, population, fitnesses)
             child = reproduce(p1, p2)
             if random.uniform(0, 1) < pmut:
