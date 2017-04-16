@@ -2,6 +2,7 @@
 """
 
 import itertools
+from search import Node
 from utils import Expr, expr, first
 from logic import FolKB
 
@@ -653,15 +654,56 @@ class HLA(Action):
                         return False
         return True
     
-    def refine(self, precond, library): # TODO
-        raise NotImplementedError
-
-
-def refinements(hla, outcome, hierarchy):
-    return hla.refine(outcome, hierarchy)
-
-def result(problem, action):
-    return problem.act(action)
+    def refine(self, state, library): # TODO - refinements may be (multiple) HLA themselves ...
+        """
+        state is a Problem, containing the current state kb
+        library is a dictionary containing details for every possible refinement. eg:
+        {
+        "HLA": [
+            "Go(Home,SFO)",
+            "Go(Home,SFO)",
+            "Drive(Home, SFOLongTermParking)",
+            "Shuttle(SFOLongTermParking, SFO)",
+            "Taxi(Home, SFO)"
+               ],
+        "steps": [
+            ["Drive(Home, SFOLongTermParking)", "Shuttle(SFOLongTermParking, SFO)"],
+            ["Taxi(Home, SFO)"],
+            [], # empty refinements ie primitive action
+            [],
+            []
+               ],
+        "precond_pos": [
+            ["At(Home), Have(Car)"],
+            ["At(Home)"],
+            ["At(Home)", "Have(Car)"]
+            ["At(SFOLongTermParking)"]
+            ["At(Home)"]
+                       ],
+        "precond_neg": [[],[],[],[],[]],
+        "effect_pos": [
+            ["At(SFO)"],
+            ["At(SFO)"],
+            ["At(SFOLongTermParking)"],
+            ["At(SFO)"],
+            ["At(SFO)"]
+                      ],
+        "effect_neg": [
+            ["At(Home)"],
+            ["At(Home)"],
+            ["At(Home)"],
+            ["At(SFOLongTermParking)"],
+            ["At(Home)"]
+                      ]
+        }
+        """
+        e = Expr(self.name, self.args)
+        indices = [i for i,x in enumerate(library["HLA"]) if expr(x) == e]
+        for i in indices:
+            action = HLA(expr(library["steps"][i]), [s["precond_pos"][i],s["precond_neg"][i]], 
+                         [s["effect_pos"][i],s["effect_neg"][i]])
+            if action.check_precond(state.kb, action.args):
+                yield action
 
 class Problem(PDDL):
     """
@@ -692,8 +734,49 @@ class Problem(PDDL):
         list_action.do_action(self.jobs, self.resources, self.kb, args)
         # print(self.resources)
 
-    def subseq(hla):
-        return (None,None)
+    def hierarchical_search(problem, hierarchy):
+        act = Node(problem.initial_state)
+        frontier = FIFOQueue()
+        frontier.append(act)
+        while(True):
+            if not frontier: #(len(frontier)==0):
+                return None
+            plan = frontier.pop()
+            hla = plan.state #first_or_null(plan)
+            prefix = plan.parent.state #prefix, suffix = subseq(plan.state, hla)
+            outcome = result(problem, prefix)
+            if hla is None:
+                if outcome.goal_test():
+                    return plan.path()
+            else:
+                for sequence in refinements(hla, outcome, hierarchy):
+                    frontier.append(Node(plan.state, plan.parent, sequence))
+
+    def refinements(hla, outcome, hierarchy):
+        return hla.refine(outcome, hierarchy)
+
+    def result(problem, action):
+        if action is not None:
+            problem.act(action)
+            return problem
+        else:
+            return problem
+    
+    def first_or_null(plan):
+        l = [x for x in plan.state if x is not None]
+        if len(l) > 0:
+            return l[0]
+        else:
+            return None
+
+    def subseq(plan, hla):
+        index = plan.index(hla)
+        result = (plan[index-1], plan[index+1])
+        if index == 0:
+            result = (None, result[1])
+        if index == len(plan)-1:
+            result = (result[0], None)
+        return result
 
 def job_shop_problem():
     """
