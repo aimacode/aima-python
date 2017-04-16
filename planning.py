@@ -3,7 +3,7 @@
 
 import itertools
 from search import Node
-from utils import Expr, expr, first
+from utils import Expr, expr, first, FIFOQueue
 from logic import FolKB
 
 
@@ -653,8 +653,38 @@ class HLA(Action):
                     if not job.completed:
                         return False
         return True
+
+
+class Problem(PDDL):
+    """
+    Define real-world problems by aggregating resources as numerical quantities instead of
+    named entities.
+
+    This class is identical to PDLL, except that it overloads the act function to handle
+    resource and ordering conditions imposed by HLA as opposed to Action.
+    """
+    def __init__(self, initial_state, actions, goal_test, jobs=None, resources={}):
+        super().__init__(initial_state, actions, goal_test)
+        self.jobs = jobs
+        self.resources = resources
+
+    def act(self, action):
+        """
+        Performs the HLA given as argument.
+
+        Note that this is different from the superclass action - where the parameter was an
+        Expression. For real world problems, an Expr object isn't enough to capture all the
+        detail required for executing the action - resources, preconditions, etc need to be
+        checked for too.
+        """
+        args = action.args
+        list_action = first(a for a in self.actions if a.name == action.name)
+        if list_action is None:
+            raise Exception("Action '{}' not found".format(action.name))
+        list_action.do_action(self.jobs, self.resources, self.kb, args)
+        # print(self.resources)
     
-    def refine(self, state, library): # TODO - refinements may be (multiple) HLA themselves ...
+    def refinements(hla, state, library): # TODO - refinements may be (multiple) HLA themselves ...
         """
         state is a Problem, containing the current state kb
         library is a dictionary containing details for every possible refinement. eg:
@@ -697,86 +727,58 @@ class HLA(Action):
                       ]
         }
         """
-        e = Expr(self.name, self.args)
-        indices = [i for i,x in enumerate(library["HLA"]) if expr(x) == e]
+        e = Expr(hla.name, hla.args)
+        indices = [i for i,x in enumerate(library["HLA"]) if expr(x).op == hla.name]
         for i in indices:
-            action = HLA(expr(library["steps"][i]), [s["precond_pos"][i],s["precond_neg"][i]], 
-                         [s["effect_pos"][i],s["effect_neg"][i]])
+            action = HLA(expr(library["steps"][i][0]), [ # TODO multiple refinements
+                    [expr(x) for x in library["precond_pos"][i]],
+                    [expr(x) for x in library["precond_neg"][i]]
+                ], 
+                [
+                    [expr(x) for x in library["effect_pos"][i]],
+                    [expr(x) for x in library["effect_neg"][i]]
+                ])
             if action.check_precond(state.kb, action.args):
                 yield action
-
-class Problem(PDDL):
-    """
-    Define real-world problems by aggregating resources as numerical quantities instead of
-    named entities.
-
-    This class is identical to PDLL, except that it overloads the act function to handle
-    resource and ordering conditions imposed by HLA as opposed to Action.
-    """
-    def __init__(self, initial_state, actions, goal_test, jobs=None, resources={}):
-        super().__init__(initial_state, actions, goal_test)
-        self.jobs = jobs
-        self.resources = resources
-
-    def act(self, action):
-        """
-        Performs the HLA given as argument.
-
-        Note that this is different from the superclass action - where the parameter was an
-        Expression. For real world problems, an Expr object isn't enough to capture all the
-        detail required for executing the action - resources, preconditions, etc need to be
-        checked for too.
-        """
-        args = action.args
-        list_action = first(a for a in self.actions if a.name == action.name)
-        if list_action is None:
-            raise Exception("Action '{}' not found".format(action.name))
-        list_action.do_action(self.jobs, self.resources, self.kb, args)
-        # print(self.resources)
-
+    
     def hierarchical_search(problem, hierarchy):
-        act = Node(problem.initial_state)
+        """
+        [Figure 11.5] 'Hierarchical Search, a Breadth First Search implementation of Hierarchical
+        Forward Planning Search'
+        
+        The problem is a real-world prodlem defined by the problem class, and the hierarchy is
+        a dictionary of HLA - refinements (see refinements generator for details)
+        """
+        act = Node(problem.actions[0])
         frontier = FIFOQueue()
         frontier.append(act)
         while(True):
             if not frontier: #(len(frontier)==0):
                 return None
             plan = frontier.pop()
+            print(plan.state.name)
             hla = plan.state #first_or_null(plan)
-            prefix = plan.parent.state #prefix, suffix = subseq(plan.state, hla)
-            outcome = result(problem, prefix)
+            prefix = None
+            if plan.parent:
+                prefix = plan.parent.state.action #prefix, suffix = subseq(plan.state, hla)
+            outcome = Problem.result(problem, prefix)
             if hla is None:
                 if outcome.goal_test():
                     return plan.path()
             else:
-                for sequence in refinements(hla, outcome, hierarchy):
+                print("else")
+                for sequence in Problem.refinements(hla, outcome, hierarchy):
+                    print("...")
                     frontier.append(Node(plan.state, plan.parent, sequence))
 
-    def refinements(hla, outcome, hierarchy):
-        return hla.refine(outcome, hierarchy)
-
     def result(problem, action):
+        """The outcome of applying an action to the current problem"""
         if action is not None:
             problem.act(action)
             return problem
         else:
             return problem
-    
-    def first_or_null(plan):
-        l = [x for x in plan.state if x is not None]
-        if len(l) > 0:
-            return l[0]
-        else:
-            return None
 
-    def subseq(plan, hla):
-        index = plan.index(hla)
-        result = (plan[index-1], plan[index+1])
-        if index == 0:
-            result = (None, result[1])
-        if index == len(plan)-1:
-            result = (result[0], None)
-        return result
 
 def job_shop_problem():
     """
@@ -881,3 +883,4 @@ def job_shop_problem():
 
     return Problem(init, [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2],
                    goal_test, [job_group1, job_group2], resources)
+
