@@ -81,3 +81,20 @@ def test_graph_call():
     graph()
 
     assert levels_size == len(graph.levels) - 1
+
+
+def test_job_shop_problem():
+    p = job_shop_problem()
+    assert p.goal_test() is False
+
+    solution = [p.jobs[1][0],
+                p.jobs[0][0],
+                p.jobs[0][1],
+                p.jobs[0][2],
+                p.jobs[1][1],
+                p.jobs[1][2]]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()
