@@ -18,7 +18,7 @@ When complete, this project will have Python code for all the pseudocode algorit
 
 - `logic.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
 - `logic.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
-- `tests/logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
+- `tests/test_logic.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
 
 # Index of Algorithms
 
