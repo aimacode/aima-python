@@ -81,3 +81,51 @@ def test_graph_call():
     graph()
 
     assert levels_size == len(graph.levels) - 1
+
+
+def test_job_shop_problem():
+    p = job_shop_problem()
+    assert p.goal_test() is False
+
+    solution = [p.jobs[1][0],
+                p.jobs[0][0],
+                p.jobs[0][1],
+                p.jobs[0][2],
+                p.jobs[1][1],
+                p.jobs[1][2]]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()
+
+def test_refinements() :
+    init = [expr('At(Home)')]
+    def goal_test(kb):
+        return kb.ask(expr('At(SFO)'))
+        
+    library = {"HLA": ["Go(Home,SFO)","Taxi(Home, SFO)"],
+    "steps": [["Taxi(Home, SFO)"],[]],
+    "precond_pos": [["At(Home)"],["At(Home)"]],
+    "precond_neg": [[],[]],
+    "effect_pos": [["At(SFO)"],["At(SFO)"]],
+    "effect_neg": [["At(Home)"],["At(Home)"],]}
+    # Go SFO
+    precond_pos = [expr("At(Home)")]
+    precond_neg = []
+    effect_add = [expr("At(SFO)")]
+    effect_rem = [expr("At(Home)")]
+    go_SFO = HLA(expr("Go(Home,SFO)"),
+                      [precond_pos, precond_neg], [effect_add, effect_rem])
+    # Taxi SFO
+    precond_pos = [expr("At(Home)")]
+    precond_neg = []
+    effect_add = [expr("At(SFO)")]
+    effect_rem = [expr("At(Home)")]
+    taxi_SFO = HLA(expr("Go(Home,SFO)"),
+                      [precond_pos, precond_neg], [effect_add, effect_rem])
+    prob = Problem(init, [go_SFO, taxi_SFO], goal_test)
+    result = [i for i in Problem.refinements(go_SFO, prob, library)]
+    assert(len(result) == 1)
+    assert(result[0].name == "Taxi")
+    assert(result[0].args == (expr("Home"), expr("SFO")))
