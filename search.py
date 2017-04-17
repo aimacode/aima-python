@@ -5,7 +5,7 @@ then create problem instances and solve them with calls to the various search
 functions."""
 
 from utils import (
-    is_in, argmin, argmax, argmax_random_tie, probability,
+    is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
     weighted_sample_with_replacement, memoize, print_table, DataFile, Stack,
     FIFOQueue, PriorityQueue, name
 )
@@ -587,10 +587,12 @@ def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], f_thres=None
     """[Figure 4.8]"""
     for i in range(ngen):
         new_population = []
+        fitnesses = map(fitness_fn, population)
+        random_selection = weighted_sampler(population, fitnesses)
         for j in range(len(population)):
-            fitnesses = map(fitness_fn, population)
-            p1, p2 = weighted_sample_with_replacement(2, population, fitnesses)
-            child = reproduce(p1, p2)
+            x = random_selection()
+            y = random_selection()
+            child = reproduce(x, y)
             if random.uniform(0, 1) < pmut:
                 child = mutate(child, gene_pool)
             new_population.append(child)
