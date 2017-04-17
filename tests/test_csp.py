@@ -254,6 +254,70 @@ def test_mrv():
     assert mrv(assignment, csp) == 'C'
 
 
+def test_unordered_domain_values():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    assignment = None
+    assert unordered_domain_values('A', assignment,  map_coloring_test) == ['1', '2', '3']
+
+
+def test_lcv():
+    neighbors = parse_neighbors('A: B; B: C; C: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 5], 'C': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x+y) == 4
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    assignment = {'A': 0}
+
+    var = 'B'
+
+    assert lcv(var, assignment, csp) == [4, 0, 1, 2, 3, 5]
+    assignment = {'A': 1, 'C': 3}
+
+    constraints = lambda X, x, Y, y: (x + y) % 2 == 0 and (x + y) < 5
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert lcv(var, assignment, csp) == [1, 3, 0, 2, 4, 5]
+
+
+def test_forward_checking():
+    neighbors = parse_neighbors('A: B; B: C; C: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 5], 'C': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: (x + y) % 2 == 0 and (x + y) < 8
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    csp.support_pruning()
+    A_curr_domains = csp.curr_domains['A']
+    C_curr_domains = csp.curr_domains['C']
+
+    var = 'B'
+    value = 3
+    assignment = {'A': 1, 'C': '3'}
+    assert forward_checking(csp, var, value, assignment, None) == True
+    assert csp.curr_domains['A'] == A_curr_domains
+    assert csp.curr_domains['C'] == C_curr_domains
+
+    assignment = {'C': 3}
+
+    assert forward_checking(csp, var, value, assignment, None) == True
+    assert csp.curr_domains['A'] == [1, 3]
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+
+    assignment = {}
+    assert forward_checking(csp, var, value, assignment, None) == True
+    assert csp.curr_domains['A'] == [1, 3]
+    assert csp.curr_domains['C'] == [1, 3]
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 7], 'C': [0, 1, 2, 3, 4]}
+    csp.support_pruning()
+
+    value = 7
+    assignment = {}
+    assert forward_checking(csp, var, value, assignment, None) == False
+    assert (csp.curr_domains['A'] == [] or csp.curr_domains['C'] == [])
+
+
 def test_backtracking_search():
     assert backtracking_search(australia)
     assert backtracking_search(australia, select_unassigned_variable=mrv)
