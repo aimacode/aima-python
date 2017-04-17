@@ -3,7 +3,7 @@ import nlp
 
 from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
-from nlp import getOutlinks, Page
+from nlp import getOutlinks, Page, determineInlinks, HITS
 from nlp import Rules, Lexicon
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by function's within nlp.py
@@ -80,9 +80,9 @@ def test_stripRawHTML(html_mock):
 
 
 def test_determineInlinks():
-    # TODO
-    assert True
-
+    assert set(determineInlinks(pA)) == set(['B', 'C', 'E'])
+    assert set(determineInlinks(pE)) == set([])
+    assert set(determineInlinks(pF)) == set(['E'])
 
 def test_findOutlinks_wiki():
     testPage = pageDict[pA.address]
@@ -141,17 +141,20 @@ def test_detectConvergence():
 
 def test_getInlinks():
     inlnks = getInlinks(pageDict['A'])
-    assert sorted([page.address for page in inlnks]) == pageDict['A'].inlinks
+    assert sorted(inlnks) == pageDict['A'].inlinks
 
 
 def test_getOutlinks():
     outlnks = getOutlinks(pageDict['A'])
-    assert sorted([page.address for page in outlnks]) == pageDict['A'].outlinks
+    assert sorted(outlnks) == pageDict['A'].outlinks
 
 
 def test_HITS():
-    # TODO
-    assert True  # leave for now
+    HITS('inherit')
+    auth_list = [pA.authority, pB.authority, pC.authority, pD.authority, pE.authority, pF.authority]
+    hub_list = [pA.hub, pB.hub, pC.hub, pD.hub, pE.hub, pF.hub]
+    assert max(auth_list) == pD.authority
+    assert max(hub_list) == pE.hub
 
 
 if __name__ == '__main__':
