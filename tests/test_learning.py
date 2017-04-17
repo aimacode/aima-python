@@ -1,7 +1,7 @@
 from learning import parse_csv, weighted_mode, weighted_replicate, DataSet, \
                      PluralityLearner, NaiveBayesLearner, NearestNeighborLearner, \
                      NeuralNetLearner, PerceptronLearner, DecisionTreeLearner, \
-                     euclidean_distance, grade_learner
+                     euclidean_distance, grade_learner, err_ratio
 from utils import DataFile
 
 
@@ -76,10 +76,14 @@ def test_neural_network_learner():
 
     nNL = NeuralNetLearner(iris, [5], 0.15, 75)
     tests = [([5, 3, 1, 0.1], 0),
-             ([6, 3, 3, 1.5], 1),
-             ([7.5, 4, 6, 2], 2)]
+             ([5, 3.5, 1, 0], 0),
+             ([6, 3, 4, 1.1], 1),
+             ([6, 2, 3.5, 1], 1),
+             ([7.5, 4, 6, 2], 2),
+             ([7, 3, 6, 2.5], 2)]
 
-    assert grade_learner(nNL, tests) >= 2
+    assert grade_learner(nNL, tests) >= 2/3
+    assert err_ratio(nNL, iris) < 0.25
 
 
 def test_perceptron():
@@ -90,7 +94,11 @@ def test_perceptron():
 
     perceptron = PerceptronLearner(iris)
     tests = [([5, 3, 1, 0.1], 0),
+             ([5, 3.5, 1, 0], 0),
              ([6, 3, 4, 1.1], 1),
-             ([7.5, 4, 6, 2], 2)]
+             ([6, 2, 3.5, 1], 1),
+             ([7.5, 4, 6, 2], 2),
+             ([7, 3, 6, 2.5], 2)]
 
-    assert grade_learner(perceptron, tests) >= 2
+    assert grade_learner(perceptron, tests) > 1/2
+    assert err_ratio(perceptron, iris) < 0.4
