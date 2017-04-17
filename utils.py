@@ -598,7 +598,7 @@ class hashabledict(dict):
 # ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
 
-# TODO: Possibly use queue.Queue, queue.PriorityQueue
+# TODO: queue.PriorityQueue
 # TODO: Priority queues may not belong here -- see treatment in search.py
 
 
@@ -634,29 +634,32 @@ class FIFOQueue(Queue):
 
     """A First-In-First-Out Queue."""
 
-    def __init__(self):
-        self.A = []
-        self.start = 0
+    def __init__(self, maxlen=None, items=[]):
+        self.queue = collections.deque(items, maxlen)
 
     def append(self, item):
-        self.A.append(item)
-
-    def __len__(self):
-        return len(self.A) - self.start
+        if not self.queue.maxlen or len(self.queue) < self.queue.maxlen:
+            self.queue.append(item)
+        else:
+            raise Exception('FIFOQueue is full')
 
     def extend(self, items):
-        self.A.extend(items)
+        if not self.queue.maxlen or len(self.queue) + len(items) <= self.queue.maxlen:
+            self.queue.extend(items)
+        else:
+            raise Exception('FIFOQueue max length exceeded')
 
     def pop(self):
-        e = self.A[self.start]
-        self.start += 1
-        if self.start > 5 and self.start > len(self.A) / 2:
-            self.A = self.A[self.start:]
-            self.start = 0
-        return e
+        if len(self.queue) > 0:
+            return self.queue.popleft()
+        else :
+            raise Exception('FIFOQueue is empty')
+
+    def __len__(self):
+        return len(self.queue)
 
     def __contains__(self, item):
-        return item in self.A[self.start:]
+        return item in self.queue
 
 
 class PriorityQueue(Queue):
