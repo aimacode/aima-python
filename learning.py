@@ -1,7 +1,7 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import (
-    removeall, unique, product, mode, argmax, argmax_random_tie, isclose,
+    removeall, unique, product, mode, argmax, argmax_random_tie, isclose, gaussian,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile
 )
@@ -11,7 +11,7 @@ import heapq
 import math
 import random
 
-from statistics import mean
+from statistics import mean, stdev
 from collections import defaultdict
 
 # ______________________________________________________________________________
@@ -178,6 +178,45 @@ class DataSet:
         self.examples = [x for x in self.examples if value not in x]
         self.update_values()
 
+    def split_values_by_classes(self):
+        """Split values into buckets according to their class."""
+        buckets = defaultdict(lambda: [])
+        target_names = self.values[self.target]
+
+        for v in self.examples:
+            item = [a for a in v if a not in target_names] # Remove target from item
+            buckets[v[self.target]].append(item) # Add item to bucket of its class
+
+        return buckets
+
+    def find_means_and_deviations(self):
+        """Finds the means and standard deviations of self.dataset.
+        means     : A dictionary for each class/target. Holds a list of the means
+                    of the features for the class.
+        deviations: A dictionary for each class/target. Holds a list of the sample
+                    standard deviations of the features for the class."""
+        target_names = self.values[self.target]
+        feature_numbers = len(self.inputs)
+
+        item_buckets = self.split_values_by_classes()
+        
+        means = defaultdict(lambda: [0 for i in range(feature_numbers)])
+        deviations = defaultdict(lambda: [0 for i in range(feature_numbers)])
+
+        for t in target_names:
+            # Find all the item feature values for item in class t
+            features = [[] for i in range(feature_numbers)]
+            for item in item_buckets[t]:
+                features = [features[i] + [item[i]] for i in range(feature_numbers)]
+
+            # Calculate means and deviations fo the class
+            for i in range(feature_numbers):
+                means[t][i] = mean(features[i])
+                deviations[t][i] = stdev(features[i])
+
+        return means, deviations
+
+
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
             self.name, len(self.examples), len(self.attrs))
@@ -267,15 +306,22 @@ def PluralityLearner(dataset):
 # ______________________________________________________________________________
 
 
-def NaiveBayesLearner(dataset):
+def NaiveBayesLearner(dataset, continuous=True):
+    if(continuous):
+        return NaiveBayesContinuous(dataset)
+    else:
+        return NaiveBayesDiscrete(dataset)
+
+
+def NaiveBayesDiscrete(dataset):
     """Just count how many times each value of each input attribute
     occurs, conditional on the target value. Count the different
     target values too."""
 
-    targetvals = dataset.values[dataset.target]
-    target_dist = CountingProbDist(targetvals)
+    target_vals = dataset.values[dataset.target]
+    target_dist = CountingProbDist(target_vals)
     attr_dists = {(gv, attr): CountingProbDist(dataset.values[attr])
-                  for gv in targetvals
+                  for gv in target_vals
                   for attr in dataset.inputs}
     for example in dataset.examples:
         targetval = example[dataset.target]
@@ -290,7 +336,29 @@ def NaiveBayesLearner(dataset):
             return (target_dist[targetval] *
                     product(attr_dists[targetval, attr][example[attr]]
                             for attr in dataset.inputs))
-        return argmax(targetvals, key=class_probability)
+        return argmax(target_vals, key=class_probability)
+
+    return predict
+
+
+def NaiveBayesContinuous(dataset):
+    """Count how many times each target value occurs.
+    Also, find the means and deviations of input attribute values for each target value."""
+    means, deviations = dataset.find_means_and_deviations()
+
+    target_vals = dataset.values[dataset.target]
+    target_dist = CountingProbDist(target_vals)
+
+    def predict(example):
+        """Predict the target value for example. Consider each possible value,
+        and pick the most likely by looking at each attribute independently."""
+        def class_probability(targetval):
+            prob = target_dist[targetval]
+            for attr in dataset.inputs:
+                prob *= gaussian(means[targetval][attr], deviations[targetval][attr], example[attr])
+            return prob
+
+        return argmax(target_vals, key=class_probability)
 
     return predict
 
