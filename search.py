@@ -4,21 +4,18 @@ The way to use this code is to subclass Problem to create a class of problems,
 then create problem instances and solve them with calls to the various search
 functions."""
 
-import bisect
-import math
-import random
-import string
-import sys
-from collections import defaultdict
-
-from fuzzywuzzy import fuzz
-
-from grid import distance
 from utils import (
-    is_in, argmin, argmax_random_tie, probability,
-    memoize, print_table, DataFile, Stack,
+    is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
+    weighted_sample_with_replacement, memoize, print_table, DataFile, Stack,
     FIFOQueue, PriorityQueue, name
 )
+from grid import distance
+
+from collections import defaultdict
+import math
+import random
+import sys
+import bisect
 
 infinity = float('inf')
 
@@ -572,94 +569,74 @@ class LRTAStarAgent:
 # Genetic Algorithm
 
 
-class GAState:
-    def __init__(self, length):
-        self.string = ''.join(random.choice(string.ascii_letters)
-                              for _ in range(length))
-        self.fitness = -1
+def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
+    """Call genetic_algorithm on the appropriate parts of a problem.
+    This requires the problem to have states that can mate and mutate,
+    plus a value method that scores states."""
+    
+    # NOTE: This is not tested and might not work.
+    # TODO: Use this function to make Problems work with genetic_algorithm.
+    
+    s = problem.initial_state
+    states = [problem.result(s, a) for a in problem.actions(s)]
+    random.shuffle(states)
+    return genetic_algorithm(states[:n], problem.value, ngen, pmut)
 
 
-def ga(in_str=None, population=20, generations=10000):
-    in_str_len = len(in_str)
-    individuals = init_individual(population, in_str_len)
+def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], f_thres=None, ngen=1000, pmut=0.1):
+    """[Figure 4.8]"""
+    for i in range(ngen):
+        new_population = []
+        fitnesses = map(fitness_fn, population)
+        random_selection = weighted_sampler(population, fitnesses)
+        for j in range(len(population)):
+            x = random_selection()
+            y = random_selection()
+            child = reproduce(x, y)
+            if random.uniform(0, 1) < pmut:
+                child = mutate(child, gene_pool)
+            new_population.append(child)
 
-    for generation in range(generations):
+        population = new_population
 
-        individuals = fitness(individuals, in_str)
-        individuals = selection(individuals)
-        individuals = crossover(individuals, population, in_str_len)
+        if f_thres:
+            fittest_individual = argmax(population, key=fitness_fn)
+            if fitness_fn(fittest_individual) >= f_thres:
+                return fittest_individual
 
-        if any(individual.fitness >= 90 for individual in individuals):
-            """
-            individuals[0] is the individual with the highest fitness,
-            because individuals is sorted in the selection function.
-            Thus we return the individual with the highest fitness value,
-            among the individuals whose fitness is equal to or greater
-            than 90.
-            """
-
-            return individuals[0]
-
-        individuals = mutation(individuals, in_str_len)
-
-    """
-    sufficient number of generations have passed and the individuals
-    could not evolve to match the desired fitness value.
-    thus we return the fittest individual among the individuals.
-    Since individuals are sorted according to their fitness
-    individuals[0] is the fittest.
-    """
-    return individuals[0]
+    return argmax(population, key=fitness_fn)
 
 
-def init_individual(population, length):
-    return [GAState(length) for _ in range(population)]
+def init_population(pop_number, gene_pool, state_length):
+    """Initializes population for genetic algorithm
+    pop_number  :  Number of individuals in population
+    gene_pool   :  List of possible values for individuals
+                   (char only)
+    state_length:  The length of each individual"""
+    g = len(gene_pool)
+    population = []
+    for i in range(pop_number):
+        new_individual = ''.join([gene_pool[random.randrange(0, g)]
+                                  for j in range(state_length)])
+        population.append(new_individual)
+
+    return population
 
 
-def fitness(individuals, in_str):
-    for individual in individuals:
-        individual.fitness = fuzz.ratio(individual.string, in_str)  # noqa
-
-    return individuals
-
-
-def selection(individuals):
-    individuals = sorted(
-        individuals, key=lambda individual: individual.fitness, reverse=True)
-
-    individuals = individuals[:int(0.2 * len(individuals))]
-    return individuals
+def reproduce(x, y):
+    n = len(x)
+    c = random.randrange(1, n)
+    return x[:c] + y[c:]
 
 
-def crossover(individuals, population, in_str_len):
-    offspring = []
-    for _ in range(int((population - len(individuals)) / 2)):
-        parent1 = random.choice(individuals)
-        parent2 = random.choice(individuals)
-        child1 = GAState(in_str_len)
-        child2 = GAState(in_str_len)
-        split = random.randint(0, in_str_len)
-        child1.string = parent1.string[0:split] + parent2.string[
-                                                  split:in_str_len]
-        child2.string = parent2.string[0:split] + parent1.string[
-                                                  split:in_str_len]
-        offspring.append(child1)
-        offspring.append(child2)
+def mutate(x, gene_pool):
+    n = len(x)
+    g = len(gene_pool)
+    c = random.randrange(0, n)
+    r = random.randrange(0, g)
 
-    individuals.extend(offspring)
-    return individuals
-
-
-def mutation(individuals, in_str_len):
-    for individual in individuals:
-
-        for idx, param in enumerate(individual.string):
-            if random.uniform(0.0, 1.0) <= 0.1:
-                individual.string = individual.string[0:idx] \
-                                    + random.choice(string.ascii_letters) \
-                                    + individual.string[idx + 1:in_str_len]
-
-    return individuals
+    new_gene = gene_pool[r]
+    return x[:c] + new_gene + x[c+1:]
 
 # _____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
