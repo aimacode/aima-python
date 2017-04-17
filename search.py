@@ -625,7 +625,7 @@ def init_population(pop_number, gene_pool, state_length):
 
 def reproduce(x, y):
     n = len(x)
-    c = random.randrange(0, n)
+    c = random.randrange(1, n)
     return x[:c] + y[c:]
 
 
