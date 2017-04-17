@@ -123,7 +123,7 @@ def test_genetic_algorithm():
 
 
     solution = genetic_algorithm(population, fitness, f_thres=25)
-    assert fitness(solution) == 25
+    assert fitness(solution) >= 25
 
 
 # TODO: for .ipynb:
