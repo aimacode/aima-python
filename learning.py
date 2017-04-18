@@ -653,24 +653,15 @@ def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
     learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs)
 
     def predict(example):
-        # Input nodes
-        i_nodes = learned_net[0]
-
-        # Activate input layer
-        for v, n in zip(example, i_nodes):
-            n.value = v
+        o_nodes = learned_net[1]
 
         # Forward pass
-        for layer in learned_net[1:]:
-            for node in layer:
-                inc = [n.value for n in node.inputs]
-                in_val = dotproduct(inc, node.weights)
-                node.value = node.activation(in_val)
+        for node in o_nodes:
+            in_val = dotproduct(example, node.weights)
+            node.value = node.activation(in_val)
 
         # Hypothesis
-        o_nodes = learned_net[-1]
-        prediction = find_max_node(o_nodes)
-        return prediction
+        return find_max_node(o_nodes)
 
     return predict
 
