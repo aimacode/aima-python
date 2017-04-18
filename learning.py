@@ -184,8 +184,8 @@ class DataSet:
         target_names = self.values[self.target]
 
         for v in self.examples:
-            item = [a for a in v if a not in target_names] # Remove target from item
-            buckets[v[self.target]].append(item) # Add item to bucket of its class
+            item = [a for a in v if a not in target_names]  # Remove target from item
+            buckets[v[self.target]].append(item)  # Add item to bucket of its class
 
         return buckets
 
@@ -199,7 +199,7 @@ class DataSet:
         feature_numbers = len(self.inputs)
 
         item_buckets = self.split_values_by_classes()
-        
+
         means = defaultdict(lambda: [0 for i in range(feature_numbers)])
         deviations = defaultdict(lambda: [0 for i in range(feature_numbers)])
 
@@ -215,7 +215,6 @@ class DataSet:
                 deviations[t][i] = stdev(features[i])
 
         return means, deviations
-
 
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
@@ -768,7 +767,6 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         # update weights
         for i in range(len(w)):
             w[i] = w[i] + learning_rate * (dotproduct(err, X_col[i]) / num_examples)
-
 
     def predict(example):
         x = [1] + example

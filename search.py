@@ -6,8 +6,7 @@ functions."""
 
 from utils import (
     is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
-    weighted_sample_with_replacement, memoize, print_table, DataFile, Stack,
-    FIFOQueue, PriorityQueue, name
+    memoize, print_table, DataFile, Stack, FIFOQueue, PriorityQueue, name
 )
 from grid import distance
 
@@ -546,7 +545,7 @@ class LRTAStarAgent:
 
             # an action b in problem.actions(s1) that minimizes costs
             self.a = argmin(self.problem.actions(s1),
-                            key=lambda b:self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H))
+                            key=lambda b: self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H))
 
             self.s = s1
             return self.a
@@ -573,17 +572,17 @@ def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
     """Call genetic_algorithm on the appropriate parts of a problem.
     This requires the problem to have states that can mate and mutate,
     plus a value method that scores states."""
-    
+
     # NOTE: This is not tested and might not work.
     # TODO: Use this function to make Problems work with genetic_algorithm.
-    
+
     s = problem.initial_state
     states = [problem.result(s, a) for a in problem.actions(s)]
     random.shuffle(states)
     return genetic_algorithm(states[:n], problem.value, ngen, pmut)
 
 
-def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], f_thres=None, ngen=1000, pmut=0.1):
+def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], f_thres=None, ngen=1000, pmut=0.1):  # noqa
     """[Figure 4.8]"""
     for i in range(ngen):
         new_population = []

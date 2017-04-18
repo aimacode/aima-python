@@ -20,7 +20,7 @@ class CSP(search.Problem):
                     the other variables that participate in constraints.
         constraints A function f(A, a, B, b) that returns true if neighbors
                     A, B satisfy the constraint when they have values A=a, B=b
-    
+
     In the textbook and in most mathematical definitions, the
     constraints are specified as explicit pairs of allowable values,
     but the formulation here is easier to express and more compact for
@@ -347,6 +347,7 @@ def topological_sort(X, root):
     build_topological(root, None, neighbors, visited, stack, parents)
     return stack, parents
 
+
 def build_topological(node, parent, neighbors, visited, stack, parents):
     """Builds the topological sort and the parents of each node in the graph"""
     visited[node] = True
@@ -356,7 +357,7 @@ def build_topological(node, parent, neighbors, visited, stack, parents):
             build_topological(n, node, neighbors, visited, stack, parents)
 
     parents[node] = parent
-    stack.insert(0,node)
+    stack.insert(0, node)
 
 
 def make_arc_consistent(Xj, Xk, csp):

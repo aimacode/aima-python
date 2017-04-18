@@ -384,16 +384,18 @@ convergence = ConvergenceDetector()  # assign function to variable to mimic pseu
 
 def HITS(query):
     """The HITS algorithm for computing hubs and authorities with respect to a query."""
-    pages = expand_pages(relevant_pages(query))  # in order to 'map' faithfully to pseudocode we
-    for p in pages.values():                              # won't pass the list of pages as an argument
+    pages = expand_pages(relevant_pages(query))
+    for p in pages.values():
         p.authority = 1
         p.hub = 1
     while True:  # repeat until... convergence
         authority = {p: pages[p].authority for p in pages}
         hub = {p: pages[p].hub for p in pages}
         for p in pages:
-            pages[p].authority = sum(hub[x] for x in getInlinks(pages[p]))  # p.authority ← ∑i Inlinki(p).Hub
-            pages[p].hub = sum(authority[x] for x in getOutlinks(pages[p]))  # p.hub ← ∑i Outlinki(p).Authority
+            # p.authority ← ∑i Inlinki(p).Hub
+            pages[p].authority = sum(hub[x] for x in getInlinks(pages[p]))
+            # p.hub ← ∑i Outlinki(p).Authority
+            pages[p].hub = sum(authority[x] for x in getOutlinks(pages[p]))
         normalize(pages)
         if convergence():
             break

@@ -7,6 +7,7 @@ import operator
 import os.path
 import random
 import math
+import functools
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -257,6 +258,7 @@ def sigmoid(x):
 def step(x):
     """Return activation value of x with sign function"""
     return 1 if x >= 0 else 0
+
 
 def gaussian(mean, st_dev, x):
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
@@ -656,7 +658,7 @@ class FIFOQueue(Queue):
     def pop(self):
         if len(self.queue) > 0:
             return self.queue.popleft()
-        else :
+        else:
             raise Exception('FIFOQueue is empty')
 
     def __len__(self):
