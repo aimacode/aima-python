@@ -60,10 +60,10 @@ def test_naive_bayes():
     iris = DataSet(name="iris")
 
     # Discrete
-    nBD = NaiveBayesLearner(iris)
+    nBD = NaiveBayesLearner(iris, continuous=False)
     assert nBD([5, 3, 1, 0.1]) == "setosa"
-    assert nBD([6, 5, 3, 1.5]) == "versicolor"
-    assert nBD([7, 3, 6.5, 2]) == "virginica"
+    assert nBD([6, 3, 4, 1.1]) == "versicolor"
+    assert nBD([7.7, 3, 6, 2]) == "virginica"
 
     # Continuous
     nBC = NaiveBayesLearner(iris, continuous=True)
