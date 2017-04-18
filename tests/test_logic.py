@@ -1,5 +1,5 @@
 import pytest
-from logic import *  # noqa
+from logic import *
 from utils import expr_handle_infix_ops, count, Symbol
 
 

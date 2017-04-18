@@ -1,5 +1,5 @@
 import random
-from probability import *  # noqa
+from probability import *
 from utils import rounder
 
 
@@ -183,7 +183,7 @@ def test_particle_filtering():
 >>> P['rain']               #doctest:+ELLIPSIS
 0.2...
 
-# A Joint Probability Distribution is dealt with like this [Figure 13.3]:  # noqa
+# A Joint Probability Distribution is dealt with like this [Figure 13.3]:
 >>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
 >>> T, F = True, False
 >>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008

@@ -2,7 +2,7 @@ import pytest
 import os
 import random
 
-from text import *  # noqa
+from text import *
 from utils import isclose, DataFile
 
 
@@ -304,7 +304,7 @@ def test_bigrams():
 
 >>> P3.samples(20)
 'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
-"""  # noqa
+"""
 
 if __name__ == '__main__':
     pytest.main()

@@ -418,7 +418,7 @@ def and_or_graph_search(problem):
                 return [action, plan]
 
     def and_search(states, problem, path):
-        """Returns plan in form of dictionary where we take action plan[s] if we reach state s."""  # noqa
+        """Returns plan in form of dictionary where we take action plan[s] if we reach state s."""
         plan = {}
         for s in states:
             plan[s] = or_search(s, problem, path)
@@ -460,8 +460,8 @@ class OnlineDFSAgent:
                 if len(self.unbacktracked[s1]) == 0:
                     self.a = None
                 else:
-                    # else a <- an action b such that result[s', b] = POP(unbacktracked[s'])  # noqa
-                    unbacktracked_pop = self.unbacktracked[s1].pop(0)  # noqa
+                    # else a <- an action b such that result[s', b] = POP(unbacktracked[s'])
+                    unbacktracked_pop = self.unbacktracked[s1].pop(0)
                     for (s, b) in self.result.keys():
                         if self.result[(s, b)] == unbacktracked_pop:
                             self.a = b
@@ -953,7 +953,7 @@ def print_boggle(board):
     print()
 
 
-def boggle_neighbors(n2, cache={}):  # noqa
+def boggle_neighbors(n2, cache={}):
     """Return a list of lists, where the i-th element is the list of indexes
     for the neighbors of square i."""
     if cache.get(n2):

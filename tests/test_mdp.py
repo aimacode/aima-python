@@ -1,4 +1,4 @@
-from mdp import *  # noqa
+from mdp import *
 
 
 def test_value_iteration():
