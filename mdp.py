@@ -173,6 +173,8 @@ __doc__ += """
 >>> sequential_decision_environment.to_arrows(pi)
 [['>', '>', '>', '.'], ['^', None, '^', '.'], ['^', '>', '^', '<']]
 
+>>> from utils import print_table
+
 >>> print_table(sequential_decision_environment.to_arrows(pi))
 >   >      >   .
 ^   None   ^   .
