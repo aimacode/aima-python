@@ -1,0 +1,53 @@
+MKDIR(1)		       FSF			 MKDIR(1)
+
+
+
+NAME
+       mkdir - make directories
+
+SYNOPSIS
+       mkdir [OPTION] DIRECTORY...
+
+DESCRIPTION
+       Create the DIRECTORY(ies), if they do not already exist.
+
+       -m, --mode=MODE
+	      set  permission mode (as in chmod), not rwxrwxrwx -
+	      umask
+
+       -p, --parents
+	      no error if existing, make  parent  directories  as
+	      needed
+
+       -v, --verbose
+	      print a message for each created directory
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+AUTHOR
+       Written by David MacKenzie.
+
+REPORTING BUGS
+       Report bugs to <bug-fileutils@gnu.org>.
+
+COPYRIGHT
+       Copyright (C) 2001 Free Software Foundation, Inc.
+       This  is	 free software; see the source for copying condi-
+       tions.  There is NO warranty; not even for MERCHANTABILITY
+       or FITNESS FOR A PARTICULAR PURPOSE.
+
+SEE ALSO
+       The  full  documentation for mkdir is maintained as a Tex-
+       info manual.  If the info and mkdir programs are	 properly
+       installed at your site, the command
+
+	      info mkdir
+
+       should give you access to the complete manual.
+
+
+
+mkdir (fileutils) 4.1	    April 2001			 MKDIR(1)

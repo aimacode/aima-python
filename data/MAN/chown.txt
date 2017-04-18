@@ -1,0 +1,96 @@
+CHOWN(1)		       FSF			 CHOWN(1)
+
+
+
+NAME
+       chown - change file owner and group
+
+SYNOPSIS
+       chown [OPTION]... OWNER[:[GROUP]] FILE...
+       chown [OPTION]... :GROUP FILE...
+       chown [OPTION]... --reference=RFILE FILE...
+
+DESCRIPTION
+       This  manual  page  documents  the  GNU	version of chown.
+       chown changes the user  and/or  group  ownership	 of  each
+       given  file,  according	to its first non-option argument,
+       which is interpreted as follows.	 If only a user name  (or
+       numeric	user ID) is given, that user is made the owner of
+       each given file, and the files' group is not changed.   If
+       the  user  name	is followed by a colon or dot and a group
+       name (or numeric group ID), with no spaces  between  them,
+       the group ownership of the files is changed as well.  If a
+       colon or dot but no group name follows the user name, that
+       user  is	 made the owner of the files and the group of the
+       files is changed to that user's login group.  If the colon
+       or  dot and group are given, but the user name is omitted,
+       only the group of the files  is	changed;  in  this  case,
+       chown performs the same function as chgrp.
+
+       Change the owner and/or group of each FILE to OWNER and/or
+       GROUP.
+
+       -c, --changes
+	      like verbose but report only when a change is made
+
+       --dereference
+	      affect the referent of each symbolic  link,  rather
+	      than the symbolic link itself
+
+       -h, --no-dereference
+	      affect  symbolic	links  instead	of any referenced
+	      file (available only on systems that can change the
+	      ownership of a symlink)
+
+       --from=CURRENT_OWNER:CURRENT_GROUP
+	      change  the owner and/or group of each file only if
+	      its current owner and/or group match  those  speci-
+	      fied  here.  Either may be omitted, in which case a
+	      match is not required for the omitted attribute.
+
+       -f, --silent, --quiet
+	      suppress most error messages
+
+       --reference=RFILE
+	      use RFILE's owner and group rather than the  speci-
+	      fied OWNER:GROUP values
+
+       -R, --recursive
+	      operate on files and directories recursively
+
+       -v, --verbose
+	      output a diagnostic for every file processed
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+       Owner  is  unchanged  if	 missing.   Group is unchanged if
+       missing, but changed to login group if implied by  a  `:'.
+       OWNER and GROUP may be numeric as well as symbolic.
+
+AUTHOR
+       Written by David MacKenzie.
+
+REPORTING BUGS
+       Report bugs to <bug-fileutils@gnu.org>.
+
+COPYRIGHT
+       Copyright (C) 2001 Free Software Foundation, Inc.
+       This  is	 free software; see the source for copying condi-
+       tions.  There is NO warranty; not even for MERCHANTABILITY
+       or FITNESS FOR A PARTICULAR PURPOSE.
+
+SEE ALSO
+       The  full  documentation for chown is maintained as a Tex-
+       info manual.  If the info and chown programs are	 properly
+       installed at your site, the command
+
+	      info chown
+
+       should give you access to the complete manual.
+
+
+
+chown (fileutils) 4.1	    April 2001			 CHOWN(1)

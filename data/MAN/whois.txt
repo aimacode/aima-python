@@ -1,0 +1,92 @@
+jwhois(1)							     jwhois(1)
+
+
+
+NAME
+       jwhois - client for the whois service
+
+SYNOPSIS
+       jwhois  [ OPTIONS ]...  [ QUERY ]
+
+DESCRIPTION
+       jwhois searches Whois servers for the object on the command line.
+
+       The host to query is taken from a global configuration file, a configu-
+       ration file specified on the command line, or selected directly on  the
+       command line.
+
+
+OPTIONS
+       --version
+	      display version, authors and licensing information.
+
+       --help display a short help text.
+
+       -c FILE --config=FILE
+	      uses FILE as a configuration file instead of the default.
+
+       -h HOST --host=HOST
+	      overrides	 any  hosts in the configuration file and queries HOST
+	      directly.
+
+       -p PORT --port=PORT
+	      specifies a port number to use when querying a HOST.
+
+       -f --force-lookup
+	      forces a query to be made to a host even if a current object  is
+	      available from the cache.
+
+       -v --verbose
+	      outputs  verbose	debugging  information while running (use this
+	      before sending a bugreport to ensure that it's indeed a bug  and
+	      not  a misconfiguration). You can increase the verbosity by giv-
+	      ing several verbose commands to jwhois, such as -vv.
+
+       -n --no-redirect
+	      disable features	that  redirect	queries	 from  one  server  to
+	      another.
+
+       -s --no-whoisservers
+	      disable the built-in support for whois-servers.net.
+
+       -a --raw
+	      send query verbatim to receiving hosts instead of rewriting them
+	      according to the configuration.
+
+       -i --display-redirections
+	      display every step in a redirection (default is to display  only
+	      the last answer).
+
+       -d --disable-cache
+	      completely disable both reading and writing to cache.
+
+       -r --rwhois
+	      force  the  query to use the rwhois protocoll instead of HTTP or
+	      whois.
+
+       --rwhois-display=DISPLAY
+	      asks receiving rwhois servers to display the results in the DIS-
+	      PLAY display instead of the default dump display.
+
+       --rwhois-limit=LIMIT
+	      asks  receiving rwhois servers to limit their responses to LIMIT
+	      matches.
+
+
+   RIPE EXTENSIONS
+       To use the options specified in RIPE Document 157, you need  to	change
+       the  format  of	the  query  slightly.	If  you were to search for all
+       entries in the RIPE database which lists the admin-c, tech-c or	zone-c
+       as CO19-RIPE, you could use the following command syntax:
+
+       jwhois -h whois.ripe.net -- -i admin-c,tech-c,zone-c CO19-RIPE
+
+       -- is used to separate the RIPE options from the jwhois options.
+
+
+SEE ALSO
+       whois(1)
+
+
+
+GNU				 November 2001			     jwhois(1)
