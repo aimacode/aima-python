@@ -8,6 +8,104 @@ import urllib.request
 import re
 
 # ______________________________________________________________________________
+# N-gram
+
+class NGram:
+    """This class describe an n-gram model for a range of text.
+    An NGram is specified by the following inputs:
+        texts       An array of text that will be used to create the n-gram
+                    model
+        n           The size of the n-gram pair that will be generated.
+        characters  Boolean indicating if the n-gram will considers characters
+                    or words
+    """
+
+    def __init__(self, texts, n, characters=False):
+        self.texts = texts
+        self.n = n
+        self.characters = characters
+        self.ngrams = {}
+        self.num_ngrams = 0
+
+        """If ngram is not present, return a small probability for it"""
+        self.probability_ngrams = defaultdict(lambda: 0.00000000001)
+
+        """regex to remove special characters from text"""
+        self.special_characters_regex = re.compile('[^0-9a-zA-Z\s]+')
+
+
+
+    def create_ngrams(self):
+        for text in self.texts:
+            self.count_ngrams(text)
+
+        for value in self.ngrams.values():
+            self.num_ngrams += value
+
+    def populate_ngram(self, token):
+        size = len(token)
+
+        if size < self.n:
+            return self.ngrams
+
+        for i in range(size - self.n + 1):
+            word_sequence = tuple(token[i:i + self.n])
+            value = self.ngrams.setdefault(word_sequence, 0)
+            self.ngrams[word_sequence] = value + 1
+
+    def create_tokens(self, text):
+        """Remove start and ending spaces"""
+        text = text.strip()
+
+        """Remove special characters from text"""
+        text = self.special_characters_regex.sub('', text)
+
+        """Guarantee that all text string are on lower case"""
+        text = text.lower()
+
+        """Create tokens"""
+        tokens = text.split(' ')
+
+        """Remove empty tokens"""
+        tokens = list(filter(None, tokens))
+
+        """Verify if any token has some unecessary empty space"""
+        for token in tokens:
+            token = token.strip()
+
+        return tokens
+
+    def count_ngrams(self, text):
+        tokens = self.create_tokens(text)
+
+        if self.characters:
+            for token in tokens:
+                self.populate_ngram(token)
+        else:
+            self.populate_ngram(tokens)
+
+        return self.ngrams
+
+    def generate_probability(self):
+        for key, value in self.ngrams.items():
+            self.probability_ngrams[key] = value / self.num_ngrams
+
+
+class Unigram(NGram):
+    def __init__(self, texts, characters=False):
+        super().__init__(texts, n=1, characters=characters)
+
+
+class Bigram(NGram):
+    def __init__(self, texts, characters=False):
+        super().__init__(texts, n=2, characters=characters)
+
+
+class Trigram(NGram):
+    def __init__(self, texts, characters=False):
+        super().__init__(texts, n=3, characters=characters)
+
+# ______________________________________________________________________________
 # Grammars and Lexicons
 
 

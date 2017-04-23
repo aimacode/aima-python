@@ -5,11 +5,90 @@ from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
 from nlp import getOutlinks, Page, determineInlinks, HITS
 from nlp import Rules, Lexicon
+from nlp import Unigram, Bigram, Trigram
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by function's within nlp.py
 
 from unittest.mock import patch
 from io import BytesIO
+
+
+def test_ngram_character_count():
+    text_string = 'I like programming'
+
+    unigram = Unigram([], characters=True)
+    ngrams = unigram.count_ngrams(text_string)
+    expected_ngrams = {('l',): 1, ('i',): 3, ('k',): 1, ('e',): 1,
+                       ('p',): 1, ('r',): 2, ('o',): 1, ('g',): 2, ('a',): 1, ('m',): 2,
+                       ('n',): 1}
+
+    assert len(expected_ngrams) == len(ngrams)
+
+    for key, value in expected_ngrams.items():
+        assert key in ngrams
+        assert ngrams[key] == value
+
+    bigram = Bigram([], characters=True)
+    ngrams = bigram.count_ngrams(text_string)
+    expected_ngrams = {('l', 'i'): 1, ('i', 'k'): 1, ('k', 'e'): 1, ('p', 'r'): 1,
+                       ('r', 'o'): 1, ('o', 'g'): 1, ('g', 'r'): 1, ('r', 'a'): 1, ('a', 'm'): 1,
+                       ('m', 'm'): 1, ('m', 'i'): 1, ('i', 'n'): 1, ('n', 'g'): 1}
+
+    assert len(expected_ngrams) == len(ngrams)
+
+    for key, value in expected_ngrams.items():
+        assert key in ngrams
+
+    trigram = Trigram([], characters=True)
+    ngrams = trigram.count_ngrams(text_string)
+    expected_ngrams = {('l', 'i', 'k'): 1, ('i', 'k', 'e'): 1, ('p', 'r', 'o'): 1,
+                       ('r', 'o', 'g'): 1, ('o', 'g', 'r'): 1, ('g', 'r', 'a'): 1,
+                       ('g', 'r', 'a'): 1, ('r', 'a', 'm'): 1, ('a', 'm', 'm'): 1,
+                       ('m', 'm', 'i'): 1, ('m', 'i', 'n'): 1, ('i', 'n', 'g'): 1}
+
+    assert len(expected_ngrams) == len(ngrams)
+
+    for key, value in expected_ngrams.items():
+        assert key in ngrams
+        assert ngrams[key] == value
+        assert ngrams[key] == value
+
+
+def test_ngram_word_count():
+    text_string = "I like learning about IA"
+
+    unigram = Unigram([])
+    ngrams = unigram.count_ngrams(text_string)
+    expected_ngrams = {('i',): 1, ('like',): 1, ('learning',): 1,
+                       ('about',): 1, ('ia',): 1}
+
+    assert len(expected_ngrams) == len(ngrams)
+
+    for key, value in expected_ngrams.items():
+        assert key in ngrams
+        assert ngrams[key] == value
+
+    ngram = Bigram([])
+    ngrams = ngram.count_ngrams(text_string)
+    expected_ngrams = {('i', 'like'): 1, ('like', 'learning'): 1, ('learning', 'about'): 1,
+                       ('about', 'ia'): 1}
+
+    assert len(expected_ngrams) == len(ngrams)
+
+    for key, value in expected_ngrams.items():
+        assert key in ngrams
+        assert ngrams[key] == value
+
+    ngram = Trigram([])
+    ngrams = ngram.count_ngrams(text_string)
+    expected_ngrams = {('i', 'like', 'learning'): 1, ('like', 'learning', 'about'): 1,
+                       ('learning', 'about', 'ia'): 1}
+
+    assert len(expected_ngrams) == len(ngrams)
+
+    for key, value in expected_ngrams.items():
+        assert key in ngrams
+        assert ngrams[key] == value
 
 
 def test_rules():
