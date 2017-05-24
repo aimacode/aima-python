@@ -20,7 +20,7 @@ class CSP(search.Problem):
                     the other variables that participate in constraints.
         constraints A function f(A, a, B, b) that returns true if neighbors
                     A, B satisfy the constraint when they have values A=a, B=b
-    
+
     In the textbook and in most mathematical definitions, the
     constraints are specified as explicit pairs of allowable values,
     but the formulation here is easier to express and more compact for
@@ -347,6 +347,7 @@ def topological_sort(X, root):
     build_topological(root, None, neighbors, visited, stack, parents)
     return stack, parents
 
+
 def build_topological(node, parent, neighbors, visited, stack, parents):
     """Builds the topological sort and the parents of each node in the graph"""
     visited[node] = True
@@ -356,7 +357,7 @@ def build_topological(node, parent, neighbors, visited, stack, parents):
             build_topological(n, node, neighbors, visited, stack, parents)
 
     parents[node] = parent
-    stack.insert(0,node)
+    stack.insert(0, node)
 
 
 def make_arc_consistent(Xj, Xk, csp):
@@ -533,10 +534,12 @@ class NQueensCSP(CSP):
 # Sudoku
 
 
-def flatten(seqs): return sum(seqs, [])
+def flatten(seqs):
+    return sum(seqs, [])
 
-easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'  # noqa
-harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'  # noqa
+
+easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'
+harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
 
 _R3 = list(range(3))
 _CELL = itertools.count().__next__

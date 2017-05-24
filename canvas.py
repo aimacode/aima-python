@@ -121,6 +121,7 @@ class Canvas:
         self.exec_list = []
         display_html(exec_code)
 
+
 def display_html(html_string):
     from IPython.display import HTML, display
     display(HTML(html_string))

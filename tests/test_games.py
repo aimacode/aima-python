@@ -5,7 +5,7 @@
 
 import pytest
 
-from games import *  # noqa
+from games import *
 
 # Creating the game instances
 f52 = Fig52Game()

@@ -6,7 +6,7 @@ as a dictionary of {state:action} pairs, and a Utility function as a
 dictionary of {state:number} pairs.  We then define the value_iteration
 and policy_iteration algorithms."""
 
-from utils import argmax, vector_add, print_table  # noqa
+from utils import argmax, vector_add
 from grid import orientations, turn_right, turn_left
 
 import random
@@ -172,6 +172,8 @@ __doc__ += """
 
 >>> sequential_decision_environment.to_arrows(pi)
 [['>', '>', '>', '.'], ['^', None, '^', '.'], ['^', '>', '^', '<']]
+
+>>> from utils import print_table
 
 >>> print_table(sequential_decision_environment.to_arrows(pi))
 >   >      >   .

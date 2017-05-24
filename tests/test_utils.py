@@ -1,5 +1,5 @@
 import pytest
-from utils import *  # noqa
+from utils import *
 import random
 
 def test_removeall_list():

@@ -1,5 +1,5 @@
 import pytest
-from search import *  # noqa
+from search import *
 
 
 romania_problem = GraphProblem('Arad', 'Bucharest', romania_map)

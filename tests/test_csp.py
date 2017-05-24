@@ -1,5 +1,5 @@
 import pytest
-from csp import *   # noqa
+from csp import *
 
 
 def test_csp_assign():
