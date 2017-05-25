@@ -845,23 +845,8 @@ def subst(s, x):
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
 
-def fol_fc_ask(KB, alpha):
-    """A simple forward-chaining algorithm. [Figure 9.3]"""
-    while new is not None:
-        new = []
-        for rule in KB:
-            p, q = parse_definite_clause(standardize_variables(rule))
-            for p_ in random.KB.clauses:
-                if p != p_:
-                    for theta in (subst(theta, p) == subst(theta, p_)):
-                        q_ = subst(theta, q)
-                        if  not unify(q_,KB.sentence in KB) or not unify(q_, new):
-                            new.append(q_)
-                            phi = unify(q_,alpha)
-                            if phi is not None:
-                                return phi
-        KB.tell(new)
-    return None
+def fol_fc_ask(KB, alpha):  # TODO
+    raise NotImplementedError
 
 
 def standardize_variables(sentence, dic=None):
@@ -936,16 +921,15 @@ test_kb = FolKB(
                ]))
 
 crime_kb = FolKB(
-    map(expr,
-             ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',  # noqa
-              'Owns(Nono, M1)',
-              'Missile(M1)',
-              '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-              'Missile(x) ==> Weapon(x)',
-              'Enemy(x, America) ==> Hostile(x)',
-              'American(West)',
-              'Enemy(Nono, America)'
-              ]))
+    map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+               'Owns(Nono, M1)',
+               'Missile(M1)',
+               '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+               'Missile(x) ==> Weapon(x)',
+               'Enemy(x, America) ==> Hostile(x)',
+               'American(West)',
+               'Enemy(Nono, America)'
+               ]))
 
 
 def fol_bc_ask(KB, query):

@@ -184,8 +184,8 @@ class DataSet:
         target_names = self.values[self.target]
 
         for v in self.examples:
-            item = [a for a in v if a not in target_names] # Remove target from item
-            buckets[v[self.target]].append(item) # Add item to bucket of its class
+            item = [a for a in v if a not in target_names]  # Remove target from item
+            buckets[v[self.target]].append(item)  # Add item to bucket of its class
 
         return buckets
 
@@ -199,7 +199,7 @@ class DataSet:
         feature_numbers = len(self.inputs)
 
         item_buckets = self.split_values_by_classes()
-        
+
         means = defaultdict(lambda: [0 for i in range(feature_numbers)])
         deviations = defaultdict(lambda: [0 for i in range(feature_numbers)])
 
@@ -215,7 +215,6 @@ class DataSet:
                 deviations[t][i] = stdev(features[i])
 
         return means, deviations
-
 
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
@@ -653,24 +652,15 @@ def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
     learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs)
 
     def predict(example):
-        # Input nodes
-        i_nodes = learned_net[0]
-
-        # Activate input layer
-        for v, n in zip(example, i_nodes):
-            n.value = v
+        o_nodes = learned_net[1]
 
         # Forward pass
-        for layer in learned_net[1:]:
-            for node in layer:
-                inc = [n.value for n in node.inputs]
-                in_val = dotproduct(inc, node.weights)
-                node.value = node.activation(in_val)
+        for node in o_nodes:
+            in_val = dotproduct(example, node.weights)
+            node.value = node.activation(in_val)
 
         # Hypothesis
-        o_nodes = learned_net[-1]
-        prediction = find_max_node(o_nodes)
-        return prediction
+        return find_max_node(o_nodes)
 
     return predict
 
@@ -768,7 +758,6 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         # update weights
         for i in range(len(w)):
             w[i] = w[i] + learning_rate * (dotproduct(err, X_col[i]) / num_examples)
-
 
     def predict(example):
         x = [1] + example

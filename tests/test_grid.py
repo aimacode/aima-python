@@ -1,5 +1,5 @@
 import pytest
-from grid import *  # noqa
+from grid import *
 
 
 def compare_list(x, y):
