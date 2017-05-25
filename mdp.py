@@ -22,15 +22,18 @@ class MDP:
     list of (p, s') pairs. We also keep track of the possible states,
     terminal states, and actions for each state. [page 646]"""
 
-    def __init__(self, init, actlist, terminals, transitions={}, states=set(), gamma=.9):
+    def __init__(self, init, actlist, terminals, transitions={}, states=None, gamma=.9):
         if not (0 <= gamma < 1):
             raise ValueError("An MDP must have 0 <= gamma < 1")
 
+        if states:
+            self.states = states
+        else:
+            self.states = set()
         self.init = init
         self.actlist = actlist
         self.terminals = terminals
         self.transitions = transitions
-        self.states = states
         self.gamma = gamma
         self.reward = {}
 
