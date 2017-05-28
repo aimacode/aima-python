@@ -339,7 +339,6 @@ def topological_sort(X, root):
     visited shows the state (visited - not visited) of nodes
 
     """
-    nodes = X.variables
     neighbors = X.neighbors
 
     visited = defaultdict(lambda: False)

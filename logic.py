@@ -845,8 +845,24 @@ def subst(s, x):
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
 
-def fol_fc_ask(KB, alpha):  # TODO
-    raise NotImplementedError
+def fol_fc_ask(KB, alpha):
+    """A simple forward-chaining algorithm. [Figure 9.3]"""
+    new = []
+    while new is not None:
+        for rule in KB.clauses:
+            p, q = parse_definite_clause(standardize_variables(rule))
+            for p_ in KB.clauses:
+                if p != p_:
+                    for theta in KB.clauses:
+                        if subst(theta, p) == subst(theta, p_):
+                            q_ = subst(theta, q)
+                            if not unify(q_, KB.sentence in KB) or not unify(q_, new):
+                                new.append(q_)
+                                phi = unify(q_, alpha)
+                                if phi is not None:
+                                    return phi
+        KB.tell(new)
+    return None
 
 
 def standardize_variables(sentence, dic=None):
