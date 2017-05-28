@@ -1,5 +1,4 @@
-"""Reinforcement Learning (Chapter 21)
-"""
+"""Reinforcement Learning (Chapter 21)"""
 
 from collections import defaultdict
 from utils import argmax
@@ -61,7 +60,7 @@ class PassiveADPAgent:
         return self.a
 
     def update_state(self, percept):
-        ''' To be overridden in most cases. The default case
+        '''To be overridden in most cases. The default case
         assumes the percept to be of type (state, reward)'''
         return percept
 
