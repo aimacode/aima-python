@@ -85,7 +85,7 @@ class CSP(search.Problem):
         # Subclasses can print in a prettier way, or display with a GUI
         print('CSP:', self, 'with assignment:', assignment)
 
-    # These methods are for the tree- and graph-search interface:
+    # These methods are for the tree and graph-search interface:
 
     def actions(self, state):
         """Return a list of applicable actions: nonconflicting
@@ -308,15 +308,18 @@ def tree_csp_solver(csp):
     """[Figure 6.11]"""
     assignment = {}
     root = csp.variables[0]
-    root = 'NT'
     X, parent = topological_sort(csp, root)
+
+    csp.support_pruning()
     for Xj in reversed(X[1:]):
         if not make_arc_consistent(parent[Xj], Xj, csp):
             return None
-    for Xi in X:
-        if not csp.curr_domains[Xi]:
+
+    assignment[root] = csp.curr_domains[root][0]
+    for Xi in X[1:]:
+        assignment[Xi] = assign_value(parent[Xi], Xi, csp, assignment)
+        if not assignment[Xi]:
             return None
-        assignment[Xi] = csp.curr_domains[Xi][0]
     return assignment
 
 
@@ -360,7 +363,34 @@ def build_topological(node, parent, neighbors, visited, stack, parents):
 
 
 def make_arc_consistent(Xj, Xk, csp):
-    raise NotImplementedError
+    """Make arc between parent (Xj) and child (Xk) consistent under the csp's constraints,
+    by removing the possible values of Xj that cause inconsistencies."""
+    #csp.curr_domains[Xj] = []
+    for val1 in csp.domains[Xj]:
+        keep = False # Keep or remove val1
+        for val2 in csp.domains[Xk]:
+            if csp.constraints(Xj, val1, Xk, val2):
+                # Found a consistent assignment for val1, keep it
+                keep = True
+                break
+        
+        if not keep:
+            # Remove val1
+            csp.prune(Xj, val1, None)
+
+    return csp.curr_domains[Xj]
+
+
+def assign_value(Xj, Xk, csp, assignment):
+    """Assign a value to Xk given Xj's (Xk's parent) assignment.
+    Return the first value that satisfies the constraints."""
+    parent_assignment = assignment[Xj]
+    for val in csp.curr_domains[Xk]:
+        if csp.constraints(Xj, parent_assignment, Xk, val):
+            return val
+
+    # No consistent assignment available
+    return None
 
 # ______________________________________________________________________________
 # Map-Coloring Problems
@@ -388,8 +418,8 @@ def different_values_constraint(A, a, B, b):
 
 def MapColoringCSP(colors, neighbors):
     """Make a CSP for the problem of coloring a map with different colors
-    for any two adjacent regions.  Arguments are a list of colors, and a
-    dict of {region: [neighbor,...]} entries.  This dict may also be
+    for any two adjacent regions. Arguments are a list of colors, and a
+    dict of {region: [neighbor,...]} entries. This dict may also be
     specified as a string of the form defined by parse_neighbors."""
     if isinstance(neighbors, str):
         neighbors = parse_neighbors(neighbors)
@@ -399,9 +429,9 @@ def MapColoringCSP(colors, neighbors):
 
 def parse_neighbors(neighbors, variables=[]):
     """Convert a string of the form 'X: Y Z; Y: Z' into a dict mapping
-    regions to neighbors.  The syntax is a region name followed by a ':'
+    regions to neighbors. The syntax is a region name followed by a ':'
     followed by zero or more region names, followed by ';', repeated for
-    each region name.  If you say 'X: Y' you don't need 'Y: X'.
+    each region name. If you say 'X: Y' you don't need 'Y: X'.
     >>> parse_neighbors('X: Y Z; Y: Z') == {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
     True
     """
@@ -533,10 +563,12 @@ class NQueensCSP(CSP):
 # Sudoku
 
 
-def flatten(seqs): return sum(seqs, [])
+def flatten(seqs):
+    return sum(seqs, [])
 
-easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'  # noqa
-harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'  # noqa
+
+easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'
+harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
 
 _R3 = list(range(3))
 _CELL = itertools.count().__next__

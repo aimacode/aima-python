@@ -13,7 +13,7 @@ Be careful: some functions take an Expr as argument, and some take a KB.
 Logical expressions can be created with Expr or expr, imported from utils, TODO
 or with expr, which adds the capability to write a string that uses
 the connectives ==>, <==, <=>, or <=/=>. But be careful: these have the
-opertor precedence of commas; you may need to add parens to make precendence work.
+operator precedence of commas; you may need to add parens to make precedence work.
 See logic.ipynb for examples.
 
 Then we implement various functions for doing logical inference:
@@ -937,16 +937,15 @@ test_kb = FolKB(
                ]))
 
 crime_kb = FolKB(
-    map(expr,
-             ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',  # noqa
-              'Owns(Nono, M1)',
-              'Missile(M1)',
-              '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-              'Missile(x) ==> Weapon(x)',
-              'Enemy(x, America) ==> Hostile(x)',
-              'American(West)',
-              'Enemy(Nono, America)'
-              ]))
+    map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+               'Owns(Nono, M1)',
+               'Missile(M1)',
+               '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+               'Missile(x) ==> Weapon(x)',
+               'Enemy(x, America) ==> Hostile(x)',
+               'American(West)',
+               'Enemy(Nono, America)'
+               ]))
 
 
 def fol_bc_ask(KB, query):

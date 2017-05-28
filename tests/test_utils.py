@@ -1,6 +1,6 @@
 import pytest
-from utils import *  # noqa
-
+from utils import *
+import random
 
 def test_removeall_list():
     assert removeall(4, []) == []
@@ -16,6 +16,13 @@ def test_removeall_string():
 def test_unique():
     assert unique([1, 2, 3, 2, 1]) == [1, 2, 3]
     assert unique([1, 5, 6, 7, 6, 5]) == [1, 5, 6, 7]
+
+
+def test_count():
+    assert count([1, 2, 3, 4, 2, 3, 4]) == 7
+    assert count("aldpeofmhngvia") == 14
+    assert count([True, False, True, True, False]) == 3
+    assert count([5 > 1, len("abc") == 3, 3+1 == 5]) == 2
 
 
 def test_product():
@@ -36,6 +43,11 @@ def test_is_in():
     e = []
     assert is_in(e, [1, e, 3]) is True
     assert is_in(e, [1, [], 3]) is False
+
+
+def test_mode():
+    assert mode([12, 32, 2, 1, 2, 3, 2, 3, 2, 3, 44, 3, 12, 4, 9, 0, 3, 45, 3]) == 3
+    assert mode("absndkwoajfkalwpdlsdlfllalsflfdslgflal") == 'l'
 
 
 def test_argminmax():
@@ -136,6 +148,20 @@ def test_sigmoid():
     assert isclose(0.2689414213699951, sigmoid(-1))
 
 
+def test_gaussian():
+    assert gaussian(1,0.5,0.7) == 0.6664492057835993
+    assert gaussian(5,2,4.5) == 0.19333405840142462
+    assert gaussian(3,1,3) == 0.3989422804014327
+
+
+def test_sigmoid_derivative():
+    value = 1
+    assert sigmoid_derivative(value) == 0
+
+    value = 3
+    assert sigmoid_derivative(value) == -6
+
+
 def test_step():
     assert step(1) == step(0.5) == 1
     assert step(0) == 1
@@ -177,6 +203,53 @@ def test_expr():
     assert (expr('GP(x, z) <== P(x, y) & P(y, z)')
             == Expr('<==', GP(x, z), P(x, y) & P(y, z)))
 
+def test_FIFOQueue() :
+    # Create an object
+    queue = FIFOQueue()
+    # Generate an array of number to be used for testing
+    test_data = [ random.choice(range(100)) for i in range(100) ]
+    # Index of the element to be added in the queue
+    front_head = 0
+    # Index of the element to be removed from the queue
+    back_head = 0
+    while front_head < 100 or back_head < 100 :
+        if front_head == 100 : # only possible to remove
+            # check for pop and append method
+            assert queue.pop() == test_data[back_head]
+            back_head += 1
+        elif back_head == front_head : # only possible to push element into queue
+            queue.append(test_data[front_head])
+            front_head += 1
+        # else do it in a random manner
+        elif random.random() < 0.5 :
+            assert queue.pop() == test_data[back_head]
+            back_head += 1
+        else :
+            queue.append(test_data[front_head])
+            front_head += 1
+        # check for __len__ method
+        assert len(queue) == front_head - back_head
+        # chek for __contains__ method
+        if front_head - back_head > 0 :
+            assert random.choice(test_data[back_head:front_head]) in queue
+
+    # check extend method
+    test_data1 = [ random.choice(range(100)) for i in range(50) ]
+    test_data2 = [ random.choice(range(100)) for i in range(50) ]
+    # append elements of test data 1
+    queue.extend(test_data1)
+    # append elements of test data 2
+    queue.extend(test_data2)
+    # reset front_head
+    front_head = 0
+
+    while front_head < 50 :
+        assert test_data1[front_head] == queue.pop()
+        front_head += 1
+
+    while front_head < 100 :
+        assert test_data2[front_head - 50] == queue.pop()
+        front_head += 1
 
 if __name__ == '__main__':
     pytest.main()

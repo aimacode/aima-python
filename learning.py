@@ -1,9 +1,10 @@
 """Learn to estimate functions from examples. (Chapters 18-20)"""
 
 from utils import (
-    removeall, unique, product, mode, argmax, argmax_random_tie, isclose,
+    removeall, unique, product, mode, argmax, argmax_random_tie, isclose, gaussian,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
-    weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile
+    weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table,
+    DataFile, sigmoid_derivative
 )
 
 import copy
@@ -11,34 +12,38 @@ import heapq
 import math
 import random
 
-from statistics import mean
+from statistics import mean, stdev
 from collections import defaultdict
 
 # ______________________________________________________________________________
 
 
-def rms_error(predictions, targets):
-    return math.sqrt(ms_error(predictions, targets))
+def euclidean_distance(X, Y):
+    return math.sqrt(sum([(x - y)**2 for x, y in zip(X, Y)]))
 
 
-def ms_error(predictions, targets):
-    return mean([(p - t)**2 for p, t in zip(predictions, targets)])
+def rms_error(X, Y):
+    return math.sqrt(ms_error(X, Y))
 
 
-def mean_error(predictions, targets):
-    return mean([abs(p - t) for p, t in zip(predictions, targets)])
+def ms_error(X, Y):
+    return mean([(x - y)**2 for x, y in zip(X, Y)])
 
 
-def manhattan_distance(predictions, targets):
-    return sum([abs(p - t) for p, t in zip(predictions, targets)])
+def mean_error(X, Y):
+    return mean([abs(x - y) for x, y in zip(X, Y)])
 
 
-def mean_boolean_error(predictions, targets):
-    return mean(int(p != t) for p, t in zip(predictions, targets))
+def manhattan_distance(X, Y):
+    return sum([abs(x - y) for x, y in zip(X, Y)])
 
 
-def hamming_distance(predictions, targets):
-    return sum(p != t for p, t in zip(predictions, targets))
+def mean_boolean_error(X, Y):
+    return mean(int(x != y) for x, y in zip(X, Y))
+
+
+def hamming_distance(X, Y):
+    return sum(x != y for x, y in zip(X, Y))
 
 # ______________________________________________________________________________
 
@@ -174,6 +179,44 @@ class DataSet:
         self.examples = [x for x in self.examples if value not in x]
         self.update_values()
 
+    def split_values_by_classes(self):
+        """Split values into buckets according to their class."""
+        buckets = defaultdict(lambda: [])
+        target_names = self.values[self.target]
+
+        for v in self.examples:
+            item = [a for a in v if a not in target_names]  # Remove target from item
+            buckets[v[self.target]].append(item)  # Add item to bucket of its class
+
+        return buckets
+
+    def find_means_and_deviations(self):
+        """Finds the means and standard deviations of self.dataset.
+        means     : A dictionary for each class/target. Holds a list of the means
+                    of the features for the class.
+        deviations: A dictionary for each class/target. Holds a list of the sample
+                    standard deviations of the features for the class."""
+        target_names = self.values[self.target]
+        feature_numbers = len(self.inputs)
+
+        item_buckets = self.split_values_by_classes()
+
+        means = defaultdict(lambda: [0 for i in range(feature_numbers)])
+        deviations = defaultdict(lambda: [0 for i in range(feature_numbers)])
+
+        for t in target_names:
+            # Find all the item feature values for item in class t
+            features = [[] for i in range(feature_numbers)]
+            for item in item_buckets[t]:
+                features = [features[i] + [item[i]] for i in range(feature_numbers)]
+
+            # Calculate means and deviations fo the class
+            for i in range(feature_numbers):
+                means[t][i] = mean(features[i])
+                deviations[t][i] = stdev(features[i])
+
+        return means, deviations
+
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(
             self.name, len(self.examples), len(self.attrs))
@@ -263,15 +306,22 @@ def PluralityLearner(dataset):
 # ______________________________________________________________________________
 
 
-def NaiveBayesLearner(dataset):
+def NaiveBayesLearner(dataset, continuous=True):
+    if(continuous):
+        return NaiveBayesContinuous(dataset)
+    else:
+        return NaiveBayesDiscrete(dataset)
+
+
+def NaiveBayesDiscrete(dataset):
     """Just count how many times each value of each input attribute
     occurs, conditional on the target value. Count the different
     target values too."""
 
-    targetvals = dataset.values[dataset.target]
-    target_dist = CountingProbDist(targetvals)
+    target_vals = dataset.values[dataset.target]
+    target_dist = CountingProbDist(target_vals)
     attr_dists = {(gv, attr): CountingProbDist(dataset.values[attr])
-                  for gv in targetvals
+                  for gv in target_vals
                   for attr in dataset.inputs}
     for example in dataset.examples:
         targetval = example[dataset.target]
@@ -286,7 +336,29 @@ def NaiveBayesLearner(dataset):
             return (target_dist[targetval] *
                     product(attr_dists[targetval, attr][example[attr]]
                             for attr in dataset.inputs))
-        return argmax(targetvals, key=class_probability)
+        return argmax(target_vals, key=class_probability)
+
+    return predict
+
+
+def NaiveBayesContinuous(dataset):
+    """Count how many times each target value occurs.
+    Also, find the means and deviations of input attribute values for each target value."""
+    means, deviations = dataset.find_means_and_deviations()
+
+    target_vals = dataset.values[dataset.target]
+    target_dist = CountingProbDist(target_vals)
+
+    def predict(example):
+        """Predict the target value for example. Consider each possible value,
+        and pick the most likely by looking at each attribute independently."""
+        def class_probability(targetval):
+            prob = target_dist[targetval]
+            for attr in dataset.inputs:
+                prob *= gaussian(means[targetval][attr], deviations[targetval][attr], example[attr])
+            return prob
+
+        return argmax(target_vals, key=class_probability)
 
     return predict
 
@@ -465,7 +537,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     """
 
     i_units = len(dataset.inputs)
-    o_units = 1  # As of now, dataset.target gives only one index.
+    o_units = len(dataset.values[dataset.target])
 
     # construct a network
     raw_net = network(i_units, hidden_layer_sizes, o_units)
@@ -490,8 +562,109 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
 
         # Hypothesis
         o_nodes = learned_net[-1]
-        pred = [o_nodes[i].value for i in range(o_units)]
-        return 1 if pred[0] >= 0.5 else 0
+        prediction = find_max_node(o_nodes)
+        return prediction
+
+    return predict
+
+
+def random_weights(min_value, max_value, num_weights):
+    return [random.uniform(min_value, max_value) for i in range(num_weights)]
+
+
+def BackPropagationLearner(dataset, net, learning_rate, epochs):
+    """[Figure 18.23] The back-propagation algorithm for multilayer network"""
+    # Initialise weights
+    for layer in net:
+        for node in layer:
+            node.weights = random_weights(min_value=-0.5, max_value=0.5,
+                                          num_weights=len(node.weights))
+
+    examples = dataset.examples
+    '''
+    As of now dataset.target gives an int instead of list,
+    Changing dataset class will have effect on all the learners.
+    Will be taken care of later
+    '''
+    o_nodes = net[-1]
+    i_nodes = net[0]
+    o_units = len(o_nodes)
+    idx_t = dataset.target
+    idx_i = dataset.inputs
+    n_layers = len(net)
+
+    inputs, targets = init_examples(examples, idx_i, idx_t, o_units)
+
+    for epoch in range(epochs):
+        # Iterate over each example
+        for e in range(len(examples)):
+            i_val = inputs[e]
+            t_val = targets[e]
+
+            # Activate input layer
+            for v, n in zip(i_val, i_nodes):
+                n.value = v
+
+            # Forward pass
+            for layer in net[1:]:
+                for node in layer:
+                    inc = [n.value for n in node.inputs]
+                    in_val = dotproduct(inc, node.weights)
+                    node.value = node.activation(in_val)
+
+            # Initialize delta
+            delta = [[] for i in range(n_layers)]
+
+            # Compute outer layer delta
+
+            # Error for the MSE cost function
+            err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
+            # The activation function used is the sigmoid function
+            delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+
+            # Backward pass
+            h_layers = n_layers - 2
+            for i in range(h_layers, 0, -1):
+                layer = net[i]
+                h_units = len(layer)
+                nx_layer = net[i+1]
+                # weights from each ith layer node to each i + 1th layer node
+                w = [[node.weights[k] for node in nx_layer] for k in range(h_units)]
+
+                delta[i] = [sigmoid_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+
+            #  Update weights
+            for i in range(1, n_layers):
+                layer = net[i]
+                inc = [node.value for node in net[i-1]]
+                units = len(layer)
+                for j in range(units):
+                    layer[j].weights = vector_add(layer[j].weights,
+                                                  scalar_vector_product(
+                                                  learning_rate * delta[i][j], inc))
+
+    return net
+
+
+def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
+    """Logistic Regression, NO hidden layer"""
+    i_units = len(dataset.inputs)
+    o_units = len(dataset.values[dataset.target])
+    hidden_layer_sizes = []
+    raw_net = network(i_units, hidden_layer_sizes, o_units)
+    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs)
+
+    def predict(example):
+        o_nodes = learned_net[1]
+
+        # Forward pass
+        for node in o_nodes:
+            in_val = dotproduct(example, node.weights)
+            node.value = node.activation(in_val)
+
+        # Hypothesis
+        return find_max_node(o_nodes)
 
     return predict
 
@@ -533,108 +706,30 @@ def network(input_units, hidden_layer_sizes, output_units):
     return net
 
 
-def BackPropagationLearner(dataset, net, learning_rate, epochs):
-    """[Figure 18.23] The back-propagation algorithm for multilayer network"""
-    # Initialise weights
-    for layer in net:
-        for node in layer:
-            node.weights = [random.uniform(-0.5, 0.5)
-                            for i in range(len(node.weights))]
+def init_examples(examples, idx_i, idx_t, o_units):
+    inputs = {}
+    targets = {}
 
-    examples = dataset.examples
-    '''
-    As of now dataset.target gives an int instead of list,
-    Changing dataset class will have effect on all the learners.
-    Will be taken care of later
-    '''
-    idx_t = [dataset.target]
-    idx_i = dataset.inputs
-    n_layers = len(net)
-    o_nodes = net[-1]
-    i_nodes = net[0]
+    for i in range(len(examples)):
+        e = examples[i]
+        # Input values of e
+        inputs[i] = [e[i] for i in idx_i]
 
-    for epoch in range(epochs):
-        # Iterate over each example
-        for e in examples:
-            i_val = [e[i] for i in idx_i]
-            t_val = [e[i] for i in idx_t]
-            # Activate input layer
-            for v, n in zip(i_val, i_nodes):
-                n.value = v
+        if o_units > 1:
+            # One-Hot representation of e's target
+            t = [0 for i in range(o_units)]
+            t[e[idx_t]] = 1
+            targets[i] = t
+        else:
+            # Target value of e
+            targets[i] = [e[idx_t]]
 
-            # Forward pass
-            for layer in net[1:]:
-                for node in layer:
-                    inc = [n.value for n in node.inputs]
-                    in_val = dotproduct(inc, node.weights)
-                    node.value = node.activation(in_val)
-
-            # Initialize delta
-            delta = [[] for i in range(n_layers)]
-
-            # Compute outer layer delta
-            o_units = len(o_nodes)
-            err = [t_val[i] - o_nodes[i].value
-                   for i in range(o_units)]
-            delta[-1] = [(o_nodes[i].value) * (1 - o_nodes[i].value) *
-                         (err[i]) for i in range(o_units)]
-
-            # Backward pass
-            h_layers = n_layers - 2
-            for i in range(h_layers, 0, -1):
-                layer = net[i]
-                h_units = len(layer)
-                nx_layer = net[i+1]
-                # weights from each ith layer node to each i + 1th layer node
-                w = [[node.weights[k] for node in nx_layer]
-                     for k in range(h_units)]
-
-                delta[i] = [(layer[j].value) * (1 - layer[j].value) *
-                            dotproduct(w[j], delta[i+1])
-                            for j in range(h_units)]
-
-            #  Update weights
-            for i in range(1, n_layers):
-                layer = net[i]
-                inc = [node.value for node in net[i-1]]
-                units = len(layer)
-                for j in range(units):
-                    layer[j].weights = vector_add(layer[j].weights,
-                                                  scalar_vector_product(
-                                                  learning_rate * delta[i][j], inc))
-
-    return net
+    return inputs, targets
 
 
-def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
-    """Logistic Regression, NO hidden layer"""
-    i_units = len(dataset.inputs)
-    o_units = 1  # As of now, dataset.target gives only one index.
-    hidden_layer_sizes = []
-    raw_net = network(i_units, hidden_layer_sizes, o_units)
-    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs)
+def find_max_node(nodes):
+    return nodes.index(argmax(nodes, key=lambda node: node.value))
 
-    def predict(example):
-        # Input nodes
-        i_nodes = learned_net[0]
-
-        # Activate input layer
-        for v, n in zip(example, i_nodes):
-            n.value = v
-
-        # Forward pass
-        for layer in learned_net[1:]:
-            for node in layer:
-                inc = [n.value for n in node.inputs]
-                in_val = dotproduct(inc, node.weights)
-                node.value = node.activation(in_val)
-
-        # Hypothesis
-        o_nodes = learned_net[-1]
-        pred = [o_nodes[i].value for i in range(o_units)]
-        return 1 if pred[0] >= 0.5 else 0
-
-    return predict
 # ______________________________________________________________________________
 
 
@@ -653,7 +748,8 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     X_col = [ones] + X_col
 
     # Initialize random weigts
-    w = [random.uniform(-0.5, 0.5) for _ in range(len(idx_i) + 1)]
+    num_weights = len(idx_i) + 1
+    w = random_weights(min_value=-0.5, max_value=0.5, num_weights=num_weights)
 
     for epoch in range(epochs):
         err = []
@@ -772,8 +868,9 @@ def flatten(seqs): return sum(seqs, [])
 # Functions for testing learners on examples
 
 
-def test(predict, dataset, examples=None, verbose=0):
+def err_ratio(predict, dataset, examples=None, verbose=0):
     """Return the proportion of the examples that are NOT correctly predicted."""
+    """verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct"""
     if examples is None:
         examples = dataset.examples
     if len(examples) == 0:
@@ -790,6 +887,12 @@ def test(predict, dataset, examples=None, verbose=0):
             print('WRONG: got {}, expected {} for {}'.format(
                 output, desired, example))
     return 1 - (right / len(examples))
+
+
+def grade_learner(predict, tests):
+    """Grades the given learner based on how many tests it passes.
+    tests is a list with each element in the form: (values, output)."""
+    return mean(int(predict(X) == y) for X, y in tests)
 
 
 def train_and_test(dataset, start, end):
@@ -829,8 +932,8 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
                                                   (fold + 1) * (n / k))
             dataset.examples = train_data
             h = learner(dataset, size)
-            fold_errT += test(h, dataset, train_data)
-            fold_errV += test(h, dataset, val_data)
+            fold_errT += err_ratio(h, dataset, train_data)
+            fold_errV += err_ratio(h, dataset, val_data)
             # Reverting back to original once test is completed
             dataset.examples = examples
         return fold_errT / k, fold_errV / k

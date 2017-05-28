@@ -1,11 +1,15 @@
 import pytest
 import nlp
+
 from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
-from nlp import getOutlinks, Page
+from nlp import getOutlinks, Page, determineInlinks, HITS
 from nlp import Rules, Lexicon
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by function's within nlp.py
+
+from unittest.mock import patch
+from io import BytesIO
 
 
 def test_rules():
@@ -26,7 +30,20 @@ testHTML = """Keyword String 1: A man is a male human.
             href="https://google.com.au"
             < href="/wiki/TestThing" > href="/wiki/TestBoy"
             href="/wiki/TestLiving" href="/wiki/TestMan" >"""
-testHTML2 = "Nothing"
+testHTML2 = "a mom and a dad"
+testHTML3 = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>Page Title</title>
+            </head>
+            <body>
+
+            <p>AIMA book</p>
+
+            </body>
+            </html>
+            """
 
 pA = Page("A", 1, 6, ["B", "C", "E"], ["D"])
 pB = Page("B", 2, 5, ["E"], ["A", "C", "D"])
@@ -52,18 +69,20 @@ nlp.pagesContent ={pA.address: testHTML, pB.address: testHTML2,
 #     assert all(loadedPages.get(key,"") != "" for key in addresses)
 
 
-def test_stripRawHTML():
+@patch('urllib.request.urlopen', return_value=BytesIO(testHTML3.encode()))
+def test_stripRawHTML(html_mock):
     addr = "https://en.wikipedia.org/wiki/Ethics"
     aPage = loadPageHTML([addr])
     someHTML = aPage[addr]
     strippedHTML = stripRawHTML(someHTML)
     assert "<head>" not in strippedHTML and "</head>" not in strippedHTML
+    assert "AIMA book" in someHTML and "AIMA book" in strippedHTML
 
 
 def test_determineInlinks():
-    # TODO
-    assert True
-
+    assert set(determineInlinks(pA)) == set(['B', 'C', 'E'])
+    assert set(determineInlinks(pE)) == set([])
+    assert set(determineInlinks(pF)) == set(['E'])
 
 def test_findOutlinks_wiki():
     testPage = pageDict[pA.address]
@@ -87,15 +106,19 @@ def test_expand_pages():
 
 
 def test_relevant_pages():
-    pages = relevant_pages("male")
-    assert all((x in pages.keys()) for x in ['A', 'C', 'E'])
+    pages = relevant_pages("his dad")
+    assert all((x in pages) for x in ['A', 'C', 'E'])
     assert all((x not in pages) for x in ['B', 'D', 'F'])
+    pages = relevant_pages("mom and dad")
+    assert all((x in pages) for x in ['A', 'B', 'C', 'D', 'E', 'F'])
+    pages = relevant_pages("philosophy")
+    assert all((x not in pages) for x in ['A', 'B', 'C', 'D', 'E', 'F'])
 
 
 def test_normalize():
     normalize(pageDict)
     print(page.hub for addr, page in nlp.pagesIndex.items())
-    expected_hub = [1/91, 2/91, 3/91, 4/91, 5/91, 6/91]  # Works only for sample data above
+    expected_hub = [1/91**0.5, 2/91**0.5, 3/91**0.5, 4/91**0.5, 5/91**0.5, 6/91**0.5]  # Works only for sample data above
     expected_auth = list(reversed(expected_hub))
     assert len(expected_hub) == len(expected_auth) == len(nlp.pagesIndex)
     assert expected_hub == [page.hub for addr, page in sorted(nlp.pagesIndex.items())]
@@ -122,17 +145,20 @@ def test_detectConvergence():
 
 def test_getInlinks():
     inlnks = getInlinks(pageDict['A'])
-    assert sorted([page.address for page in inlnks]) == pageDict['A'].inlinks
+    assert sorted(inlnks) == pageDict['A'].inlinks
 
 
 def test_getOutlinks():
     outlnks = getOutlinks(pageDict['A'])
-    assert sorted([page.address for page in outlnks]) == pageDict['A'].outlinks
+    assert sorted(outlnks) == pageDict['A'].outlinks
 
 
 def test_HITS():
-    # TODO
-    assert True  # leave for now
+    HITS('inherit')
+    auth_list = [pA.authority, pB.authority, pC.authority, pD.authority, pE.authority, pF.authority]
+    hub_list = [pA.hub, pB.hub, pC.hub, pD.hub, pE.hub, pF.hub]
+    assert max(auth_list) == pD.authority
+    assert max(hub_list) == pE.hub
 
 
 if __name__ == '__main__':

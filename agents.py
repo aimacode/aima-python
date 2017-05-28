@@ -85,10 +85,13 @@ class Agent(Thing):
         self.bump = False
         self.holding = []
         self.performance = 0
-        if program is None:
+        if program is None or not isinstance(program, collections.Callable):
+            print("Can't find a valid program for {}, falling back to default.".format(
+                self.__class__.__name__))
+
             def program(percept):
                 return eval(input('Percept={}; action? '.format(percept)))
-        assert isinstance(program, collections.Callable)
+
         self.program = program
 
     def can_grab(self, thing):
@@ -298,12 +301,14 @@ class Environment:
         for it. (Shouldn't need to override this."""
         if not isinstance(thing, Thing):
             thing = Agent(thing)
-        assert thing not in self.things, "Don't add the same thing twice"
-        thing.location = location if location is not None else self.default_location(thing)
-        self.things.append(thing)
-        if isinstance(thing, Agent):
-            thing.performance = 0
-            self.agents.append(thing)
+        if thing in self.things:
+            print("Can't add the same thing twice")
+        else:
+            thing.location = location if location is not None else self.default_location(thing)
+            self.things.append(thing)
+            if isinstance(thing, Agent):
+                thing.performance = 0
+                self.agents.append(thing)
 
     def delete_thing(self, thing):
         """Remove a thing from the environment."""
