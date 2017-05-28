@@ -3,7 +3,8 @@
 from utils import (
     removeall, unique, product, mode, argmax, argmax_random_tie, isclose, gaussian,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
-    weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table, DataFile
+    weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table,
+    DataFile, sigmoid_derivative
 )
 
 import copy
@@ -567,13 +568,17 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     return predict
 
 
+def random_weights(min_value, max_value, num_weights):
+    return [random.uniform(min_value, max_value) for i in range(num_weights)]
+
+
 def BackPropagationLearner(dataset, net, learning_rate, epochs):
     """[Figure 18.23] The back-propagation algorithm for multilayer network"""
     # Initialise weights
     for layer in net:
         for node in layer:
-            node.weights = [random.uniform(-0.5, 0.5)
-                            for i in range(len(node.weights))]
+            node.weights = random_weights(min_value=-0.5, max_value=0.5,
+                                          num_weights=len(node.weights))
 
     examples = dataset.examples
     '''
@@ -611,10 +616,11 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs):
             delta = [[] for i in range(n_layers)]
 
             # Compute outer layer delta
-            err = [t_val[i] - o_nodes[i].value
-                   for i in range(o_units)]
-            delta[-1] = [(o_nodes[i].value) * (1 - o_nodes[i].value) *
-                         (err[i]) for i in range(o_units)]
+
+            # Error for the MSE cost function
+            err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
+            # The activation function used is the sigmoid function
+            delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
 
             # Backward pass
             h_layers = n_layers - 2
@@ -623,11 +629,9 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs):
                 h_units = len(layer)
                 nx_layer = net[i+1]
                 # weights from each ith layer node to each i + 1th layer node
-                w = [[node.weights[k] for node in nx_layer]
-                     for k in range(h_units)]
+                w = [[node.weights[k] for node in nx_layer] for k in range(h_units)]
 
-                delta[i] = [(layer[j].value) * (1 - layer[j].value) *
-                            dotproduct(w[j], delta[i+1])
+                delta[i] = [sigmoid_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
                             for j in range(h_units)]
 
             #  Update weights
@@ -744,7 +748,8 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     X_col = [ones] + X_col
 
     # Initialize random weigts
-    w = [random.uniform(-0.5, 0.5) for _ in range(len(idx_i) + 1)]
+    num_weights = len(idx_i) + 1
+    w = random_weights(min_value=-0.5, max_value=0.5, num_weights=num_weights)
 
     for epoch in range(epochs):
         err = []

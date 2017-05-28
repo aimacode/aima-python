@@ -1,7 +1,7 @@
 from learning import parse_csv, weighted_mode, weighted_replicate, DataSet, \
                      PluralityLearner, NaiveBayesLearner, NearestNeighborLearner, \
                      NeuralNetLearner, PerceptronLearner, DecisionTreeLearner, \
-                     euclidean_distance, grade_learner, err_ratio
+                     euclidean_distance, grade_learner, err_ratio, random_weights
 from utils import DataFile
 
 
@@ -124,3 +124,18 @@ def test_perceptron():
 
     assert grade_learner(perceptron, tests) > 1/2
     assert err_ratio(perceptron, iris) < 0.4
+
+
+def test_random_weights():
+    min_value = -0.5
+    max_value = 0.5
+    num_weights = 10
+
+    test_weights = random_weights(min_value, max_value, num_weights)
+
+    assert len(test_weights) == num_weights
+
+    for weight in test_weights:
+        assert weight >= min_value and weight <= max_value
+
+
