@@ -582,7 +582,7 @@ def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
     return genetic_algorithm(states[:n], problem.value, ngen, pmut)
 
 
-def genetic_algorithm(population, fitness_fn, gene_pool=['0', '1'], f_thres=None, ngen=1000, pmut=0.1):  # noqa
+def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ngen=1000, pmut=0.1):  # noqa
     """[Figure 4.8]"""
     for i in range(ngen):
         new_population = []
@@ -610,13 +610,11 @@ def init_population(pop_number, gene_pool, state_length):
     """Initializes population for genetic algorithm
     pop_number  :  Number of individuals in population
     gene_pool   :  List of possible values for individuals
-                   (char only)
     state_length:  The length of each individual"""
     g = len(gene_pool)
     population = []
     for i in range(pop_number):
-        new_individual = ''.join([gene_pool[random.randrange(0, g)]
-                                  for j in range(state_length)])
+        new_individual = [gene_pool[random.randrange(0, g)] for j in range(state_length)]
         population.append(new_individual)
 
     return population
@@ -635,7 +633,7 @@ def mutate(x, gene_pool):
     r = random.randrange(0, g)
 
     new_gene = gene_pool[r]
-    return x[:c] + new_gene + x[c+1:]
+    return x[:c] + [new_gene] + x[c+1:]
 
 # _____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
