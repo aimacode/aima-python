@@ -1,0 +1,2 @@
+networkx==1.11
+jupyter
