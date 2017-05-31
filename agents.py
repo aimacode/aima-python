@@ -35,7 +35,7 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 #
 # Speed control in GUI does not have any effect -- fix it.
 
-from grid import distance2, turn_heading
+from grid import distance_squared, turn_heading
 from statistics import mean
 
 import random
@@ -45,8 +45,7 @@ import collections
 # ______________________________________________________________________________
 
 
-class Thing(object):
-
+class Thing:
     """This represents any physical object that can appear in an Environment.
     You subclass Thing to get the things you want.  Each thing can have a
     .__name__  slot (used for output only)."""
@@ -69,7 +68,6 @@ class Thing(object):
 
 
 class Agent(Thing):
-
     """An Agent is a subclass of Thing with one required slot,
     .program, which should hold a function that takes one argument, the
     percept, and returns an action. (What counts as a percept or action
@@ -87,10 +85,13 @@ class Agent(Thing):
         self.bump = False
         self.holding = []
         self.performance = 0
-        if program is None:
+        if program is None or not isinstance(program, collections.Callable):
+            print("Can't find a valid program for {}, falling back to default.".format(
+                self.__class__.__name__))
+
             def program(percept):
                 return eval(input('Percept={}; action? '.format(percept)))
-        assert isinstance(program, collections.Callable)
+
         self.program = program
 
     def can_grab(self, thing):
@@ -146,7 +147,7 @@ def SimpleReflexAgentProgram(rules, interpret_input):
 
 
 def ModelBasedReflexAgentProgram(rules, update_state, model):
-    """This agent takes action based on the percept and state. [Figure 2.8]"""
+    """This agent takes action based on the percept and state. [Figure 2.12]"""
     def program(percept):
         program.state = update_state(program.state, program.action, percept, model)
         rule = rule_match(program.state, rules)
@@ -163,6 +164,7 @@ def rule_match(state, rules):
             return rule
 
 # ______________________________________________________________________________
+
 
 loc_A, loc_B = (0, 0), (1, 0)  # The two locations for the Vacuum world
 
@@ -222,8 +224,7 @@ def ModelBasedVacuumAgent():
 # ______________________________________________________________________________
 
 
-class Environment(object):
-
+class Environment:
     """Abstract class representing an Environment.  'Real' Environment classes
     inherit from this. Your Environment will typically need to implement:
         percept:           Define the percept that an agent sees.
@@ -300,12 +301,14 @@ class Environment(object):
         for it. (Shouldn't need to override this."""
         if not isinstance(thing, Thing):
             thing = Agent(thing)
-        assert thing not in self.things, "Don't add the same thing twice"
-        thing.location = location if location is not None else self.default_location(thing)
-        self.things.append(thing)
-        if isinstance(thing, Agent):
-            thing.performance = 0
-            self.agents.append(thing)
+        if thing in self.things:
+            print("Can't add the same thing twice")
+        else:
+            thing.location = location if location is not None else self.default_location(thing)
+            self.things.append(thing)
+            if isinstance(thing, Agent):
+                thing.performance = 0
+                self.agents.append(thing)
 
     def delete_thing(self, thing):
         """Remove a thing from the environment."""
@@ -319,7 +322,8 @@ class Environment(object):
         if thing in self.agents:
             self.agents.remove(thing)
 
-class Direction():
+
+class Direction:
     """A direction class for agents that want to move in a 2D plane
         Usage:
             d = Direction("down")
@@ -345,7 +349,7 @@ class Direction():
         elif self.direction == self.L:
             return{
                 self.R: Direction(self.U),
-                self.L: Direction(self.L),
+                self.L: Direction(self.D),
             }.get(heading, None)
         elif self.direction == self.U:
             return{
@@ -371,7 +375,6 @@ class Direction():
 
 
 class XYEnvironment(Environment):
-
     """This class is for environments on a 2D plane, with locations
     labelled by (x, y) points, either discrete or continuous.
 
@@ -397,8 +400,9 @@ class XYEnvironment(Environment):
         if radius is None:
             radius = self.perceptible_distance
         radius2 = radius * radius
-        return [(thing, radius2 - distance2(location, thing.location)) for thing in self.things
-                if distance2(location, thing.location) <= radius2]
+        return [(thing, radius2 - distance_squared(location, thing.location))
+                for thing in self.things if distance_squared(
+                                                location, thing.location) <= radius2]
 
     def percept(self, agent):
         """By default, agent perceives things within a default radius."""
@@ -438,33 +442,28 @@ class XYEnvironment(Environment):
                 t.location = destination
         return thing.bump
 
-    # def add_thing(self, thing, location=(1, 1)):
-    #     super(XYEnvironment, self).add_thing(thing, location)
-    #     thing.holding = []
-    #     thing.held = None
-    #     for obs in self.observers:
-    #         obs.thing_added(thing)
-
     def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items=False):
-        """Adds things to the world. If (exclude_duplicate_class_items) then the item won't be 
+        """Adds things to the world. If (exclude_duplicate_class_items) then the item won't be
         added if the location has at least one item of the same class."""
         if (self.is_inbounds(location)):
             if (exclude_duplicate_class_items and
-                any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):
-                    return
+                    any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):
+                return
             super().add_thing(thing, location)
 
     def is_inbounds(self, location):
         """Checks to make sure that the location is inbounds (within walls if we have walls)"""
-        x,y = location
+        x, y = location
         return not (x < self.x_start or x >= self.x_end or y < self.y_start or y >= self.y_end)
 
     def random_location_inbounds(self, exclude=None):
         """Returns a random location that is inbounds (within walls if we have walls)"""
-        location = (random.randint(self.x_start, self.x_end), random.randint(self.y_start, self.y_end))
+        location = (random.randint(self.x_start, self.x_end),
+                    random.randint(self.y_start, self.y_end))
         if exclude is not None:
             while(location == exclude):
-                location = (random.randint(self.x_start, self.x_end), random.randint(self.y_start, self.y_end))
+                location = (random.randint(self.x_start, self.x_end),
+                            random.randint(self.y_start, self.y_end))
         return location
 
     def delete_thing(self, thing):
@@ -507,7 +506,6 @@ class XYEnvironment(Environment):
 
 
 class Obstacle(Thing):
-
     """Something that can cause a bump, preventing an agent from
     moving into the same square it's in."""
     pass
@@ -516,6 +514,96 @@ class Obstacle(Thing):
 class Wall(Obstacle):
     pass
 
+# ______________________________________________________________________________
+
+
+try:
+    from ipythonblocks import BlockGrid
+    from IPython.display import HTML, display
+    from time import sleep
+except:
+    pass
+
+
+class GraphicEnvironment(XYEnvironment):
+    def __init__(self, width=10, height=10, boundary=True, color={}, display=False):
+        """define all the usual XYEnvironment characteristics,
+        but initialise a BlockGrid for GUI too"""
+        super().__init__(width, height)
+        self.grid = BlockGrid(width, height, fill=(200, 200, 200))
+        if display:
+            self.grid.show()
+            self.visible = True
+        else:
+            self.visible = False
+        self.bounded = boundary
+        self.colors = color
+
+    def get_world(self):
+        """Returns all the items in the world in a format
+        understandable by the ipythonblocks BlockGrid"""
+        result = []
+        x_start, y_start = (0, 0)
+        x_end, y_end = self.width, self.height
+        for x in range(x_start, x_end):
+            row = []
+            for y in range(y_start, y_end):
+                row.append(self.list_things_at([x, y]))
+            result.append(row)
+        return result
+
+    """def run(self, steps=1000, delay=1):
+        "" "Run the Environment for given number of time steps,
+        but update the GUI too." ""
+        for step in range(steps):
+            sleep(delay)
+            if self.visible:
+                self.reveal()
+            if self.is_done():
+                if self.visible:
+                    self.reveal()
+                return
+            self.step()
+        if self.visible:
+            self.reveal()
+    """
+    def run(self, steps=1000, delay=1):
+        """Run the Environment for given number of time steps,
+        but update the GUI too."""
+        for step in range(steps):
+            self.update(delay)
+            if self.is_done():
+                break
+            self.step()
+        self.update(delay)
+
+    def update(self, delay=1):
+        sleep(delay)
+        if self.visible:
+            self.conceal()
+            self.reveal()
+        else:
+            self.reveal()
+
+    def reveal(self):
+        """display the BlockGrid for this world - the last thing to be added
+        at a location defines the location color"""
+        self.draw_world()
+        self.grid.show()
+        self.visible = True
+
+    def draw_world(self):
+        self.grid[:] = (200, 200, 200)
+        world = self.get_world()
+        for x in range(0, len(world)):
+            for y in range(0, len(world[x])):
+                if len(world[x][y]):
+                    self.grid[y, x] = self.colors[world[x][y][-1].__class__.__name__]
+
+    def conceal(self):
+        """hide the BlockGrid for this world"""
+        self.visible = False
+        display(HTML(''))
 
 
 # ______________________________________________________________________________
@@ -634,20 +722,26 @@ class Gold(Thing):
         return rhs.__class__ == Gold
     pass
 
+
 class Bump(Thing):
     pass
+
 
 class Glitter(Thing):
     pass
 
+
 class Pit(Thing):
     pass
+
 
 class Breeze(Thing):
     pass
 
+
 class Arrow(Thing):
     pass
+
 
 class Scream(Thing):
     pass
@@ -656,6 +750,7 @@ class Scream(Thing):
 class Wumpus(Agent):
     screamed = False
     pass
+
 
 class Stench(Thing):
     pass
@@ -673,7 +768,7 @@ class Explorer(Agent):
 
 
 class WumpusEnvironment(XYEnvironment):
-    pit_probability = 0.2 # Probability to spawn a pit in a location. (From Chapter 7.2)
+    pit_probability = 0.2  # Probability to spawn a pit in a location. (From Chapter 7.2)
     # Room should be 4x4 grid of rooms. The extra 2 for walls
 
     def __init__(self, agent_program, width=6, height=6):
@@ -706,7 +801,6 @@ class WumpusEnvironment(XYEnvironment):
 
         "GOLD"
         self.add_thing(Gold(), self.random_location_inbounds(exclude=(1, 1)), True)
-        #self.add_thing(Gold(), (2,1), True)  Making debugging a whole lot easier
 
         "AGENT"
         self.add_thing(Explorer(program), (1, 1), True)
@@ -715,7 +809,12 @@ class WumpusEnvironment(XYEnvironment):
         """Returns the items in the world"""
         result = []
         x_start, y_start = (0, 0) if show_walls else (1, 1)
-        x_end, y_end = (self.width, self.height) if show_walls else (self.width - 1, self.height - 1)
+
+        if show_walls:
+            x_end, y_end = self.width, self.height
+        else:
+            x_end, y_end = self.width - 1, self.height - 1
+
         for x in range(x_start, x_end):
             row = []
             for y in range(y_start, y_end):
@@ -724,7 +823,8 @@ class WumpusEnvironment(XYEnvironment):
         return result
 
     def percepts_from(self, agent, location, tclass=Thing):
-        """Returns percepts from a given location, and replaces some items with percepts from chapter 7."""
+        """Returns percepts from a given location,
+        and replaces some items with percepts from chapter 7."""
         thing_percepts = {
             Gold: Glitter(),
             Wall: Bump(),
@@ -736,7 +836,6 @@ class WumpusEnvironment(XYEnvironment):
         """Gold only glitters in its cell"""
         if location != agent.location:
             thing_percepts[Gold] = None
-
 
         result = [thing_percepts.get(thing.__class__, thing) for thing in self.things
                   if thing.location == location and isinstance(thing, tclass)]
@@ -816,18 +915,19 @@ class WumpusEnvironment(XYEnvironment):
     def is_done(self):
         """The game is over when the Explorer is killed
         or if he climbs out of the cave only at (1,1)."""
-        explorer = [agent for agent in self.agents if isinstance(agent, Explorer) ]
+        explorer = [agent for agent in self.agents if isinstance(agent, Explorer)]
         if len(explorer):
                 if explorer[0].alive:
-                       return False
+                    return False
                 else:
                     print("Death by {} [-1000].".format(explorer[0].killed_by))
         else:
             print("Explorer climbed out {}."
-                  .format("with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"))
+                  .format(
+                      "with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"))
         return True
 
-    #Almost done. Arrow needs to be implemented
+    # Almost done. Arrow needs to be implemented
 # ______________________________________________________________________________
 
 
@@ -851,6 +951,7 @@ def test_agent(AgentFactory, steps, envs):
     return mean(map(score, envs))
 
 # _________________________________________________________________________
+
 
 __doc__ += """
 >>> a = ReflexVacuumAgent()

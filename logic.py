@@ -13,7 +13,7 @@ Be careful: some functions take an Expr as argument, and some take a KB.
 Logical expressions can be created with Expr or expr, imported from utils, TODO
 or with expr, which adds the capability to write a string that uses
 the connectives ==>, <==, <=>, or <=/=>. But be careful: these have the
-opertor precedence of commas; you may need to add parens to make precendence work.
+operator precedence of commas; you may need to add parens to make precedence work.
 See logic.ipynb for examples.
 
 Then we implement various functions for doing logical inference:
@@ -33,7 +33,7 @@ And a few other functions:
 
 from utils import (
     removeall, unique, first, argmax, probability,
-    isnumber, issequence, Symbol, Expr, expr, subexpressions
+    isnumber, issequence, Expr, expr, subexpressions
 )
 import agents
 
@@ -60,7 +60,7 @@ class KB:
         raise NotImplementedError
 
     def tell(self, sentence):
-        "Add the sentence to the KB."
+        """Add the sentence to the KB."""
         raise NotImplementedError
 
     def ask(self, query):
@@ -68,17 +68,16 @@ class KB:
         return first(self.ask_generator(query), default=False)
 
     def ask_generator(self, query):
-        "Yield all the substitutions that make query true."
+        """Yield all the substitutions that make query true."""
         raise NotImplementedError
 
     def retract(self, sentence):
-        "Remove sentence from the KB."
+        """Remove sentence from the KB."""
         raise NotImplementedError
 
 
 class PropKB(KB):
-
-    "A KB for propositional logic. Inefficient, with no indexing."
+    """A KB for propositional logic. Inefficient, with no indexing."""
 
     def __init__(self, sentence=None):
         self.clauses = []
@@ -86,22 +85,22 @@ class PropKB(KB):
             self.tell(sentence)
 
     def tell(self, sentence):
-        "Add the sentence's clauses to the KB."
+        """Add the sentence's clauses to the KB."""
         self.clauses.extend(conjuncts(to_cnf(sentence)))
 
     def ask_generator(self, query):
-        "Yield the empty substitution {} if KB entails query; else no results."
+        """Yield the empty substitution {} if KB entails query; else no results."""
         if tt_entails(Expr('&', *self.clauses), query):
             yield {}
 
     def ask_if_true(self, query):
-        "Return True if the KB entails query, else return False."
+        """Return True if the KB entails query, else return False."""
         for _ in self.ask_generator(query):
             return True
         return False
 
     def retract(self, sentence):
-        "Remove the sentence's clauses from the KB."
+        """Remove the sentence's clauses from the KB."""
         for c in conjuncts(to_cnf(sentence)):
             if c in self.clauses:
                 self.clauses.remove(c)
@@ -120,25 +119,25 @@ def KB_AgentProgram(KB):
         KB.tell(make_action_sentence(action, t))
         return action
 
-    def make_percept_sentence(self, percept, t):
+    def make_percept_sentence(percept, t):
         return Expr("Percept")(percept, t)
 
-    def make_action_query(self, t):
+    def make_action_query(t):
         return expr("ShouldDo(action, {})".format(t))
 
-    def make_action_sentence(self, action, t):
+    def make_action_sentence(action, t):
         return Expr("Did")(action[expr('action')], t)
 
     return program
 
 
 def is_symbol(s):
-    "A string s is a symbol if it starts with an alphabetic char."
+    """A string s is a symbol if it starts with an alphabetic char."""
     return isinstance(s, str) and s[:1].isalpha()
 
 
 def is_var_symbol(s):
-    "A logic variable symbol is an initial-lowercase string."
+    """A logic variable symbol is an initial-lowercase string."""
     return is_symbol(s) and s[0].islower()
 
 
@@ -156,7 +155,7 @@ def variables(s):
 
 
 def is_definite_clause(s):
-    """returns True for exprs s of the form A & B & ... & C ==> D,
+    """Returns True for exprs s of the form A & B & ... & C ==> D,
     where all literals are positive.  In clause form, this is
     ~A | ~B | ... | ~C | D, where exactly one clause is positive.
     >>> is_definite_clause(expr('Farmer(Mac)'))
@@ -173,13 +172,14 @@ def is_definite_clause(s):
 
 
 def parse_definite_clause(s):
-    "Return the antecedents and the consequent of a definite clause."
+    """Return the antecedents and the consequent of a definite clause."""
     assert is_definite_clause(s)
     if is_symbol(s.op):
         return [], s
     else:
         antecedent, consequent = s.args
         return conjuncts(antecedent), consequent
+
 
 # Useful constant Exprs used in examples and code:
 A, B, C, D, E, F, G, P, Q, x, y, z = map(Expr, 'ABCDEFGPQxyz')
@@ -200,7 +200,7 @@ def tt_entails(kb, alpha):
 
 
 def tt_check_all(kb, alpha, symbols, model):
-    "Auxiliary routine to implement tt_entails."
+    """Auxiliary routine to implement tt_entails."""
     if not symbols:
         if pl_true(kb, model):
             result = pl_true(alpha, model)
@@ -215,7 +215,7 @@ def tt_check_all(kb, alpha, symbols, model):
 
 
 def prop_symbols(x):
-    "Return a list of all propositional symbols in x."
+    """Return a list of all propositional symbols in x."""
     if not isinstance(x, Expr):
         return []
     elif is_prop_symbol(x.op):
@@ -305,7 +305,7 @@ def to_cnf(s):
 
 
 def eliminate_implications(s):
-    "Change implications into equivalent form with only &, |, and ~ as logical operators."
+    """Change implications into equivalent form with only &, |, and ~ as logical operators."""
     s = expr(s)
     if not s.args or is_symbol(s.op):
         return s  # Atoms are unchanged.
@@ -392,6 +392,7 @@ def associate(op, args):
     else:
         return Expr(op, *args)
 
+
 _op_identity = {'&': True, '|': False, '+': 0, '*': 1}
 
 
@@ -433,7 +434,7 @@ def disjuncts(s):
 
 
 def pl_resolution(KB, alpha):
-    "Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]"
+    """Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]"""
     clauses = KB.clauses + conjuncts(to_cnf(~alpha))
     new = set()
     while True:
@@ -467,16 +468,15 @@ def pl_resolve(ci, cj):
 
 
 class PropDefiniteKB(PropKB):
-
-    "A KB of propositional definite clauses."
+    """A KB of propositional definite clauses."""
 
     def tell(self, sentence):
-        "Add a definite clause to this KB."
+        """Add a definite clause to this KB."""
         assert is_definite_clause(sentence), "Must be definite clause"
         self.clauses.append(sentence)
 
     def ask_generator(self, query):
-        "Yield the empty substitution if KB implies query; else nothing."
+        """Yield the empty substitution if KB implies query; else nothing."""
         if pl_fc_entails(self.clauses, query):
             yield {}
 
@@ -513,6 +513,7 @@ def pl_fc_entails(KB, q):
                     agenda.append(c.args[1])
     return False
 
+
 """ [Figure 7.13]
 Simple inference in a wumpus world example
 """
@@ -542,7 +543,7 @@ def dpll_satisfiable(s):
 
 
 def dpll(clauses, symbols, model):
-    "See if the clauses are true in a partial model."
+    """See if the clauses are true in a partial model."""
     unknown_clauses = []  # clauses with an unknown truth value
     for c in clauses:
         val = pl_true(c, model)
@@ -669,7 +670,6 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 
 
 class HybridWumpusAgent(agents.Agent):
-
     """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
     def __init__(self):
@@ -710,7 +710,8 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
                 s_ = transition[s][action]
                 for t in range(time):
                     # Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[s, action, t] = Expr("Transition_{}".format(next(transition_counter)))
+                    action_sym[s, action, t] = Expr(
+                        "Transition_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
                     clauses.append(action_sym[s, action, t] |'==>'| state_sym[s, t])
@@ -735,7 +736,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
             clauses.append(associate('|', [action_sym[tr] for tr in transitions_t]))
 
             for tr in transitions_t:
-                for tr_ in transitions_t[transitions_t.index(tr) + 1 :]:
+                for tr_ in transitions_t[transitions_t.index(tr) + 1:]:
                     # there cannot be two transitions tr and tr_ at time t
                     clauses.append(~action_sym[tr] | ~action_sym[tr_])
 
@@ -796,6 +797,8 @@ def is_variable(x):
 def unify_var(var, x, s):
     if var in s:
         return unify(s[var], x, s)
+    elif x in s:
+        return unify(var, s[x], s)
     elif occur_check(var, x, s):
         return None
     else:
@@ -843,7 +846,23 @@ def subst(s, x):
 
 
 def fol_fc_ask(KB, alpha):
-    raise NotImplementedError
+    """A simple forward-chaining algorithm. [Figure 9.3]"""
+    new = []
+    while new is not None:
+        for rule in KB.clauses:
+            p, q = parse_definite_clause(standardize_variables(rule))
+            for p_ in KB.clauses:
+                if p != p_:
+                    for theta in KB.clauses:
+                        if subst(theta, p) == subst(theta, p_):
+                            q_ = subst(theta, q)
+                            if not unify(q_, KB.sentence in KB) or not unify(q_, new):
+                                new.append(q_)
+                                phi = unify(q_, alpha)
+                                if phi is not None:
+                                    return phi
+        KB.tell(new)
+    return None
 
 
 def standardize_variables(sentence, dic=None):
@@ -863,13 +882,13 @@ def standardize_variables(sentence, dic=None):
         return Expr(sentence.op,
                     *[standardize_variables(a, dic) for a in sentence.args])
 
+
 standardize_variables.counter = itertools.count()
 
 # ______________________________________________________________________________
 
 
 class FolKB(KB):
-
     """A knowledge base consisting of first-order definite clauses.
     >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Pete)'),
     ...              expr('(Rabbit(r) & Farmer(f)) ==> Hates(f, r)')])
@@ -918,16 +937,15 @@ test_kb = FolKB(
                ]))
 
 crime_kb = FolKB(
-    map(expr,
-             ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',  # noqa
-              'Owns(Nono, M1)',
-              'Missile(M1)',
-              '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-              'Missile(x) ==> Weapon(x)',
-              'Enemy(x, America) ==> Hostile(x)',
-              'American(West)',
-              'Enemy(Nono, America)'
-              ]))
+    map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+               'Owns(Nono, M1)',
+               'Missile(M1)',
+               '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+               'Missile(x) ==> Weapon(x)',
+               'Enemy(x, America) ==> Hostile(x)',
+               'American(West)',
+               'Enemy(Nono, America)'
+               ]))
 
 
 def fol_bc_ask(KB, query):

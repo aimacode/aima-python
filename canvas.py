@@ -1,5 +1,3 @@
-from IPython.display import HTML, display, clear_output
-
 _canvas = """
 <script type="text/javascript" src="./js/canvas.js"></script>
 <div>
@@ -7,7 +5,8 @@ _canvas = """
 </div>
 
 <script> var {0}_canvas_object = new Canvas("{0}");</script>
-"""
+"""  # noqa
+
 
 class Canvas:
     """Inherit from this class to manage the HTML canvas element in jupyter notebooks.
@@ -24,7 +23,7 @@ class Canvas:
         self.height = height
         self.html = _canvas.format(self.id, self.width, self.height, self.name)
         self.exec_list = []
-        display(HTML(self.html))
+        display_html(self.html)
 
     def mouse_click(self, x, y):
         "Override this method to handle mouse click at position (x, y)"
@@ -81,9 +80,10 @@ class Canvas:
         "Draw an arc with (x, y) as centre, 'r' as radius from angles 'start' to 'stop'"
         self.execute("arc({0}, {1}, {2}, {3}, {4})".format(x, y, r, start, stop))
 
-    def arc_n(self, xn ,yn, rn, start, stop):
+    def arc_n(self, xn, yn, rn, start, stop):
         """Similar to arc(), but the dimensions are normalized to fall between 0 and 1
-        The normalizing factor for radius is selected between width and height by seeing which is smaller
+        The normalizing factor for radius is selected between width and height by
+        seeing which is smaller
         """
         x = round(xn * self.width)
         y = round(yn * self.height)
@@ -113,10 +113,15 @@ class Canvas:
 
     def alert(self, message):
         "Immediately display an alert"
-        display(HTML('<script>alert("{0}")</script>'.format(message)))
+        display_html('<script>alert("{0}")</script>'.format(message))
 
     def update(self):
         "Execute the JS code to execute the commands queued by execute()"
         exec_code = "<script>\n" + '\n'.join(self.exec_list) + "\n</script>"
         self.exec_list = []
-        display(HTML(exec_code))
+        display_html(exec_code)
+
+
+def display_html(html_string):
+    from IPython.display import HTML, display
+    display(HTML(html_string))

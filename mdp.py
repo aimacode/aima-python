@@ -1,12 +1,12 @@
 """Markov Decision Processes (Chapter 17)
 
 First we define an MDP, and the special case of a GridMDP, in which
-states are laid out in a 2-dimensional grid.  We also represent a policy
+states are laid out in a 2-dimensional grid. We also represent a policy
 as a dictionary of {state:action} pairs, and a Utility function as a
-dictionary of {state:number} pairs.  We then define the value_iteration
+dictionary of {state:number} pairs. We then define the value_iteration
 and policy_iteration algorithms."""
 
-from utils import argmax, vector_add, print_table
+from utils import argmax, vector_add
 from grid import orientations, turn_right, turn_left
 
 import random
@@ -17,32 +17,40 @@ class MDP:
     """A Markov Decision Process, defined by an initial state, transition model,
     and reward function. We also keep track of a gamma value, for use by
     algorithms. The transition model is represented somewhat differently from
-    the text.  Instead of P(s' | s, a) being a probability number for each
+    the text. Instead of P(s' | s, a) being a probability number for each
     state/state/action triplet, we instead have T(s, a) return a
-    list of (p, s') pairs.  We also keep track of the possible states,
+    list of (p, s') pairs. We also keep track of the possible states,
     terminal states, and actions for each state. [page 646]"""
 
-    def __init__(self, init, actlist, terminals, gamma=.9):
+    def __init__(self, init, actlist, terminals, transitions={}, states=None, gamma=.9):
+        if not (0 <= gamma < 1):
+            raise ValueError("An MDP must have 0 <= gamma < 1")
+
+        if states:
+            self.states = states
+        else:
+            self.states = set()
         self.init = init
         self.actlist = actlist
         self.terminals = terminals
-        if not (0 <= gamma < 1):
-            raise ValueError("An MDP must have 0 <= gamma < 1")
+        self.transitions = transitions
         self.gamma = gamma
-        self.states = set()
         self.reward = {}
 
     def R(self, state):
-        "Return a numeric reward for this state."
+        """Return a numeric reward for this state."""
         return self.reward[state]
 
     def T(self, state, action):
-        """Transition model.  From a state and an action, return a list
+        """Transition model. From a state and an action, return a list
         of (probability, result-state) pairs."""
-        raise NotImplementedError
+        if(self.transitions == {}):
+            raise ValueError("Transition model is missing")
+        else:
+            return self.transitions[state][action]
 
     def actions(self, state):
-        """Set of actions that can be performed in this state.  By default, a
+        """Set of actions that can be performed in this state. By default, a
         fixed list of actions, except for terminal states. Override this
         method if you need to specialize by state."""
         if state in self.terminals:
@@ -53,9 +61,9 @@ class MDP:
 
 class GridMDP(MDP):
 
-    """A two-dimensional grid MDP, as in [Figure 17.1].  All you have to do is
+    """A two-dimensional grid MDP, as in [Figure 17.1]. All you have to do is
     specify the grid as a list of lists of rewards; use None for an obstacle
-    (unreachable state).  Also, you should specify the terminal states.
+    (unreachable state). Also, you should specify the terminal states.
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
 
     def __init__(self, grid, terminals, init=(0, 0), gamma=.9):
@@ -97,12 +105,13 @@ class GridMDP(MDP):
 
 # ______________________________________________________________________________
 
+
 """ [Figure 17.1]
 A 4x3 grid environment that presents the agent with a sequential decision problem.
 """
 
 sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
-                                           [-0.04, None,  -0.04, -1],
+                                           [-0.04, None, -0.04, -1],
                                            [-0.04, -0.04, -0.04, -0.04]],
                                           terminals=[(3, 2), (3, 1)])
 
@@ -165,11 +174,14 @@ def policy_evaluation(pi, U, mdp, k=20):
             U[s] = R(s) + gamma * sum([p * U[s1] for (p, s1) in T(s, pi[s])])
     return U
 
+
 __doc__ += """
 >>> pi = best_policy(sequential_decision_environment, value_iteration(sequential_decision_environment, .01))
 
 >>> sequential_decision_environment.to_arrows(pi)
 [['>', '>', '>', '.'], ['^', None, '^', '.'], ['^', '>', '^', '<']]
+
+>>> from utils import print_table
 
 >>> print_table(sequential_decision_environment.to_arrows(pi))
 >   >      >   .
@@ -180,4 +192,4 @@ __doc__ += """
 >   >      >   .
 ^   None   ^   .
 ^   >      ^   <
-"""
+"""  # noqa

@@ -1,5 +1,5 @@
 import pytest
-from csp import *   # noqa
+from csp import *
 
 
 def test_csp_assign():
@@ -166,6 +166,158 @@ def test_csp_conflicted_vars():
     assert (conflicted_vars == ['B', 'C'] or conflicted_vars == ['C', 'B'])
 
 
+def test_revise():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0], 'B': [4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x+y) == 4
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+    Xi = 'A'
+    Xj = 'B'
+    removals = []
+
+    assert revise(csp, Xi, Xj, removals) is False
+    assert len(removals) == 0
+
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+
+    assert revise(csp, Xi, Xj, removals) is True
+    assert removals == [('A', 1), ('A', 3)]
+
+
+def test_AC3():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x+y) == 4 and y % 2 != 0
+    removals = []
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert AC3(csp, removals=removals) is False
+
+    constraints = lambda X, x, Y, y: (x % 2) == 0 and (x+y) == 4
+    removals = []
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert AC3(csp, removals=removals) is True
+    assert (removals == [('A', 1), ('A', 3), ('B', 1), ('B', 3)] or
+            removals == [('B', 1), ('B', 3), ('A', 1), ('A', 3)])
+
+
+def test_first_unassigned_variable():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    assignment = {'A': '1', 'B': '2'}
+    assert first_unassigned_variable(assignment, map_coloring_test) == 'C'
+
+    assignment = {'B': '1'}
+    assert (first_unassigned_variable(assignment, map_coloring_test) == 'A' or
+            first_unassigned_variable(assignment, map_coloring_test) == 'C')
+
+
+def test_num_legal_values():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    map_coloring_test.support_pruning()
+    var = 'A'
+    assignment = {}
+
+    assert num_legal_values(map_coloring_test, var, assignment) == 3
+
+    map_coloring_test = MapColoringCSP(list('RGB'), 'A: B C; B: C; C: ')
+    assignment = {'A': 'R', 'B': 'G'}
+    var = 'C'
+
+    assert num_legal_values(map_coloring_test, var, assignment) == 1
+
+
+def test_mrv():
+    neighbors = parse_neighbors('A: B; B: C; C: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [4], 'C': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x+y) == 4
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    assignment = {'A': 0}
+
+    assert mrv(assignment, csp) == 'B'
+
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4], 'C': [0, 1, 2, 3, 4]}
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert (mrv(assignment, csp) == 'B' or
+            mrv(assignment, csp) == 'C')
+
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 5, 6], 'C': [0, 1, 2, 3, 4]}
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+
+    assert mrv(assignment, csp) == 'C'
+
+
+def test_unordered_domain_values():
+    map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
+    assignment = None
+    assert unordered_domain_values('A', assignment,  map_coloring_test) == ['1', '2', '3']
+
+
+def test_lcv():
+    neighbors = parse_neighbors('A: B; B: C; C: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 5], 'C': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x+y) == 4
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    assignment = {'A': 0}
+
+    var = 'B'
+
+    assert lcv(var, assignment, csp) == [4, 0, 1, 2, 3, 5]
+    assignment = {'A': 1, 'C': 3}
+
+    constraints = lambda X, x, Y, y: (x + y) % 2 == 0 and (x + y) < 5
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert lcv(var, assignment, csp) == [1, 3, 0, 2, 4, 5]
+
+
+def test_forward_checking():
+    neighbors = parse_neighbors('A: B; B: C; C: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 5], 'C': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: (x + y) % 2 == 0 and (x + y) < 8
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    csp.support_pruning()
+    A_curr_domains = csp.curr_domains['A']
+    C_curr_domains = csp.curr_domains['C']
+
+    var = 'B'
+    value = 3
+    assignment = {'A': 1, 'C': '3'}
+    assert forward_checking(csp, var, value, assignment, None) == True
+    assert csp.curr_domains['A'] == A_curr_domains
+    assert csp.curr_domains['C'] == C_curr_domains
+
+    assignment = {'C': 3}
+
+    assert forward_checking(csp, var, value, assignment, None) == True
+    assert csp.curr_domains['A'] == [1, 3]
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+
+    assignment = {}
+    assert forward_checking(csp, var, value, assignment, None) == True
+    assert csp.curr_domains['A'] == [1, 3]
+    assert csp.curr_domains['C'] == [1, 3]
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 7], 'C': [0, 1, 2, 3, 4]}
+    csp.support_pruning()
+
+    value = 7
+    assignment = {}
+    assert forward_checking(csp, var, value, assignment, None) == False
+    assert (csp.curr_domains['A'] == [] or csp.curr_domains['C'] == [])
+
+
 def test_backtracking_search():
     assert backtracking_search(australia)
     assert backtracking_search(australia, select_unassigned_variable=mrv)
@@ -185,6 +337,27 @@ def test_universal_dict():
 
 def test_parse_neighbours():
     assert parse_neighbors('X: Y Z; Y: Z') == {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
+
+
+def test_topological_sort():
+    root = 'NT'
+    Sort, Parents = topological_sort(australia,root)
+    
+    assert Sort == ['NT','SA','Q','NSW','V','WA']
+    assert Parents['NT'] == None
+    assert Parents['SA'] == 'NT'
+    assert Parents['Q'] == 'SA'
+    assert Parents['NSW'] == 'Q'
+    assert Parents['V'] == 'NSW'
+    assert Parents['WA'] == 'SA'
+
+
+def test_tree_csp_solver():
+    australia_small = MapColoringCSP(list('RB'),
+                           'NT: WA Q; NSW: Q V')
+    tcs = tree_csp_solver(australia_small)
+    assert (tcs['NT'] == 'R' and tcs['WA'] == 'B' and tcs['Q'] == 'B' and tcs['NSW'] == 'R' and tcs['V'] == 'B') or \
+           (tcs['NT'] == 'B' and tcs['WA'] == 'R' and tcs['Q'] == 'R' and tcs['NSW'] == 'B' and tcs['V'] == 'R')
 
 
 if __name__ == "__main__":
