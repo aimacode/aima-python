@@ -663,9 +663,8 @@ class Problem(PDDL):
         if list_action is None:
             raise Exception("Action '{}' not found".format(action.name))
         list_action.do_action(self.jobs, self.resources, self.kb, args)
-        # print(self.resources)
-    
-    def refinements(hla, state, library): # TODO - refinements may be (multiple) HLA themselves ...
+
+    def refinements(hla, state, library):  # TODO - refinements may be (multiple) HLA themselves ...
         """
         state is a Problem, containing the current state kb
         library is a dictionary containing details for every possible refinement. eg:
@@ -709,24 +708,23 @@ class Problem(PDDL):
         }
         """
         e = Expr(hla.name, hla.args)
-        indices = [i for i,x in enumerate(library["HLA"]) if expr(x).op == hla.name]
+        indices = [i for i, x in enumerate(library["HLA"]) if expr(x).op == hla.name]
         for i in indices:
-            action = HLA(expr(library["steps"][i][0]), [ # TODO multiple refinements
+            action = HLA(expr(library["steps"][i][0]), [  # TODO multiple refinements
                     [expr(x) for x in library["precond_pos"][i]],
                     [expr(x) for x in library["precond_neg"][i]]
-                ], 
+                ],
                 [
                     [expr(x) for x in library["effect_pos"][i]],
                     [expr(x) for x in library["effect_neg"][i]]
                 ])
             if action.check_precond(state.kb, action.args):
                 yield action
-    
+
     def hierarchical_search(problem, hierarchy):
         """
         [Figure 11.5] 'Hierarchical Search, a Breadth First Search implementation of Hierarchical
         Forward Planning Search'
-        
         The problem is a real-world prodlem defined by the problem class, and the hierarchy is
         a dictionary of HLA - refinements (see refinements generator for details)
         """
@@ -734,14 +732,14 @@ class Problem(PDDL):
         frontier = FIFOQueue()
         frontier.append(act)
         while(True):
-            if not frontier: #(len(frontier)==0):
+            if not frontier:
                 return None
             plan = frontier.pop()
             print(plan.state.name)
-            hla = plan.state #first_or_null(plan)
+            hla = plan.state  # first_or_null(plan)
             prefix = None
             if plan.parent:
-                prefix = plan.parent.state.action #prefix, suffix = subseq(plan.state, hla)
+                prefix = plan.parent.state.action  # prefix, suffix = subseq(plan.state, hla)
             outcome = Problem.result(problem, prefix)
             if hla is None:
                 if outcome.goal_test():
@@ -864,4 +862,3 @@ def job_shop_problem():
 
     return Problem(init, [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2],
                    goal_test, [job_group1, job_group2], resources)
-

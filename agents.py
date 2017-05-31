@@ -86,9 +86,12 @@ class Agent(Thing):
         self.holding = []
         self.performance = 0
         if program is None or not isinstance(program, collections.Callable):
-            print("Can't find a valid program for {}, falling back to default.".format(self.__class__.__name__))
+            print("Can't find a valid program for {}, falling back to default.".format(
+                self.__class__.__name__))
+
             def program(percept):
                 return eval(input('Percept={}; action? '.format(percept)))
+
         self.program = program
 
     def can_grab(self, thing):

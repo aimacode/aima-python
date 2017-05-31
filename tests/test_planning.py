@@ -1,4 +1,4 @@
-from planning import *  # noqa
+from planning import *
 from utils import expr
 from logic import FolKB
 

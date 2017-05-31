@@ -1,8 +1,9 @@
-from learning import parse_csv, weighted_mode, weighted_replicate, DataSet, \
-                     PluralityLearner, NaiveBayesLearner, NearestNeighborLearner, \
-                     NeuralNetLearner, PerceptronLearner, DecisionTreeLearner, \
-                     euclidean_distance, grade_learner, err_ratio, train_and_test
+import pytest
+import math
 from utils import DataFile
+from learning import (parse_csv, weighted_mode, weighted_replicate, DataSet,
+    PluralityLearner, NaiveBayesLearner, NearestNeighborLearner,
+    rms_error, manhattan_distance, mean_boolean_error, mean_error)
 
 
 def test_euclidean():
@@ -59,10 +60,10 @@ def test_naive_bayes():
     iris = DataSet(name="iris")
 
     # Discrete
-    nBD = NaiveBayesLearner(iris)
+    nBD = NaiveBayesLearner(iris, continuous=False)
     assert nBD([5, 3, 1, 0.1]) == "setosa"
-    assert nBD([6, 5, 3, 1.5]) == "versicolor"
-    assert nBD([7, 3, 6.5, 2]) == "virginica"
+    assert nBD([6, 3, 4, 1.1]) == "versicolor"
+    assert nBD([7.7, 3, 6, 2]) == "virginica"
 
     # Continuous
     nBC = NaiveBayesLearner(iris, continuous=True)
@@ -73,16 +74,43 @@ def test_naive_bayes():
 
 def test_k_nearest_neighbors():
     iris = DataSet(name="iris")
-
     kNN = NearestNeighborLearner(iris,k=3)
+    assert kNN([5,3,1,0.1]) == "setosa"
     assert kNN([5, 3, 1, 0.1]) == "setosa"
     assert kNN([6, 5, 3, 1.5]) == "versicolor"
     assert kNN([7.5, 4, 6, 2]) == "virginica"
 
+def test_rms_error():
+    assert rms_error([2,2], [2,2]) == 0
+    assert rms_error((0,0), (0,1)) == math.sqrt(0.5)
+    assert rms_error((1,0), (0,1)) ==  1
+    assert rms_error((0,0), (0,-1)) ==  math.sqrt(0.5)
+    assert rms_error((0,0.5), (0,-0.5)) ==  math.sqrt(0.5)
+
+def test_manhattan_distance():
+    assert manhattan_distance([2,2], [2,2]) == 0
+    assert manhattan_distance([0,0], [0,1]) == 1
+    assert manhattan_distance([1,0], [0,1]) ==  2
+    assert manhattan_distance([0,0], [0,-1]) ==  1
+    assert manhattan_distance([0,0.5], [0,-0.5]) == 1
+
+def test_mean_boolean_error():
+    assert mean_boolean_error([1,1], [0,0]) == 1
+    assert mean_boolean_error([0,1], [1,0]) == 1
+    assert mean_boolean_error([1,1], [0,1]) == 0.5
+    assert mean_boolean_error([0,0], [0,0]) == 0
+    assert mean_boolean_error([1,1], [1,1]) == 0
+
+def test_mean_error():
+    assert mean_error([2,2], [2,2]) == 0
+    assert mean_error([0,0], [0,1]) == 0.5
+    assert mean_error([1,0], [0,1]) ==  1
+    assert mean_error([0,0], [0,-1]) ==  0.5
+    assert mean_error([0,0.5], [0,-0.5]) == 0.5
+
 
 def test_decision_tree_learner():
     iris = DataSet(name="iris")
-
     dTL = DecisionTreeLearner(iris)
     assert dTL([5, 3, 1, 0.1]) == "setosa"
     assert dTL([6, 5, 3, 1.5]) == "versicolor"
@@ -91,10 +119,8 @@ def test_decision_tree_learner():
 
 def test_neural_network_learner():
     iris = DataSet(name="iris")
-
     classes = ["setosa","versicolor","virginica"]
     iris.classes_to_numbers(classes)
-
     nNL = NeuralNetLearner(iris, [5], 0.15, 75)
     tests = [([5, 3, 1, 0.1], 0),
              ([5, 3.5, 1, 0], 0),
@@ -102,7 +128,6 @@ def test_neural_network_learner():
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-
     assert grade_learner(nNL, tests) >= 2/3
     assert err_ratio(nNL, iris) < 0.25
 
@@ -110,9 +135,7 @@ def test_neural_network_learner():
 def test_perceptron():
     iris = DataSet(name="iris")
     iris.classes_to_numbers()
-
     classes_number = len(iris.values[iris.target])
-
     perceptron = PerceptronLearner(iris)
     tests = [([5, 3, 1, 0.1], 0),
              ([5, 3.5, 1, 0], 0),
@@ -120,7 +143,6 @@ def test_perceptron():
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-
     assert grade_learner(perceptron, tests) > 1/2
     assert err_ratio(perceptron, iris) < 0.4
 
@@ -134,3 +156,12 @@ def test_train_and_test():
 
     assert len(train_set) == 100
     assert len(validation_set) == 50
+
+def test_random_weights():
+    min_value = -0.5
+    max_value = 0.5
+    num_weights = 10
+    test_weights = random_weights(min_value, max_value, num_weights)
+    assert len(test_weights) == num_weights
+    for weight in test_weights:
+        assert weight >= min_value and weight <= max_value

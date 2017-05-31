@@ -26,7 +26,6 @@ class UnigramTextModel(CountingProbDist):
         return ' '.join(self.sample() for i in range(n))
 
 
-
 class NgramTextModel(CountingProbDist):
 
     """This is a discrete probability distribution over n-tuples of words.
@@ -80,7 +79,7 @@ class NgramTextModel(CountingProbDist):
 
 class NgramCharModel(NgramTextModel):
     def add_empty(self, words, n):
-        return  ' ' * (n - 1) + words
+        return ' ' * (n - 1) + words
 
     def add_sequence(self, words):
         for word in words:
@@ -362,14 +361,13 @@ class PermutationDecoder:
         solution.state[' '] = ' '
         return translate(self.ciphertext, lambda c: solution.state[c])
 
-
     def score(self, code):
         """Score is product of word scores, unigram scores, and bigram scores.
         This can get very small, so we use logs and exp."""
 
         # remake code dictionary to contain translation for all characters
         full_code = code.copy()
-        full_code.update({x:x for x in self.chardomain if x not in code})
+        full_code.update({x: x for x in self.chardomain if x not in code})
         full_code[' '] = ' '
         text = translate(self.ciphertext, lambda c: full_code[c])
 
