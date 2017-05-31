@@ -1,4 +1,5 @@
 from agents import Direction
+from agents import Agent
 from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment
 
 
@@ -65,3 +66,9 @@ def test_ModelBasedVacuumAgent() :
     # check final status of the environment
     assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
 
+def test_Agent():
+    def constant_prog(percept):
+        return percept
+    agent = Agent(constant_prog)
+    result = agent.program(5)
+    assert result == 5

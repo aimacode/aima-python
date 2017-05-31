@@ -1,16 +1,18 @@
 <div align="center">
   <a href="http://aima.cs.berkeley.edu/"><img src="https://raw.githubusercontent.com/aimacode/aima-python/master/images/aima_logo.png"></a><br><br>
 </div>
------------------
 
 # `aima-python` [![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
 
 
-Python code for the book *Artificial Intelligence: A Modern Approach.* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
+Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
 
 ## Python 3.4
 
-This code is in Python 3.4 (Python 3.5, also works, but Python 2.x does not). You can [install the latest Python version](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+This code is in Python 3.4 (Python 3.5 and later also works, but Python 2.x does not). You can [install the latest Python version](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+You can run the code in an IDE, or from the command line with `python -i `*filename*`.py` where the `-i` option puts you in an interactive loop where you can run Python functions.
+
+In addition to the *filename*`.py` files, there are also *filename*`.ipynb` files, which are Jupyter (formerly Ipython) notebooks. You can read these notebooks, and you can also run the code embedded with them. See [jupyter.org](http://jupyter.org/) for instructions on setting up a Jupyter notebook environment.
 
 ## Structure of the Project
 
@@ -18,7 +20,7 @@ When complete, this project will have Python code for all the pseudocode algorit
 
 - `logic.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
 - `logic.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
-- `tests/logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
+- `tests/test_logic.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
 
 # Index of Algorithms
 
@@ -137,7 +139,7 @@ Here is a table of the implemented data structures, the figure, name of the impl
 
 # Acknowledgements
 
-Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially @darius, @SnShine, and @reachtarunhere.
+Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially @darius, @SnShine, @reachtarunhere, @MrDupin, and @Chipe1.
 
 <!---Reference Links-->
 [agents]:../master/agents.py

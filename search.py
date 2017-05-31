@@ -5,9 +5,8 @@ then create problem instances and solve them with calls to the various search
 functions."""
 
 from utils import (
-    is_in, argmin, argmax, argmax_random_tie, probability,
-    weighted_sample_with_replacement, memoize, print_table, DataFile, Stack,
-    FIFOQueue, PriorityQueue, name
+    is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
+    memoize, print_table, DataFile, Stack, FIFOQueue, PriorityQueue, name
 )
 from grid import distance
 
@@ -419,7 +418,7 @@ def and_or_graph_search(problem):
                 return [action, plan]
 
     def and_search(states, problem, path):
-        """Returns plan in form of dictionary where we take action plan[s] if we reach state s."""  # noqa
+        """Returns plan in form of dictionary where we take action plan[s] if we reach state s."""
         plan = {}
         for s in states:
             plan[s] = or_search(s, problem, path)
@@ -461,8 +460,8 @@ class OnlineDFSAgent:
                 if len(self.unbacktracked[s1]) == 0:
                     self.a = None
                 else:
-                    # else a <- an action b such that result[s', b] = POP(unbacktracked[s'])  # noqa
-                    unbacktracked_pop = self.unbacktracked[s1].pop(0)  # noqa
+                    # else a <- an action b such that result[s', b] = POP(unbacktracked[s'])
+                    unbacktracked_pop = self.unbacktracked[s1].pop(0)
                     for (s, b) in self.result.keys():
                         if self.result[(s, b)] == unbacktracked_pop:
                             self.a = b
@@ -544,11 +543,9 @@ class LRTAStarAgent:
                 self.H[self.s] = min(self.LRTA_cost(self.s, b, self.problem.output(self.s, b),
                                      self.H) for b in self.problem.actions(self.s))
 
-            # costs for action b in problem.actions(s1)
-            costs = [self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H)
-                     for b in self.problem.actions(s1)]
             # an action b in problem.actions(s1) that minimizes costs
-            self.a = list(self.problem.actions(s1))[costs.index(min(costs))]
+            self.a = argmin(self.problem.actions(s1),
+                            key=lambda b: self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H))
 
             self.s = s1
             return self.a
@@ -575,42 +572,68 @@ def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
     """Call genetic_algorithm on the appropriate parts of a problem.
     This requires the problem to have states that can mate and mutate,
     plus a value method that scores states."""
+
+    # NOTE: This is not tested and might not work.
+    # TODO: Use this function to make Problems work with genetic_algorithm.
+
     s = problem.initial_state
     states = [problem.result(s, a) for a in problem.actions(s)]
     random.shuffle(states)
     return genetic_algorithm(states[:n], problem.value, ngen, pmut)
 
 
-def genetic_algorithm(population, fitness_fn, ngen=1000, pmut=0.1):
+def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ngen=1000, pmut=0.1):  # noqa
     """[Figure 4.8]"""
     for i in range(ngen):
         new_population = []
-        for i in range(len(population)):
-            fitnesses = map(fitness_fn, population)
-            p1, p2 = weighted_sample_with_replacement(2, population, fitnesses)
-            child = p1.mate(p2)
+        fitnesses = map(fitness_fn, population)
+        random_selection = weighted_sampler(population, fitnesses)
+        for j in range(len(population)):
+            x = random_selection()
+            y = random_selection()
+            child = reproduce(x, y)
             if random.uniform(0, 1) < pmut:
-                child.mutate()
+                child = mutate(child, gene_pool)
             new_population.append(child)
+
         population = new_population
+
+        if f_thres:
+            fittest_individual = argmax(population, key=fitness_fn)
+            if fitness_fn(fittest_individual) >= f_thres:
+                return fittest_individual
+
     return argmax(population, key=fitness_fn)
 
 
-class GAState:
+def init_population(pop_number, gene_pool, state_length):
+    """Initializes population for genetic algorithm
+    pop_number  :  Number of individuals in population
+    gene_pool   :  List of possible values for individuals
+    state_length:  The length of each individual"""
+    g = len(gene_pool)
+    population = []
+    for i in range(pop_number):
+        new_individual = [gene_pool[random.randrange(0, g)] for j in range(state_length)]
+        population.append(new_individual)
 
-    """Abstract class for individuals in a genetic search."""
+    return population
 
-    def __init__(self, genes):
-        self.genes = genes
 
-    def mate(self, other):
-        """Return a new individual crossing self and other."""
-        c = random.randrange(len(self.genes))
-        return self.__class__(self.genes[:c] + other.genes[c:])
+def reproduce(x, y):
+    n = len(x)
+    c = random.randrange(1, n)
+    return x[:c] + y[c:]
 
-    def mutate(self):
-        """Change a few of my genes."""
-        raise NotImplementedError
+
+def mutate(x, gene_pool):
+    n = len(x)
+    g = len(gene_pool)
+    c = random.randrange(0, n)
+    r = random.randrange(0, g)
+
+    new_gene = gene_pool[r]
+    return x[:c] + [new_gene] + x[c+1:]
 
 # _____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.

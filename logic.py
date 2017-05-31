@@ -13,7 +13,7 @@ Be careful: some functions take an Expr as argument, and some take a KB.
 Logical expressions can be created with Expr or expr, imported from utils, TODO
 or with expr, which adds the capability to write a string that uses
 the connectives ==>, <==, <=>, or <=/=>. But be careful: these have the
-opertor precedence of commas; you may need to add parens to make precendence work.
+operator precedence of commas; you may need to add parens to make precedence work.
 See logic.ipynb for examples.
 
 Then we implement various functions for doing logical inference:
@@ -847,19 +847,20 @@ def subst(s, x):
 
 def fol_fc_ask(KB, alpha):
     """A simple forward-chaining algorithm. [Figure 9.3]"""
+    new = []
     while new is not None:
-        new = []
-        for rule in KB:
+        for rule in KB.clauses:
             p, q = parse_definite_clause(standardize_variables(rule))
-            for p_ in random.KB.clauses:
+            for p_ in KB.clauses:
                 if p != p_:
-                    for theta in (subst(theta, p) == subst(theta, p_)):
-                        q_ = subst(theta, q)
-                        if  not unify(q_,KB.sentence in KB) or not unify(q_, new):
-                            new.append(q_)
-                            phi = unify(q_,alpha)
-                            if phi is not None:
-                                return phi
+                    for theta in KB.clauses:
+                        if subst(theta, p) == subst(theta, p_):
+                            q_ = subst(theta, q)
+                            if not unify(q_, KB.sentence in KB) or not unify(q_, new):
+                                new.append(q_)
+                                phi = unify(q_, alpha)
+                                if phi is not None:
+                                    return phi
         KB.tell(new)
     return None
 
@@ -936,16 +937,15 @@ test_kb = FolKB(
                ]))
 
 crime_kb = FolKB(
-    map(expr,
-             ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',  # noqa
-              'Owns(Nono, M1)',
-              'Missile(M1)',
-              '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-              'Missile(x) ==> Weapon(x)',
-              'Enemy(x, America) ==> Hostile(x)',
-              'American(West)',
-              'Enemy(Nono, America)'
-              ]))
+    map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+               'Owns(Nono, M1)',
+               'Missile(M1)',
+               '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+               'Missile(x) ==> Weapon(x)',
+               'Enemy(x, America) ==> Hostile(x)',
+               'American(West)',
+               'Enemy(Nono, America)'
+               ]))
 
 
 def fol_bc_ask(KB, query):

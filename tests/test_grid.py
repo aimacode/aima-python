@@ -1,5 +1,5 @@
 import pytest
-from grid import *  # noqa
+from grid import *
 
 
 def compare_list(x, y):
@@ -16,6 +16,25 @@ def test_distance_squared():
 
 def test_vector_clip():
     assert vector_clip((-1, 10), (0, 0), (9, 9)) == (0, 9)
+
+
+def test_turn_heading():
+	assert turn_heading((0, 1), 1) == (-1, 0)
+	assert turn_heading((0, 1), -1) == (1, 0)
+	assert turn_heading((1, 0), 1) == (0, 1)
+	assert turn_heading((1, 0), -1) == (0, -1)
+	assert turn_heading((0, -1), 1) == (1, 0)
+	assert turn_heading((0, -1), -1) == (-1, 0)
+	assert turn_heading((-1, 0), 1) == (0, -1)
+	assert turn_heading((-1, 0), -1) == (0, 1)
+
+
+def test_turn_left():
+	assert turn_left((0, 1)) == (-1, 0)
+
+
+def test_turn_right():
+	assert turn_right((0, 1)) == (1, 0)
 
 
 if __name__ == '__main__':
