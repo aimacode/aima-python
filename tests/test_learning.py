@@ -2,10 +2,7 @@
 import pytest
 import math
 from utils import DataFile
-from learning import (parse_csv, weighted_mode, weighted_replicate, DataSet,
-    PluralityLearner, NaiveBayesLearner, NearestNeighborLearner,
-    rms_error, manhattan_distance, mean_boolean_error, mean_error)
-
+from learning import *
 
 
 def test_euclidean():
