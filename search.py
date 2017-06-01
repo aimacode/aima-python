@@ -586,8 +586,7 @@ def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ng
     """[Figure 4.8]"""
     for i in range(ngen):
         new_population = []
-        fitnesses = map(fitness_fn, population)
-        random_selection = weighted_sampler(population, fitnesses)
+        random_selection = selection_chances(fitness_fn, population)
         for j in range(len(population)):
             x = random_selection()
             y = random_selection()
@@ -618,6 +617,11 @@ def init_population(pop_number, gene_pool, state_length):
         population.append(new_individual)
 
     return population
+
+
+def selection_chances(fitness_fn, population):
+    fitnesses = map(fitness_fn, population)
+    return weighted_sampler(population, fitnesses)
 
 
 def reproduce(x, y):
