@@ -23,8 +23,8 @@ class MDP:
     terminal states, and actions for each state. [page 646]"""
 
     def __init__(self, init, actlist, terminals, transitions={}, states=None, gamma=.9):
-        if not (0 <= gamma < 1):
-            raise ValueError("An MDP must have 0 <= gamma < 1")
+        if not (0 < gamma <= 1):
+            raise ValueError("An MDP must have 0 < gamma <= 1")
 
         if states:
             self.states = states
