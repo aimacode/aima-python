@@ -6,7 +6,8 @@ import math
 
 from utils import clip
 
-orientations = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+orientations = EAST, NORTH, WEST, SOUTH = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+turns = LEFT, RIGHT = (+1, -1)
 
 
 def turn_heading(heading, inc, headings=orientations):
@@ -14,21 +15,25 @@ def turn_heading(heading, inc, headings=orientations):
 
 
 def turn_right(heading):
-    return turn_heading(heading, -1)
+    return turn_heading(heading, RIGHT)
 
 
 def turn_left(heading):
-    return turn_heading(heading, +1)
+    return turn_heading(heading, LEFT)
 
 
 def distance(a, b):
     """The distance between two (x, y) points."""
-    return math.hypot((a[0] - b[0]), (a[1] - b[1]))
+    xA, yA = a
+    xB, yB = b
+    return math.hypot((xA - xB), (yA - yB))
 
 
 def distance_squared(a, b):
     """The square of the distance between two (x, y) points."""
-    return (a[0] - b[0])**2 + (a[1] - b[1])**2
+    xA, yA = a
+    xB, yB = b
+    return (xA - xB)**2 + (yA - yB)**2
 
 
 def vector_clip(vector, lowest, highest):
