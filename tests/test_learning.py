@@ -1,8 +1,11 @@
-
 import pytest
 import math
+import random
 from utils import DataFile
 from learning import *
+
+
+random.seed("aima-python")
 
 
 def test_euclidean():
@@ -15,6 +18,34 @@ def test_euclidean():
     distance = euclidean_distance([0, 0, 0], [0, 0, 0])
     assert distance == 0
 
+def test_rms_error():
+    assert rms_error([2, 2], [2, 2]) == 0
+    assert rms_error((0, 0), (0, 1)) == math.sqrt(0.5)
+    assert rms_error((1, 0), (0, 1)) ==  1
+    assert rms_error((0, 0), (0, -1)) ==  math.sqrt(0.5)
+    assert rms_error((0, 0.5), (0, -0.5)) ==  math.sqrt(0.5)
+
+def test_manhattan_distance():
+    assert manhattan_distance([2, 2], [2, 2]) == 0
+    assert manhattan_distance([0, 0], [0, 1]) == 1
+    assert manhattan_distance([1, 0], [0, 1]) ==  2
+    assert manhattan_distance([0, 0], [0, -1]) ==  1
+    assert manhattan_distance([0, 0.5], [0, -0.5]) == 1
+
+def test_mean_boolean_error():
+    assert mean_boolean_error([1, 1], [0, 0]) == 1
+    assert mean_boolean_error([0, 1], [1, 0]) == 1
+    assert mean_boolean_error([1, 1], [0, 1]) == 0.5
+    assert mean_boolean_error([0, 0], [0, 0]) == 0
+    assert mean_boolean_error([1, 1], [1, 1]) == 0
+
+def test_mean_error():
+    assert mean_error([2, 2], [2, 2]) == 0
+    assert mean_error([0, 0], [0, 1]) == 0.5
+    assert mean_error([1, 0], [0, 1]) ==  1
+    assert mean_error([0, 0], [0, -1]) ==  0.5
+    assert mean_error([0, 0.5], [0, -0.5]) == 0.5
+
 
 def test_exclude():
     iris = DataSet(name='iris', exclude=[3])
@@ -23,7 +54,7 @@ def test_exclude():
 
 def test_parse_csv():
     Iris = DataFile('iris.csv').read()
-    assert parse_csv(Iris)[0] == [5.1, 3.5, 1.4, 0.2,'setosa']
+    assert parse_csv(Iris)[0] == [5.1, 3.5, 1.4, 0.2, 'setosa']
 
 
 def test_weighted_mode():
@@ -74,38 +105,10 @@ def test_naive_bayes():
 def test_k_nearest_neighbors():
     iris = DataSet(name="iris")
     kNN = NearestNeighborLearner(iris,k=3)
-    assert kNN([5,3,1,0.1]) == "setosa"
+    assert kNN([5, 3, 1, 0.1]) == "setosa"
     assert kNN([5, 3, 1, 0.1]) == "setosa"
     assert kNN([6, 5, 3, 1.5]) == "versicolor"
     assert kNN([7.5, 4, 6, 2]) == "virginica"
-
-def test_rms_error():
-    assert rms_error([2,2], [2,2]) == 0
-    assert rms_error((0,0), (0,1)) == math.sqrt(0.5)
-    assert rms_error((1,0), (0,1)) ==  1
-    assert rms_error((0,0), (0,-1)) ==  math.sqrt(0.5)
-    assert rms_error((0,0.5), (0,-0.5)) ==  math.sqrt(0.5)
-
-def test_manhattan_distance():
-    assert manhattan_distance([2,2], [2,2]) == 0
-    assert manhattan_distance([0,0], [0,1]) == 1
-    assert manhattan_distance([1,0], [0,1]) ==  2
-    assert manhattan_distance([0,0], [0,-1]) ==  1
-    assert manhattan_distance([0,0.5], [0,-0.5]) == 1
-
-def test_mean_boolean_error():
-    assert mean_boolean_error([1,1], [0,0]) == 1
-    assert mean_boolean_error([0,1], [1,0]) == 1
-    assert mean_boolean_error([1,1], [0,1]) == 0.5
-    assert mean_boolean_error([0,0], [0,0]) == 0
-    assert mean_boolean_error([1,1], [1,1]) == 0
-
-def test_mean_error():
-    assert mean_error([2,2], [2,2]) == 0
-    assert mean_error([0,0], [0,1]) == 0.5
-    assert mean_error([1,0], [0,1]) ==  1
-    assert mean_error([0,0], [0,-1]) ==  0.5
-    assert mean_error([0,0.5], [0,-0.5]) == 0.5
 
 
 def test_decision_tree_learner():
@@ -118,7 +121,7 @@ def test_decision_tree_learner():
 
 def test_neural_network_learner():
     iris = DataSet(name="iris")
-    classes = ["setosa","versicolor","virginica"]
+    classes = ["setosa", "versicolor", "virginica"]
     iris.classes_to_numbers(classes)
     nNL = NeuralNetLearner(iris, [5], 0.15, 75)
     tests = [([5, 3, 1, 0.1], 0),
@@ -154,4 +157,3 @@ def test_random_weights():
     assert len(test_weights) == num_weights
     for weight in test_weights:
         assert weight >= min_value and weight <= max_value
- 
