@@ -224,6 +224,16 @@ def prop_symbols(x):
         return list(set(symbol for arg in x.args for symbol in prop_symbols(arg)))
 
 
+def constant_symbols(x):
+    """Return a list of all constant symbols in x."""
+    if not isinstance(x, Expr):
+        return []
+    elif is_prop_symbol(x.op) and not x.args:
+        return [x]
+    else:
+        return list({symbol for arg in x.args for symbol in constant_symbols(arg)})
+
+
 def tt_true(s):
     """Is a propositional sentence a tautology?
     >>> tt_true('P | ~P')
@@ -845,26 +855,6 @@ def subst(s, x):
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
 
-def fol_fc_ask(KB, alpha):
-    """A simple forward-chaining algorithm. [Figure 9.3]"""
-    new = []
-    while new is not None:
-        for rule in KB.clauses:
-            p, q = parse_definite_clause(standardize_variables(rule))
-            for p_ in KB.clauses:
-                if p != p_:
-                    for theta in KB.clauses:
-                        if subst(theta, p) == subst(theta, p_):
-                            q_ = subst(theta, q)
-                            if not unify(q_, KB.sentence in KB) or not unify(q_, new):
-                                new.append(q_)
-                                phi = unify(q_, alpha)
-                                if phi is not None:
-                                    return phi
-        KB.tell(new)
-    return None
-
-
 def standardize_variables(sentence, dic=None):
     """Replace all the variables in sentence with new variables."""
     if dic is None:
@@ -921,31 +911,42 @@ class FolKB(KB):
         return self.clauses
 
 
-test_kb = FolKB(
-    map(expr, ['Farmer(Mac)',
-               'Rabbit(Pete)',
-               'Mother(MrsMac, Mac)',
-               'Mother(MrsRabbit, Pete)',
-               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
-               '(Mother(m, c)) ==> Loves(m, c)',
-               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
-               '(Farmer(f)) ==> Human(f)',
-               # Note that this order of conjuncts
-               # would result in infinite recursion:
-               # '(Human(h) & Mother(m, h)) ==> Human(m)'
-               '(Mother(m, h) & Human(h)) ==> Human(m)'
-               ]))
+def fol_fc_ask(KB, alpha):
+    """A simple forward-chaining algorithm. [Figure 9.3]"""
+    # TODO: Improve efficiency
+    def enum_subst(KB):
+        kb_vars = list({v for clause in KB.clauses for v in variables(clause)})
+        kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
+        for assignment_list in itertools.product(kb_consts, repeat=len(kb_vars)):
+            theta = {x: y for x, y in zip(kb_vars, assignment_list)}
+            yield theta
 
-crime_kb = FolKB(
-    map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
-               'Owns(Nono, M1)',
-               'Missile(M1)',
-               '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-               'Missile(x) ==> Weapon(x)',
-               'Enemy(x, America) ==> Hostile(x)',
-               'American(West)',
-               'Enemy(Nono, America)'
-               ]))
+    # check if we can answer without new inferences
+    for q in KB.clauses:
+        phi = unify(q, alpha, {})
+        if phi is not None:
+            yield phi
+
+    while True:
+        new = []
+        for rule in KB.clauses:
+            p, q = parse_definite_clause(rule)
+            for theta in enum_subst(KB):
+                if any([set(subst(theta, p)) == set(subst(theta, p_))
+                        for p_ in itertools.combinations(KB.clauses, len(p))]):
+                    q_ = subst(theta, q)
+                    if all([unify(x, q_, {}) is None for x in KB.clauses + new]):
+                        print('Added', q_)
+                        new.append(q_)
+                        phi = unify(q_, alpha, {})
+                        if phi is not None:
+                            print(q_, alpha)
+                            yield phi
+        if not new:
+            break
+        for clause in new:
+            KB.tell(clause)
+    return None
 
 
 def fol_bc_ask(KB, query):
@@ -971,6 +972,33 @@ def fol_bc_and(KB, goals, theta):
         for theta1 in fol_bc_or(KB, subst(theta, first), theta):
             for theta2 in fol_bc_and(KB, rest, theta1):
                 yield theta2
+
+
+test_kb = FolKB(
+    map(expr, ['Farmer(Mac)',
+               'Rabbit(Pete)',
+               'Mother(MrsMac, Mac)',
+               'Mother(MrsRabbit, Pete)',
+               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
+               '(Mother(m, c)) ==> Loves(m, c)',
+               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
+               '(Farmer(f)) ==> Human(f)',
+               # Note that this order of conjuncts
+               # would result in infinite recursion:
+               # '(Human(h) & Mother(m, h)) ==> Human(m)'
+               '(Mother(m, h) & Human(h)) ==> Human(m)'
+               ]))
+
+crime_kb = FolKB(
+    map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+               'Owns(Nono, M1)',
+               'Missile(M1)',
+               '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+               'Missile(x) ==> Weapon(x)',
+               'Enemy(x, America) ==> Hostile(x)',
+               'American(West)',
+               'Enemy(Nono, America)'
+               ]))
 
 # ______________________________________________________________________________
 

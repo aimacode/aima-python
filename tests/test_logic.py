@@ -190,6 +190,11 @@ def test_prop_symbols():
     assert set(prop_symbols(expr('(x & B(z)) ==> Farmer(y) | A'))) == {A, expr('Farmer(y)'), expr('B(z)')}
 
 
+def test_constant_symbols():
+    assert set(constant_symbols(expr('x & y & z | A'))) == {A}
+    assert set(constant_symbols(expr('(x & B(z)) & Father(John) ==> Farmer(y) | A'))) == {A, expr('John')}
+
+
 def test_eliminate_implications():
     assert repr(eliminate_implications('A ==> (~B <== C)')) == '((~B | ~C) | ~A)'
     assert repr(eliminate_implications(A ^ B)) == '((A & ~B) | (~A & B))'
@@ -256,6 +261,22 @@ def test_fol_bc_ask():
     assert repr(test_ask('Human(x)')) == '[{x: Mac}, {x: MrsMac}]'
     assert repr(test_ask('Rabbit(x)')) == '[{x: MrsRabbit}, {x: Pete}]'
     assert repr(test_ask('Criminal(x)', crime_kb)) == '[{x: West}]'
+
+
+def test_fol_fc_ask():
+    def test_ask(query, kb=None):
+        q = expr(query)
+        test_variables = variables(q)
+        answers = fol_fc_ask(kb or test_kb, q)
+        print(answers)
+        return sorted(
+            [dict((x, v) for x, v in list(a.items()) if x in test_variables)
+             for a in answers], key=repr)
+    ## Take too long to run
+    #assert repr(test_ask('Farmer(x)')) == '[{x: Mac}]'
+    #assert repr(test_ask('Human(x)')) == '[{x: Mac}, {x: MrsMac}]'
+    #assert repr(test_ask('Rabbit(x)')) == '[{x: MrsRabbit}, {x: Pete}]'
+    #assert repr(test_ask('Criminal(x)', crime_kb)) == '[{x: West}]'
 
 
 def test_d():
