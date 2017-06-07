@@ -65,6 +65,7 @@ def mode(data):
     [(item, count)] = collections.Counter(data).most_common(1)
     return item
 
+
 # ______________________________________________________________________________
 # argmin and argmax
 
@@ -275,6 +276,48 @@ except ImportError:
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
         """Return true if numbers a and b are close to each other."""
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+
+# ______________________________________________________________________________
+# Grid Functions
+
+
+orientations = EAST, NORTH, WEST, SOUTH = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+turns = LEFT, RIGHT = (+1, -1)
+
+
+def turn_heading(heading, inc, headings=orientations):
+    return headings[(headings.index(heading) + inc) % len(headings)]
+
+
+def turn_right(heading):
+    return turn_heading(heading, RIGHT)
+
+
+def turn_left(heading):
+    return turn_heading(heading, LEFT)
+
+
+def distance(a, b):
+    """The distance between two (x, y) points."""
+    xA, yA = a
+    xB, yB = b
+    return math.hypot((xA - xB), (yA - yB))
+
+
+def distance_squared(a, b):
+    """The square of the distance between two (x, y) points."""
+    xA, yA = a
+    xB, yB = b
+    return (xA - xB)**2 + (yA - yB)**2
+
+
+def vector_clip(vector, lowest, highest):
+    """Return vector, except if any element is less than the corresponding
+    value of lowest or more than the corresponding value of highest, clip to
+    those values."""
+    return type(vector)(map(clip, vector, lowest, highest))
+
 
 # ______________________________________________________________________________
 # Misc Functions
@@ -708,6 +751,7 @@ class PriorityQueue(Queue):
         for i, (value, item) in enumerate(self.A):
             if item == key:
                 self.A.pop(i)
+
 
 # ______________________________________________________________________________
 # Useful Shorthands
