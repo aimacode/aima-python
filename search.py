@@ -6,9 +6,9 @@ functions."""
 
 from utils import (
     is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
-    memoize, print_table, DataFile, Stack, FIFOQueue, PriorityQueue, name
+    memoize, print_table, DataFile, Stack, FIFOQueue, PriorityQueue, name,
+    distance
 )
-from grid import distance
 
 from collections import defaultdict
 import math
