@@ -936,11 +936,9 @@ def fol_fc_ask(KB, alpha):
                         for p_ in itertools.combinations(KB.clauses, len(p))]):
                     q_ = subst(theta, q)
                     if all([unify(x, q_, {}) is None for x in KB.clauses + new]):
-                        print('Added', q_)
                         new.append(q_)
                         phi = unify(q_, alpha, {})
                         if phi is not None:
-                            print(q_, alpha)
                             yield phi
         if not new:
             break
@@ -998,6 +996,16 @@ crime_kb = FolKB(
                'Enemy(x, America) ==> Hostile(x)',
                'American(West)',
                'Enemy(Nono, America)'
+               ]))
+
+smalltest_kb = FolKB(
+    map(expr, ['Human(Mary)',
+               'Female(x) ==> Likes(x, Chocolate)',
+               'Male(y) ==> Likes(y, IceCream)',
+               'Married(x, y) & Human(y) ==> Male(y)',
+               'Married(x, y) & Human(x) ==> Female(x)',
+               'Human(John)',
+               'Married(Mary, John)'
                ]))
 
 # ______________________________________________________________________________
