@@ -914,11 +914,11 @@ class FolKB(KB):
 def fol_fc_ask(KB, alpha):
     """A simple forward-chaining algorithm. [Figure 9.3]"""
     # TODO: Improve efficiency
-    def enum_subst(KB):
-        kb_vars = list({v for clause in KB.clauses for v in variables(clause)})
-        kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
-        for assignment_list in itertools.product(kb_consts, repeat=len(kb_vars)):
-            theta = {x: y for x, y in zip(kb_vars, assignment_list)}
+    kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
+    def enum_subst(p):
+        query_vars = list({v for clause in p for v in variables(clause)})
+        for assignment_list in itertools.product(kb_consts, repeat=len(query_vars)):
+            theta = {x: y for x, y in zip(query_vars, assignment_list)}
             yield theta
 
     # check if we can answer without new inferences
@@ -931,16 +931,13 @@ def fol_fc_ask(KB, alpha):
         new = []
         for rule in KB.clauses:
             p, q = parse_definite_clause(rule)
-            for theta in enum_subst(KB):
-                if any([set(subst(theta, p)) == set(subst(theta, p_))
-                        for p_ in itertools.combinations(KB.clauses, len(p))]):
+            for theta in enum_subst(p):
+                if set(subst(theta, p)).issubset(set(KB.clauses)):
                     q_ = subst(theta, q)
                     if all([unify(x, q_, {}) is None for x in KB.clauses + new]):
-                        print('Added', q_)
                         new.append(q_)
                         phi = unify(q_, alpha, {})
                         if phi is not None:
-                            print(q_, alpha)
                             yield phi
         if not new:
             break
@@ -998,6 +995,16 @@ crime_kb = FolKB(
                'Enemy(x, America) ==> Hostile(x)',
                'American(West)',
                'Enemy(Nono, America)'
+               ]))
+
+smalltest_kb = FolKB(
+    map(expr, ['Human(Mary)',
+               'Female(x) ==> Likes(x, Chocolate)',
+               'Male(x) ==> Likes(x, IceCream)',
+               'Wife(x, y) & Human(x) ==> Female(x)',
+               'Wife(y, x) & Human(x) ==> Male(x)',
+               'Human(John)',
+               'Wife(Mary, John)'
                ]))
 
 # ______________________________________________________________________________
