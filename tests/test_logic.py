@@ -277,10 +277,9 @@ def test_fol_fc_ask():
     assert repr(test_ask('Likes(x, IceCream)', smalltest_kb)) == '[{x: John}]'
     assert repr(test_ask('Criminal(x)', crime_kb)) == '[{x: West}]'
     assert repr(test_ask('Enemy(x, America)', crime_kb)) == '[{x: Nono}]'
-    ## Take too long to run
-    #assert repr(test_ask('Farmer(x)')) == '[{x: Mac}]'
-    #assert repr(test_ask('Human(x)')) == '[{x: Mac}, {x: MrsMac}]'
-    #assert repr(test_ask('Rabbit(x)')) == '[{x: MrsRabbit}, {x: Pete}]'
+    assert repr(test_ask('Farmer(x)')) == '[{x: Mac}]'
+    assert repr(test_ask('Human(x)')) == '[{x: Mac}, {x: MrsMac}]'
+    assert repr(test_ask('Rabbit(x)')) == '[{x: MrsRabbit}, {x: Pete}]'
 
 
 def test_d():

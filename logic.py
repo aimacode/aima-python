@@ -914,11 +914,11 @@ class FolKB(KB):
 def fol_fc_ask(KB, alpha):
     """A simple forward-chaining algorithm. [Figure 9.3]"""
     # TODO: Improve efficiency
-    def enum_subst(KB):
-        kb_vars = list({v for clause in KB.clauses for v in variables(clause)})
-        kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
-        for assignment_list in itertools.product(kb_consts, repeat=len(kb_vars)):
-            theta = {x: y for x, y in zip(kb_vars, assignment_list)}
+    kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
+    def enum_subst(p):
+        query_vars = list({v for clause in p for v in variables(clause)})
+        for assignment_list in itertools.product(kb_consts, repeat=len(query_vars)):
+            theta = {x: y for x, y in zip(query_vars, assignment_list)}
             yield theta
 
     # check if we can answer without new inferences
@@ -931,7 +931,7 @@ def fol_fc_ask(KB, alpha):
         new = []
         for rule in KB.clauses:
             p, q = parse_definite_clause(rule)
-            for theta in enum_subst(KB):
+            for theta in enum_subst(p):
                 if set(subst(theta, p)).issubset(set(subst(theta, KB.clauses))):
                     q_ = subst(theta, q)
                     if all([unify(x, q_, {}) is None for x in KB.clauses + new]):
@@ -1000,11 +1000,11 @@ crime_kb = FolKB(
 smalltest_kb = FolKB(
     map(expr, ['Human(Mary)',
                'Female(x) ==> Likes(x, Chocolate)',
-               'Male(y) ==> Likes(y, IceCream)',
-               'Married(x, y) & Human(y) ==> Male(y)',
-               'Married(x, y) & Human(x) ==> Female(x)',
+               'Male(x) ==> Likes(x, IceCream)',
+               'Wife(x, y) & Human(x) ==> Female(x)',
+               'Wife(y, x) & Human(x) ==> Male(x)',
                'Human(John)',
-               'Married(Mary, John)'
+               'Wife(Mary, John)'
                ]))
 
 # ______________________________________________________________________________
