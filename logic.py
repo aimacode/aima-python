@@ -932,8 +932,7 @@ def fol_fc_ask(KB, alpha):
         for rule in KB.clauses:
             p, q = parse_definite_clause(rule)
             for theta in enum_subst(KB):
-                if any([set(subst(theta, p)) == set(subst(theta, p_))
-                        for p_ in itertools.combinations(KB.clauses, len(p))]):
+                if set(subst(theta, p)).issubset(set(subst(theta, KB.clauses))):
                     q_ = subst(theta, q)
                     if all([unify(x, q_, {}) is None for x in KB.clauses + new]):
                         new.append(q_)
