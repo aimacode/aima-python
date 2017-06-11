@@ -42,7 +42,7 @@ def minimax_decision(state, game):
 # ______________________________________________________________________________
 
 
-def alphabeta_full_search(state, game):
+def alphabeta_search(state, game):
     """Search game to determine best action; use alpha-beta pruning.
     As in [Figure 5.7], this version searches all the way to the leaves."""
 
@@ -71,7 +71,7 @@ def alphabeta_full_search(state, game):
             beta = min(beta, v)
         return v
 
-    # Body of alphabeta_search:
+    # Body of alphabeta_cutoff_search:
     best_score = -infinity
     beta = infinity
     best_action = None
@@ -83,7 +83,7 @@ def alphabeta_full_search(state, game):
     return best_action
 
 
-def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
+def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     """Search game to determine best action; use alpha-beta pruning.
     This version cuts off search and uses an evaluation function."""
 
@@ -114,7 +114,7 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
             beta = min(beta, v)
         return v
 
-    # Body of alphabeta_search starts here:
+    # Body of alphabeta_cutoff_search starts here:
     # The default test cuts off at depth d or at a terminal state
     cutoff_test = (cutoff_test or
                    (lambda state, depth: depth > d or
@@ -154,7 +154,7 @@ def random_player(game, state):
 
 
 def alphabeta_player(game, state):
-    return alphabeta_full_search(state, game)
+    return alphabeta_search(state, game)
 
 
 # ______________________________________________________________________________
