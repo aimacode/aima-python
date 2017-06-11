@@ -1,10 +1,3 @@
-"""A lightweight test suite for games.py"""
-
-# You can run this test suite by doing: py.test tests/test_games.py
-# Of course you need to have py.test installed to do this.
-
-import pytest
-
 from games import *
 
 # Creating the game instances
@@ -36,27 +29,27 @@ def test_minimax_decision():
     assert minimax_decision('D', f52) == 'd3'
 
 
-def test_alphabeta_full_search():
-    assert alphabeta_full_search('A', f52) == 'a1'
-    assert alphabeta_full_search('B', f52) == 'b1'
-    assert alphabeta_full_search('C', f52) == 'c1'
-    assert alphabeta_full_search('D', f52) == 'd3'
+def test_alphabeta_search():
+    assert alphabeta_search('A', f52) == 'a1'
+    assert alphabeta_search('B', f52) == 'b1'
+    assert alphabeta_search('C', f52) == 'c1'
+    assert alphabeta_search('D', f52) == 'd3'
 
     state = gen_state(to_move='X', x_positions=[(1, 1), (3, 3)],
                       o_positions=[(1, 2), (3, 2)])
-    assert alphabeta_full_search(state, ttt) == (2, 2)
+    assert alphabeta_search(state, ttt) == (2, 2)
 
     state = gen_state(to_move='O', x_positions=[(1, 1), (3, 1), (3, 3)],
                       o_positions=[(1, 2), (3, 2)])
-    assert alphabeta_full_search(state, ttt) == (2, 2)
+    assert alphabeta_search(state, ttt) == (2, 2)
 
     state = gen_state(to_move='O', x_positions=[(1, 1)],
                       o_positions=[])
-    assert alphabeta_full_search(state, ttt) == (2, 2)
+    assert alphabeta_search(state, ttt) == (2, 2)
 
     state = gen_state(to_move='X', x_positions=[(1, 1), (3, 1)],
                       o_positions=[(2, 2), (3, 1)])
-    assert alphabeta_full_search(state, ttt) == (1, 3)
+    assert alphabeta_search(state, ttt) == (1, 3)
 
 
 def test_random_tests():
@@ -67,7 +60,3 @@ def test_random_tests():
 
     # The player 'X' (one who plays first) in TicTacToe never loses:
     assert ttt.play_game(alphabeta_player, random_player) >= 0
-
-
-if __name__ == '__main__':
-    pytest.main()
