@@ -74,21 +74,21 @@ Running the Test-Suite
 =====================
 
 The minimal requirement for running the testsuite is ``py.test``.  You can
-install it with::
+install it with:
 
     pip install pytest
 
-Clone this repository::
+Clone this repository:
 
     git clone https://github.com/aimacode/aima-python.git
 
-Fetch the aima-data submodule::
+Fetch the aima-data submodule:
 
     cd aima-python
     git submodule init
     git submodule update
 
-Then you can run the testsuite with::
+Then you can run the testsuite from the `tests` directory with:
 
     py.test
 
