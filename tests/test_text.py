@@ -3,11 +3,11 @@ import os
 import random
 
 from text import *
-from utils import isclose, DataFile
+from utils import isclose, open_data
 
 
 def test_text_models():
-    flatland = DataFile("EN-text/flatland.txt").read()
+    flatland = open_data("EN-text/flatland.txt").read()
     wordseq = words(flatland)
     P1 = UnigramTextModel(wordseq)
     P2 = NgramTextModel(2, wordseq)
@@ -141,7 +141,7 @@ def test_char_models():
 
 
 def test_viterbi_segmentation():
-    flatland = DataFile("EN-text/flatland.txt").read()
+    flatland = open_data("EN-text/flatland.txt").read()
     wordseq = words(flatland)
     P = UnigramTextModel(wordseq)
     text = "itiseasytoreadwordswithoutspaces"
@@ -158,7 +158,7 @@ def test_shift_encoding():
 
 
 def test_shift_decoding():
-    flatland = DataFile("EN-text/flatland.txt").read()
+    flatland = open_data("EN-text/flatland.txt").read()
     ring = ShiftDecoder(flatland)
     msg = ring.decode('Kyzj zj r jvtivk dvjjrxv.')
 
@@ -166,12 +166,12 @@ def test_shift_decoding():
 
 
 def test_permutation_decoder():
-    gutenberg = DataFile("EN-text/gutenberg.txt").read()
-    flatland = DataFile("EN-text/flatland.txt").read()
-    
+    gutenberg = open_data("EN-text/gutenberg.txt").read()
+    flatland = open_data("EN-text/flatland.txt").read()
+
     pd = PermutationDecoder(canonicalize(gutenberg))
     assert pd.decode('aba') in ('ece', 'ete', 'tat', 'tit', 'txt')
-    
+
     pd = PermutationDecoder(canonicalize(flatland))
     assert pd.decode('aba') in ('ded', 'did', 'ece', 'ele', 'eme', 'ere', 'eve', 'eye', 'iti', 'mom', 'ses', 'tat', 'tit')
 
@@ -183,7 +183,7 @@ def test_rot13_encoding():
 
 
 def test_rot13_decoding():
-    flatland = DataFile("EN-text/flatland.txt").read()
+    flatland = open_data("EN-text/flatland.txt").read()
     ring = ShiftDecoder(flatland)
     msg = ring.decode(rot13('Hello, world!'))
 
