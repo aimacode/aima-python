@@ -4,7 +4,7 @@ from utils import (
     removeall, unique, product, mode, argmax, argmax_random_tie, isclose, gaussian,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table,
-    DataFile, sigmoid_derivative
+    open_data, sigmoid_derivative
 )
 
 import copy
@@ -95,7 +95,7 @@ class DataSet:
         if isinstance(examples, str):
             self.examples = parse_csv(examples)
         elif examples is None:
-            self.examples = parse_csv(DataFile(name + '.csv').read())
+            self.examples = parse_csv(open_data(name + '.csv').read())
         else:
             self.examples = examples
         # Attrs are the indices of examples, unless otherwise stated.
@@ -949,7 +949,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     err_val = []
     err_train = []
     size = 1
-    
+
     while True:
         errT, errV = cross_validation(learner, size, dataset, k)
         # Check for convergence provided err_val is not empty
