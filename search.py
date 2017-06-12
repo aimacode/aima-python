@@ -6,7 +6,7 @@ functions."""
 
 from utils import (
     is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
-    memoize, print_table, DataFile, Stack, FIFOQueue, PriorityQueue, name,
+    memoize, print_table, open_data, Stack, FIFOQueue, PriorityQueue, name,
     distance
 )
 
@@ -1044,7 +1044,7 @@ class BoggleFinder:
 
     def __init__(self, board=None):
         if BoggleFinder.wordlist is None:
-            BoggleFinder.wordlist = Wordlist(DataFile("EN-text/wordlist.txt"))
+            BoggleFinder.wordlist = Wordlist(open_data("EN-text/wordlist.txt"))
         self.found = {}
         if board:
             self.set_board(board)
