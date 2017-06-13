@@ -1,4 +1,5 @@
 from IPython.display import HTML, display
+from games import TicTacToe, alphabeta_player, random_player
 
 _canvas = """
 <script type="text/javascript" src="./js/canvas.js"></script>
@@ -17,13 +18,13 @@ class Canvas:
     IPython must be able to refernce the variable name that is being passed.
     """
 
-    def __init__(self, varname, id=None, width=800, height=600):
+    def __init__(self, varname, width=800, height=600, cid=None):
         """"""
         self.name = varname
-        self.id = id or varname
+        self.cid = cid or varname
         self.width = width
         self.height = height
-        self.html = _canvas.format(self.id, self.width, self.height, self.name)
+        self.html = _canvas.format(self.cid, self.width, self.height, self.name)
         self.exec_list = []
         display_html(self.html)
 
@@ -39,7 +40,7 @@ class Canvas:
         if not isinstance(exec_str, str):
             print("Invalid execution argument:", exec_str)
             self.alert("Recieved invalid execution command format")
-        prefix = "{0}_canvas_object.".format(self.id)
+        prefix = "{0}_canvas_object.".format(self.cid)
         self.exec_list.append(prefix + exec_str + ';')
 
     def fill(self, r, g, b):
@@ -135,27 +136,31 @@ class Canvas_TicTacToe(Canvas):
     """Play a 3x3 TicTacToe game on HTML canvas
     TODO: Add restart button
     """
-    def __init__(self, varname, player_1='human', player_2='random', id=None,
-                 width=300, height=300):
+    def __init__(self, varname, player_1='human', player_2='random',
+                 width=300, height=350, cid=None):
         valid_players = ('human', 'random', 'alphabeta')
         if player_1 not in valid_players or player_2 not in valid_players:
             raise TypeError("Players must be one of {}".format(valid_players))
-        Canvas.__init__(self, varname, id, width, height)
+        Canvas.__init__(self, varname, width, height, cid)
         self.ttt = TicTacToe()
         self.state = self.ttt.initial
         self.turn = 0
         self.strokeWidth(5)
         self.players = (player_1, player_2)
+        self.font("20px Arial")
         self.draw_board()
-        self.font("Ariel 30px")
 
     def mouse_click(self, x, y):
         player = self.players[self.turn]
         if self.ttt.terminal_test(self.state):
+            if 0.55 <= x/self.width <= 0.95 and 6/7 <= y/self.height <= 6/7+1/8:
+                self.state = self.ttt.initial
+                self.turn = 0
+                self.draw_board()
             return
 
         if player == 'human':
-            x, y = int(3*x/self.width) + 1, int(3*y/self.height) + 1
+            x, y = int(3*x/self.width) + 1, int(3*y/(self.height*6/7)) + 1
             if (x, y) not in self.ttt.actions(self.state):
                 # Invalid move
                 return
@@ -172,10 +177,11 @@ class Canvas_TicTacToe(Canvas):
         self.clear()
         self.stroke(0, 0, 0)
         offset = 1/20
-        self.line_n(0 + offset, 1/3, 1 - offset, 1/3)
-        self.line_n(0 + offset, 2/3, 1 - offset, 2/3)
-        self.line_n(1/3, 0 + offset, 1/3, 1 - offset)
-        self.line_n(2/3, 0 + offset, 2/3, 1 - offset)
+        self.line_n(0 + offset, (1/3)*6/7, 1 - offset, (1/3)*6/7)
+        self.line_n(0 + offset, (2/3)*6/7, 1 - offset, (2/3)*6/7)
+        self.line_n(1/3, (0 + offset)*6/7, 1/3, (1 - offset)*6/7)
+        self.line_n(2/3, (0 + offset)*6/7, 2/3, (1 - offset)*6/7)
+
         board = self.state.board
         for mark in board:
             if board[mark] == 'X':
@@ -186,12 +192,32 @@ class Canvas_TicTacToe(Canvas):
             # End game message
             utility = self.ttt.utility(self.state, self.ttt.to_move(self.ttt.initial))
             if utility == 0:
-                self.text_n('Game Draw!', 0.1, 0.1)
+                self.text_n('Game Draw!', offset, 6/7 + offset)
             else:
-                self.text_n('Player {} wins!'.format(1 if utility > 0 else 2), 0.1, 0.1)
+                self.text_n('Player {} wins!'.format("XO"[utility < 0]), offset, 6/7 + offset)
+                # Find the 3 and draw a line
+                self.stroke([255, 0][self.turn], [0, 255][self.turn], 0)
+                for i in range(3):
+                    if all([(i + 1, j + 1) in self.state.board for j in range(3)]) and \
+                       len({self.state.board[(i + 1, j + 1)] for j in range(3)}) == 1:
+                        self.line_n(i/3 + 1/6, offset*6/7, i/3 + 1/6, (1 - offset)*6/7)
+                    if all([(j + 1, i + 1) in self.state.board for j in range(3)]) and \
+                       len({self.state.board[(j + 1, i + 1)] for j in range(3)}) == 1:
+                        self.line_n(offset, (i/3 + 1/6)*6/7, 1 - offset, (i/3 + 1/6)*6/7)
+                if all([(i + 1, i + 1) in self.state.board for i in range(3)]) and \
+                   len({self.state.board[(i + 1, i + 1)] for i in range(3)}) == 1:
+                        self.line_n(offset, offset*6/7, 1 - offset, (1 - offset)*6/7)
+                if all([(i + 1, 3 - i) in self.state.board for i in range(3)]) and \
+                   len({self.state.board[(i + 1, 3 - i)] for i in range(3)}) == 1:
+                        self.line_n(offset, (1 - offset)*6/7, 1 - offset, offset*6/7)
+            # restart button
+            self.fill(0, 0, 255)
+            self.rect_n(0.5 + offset, 6/7, 0.4, 1/8)
+            self.fill(0, 0, 0)
+            self.text_n('Restart', 0.5 + 2*offset, 13/14)
         else:  # Print which player's turn it is
-            self.text_n("Player {}'s move({})".format(self.turn+1, self.players[self.turn]),
-                        0.1, 0.1)
+            self.text_n("Player {}'s move({})".format("XO"[self.turn], self.players[self.turn]),
+                        offset, 6/7 + offset)
 
         self.update()
 
@@ -199,11 +225,11 @@ class Canvas_TicTacToe(Canvas):
         self.stroke(0, 255, 0)
         x, y = [i-1 for i in position]
         offset = 1/15
-        self.line_n(x/3 + offset, y/3 + offset, x/3 + 1/3 - offset, y/3 + 1/3 - offset)
-        self.line_n(x/3 + 1/3 - offset, y/3 + offset, x/3 + offset, y/3 + 1/3 - offset)
+        self.line_n(x/3 + offset, (y/3 + offset)*6/7, x/3 + 1/3 - offset, (y/3 + 1/3 - offset)*6/7)
+        self.line_n(x/3 + 1/3 - offset, (y/3 + offset)*6/7, x/3 + offset, (y/3 + 1/3 - offset)*6/7)
 
     def draw_o(self, position):
         self.stroke(255, 0, 0)
         x, y = [i-1 for i in position]
-        self.arc_n(x/3 + 1/6, y/3 + 1/6, 1/9, 0, 360)
+        self.arc_n(x/3 + 1/6, (y/3 + 1/6)*6/7, 1/9, 0, 360)
     

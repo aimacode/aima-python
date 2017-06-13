@@ -257,9 +257,7 @@ class TicTacToe(Game):
 
     def result(self, state, move):
         if move not in state.moves:
-            return GameState(to_move=('O' if state.to_move == 'X' else 'X'),
-                             utility=self.compute_utility(state.board, move, state.to_move),
-                             board=state.board, moves=state.moves)  # Illegal move has no effect
+            return state  # Illegal move has no effect
         board = state.board.copy()
         board[move] = state.to_move
         moves = list(state.moves)
