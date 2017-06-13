@@ -10,6 +10,7 @@ before_install:
 install:
   - pip install six
   - pip install flake8
+  - pip install ipython
 
 script:
   - py.test
