@@ -88,7 +88,7 @@ Fetch the aima-data submodule:
     git submodule init
     git submodule update
 
-Then you can run the testsuite from the `tests` directory with:
+Then you can run the testsuite from the `aima-python` or `tests` directory with:
 
     py.test
 
