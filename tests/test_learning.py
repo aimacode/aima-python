@@ -1,7 +1,7 @@
 import pytest
 import math
 import random
-from utils import DataFile
+from utils import open_data
 from learning import *
 
 
@@ -18,12 +18,14 @@ def test_euclidean():
     distance = euclidean_distance([0, 0, 0], [0, 0, 0])
     assert distance == 0
 
+
 def test_rms_error():
     assert rms_error([2, 2], [2, 2]) == 0
     assert rms_error((0, 0), (0, 1)) == math.sqrt(0.5)
     assert rms_error((1, 0), (0, 1)) ==  1
     assert rms_error((0, 0), (0, -1)) ==  math.sqrt(0.5)
     assert rms_error((0, 0.5), (0, -0.5)) ==  math.sqrt(0.5)
+
 
 def test_manhattan_distance():
     assert manhattan_distance([2, 2], [2, 2]) == 0
@@ -32,12 +34,14 @@ def test_manhattan_distance():
     assert manhattan_distance([0, 0], [0, -1]) ==  1
     assert manhattan_distance([0, 0.5], [0, -0.5]) == 1
 
+
 def test_mean_boolean_error():
     assert mean_boolean_error([1, 1], [0, 0]) == 1
     assert mean_boolean_error([0, 1], [1, 0]) == 1
     assert mean_boolean_error([1, 1], [0, 1]) == 0.5
     assert mean_boolean_error([0, 0], [0, 0]) == 0
     assert mean_boolean_error([1, 1], [1, 1]) == 0
+
 
 def test_mean_error():
     assert mean_error([2, 2], [2, 2]) == 0
@@ -53,7 +57,7 @@ def test_exclude():
 
 
 def test_parse_csv():
-    Iris = DataFile('iris.csv').read()
+    Iris = open_data('iris.csv').read()
     assert parse_csv(Iris)[0] == [5.1, 3.5, 1.4, 0.2, 'setosa']
 
 

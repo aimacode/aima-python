@@ -383,18 +383,11 @@ def print_table(table, header=None, sep='   ', numfmt='{}'):
             str(x), j)(size) for (j, size, x) in zip(justs, sizes, row)))
 
 
-def AIMAFile(components, mode='r'):
-    """Open a file based at the AIMA root directory."""
+def open_data(name, mode='r'):
     aima_root = os.path.dirname(__file__)
-
-    aima_file = os.path.join(aima_root, *components)
+    aima_file = os.path.join(aima_root, *['aima-data', name])
 
     return open(aima_file)
-
-
-def DataFile(name, mode='r'):
-    "Return a file in the AIMA /aima-data directory."
-    return AIMAFile(['aima-data', name], mode)
 
 
 # ______________________________________________________________________________
