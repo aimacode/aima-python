@@ -1,6 +1,6 @@
 from IPython.display import HTML, display
 from utils import argmax, argmin
-from games import TicTacToe, alphabeta_player, random_player, Fig52Extended
+from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, infinity
 
 _canvas = """
 <script type="text/javascript" src="./js/canvas.js"></script>
@@ -309,7 +309,7 @@ class Canvas_minimax(Canvas):
                 self.thick_lines.add(change[1])
             elif change[0] == 'p':
                 self.node_stack.pop()
-    
+
     def mouse_click(self, x, y):
         try:
             self.stack_manager.send(None)
@@ -355,4 +355,174 @@ class Canvas_minimax(Canvas):
                 else:
                     self.strokeWidth(1)
                 self.line_n(x1, y1, x2, y2)
+        self.update()
+
+
+class Canvas_alphabeta(Canvas):
+    """Alpha-beta pruning for Fig52Extended on HTML canvas
+    """
+    def __init__(self, varname, util_list, width=800, height=600, cid=None):
+        Canvas.__init__(self, varname, width, height, cid)
+        self.utils = {node:util for node, util in zip(range(13, 40), util_list)}
+        self.game = Fig52Extended()
+        self.game.utils = self.utils
+        self.nodes = list(range(40))
+        self.l = 1/40
+        self.node_pos = {}
+        for i in range(4):
+            base = len(self.node_pos)
+            row_size = 3**i
+            for node in [base + j for j in range(row_size)]:
+                self.node_pos[node] = ((node - base)/row_size + 1/(2*row_size) - self.l/2,
+                                       3*self.l/2 + (self.l + (1 - 6*self.l)/3)*i)
+        self.font("12px Arial")
+        self.node_stack = []
+        self.explored = {node for node in self.utils}
+        self.pruned = set()
+        self.ab = {}
+        self.thick_lines = set()
+        self.change_list = []
+        self.draw_graph()
+        self.stack_manager = self.stack_manager_gen()
+
+    def alphabeta_search(self, node):
+        game = self.game
+        player = game.to_move(node)
+
+        # Functions used by alphabeta
+        def max_value(node, alpha, beta):
+            if game.terminal_test(node):
+                self.change_list.append(('a', node))
+                self.change_list.append(('h',))
+                self.change_list.append(('p',))
+                return game.utility(node, player)
+            v = -infinity
+            self.change_list.append(('a', node))
+            self.change_list.append(('ab',node, v, beta))
+            self.change_list.append(('h',))
+            for a in game.actions(node):
+                min_val = min_value(game.result(node, a), alpha, beta)
+                if v < min_val:
+                    v = min_val
+                    max_node = game.result(node, a)
+                    self.change_list.append(('ab',node, v, beta))
+                if v >= beta:
+                    self.change_list.append(('h',))
+                    self.pruned.add(node)
+                    break
+                alpha = max(alpha, v)
+            self.utils[node] = v
+            if node not in self.pruned:
+                self.change_list.append(('l', (node, max_node - 3*node - 1)))
+            self.change_list.append(('e',node))
+            self.change_list.append(('p',))
+            self.change_list.append(('h',))
+            return v
+
+        def min_value(node, alpha, beta):
+            if game.terminal_test(node):
+                self.change_list.append(('a', node))
+                self.change_list.append(('h',))
+                self.change_list.append(('p',))
+                return game.utility(node, player)
+            v = infinity
+            self.change_list.append(('a', node))
+            self.change_list.append(('ab',node, alpha, v))
+            self.change_list.append(('h',))
+            for a in game.actions(node):
+                max_val = max_value(game.result(node, a), alpha, beta)
+                if v > max_val:
+                    v = max_val
+                    min_node = game.result(node, a)
+                    self.change_list.append(('ab',node, alpha, v))
+                if v <= alpha:
+                    self.change_list.append(('h',))
+                    self.pruned.add(node)
+                    break
+                beta = min(beta, v)
+            self.utils[node] = v
+            if node not in self.pruned:
+                self.change_list.append(('l', (node, min_node - 3*node - 1)))
+            self.change_list.append(('e',node))
+            self.change_list.append(('p',))
+            self.change_list.append(('h',))
+            return v
+
+        return max_value(node, -infinity, infinity)
+
+    def stack_manager_gen(self):
+        self.alphabeta_search(0)
+        for change in self.change_list:
+            if change[0] == 'a':
+                self.node_stack.append(change[1])
+            elif change[0] == 'ab':
+                self.ab[change[1]] = change[2:]
+            elif change[0] == 'e':
+                self.explored.add(change[1])
+            elif change[0] == 'h':
+                yield
+            elif change[0] == 'l':
+                self.thick_lines.add(change[1])
+            elif change[0] == 'p':
+                self.node_stack.pop()
+
+    def mouse_click(self, x, y):
+        try:
+            self.stack_manager.send(None)
+        except StopIteration:
+            pass
+        self.draw_graph()
+
+    def draw_graph(self):
+        self.clear()
+        # draw nodes
+        self.stroke(0, 0, 0)
+        self.strokeWidth(1)
+        # highlight for nodes in stack
+        for node in self.node_stack:
+            x, y = self.node_pos[node]
+            # alpha > beta
+            if node not in self.explored and self.ab[node][0] > self.ab[node][1]:
+                self.fill(200, 100, 100)
+            else:
+                self.fill(200, 200, 0)
+            self.rect_n(x - self.l/5, y - self.l/5, self.l*7/5, self.l*7/5)
+        for node in self.nodes:
+            x, y = self.node_pos[node]
+            if node in self.explored:
+                if node in self.pruned:
+                    self.fill(50, 50, 50)
+                else:
+                    self.fill(255, 255, 255)
+            else:
+                self.fill(200, 200, 200)
+            self.rect_n(x, y, self.l, self.l)
+            self.line_n(x, y, x + self.l, y)
+            self.line_n(x, y, x, y + self.l)
+            self.line_n(x + self.l, y + self.l, x + self.l, y)
+            self.line_n(x + self.l, y + self.l, x, y + self.l)
+            self.fill(0, 0, 0)
+            if node in self.explored and node not in self.pruned:
+                self.text_n(self.utils[node], x + self.l/10, y + self.l*9/10)
+        # draw edges
+        for i in range(13):
+            x1, y1 = self.node_pos[i][0] + self.l/2, self.node_pos[i][1] + self.l
+            for j in range(3):
+                x2, y2 = self.node_pos[i*3 + j + 1][0] + self.l/2, self.node_pos[i*3 + j + 1][1]
+                if i in [1, 2, 3]:
+                    self.stroke(200, 0, 0)
+                else:
+                    self.stroke(0, 200, 0)
+                if (i, j) in self.thick_lines:
+                    self.strokeWidth(3)
+                else:
+                    self.strokeWidth(1)
+                self.line_n(x1, y1, x2, y2)
+        # display alpha and beta
+        for node in self.node_stack:
+            if node not in self.explored:
+                x, y = self.node_pos[node]
+                alpha, beta = self.ab[node]
+                self.text_n(alpha, x - self.l/2, y - self.l/10)
+                self.text_n(beta, x + self.l, y - self.l/10)
         self.update()
