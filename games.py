@@ -237,6 +237,30 @@ class Fig52Game(Game):
         return 'MIN' if state in 'BCD' else 'MAX'
 
 
+class Fig52Extended(Game):
+    """Similar to Fig52Game but bigger. Useful for visualisation"""
+
+    succs = {i:dict(l=i*3+1, m=i*3+2, r=i*3+3) for i in range(13)}
+    utils = dict()
+
+    def actions(self, state):
+        return list(self.succs.get(state, {}).keys())
+
+    def result(self, state, move):
+        return self.succs[state][move]
+
+    def utility(self, state, player):
+        if player == 'MAX':
+            return self.utils[state]
+        else:
+            return -self.utils[state]
+
+    def terminal_test(self, state):
+        return state not in range(13)
+
+    def to_move(self, state):
+        return 'MIN' if state in {1, 2, 3} else 'MAX'
+
 class TicTacToe(Game):
     """Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move, a cached utility, a list of moves in

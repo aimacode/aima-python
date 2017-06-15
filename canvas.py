@@ -1,5 +1,6 @@
 from IPython.display import HTML, display
-from games import TicTacToe, alphabeta_player, random_player
+from utils import argmax, argmin
+from games import TicTacToe, alphabeta_player, random_player, Fig52Extended
 
 _canvas = """
 <script type="text/javascript" src="./js/canvas.js"></script>
@@ -234,89 +235,124 @@ class Canvas_TicTacToe(Canvas):
 
 
 class Canvas_minimax(Canvas):
-    """Minimax for Fig52 on HTML canvas
+    """Minimax for Fig52Extended on HTML canvas
     """
-    def __init__(self, varname, utils, width=600, height=400, cid=None):
+    def __init__(self, varname, util_list, width=800, height=600, cid=None):
         Canvas.__init__(self, varname, width, height, cid)
-        self.utils = utils
-        self.nodes = ['A', 'B', 'C', 'D', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3', 'D1', 'D2', 'D3']
-        self.node_pos = {'A': (0.475, 0.1)}
-        for i in range(3):
-            self.node_pos[self.nodes[i + 1]] = (i/3 + 1/6 - 0.025, 0.5)
-        for i in range(9):
-            self.node_pos[self.nodes[i + 4]] = (i/9 + 1/18 - 0.025, 0.8)
-        self.font("15px Arial")
-        self.context = 'A'
-        self.thicklines = []
+        self.utils = {node:util for node, util in zip(range(13, 40), util_list)}
+        self.game = Fig52Extended()
+        self.game.utils = self.utils
+        self.nodes = list(range(40))
+        self.l = 1/40
+        self.node_pos = {}
+        for i in range(4):
+            base = len(self.node_pos)
+            row_size = 3**i
+            for node in [base + j for j in range(row_size)]:
+                self.node_pos[node] = ((node - base)/row_size + 1/(2*row_size) - self.l/2,
+                                       self.l/2 + (self.l + (1 - 5*self.l)/3)*i)
+        self.font("12px Arial")
+        self.node_stack = []
+        self.explored = {node for node in self.utils}
+        self.thick_lines = set()
+        self.change_list = []
         self.draw_graph()
+        self.stack_manager = self.stack_manager_gen()
 
+    def minimax(self, node):
+        game = self.game
+        player = game.to_move(node)
+        def max_value(node):
+            if game.terminal_test(node):
+                return game.utility(node, player)
+            self.change_list.append(('a', node))
+            self.change_list.append(('h',))
+            max_a = argmax(game.actions(node), key=lambda x: min_value(game.result(node, x)))
+            max_node = game.result(node, max_a)
+            self.utils[node] = self.utils[max_node]
+            x1, y1 = self.node_pos[node]
+            x2, y2 = self.node_pos[max_node]
+            self.change_list.append(('l', (node, max_node - 3*node - 1)))
+            self.change_list.append(('e', node))
+            self.change_list.append(('p',))
+            self.change_list.append(('h',))
+            return self.utils[node]
+
+        def min_value(node):
+            if game.terminal_test(node):
+                return game.utility(node, player)
+            self.change_list.append(('a', node))
+            self.change_list.append(('h',))
+            min_a = argmin(game.actions(node), key=lambda x: max_value(game.result(node, x)))
+            min_node = game.result(node, min_a)
+            self.utils[node] = self.utils[min_node]
+            x1, y1 = self.node_pos[node]
+            x2, y2 = self.node_pos[min_node]
+            self.change_list.append(('l', (node, min_node - 3*node - 1)))
+            self.change_list.append(('e', node))
+            self.change_list.append(('p',))
+            self.change_list.append(('h',))
+            return self.utils[node]
+
+        return max_value(node)
+
+    def stack_manager_gen(self):
+        self.minimax(0)
+        for change in self.change_list:
+            if change[0] == 'a':
+                self.node_stack.append(change[1])
+            elif change[0] == 'e':
+                self.explored.add(change[1])
+            elif change[0] == 'h':
+                yield
+            elif change[0] == 'l':
+                self.thick_lines.add(change[1])
+            elif change[0] == 'p':
+                self.node_stack.pop()
+    
     def mouse_click(self, x, y):
-        if self.context == 'A':
-            if 'D' in self.utils:
-                max_node = max(['B', 'C', 'D'], key=lambda x: self.utils[x])
-                self.utils['A'] = self.utils[max_node]
-                i = 0 if max_node == 'B' else 1 if max_node == 'C' else 2
-                self.thicklines.append((0.5, 0.15, i/3 + 1/6, 0.5, [0, 255, 0]))
-            else:
-                self.context = 'B'
-        elif self.context == 'B':
-            if 'B' in self.utils:
-                self.context = 'C'
-            else:
-                min_node = min(['B1', 'B2', 'B3'], key=lambda x: self.utils[x])
-                self.utils['B'] = self.utils[min_node]
-                i = int(min_node[1]) - 1
-                self.thicklines.append((1/6, 0.55, i/9 + 1/18, 0.8, [0, 0, 255]))
-        elif self.context == 'C':
-            if 'C' in self.utils:
-                self.context = 'D'
-            else:
-                min_node = min(['C1', 'C2', 'C3'], key=lambda x: self.utils[x])
-                self.utils['C'] = self.utils[min_node]
-                i = int(min_node[1]) - 1
-                self.thicklines.append((1/3 + 1/6, 0.55, i/9 + 1/3 + 1/18, 0.8, [0, 0, 255]))
-        elif self.context == 'D':
-            if 'D' in self.utils:
-                self.context = 'A'
-            else:
-                min_node = min(['D1', 'D2', 'D3'], key=lambda x: self.utils[x])
-                self.utils['D'] = self.utils[min_node]
-                i = int(min_node[1]) - 1
-                self.thicklines.append((2/3 + 1/6, 0.55, i/9 + 2/3 + 1/18, 0.8, [0, 0, 255]))
+        try:
+            self.stack_manager.send(None)
+        except StopIteration:
+            pass
         self.draw_graph()
 
     def draw_graph(self):
         self.clear()
-        # highlight for current nodes
-        self.fill(200, 200, 0)
-        pos = self.node_pos[self.context]
-        self.rect_n(pos[0] - 0.01, pos[1] - 0.01, 0.07, 0.07)
         # draw nodes
         self.stroke(0, 0, 0)
         self.strokeWidth(1)
+        # highlight for nodes in stack
+        for node in self.node_stack:
+            x, y = self.node_pos[node]
+            self.fill(200, 200, 0)
+            self.rect_n(x - self.l/5, y - self.l/5, self.l*7/5, self.l*7/5)
         for node in self.nodes:
-            pos = self.node_pos[node]
-            if node in self.utils:
+            x, y = self.node_pos[node]
+            if node in self.explored:
                 self.fill(255, 255, 255)
             else:
-                self.fill(255, 0, 0)
-            self.rect_n(pos[0], pos[1], 0.05, 0.05)
-            self.line_n(pos[0], pos[1], pos[0] + 0.05, pos[1])
-            self.line_n(pos[0], pos[1], pos[0], pos[1] + 0.05)
-            self.line_n(pos[0] + 0.05, pos[1] + 0.05, pos[0] + 0.05, pos[1])
-            self.line_n(pos[0] + 0.05, pos[1] + 0.05, pos[0], pos[1] + 0.05)
+                self.fill(200, 200, 200)
+            self.rect_n(x, y, self.l, self.l)
+            self.line_n(x, y, x + self.l, y)
+            self.line_n(x, y, x, y + self.l)
+            self.line_n(x + self.l, y + self.l, x + self.l, y)
+            self.line_n(x + self.l, y + self.l, x, y + self.l)
             self.fill(0, 0, 0)
-            if node in self.utils:
-                self.text_n(self.utils[node], pos[0] + 0.005, pos[1] + 0.045)
-        #draw edges
-        for i in range(3):
-            self.stroke(0, 255, 0)
-            self.line_n(0.5, 0.15, i/3 + 1/6, 0.5)
-            self.stroke(0, 0, 255)
+            if node in self.explored:
+                self.text_n(self.utils[node], x + self.l/10, y + self.l*9/10)
+        # draw edges
+        for i in range(13):
+            x1, y1 = self.node_pos[i][0] + self.l/2, self.node_pos[i][1] + self.l
             for j in range(3):
-                self.line_n(i/3 + 1/6, 0.55, (i*3 + j)/9 + 1/18, 0.8)
-        self.strokeWidth(3)
-        for x1, y1, x2, y2, color in self.thicklines:
-            self.stroke(*color)
-            self.line_n(x1, y1, x2, y2)
+                x2, y2 = self.node_pos[i*3 + j + 1][0] + self.l/2, self.node_pos[i*3 + j + 1][1]
+                if i in [1, 2, 3]:
+                    self.stroke(200, 0, 0)
+                else:
+                    self.stroke(0, 200, 0)
+                if (i, j) in self.thick_lines:
+                    self.strokeWidth(3)
+                else:
+                    self.strokeWidth(1)
+                self.line_n(x1, y1, x2, y2)
         self.update()
