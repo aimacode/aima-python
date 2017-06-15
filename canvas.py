@@ -134,7 +134,6 @@ def display_html(html_string):
 
 class Canvas_TicTacToe(Canvas):
     """Play a 3x3 TicTacToe game on HTML canvas
-    TODO: Add restart button
     """
     def __init__(self, varname, player_1='human', player_2='random',
                  width=300, height=350, cid=None):
@@ -232,4 +231,92 @@ class Canvas_TicTacToe(Canvas):
         self.stroke(255, 0, 0)
         x, y = [i-1 for i in position]
         self.arc_n(x/3 + 1/6, (y/3 + 1/6)*6/7, 1/9, 0, 360)
-    
+
+
+class Canvas_minimax(Canvas):
+    """Minimax for Fig52 on HTML canvas
+    """
+    def __init__(self, varname, utils, width=600, height=400, cid=None):
+        Canvas.__init__(self, varname, width, height, cid)
+        self.utils = utils
+        self.nodes = ['A', 'B', 'C', 'D', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3', 'D1', 'D2', 'D3']
+        self.node_pos = {'A': (0.475, 0.1)}
+        for i in range(3):
+            self.node_pos[self.nodes[i + 1]] = (i/3 + 1/6 - 0.025, 0.5)
+        for i in range(9):
+            self.node_pos[self.nodes[i + 4]] = (i/9 + 1/18 - 0.025, 0.8)
+        self.font("15px Arial")
+        self.context = 'A'
+        self.thicklines = []
+        self.draw_graph()
+
+    def mouse_click(self, x, y):
+        if self.context == 'A':
+            if 'D' in self.utils:
+                max_node = max(['B', 'C', 'D'], key=lambda x: self.utils[x])
+                self.utils['A'] = self.utils[max_node]
+                i = 0 if max_node == 'B' else 1 if max_node == 'C' else 2
+                self.thicklines.append((0.5, 0.15, i/3 + 1/6, 0.5, [0, 255, 0]))
+            else:
+                self.context = 'B'
+        elif self.context == 'B':
+            if 'B' in self.utils:
+                self.context = 'C'
+            else:
+                min_node = min(['B1', 'B2', 'B3'], key=lambda x: self.utils[x])
+                self.utils['B'] = self.utils[min_node]
+                i = int(min_node[1]) - 1
+                self.thicklines.append((1/6, 0.55, i/9 + 1/18, 0.8, [0, 0, 255]))
+        elif self.context == 'C':
+            if 'C' in self.utils:
+                self.context = 'D'
+            else:
+                min_node = min(['C1', 'C2', 'C3'], key=lambda x: self.utils[x])
+                self.utils['C'] = self.utils[min_node]
+                i = int(min_node[1]) - 1
+                self.thicklines.append((1/3 + 1/6, 0.55, i/9 + 1/3 + 1/18, 0.8, [0, 0, 255]))
+        elif self.context == 'D':
+            if 'D' in self.utils:
+                self.context = 'A'
+            else:
+                min_node = min(['D1', 'D2', 'D3'], key=lambda x: self.utils[x])
+                self.utils['D'] = self.utils[min_node]
+                i = int(min_node[1]) - 1
+                self.thicklines.append((2/3 + 1/6, 0.55, i/9 + 2/3 + 1/18, 0.8, [0, 0, 255]))
+        self.draw_graph()
+
+    def draw_graph(self):
+        self.clear()
+        # highlight for current nodes
+        self.fill(200, 200, 0)
+        pos = self.node_pos[self.context]
+        self.rect_n(pos[0] - 0.01, pos[1] - 0.01, 0.07, 0.07)
+        # draw nodes
+        self.stroke(0, 0, 0)
+        self.strokeWidth(1)
+        for node in self.nodes:
+            pos = self.node_pos[node]
+            if node in self.utils:
+                self.fill(255, 255, 255)
+            else:
+                self.fill(255, 0, 0)
+            self.rect_n(pos[0], pos[1], 0.05, 0.05)
+            self.line_n(pos[0], pos[1], pos[0] + 0.05, pos[1])
+            self.line_n(pos[0], pos[1], pos[0], pos[1] + 0.05)
+            self.line_n(pos[0] + 0.05, pos[1] + 0.05, pos[0] + 0.05, pos[1])
+            self.line_n(pos[0] + 0.05, pos[1] + 0.05, pos[0], pos[1] + 0.05)
+            self.fill(0, 0, 0)
+            if node in self.utils:
+                self.text_n(self.utils[node], pos[0] + 0.005, pos[1] + 0.045)
+        #draw edges
+        for i in range(3):
+            self.stroke(0, 255, 0)
+            self.line_n(0.5, 0.15, i/3 + 1/6, 0.5)
+            self.stroke(0, 0, 255)
+            for j in range(3):
+                self.line_n(i/3 + 1/6, 0.55, (i*3 + j)/9 + 1/18, 0.8)
+        self.strokeWidth(3)
+        for x1, y1, x2, y2, color in self.thicklines:
+            self.stroke(*color)
+            self.line_n(x1, y1, x2, y2)
+        self.update()
