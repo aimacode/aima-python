@@ -835,6 +835,15 @@ class GraphProblem(Problem):
     def path_cost(self, cost_so_far, A, action, B):
         return cost_so_far + (self.graph.get(A, B) or infinity)
 
+    def find_min_edge(self):
+        """Find minimum value of edges."""
+        m = infinity
+        for d in self.graph.dict.values():
+            local_min = min(d.values())
+            m = min(m, local_min)
+
+        return m
+
     def h(self, node):
         """h function is straight-line distance from a node's state to goal."""
         locs = getattr(self.graph, 'locations', None)
