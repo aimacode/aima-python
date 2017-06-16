@@ -4,7 +4,6 @@ from collections import namedtuple
 import random
 
 from utils import argmax
-from canvas import Canvas
 
 infinity = float('inf')
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
@@ -238,6 +237,30 @@ class Fig52Game(Game):
         return 'MIN' if state in 'BCD' else 'MAX'
 
 
+class Fig52Extended(Game):
+    """Similar to Fig52Game but bigger. Useful for visualisation"""
+
+    succs = {i:dict(l=i*3+1, m=i*3+2, r=i*3+3) for i in range(13)}
+    utils = dict()
+
+    def actions(self, state):
+        return list(self.succs.get(state, {}).keys())
+
+    def result(self, state, move):
+        return self.succs[state][move]
+
+    def utility(self, state, player):
+        if player == 'MAX':
+            return self.utils[state]
+        else:
+            return -self.utils[state]
+
+    def terminal_test(self, state):
+        return state not in range(13)
+
+    def to_move(self, state):
+        return 'MIN' if state in {1, 2, 3} else 'MAX'
+
 class TicTacToe(Game):
     """Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move, a cached utility, a list of moves in
@@ -258,9 +281,7 @@ class TicTacToe(Game):
 
     def result(self, state, move):
         if move not in state.moves:
-            return GameState(to_move=('O' if state.to_move == 'X' else 'X'),
-                             utility=self.compute_utility(state.board, move, state.to_move),
-                             board=state.board, moves=state.moves)  # Illegal move has no effect
+            return state  # Illegal move has no effect
         board = state.board.copy()
         board[move] = state.to_move
         moves = list(state.moves)
@@ -321,80 +342,3 @@ class ConnectFour(TicTacToe):
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
                 if y == 1 or (x, y - 1) in state.board]
-
-
-class Canvas_TicTacToe(Canvas):
-    """Play a 3x3 TicTacToe game on HTML canvas
-    TODO: Add restart button
-    """
-    def __init__(self, varname, player_1='human', player_2='random', id=None,
-                 width=300, height=300):
-        valid_players = ('human', 'random', 'alphabeta')
-        if player_1 not in valid_players or player_2 not in valid_players:
-            raise TypeError("Players must be one of {}".format(valid_players))
-        Canvas.__init__(self, varname, id, width, height)
-        self.ttt = TicTacToe()
-        self.state = self.ttt.initial
-        self.turn = 0
-        self.strokeWidth(5)
-        self.players = (player_1, player_2)
-        self.draw_board()
-        self.font("Ariel 30px")
-
-    def mouse_click(self, x, y):
-        player = self.players[self.turn]
-        if self.ttt.terminal_test(self.state):
-            return
-
-        if player == 'human':
-            x, y = int(3*x/self.width) + 1, int(3*y/self.height) + 1
-            if (x, y) not in self.ttt.actions(self.state):
-                # Invalid move
-                return
-            move = (x, y)
-        elif player == 'alphabeta':
-            move = alphabeta_player(self.ttt, self.state)
-        else:
-            move = random_player(self.ttt, self.state)
-        self.state = self.ttt.result(self.state, move)
-        self.turn ^= 1
-        self.draw_board()
-
-    def draw_board(self):
-        self.clear()
-        self.stroke(0, 0, 0)
-        offset = 1/20
-        self.line_n(0 + offset, 1/3, 1 - offset, 1/3)
-        self.line_n(0 + offset, 2/3, 1 - offset, 2/3)
-        self.line_n(1/3, 0 + offset, 1/3, 1 - offset)
-        self.line_n(2/3, 0 + offset, 2/3, 1 - offset)
-        board = self.state.board
-        for mark in board:
-            if board[mark] == 'X':
-                self.draw_x(mark)
-            elif board[mark] == 'O':
-                self.draw_o(mark)
-        if self.ttt.terminal_test(self.state):
-            # End game message
-            utility = self.ttt.utility(self.state, self.ttt.to_move(self.ttt.initial))
-            if utility == 0:
-                self.text_n('Game Draw!', 0.1, 0.1)
-            else:
-                self.text_n('Player {} wins!'.format(1 if utility > 0 else 2), 0.1, 0.1)
-        else:  # Print which player's turn it is
-            self.text_n("Player {}'s move({})".format(self.turn+1, self.players[self.turn]),
-                        0.1, 0.1)
-
-        self.update()
-
-    def draw_x(self, position):
-        self.stroke(0, 255, 0)
-        x, y = [i-1 for i in position]
-        offset = 1/15
-        self.line_n(x/3 + offset, y/3 + offset, x/3 + 1/3 - offset, y/3 + 1/3 - offset)
-        self.line_n(x/3 + 1/3 - offset, y/3 + offset, x/3 + offset, y/3 + 1/3 - offset)
-
-    def draw_o(self, position):
-        self.stroke(255, 0, 0)
-        x, y = [i-1 for i in position]
-        self.arc_n(x/3 + 1/6, y/3 + 1/6, 1/9, 0, 360)
