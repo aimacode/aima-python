@@ -7,6 +7,10 @@ vacumm_world = GraphProblemStochastic('State_1', ['State_7', 'State_8'], vacumm_
 LRTA_problem = OnlineSearchProblem('State_3', 'State_5', one_dim_state_space)
 
 
+def test_find_min_edge():
+    assert romania_problem.find_min_edge() == 70
+
+
 def test_breadth_first_tree_search():
     assert breadth_first_tree_search(
         romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
