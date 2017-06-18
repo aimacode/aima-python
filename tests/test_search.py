@@ -43,6 +43,10 @@ def test_depth_limited_search():
     assert solution_50[-1] == 'Bucharest'
 
 
+def test_bidirectional_search():
+    assert bidirectional_search(romania_problem) == 418
+
+
 def test_astar_search():
     assert astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
 
