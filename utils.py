@@ -651,7 +651,31 @@ class hashabledict(dict):
 # ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
 
+# TODO: queue.PriorityQueue
 # TODO: Priority queues may not belong here -- see treatment in search.py
+
+
+class Queue:
+
+    """Queue is an abstract class/interface. There are three types:
+        Stack(): A Last In First Out Queue.
+        FIFOQueue(): A First In First Out Queue.
+        PriorityQueue(order, f): Queue in sorted order (default min-first).
+    Each type supports the following methods and functions:
+        q.append(item)  -- add an item to the queue
+        q.extend(items) -- equivalent to: for item in items: q.append(item)
+        q.pop()         -- return the top item from the queue
+        len(q)          -- number of items in q (also q.__len())
+        item in q       -- does q contain item?
+    Note that isinstance(Stack(), Queue) is false, because we implement stacks
+    as lists.  If Python ever gets interfaces, Queue will be an interface."""
+
+    def __init__(self):
+        raise NotImplementedError
+
+    def extend(self, items):
+        for item in items:
+            self.append(item)
 
 
 def Stack():
@@ -659,15 +683,15 @@ def Stack():
     return []
 
 
-class FIFOQueue(collections.deque):
+class FIFOQueue(collections.deque, Queue):
 
     """A First-In-First-Out Queue."""
-    
+
     def pop(self):
         return super().popleft()
 
 
-class PriorityQueue():
+class PriorityQueue(Queue):
 
     """A queue in which the minimum (or maximum) element (as determined by f and
     order) is returned first. If order is min, the item with minimum f(x) is
@@ -682,18 +706,14 @@ class PriorityQueue():
     def append(self, item):
         bisect.insort(self.A, (self.f(item), item))
 
-    def extend(self, items):
-        for item in items:
-            self.A.append(item)
+    def __len__(self):
+        return len(self.A)
 
     def pop(self):
         if self.order == min:
             return self.A.pop(0)[1]
         else:
             return self.A.pop()[1]
-
-    def __len__(self):
-        return len(self.A)
 
     def __contains__(self, item):
         return any(item == pair[1] for pair in self.A)
