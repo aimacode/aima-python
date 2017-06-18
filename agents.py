@@ -42,12 +42,13 @@ import random
 import copy
 import collections
 
+
 # ______________________________________________________________________________
 
 
 class Thing:
     """This represents any physical object that can appear in an Environment.
-    You subclass Thing to get the things you want.  Each thing can have a
+    You subclass Thing to get the things you want. Each thing can have a
     .__name__  slot (used for output only)."""
 
     def __repr__(self):
@@ -58,7 +59,7 @@ class Thing:
         return hasattr(self, 'alive') and self.alive
 
     def show_state(self):
-        """Display the agent's internal state.  Subclasses should override."""
+        """Display the agent's internal state. Subclasses should override."""
         print("I don't know how to show_state.")
 
     def display(self, canvas, x, y, width, height):
@@ -72,10 +73,10 @@ class Agent(Thing):
     .program, which should hold a function that takes one argument, the
     percept, and returns an action. (What counts as a percept or action
     will depend on the specific environment in which the agent exists.)
-    Note that 'program' is a slot, not a method.  If it were a method,
+    Note that 'program' is a slot, not a method. If it were a method,
     then the program could 'cheat' and look at aspects of the agent.
     It's not supposed to do that: the program can only look at the
-    percepts.  An agent program that needs a model of the world (and of
+    percepts. An agent program that needs a model of the world (and of
     the agent itself) will have to build and maintain its own model.
     There is an optional slot, .performance, which is a number giving
     the performance measure of the agent in its environment."""
@@ -225,7 +226,7 @@ def ModelBasedVacuumAgent():
 
 
 class Environment:
-    """Abstract class representing an Environment.  'Real' Environment classes
+    """Abstract class representing an Environment. 'Real' Environment classes
     inherit from this. Your Environment will typically need to implement:
         percept:           Define the percept that an agent sees.
         execute_action:    Define the effects of executing an action.
@@ -365,20 +366,20 @@ class Direction:
     def move_forward(self, from_location):
         x, y = from_location
         if self.direction == self.R:
-            return (x+1, y)
+            return (x + 1, y)
         elif self.direction == self.L:
-            return (x-1, y)
+            return (x - 1, y)
         elif self.direction == self.U:
-            return (x, y-1)
+            return (x, y - 1)
         elif self.direction == self.D:
-            return (x, y+1)
+            return (x, y + 1)
 
 
 class XYEnvironment(Environment):
     """This class is for environments on a 2D plane, with locations
     labelled by (x, y) points, either discrete or continuous.
 
-    Agents perceive things within a radius.  Each agent in the
+    Agents perceive things within a radius. Each agent in the
     environment has a .location slot which should be a location such
     as (0, 1), and a .holding slot, which should be a list of things
     that are held."""
@@ -411,9 +412,9 @@ class XYEnvironment(Environment):
     def execute_action(self, agent, action):
         agent.bump = False
         if action == 'TurnRight':
-            agent.direction = agent.direction + Direction.R
+            agent.direction += Direction.R
         elif action == 'TurnLeft':
-            agent.direction = agent.direction + Direction.L
+            agent.direction += Direction.L
         elif action == 'Forward':
             agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
 #         elif action == 'Grab':
@@ -527,8 +528,8 @@ except:
 
 class GraphicEnvironment(XYEnvironment):
     def __init__(self, width=10, height=10, boundary=True, color={}, display=False):
-        """define all the usual XYEnvironment characteristics,
-        but initialise a BlockGrid for GUI too"""
+        """Define all the usual XYEnvironment characteristics,
+        but initialise a BlockGrid for GUI too."""
         super().__init__(width, height)
         self.grid = BlockGrid(width, height, fill=(200, 200, 200))
         if display:
@@ -541,7 +542,7 @@ class GraphicEnvironment(XYEnvironment):
 
     def get_world(self):
         """Returns all the items in the world in a format
-        understandable by the ipythonblocks BlockGrid"""
+        understandable by the ipythonblocks BlockGrid."""
         result = []
         x_start, y_start = (0, 0)
         x_end, y_end = self.width, self.height
@@ -552,7 +553,8 @@ class GraphicEnvironment(XYEnvironment):
             result.append(row)
         return result
 
-    """def run(self, steps=1000, delay=1):
+    """
+    def run(self, steps=1000, delay=1):
         "" "Run the Environment for given number of time steps,
         but update the GUI too." ""
         for step in range(steps):
@@ -567,6 +569,7 @@ class GraphicEnvironment(XYEnvironment):
         if self.visible:
             self.reveal()
     """
+
     def run(self, steps=1000, delay=1):
         """Run the Environment for given number of time steps,
         but update the GUI too."""
@@ -586,8 +589,8 @@ class GraphicEnvironment(XYEnvironment):
             self.reveal()
 
     def reveal(self):
-        """display the BlockGrid for this world - the last thing to be added
-        at a location defines the location color"""
+        """Display the BlockGrid for this world - the last thing to be added
+        at a location defines the location color."""
         self.draw_world()
         self.grid.show()
         self.visible = True
@@ -601,7 +604,7 @@ class GraphicEnvironment(XYEnvironment):
                     self.grid[y, x] = self.colors[world[x][y][-1].__class__.__name__]
 
     def conceal(self):
-        """hide the BlockGrid for this world"""
+        """Hide the BlockGrid for this world"""
         self.visible = False
         display(HTML(''))
 
@@ -610,7 +613,7 @@ class GraphicEnvironment(XYEnvironment):
 # Continuous environment
 
 class ContinuousWorld(Environment):
-    """Model for Continuous World."""
+    """Model for Continuous World"""
 
     def __init__(self, width=10, height=10):
         super().__init__()
@@ -624,7 +627,7 @@ class ContinuousWorld(Environment):
 class PolygonObstacle(Obstacle):
 
     def __init__(self, coordinates):
-        """ Coordinates is a list of tuples."""
+        """Coordinates is a list of tuples."""
         super().__init__()
         self.coordinates = coordinates
 
@@ -676,7 +679,7 @@ class VacuumEnvironment(XYEnvironment):
 class TrivialVacuumEnvironment(Environment):
 
     """This environment has two locations, A and B. Each can be Dirty
-    or Clean.  The agent perceives its location and the location's
+    or Clean. The agent perceives its location and the location's
     status. This serves as an example of how to implement a simple
     Environment."""
 
@@ -776,7 +779,7 @@ class WumpusEnvironment(XYEnvironment):
         self.init_world(agent_program)
 
     def init_world(self, program):
-        """Spawn items to the world based on probabilities from the book"""
+        """Spawn items in the world based on probabilities from the book"""
 
         "WALLS"
         self.add_walls()
@@ -830,6 +833,7 @@ class WumpusEnvironment(XYEnvironment):
             Wall: Bump(),
             Wumpus: Stench(),
             Pit: Breeze()}
+
         """Agents don't need to get their percepts"""
         thing_percepts[agent.__class__] = None
 
@@ -852,7 +856,7 @@ class WumpusEnvironment(XYEnvironment):
         result.append(self.percepts_from(agent, (x, y + 1)))
         result.append(self.percepts_from(agent, (x, y)))
 
-        """The wumpus gives out a a loud scream once it's killed."""
+        """The wumpus gives out a loud scream once it's killed."""
         wumpus = [thing for thing in self.things if isinstance(thing, Wumpus)]
         if len(wumpus) and not wumpus[0].alive and not wumpus[0].screamed:
             result[-1].append(Scream())
@@ -869,10 +873,10 @@ class WumpusEnvironment(XYEnvironment):
 
         agent.bump = False
         if action == 'TurnRight':
-            agent.direction = agent.direction + Direction.R
+            agent.direction += Direction.R
             agent.performance -= 1
         elif action == 'TurnLeft':
-            agent.direction = agent.direction + Direction.L
+            agent.direction += Direction.L
             agent.performance -= 1
         elif action == 'Forward':
             agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
@@ -917,17 +921,18 @@ class WumpusEnvironment(XYEnvironment):
         or if he climbs out of the cave only at (1,1)."""
         explorer = [agent for agent in self.agents if isinstance(agent, Explorer)]
         if len(explorer):
-                if explorer[0].alive:
-                    return False
-                else:
-                    print("Death by {} [-1000].".format(explorer[0].killed_by))
+            if explorer[0].alive:
+                return False
+            else:
+                print("Death by {} [-1000].".format(explorer[0].killed_by))
         else:
             print("Explorer climbed out {}."
                   .format(
                       "with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"))
         return True
 
-    # Almost done. Arrow needs to be implemented
+
+    # TODO: Arrow needs to be implemented
 # ______________________________________________________________________________
 
 
