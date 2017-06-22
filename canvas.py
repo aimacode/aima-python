@@ -1,6 +1,7 @@
 from IPython.display import HTML, display
 from utils import argmax, argmin
 from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, infinity
+from logic import parse_definite_clause, standardize_variables, unify, subst
 
 _canvas = """
 <script type="text/javascript" src="./js/canvas.js"></script>
@@ -525,4 +526,127 @@ class Canvas_alphabeta(Canvas):
                 alpha, beta = self.ab[node]
                 self.text_n(alpha, x - self.l/2, y - self.l/10)
                 self.text_n(beta, x + self.l, y - self.l/10)
+        self.update()
+
+
+class Canvas_fol_bc_ask(Canvas):
+    """fol_bc_ask() on HTML canvas
+    """
+    def __init__(self, varname, kb, query, width=800, height=600, cid=None):
+        Canvas.__init__(self, varname, width, height, cid)
+        self.kb = kb
+        self.query = query
+        self.l = 1/20
+        self.b = 3*self.l
+        bc_out = list(self.fol_bc_ask())
+        if len(bc_out) is 0:
+            self.valid = False
+        else:
+            self.valid = True
+            graph = bc_out[0][0][0]
+            s = bc_out[0][1]
+            while True:
+                new_graph = subst(s, graph)
+                if graph == new_graph:
+                    break
+                graph = new_graph
+            self.make_table(graph)
+        self.context = None
+        self.draw_table()
+
+    def fol_bc_ask(self):
+        KB = self.kb
+        query = self.query
+        def fol_bc_or(KB, goal, theta):
+            for rule in KB.fetch_rules_for_goal(goal):
+                lhs, rhs = parse_definite_clause(standardize_variables(rule))
+                for theta1 in fol_bc_and(KB, lhs, unify(rhs, goal, theta)):
+                    yield ([(goal, theta1[0])], theta1[1])
+
+        def fol_bc_and(KB, goals, theta):
+            if theta is None:
+                pass
+            elif not goals:
+                yield ([], theta)
+            else:
+                first, rest = goals[0], goals[1:]
+                for theta1 in fol_bc_or(KB, subst(theta, first), theta):
+                    for theta2 in fol_bc_and(KB, rest, theta1[1]):
+                        yield (theta1[0] + theta2[0], theta2[1])
+
+        return fol_bc_or(KB, query, {})
+
+    def make_table(self, graph):
+        table = []
+        pos = {}
+        links = set()
+        edges = set()
+
+        def dfs(node, depth):
+            if len(table) <= depth:
+                table.append([])
+            pos = len(table[depth])
+            table[depth].append(node[0])
+            for child in node[1]:
+                child_id = dfs(child, depth + 1)
+                links.add(((depth, pos), child_id))
+            return (depth, pos)
+
+        dfs(graph, 0)
+        y_off = 0.85/len(table)
+        for i, row in enumerate(table):
+            x_off = 0.95/len(row)
+            for j, node in enumerate(row):
+                pos[(i, j)] = (0.025 + j*x_off + (x_off - self.b)/2, 0.025 + i*y_off + (y_off - self.l)/2)
+        for p, c in links:
+            x1, y1 = pos[p]
+            x2, y2 = pos[c]
+            edges.add((x1 + self.b/2, y1 + self.l, x2 + self.b/2, y2))
+
+        self.table = table
+        self.pos = pos
+        self.edges = edges
+
+    def mouse_click(self, x, y):
+        x, y = x/self.width, y/self.height
+        for node in self.pos:
+            xs, ys = self.pos[node]
+            xe, ye = xs + self.b, ys + self.l
+            if xs <= x <= xe and ys <= y <= ye:
+                self.context = node
+                break
+        self.draw_table()
+
+    def draw_table(self):
+        self.clear()
+        self.strokeWidth(3)
+        self.stroke(0, 0, 0)
+        self.font("12px Arial")
+        if self.valid:
+            # draw nodes
+            for i, j in self.pos:
+                x, y = self.pos[(i, j)]
+                self.fill(200, 200, 200)
+                self.rect_n(x, y, self.b, self.l)
+                self.line_n(x, y, x + self.b, y)
+                self.line_n(x, y, x, y + self.l)
+                self.line_n(x + self.b, y, x + self.b, y + self.l)
+                self.line_n(x, y + self.l, x + self.b, y + self.l)
+                self.fill(0, 0, 0)
+                self.text_n(self.table[i][j], x + 0.01, y + self.l - 0.01)
+            #draw edges
+            for x1, y1, x2, y2 in self.edges:
+                self.line_n(x1, y1, x2, y2)
+        else:
+            self.fill(255, 0, 0)
+            self.rect_n(0, 0, 1, 1)
+        # text area
+        self.fill(255, 255, 255)
+        self.rect_n(0, 0.9, 1, 0.1)
+        self.strokeWidth(5)
+        self.stroke(0, 0, 0)
+        self.line_n(0, 0.9, 1, 0.9)
+        self.font("22px Arial")
+        self.fill(0, 0, 0)
+        self.text_n(self.table[self.context[0]][self.context[1]] if self.context else "Click for text", 0.025, 0.975)
         self.update()
