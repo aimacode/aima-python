@@ -196,7 +196,8 @@ def tt_entails(kb, alpha):
     True
     """
     assert not variables(alpha)
-    return tt_check_all(kb, alpha, prop_symbols(kb & alpha), {})
+    symbols = prop_symbols(kb & alpha)
+    return tt_check_all(kb, alpha, symbols, {})
 
 
 def tt_check_all(kb, alpha, symbols, model):
