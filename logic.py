@@ -997,16 +997,6 @@ crime_kb = FolKB(
                'Enemy(Nono, America)'
                ]))
 
-smalltest_kb = FolKB(
-    map(expr, ['Human(Mary)',
-               'Female(x) ==> Likes(x, Chocolate)',
-               'Male(x) ==> Likes(x, IceCream)',
-               'Wife(x, y) & Human(x) ==> Female(x)',
-               'Wife(y, x) & Human(x) ==> Male(x)',
-               'Human(John)',
-               'Wife(Mary, John)'
-               ]))
-
 # ______________________________________________________________________________
 
 # Example application (not in the book).
