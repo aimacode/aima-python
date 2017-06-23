@@ -58,46 +58,24 @@ def test_PropKB():
     assert kb.ask(C) is False
 
 
-def test_KB_wumpus():
-    # A simple KB that defines the relevant conditions of the Wumpus World as in Fig 7.4.
-    # See Sec. 7.4.3
-    kb_wumpus = PropKB()
-
-    # Creating the relevant expressions
-    # TODO: Let's just use P11, P12, ... = symbols('P11, P12, ...')
-    P = {}
-    B = {}
-    P[1, 1] = Symbol("P[1,1]")
-    P[1, 2] = Symbol("P[1,2]")
-    P[2, 1] = Symbol("P[2,1]")
-    P[2, 2] = Symbol("P[2,2]")
-    P[3, 1] = Symbol("P[3,1]")
-    B[1, 1] = Symbol("B[1,1]")
-    B[2, 1] = Symbol("B[2,1]")
-
-    kb_wumpus.tell(~P[1, 1])
-    kb_wumpus.tell(B[1, 1] | '<=>' | ((P[1, 2] | P[2, 1])))
-    kb_wumpus.tell(B[2, 1] | '<=>' | ((P[1, 1] | P[2, 2] | P[3, 1])))
-    kb_wumpus.tell(~B[1, 1])
-    kb_wumpus.tell(B[2, 1])
-
+def test_wumpus_kb():
     # Statement: There is no pit in [1,1].
-    assert kb_wumpus.ask(~P[1, 1]) == {}
+    assert wumpus_kb.ask(~P11) == {}
 
     # Statement: There is no pit in [1,2].
-    assert kb_wumpus.ask(~P[1, 2]) == {}
+    assert wumpus_kb.ask(~P12) == {}
 
     # Statement: There is a pit in [2,2].
-    assert kb_wumpus.ask(P[2, 2]) is False
+    assert wumpus_kb.ask(P22) is False
 
     # Statement: There is a pit in [3,1].
-    assert kb_wumpus.ask(P[3, 1]) is False
+    assert wumpus_kb.ask(P31) is False
 
     # Statement: Neither [1,2] nor [2,1] contains a pit.
-    assert kb_wumpus.ask(~P[1, 2] & ~P[2, 1]) == {}
+    assert wumpus_kb.ask(~P12 & ~P21) == {}
 
     # Statement: There is a pit in either [2,2] or [3,1].
-    assert kb_wumpus.ask(P[2, 2] | P[3, 1]) == {}
+    assert wumpus_kb.ask(P22 | P31) == {}
 
 
 def test_is_definite_clause():
