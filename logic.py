@@ -196,7 +196,8 @@ def tt_entails(kb, alpha):
     True
     """
     assert not variables(alpha)
-    return tt_check_all(kb, alpha, prop_symbols(kb & alpha), {})
+    symbols = prop_symbols(kb & alpha)
+    return tt_check_all(kb, alpha, symbols, {})
 
 
 def tt_check_all(kb, alpha, symbols, model):
@@ -971,6 +972,17 @@ def fol_bc_and(KB, goals, theta):
                 yield theta2
 
 
+# A simple KB that defines the relevant conditions of the Wumpus World as in Fig 7.4.
+# See Sec. 7.4.3
+wumpus_kb = PropKB()
+
+P11, P12, P21, P22, P31, B11, B21 = expr('P11, P12, P21, P22, P31, B11, B21')
+wumpus_kb.tell(~P11)
+wumpus_kb.tell(B11 | '<=>' | ((P12 | P21)))
+wumpus_kb.tell(B21 | '<=>' | ((P11 | P22 | P31)))
+wumpus_kb.tell(~B11)
+wumpus_kb.tell(B21)
+
 test_kb = FolKB(
     map(expr, ['Farmer(Mac)',
                'Rabbit(Pete)',
@@ -995,16 +1007,6 @@ crime_kb = FolKB(
                'Enemy(x, America) ==> Hostile(x)',
                'American(West)',
                'Enemy(Nono, America)'
-               ]))
-
-smalltest_kb = FolKB(
-    map(expr, ['Human(Mary)',
-               'Female(x) ==> Likes(x, Chocolate)',
-               'Male(x) ==> Likes(x, IceCream)',
-               'Wife(x, y) & Human(x) ==> Female(x)',
-               'Wife(y, x) & Human(x) ==> Male(x)',
-               'Human(John)',
-               'Wife(Mary, John)'
                ]))
 
 # ______________________________________________________________________________
