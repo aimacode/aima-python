@@ -683,9 +683,18 @@ def Stack():
     return []
 
 
-class FIFOQueue(collections.deque, Queue):
+class FIFOQueue(Queue, collections.deque):
 
     """A First-In-First-Out Queue."""
+
+    def __init__(self, maxlen=None, items=[]):
+        self.queue = collections.deque(items, maxlen)
+
+    def append(self, item):
+        return super().append(item)
+
+    def extend(self, items):
+        return super().extend(items)
 
     def pop(self):
         return super().popleft()
