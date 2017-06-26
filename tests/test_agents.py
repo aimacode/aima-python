@@ -1,7 +1,11 @@
+import random
 from agents import Direction
 from agents import Agent
 from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
                    RandomVacuumAgent
+
+
+random.seed("aima-python")
 
 
 def test_move_forward():
