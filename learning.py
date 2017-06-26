@@ -942,9 +942,9 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     """[Fig 18.8]
     Return the optimal value of size having minimum error
-    on validataion set.
+    on validation set.
     err_train: A training error array, indexed by size
-    err_val: A validataion error array, indexed by size
+    err_val: A validation error array, indexed by size
     """
     err_val = []
     err_train = []

@@ -108,7 +108,7 @@ def test_naive_bayes():
 
 def test_k_nearest_neighbors():
     iris = DataSet(name="iris")
-    kNN = NearestNeighborLearner(iris,k=3)
+    kNN = NearestNeighborLearner(iris, k=3)
     assert kNN([5, 3, 1, 0.1]) == "setosa"
     assert kNN([5, 3, 1, 0.1]) == "setosa"
     assert kNN([6, 5, 3, 1.5]) == "versicolor"
