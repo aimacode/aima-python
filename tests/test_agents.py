@@ -1,6 +1,11 @@
+import random
 from agents import Direction
 from agents import Agent
-from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment
+from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
+                   RandomVacuumAgent
+
+
+random.seed("aima-python")
 
 
 def test_move_forward():
@@ -50,6 +55,19 @@ def test_add():
     assert l2.direction == Direction.D
 
 
+def test_RandomVacuumAgent() :
+    # create an object of the RandomVacuumAgent
+    agent = RandomVacuumAgent()
+    # create an object of TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # add agent to the environment
+    environment.add_thing(agent)
+    # run the environment
+    environment.run()
+    # check final status of the environment
+    assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+
+
 def test_ReflexVacuumAgent() :
     # create an object of the ReflexVacuumAgent
     agent = ReflexVacuumAgent()
@@ -74,6 +92,23 @@ def test_ModelBasedVacuumAgent() :
     environment.run()
     # check final status of the environment
     assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+
+
+def test_compare_agents() :
+    environment = TrivialVacuumEnvironment
+    agents = [ModelBasedVacuumAgent, ReflexVacuumAgent]
+
+    result = compare_agents(environment, agents)
+    performance_ModelBasedVacummAgent = result[0][1]
+    performance_ReflexVacummAgent = result[1][1]
+
+    # The performance of ModelBasedVacuumAgent will be at least as good as that of
+    # ReflexVacuumAgent, since ModelBasedVacuumAgent can identify when it has
+    # reached the terminal state (both locations being clean) and will perform
+    # NoOp leading to 0 performance change, whereas ReflexVacuumAgent cannot
+    # identify the terminal state and thus will keep moving, leading to worse
+    # performance compared to ModelBasedVacuumAgent.
+    assert performance_ReflexVacummAgent <= performance_ModelBasedVacummAgent
 
 
 def test_Agent():
