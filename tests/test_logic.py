@@ -220,6 +220,11 @@ def test_to_cnf():
     assert repr(to_cnf("A | (B | (C | (D & E)))")) == '((D | A | B | C) & (E | A | B | C))'
 
 
+def test_pl_resolution():
+    # TODO: Add fast test cases
+    assert pl_resolution(wumpus_kb, ~P11)
+
+
 def test_standardize_variables():
     e = expr('F(a, b, c) & G(c, A, 23)')
     assert len(variables(standardize_variables(e))) == 3
