@@ -9,9 +9,9 @@ from utils import isclose, open_data
 def test_text_models():
     flatland = open_data("EN-text/flatland.txt").read()
     wordseq = words(flatland)
-    P1 = UnigramTextModel(wordseq)
-    P2 = NgramTextModel(2, wordseq)
-    P3 = NgramTextModel(3, wordseq)
+    P1 = UnigramWordModel(wordseq)
+    P2 = NgramWordModel(2, wordseq)
+    P3 = NgramWordModel(3, wordseq)
 
     # The most frequent entries in each model
     assert P1.top(10) == [(2081, 'the'), (1479, 'of'), (1021, 'and'),
@@ -50,14 +50,14 @@ def test_text_models():
     test_string = 'unigram'
     wordseq = words(test_string)
 
-    P1 = UnigramTextModel(wordseq)
+    P1 = UnigramWordModel(wordseq)
 
     assert P1.dictionary == {('unigram'): 1}
 
     test_string = 'bigram text'
     wordseq = words(test_string)
 
-    P2 = NgramTextModel(2, wordseq)
+    P2 = NgramWordModel(2, wordseq)
 
     assert (P2.dictionary == {('', 'bigram'): 1, ('bigram', 'text'): 1} or
             P2.dictionary == {('bigram', 'text'): 1, ('', 'bigram'): 1})
@@ -66,7 +66,7 @@ def test_text_models():
     test_string = 'test trigram text'
     wordseq = words(test_string)
 
-    P3 = NgramTextModel(3, wordseq)
+    P3 = NgramWordModel(3, wordseq)
 
     assert ('', '', 'test') in P3.dictionary
     assert ('', 'test', 'trigram') in P3.dictionary
@@ -75,13 +75,14 @@ def test_text_models():
 
 
 def test_char_models():
-    test_string = 'unigram'
+    test_string = 'test unigram'
     wordseq = words(test_string)
-    P1 = NgramCharModel(1, wordseq)
+    P1 = UnigramCharModel(wordseq)
 
-    assert len(P1.dictionary) == len(test_string)
-    for char in test_string:
-        assert tuple(char) in P1.dictionary
+    expected_unigrams = {'n': 1, 's': 1, 'e': 1, 'i': 1, 'm': 1, 'g': 1, 'r': 1, 'a': 1, 't': 2, 'u': 1}
+    assert len(P1.dictionary) == len(expected_unigrams)
+    for char in test_string.replace(' ', ''):
+        assert char in P1.dictionary
 
     test_string = 'a b c'
     wordseq = words(test_string)
@@ -143,7 +144,7 @@ def test_char_models():
 def test_viterbi_segmentation():
     flatland = open_data("EN-text/flatland.txt").read()
     wordseq = words(flatland)
-    P = UnigramTextModel(wordseq)
+    P = UnigramWordModel(wordseq)
     text = "itiseasytoreadwordswithoutspaces"
 
     s, p = viterbi_segment(text, P)
