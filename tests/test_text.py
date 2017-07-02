@@ -40,7 +40,6 @@ def test_text_models():
     assert isclose(P2['of', 'the'], 0.0108, rel_tol=0.01)
 
     assert isclose(P3['', '', 'but'], 0.0, rel_tol=0.001)
-    assert isclose(P3['', '', 'but'], 0.0, rel_tol=0.001)
     assert isclose(P3['so', 'as', 'to'], 0.000323, rel_tol=0.001)
 
     assert P2.cond_prob.get(('went',)) is None
