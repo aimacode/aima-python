@@ -2,6 +2,147 @@ from IPython.display import HTML, display
 from utils import argmax, argmin
 from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, infinity
 from logic import parse_definite_clause, standardize_variables, unify, subst
+from learning import DataSet
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+
+import os, struct
+import array
+import numpy as np
+from collections import Counter
+
+
+# ______________________________________________________________________________
+
+
+def show_iris(i=0, j=1, k=2):
+    '''Plots the iris dataset in a 3D plot.
+    The three axes are given by i, j and k,
+    which correspond to three of the four iris features.'''
+    plt.rcParams.update(plt.rcParamsDefault)
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    iris = DataSet(name="iris")
+    buckets = iris.split_values_by_classes()
+
+    features = ["Sepal Length", "Sepal Width", "Petal Length", "Petal Width"]
+    f1, f2, f3 = features[i], features[j], features[k]
+
+    a_setosa = [v[i] for v in buckets["setosa"]]
+    b_setosa = [v[j] for v in buckets["setosa"]]
+    c_setosa = [v[k] for v in buckets["setosa"]]
+
+    a_virginica = [v[i] for v in buckets["virginica"]]
+    b_virginica = [v[j] for v in buckets["virginica"]]
+    c_virginica = [v[k] for v in buckets["virginica"]]
+
+    a_versicolor = [v[i] for v in buckets["versicolor"]]
+    b_versicolor = [v[j] for v in buckets["versicolor"]]
+    c_versicolor = [v[k] for v in buckets["versicolor"]]
+
+
+    for c, m, sl, sw, pl in [('b', 's', a_setosa, b_setosa, c_setosa),
+                             ('g', '^', a_virginica, b_virginica, c_virginica),
+                             ('r', 'o', a_versicolor, b_versicolor, c_versicolor)]:
+        ax.scatter(sl, sw, pl, c=c, marker=m)
+
+    ax.set_xlabel(f1)
+    ax.set_ylabel(f2)
+    ax.set_zlabel(f3)
+
+    plt.show()
+
+# ______________________________________________________________________________
+
+
+def load_MNIST(path="aima-data/MNIST"):
+    import os, struct
+    import array
+    import numpy as np
+    from collections import Counter
+
+    plt.rcParams.update(plt.rcParamsDefault)
+    plt.rcParams['figure.figsize'] = (10.0, 8.0)
+    plt.rcParams['image.interpolation'] = 'nearest'
+    plt.rcParams['image.cmap'] = 'gray'
+
+    train_img_file = open(os.path.join(path, "train-images-idx3-ubyte"), "rb")
+    train_lbl_file = open(os.path.join(path, "train-labels-idx1-ubyte"), "rb")
+    test_img_file = open(os.path.join(path, "t10k-images-idx3-ubyte"), "rb")
+    test_lbl_file = open(os.path.join(path, 't10k-labels-idx1-ubyte'), "rb")
+
+    magic_nr, tr_size, tr_rows, tr_cols = struct.unpack(">IIII", train_img_file.read(16))
+    tr_img = array.array("B", train_img_file.read())
+    train_img_file.close()
+    magic_nr, tr_size = struct.unpack(">II", train_lbl_file.read(8))
+    tr_lbl = array.array("b", train_lbl_file.read())
+    train_lbl_file.close()
+
+    magic_nr, te_size, te_rows, te_cols = struct.unpack(">IIII", test_img_file.read(16))
+    te_img = array.array("B", test_img_file.read())
+    test_img_file.close()
+    magic_nr, te_size = struct.unpack(">II", test_lbl_file.read(8))
+    te_lbl = array.array("b", test_lbl_file.read())
+    test_lbl_file.close()
+
+     #print(len(tr_img), len(tr_lbl), tr_size)
+     #print(len(te_img), len(te_lbl), te_size)
+
+    train_img = np.zeros((tr_size, tr_rows*tr_cols), dtype=np.int16)
+    train_lbl = np.zeros((tr_size,), dtype=np.int8)
+    for i in range(tr_size):
+        train_img[i] = np.array(tr_img[i*tr_rows*tr_cols : (i+1)*tr_rows*tr_cols]).reshape((tr_rows*te_cols))
+        train_lbl[i] = tr_lbl[i]
+
+    test_img = np.zeros((te_size, te_rows*te_cols), dtype=np.int16)
+    test_lbl = np.zeros((te_size,), dtype=np.int8)
+    for i in range(te_size):
+        test_img[i] = np.array(te_img[i*te_rows*te_cols : (i+1)*te_rows*te_cols]).reshape((te_rows*te_cols))
+        test_lbl[i] = te_lbl[i]
+
+    return(train_img, train_lbl, test_img, test_lbl)
+
+
+def show_MNIST(labels, images, samples=8):
+    classes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    num_classes = len(classes)
+
+    for y, cls in enumerate(classes):
+        idxs = np.nonzero([i == y for i in labels])
+        idxs = np.random.choice(idxs[0], samples, replace=False)
+        for i , idx in enumerate(idxs):
+            plt_idx = i * num_classes + y + 1
+            plt.subplot(samples, num_classes, plt_idx)
+            plt.imshow(images[idx].reshape((28, 28)))
+            plt.axis("off")
+            if i == 0:
+                plt.title(cls)
+
+    plt.show()
+
+
+def show_ave_MNIST(labels, images):
+    classes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    num_classes = len(classes)
+
+    for y, cls in enumerate(classes):
+        idxs = np.nonzero([i == y for i in labels])
+        print("Digit", y, ":", len(idxs[0]), "images.")
+
+        ave_img = np.mean(np.vstack([images[i] for i in idxs[0]]), axis = 0)
+        #print(ave_img.shape)
+
+        plt.subplot(1, num_classes, y+1)
+        plt.imshow(ave_img.reshape((28, 28)))
+        plt.axis("off")
+        plt.title(cls)
+
+    plt.show()
+
+# ______________________________________________________________________________
+
 
 _canvas = """
 <script type="text/javascript" src="./js/canvas.js"></script>
@@ -132,7 +273,7 @@ def display_html(html_string):
 
 
 ################################################################################
-    
+
 
 class Canvas_TicTacToe(Canvas):
     """Play a 3x3 TicTacToe game on HTML canvas
