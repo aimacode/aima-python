@@ -15,7 +15,7 @@ import re
 import os
 
 
-class UnigramTextModel(CountingProbDist):
+class UnigramWordModel(CountingProbDist):
 
     """This is a discrete probability distribution over words, so you
     can add, sample, or get P[word], just like with CountingProbDist.  You can
@@ -26,7 +26,7 @@ class UnigramTextModel(CountingProbDist):
         return ' '.join(self.sample() for i in range(n))
 
 
-class NgramTextModel(CountingProbDist):
+class NgramWordModel(CountingProbDist):
 
     """This is a discrete probability distribution over n-tuples of words.
     You can add, sample or get P[(word1, ..., wordn)]. The method P.samples(n)
@@ -77,7 +77,7 @@ class NgramTextModel(CountingProbDist):
         return ' '.join(output)
 
 
-class NgramCharModel(NgramTextModel):
+class NgramCharModel(NgramWordModel):
     def add_empty(self, words, n):
         return ' ' * (n - 1) + words
 
@@ -85,12 +85,23 @@ class NgramCharModel(NgramTextModel):
         for word in words:
             super().add_sequence(word)
 
+
+class UnigramCharModel(NgramCharModel):
+    def __init__(self, observation_sequence=[], default=0):
+        CountingProbDist.__init__(self, default=default)
+        self.n = 1
+        self.cond_prob = defaultdict()
+        self.add_sequence(observation_sequence)
+
+    def add_sequence(self, words):
+        [self.add(char) for word in words for char in list(word)]
+
 # ______________________________________________________________________________
 
 
 def viterbi_segment(text, P):
     """Find the best segmentation of the string of characters, given the
-    UnigramTextModel P."""
+    UnigramWordModel P."""
     # best[i] = best probability for text[0:i]
     # words[i] = best word ending at position i
     n = len(text)
@@ -345,9 +356,9 @@ class PermutationDecoder:
     represent that 'z' will be translated to 'e'."""
 
     def __init__(self, training_text, ciphertext=None):
-        self.Pwords = UnigramTextModel(words(training_text))
-        self.P1 = UnigramTextModel(training_text)  # By letter
-        self.P2 = NgramTextModel(2, words(training_text))  # By letter pair
+        self.Pwords = UnigramWordModel(words(training_text))
+        self.P1 = UnigramWordModel(training_text)  # By letter
+        self.P2 = NgramWordModel(2, words(training_text))  # By letter pair
 
     def decode(self, ciphertext):
         """Search for a decoding of the ciphertext."""
