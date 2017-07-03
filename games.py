@@ -244,7 +244,7 @@ class Fig52Extended(Game):
     utils = dict()
 
     def actions(self, state):
-        return list(self.succs.get(state, {}).keys())
+        return sorted(list(self.succs.get(state, {}).keys()))
 
     def result(self, state, move):
         return self.succs[state][move]
