@@ -6,6 +6,7 @@ from text import *
 from utils import isclose, open_data
 
 
+
 def test_text_models():
     flatland = open_data("EN-text/flatland.txt").read()
     wordseq = words(flatland)
@@ -13,64 +14,46 @@ def test_text_models():
     P2 = NgramWordModel(2, wordseq)
     P3 = NgramWordModel(3, wordseq)
 
-    # The most frequent entries in each model
-    assert P1.top(10) == [(2081, 'the'), (1479, 'of'), (1021, 'and'),
-                          (1008, 'to'), (850, 'a'), (722, 'i'), (640, 'in'),
-                          (478, 'that'), (399, 'is'), (348, 'you')]
+    # Test top
+    assert P1.top(5) == [(2081, 'the'), (1479, 'of'),
+                         (1021, 'and'), (1008, 'to'),
+                         (850, 'a')]
 
-    assert P2.top(10) == [(368, ('of', 'the')), (152, ('to', 'the')),
-                          (152, ('in', 'the')), (86, ('of', 'a')),
-                          (80, ('it', 'is')),
-                          (71, ('by', 'the')), (68, ('for', 'the')),
-                          (68, ('and', 'the')), (62, ('on', 'the')),
-                          (60, ('to', 'be'))]
+    assert P2.top(5) == [(368, ('of', 'the')), (152, ('to', 'the')),
+                         (152, ('in', 'the')), (86, ('of', 'a')),
+                         (80, ('it', 'is'))]
 
-    assert P3.top(10) == [(30, ('a', 'straight', 'line')),
-                          (19, ('of', 'three', 'dimensions')),
-                          (16, ('the', 'sense', 'of')),
-                          (13, ('by', 'the', 'sense')),
-                          (13, ('as', 'well', 'as')),
-                          (12, ('of', 'the', 'circles')),
-                          (12, ('of', 'sight', 'recognition')),
-                          (11, ('the', 'number', 'of')),
-                          (11, ('that', 'i', 'had')), (11, ('so', 'as', 'to'))]
+    assert P3.top(5) == [(30, ('a', 'straight', 'line')),
+                         (19, ('of', 'three', 'dimensions')),
+                         (16, ('the', 'sense', 'of')),
+                         (13, ('by', 'the', 'sense')),
+                         (13, ('as', 'well', 'as'))]
 
+    # Test isclose
     assert isclose(P1['the'], 0.0611, rel_tol=0.001)
-
     assert isclose(P2['of', 'the'], 0.0108, rel_tol=0.01)
-
-    assert isclose(P3['', '', 'but'], 0.0, rel_tol=0.001)
     assert isclose(P3['so', 'as', 'to'], 0.000323, rel_tol=0.001)
 
+    # Test cond_prob.get
     assert P2.cond_prob.get(('went',)) is None
-
     assert P3.cond_prob['in', 'order'].dictionary == {'to': 6}
 
+    # Test dictionary
     test_string = 'unigram'
     wordseq = words(test_string)
-
     P1 = UnigramWordModel(wordseq)
-
     assert P1.dictionary == {('unigram'): 1}
 
     test_string = 'bigram text'
     wordseq = words(test_string)
-
     P2 = NgramWordModel(2, wordseq)
+    assert P2.dictionary == {('bigram', 'text'): 1}
 
-    assert (P2.dictionary == {('', 'bigram'): 1, ('bigram', 'text'): 1} or
-            P2.dictionary == {('bigram', 'text'): 1, ('', 'bigram'): 1})
-
-
-    test_string = 'test trigram text'
+    test_string = 'test trigram text here'
     wordseq = words(test_string)
-
     P3 = NgramWordModel(3, wordseq)
-
-    assert ('', '', 'test') in P3.dictionary
-    assert ('', 'test', 'trigram') in P3.dictionary
     assert ('test', 'trigram', 'text') in P3.dictionary
-    assert len(P3.dictionary) == 3
+    assert ('trigram', 'text', 'here') in P3.dictionary
 
 
 def test_char_models():
@@ -83,12 +66,12 @@ def test_char_models():
     for char in test_string.replace(' ', ''):
         assert char in P1.dictionary
 
-    test_string = 'a b c'
+    test_string = 'alpha beta'
     wordseq = words(test_string)
     P1 = NgramCharModel(1, wordseq)
 
-    assert len(P1.dictionary) == len(test_string.split())
-    for char in test_string.split():
+    assert len(P1.dictionary) == len(set(test_string))
+    for char in set(test_string):
         assert tuple(char) in P1.dictionary
 
     test_string = 'bigram'
@@ -116,10 +99,9 @@ def test_char_models():
     test_string = 'trigram'
     wordseq = words(test_string)
     P3 = NgramCharModel(3, wordseq)
-
-    expected_trigrams = {(' ', ' ', 't'): 1, (' ', 't', 'r'): 1, ('t', 'r', 'i'): 1,
-                         ('r', 'i', 'g'): 1, ('i', 'g', 'r'): 1, ('g', 'r', 'a'): 1,
-                         ('r', 'a', 'm'): 1}
+    expected_trigrams = {(' ', 't', 'r'): 1, ('t', 'r', 'i'): 1,
+                         ('r', 'i', 'g'): 1, ('i', 'g', 'r'): 1,
+                         ('g', 'r', 'a'): 1, ('r', 'a', 'm'): 1}
 
     assert len(P3.dictionary) == len(expected_trigrams)
     for bigram, count in expected_trigrams.items():
@@ -129,15 +111,31 @@ def test_char_models():
     test_string = 'trigram trigram trigram'
     wordseq = words(test_string)
     P3 = NgramCharModel(3, wordseq)
-
-    expected_trigrams = {(' ', ' ', 't'): 3, (' ', 't', 'r'): 3, ('t', 'r', 'i'): 3,
-                         ('r', 'i', 'g'): 3, ('i', 'g', 'r'): 3, ('g', 'r', 'a'): 3,
-                         ('r', 'a', 'm'): 3}
+    expected_trigrams = {(' ', 't', 'r'): 3, ('t', 'r', 'i'): 3,
+                         ('r', 'i', 'g'): 3, ('i', 'g', 'r'): 3,
+                         ('g', 'r', 'a'): 3, ('r', 'a', 'm'): 3}
 
     assert len(P3.dictionary) == len(expected_trigrams)
     for bigram, count in expected_trigrams.items():
         assert bigram in P3.dictionary
         assert P3.dictionary[bigram] == count
+
+
+def test_samples():
+    story = open_data("EN-text/flatland.txt").read()
+    story += open_data("EN-text/gutenberg.txt").read()
+    wordseq = words(story)
+    P1 = UnigramWordModel(wordseq)
+    P2 = NgramWordModel(2, wordseq)
+    P3 = NgramWordModel(3, wordseq)
+
+    s1 = P1.samples(10)
+    s2 = P3.samples(10)
+    s3 = P3.samples(10)
+
+    assert len(s1.split(' ')) == 10
+    assert len(s2.split(' ')) == 10
+    assert len(s3.split(' ')) == 10
 
 
 def test_viterbi_segmentation():
@@ -293,18 +291,6 @@ def test_bigrams():
     assert bigrams(['this', 'is', 'a', 'test']) == [['this', 'is'], ['is', 'a'], ['a', 'test']]
 
 
-# TODO: for .ipynb
-"""
-
->>> P1.samples(20)
-'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
-
->>> P2.samples(20)
-'flatland well then can anything else more into the total destruction and circles teach others confine women must be added'
-
->>> P3.samples(20)
-'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
-"""
 
 if __name__ == '__main__':
     pytest.main()
