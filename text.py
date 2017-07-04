@@ -18,8 +18,8 @@ import os
 class UnigramWordModel(CountingProbDist):
 
     """This is a discrete probability distribution over words, so you
-    can add, sample, or get P[word], just like with CountingProbDist.  You can
-    also generate a random text n words long with P.samples(n)."""
+    can add, sample, or get P[word], just like with CountingProbDist. You can
+    also generate a random text, n words long, with P.samples(n)."""
 
     def samples(self, n):
         """Return a string of n words, random according to the model."""
@@ -30,7 +30,7 @@ class NgramWordModel(CountingProbDist):
 
     """This is a discrete probability distribution over n-tuples of words.
     You can add, sample or get P[(word1, ..., wordn)]. The method P.samples(n)
-    builds up an n-word sequence; P.add and P.add_sequence add data."""
+    builds up an n-word sequence; P.add_cond_prob and P.add_sequence add data."""
 
     def __init__(self, n, observation_sequence=[], default=0):
         # In addition to the dictionary of n-tuples, cond_prob is a
@@ -41,49 +41,45 @@ class NgramWordModel(CountingProbDist):
         self.add_sequence(observation_sequence)
 
     # __getitem__, top, sample inherited from CountingProbDist
-    # Note they deal with tuples, not strings, as inputs
+    # Note that they deal with tuples, not strings, as inputs
 
-    def add(self, ngram):
-        """Count 1 for P[(w1, ..., wn)] and for P(wn | (w1, ..., wn-1)"""
-        CountingProbDist.add(self, ngram)
+    def add_cond_prob(self, ngram):
+        """Builds the conditional probabilities P(wn | (w1, ..., wn-1)"""
         if ngram[:-1] not in self.cond_prob:
             self.cond_prob[ngram[:-1]] = CountingProbDist()
         self.cond_prob[ngram[:-1]].add(ngram[-1])
 
-    def add_empty(self, words, n):
-        return [''] * (n - 1) + words
-
     def add_sequence(self, words):
-        """Add each of the tuple words[i:i+n], using a sliding window.
-        Prefix some copies of the empty word, '', to make the start work."""
+        """Add each tuple words[i:i+n], using a sliding window."""
         n = self.n
-        words = self.add_empty(words, n)
 
         for i in range(len(words) - n + 1):
-            self.add(tuple(words[i:i + n]))
+            t = tuple(words[i:i + n])
+            self.add(t)
+            self.add_cond_prob(t)
 
     def samples(self, nwords):
-        """Build up a random sample of text nwords words long, using
-        the conditional probability given the n-1 preceding words."""
+        """Generate an n-word sentence by picking random samples
+        according to the model. At first pick a random n-gram and
+        from then on keep picking a character according to
+        P(c|wl-1, wl-2, ..., wl-n+1) where wl-1 ... wl-n+1 are the
+        last n - 1 words in the generated sentence so far."""
         n = self.n
-        nminus1gram = ('',) * (n-1)
-        output = []
-        for i in range(nwords):
-            if nminus1gram not in self.cond_prob:
-                nminus1gram = ('',) * (n-1)  # Cannot continue, so restart.
-            wn = self.cond_prob[nminus1gram].sample()
-            output.append(wn)
-            nminus1gram = nminus1gram[1:] + (wn,)
+        output = list(self.sample())
+
+        for i in range(n, nwords):
+            last = output[-n+1:]
+            next_word = self.cond_prob[tuple(last)].sample()
+            output.append(next_word)
+
         return ' '.join(output)
 
 
 class NgramCharModel(NgramWordModel):
-    def add_empty(self, words, n):
-        return ' ' * (n - 1) + words
-
     def add_sequence(self, words):
+        """Add an empty space to every word to catch the beginning of words."""
         for word in words:
-            super().add_sequence(word)
+            super().add_sequence(' ' + word)
 
 
 class UnigramCharModel(NgramCharModel):
