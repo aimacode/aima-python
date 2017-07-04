@@ -776,7 +776,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
 # ______________________________________________________________________________
 
 
-def unify(x, y, s):
+def unify(x, y, s = {}):
     """Unify expressions x,y with substitution s; return a substitution that
     would make x,y equal, or None if x,y can not unify. x and y can be
     variables (e.g. Expr('x')), constants, lists, or Exprs. [Figure 9.1]"""
