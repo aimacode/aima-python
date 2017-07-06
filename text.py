@@ -168,6 +168,7 @@ class IRSystem:
             doctext = os.popen(query_text[len("learn:"):], 'r').read()
             self.index_document(doctext, query_text)
             return []
+
         qwords = [w for w in words(query_text) if w not in self.stopwords]
         shortest = argmin(qwords, key=lambda w: len(self.index[w]))
         docids = self.index[shortest]
@@ -202,11 +203,13 @@ class UnixConsultant(IRSystem):
 
     def __init__(self):
         IRSystem.__init__(self, stopwords="how do i the a of")
+        
         import os
         aima_root = os.path.dirname(__file__)
         mandir = os.path.join(aima_root, 'aima-data/MAN/')
         man_files = [mandir + f for f in os.listdir(mandir)
                      if f.endswith('.txt')]
+
         self.index_collection(man_files)
 
 
