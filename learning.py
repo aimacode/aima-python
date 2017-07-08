@@ -4,7 +4,7 @@ from utils import (
     removeall, unique, product, mode, argmax, argmax_random_tie, isclose, gaussian,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table,
-    open_data, sigmoid_derivative
+    open_data, sigmoid_derivative, probability
 )
 
 import copy
@@ -490,6 +490,33 @@ def information_content(values):
     """Number of bits to represent the probability distribution in values."""
     probabilities = normalize(removeall(0, values))
     return sum(-p * math.log2(p) for p in probabilities)
+
+# ______________________________________________________________________________
+
+
+def RandomForest(dataset, n=5):
+    """A ensemble of Decision trese trained using bagging and feature bagging."""
+
+    predictors = [DecisionTreeLearner(examples=data_bagging(dataset),
+                                 attrs=dataset.attrs,
+                                 attrnames=dataset.attrnames,
+                                 target=dataset.target,
+                                 inputs=feature_bagging(datatset)) for _ in range(n)]
+
+    def data_bagging(dataset, m=0):
+        """Sample m examples with replacement"""
+        n = len(dataset.examples)
+        return weighted_sample_with_replacement(m or n, examples, [1]*n)
+
+    def feature_bagging(dataset, p=0.7):
+        """Feature bagging with probability p to retain an attribute"""
+        inputs = [i for i in dataset.inputs if probability(p)]
+        return inputs or dataset.inputs
+
+    def predict(example):
+        return mode(predictor(example) for predictor in predictors)
+
+    return predict
 
 # ______________________________________________________________________________
 
