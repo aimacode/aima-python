@@ -500,7 +500,7 @@ def information_content(values):
 
 
 def RandomForest(dataset, n=5):
-    """A ensemble of Decision trees trained using bagging and feature bagging."""
+    """An ensemble of Decision Trees trained using bagging and feature bagging."""
 
     def data_bagging(dataset, m=0):
         """Sample m examples with replacement"""
