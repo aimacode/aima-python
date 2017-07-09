@@ -45,12 +45,12 @@ testHTML3 = """
             </html>
             """
 
-pA = Page("A", 1, 6, ["B", "C", "E"], ["D"])
-pB = Page("B", 2, 5, ["E"], ["A", "C", "D"])
-pC = Page("C", 3, 4, ["B", "E"], ["A", "D"])
-pD = Page("D", 4, 3, ["A", "B", "C", "E"], [])
-pE = Page("E", 5, 2, [], ["A", "B", "C", "D", "F"])
-pF = Page("F", 6, 1, ["E"], [])
+pA = Page("A", ["B", "C", "E"], ["D"], 1, 6)
+pB = Page("B", ["E"], ["A", "C", "D"], 2, 5)
+pC = Page("C", ["B", "E"], ["A", "D"], 3, 4)
+pD = Page("D", ["A", "B", "C", "E"], [], 4, 3)
+pE = Page("E", [], ["A", "B", "C", "D", "F"], 5, 2)
+pF = Page("F", ["E"], [], 6, 1)
 pageDict = {pA.address: pA, pB.address: pB, pC.address: pC,
             pD.address: pD, pE.address: pE, pF.address: pF}
 nlp.pagesIndex = pageDict

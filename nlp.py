@@ -285,7 +285,7 @@ def onlyWikipediaURLS(urls):
 # HITS Helper Functions
 
 def expand_pages(pages):
-    """From Textbook: adds in every page that links to or is linked from one of
+    """Adds in every page that links to or is linked from one of
     the relevant pages."""
     expanded = {}
     for addr, page in pages.items():
@@ -301,7 +301,7 @@ def expand_pages(pages):
 
 
 def relevant_pages(query):
-    """Relevant pages are pages that contain all of the query words. They are obtained by 
+    """Relevant pages are pages that contain all of the query words. They are obtained by
     intersecting the hit lists of the query words."""
     hit_intersection = {addr for addr in pagesIndex}
     query_words = query.split()
@@ -314,8 +314,8 @@ def relevant_pages(query):
     return {addr: pagesIndex[addr] for addr in hit_intersection}
 
 def normalize(pages):
-    """From the pseudocode: Normalize divides each page's score by the sum of
-    the squares of all pages' scores (separately for both the authority and hubs scores).
+    """Normalize divides each page's score by the sum of the squares of all
+    pages' scores (separately for both the authority and hub scores).
     """
     summed_hub = sum(page.hub**2 for _, page in pages.items())
     summed_auth = sum(page.authority**2 for _, page in pages.items())
@@ -371,7 +371,7 @@ def getOutlinks(page):
 # HITS Algorithm
 
 class Page(object):
-    def __init__(self, address, hub=0, authority=0, inlinks=None, outlinks=None):
+    def __init__(self, address, inlinks=None, outlinks=None, hub=0, authority=0):
         self.address = address
         self.hub = hub
         self.authority = authority
@@ -390,7 +390,7 @@ def HITS(query):
     for p in pages.values():
         p.authority = 1
         p.hub = 1
-    while True:  # repeat until... convergence
+    while not convergence():
         authority = {p: pages[p].authority for p in pages}
         hub = {p: pages[p].hub for p in pages}
         for p in pages:
@@ -399,6 +399,4 @@ def HITS(query):
             # p.hub ← ∑i Outlinki(p).Authority
             pages[p].hub = sum(authority[x] for x in getOutlinks(pages[p]))
         normalize(pages)
-        if convergence():
-            break
     return pages
