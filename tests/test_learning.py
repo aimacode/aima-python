@@ -123,6 +123,14 @@ def test_decision_tree_learner():
     assert dTL([7.5, 4, 6, 2]) == "virginica"
 
 
+def test_random_forest():
+    iris = DataSet(name="iris")
+    rF = RandomForest(iris)
+    assert rF([5, 3, 1, 0.1]) == "setosa"
+    assert rF([6, 5, 3, 1.5]) == "versicolor"
+    assert rF([7.5, 4, 6, 2]) == "virginica"
+
+
 def test_neural_network_learner():
     iris = DataSet(name="iris")
     classes = ["setosa", "versicolor", "virginica"]
