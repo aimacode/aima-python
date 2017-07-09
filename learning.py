@@ -381,16 +381,21 @@ class DecisionFork:
     """A fork of a decision tree holds an attribute to test, and a dict
     of branches, one for each of the attribute's values."""
 
-    def __init__(self, attr, attrname=None, branches=None):
+    def __init__(self, attr, attrname=None, default_child=None, branches=None):
         """Initialize by saying what attribute this node tests."""
         self.attr = attr
         self.attrname = attrname or attr
+        self.default_child = default_child
         self.branches = branches or {}
 
     def __call__(self, example):
         """Given an example, classify it using the attribute and the branches."""
         attrvalue = example[self.attr]
-        return self.branches[attrvalue](example)
+        if attrvalue in self.branches:
+            return self.branches[attrvalue](example)
+        else:
+            # return default class when attribute is unknown
+            return self.default_child(example)
 
     def add(self, val, subtree):
         """Add a branch.  If self.attr = val, go to the given subtree."""
@@ -440,7 +445,7 @@ def DecisionTreeLearner(dataset):
             return plurality_value(examples)
         else:
             A = choose_attribute(attrs, examples)
-            tree = DecisionFork(A, dataset.attrnames[A])
+            tree = DecisionFork(A, dataset.attrnames[A], plurality_value(examples))
             for (v_k, exs) in split_by(A, examples):
                 subtree = decision_tree_learning(
                     exs, removeall(A, attrs), examples)
@@ -495,18 +500,12 @@ def information_content(values):
 
 
 def RandomForest(dataset, n=5):
-    """A ensemble of Decision trese trained using bagging and feature bagging."""
-
-    predictors = [DecisionTreeLearner(examples=data_bagging(dataset),
-                                 attrs=dataset.attrs,
-                                 attrnames=dataset.attrnames,
-                                 target=dataset.target,
-                                 inputs=feature_bagging(datatset)) for _ in range(n)]
+    """A ensemble of Decision trees trained using bagging and feature bagging."""
 
     def data_bagging(dataset, m=0):
         """Sample m examples with replacement"""
         n = len(dataset.examples)
-        return weighted_sample_with_replacement(m or n, examples, [1]*n)
+        return weighted_sample_with_replacement(m or n, dataset.examples, [1]*n)
 
     def feature_bagging(dataset, p=0.7):
         """Feature bagging with probability p to retain an attribute"""
@@ -514,7 +513,14 @@ def RandomForest(dataset, n=5):
         return inputs or dataset.inputs
 
     def predict(example):
+        print([predictor(example) for predictor in predictors])
         return mode(predictor(example) for predictor in predictors)
+
+    predictors = [DecisionTreeLearner(DataSet(examples=data_bagging(dataset),
+                                              attrs=dataset.attrs,
+                                              attrnames=dataset.attrnames,
+                                              target=dataset.target,
+                                              inputs=feature_bagging(dataset))) for _ in range(n)]
 
     return predict
 
@@ -1046,7 +1052,7 @@ def T(attrname, branches):
     branches = {value: (child if isinstance(child, DecisionFork)
                         else DecisionLeaf(child))
                 for value, child in branches.items()}
-    return DecisionFork(restaurant.attrnum(attrname), attrname, branches)
+    return DecisionFork(restaurant.attrnum(attrname), attrname, print, branches)
 
 
 """ [Figure 18.2]
