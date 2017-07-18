@@ -139,6 +139,12 @@ def test_normalize():
     assert normalize([1, 2, 1]) == [0.25, 0.5, 0.25]
 
 
+def test_norm():
+    assert isclose(norm([1, 2, 1], 1), 4)
+    assert isclose(norm([3, 4], 2), 5)
+    assert isclose(norm([-1, 1, 2], 4), 18**0.25)
+
+
 def test_clip():
     assert [clip(x, 0, 1) for x in [-1, 0.5, 10]] == [0, 0.5, 1]
 
@@ -153,6 +159,25 @@ def test_gaussian():
     assert gaussian(1,0.5,0.7) == 0.6664492057835993
     assert gaussian(5,2,4.5) == 0.19333405840142462
     assert gaussian(3,1,3) == 0.3989422804014327
+
+
+def test_truncated_svd():
+    test_mat = [[17, 0],
+                [0, 11]]
+    _, _, eival = truncated_svd(test_mat)
+    assert isclose(eival, 17)
+
+    test_mat = [[17, 0],
+                [0, -34]]
+    _, _, eival = truncated_svd(test_mat)
+    assert isclose(eival, -34)
+
+    test_mat = [[1, 0, 0, 0, 2],
+                [0, 0, 3, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 2, 0, 0, 0]]
+    _, _, eival = truncated_svd(test_mat)
+    assert isclose(eival, 3)
 
 
 def test_sigmoid_derivative():

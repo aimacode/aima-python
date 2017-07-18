@@ -246,6 +246,11 @@ def normalize(dist):
     return [(n / total) for n in dist]
 
 
+def norm(X, n=2):
+    """Return the n-norm of vector X"""
+    return sum([x**n for x in X])**(1/n)
+
+
 def clip(x, lowest, highest):
     """Return x clipped to the range [lowest..highest]."""
     return max(lowest, min(x, highest))
@@ -268,6 +273,41 @@ def step(x):
 def gaussian(mean, st_dev, x):
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
     return 1/(math.sqrt(2*math.pi)*st_dev)*math.e**(-0.5*(float(x-mean)/st_dev)**2)
+
+
+def truncated_svd(X, max_iter=1000):
+    """Computes the first component of SVD"""
+
+    def normalize_vec(X, n = 2):
+        """Returns normalized vector"""
+        norm_X = norm(X, n)
+        Y = [x/norm_X for x in X]
+        return Y
+
+    m, n = len(X), len(X[0])
+    A = [[0 for _ in range(n + m)] for _ in range(n + m)]
+    for i in range(m):
+        for j in range(n):
+            A[i][j] = A[m + j][n + i] = X[i][j]
+
+    X = [random.random() for _ in range(n + m)]
+    X = normalize_vec(X)
+    for _ in range(max_iter):
+        old_X = X
+        X = matrix_multiplication(A, [[x] for x in X])
+        X = [x[0] for x in X]
+        X = normalize_vec(X)
+        # check for convergence
+        if norm([x1 - x2 for x1, x2 in zip(old_X, X)]) <= 1e-10:
+            break
+
+    projected_X = matrix_multiplication(A, [[x] for x in X])
+    projected_X = [x[0] for x in projected_X]
+    eival = norm(projected_X, 1)/norm(X, 1)
+    eivec_n = normalize_vec(X[:n])
+    eivec_m = normalize_vec(X[n:])
+
+    return (eivec_m, eivec_n, eival)
 
 
 try:  # math.isclose was added in Python 3.5; but we might be in 3.4
