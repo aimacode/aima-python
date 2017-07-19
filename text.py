@@ -4,63 +4,48 @@ and show the Viterbi algorithm for segmentatioon of letters into words.
 Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
-from utils import argmin, argmax, hashabledict
+from utils import *
 from learning import CountingProbDist
-import search
-
 from math import log, exp
-from collections import defaultdict
-import heapq
-import re
-import os
-
+import re, search
 
 class UnigramTextModel(CountingProbDist):
-
     """This is a discrete probability distribution over words, so you
     can add, sample, or get P[word], just like with CountingProbDist.  You can
-    also generate a random text n words long with P.samples(n)."""
+    also generate a random text n words long with P.samples(n)"""
 
     def samples(self, n):
-        """Return a string of n words, random according to the model."""
-        return ' '.join(self.sample() for i in range(n))
-
+        "Return a string of n words, random according to the model."
+        return ' '.join([self.sample() for i in range(n)])
 
 class NgramTextModel(CountingProbDist):
-
     """This is a discrete probability distribution over n-tuples of words.
     You can add, sample or get P[(word1, ..., wordn)]. The method P.samples(n)
     builds up an n-word sequence; P.add and P.add_sequence add data."""
 
-    def __init__(self, n, observation_sequence=[], default=0):
-        # In addition to the dictionary of n-tuples, cond_prob is a
-        # mapping from (w1, ..., wn-1) to P(wn | w1, ... wn-1)
-        CountingProbDist.__init__(self, default=default)
+    def __init__(self, n, observation_sequence=[]):
+        ## In addition to the dictionary of n-tuples, cond_prob is a
+        ## mapping from (w1, ..., wn-1) to P(wn | w1, ... wn-1)
+        CountingProbDist.__init__(self)
         self.n = n
-        self.cond_prob = defaultdict()
+        self.cond_prob = DefaultDict(CountingProbDist())
         self.add_sequence(observation_sequence)
 
-    # __getitem__, top, sample inherited from CountingProbDist
-    # Note they deal with tuples, not strings, as inputs
+    ## __getitem__, top, sample inherited from CountingProbDist
+    ## Note they deal with tuples, not strings, as inputs
 
     def add(self, ngram):
         """Count 1 for P[(w1, ..., wn)] and for P(wn | (w1, ..., wn-1)"""
         CountingProbDist.add(self, ngram)
-        if ngram[:-1] not in self.cond_prob:
-            self.cond_prob[ngram[:-1]] = CountingProbDist()
         self.cond_prob[ngram[:-1]].add(ngram[-1])
-
-    def add_empty(self, words, n):
-        return [''] * (n - 1) + words
 
     def add_sequence(self, words):
         """Add each of the tuple words[i:i+n], using a sliding window.
         Prefix some copies of the empty word, '', to make the start work."""
         n = self.n
-        words = self.add_empty(words, n)
-
-        for i in range(len(words) - n + 1):
-            self.add(tuple(words[i:i + n]))
+        words = ['',] * (n-1) + words
+        for i in range(len(words)-n):
+            self.add(tuple(words[i:i+n]))
 
     def samples(self, nwords):
         """Build up a random sample of text nwords words long, using
@@ -70,22 +55,13 @@ class NgramTextModel(CountingProbDist):
         output = []
         for i in range(nwords):
             if nminus1gram not in self.cond_prob:
-                nminus1gram = ('',) * (n-1)  # Cannot continue, so restart.
+                nminus1gram = ('',) * (n-1) # Cannot continue, so restart.
             wn = self.cond_prob[nminus1gram].sample()
             output.append(wn)
             nminus1gram = nminus1gram[1:] + (wn,)
         return ' '.join(output)
 
-
-class NgramCharModel(NgramTextModel):
-    def add_empty(self, words, n):
-        return ' ' * (n - 1) + words
-
-    def add_sequence(self, words):
-        for word in words:
-            super().add_sequence(word)
-
-# ______________________________________________________________________________
+#______________________________________________________________________________
 
 
 def viterbi_segment(text, P):
@@ -96,56 +72,49 @@ def viterbi_segment(text, P):
     n = len(text)
     words = [''] + list(text)
     best = [1.0] + [0.0] * n
-    # Fill in the vectors best words via dynamic programming
+    ## Fill in the vectors best, words via dynamic programming
     for i in range(n+1):
         for j in range(0, i):
             w = text[j:i]
-            curr_score = P[w] * best[i - len(w)]
-            if curr_score >= best[i]:
-                best[i] = curr_score
+            if P[w] * best[i - len(w)] >= best[i]:
+                best[i] = P[w] * best[i - len(w)]
                 words[i] = w
-    # Now recover the sequence of best words
-    sequence = []
-    i = len(words) - 1
+    ## Now recover the sequence of best words
+    sequence = []; i = len(words)-1
     while i > 0:
         sequence[0:0] = [words[i]]
         i = i - len(words[i])
-    # Return sequence of best words and overall probability
+    ## Return sequence of best words and overall probability
     return sequence, best[-1]
 
 
-# ______________________________________________________________________________
+#______________________________________________________________________________
 
 
-# TODO(tmrts): Expose raw index
 class IRSystem:
-
     """A very simple Information Retrieval System, as discussed in Sect. 23.2.
     The constructor s = IRSystem('the a') builds an empty system with two
     stopwords. Next, index several documents with s.index_document(text, url).
     Then ask queries with s.query('query words', n) to retrieve the top n
-    matching documents. Queries are literal words from the document,
+    matching documents.  Queries are literal words from the document,
     except that stopwords are ignored, and there is one special syntax:
     The query "learn: man cat", for example, runs "man cat" and indexes it."""
 
     def __init__(self, stopwords='the a of'):
         """Create an IR System. Optionally specify stopwords."""
-        # index is a map of {word: {docid: count}}, where docid is an int,
-        # indicating the index into the documents list.
-        self.index = defaultdict(lambda: defaultdict(int))
-        self.stopwords = set(words(stopwords))
-        self.documents = []
+        ## index is a map of {word: {docid: count}}, where docid is an int,
+        ## indicating the index into the documents list.
+        update(self, index=DefaultDict(DefaultDict(0)),
+               stopwords=set(words(stopwords)), documents=[])
 
     def index_collection(self, filenames):
-        """Index a whole collection of files."""
-        prefix = os.path.dirname(__file__)
+        "Index a whole collection of files."
         for filename in filenames:
-            self.index_document(open(filename).read(),
-                                os.path.relpath(filename, prefix))
+            self.index_document(open(filename).read(), filename)
 
     def index_document(self, text, url):
-        """Index the text of a document."""
-        # For now, use first line for title
+        "Index the text of a document."
+        ## For now, use first line for title
         title = text[:text.index('\n')].strip()
         docwords = words(text)
         docid = len(self.documents)
@@ -162,56 +131,43 @@ class IRSystem:
             self.index_document(doctext, query_text)
             return []
         qwords = [w for w in words(query_text) if w not in self.stopwords]
-        shortest = argmin(qwords, key=lambda w: len(self.index[w]))
-        docids = self.index[shortest]
-        return heapq.nlargest(n, ((self.total_score(qwords, docid), docid) for docid in docids))
+        shortest = argmin(qwords, lambda w: len(self.index[w]))
+        docs = self.index[shortest]
+        results = [(sum([self.score(w, d) for w in qwords]), d) for d in docs]
+        results.sort(); results.reverse()
+        return results[:n]
 
     def score(self, word, docid):
-        """Compute a score for this word on the document with this docid."""
-        # There are many options; here we take a very simple approach
-        return (log(1 + self.index[word][docid]) /
-                log(1 + self.documents[docid].nwords))
-
-    def total_score(self, words, docid):
-        """Compute the sum of the scores of these words on the document with this docid."""
-        return sum(self.score(word, docid) for word in words)
+        "Compute a score for this word on this docid."
+        ## There are many options; here we take a very simple approach
+        return (math.log(1 + self.index[word][docid])
+                / math.log(1 + self.documents[docid].nwords))
 
     def present(self, results):
-        """Present the results as a list."""
-        for (score, docid) in results:
-            doc = self.documents[docid]
-            print(
-                ("{:5.2}|{:25} | {}".format(100 * score, doc.url,
-                                            doc.title[:45].expandtabs())))
+        "Present the results as a list."
+        for (score, d) in results:
+            doc = self.documents[d]
+            print ("%5.2f|%25s | %s"
+                   % (100 * score, doc.url, doc.title[:45].expandtabs()))
 
     def present_results(self, query_text, n=10):
-        """Get results for the query and present them."""
+        "Get results for the query and present them."
         self.present(self.query(query_text, n))
 
-
 class UnixConsultant(IRSystem):
-
     """A trivial IR system over a small collection of Unix man pages."""
-
     def __init__(self):
         IRSystem.__init__(self, stopwords="how do i the a of")
         import os
-        aima_root = os.path.dirname(__file__)
-        mandir = os.path.join(aima_root, 'aima-data/MAN/')
+        mandir = '../data/MAN/'
         man_files = [mandir + f for f in os.listdir(mandir)
                      if f.endswith('.txt')]
         self.index_collection(man_files)
 
-
 class Document:
-
     """Metadata for a document: title and url; maybe add others later."""
-
     def __init__(self, title, url, nwords):
-        self.title = title
-        self.url = url
-        self.nwords = nwords
-
+        update(self, title=title, url=url, nwords=nwords)
 
 def words(text, reg=re.compile('[a-z0-9]+')):
     """Return a list of the words in text, ignoring punctuation and
@@ -221,7 +177,6 @@ def words(text, reg=re.compile('[a-z0-9]+')):
     """
     return reg.findall(text.lower())
 
-
 def canonicalize(text):
     """Return a canonical text: only lowercase letters and blanks.
     >>> canonicalize("``EGAD!'' Edgar cried.")
@@ -230,17 +185,14 @@ def canonicalize(text):
     return ' '.join(words(text))
 
 
-# ______________________________________________________________________________
+#______________________________________________________________________________
 
-# Example application (not in book): decode a cipher.
-# A cipher is a code that substitutes one character for another.
-# A shift cipher is a rotation of the letters in the alphabet,
-# such as the famous rot13, which maps A to N, B to M, etc.
+## Example application (not in book): decode a cipher.
+## A cipher is a code that substitutes one character for another.
+## A shift cipher is a rotation of the letters in the alphabet,
+## such as the famous rot13, which maps A to N, B to M, etc.
 
-alphabet = 'abcdefghijklmnopqrstuvwxyz'
-
-# Encoding
-
+#### Encoding
 
 def shift_encode(plaintext, n):
     """Encode text with a shift cipher that moves each letter up by n letters.
@@ -248,7 +200,6 @@ def shift_encode(plaintext, n):
     'bcd a'
     """
     return encode(plaintext, alphabet[n:] + alphabet[:n])
-
 
 def rot13(plaintext):
     """Encode text by rotating letters by 13 spaces in the alphabet.
@@ -259,30 +210,13 @@ def rot13(plaintext):
     """
     return shift_encode(plaintext, 13)
 
-
-def translate(plaintext, function):
-    """Translate chars of a plaintext with the given function."""
-    result = ""
-    for char in plaintext:
-        result += function(char)
-    return result
-
-
-def maketrans(from_, to_):
-    """Create a translation table and return the proper function."""
-    trans_table = {}
-    for n, char in enumerate(from_):
-        trans_table[char] = to_[n]
-
-    return lambda char: trans_table.get(char, char)
-
-
 def encode(plaintext, code):
-    """Encode text using a code which is a permutation of the alphabet."""
+    "Encodes text, using a code which is a permutation of the alphabet."
+    from string import maketrans
     trans = maketrans(alphabet + alphabet.upper(), code + code.upper())
+    return plaintext.translate(trans)
 
-    return translate(plaintext, trans)
-
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
 def bigrams(text):
     """Return a list of pairs in text (a sequence of letters or words).
@@ -291,113 +225,214 @@ def bigrams(text):
     >>> bigrams(['this', 'is', 'a', 'test'])
     [['this', 'is'], ['is', 'a'], ['a', 'test']]
     """
-    return [text[i:i + 2] for i in range(len(text) - 1)]
+    return [text[i:i+2] for i in range(len(text) - 1)]
 
-# Decoding a Shift (or Caesar) Cipher
-
+#### Decoding a Shift (or Caesar) Cipher
 
 class ShiftDecoder:
-
     """There are only 26 possible encodings, so we can try all of them,
     and return the one with the highest probability, according to a
     bigram probability distribution."""
-
     def __init__(self, training_text):
         training_text = canonicalize(training_text)
         self.P2 = CountingProbDist(bigrams(training_text), default=1)
 
     def score(self, plaintext):
-        """Return a score for text based on how common letters pairs are."""
-
+        "Return a score for text based on how common letters pairs are."
         s = 1.0
         for bi in bigrams(plaintext):
             s = s * self.P2[bi]
-
         return s
 
     def decode(self, ciphertext):
-        """Return the shift decoding of text with the best score."""
-
-        return argmax(all_shifts(ciphertext), key=lambda shift: self.score(shift))
-
+        "Return the shift decoding of text with the best score."
+        return argmax(all_shifts(ciphertext), self.score)
 
 def all_shifts(text):
-    """Return a list of all 26 possible encodings of text by a shift cipher."""
+    "Return a list of all 26 possible encodings of text by a shift cipher."
+    return [shift_encode(text, n) for n in range(len(alphabet))]
 
-    yield from (shift_encode(text, i) for i, _ in enumerate(alphabet))
-
-# Decoding a General Permutation Cipher
-
+#### Decoding a General Permutation Cipher
 
 class PermutationDecoder:
-
-    """This is a much harder problem than the shift decoder. There are 26!
-    permutations, so we can't try them all. Instead we have to search.
+    """This is a much harder problem than the shift decoder.  There are 26!
+    permutations, so we can't try them all.  Instead we have to search.
     We want to search well, but there are many things to consider:
     Unigram probabilities (E is the most common letter); Bigram probabilities
     (TH is the most common bigram); word probabilities (I and A are the most
     common one-letter words, etc.); etc.
-    We could represent a search state as a permutation of the 26 letters,
-    and alter the solution through hill climbing. With an initial guess
+      We could represent a search state as a permutation of the 26 letters,
+    and alter the solution through hill climbing.  With an initial guess
     based on unigram probabilities, this would probably fare well. However,
     I chose instead to have an incremental representation. A state is
     represented as a letter-to-letter map; for example {'z': 'e'} to
-    represent that 'z' will be translated to 'e'."""
-
+    represent that 'z' will be translated to 'e'.
+    """
     def __init__(self, training_text, ciphertext=None):
         self.Pwords = UnigramTextModel(words(training_text))
-        self.P1 = UnigramTextModel(training_text)  # By letter
-        self.P2 = NgramTextModel(2, words(training_text))  # By letter pair
+        self.P1 = UnigramTextModel(training_text) # By letter
+        self.P2 = NgramTextModel(2, training_text) # By letter pair
 
     def decode(self, ciphertext):
-        """Search for a decoding of the ciphertext."""
-        self.ciphertext = canonicalize(ciphertext)
-        # reduce domain to speed up search
-        self.chardomain = {c for c in self.ciphertext if c is not ' '}
+        "Search for a decoding of the ciphertext."
+        self.ciphertext = ciphertext
         problem = PermutationDecoderProblem(decoder=self)
-        solution =  search.best_first_graph_search(
+        return search.best_first_tree_search(
             problem, lambda node: self.score(node.state))
-
-        solution.state[' '] = ' '
-        return translate(self.ciphertext, lambda c: solution.state[c])
 
     def score(self, code):
         """Score is product of word scores, unigram scores, and bigram scores.
         This can get very small, so we use logs and exp."""
-
-        # remake code dictionary to contain translation for all characters
-        full_code = code.copy()
-        full_code.update({x: x for x in self.chardomain if x not in code})
-        full_code[' '] = ' '
-        text = translate(self.ciphertext, lambda c: full_code[c])
-
-        # add small positive value to prevent computing log(0)
-        # TODO: Modify the values to make score more accurate
-        logP = (sum([log(self.Pwords[word] + 1e-20) for word in words(text)]) +
-                sum([log(self.P1[c] + 1e-5) for c in text]) +
-                sum([log(self.P2[b] + 1e-10) for b in bigrams(text)]))
-        return -exp(logP)
-
+        text = permutation_decode(self.ciphertext, code)
+        logP = (sum([log(self.Pwords[word]) for word in words(text)]) +
+                sum([log(self.P1[c]) for c in text]) +
+                sum([log(self.P2[b]) for b in bigrams(text)]))
+        return exp(logP)
 
 class PermutationDecoderProblem(search.Problem):
-
     def __init__(self, initial=None, goal=None, decoder=None):
-        self.initial = initial or hashabledict()
+        self.initial = initial or {}
         self.decoder = decoder
 
     def actions(self, state):
-        search_list = [c for c in self.decoder.chardomain if c not in state]
-        target_list = [c for c in alphabet if c not in state.values()]
-        # Find the best charater to replace
-        plainchar = argmax(search_list, key=lambda c: self.decoder.P1[c])
-        for cipherchar in target_list:
-            yield (plainchar, cipherchar)
-
-    def result(self, state, action):
-        new_state = hashabledict(state)  # copy to prevent hash issues
-        new_state[action[0]] = action[1]
-        return new_state
+        ## Find the best
+        p, plainchar = max([(self.decoder.P1[c], c)
+                            for c in alphabet if c not in state])
+        succs = [extend(state, plainchar, cipherchar)] #????
 
     def goal_test(self, state):
-        """We're done when all letters in search domain are assigned."""
-        return len(state) >= len(self.decoder.chardomain)
+        "We're done when we get all 26 letters assigned."
+        return len(state) >= 26
+
+
+#______________________________________________________________________________
+
+__doc__ += """
+## Create a Unigram text model from the words in the book "Flatland".
+>>> flatland = DataFile("EN-text/flatland.txt").read()
+>>> wordseq = words(flatland)
+>>> P = UnigramTextModel(wordseq)
+
+## Now do segmentation, using the text model as a prior.
+>>> s, p = viterbi_segment('itiseasytoreadwordswithoutspaces', P)
+>>> s
+['it', 'is', 'easy', 'to', 'read', 'words', 'without', 'spaces']
+>>> 1e-30 < p < 1e-20
+True
+>>> s, p = viterbi_segment('wheninthecourseofhumaneventsitbecomesnecessary', P)
+>>> s
+['when', 'in', 'the', 'course', 'of', 'human', 'events', 'it', 'becomes', 'necessary']
+
+## Test the decoding system
+>>> shift_encode("This is a secret message.", 17)
+'Kyzj zj r jvtivk dvjjrxv.'
+
+>>> ring = ShiftDecoder(flatland)
+>>> ring.decode('Kyzj zj r jvtivk dvjjrxv.')
+'This is a secret message.'
+>>> ring.decode(rot13('Hello, world!'))
+'Hello, world!'
+
+## CountingProbDist
+## Add a thousand samples of a roll of a die to D.
+>>> D = CountingProbDist()
+>>> for i in range(10000):
+...     D.add(random.choice('123456'))
+>>> ps = [D[n] for n in '123456']
+>>> 1./7. <= min(ps) <= max(ps) <= 1./5.
+True
+"""
+
+__doc__ += ("""
+## Compare 1-, 2-, and 3-gram word models of the same text.
+>>> flatland = DataFile("EN-text/flatland.txt").read()
+>>> wordseq = words(flatland)
+>>> P1 = UnigramTextModel(wordseq)
+>>> P2 = NgramTextModel(2, wordseq)
+>>> P3 = NgramTextModel(3, wordseq)
+
+## The most frequent entries in each model
+>>> P1.top(10)
+[(2081, 'the'), (1479, 'of'), (1021, 'and'), (1008, 'to'), (850, 'a'), (722, 'i'), (640, 'in'), (478, 'that'), (399, 'is'), (348, 'you')]
+
+>>> P2.top(10)
+[(368, ('of', 'the')), (152, ('to', 'the')), (152, ('in', 'the')), (86, ('of', 'a')), (80, ('it', 'is')), (71, ('by', 'the')), (68, ('for', 'the')), (68, ('and', 'the')), (62, ('on', 'the')), (60, ('to', 'be'))]
+
+>>> P3.top(10)
+[(30, ('a', 'straight', 'line')), (19, ('of', 'three', 'dimensions')), (16, ('the', 'sense', 'of')), (13, ('by', 'the', 'sense')), (13, ('as', 'well', 'as')), (12, ('of', 'the', 'circles')), (12, ('of', 'sight', 'recognition')), (11, ('the', 'number', 'of')), (11, ('that', 'i', 'had')), (11, ('so', 'as', 'to'))]
+""")
+
+__doc__ += random_tests("""
+## Generate random text from the N-gram models
+>>> P1.samples(20)
+'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
+
+>>> P2.samples(20)
+'flatland well then can anything else more into the total destruction and circles teach others confine women must be added'
+
+>>> P3.samples(20)
+'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
+""")
+__doc__ += """
+
+## Probabilities of some common n-grams
+>>> P1['the']               #doctest:+ELLIPSIS
+0.0611...
+
+>>> P2[('of', 'the')]       #doctest:+ELLIPSIS
+0.0108...
+
+>>> P3[('', '', 'but')]
+0.0
+
+>>> P3[('so', 'as', 'to')]  #doctest:+ELLIPSIS
+0.000323...
+
+## Distributions given the previous n-1 words
+>>> P2.cond_prob['went',].dictionary
+{}
+>>> P3.cond_prob['in', 'order'].dictionary
+{'to': 6}
+
+
+## Build and test an IR System
+>>> uc = UnixConsultant()
+>>> uc.present_results("how do I remove a file")
+76.83|       ../data/MAN/rm.txt | RM(1)                          FSF                          RM(1)
+67.83|      ../data/MAN/tar.txt | TAR(1)                                                                  TAR(1)
+67.79|       ../data/MAN/cp.txt | CP(1)                          FSF                          CP(1)
+66.58|      ../data/MAN/zip.txt | ZIP(1L)                                                   ZIP(1L)
+64.58|     ../data/MAN/gzip.txt | GZIP(1)                                                                GZIP(1)
+63.74|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
+62.95|    ../data/MAN/shred.txt | SHRED(1)                       FSF                       SHRED(1)
+57.46|     ../data/MAN/pico.txt | pico(1)                                                   pico(1)
+43.38|    ../data/MAN/login.txt | LOGIN(1)                   Linux Programmer's Manual                 
+41.93|       ../data/MAN/ln.txt | LN(1)                          FSF                          LN(1)
+
+>>> uc.present_results("how do I delete a file")
+75.47|     ../data/MAN/diff.txt | DIFF(1)                            GNU Tools                           DIFF(1)
+69.12|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
+63.56|      ../data/MAN/tar.txt | TAR(1)                                                                  TAR(1)
+60.63|      ../data/MAN/zip.txt | ZIP(1L)                                                   ZIP(1L)
+57.46|     ../data/MAN/pico.txt | pico(1)                                                   pico(1)
+51.28|    ../data/MAN/shred.txt | SHRED(1)                       FSF                       SHRED(1)
+26.72|       ../data/MAN/tr.txt | TR(1)                     User Commands                     TR(1)
+
+>>> uc.present_results("email")
+18.39|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
+12.01|     ../data/MAN/info.txt | INFO(1)                        FSF                        INFO(1)
+ 9.89|     ../data/MAN/pico.txt | pico(1)                                                   pico(1)
+ 8.73|     ../data/MAN/grep.txt | GREP(1)                                                                GREP(1)
+ 8.07|      ../data/MAN/zip.txt | ZIP(1L)                                                   ZIP(1L)
+
+>>> uc.present_results("word counts for files")
+112.38|     ../data/MAN/grep.txt | GREP(1)                                                                GREP(1)
+101.84|       ../data/MAN/wc.txt | WC(1)                     User Commands                     WC(1)
+82.46|     ../data/MAN/find.txt | FIND(1L)                                                              FIND(1L)
+74.64|       ../data/MAN/du.txt | DU(1)                          FSF                          DU(1)
+
+>>> uc.present_results("learn: date")
+>>> uc.present_results("2003")
+14.58|     ../data/MAN/pine.txt | pine(1)                                                   pine(1)
+11.62|      ../data/MAN/jar.txt | FASTJAR(1)                            GNU                           FASTJAR(1)
+"""

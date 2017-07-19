@@ -1,158 +1,64 @@
-<div align="center">
-  <a href="http://aima.cs.berkeley.edu/"><img src="https://raw.githubusercontent.com/aimacode/aima-python/master/images/aima_logo.png"></a><br><br>
-</div>
+# `aima-python`: Structure of the Project
 
-# `aima-python` [![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
+Python code for the book *Artificial Intelligence: A Modern Approach.* 
+When complete, this project will cover all the major topics in the book, for each topic, such as `logic`, we will have the following [Python 3.5](https://www.python.org/downloads/release/python-350/) files in the main branch:
 
+- `logic.py`: Implementations of all the pseudocode algorithms in the book. 
+- `logic_test.py`: A lightweight test suite, using `assert` statements, designed for use with `py.test`.
+- `logic.ipynb`: A Jupyter notebook, with examples of usage. Does a `from logic import *` to get the code.
+ 
+Until we get there, we will support a legacy branch, `aima3python2` (for the thrid edition of the textbook and for Python 2 code). To prepare code for the new master branch, the following should be done:
 
-Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
+- Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `prtint` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formating to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
+- Implement functions that were in the third edition of the book but were not yet implemented in the code.
+- As we finish chapters for the new fourth edition, we will share the pseudocode, and describe what changes are necessary.
+- Create a `_test.py` file, and define functions that use `assert` to make tests. Remove any old `doctest` tests.
+- Create a `.ipynb` notebook, and give examples of how to use the code.
 
-## Python 3.4
+# Style Guide
 
-This code is in Python 3.4 (Python 3.5 and later also works, but Python 2.x does not). You can [install the latest Python version](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
-You can run the code in an IDE, or from the command line with `python -i `*filename*`.py` where the `-i` option puts you in an interactive loop where you can run Python functions.
+There are a few style rules that are unique to this project:
 
-In addition to the *filename*`.py` files, there are also *filename*`.ipynb` files, which are Jupyter (formerly Ipython) notebooks. You can read these notebooks, and you can also run the code embedded with them. See [jupyter.org](http://jupyter.org/) for instructions on setting up a Jupyter notebook environment.
+- The first rule is that the code should correspond directly to the pseudocode in the book. When possible this will be almost one-to-one, just allowing for the syntactic differences between Python and pseudocode, and for different library functions.
+- Don't make a function more complicated than the pseudocode in the book, even if the complication would add a nice feature, or give an efficiency gain. Instead, remain faithful to the pseudocode, and if you must, add a new function (not in the book) with the added feature.
+- I use functional programming (functions with no side effects) in many cases, but not exclusively (sometimes classes and/or functions with side effects are used). Let the book's pseudocode be the guide. 
 
-## Structure of the Project
+Beyond the above rules, we use [Pep 8](https://www.python.org/dev/peps/pep-0008), with a few minor exceptions:
 
-When complete, this project will have Python code for all the pseudocode algorithms in the book. For each major topic, such as `logic`, we will have the following three files in the main branch:
+- I'm not too worried about an occasional line longer than 79 characters. 
+- You don't need two spaces after a sentence-ending period.
+- Strunk and White is [not a good guide for English](http://chronicle.com/article/50-Years-of-Stupid-Grammar/25497).
+- I prefer more concise docstrings; I don't follow [Pep 257](https://www.python.org/dev/peps/pep-0257/).
+- Not all constants have to be UPPERCASE.
+- [Pep 484](https://www.python.org/dev/peps/pep-0484/) type annotations are allowed but not required. If your
+  parameter name is already suggestive of the name of a type, such as `url` below, then i don't think the type annotation is useful.
+  Return type annotations, such as `-> None` below, can be very useful.
 
-- `logic.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
-- `logic.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
-- `tests/test_logic.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
+        def retry(url: Url) -> None: 
 
-# Index of Algorithms
+# Choice of Programming Languages
 
-Here is a table of algorithms, the figure, name of the code in the book and in the repository, and the file where they are implemented in the code. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book.
+Are we right to concentrate on Java and Python versions of the code? I think so; both languages are popular; Java is
+fast enough for our purposes, and has reasonable type declarations (but can be verbose); Python is popular and has a very direct mapping to the pseudocode in the book (ut lacks type declarations and can be solw). The [TIOBE Index](http://www.tiobe.com/tiobe_index) says the top five most popular languages are:
 
-| **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File**
-|:--------|:-------------------|:---------|:-----------|
-| 2.1     | Environment        | `Environment` | [`agents.py`][agents] |
-| 2.1     | Agent              | `Agent` | [`agents.py`][agents] |
-| 2.3     | Table-Driven-Vacuum-Agent | `TableDrivenVacuumAgent` | [`agents.py`][agents] |
-| 2.7     | Table-Driven-Agent | `TableDrivenAgent` | [`agents.py`][agents] |
-| 2.8     | Reflex-Vacuum-Agent | `ReflexVacuumAgent` | [`agents.py`][agents] |
-| 2.10    | Simple-Reflex-Agent | `SimpleReflexAgent` | [`agents.py`][agents] |
-| 2.12    | Model-Based-Reflex-Agent | `ReflexAgentWithState` | [`agents.py`][agents] |
-| 3       | Problem            | `Problem` | [`search.py`][search] |
-| 3       | Node               | `Node` | [`search.py`][search] |
-| 3       | Queue              | `Queue` | [`utils.py`][utils] |
-| 3.1     | Simple-Problem-Solving-Agent | `SimpleProblemSolvingAgent` | [`search.py`][search] |
-| 3.2     | Romania            | `romania` | [`search.py`][search] |
-| 3.7     | Tree-Search        | `tree_search` | [`search.py`][search] |
-| 3.7     | Graph-Search        | `graph_search` | [`search.py`][search] |
-| 3.11    | Breadth-First-Search        | `breadth_first_search` | [`search.py`][search] |
-| 3.14    | Uniform-Cost-Search        | `uniform_cost_search` | [`search.py`][search] |
-| 3.17    | Depth-Limited-Search | `depth_limited_search` | [`search.py`][search] |
-| 3.18    | Iterative-Deepening-Search | `iterative_deepening_search` | [`search.py`][search] |
-| 3.22    | Best-First-Search  | `best_first_graph_search` | [`search.py`][search] |
-| 3.24    | A\*-Search        | `astar_search` | [`search.py`][search] |
-| 3.26    | Recursive-Best-First-Search | `recursive_best_first_search` | [`search.py`][search] |
-| 4.2     | Hill-Climbing      | `hill_climbing` | [`search.py`][search] |
-| 4.5     | Simulated-Annealing | `simulated_annealing` | [`search.py`][search] |
-| 4.8     | Genetic-Algorithm  | `genetic_algorithm` | [`search.py`][search] |
-| 4.11    | And-Or-Graph-Search | `and_or_graph_search` | [`search.py`][search] |
-| 4.21    | Online-DFS-Agent   | `online_dfs_agent` | [`search.py`][search] |
-| 4.24    | LRTA\*-Agent       | `LRTAStarAgent`    | [`search.py`][search] |
-| 5.3     | Minimax-Decision   | `minimax_decision` | [`games.py`][games] |
-| 5.7     | Alpha-Beta-Search  | `alphabeta_search` | [`games.py`][games] |
-| 6       | CSP                | `CSP` | [`csp.py`][csp] |
-| 6.3     | AC-3               | `AC3` | [`csp.py`][csp] |
-| 6.5     | Backtracking-Search | `backtracking_search` | [`csp.py`][csp] |
-| 6.8     | Min-Conflicts      | `min_conflicts` | [`csp.py`][csp] |
-| 6.11    | Tree-CSP-Solver    | `tree_csp_solver` | [`csp.py`][csp] |
-| 7       | KB                 | `KB` | [`logic.py`][logic] |
-| 7.1     | KB-Agent           | `KB_Agent` | [`logic.py`][logic] |
-| 7.7     | Propositional Logic Sentence | `Expr` | [`logic.py`][logic] |
-| 7.10    | TT-Entails         | `tt_entials` | [`logic.py`][logic] |
-| 7.12    | PL-Resolution      | `pl_resolution` | [`logic.py`][logic] |
-| 7.14    | Convert to CNF     | `to_cnf` | [`logic.py`][logic] |
-| 7.15    | PL-FC-Entails?     | `pl_fc_resolution` | [`logic.py`][logic] |
-| 7.17    | DPLL-Satisfiable?  | `dpll_satisfiable` | [`logic.py`][logic] |
-| 7.18    | WalkSAT            | `WalkSAT` | [`logic.py`][logic] |
-| 7.20    | Hybrid-Wumpus-Agent    |         |           |
-| 7.22    | SATPlan            | `SAT_plan`  | [`logic.py`][logic] |
-| 9       | Subst              | `subst` | [`logic.py`][logic] |
-| 9.1     | Unify              | `unify` | [`logic.py`][logic] |
-| 9.3     | FOL-FC-Ask         | `fol_fc_ask` | [`logic.py`][logic] |
-| 9.6     | FOL-BC-Ask         | `fol_bc_ask` | [`logic.py`][logic] |
-| 9.8     | Append             |            |              |
-| 10.1    | Air-Cargo-problem    |`air_cargo`          |[`planning.py`][planning]|
-| 10.2    | Spare-Tire-Problem |  `spare_tire`        |[`planning.py`][planning]|
-| 10.3    | Three-Block-Tower  |  `three_block_tower`        |[`planning.py`][planning]|
-| 10.7    | Cake-Problem       |   `have_cake_and_eat_cake_too`       |[`planning.py`][planning]|
-| 10.9    | Graphplan          |    `GraphPlan`      |[`planning.py`][planning]|
-| 10.13   | Partial-Order-Planner |          |
-| 11.1    | Job-Shop-Problem-With-Resources |          |
-| 11.5    | Hierarchical-Search |          |
-| 11.8    | Angelic-Search   |          |
-| 11.10   | Doubles-tennis     | `double_tennis_problem`          |[`planning.py`][planning]|
-| 13      | Discrete Probability Distribution | `ProbDist` | [`probability.py`][probability] |
-| 13.1    | DT-Agent           | `DTAgent` | [`probability.py`][probability] |
-| 14.9    | Enumeration-Ask    | `enumeration_ask` | [`probability.py`][probability] |
-| 14.11   | Elimination-Ask    | `elimination_ask` | [`probability.py`][probability] |
-| 14.13   | Prior-Sample       | `prior_sample` | [`probability.py`][probability] |
-| 14.14   | Rejection-Sampling | `rejection_sampling` | [`probability.py`][probability] |
-| 14.15   | Likelihood-Weighting | `likelihood_weighting` | [`probability.py`][probability] |
-| 14.16   | Gibbs-Ask           | `gibbs_ask`  | [`probability.py`][probability] |
-| 15.4    | Forward-Backward   | `forward_backward` | [`probability.py`][probability] |
-| 15.6    | Fixed-Lag-Smoothing | `fixed_lag_smoothing` | [`probability.py`][probability] |
-| 15.17   | Particle-Filtering | `particle_filtering` | [`probability.py`][probability] |
-| 16.9    | Information-Gathering-Agent |          |
-| 17.4    | Value-Iteration    | `value_iteration` | [`mdp.py`][mdp] |
-| 17.7    | Policy-Iteration   | `policy_iteration` | [`mdp.py`][mdp] |
-| 17.7    | POMDP-Value-Iteration  |           |        |
-| 18.5    | Decision-Tree-Learning | `DecisionTreeLearner` | [`learning.py`][learning] |
-| 18.8    | Cross-Validation   | `cross_validation` | [`learning.py`][learning] |
-| 18.11   | Decision-List-Learning | `DecisionListLearner` | [`learning.py`][learning] |
-| 18.24   | Back-Prop-Learning | `BackPropagationLearner` | [`learning.py`][learning] |
-| 18.34   | AdaBoost           | `AdaBoost` | [`learning.py`][learning] |
-| 19.2    | Current-Best-Learning |          |
-| 19.3    | Version-Space-Learning |          |
-| 19.8    | Minimal-Consistent-Det |          |
-| 19.12   | FOIL               |          |
-| 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`][rl] |
-| 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`][rl] |
-| 21.8    | Q-Learning-Agent   | `QLearningAgent` | [`rl.py`][rl] |
-| 22.1    | HITS               | `HITS`  | [`nlp.py`][nlp] |
-| 23      | Chart-Parse        | `Chart` | [`nlp.py`][nlp] |
-| 23.5    | CYK-Parse          | `CYK_parse` | [`nlp.py`][nlp] |
-| 25.9    | Monte-Carlo-Localization|       |
+        Java, C, C++, C#, Python
+        
+So it might be reasonable to also support C++/C# at some point in the future. It might also be reasonable to support a language that combines the terse readability of Python with the type safety and speed of Java; perhaps Go or Julia. And finally, Javascript is the language of the browser; it would be nice to have code that runs in the browser, in Javascript or a variant such as Typescript.
 
+There is also a `aima-lisp` project; in 1995 when we wrote the first edition of the book, Lisp was the right choice, but today it is less popular.
 
-# Index of data structures
+What languages are instructors recommending for their AI class? To get an approximate idea, I gave the query <tt>[norvig russell "Modern Approach"](https://www.google.com/webhp#q=russell%20norvig%20%22modern%20approach%22%20java)</tt> along with the names of various languages and looked at the estimated counts of results on
+various dates. However, I don't have much confidence in these figures...
 
-Here is a table of the implemented data structures, the figure, name of the implementation in the repository, and the file where they are implemented.
+<p>
+<table border=1>
+<tr><th>Language<th>2004<th>2005<th>2007<th>2010<th>2016
+<tr><td> <a href="http://www.google.com/search?q=norvig+russell+%22Modern+Approach%22"> <i>none</i></a><td align=right> 8,080<td align=right>20,100<td align=right>75,200<td align=right>150,000<td align=right>132,000
+<tr><td> <a href="http://www.google.com/search?q=java+norvig+russell+%22Modern+Approach%22">java   </a><td align=right> 1,990<td align=right>4,930<td align=right>44,200<td align=right>37,000<td align=right>50,000
+<tr><td> <a href="http://www.google.com/search?q=c%2B%2B+norvig+russell+%22Modern+Approach%22">c++    </a><td align=right>  875<td align=right>1,820<td align=right>35,300<td align=right>105,000<td align=right>35,000
+<tr><td> <a href="http://www.google.com/search?q=lisp+norvig+russell+%22Modern+Approach%22">lisp   </a><td align=right>  844<td align=right>974<td align=right>30,100<td align=right>19,000<td align=right>14,000
+<tr><td> <a href="http://www.google.com/search?q=prolog+norvig+russell+%22Modern+Approach%22">prolog </a><td align=right>  789<td align=right>2,010<td align=right>23,200<td align=right>17,000<td align=right>16,000
+<tr><td> <a href="http://www.google.com/search?q=python+norvig+russell+%22Modern+Approach%22">python </a><td align=right>  785<td align=right>1,240<td align=right>18,400<td align=right>11,000<td align=right>12,000
 
-| **Figure** | **Name (in repository)** | **File** |
-|:-----------|:-------------------------|:---------|
-| 3.2    | romania_map              | [`search.py`][search] |
-| 4.9    | vacumm_world             | [`search.py`][search] |
-| 4.23   | one_dim_state_space      | [`search.py`][search] |
-| 6.1    | australia_map            | [`search.py`][search] |
-| 7.13   | wumpus_world_inference   | [`logic.py`][logic] |
-| 7.16   | horn_clauses_KB          | [`logic.py`][logic] |
-| 17.1   | sequential_decision_environment | [`mdp.py`][mdp] |
-| 18.2   | waiting_decision_tree    | [`learning.py`][learning] |
+</table>
 
-
-# Acknowledgements
-
-Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially @darius, @SnShine, @reachtarunhere, @MrDupin, and @Chipe1.
-
-<!---Reference Links-->
-[agents]:../master/agents.py
-[csp]:../master/csp.py
-[games]:../master/games.py
-[grid]:../master/grid.py
-[learning]:../master/learning.py
-[logic]:../master/logic.py
-[mdp]:../master/mdp.py
-[nlp]:../master/nlp.py
-[planning]:../master/planning.py
-[probability]:../master/probability.py
-[rl]:../master/rl.py
-[search]:../master/search.py
-[utils]:../master/utils.py
-[text]:../master/text.py

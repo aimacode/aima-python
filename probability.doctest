@@ -1,0 +1,72 @@
+
+>>> cpt = burglary.variable_node('Alarm').cpt
+>>> parents = ['Burglary', 'Earthquake']
+>>> event = {'Burglary': True, 'Earthquake': True}
+>>> print '%4.2f' % cpt.p(True, parents, event)
+0.95
+>>> event = {'Burglary': False, 'Earthquake': True}
+>>> print '%4.2f' % cpt.p(False, parents, event)
+0.71
+>>> BoolCPT({T: 0.2, F: 0.625}).p(False, ['Burglary'], event)
+0.375
+>>> BoolCPT(0.75).p(False, [], {})
+0.25
+
+(fixme: The following test p_values which has been folded into p().)
+>>> cpt = BoolCPT(0.25)
+>>> cpt.p_values(F, ())
+0.75
+>>> cpt = BoolCPT({T: 0.25, F: 0.625})
+>>> cpt.p_values(T, (T,))
+0.25
+>>> cpt.p_values(F, (F,))
+0.375
+>>> cpt = BoolCPT({(T, T): 0.2, (T, F): 0.31,
+...  (F, T): 0.5, (F, F): 0.62})
+>>> cpt.p_values(T, (T, F))
+0.31
+>>> cpt.p_values(F, (F, F))
+0.38
+
+
+>>> cpt = BoolCPT({True: 0.2, False: 0.7})
+>>> cpt.rand(['A'], {'A': True}) in [True, False]
+True
+>>> cpt = BoolCPT({(True, True): 0.1, (True, False): 0.3,
+...   (False, True): 0.5, (False, False): 0.7})
+>>> cpt.rand(['A', 'B'], {'A': True, 'B': False}) in [True, False]
+True
+
+
+>>> enumeration_ask('Earthquake', {}, burglary).show_approx()
+'False: 0.998, True: 0.002'
+
+
+>>> s = prior_sample(burglary)
+>>> s['Burglary'] in [True, False]
+True
+>>> s['Alarm'] in [True, False]
+True
+>>> s['JohnCalls'] in [True, False]
+True
+>>> len(s)
+5
+
+
+>>> s = {'A': True, 'B': False, 'C': True, 'D': False}
+>>> consistent_with(s, {})
+True
+>>> consistent_with(s, s)
+True
+>>> consistent_with(s, {'A': False})
+False
+>>> consistent_with(s, {'D': True})
+False
+
+>>> seed(21); p = rejection_sampling('Earthquake', {}, burglary, 1000)
+>>> [p[True], p[False]]
+[0.001, 0.999]
+
+>>> seed(71); p = likelihood_weighting('Earthquake', {}, burglary, 1000)
+>>> [p[True], p[False]]
+[0.002, 0.998]
