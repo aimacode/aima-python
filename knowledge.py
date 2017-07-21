@@ -1,3 +1,5 @@
+"""Knowledge in learning, Chapter 19"""
+
 from random import shuffle
 from utils import powerset
 
