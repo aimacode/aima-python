@@ -18,14 +18,33 @@ random.seed("aima-python")
 
 def test_current_best_learning():
     examples = restaurant[:3]
-    hypothesis = {'Alt': 'Yes'}
-    h = current_best_learning(examples, hypothesis)
+    initial_h = {'Alt': 'Yes'}
+    h = current_best_learning(examples, initial_h)
     values = []
     for e in examples:
         values.append(guess_value(e, h))
 
     assert values == [True, False, True]
 
+    examples = animals_umbrellas
+    initial_h = {'Species': 'Cat'}
+    h = current_best_learning(examples, initial_h)
+    values = []
+    for e in examples:
+        values.append(guess_value(e, h))
+
+    assert values == [True, True, True, False, False, False, True]
+
+
+animals_umbrellas = [
+    {'Species': 'Cat', 'Rain': 'Yes', 'Coat': 'No', 'GOAL': True},
+    {'Species': 'Cat', 'Rain': 'Yes', 'Coat': 'Yes', 'GOAL': True},
+    {'Species': 'Dog', 'Rain': 'Yes', 'Coat': 'Yes', 'GOAL': True},
+    {'Species': 'Dog', 'Rain': 'Yes', 'Coat': 'No', 'GOAL': False},
+    {'Species': 'Dog', 'Rain': 'No', 'Coat': 'No', 'GOAL': False},
+    {'Species': 'Cat', 'Rain': 'No', 'Coat': 'No', 'GOAL': False},
+    {'Species': 'Cat', 'Rain': 'No', 'Coat': 'Yes', 'GOAL': True}
+]
 
 restaurant = [
     {'Alt': 'Yes', 'Bar': 'No', 'Fri': 'No', 'Hun': 'Yes', 'Pat': 'Some',
