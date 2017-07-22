@@ -161,34 +161,6 @@ def test_gaussian():
     assert gaussian(3,1,3) == 0.3989422804014327
 
 
-def test_truncated_svd():
-    test_mat = [[17, 0],
-                [0, 11]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(abs(eival[0]), 17)
-    assert isclose(abs(eival[1]), 11)
-
-    test_mat = [[17, 0],
-                [0, -34]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(abs(eival[0]), 34)
-    assert isclose(abs(eival[1]), 17)
-
-    test_mat = [[1, 0, 0, 0, 2],
-                [0, 0, 3, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 2, 0, 0, 0]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(abs(eival[0]), 3)
-    assert isclose(abs(eival[1]), 5**0.5)
-
-    test_mat = [[3, 2, 2],
-                [2, 3, -2]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(abs(eival[0]), 5)
-    assert isclose(abs(eival[1]), 3)
-
-
 def test_sigmoid_derivative():
     value = 1
     assert sigmoid_derivative(value) == 0

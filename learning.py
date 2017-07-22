@@ -4,7 +4,7 @@ from utils import (
     removeall, unique, product, mode, argmax, argmax_random_tie, isclose, gaussian,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table,
-    open_data, sigmoid_derivative, probability
+    open_data, sigmoid_derivative, probability, norm, matrix_multiplication
 )
 
 import copy
@@ -373,6 +373,66 @@ def NearestNeighborLearner(dataset, k=1):
                                    for e in dataset.examples))
         return mode(e[dataset.target] for (d, e) in best)
     return predict
+
+# ______________________________________________________________________________
+
+
+def truncated_svd(X, num_val=2, max_iter=1000):
+    """Computes the first component of SVD"""
+
+    def normalize_vec(X, n = 2):
+        """Normalizes two parts (:m and m:) of the vector"""
+        X_m = X[:m]
+        X_n = X[m:]
+        norm_X_m = norm(X_m, n)
+        Y_m = [x/norm_X_m for x in X_m]
+        norm_X_n = norm(X_n, n)
+        Y_n = [x/norm_X_n for x in X_n]
+        return Y_m + Y_n
+
+    def remove_component(X):
+        """Removes components of already obtained eigen vectors from X"""
+        X_m = X[:m]
+        X_n = X[m:]
+        for eivec in eivec_m:
+            coeff = dotproduct(X_m, eivec)
+            X_m = [x1 - coeff*x2 for x1, x2 in zip(X_m, eivec)]
+        for eivec in eivec_n:
+            coeff = dotproduct(X_n, eivec)
+            X_n = [x1 - coeff*x2 for x1, x2 in zip(X_n, eivec)]
+        return X_m + X_n
+
+    m, n = len(X), len(X[0])
+    A = [[0 for _ in range(n + m)] for _ in range(n + m)]
+    for i in range(m):
+        for j in range(n):
+            A[i][m + j] = A[m + j][i] = X[i][j]
+
+    eivec_m = []
+    eivec_n = []
+    eivals = []
+
+    for _ in range(num_val):
+        X = [random.random() for _ in range(m + n)]
+        X = remove_component(X)
+        X = normalize_vec(X)
+
+        for _ in range(max_iter):
+            old_X = X
+            X = matrix_multiplication(A, [[x] for x in X])
+            X = [x[0] for x in X]
+            X = remove_component(X)
+            X = normalize_vec(X)
+            # check for convergence
+            if norm([x1 - x2 for x1, x2 in zip(old_X, X)]) <= 1e-10:
+                break
+
+        projected_X = matrix_multiplication(A, [[x] for x in X])
+        projected_X = [x[0] for x in projected_X]
+        eivals.append(norm(projected_X, 1)/norm(X, 1))
+        eivec_m.append(X[:m])
+        eivec_n.append(X[m:])
+    return (eivec_m, eivec_n, eivals)
 
 # ______________________________________________________________________________
 
