@@ -275,39 +275,62 @@ def gaussian(mean, st_dev, x):
     return 1/(math.sqrt(2*math.pi)*st_dev)*math.e**(-0.5*(float(x-mean)/st_dev)**2)
 
 
-def truncated_svd(X, max_iter=1000):
+def truncated_svd(X, num_val=2, max_iter=1000):
     """Computes the first component of SVD"""
 
     def normalize_vec(X, n = 2):
-        """Returns normalized vector"""
-        norm_X = norm(X, n)
-        Y = [x/norm_X for x in X]
-        return Y
+        """Normalizes two parts (:m and m:) of the vector"""
+        X_m = X[:m]
+        X_n = X[m:]
+        norm_X_m = norm(X_m, n)
+        Y_m = [x/norm_X_m for x in X_m]
+        norm_X_n = norm(X_n, n)
+        Y_n = [x/norm_X_n for x in X_n]
+        return Y_m + Y_n
+
+    def remove_component(X):
+        """Removes components of already obtained eigen vectors from X"""
+        X_m = X[:m]
+        X_n = X[m:]
+        for eivec in eivec_m:
+            coeff = dotproduct(X_m, eivec)
+            X_m = [x1 - coeff*x2 for x1, x2 in zip(X_m, eivec)]
+        for eivec in eivec_n:
+            coeff = dotproduct(X_n, eivec)
+            X_n = [x1 - coeff*x2 for x1, x2 in zip(X_n, eivec)]
+        return X_m + X_n
 
     m, n = len(X), len(X[0])
     A = [[0 for _ in range(n + m)] for _ in range(n + m)]
     for i in range(m):
         for j in range(n):
-            A[i][j] = A[m + j][n + i] = X[i][j]
+            A[i][m + j] = A[m + j][i] = X[i][j]
 
-    X = [random.random() for _ in range(n + m)]
-    X = normalize_vec(X)
-    for _ in range(max_iter):
-        old_X = X
-        X = matrix_multiplication(A, [[x] for x in X])
-        X = [x[0] for x in X]
+    eivec_m = []
+    eivec_n = []
+    eivals = []
+
+    for _ in range(num_val):
+        X = [random.random() for _ in range(m + n)]
+        X = remove_component(X)
         X = normalize_vec(X)
-        # check for convergence
-        if norm([x1 - x2 for x1, x2 in zip(old_X, X)]) <= 1e-10:
-            break
 
-    projected_X = matrix_multiplication(A, [[x] for x in X])
-    projected_X = [x[0] for x in projected_X]
-    eival = norm(projected_X, 1)/norm(X, 1)
-    eivec_n = normalize_vec(X[:n])
-    eivec_m = normalize_vec(X[n:])
+        for _ in range(max_iter):
+            old_X = X
+            X = matrix_multiplication(A, [[x] for x in X])
+            X = [x[0] for x in X]
+            X = remove_component(X)
+            X = normalize_vec(X)
+            # check for convergence
+            if norm([x1 - x2 for x1, x2 in zip(old_X, X)]) <= 1e-10:
+                break
 
-    return (eivec_m, eivec_n, eival)
+        projected_X = matrix_multiplication(A, [[x] for x in X])
+        projected_X = [x[0] for x in projected_X]
+        eivals.append(norm(projected_X, 1)/norm(X, 1))
+        eivec_m.append(X[:m])
+        eivec_n.append(X[m:])
+    return (eivec_m, eivec_n, eivals)
 
 
 try:  # math.isclose was added in Python 3.5; but we might be in 3.4
