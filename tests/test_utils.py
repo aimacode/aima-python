@@ -51,6 +51,10 @@ def test_mode():
     assert mode("absndkwoajfkalwpdlsdlfllalsflfdslgflal") == 'l'
 
 
+def test_powerset():
+    assert powerset([1, 2, 3]) == [(1,), (2,), (3,), (1, 2), (1, 3), (2, 3), (1, 2, 3)]
+
+
 def test_argminmax():
     assert argmin([-2, 1], key=abs) == 1
     assert argmax([-2, 1], key=abs) == -2
