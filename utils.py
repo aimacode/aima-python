@@ -8,6 +8,8 @@ import os.path
 import random
 import math
 import functools
+from itertools import chain, combinations
+
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -64,6 +66,12 @@ def mode(data):
     """Return the most common data item. If there are ties, return any one of them."""
     [(item, count)] = collections.Counter(data).most_common(1)
     return item
+
+
+def powerset(iterable):
+    """powerset([1,2,3]) --> (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
+    s = list(iterable)
+    return list(chain.from_iterable(combinations(s, r) for r in range(len(s)+1)))[1:]
 
 
 # ______________________________________________________________________________
