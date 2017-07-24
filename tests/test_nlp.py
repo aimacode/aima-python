@@ -4,20 +4,31 @@ import nlp
 from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
 from nlp import getOutlinks, Page, determineInlinks, HITS
-from nlp import Rules, Lexicon
+from nlp import Rules, Lexicon, Grammar
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
-# they are accessed by function's within nlp.py
+# they are accessed by functions within nlp.py
 
 from unittest.mock import patch
 from io import BytesIO
 
 
 def test_rules():
-    assert Rules(A="B C | D E") == {'A': [['B', 'C'], ['D', 'E']]}
+    check = {'A': [['B', 'C'], ['D', 'E']], 'B': [['E'], ['a'], ['b', 'c']]}
+    assert Rules(A="B C | D E", B="E | a | b c") == check
 
 
 def test_lexicon():
-    assert Lexicon(Art="the | a | an") == {'Art': ['the', 'a', 'an']}
+    check = {'Article': ['the', 'a', 'an'], 'Pronoun': ['i', 'you', 'he']}
+    assert Lexicon(Article="the | a | an", Pronoun="i | you | he") == check
+
+
+def test_grammar():
+    rules = Rules(A="B C | D E", B="E | a | b c")
+    lexicon = Lexicon(Article="the | a | an", Pronoun="i | you | he")
+    grammar = Grammar("Simplegram", rules, lexicon)
+
+    assert grammar.rewrites_for('A') == [['B', 'C'], ['D', 'E']]
+    assert grammar.isa('the', 'Article')
 
 
 # ______________________________________________________________________________

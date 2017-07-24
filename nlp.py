@@ -1,4 +1,4 @@
-"""A chart parser and some grammars. (Chapter 22)"""
+"""Natural Language Processing; Chart Parsing and PageRanking (Chapter 22-23)"""
 
 # (Written for the second edition of AIMA; expect some discrepanciecs
 # from the third edition until this gets reviewed.)
@@ -23,8 +23,8 @@ def Rules(**rules):
 
 def Lexicon(**rules):
     """Create a dictionary mapping symbols to alternative words.
-    >>> Lexicon(Art = "the | a | an")
-    {'Art': ['the', 'a', 'an']}
+    >>> Lexicon(Article = "the | a | an")
+    {'Article': ['the', 'a', 'an']}
     """
     for (lhs, rhs) in rules.items():
         rules[lhs] = [word.strip() for word in rhs.split('|')]
@@ -96,8 +96,8 @@ E_NP_ = Grammar('E_NP_',  # another trivial grammar for testing
                         N='man'))
 
 
-def generate_random(grammar=E_, s='S'):
-    """Replace each token in s by a random entry in grammar (recursively).
+def generate_random(grammar=E_, S='S'):
+    """Replace each token in S by a random entry in grammar (recursively).
     This is useful for testing a grammar, e.g. generate_random(E_)"""
     import random
 
@@ -111,7 +111,7 @@ def generate_random(grammar=E_, s='S'):
                 into.append(token)
         return into
 
-    return ' '.join(rewrite(s.split(), []))
+    return ' '.join(rewrite(S.split(), []))
 
 # ______________________________________________________________________________
 # Chart Parsing
