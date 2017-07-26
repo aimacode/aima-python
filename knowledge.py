@@ -81,7 +81,10 @@ def generalizations(examples_so_far, h):
                 hypotheses += h3
 
     # Add OR operations
-    hypotheses.extend(add_or(examples_so_far, h))
+    if hypotheses == [] or hypotheses == [{}]:
+        hypotheses = add_or(examples_so_far, h)
+    else:
+        hypotheses.extend(add_or(examples_so_far, h))
 
     shuffle(hypotheses)
     return hypotheses
