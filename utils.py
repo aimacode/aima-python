@@ -689,7 +689,7 @@ def Stack():
     return []
 
 
-class FIFOQueue(Queue):
+class FIFOQueue(Queue, collections.deque):
 
     """A First-In-First-Out Queue."""
 
@@ -697,28 +697,13 @@ class FIFOQueue(Queue):
         self.queue = collections.deque(items, maxlen)
 
     def append(self, item):
-        if not self.queue.maxlen or len(self.queue) < self.queue.maxlen:
-            self.queue.append(item)
-        else:
-            raise Exception('FIFOQueue is full')
+        return super().append(item)
 
     def extend(self, items):
-        if not self.queue.maxlen or len(self.queue) + len(items) <= self.queue.maxlen:
-            self.queue.extend(items)
-        else:
-            raise Exception('FIFOQueue max length exceeded')
+        return super().extend(items)
 
     def pop(self):
-        if len(self.queue) > 0:
-            return self.queue.popleft()
-        else:
-            raise Exception('FIFOQueue is empty')
-
-    def __len__(self):
-        return len(self.queue)
-
-    def __contains__(self, item):
-        return item in self.queue
+        return super().popleft()
 
 
 class PriorityQueue(Queue):
