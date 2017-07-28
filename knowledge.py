@@ -81,7 +81,10 @@ def generalizations(examples_so_far, h):
                 hypotheses += h3
 
     # Add OR operations
-    hypotheses.extend(add_or(examples_so_far, h))
+    if hypotheses == [] or hypotheses == [{}]:
+        hypotheses = add_or(examples_so_far, h)
+    else:
+        hypotheses.extend(add_or(examples_so_far, h))
 
     shuffle(hypotheses)
     return hypotheses
@@ -107,6 +110,97 @@ def add_or(examples_so_far, h):
             ors.append(h3)
 
     return ors
+
+# ______________________________________________________________________________
+
+
+def version_space_learning(examples):
+    """ [Figure 19.3]
+    The version space is a list of hypotheses, which in turn are a list
+    of dictionaries/disjunctions."""
+    V = all_hypotheses(examples)
+    for e in examples:
+        if V:
+            V = version_space_update(V, e)
+
+    return V
+
+
+def version_space_update(V, e):
+    return [h for h in V if is_consistent(e, h)]
+
+
+def all_hypotheses(examples):
+    """Builds a list of all the possible hypotheses"""
+    values = values_table(examples)
+    h_powerset = powerset(values.keys())
+    hypotheses = []
+    for s in h_powerset:
+        hypotheses.extend(build_attr_combinations(s, values))
+
+    hypotheses.extend(build_h_combinations(hypotheses))
+
+    return hypotheses
+
+
+def values_table(examples):
+    """Builds a table with all the possible values for each attribute.
+    Returns a dictionary with keys the attribute names and values a list
+    with the possible values for the corresponding attribute."""
+    values = defaultdict(lambda: [])
+    for e in examples:
+        for k, v in e.items():
+            if k == 'GOAL':
+                continue
+
+            mod = '!'
+            if e['GOAL']:
+                mod = ''
+
+            if mod + v not in values[k]:
+                values[k].append(mod + v)
+
+    values = dict(values)
+    return values
+
+
+def build_attr_combinations(s, values):
+    """Given a set of attributes, builds all the combinations of values.
+    If the set holds more than one attribute, recursively builds the
+    combinations."""
+    if len(s) == 1:
+        # s holds just one attribute, return its list of values
+        k = values[s[0]]
+        h = [[{s[0]: v}] for v in values[s[0]]]
+        return h
+
+    h = []
+    for i, a in enumerate(s):
+        rest = build_attr_combinations(s[i+1:], values)
+        for v in values[a]:
+            o = {a: v}
+            for r in rest:
+                t = o.copy()
+                for d in r:
+                    t.update(d)
+                h.append([t])
+
+    return h
+
+
+def build_h_combinations(hypotheses):
+    """Given a set of hypotheses, builds and returns all the combinations of the
+    hypotheses."""
+    h = []
+    h_powerset = powerset(range(len(hypotheses)))
+
+    for s in h_powerset:
+        t = []
+        for i in s:
+            t.extend(hypotheses[i])
+        h.append(t)
+
+    return h
 
 # ______________________________________________________________________________
 
