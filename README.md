@@ -109,7 +109,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 18.24   | Back-Prop-Learning | `BackPropagationLearner` | [`learning.py`][learning] |
 | 18.34   | AdaBoost           | `AdaBoost` | [`learning.py`][learning] |
 | 19.2    | Current-Best-Learning | `current_best_learning` | [`knowledge.py`](knowledge.py) |
-| 19.3    | Version-Space-Learning |          |
+| 19.3    | Version-Space-Learning | `version_space_learning` | [`knowledge.py`](knowledge.py) |
 | 19.8    | Minimal-Consistent-Det |          |
 | 19.12   | FOIL               |          |
 | 21.2    | Passive-ADP-Agent  | `PassiveADPAgent` | [`rl.py`][rl] |
