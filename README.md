@@ -24,7 +24,7 @@ When complete, this project will have Python code for all the pseudocode algorit
 
 # Index of Algorithms
 
-Here is a table of algorithms, the figure, name of the code in the book and in the repository, and the file where they are implemented in the code. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book.
+Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented.
 
 | **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File**
 |:--------|:-------------------|:---------|:-----------|
@@ -71,7 +71,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 7.15    | PL-FC-Entails?     | `pl_fc_resolution` | [`logic.py`][logic] |
 | 7.17    | DPLL-Satisfiable?  | `dpll_satisfiable` | [`logic.py`][logic] |
 | 7.18    | WalkSAT            | `WalkSAT` | [`logic.py`][logic] |
-| 7.20    | Hybrid-Wumpus-Agent    |         |           |
+| 7.20    | Hybrid-Wumpus-Agent    | `HybridWumpusAgent` | [`logic.py`][logic]\* |
 | 7.22    | SATPlan            | `SAT_plan`  | [`logic.py`][logic] |
 | 9       | Subst              | `subst` | [`logic.py`][logic] |
 | 9.1     | Unify              | `unify` | [`logic.py`][logic] |
@@ -105,7 +105,7 @@ Here is a table of algorithms, the figure, name of the code in the book and in t
 | 17.7    | POMDP-Value-Iteration  |           |        |
 | 18.5    | Decision-Tree-Learning | `DecisionTreeLearner` | [`learning.py`][learning] |
 | 18.8    | Cross-Validation   | `cross_validation` | [`learning.py`][learning] |
-| 18.11   | Decision-List-Learning | `DecisionListLearner` | [`learning.py`][learning] |
+| 18.11   | Decision-List-Learning | `DecisionListLearner` | [`learning.py`][learning]\* |
 | 18.24   | Back-Prop-Learning | `BackPropagationLearner` | [`learning.py`][learning] |
 | 18.34   | AdaBoost           | `AdaBoost` | [`learning.py`][learning] |
 | 19.2    | Current-Best-Learning | `current_best_learning` | [`knowledge.py`](knowledge.py) |
