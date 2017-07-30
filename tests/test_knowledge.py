@@ -23,7 +23,7 @@ def test_current_best_learning():
 
     assert values == [True, True, True, False, False, False, True]
 
-    examples = trivial
+    examples = party
     initial_h = [{'Pizza': 'Yes'}]
     h = current_best_learning(examples, initial_h)
     values = []
@@ -34,9 +34,9 @@ def test_current_best_learning():
 
 
 def test_version_space_learning():
-    V = version_space_learning(trivial)
+    V = version_space_learning(party)
     results = []
-    for e in trivial:
+    for e in party:
         guess = False
         for h in V:
             if guess_value(e, h):
@@ -49,7 +49,7 @@ def test_version_space_learning():
     assert [{'Pizza': 'Yes'}] in V
 
 
-trivial = [
+party = [
     {'Pizza': 'Yes', 'Soda': 'No', 'GOAL': True},
     {'Pizza': 'Yes', 'Soda': 'Yes', 'GOAL': True},
     {'Pizza': 'No', 'Soda': 'No', 'GOAL': False}
@@ -65,52 +65,22 @@ animals_umbrellas = [
     {'Species': 'Cat', 'Rain': 'No', 'Coat': 'Yes', 'GOAL': True}
 ]
 
+def r_example(Alt, Bar, Fri, Hun, Pat, Price, Rain, Res, Type, Est, GOAL):
+    return {'Alt': Alt, 'Bar': Bar, 'Fri': Fri, 'Hun': Hun, 'Pat': Pat,
+            'Price': Price, 'Rain': Rain, 'Res': Res, 'Type': Type, 'Est': Est,
+            'GOAL': GOAL}
+
 restaurant = [
-    {'Alt': 'Yes', 'Bar': 'No', 'Fri': 'No', 'Hun': 'Yes', 'Pat': 'Some',
-    'Price': '$$$', 'Rain': 'No', 'Res': 'Yes', 'Type': 'French', 'Est': '0-10',
-    'GOAL': True},
-
-    {'Alt': 'Yes', 'Bar': 'No', 'Fri': 'No', 'Hun': 'Yes', 'Pat': 'Full',
-    'Price': '$', 'Rain': 'No', 'Res': 'No', 'Type': 'Thai', 'Est': '30-60',
-    'GOAL': False},
-
-    {'Alt': 'No', 'Bar': 'Yes', 'Fri': 'No', 'Hun': 'No', 'Pat': 'Some',
-    'Price': '$', 'Rain': 'No', 'Res': 'No', 'Type': 'Burger', 'Est': '0-10',
-    'GOAL': True},
-
-    {'Alt': 'Yes', 'Bar': 'No', 'Fri': 'Yes', 'Hun': 'Yes', 'Pat': 'Full',
-    'Price': '$', 'Rain': 'Yes', 'Res': 'No', 'Type': 'Thai', 'Est': '10-30',
-    'GOAL': True},
-
-    {'Alt': 'Yes', 'Bar': 'No', 'Fri': 'Yes', 'Hun': 'No', 'Pat': 'Full',
-    'Price': '$$$', 'Rain': 'No', 'Res': 'Yes', 'Type': 'French', 'Est': '>60',
-    'GOAL': False},
-
-    {'Alt': 'No', 'Bar': 'Yes', 'Fri': 'No', 'Hun': 'Yes', 'Pat': 'Some',
-    'Price': '$$', 'Rain': 'Yes', 'Res': 'Yes', 'Type': 'Italian', 'Est': '0-10',
-    'GOAL': True},
-
-    {'Alt': 'No', 'Bar': 'Yes', 'Fri': 'No', 'Hun': 'No', 'Pat': 'None',
-    'Price': '$', 'Rain': 'Yes', 'Res': 'No', 'Type': 'Burger', 'Est': '0-10',
-    'GOAL': False},
-
-    {'Alt': 'No', 'Bar': 'No', 'Fri': 'No', 'Hun': 'Yes', 'Pat': 'Some',
-    'Price': '$$', 'Rain': 'Yes', 'Res': 'Yes', 'Type': 'Thai', 'Est': '0-10',
-    'GOAL': True},
-
-    {'Alt': 'No', 'Bar': 'Yes', 'Fri': 'Yes', 'Hun': 'No', 'Pat': 'Full',
-    'Price': '$', 'Rain': 'Yes', 'Res': 'No', 'Type': 'Burger', 'Est': '>60',
-    'GOAL': False},
-
-    {'Alt': 'Yes', 'Bar': 'Yes', 'Fri': 'Yes', 'Hun': 'Yes', 'Pat': 'Full',
-    'Price': '$$$', 'Rain': 'No', 'Res': 'Yes', 'Type': 'Italian', 'Est': '10-30',
-    'GOAL': False},
-
-    {'Alt': 'No', 'Bar': 'No', 'Fri': 'No', 'Hun': 'No', 'Pat': 'None',
-    'Price': '$', 'Rain': 'No', 'Res': 'No', 'Type': 'Thai', 'Est': '0-10',
-    'GOAL': False},
-
-    {'Alt': 'Yes', 'Bar': 'Yes', 'Fri': 'Yes', 'Hun': 'Yes', 'Pat': 'Full',
-    'Price': '$', 'Rain': 'No', 'Res': 'No', 'Type': 'Burger', 'Est': '30-60',
-    'GOAL': True}
+    r_example('Yes', 'No', 'No', 'Yes', 'Some', '$$$', 'No', 'Yes', 'French', '0-10', True),
+    r_example('Yes', 'No', 'No', 'Yes', 'Full', '$', 'No', 'No', 'Thai', '30-60', False),
+    r_example('No', 'Yes', 'No', 'No', 'Some', '$', 'No', 'No', 'Burger', '0-10', True),
+    r_example('Yes', 'No', 'Yes', 'Yes', 'Full', '$', 'Yes', 'No', 'Thai', '10-30', True),
+    r_example('Yes', 'No', 'Yes', 'No', 'Full', '$$$', 'No', 'Yes', 'French', '>60', False),
+    r_example('No', 'Yes', 'No', 'Yes', 'Some', '$$', 'Yes', 'Yes', 'Italian', '0-10', True),
+    r_example('No', 'Yes', 'No', 'No', 'None', '$', 'Yes', 'No', 'Burger', '0-10', False),
+    r_example('No', 'No', 'No', 'Yes', 'Some', '$$', 'Yes', 'Yes', 'Thai', '0-10', True),
+    r_example('No', 'Yes', 'Yes', 'No', 'Full', '$', 'Yes', 'No', 'Burger', '>60', False),
+    r_example('Yes', 'Yes', 'Yes', 'Yes', 'Full', '$$$', 'No', 'Yes', 'Italian', '10-30', False),
+    r_example('No', 'No', 'No', 'No', 'None', '$', 'No', 'No', 'Thai', '0-10', False),
+    r_example('Yes', 'Yes', 'Yes', 'Yes', 'Full', '$', 'No', 'No', 'Burger', '30-60', True)
 ]
