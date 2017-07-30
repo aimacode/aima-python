@@ -23,6 +23,37 @@ def test_current_best_learning():
 
     assert values == [True, True, True, False, False, False, True]
 
+    examples = trivial
+    initial_h = [{'Pizza': 'Yes'}]
+    h = current_best_learning(examples, initial_h)
+    values = []
+    for e in examples:
+        values.append(guess_value(e, h))
+
+    assert values == [True, True, False]
+
+
+def test_version_space_learning():
+    V = version_space_learning(trivial)
+    results = []
+    for e in trivial:
+        guess = False
+        for h in V:
+            if guess_value(e, h):
+                guess = True
+                break
+
+        results.append(guess)
+
+    assert results == [True, True, False]
+    assert [{'Pizza': 'Yes'}] in V
+
+
+trivial = [
+    {'Pizza': 'Yes', 'Soda': 'No', 'GOAL': True},
+    {'Pizza': 'Yes', 'Soda': 'Yes', 'GOAL': True},
+    {'Pizza': 'No', 'Soda': 'No', 'GOAL': False}
+]
 
 animals_umbrellas = [
     {'Species': 'Cat', 'Rain': 'Yes', 'Coat': 'No', 'GOAL': True},
