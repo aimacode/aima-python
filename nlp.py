@@ -75,7 +75,7 @@ class Grammar:
 def ProbRules(**rules):
     """Create a dictionary mapping symbols to alternative sequences,
     with probabilities.
-    >>> Rules(A = "B C [0.3] | D E [0.7]")
+    >>> ProbRules(A = "B C [0.3] | D E [0.7]")
     {'A': [(['B', 'C'], 0.3), (['D', 'E'], 0.7)]}
     """
     for (lhs, rhs) in rules.items():
@@ -92,7 +92,7 @@ def ProbRules(**rules):
 def ProbLexicon(**rules):
     """Create a dictionary mapping symbols to alternative words,
     with probabilities.
-    >>> Lexicon(Article = "the [0.5] | a [0.25] | an [0.25]")
+    >>> ProbLexicon(Article = "the [0.5] | a [0.25] | an [0.25]")
     {'Article': [('the', 0.5), ('a', 0.25), ('an', 0.25)]}
     """
     for (lhs, rhs) in rules.items():
