@@ -4,7 +4,7 @@ import nlp
 from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
 from nlp import getOutlinks, Page, determineInlinks, HITS
-from nlp import Rules, Lexicon, Grammar
+from nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by functions within nlp.py
 
@@ -19,7 +19,8 @@ def test_rules():
 
 def test_lexicon():
     check = {'Article': ['the', 'a', 'an'], 'Pronoun': ['i', 'you', 'he']}
-    assert Lexicon(Article="the | a | an", Pronoun="i | you | he") == check
+    lexicon = Lexicon(Article="the | a | an", Pronoun="i | you | he")
+    assert lexicon == check
 
 
 def test_grammar():
@@ -29,6 +30,66 @@ def test_grammar():
 
     assert grammar.rewrites_for('A') == [['B', 'C'], ['D', 'E']]
     assert grammar.isa('the', 'Article')
+
+
+def test_generation():
+    lexicon = Lexicon(Article="the | a | an",
+                          Pronoun="i | you | he")
+
+    rules = Rules(
+        S="Article | More | Pronoun",
+        More="Article Pronoun | Pronoun Pronoun"
+    )
+
+    grammar = Grammar("Simplegram", rules, lexicon)
+
+    sentence = grammar.generate_random('S')
+    for token in sentence.split():
+        found = False
+        for non_terminal, terminals in grammar.lexicon.items():
+            if token in terminals:
+                found = True
+        assert found
+
+
+def test_prob_rules():
+    check = {'A': [(['B', 'C'], 0.3), (['D', 'E'], 0.7)],
+             'B': [(['E'], 0.1), (['a'], 0.2), (['b', 'c'], 0.7)]}
+    rules = ProbRules(A="B C [0.3] | D E [0.7]", B="E [0.1] | a [0.2] | b c [0.7]")
+    assert rules == check
+
+
+def test_prob_lexicon():
+    check = {'Article': [('the', 0.5), ('a', 0.25), ('an', 0.25)],
+             'Pronoun': [('i', 0.4), ('you', 0.3), ('he', 0.3)]}
+    lexicon = ProbLexicon(Article="the [0.5] | a [0.25] | an [0.25]",
+                          Pronoun="i [0.4] | you [0.3] | he [0.3]")
+    assert lexicon == check
+
+
+def test_prob_grammar():
+    rules = ProbRules(A="B C [0.3] | D E [0.7]", B="E [0.1] | a [0.2] | b c [0.7]")
+    lexicon = ProbLexicon(Article="the [0.5] | a [0.25] | an [0.25]",
+                          Pronoun="i [0.4] | you [0.3] | he [0.3]")
+    grammar = ProbGrammar("Simplegram", rules, lexicon)
+
+    assert grammar.rewrites_for('A') == [(['B', 'C'], 0.3), (['D', 'E'], 0.7)]
+    assert grammar.isa('the', 'Article')
+
+
+def test_prob_generation():
+    lexicon = ProbLexicon(Verb="am [0.5] | are [0.25] | is [0.25]",
+                          Pronoun="i [0.4] | you [0.3] | he [0.3]")
+
+    rules = ProbRules(
+        S="Verb [0.5] | More [0.3] | Pronoun [0.1] | nobody is here [0.1]",
+        More="Pronoun Verb [0.7] | Pronoun Pronoun [0.3]"
+    )
+
+    grammar = ProbGrammar("Simplegram", rules, lexicon)
+
+    sentence = grammar.generate_random('S')
+    assert len(sentence) == 2
 
 
 # ______________________________________________________________________________
