@@ -4,6 +4,7 @@
 # from the third edition until this gets reviewed.)
 
 from collections import defaultdict
+from utils import weighted_choice
 import urllib.request
 import re
 
@@ -51,6 +52,104 @@ class Grammar:
         """Return True iff word is of category cat"""
         return cat in self.categories[word]
 
+    def generate_random(self, S='S'):
+        """Replace each token in S by a random entry in grammar (recursively)."""
+        import random
+
+        def rewrite(tokens, into):
+            for token in tokens:
+                if token in self.rules:
+                    rewrite(random.choice(self.rules[token]), into)
+                elif token in self.lexicon:
+                    into.append(random.choice(self.lexicon[token]))
+                else:
+                    into.append(token)
+            return into
+
+        return ' '.join(rewrite(S.split(), []))
+
+    def __repr__(self):
+        return '<Grammar {}>'.format(self.name)
+
+
+def ProbRules(**rules):
+    """Create a dictionary mapping symbols to alternative sequences,
+    with probabilities.
+    >>> ProbRules(A = "B C [0.3] | D E [0.7]")
+    {'A': [(['B', 'C'], 0.3), (['D', 'E'], 0.7)]}
+    """
+    for (lhs, rhs) in rules.items():
+        rules[lhs] = []
+        rhs_separate = [alt.strip().split() for alt in rhs.split('|')]
+        for r in rhs_separate:
+            prob = float(r[-1][1:-1]) # remove brackets, convert to float
+            rhs_rule = (r[:-1], prob)
+            rules[lhs].append(rhs_rule)
+
+    return rules
+
+
+def ProbLexicon(**rules):
+    """Create a dictionary mapping symbols to alternative words,
+    with probabilities.
+    >>> ProbLexicon(Article = "the [0.5] | a [0.25] | an [0.25]")
+    {'Article': [('the', 0.5), ('a', 0.25), ('an', 0.25)]}
+    """
+    for (lhs, rhs) in rules.items():
+        rules[lhs] = []
+        rhs_separate = [word.strip().split() for word in rhs.split('|')]
+        for r in rhs_separate:
+            prob = float(r[-1][1:-1]) # remove brackets, convert to float
+            word = r[:-1][0]
+            rhs_rule = (word, prob)
+            rules[lhs].append(rhs_rule)
+
+    return rules
+
+
+class ProbGrammar:
+
+    def __init__(self, name, rules, lexicon):
+        """A grammar has a set of rules and a lexicon.
+        Each rule has a probability."""
+        self.name = name
+        self.rules = rules
+        self.lexicon = lexicon
+        self.categories = defaultdict(list)
+        for lhs in lexicon:
+            for word, prob in lexicon[lhs]:
+                self.categories[word].append((lhs, prob))
+
+    def rewrites_for(self, cat):
+        """Return a sequence of possible rhs's that cat can be rewritten as."""
+        return self.rules.get(cat, ())
+
+    def isa(self, word, cat):
+        """Return True iff word is of category cat"""
+        return cat in [c for c, _ in self.categories[word]]
+
+    def generate_random(self, S='S'):
+        """Replace each token in S by a random entry in grammar (recursively).
+        Returns a tuple of (sentence, probability)."""
+        import random
+
+        def rewrite(tokens, into):
+            for token in tokens:
+                if token in self.rules:
+                    non_terminal, prob = weighted_choice(self.rules[token])
+                    into[1] *= prob
+                    rewrite(non_terminal, into)
+                elif token in self.lexicon:
+                    terminal, prob = weighted_choice(self.lexicon[token])
+                    into[0].append(terminal)
+                    into[1] *= prob
+                else:
+                    into[0].append(token)
+            return into
+
+        rewritten_as, prob = rewrite(S.split(), [[], 1])
+        return (' '.join(rewritten_as), prob)
+
     def __repr__(self):
         return '<Grammar {}>'.format(self.name)
 
@@ -95,23 +194,6 @@ E_NP_ = Grammar('E_NP_',  # another trivial grammar for testing
                 Lexicon(Adj='happy | handsome | hairy',
                         N='man'))
 
-
-def generate_random(grammar=E_, S='S'):
-    """Replace each token in S by a random entry in grammar (recursively).
-    This is useful for testing a grammar, e.g. generate_random(E_)"""
-    import random
-
-    def rewrite(tokens, into):
-        for token in tokens:
-            if token in grammar.rules:
-                rewrite(random.choice(grammar.rules[token]), into)
-            elif token in grammar.lexicon:
-                into.append(random.choice(grammar.lexicon[token]))
-            else:
-                into.append(token)
-        return into
-
-    return ' '.join(rewrite(S.split(), []))
 
 # ______________________________________________________________________________
 # Chart Parsing

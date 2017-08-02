@@ -291,6 +291,19 @@ except ImportError:
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
+def weighted_choice(choices):
+    """A weighted version of random.choice"""
+    # NOTE: Shoule be replaced by random.choices if we port to Python 3.6
+
+    total = sum(w for _, w in choices)
+    r = random.uniform(0, total)
+    upto = 0
+    for c, w in choices:
+        if upto + w >= r:
+            return c, w
+        upto += w
+
+
 # ______________________________________________________________________________
 # Grid Functions
 

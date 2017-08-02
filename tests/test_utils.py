@@ -173,6 +173,12 @@ def test_sigmoid_derivative():
     assert sigmoid_derivative(value) == -6
 
 
+def test_weighted_choice():
+    choices = [('a', 0.5), ('b', 0.3), ('c', 0.2)]
+    choice = weighted_choice(choices)
+    assert choice in choices
+
+
 def compare_list(x, y):
     return all([elm_x == y[i] for i, elm_x in enumerate(x)])
 
