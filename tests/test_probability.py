@@ -168,6 +168,68 @@ def test_particle_filtering():
     # XXX 'A' and 'B' are really arbitrary names, but I'm letting it stand for now
 
 
+def test_monte_carlo_localization():
+    ## TODO: Add tests for random motion/inaccurate sensors
+    random.seed('aima-python')
+    m = MCLmap([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+                [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0]])
+
+    def P_motion_sample(kin_state, v, w):
+        """Sample from possible kinematic states.
+        Returns from a single element distribution (no uncertainity in motion)"""
+        pos = kin_state[:2]
+        orient = kin_state[2]
+        
+        # for simplicity the robot first rotates and then moves
+        orient = (orient + w)%4
+        for _ in range(orient):
+            v = [v[1], -v[0]]
+        pos = list(vector_add(pos, v))
+        return pos + [orient]
+
+    def P_sensor(x, y):
+        """Conditional probability for sensor reading"""
+        # Need not be exact probability. Can use a scaled value.
+        if x == y:
+            return 0.8
+        elif abs(x - y) <= 2:
+            return 0.05
+        else:
+            return 0
+
+    from utils import print_table
+    a = {'v': [0, 0], 'w': 0}
+    z = [2, 4, 1, 6]
+    S = monte_carlo_localization(a, z, 1000, P_motion_sample, P_sensor, m)
+    grid = [[0]*17 for _ in range(11)]
+    for x, y, _ in S:
+        if 0 <= x < 11 and 0 <= y < 17:
+            grid[x][y] += 1
+    print("GRID:")
+    print_table(grid)
+
+    a = {'v': [0, 1], 'w': 0}
+    z = [2, 3, 5, 7]
+    S = monte_carlo_localization(a, z, 1000, P_motion_sample, P_sensor, m, S)
+    grid = [[0]*17 for _ in range(11)]
+    for x, y, _ in S:
+        if 0 <= x < 11 and 0 <= y < 17:
+            grid[x][y] += 1
+    print("GRID:")
+    print_table(grid)
+
+    assert grid[6][7] > 700
+
+
 # The following should probably go in .ipynb:
 
 """

@@ -649,3 +649,69 @@ def particle_filtering(e, N, HMM):
     s = weighted_sample_with_replacement(N, s, w)
 
     return s
+
+# _________________________________________________________________________
+## TODO: Implement continous map for MonteCarlo similar to Fig25.10 from the book
+
+class MCLmap:
+    """Map which provides probability distributions and sensor readings.
+    Consists of discrete cells which are either an obstacle or empty"""
+    def __init__(self, m):
+        self.m = m
+        self.nrows = len(m)
+        self.ncols = len(m[0])
+        # list of empty spaces in the map
+        self.empty = [[i, j] for i in range(self.nrows) for j in range(self.ncols) if not m[i][j]]
+
+    def sample(self):
+        """Returns a random kinematic state possible in the map"""
+        pos = random.choice(self.empty)
+        # 0N 1E 2S 3W
+        orient = random.choice(range(4))
+        kin_state = pos + [orient]
+        return kin_state
+
+    def ray_cast(self, sensor_num, kin_state):
+        """Returns distace to nearest obstacle or map boundary in the direction of sensor"""
+        pos = kin_state[:2]
+        orient = kin_state[2]
+        # sensor layout when orientation is 0 (towards North)
+        #  0
+        # 3R1
+        #  2
+        delta = [(sensor_num%2 == 0)*(sensor_num - 1), (sensor_num%2 == 1)*(2 - sensor_num)]
+        # sensor direction changes based on orientation
+        for _ in range(orient):
+            delta = [delta[1], -delta[0]]
+        range_count = 0
+        while (0 <= pos[0] < self.nrows) and (0 <= pos[1] < self.nrows) and (not self.m[pos[0]][pos[1]]):
+            pos = vector_add(pos, delta)
+            range_count += 1
+        return range_count
+
+
+def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
+    """Monte Carlo localization algorithm from Fig 25.9"""
+
+    def ray_cast(sensor_num, kin_state, m):
+        return m.ray_cast(sensor_num, kin_state)
+
+    M = len(z)
+    W = [0]*N
+    S_ = [0]*N
+    W_ = [0]*N
+    v = a['v']
+    w = a['w']
+
+    if S is None:
+        S = [m.sample() for _ in range(N)]
+
+    for i in range(N):
+        S_[i] = P_motion_sample(S[i], v, w)
+        W_[i] = 1
+        for j in range(M):
+            z_ = ray_cast(j, S_[i], m)
+            W_[i] = W_[i] * P_sensor(z[j], z_)
+
+    S = weighted_sample_with_replacement(N, S_, W_)
+    return S
