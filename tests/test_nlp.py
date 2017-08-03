@@ -5,6 +5,7 @@ from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
 from nlp import getOutlinks, Page, determineInlinks, HITS
 from nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
+from nlp import CYK_parse
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by functions within nlp.py
 
@@ -90,6 +91,13 @@ def test_prob_generation():
 
     sentence = grammar.generate_random('S')
     assert len(sentence) == 2
+
+
+def test_CYK_parse():
+    grammar = nlp.E_Prob_Chomsky
+    words = ['the', 'robot', 'is', 'good']
+    P = CYK_parse(words, grammar)
+    assert len(P) == 52
 
 
 # ______________________________________________________________________________

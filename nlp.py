@@ -116,6 +116,7 @@ class ProbGrammar:
         self.rules = rules
         self.lexicon = lexicon
         self.categories = defaultdict(list)
+
         for lhs in lexicon:
             for word, prob in lexicon[lhs]:
                 self.categories[word].append((lhs, prob))
@@ -127,6 +128,16 @@ class ProbGrammar:
     def isa(self, word, cat):
         """Return True iff word is of category cat"""
         return cat in [c for c, _ in self.categories[word]]
+
+    def cnf_rules(self):
+        """Returns the tuple (X, Y, Z, p) for rules in the form:
+        X -> Y Z [p]"""
+        cnf = []
+        for X, rules in self.rules.items():
+            for (Y, Z), p in rules:
+                cnf.append((X, Y, Z, p))
+
+        return cnf
 
     def generate_random(self, S='S'):
         """Replace each token in S by a random entry in grammar (recursively).
@@ -189,10 +200,47 @@ E_ = Grammar('E_',  # Trivial Grammar and lexicon for testing
                  V='saw | liked | feel'
              ))
 
-E_NP_ = Grammar('E_NP_',  # another trivial grammar for testing
+E_NP_ = Grammar('E_NP_',  # Another Trivial Grammar for testing
                 Rules(NP='Adj NP | N'),
                 Lexicon(Adj='happy | handsome | hairy',
                         N='man'))
+
+E_Prob = ProbGrammar('E_Prob', # The Probabilistic Grammar from the notebook
+                     ProbRules(
+                         S="NP VP [0.6] | S Conjuction S [0.4]",
+                         NP="Pronoun [0.2] | Name [0.05] | Noun [0.2] | Article Noun [0.15] \
+                             | Article Adjs Noun [0.1] | Digit [0.05] | NP PP [0.15] | NP RelClause [0.1]",
+                         VP="Verb [0.3] | VP NP [0.2] | VP Adjective [0.25] | VP PP [0.15] | VP Adverb [0.1]",
+                         Adjs="Adjective [0.5] | Adjective Adjs [0.5]",
+                         PP="Preposition NP [1]",
+                         RelClause="RelPro VP [1]"
+                     ),
+                     ProbLexicon(
+                         Verb="is [0.5] | say [0.3] | are [0.2]",
+                         Noun="robot [0.4] | sheep [0.4] | fence [0.2]",
+                         Adjective="good [0.5] | new [0.2] | sad [0.3]",
+                         Adverb="here [0.6] | lightly [0.1] | now [0.3]",
+                         Pronoun="me [0.3] | you [0.4] | he [0.3]",
+                         RelPro="that [0.5] | who [0.3] | which [0.2]",
+                         Name="john [0.4] | mary [0.4] | peter [0.2]",
+                         Article="the [0.5] | a [0.25] | an [0.25]",
+                         Preposition="to [0.4] | in [0.3] | at [0.3]",
+                         Conjuction="and [0.5] | or [0.2] | but [0.3]",
+                         Digit="0 [0.35] | 1 [0.35] | 2 [0.3]"
+                     ))
+
+E_Prob_Chomsky = ProbGrammar('E_Prob_Chomsky', # A Probabilistic Grammar in CNF
+                             ProbRules(
+                                S='NP VP [1]',
+                                NP='Article Noun [0.6] | Adjective Noun [0.4]',
+                                VP='Verb NP [0.5] | Verb Adjective [0.5]',
+                             ),
+                             ProbLexicon(
+                                Article='the [0.5] | a [0.25] | an [0.25]',
+                                Noun='robot [0.4] | sheep [0.4] | fence [0.2]',
+                                Adjective='good [0.5] | new [0.2] | sad [0.3]',
+                                Verb='is [0.5] | say [0.3] | are [0.2]'
+                             ))
 
 
 # ______________________________________________________________________________
@@ -236,7 +284,7 @@ class Chart:
         return self.chart
 
     def add_edge(self, edge):
-        "Add edge to chart, and see if it extends or predicts another edge."
+        """Add edge to chart, and see if it extends or predicts another edge."""
         start, end, lhs, found, expects = edge
         if edge not in self.chart[end]:
             self.chart[end].append(edge)
@@ -248,13 +296,13 @@ class Chart:
                 self.predictor(edge)
 
     def scanner(self, j, word):
-        "For each edge expecting a word of this category here, extend the edge."
+        """For each edge expecting a word of this category here, extend the edge."""
         for (i, j, A, alpha, Bb) in self.chart[j]:
             if Bb and self.grammar.isa(word, Bb[0]):
                 self.add_edge([i, j+1, A, alpha + [(Bb[0], word)], Bb[1:]])
 
     def predictor(self, edge):
-        "Add to chart any rules for B that could help extend this edge."
+        """Add to chart any rules for B that could help extend this edge."""
         (i, j, A, alpha, Bb) = edge
         B = Bb[0]
         if B in self.grammar.rules:
@@ -262,7 +310,7 @@ class Chart:
                 self.add_edge([j, j, B, [], rhs])
 
     def extender(self, edge):
-        "See what edges can be extended by this edge."
+        """See what edges can be extended by this edge."""
         (j, k, B, _, _) = edge
         for (i, j, A, alpha, B1b) in self.chart[j]:
             if B1b and B == B1b[0]:
@@ -273,23 +321,26 @@ class Chart:
 # CYK Parsing
 
 def CYK_parse(words, grammar):
-    "[Figure 23.5]"
+    """ [Figure 23.5] """
     # We use 0-based indexing instead of the book's 1-based.
     N = len(words)
     P = defaultdict(float)
+
     # Insert lexical rules for each word.
     for (i, word) in enumerate(words):
-        for (X, p) in grammar.categories[word]:  # XXX grammar.categories needs changing, above
+        for (X, p) in grammar.categories[word]:
             P[X, i, 1] = p
+
     # Combine first and second parts of right-hand sides of rules,
     # from short to long.
     for length in range(2, N+1):
         for start in range(N-length+1):
             for len1 in range(1, length):  # N.B. the book incorrectly has N instead of length
                 len2 = length - len1
-                for (X, Y, Z, p) in grammar.cnf_rules():  # XXX grammar needs this method
+                for (X, Y, Z, p) in grammar.cnf_rules():
                     P[X, start, length] = max(P[X, start, length],
                                               P[Y, start, len1] * P[Z, start+len1, len2] * p)
+
     return P
 
 
@@ -394,6 +445,7 @@ def relevant_pages(query):
                 hit_list.add(addr)
         hit_intersection = hit_intersection.intersection(hit_list)
     return {addr: pagesIndex[addr] for addr in hit_intersection}
+
 
 def normalize(pages):
     """Normalize divides each page's score by the sum of the squares of all
