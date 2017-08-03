@@ -192,9 +192,9 @@ def test_monte_carlo_localization():
         # for simplicity the robot first rotates and then moves
         orient = (orient + w)%4
         for _ in range(orient):
-            v = [v[1], -v[0]]
-        pos = list(vector_add(pos, v))
-        return pos + [orient]
+            v = (v[1], -v[0])
+        pos = vector_add(pos, v)
+        return pos + (orient,)
 
     def P_sensor(x, y):
         """Conditional probability for sensor reading"""
@@ -207,8 +207,8 @@ def test_monte_carlo_localization():
             return 0
 
     from utils import print_table
-    a = {'v': [0, 0], 'w': 0}
-    z = [2, 4, 1, 6]
+    a = {'v': (0, 0), 'w': 0}
+    z = (2, 4, 1, 6)
     S = monte_carlo_localization(a, z, 1000, P_motion_sample, P_sensor, m)
     grid = [[0]*17 for _ in range(11)]
     for x, y, _ in S:
@@ -217,8 +217,8 @@ def test_monte_carlo_localization():
     print("GRID:")
     print_table(grid)
 
-    a = {'v': [0, 1], 'w': 0}
-    z = [2, 3, 5, 7]
+    a = {'v': (0, 1), 'w': 0}
+    z = (2, 3, 5, 7)
     S = monte_carlo_localization(a, z, 1000, P_motion_sample, P_sensor, m, S)
     grid = [[0]*17 for _ in range(11)]
     for x, y, _ in S:

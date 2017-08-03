@@ -661,14 +661,14 @@ class MCLmap:
         self.nrows = len(m)
         self.ncols = len(m[0])
         # list of empty spaces in the map
-        self.empty = [[i, j] for i in range(self.nrows) for j in range(self.ncols) if not m[i][j]]
+        self.empty = [(i, j) for i in range(self.nrows) for j in range(self.ncols) if not m[i][j]]
 
     def sample(self):
         """Returns a random kinematic state possible in the map"""
         pos = random.choice(self.empty)
         # 0N 1E 2S 3W
         orient = random.choice(range(4))
-        kin_state = pos + [orient]
+        kin_state = pos + (orient,)
         return kin_state
 
     def ray_cast(self, sensor_num, kin_state):
@@ -679,10 +679,10 @@ class MCLmap:
         #  0
         # 3R1
         #  2
-        delta = [(sensor_num%2 == 0)*(sensor_num - 1), (sensor_num%2 == 1)*(2 - sensor_num)]
+        delta = ((sensor_num%2 == 0)*(sensor_num - 1), (sensor_num%2 == 1)*(2 - sensor_num))
         # sensor direction changes based on orientation
         for _ in range(orient):
-            delta = [delta[1], -delta[0]]
+            delta = (delta[1], -delta[0])
         range_count = 0
         while (0 <= pos[0] < self.nrows) and (0 <= pos[1] < self.nrows) and (not self.m[pos[0]][pos[1]]):
             pos = vector_add(pos, delta)
