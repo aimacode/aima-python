@@ -52,6 +52,16 @@ class Grammar:
         """Return True iff word is of category cat"""
         return cat in self.categories[word]
 
+    def cnf_rules(self):
+        """Returns the tuple (X, Y, Z) for rules in the form:
+        X -> Y Z"""
+        cnf = []
+        for X, rules in self.rules.items():
+            for (Y, Z) in rules:
+                cnf.append((X, Y, Z))
+
+        return cnf
+
     def generate_random(self, S='S'):
         """Replace each token in S by a random entry in grammar (recursively)."""
         import random
@@ -228,6 +238,21 @@ E_Prob = ProbGrammar('E_Prob', # The Probabilistic Grammar from the notebook
                          Conjuction="and [0.5] | or [0.2] | but [0.3]",
                          Digit="0 [0.35] | 1 [0.35] | 2 [0.3]"
                      ))
+
+
+
+E_Chomsky = Grammar('E_Prob_Chomsky', # A Grammar in Chomsky Normal Form
+        Rules(
+           S='NP VP',
+           NP='Article Noun | Adjective Noun',
+           VP='Verb NP | Verb Adjective',
+        ),
+        Lexicon(
+           Article='the | a | an',
+           Noun='robot | sheep | fence',
+           Adjective='good | new | sad',
+           Verb='is | say | are'
+        ))
 
 E_Prob_Chomsky = ProbGrammar('E_Prob_Chomsky', # A Probabilistic Grammar in CNF
                              ProbRules(
