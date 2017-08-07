@@ -152,14 +152,16 @@ def test_decision_tree_learner():
 
 
 def test_random_forest():
+    random.seed("aima-python")
     iris = DataSet(name="iris")
     rF = RandomForest(iris)
     assert rF([5, 3, 1, 0.1]) == "setosa"
-    assert rF([6, 5, 3, 1.5]) == "versicolor"
+    assert rF([6, 5, 3, 1]) == "versicolor"
     assert rF([7.5, 4, 6, 2]) == "virginica"
 
 
 def test_neural_network_learner():
+    random.seed("aima-python")
     iris = DataSet(name="iris")
     classes = ["setosa", "versicolor", "virginica"]
     iris.classes_to_numbers(classes)
