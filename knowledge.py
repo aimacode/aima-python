@@ -3,6 +3,7 @@
 from random import shuffle
 from utils import powerset
 from collections import defaultdict
+from itertools import combinations
 
 # ______________________________________________________________________________
 
@@ -201,6 +202,29 @@ def build_h_combinations(hypotheses):
         h.append(t)
 
     return h
+
+# ______________________________________________________________________________
+
+
+def minimal_consistent_det(E, A):
+    n = len(A)
+
+    for i in range(n + 1):
+        for A_i in combinations(A, i):
+            if consistent_det(A_i, E):
+                return set(A_i)
+
+
+def consistent_det(A, E):
+    H = {}
+
+    for e in E:
+        attr_values = tuple(e[attr] for attr in A)
+        if attr_values in H and H[attr_values] != e['GOAL']:
+            return False
+        H[attr_values] = e['GOAL']
+
+    return True
 
 # ______________________________________________________________________________
 
