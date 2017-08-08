@@ -32,6 +32,10 @@ def test_grammar():
     assert grammar.rewrites_for('A') == [['B', 'C'], ['D', 'E']]
     assert grammar.isa('the', 'Article')
 
+    grammar = nlp.E_Chomsky
+    for rule in grammar.cnf_rules():
+        assert len(rule) == 3
+
 
 def test_generation():
     lexicon = Lexicon(Article="the | a | an",
@@ -76,6 +80,10 @@ def test_prob_grammar():
 
     assert grammar.rewrites_for('A') == [(['B', 'C'], 0.3), (['D', 'E'], 0.7)]
     assert grammar.isa('the', 'Article')
+
+    grammar = nlp.E_Prob_Chomsky
+    for rule in grammar.cnf_rules():
+        assert len(rule) == 4
 
 
 def test_prob_generation():
