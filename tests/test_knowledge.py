@@ -49,6 +49,14 @@ def test_version_space_learning():
     assert [{'Pizza': 'Yes'}] in V
 
 
+def test_minimal_consistent_det():
+    assert minimal_consistent_det(party, {'Pizza', 'Soda'}) == {'Pizza'}
+    assert minimal_consistent_det(party[:2], {'Pizza', 'Soda'}) == set()
+    assert minimal_consistent_det(animals_umbrellas, {'Species', 'Rain', 'Coat'}) == {'Species', 'Rain', 'Coat'}
+    assert minimal_consistent_det(conductance, {'Mass', 'Temp', 'Material', 'Size'}) == {'Temp', 'Material'}
+    assert minimal_consistent_det(conductance, {'Mass', 'Temp', 'Size'}) == {'Mass', 'Temp', 'Size'}
+
+
 party = [
     {'Pizza': 'Yes', 'Soda': 'No', 'GOAL': True},
     {'Pizza': 'Yes', 'Soda': 'Yes', 'GOAL': True},
@@ -63,6 +71,18 @@ animals_umbrellas = [
     {'Species': 'Dog', 'Rain': 'No', 'Coat': 'No', 'GOAL': False},
     {'Species': 'Cat', 'Rain': 'No', 'Coat': 'No', 'GOAL': False},
     {'Species': 'Cat', 'Rain': 'No', 'Coat': 'Yes', 'GOAL': True}
+]
+
+conductance = [
+    {'Sample': 'S1', 'Mass': 12, 'Temp': 26, 'Material': 'Cu', 'Size': 3, 'GOAL': 0.59},
+    {'Sample': 'S1', 'Mass': 12, 'Temp': 100, 'Material': 'Cu', 'Size': 3, 'GOAL': 0.57},
+    {'Sample': 'S2', 'Mass': 24, 'Temp': 26, 'Material': 'Cu', 'Size': 6, 'GOAL': 0.59},
+    {'Sample': 'S3', 'Mass': 12, 'Temp': 26, 'Material': 'Pb', 'Size': 2, 'GOAL': 0.05},
+    {'Sample': 'S3', 'Mass': 12, 'Temp': 100, 'Material': 'Pb', 'Size': 2, 'GOAL': 0.04},
+    {'Sample': 'S4', 'Mass': 18, 'Temp': 100, 'Material': 'Pb', 'Size': 3, 'GOAL': 0.04},
+    {'Sample': 'S4', 'Mass': 18, 'Temp': 100, 'Material': 'Pb', 'Size': 3, 'GOAL': 0.04},
+    {'Sample': 'S5', 'Mass': 24, 'Temp': 100, 'Material': 'Pb', 'Size': 4, 'GOAL': 0.04},
+    {'Sample': 'S6', 'Mass': 36, 'Temp': 26, 'Material': 'Pb', 'Size': 6, 'GOAL': 0.05},
 ]
 
 def r_example(Alt, Bar, Fri, Hun, Pat, Price, Rain, Res, Type, Est, GOAL):
