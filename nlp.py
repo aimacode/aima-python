@@ -1,8 +1,5 @@
 """Natural Language Processing; Chart Parsing and PageRanking (Chapter 22-23)"""
 
-# (Written for the second edition of AIMA; expect some discrepanciecs
-# from the third edition until this gets reviewed.)
-
 from collections import defaultdict
 from utils import weighted_choice
 import urllib.request
@@ -274,7 +271,7 @@ E_Prob_Chomsky = ProbGrammar('E_Prob_Chomsky', # A Probabilistic Grammar in CNF
 
 class Chart:
 
-    """Class for parsing sentences using a chart data structure. [Figure 22.7]
+    """Class for parsing sentences using a chart data structure.
     >>> chart = Chart(E0);
     >>> len(chart.parses('the stench is in 2 2'))
     1
