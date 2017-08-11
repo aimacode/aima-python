@@ -1,4 +1,10 @@
 from IPython.display import HTML, display
+
+from inspect import getsource
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import PythonLexer
+from pygments import highlight
+
 from utils import argmax, argmin
 from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, infinity
 from logic import parse_definite_clause, standardize_variables, unify, subst
@@ -10,6 +16,14 @@ import os, struct
 import array
 import numpy as np
 from collections import Counter
+
+
+# ______________________________________________________________________________
+
+
+def psource(*functions):
+    "Print the source code for the given function(s)."
+    display(HTML(highlight(''.join(getsource(fn) for fn in functions), PythonLexer(), HtmlFormatter(full=True))))
 
 
 # ______________________________________________________________________________
