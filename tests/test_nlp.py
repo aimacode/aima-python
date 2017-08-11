@@ -5,7 +5,7 @@ from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
 from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
 from nlp import getOutlinks, Page, determineInlinks, HITS
 from nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
-from nlp import CYK_parse
+from nlp import Chart, CYK_parse
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by functions within nlp.py
 
@@ -99,6 +99,12 @@ def test_prob_generation():
 
     sentence = grammar.generate_random('S')
     assert len(sentence) == 2
+
+
+def test_chart_parsing():
+    chart = Chart(nlp.E0)
+    parses = chart.parses('the stench is in 2 2')
+    assert len(parses) == 1
 
 
 def test_CYK_parse():
