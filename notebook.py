@@ -2,7 +2,7 @@ from utils import argmax, argmin
 from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, infinity
 from logic import parse_definite_clause, standardize_variables, unify, subst
 from learning import DataSet
-from IPython.display import HTML, Markdown, display
+from IPython.display import HTML, display
 from collections import Counter
 
 import matplotlib.pyplot as plt
@@ -20,6 +20,18 @@ def psource(*functions):
     import inspect
 
     print('\n\n'.join(inspect.getsource(fn) for fn in functions))
+
+
+def pseudocode(algorithm):
+    from urllib.request import urlopen
+    from IPython.display import Markdown
+
+    url = "https://raw.githubusercontent.com/aimacode/aima-pseudocode/master/md/{}.md".format(algorithm)
+    f = urlopen(url)
+    md = f.read().decode('utf-8')
+    md = md.split('\n', 1)[-1].strip()
+    md = '#' + md
+    return Markdown(md)
 
 # ______________________________________________________________________________
 
