@@ -327,7 +327,7 @@ def NaiveBayesSimple(distribution):
         """Predict the target value for example. Calculate probabilities for each
         class and pick the max."""
         def class_probability(targetval):
-            attr_dist = attr_dists[targetval].dictionary
+            attr_dist = attr_dists[targetval]
             return target_dist[targetval] * product(attr_dist[a] for a in example)
 
         return argmax(target_dist.keys(), key=class_probability)
