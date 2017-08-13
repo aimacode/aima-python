@@ -335,7 +335,6 @@ def NaiveBayesSimple(distribution):
     return predict
 
 
-
 def NaiveBayesDiscrete(dataset):
     """Just count how many times each value of each input attribute
     occurs, conditional on the target value. Count the different
