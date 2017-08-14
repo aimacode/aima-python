@@ -339,7 +339,6 @@ def test_min_conflicts():
     assert min_conflicts(australia_impossible, 1000) is None
 
 
-
 def test_universal_dict():
     d = UniversalDict(42)
     assert d['life'] == 42
