@@ -7,7 +7,6 @@ from learning import *
 
 random.seed("aima-python")
 
-
 def test_euclidean():
     distance = euclidean_distance([1, 2], [3, 4])
     assert round(distance, 2) == 2.83
@@ -190,6 +189,16 @@ def test_perceptron():
     assert grade_learner(perceptron, tests) > 1/2
     assert err_ratio(perceptron, iris) < 0.4
 
+
+def test_train_and_test():
+    dataset = DataSet(name="iris")
+    start = 50
+    end = 100
+
+    train_set, validation_set = train_and_test(dataset, start, end)
+
+    assert len(train_set) == 100
+    assert len(validation_set) == 50
 
 def test_random_weights():
     min_value = -0.5

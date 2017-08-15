@@ -293,7 +293,7 @@ class CountingProbDist:
 # ______________________________________________________________________________
 
 
-def PluralityLearner(dataset):
+def PluralityLearner(dataset, size=None):
     """A very dumb algorithm: always pick the result that was most popular
     in the training data.  Makes a baseline for comparison."""
     most_popular = mode([e[dataset.target] for e in dataset.examples])
@@ -306,14 +306,14 @@ def PluralityLearner(dataset):
 # ______________________________________________________________________________
 
 
-def NaiveBayesLearner(dataset, continuous=True):
+def NaiveBayesLearner(dataset, size=None, continuous=True):
     if(continuous):
-        return NaiveBayesContinuous(dataset)
+        return NaiveBayesContinuous(dataset, size)
     else:
-        return NaiveBayesDiscrete(dataset)
+        return NaiveBayesDiscrete(dataset, size)
 
 
-def NaiveBayesDiscrete(dataset):
+def NaiveBayesDiscrete(dataset, size):
     """Just count how many times each value of each input attribute
     occurs, conditional on the target value. Count the different
     target values too."""
@@ -341,7 +341,7 @@ def NaiveBayesDiscrete(dataset):
     return predict
 
 
-def NaiveBayesContinuous(dataset):
+def NaiveBayesContinuous(dataset, size):
     """Count how many times each target value occurs.
     Also, find the means and deviations of input attribute values for each target value."""
     means, deviations = dataset.find_means_and_deviations()
@@ -491,7 +491,7 @@ class DecisionLeaf:
 # ______________________________________________________________________________
 
 
-def DecisionTreeLearner(dataset):
+def DecisionTreeLearner(dataset, size=None):
     """[Figure 18.5]"""
 
     target, values = dataset.target, dataset.values
@@ -998,38 +998,53 @@ def train_and_test(dataset, start, end):
     return train, val
 
 
+def partition(dataset, fold, k):
+    num_examples = len(dataset.examples)
+    return train_and_test(dataset, fold * (num_examples / k), (fold + 1) * (num_examples / k))
+
+
 def cross_validation(learner, size, dataset, k=10, trials=1):
     """Do k-fold cross_validate and return their mean.
     That is, keep out 1/k of the examples for testing on each of k runs.
     Shuffle the examples first; if trials>1, average over several shuffles.
     Returns Training error, Validataion error"""
-    if k is None:
-        k = len(dataset.examples)
     if trials > 1:
         trial_errT = 0
         trial_errV = 0
+
         for t in range(trials):
-            errT, errV = cross_validation(learner, size, dataset,
-                                          k=10, trials=1)
+            errT, errV = cross_validation(learner, size, dataset, k)
             trial_errT += errT
             trial_errV += errV
+
         return trial_errT / trials, trial_errV / trials
     else:
         fold_errT = 0
         fold_errV = 0
-        n = len(dataset.examples)
+
         examples = dataset.examples
         for fold in range(k):
             random.shuffle(dataset.examples)
-            train_data, val_data = train_and_test(dataset, fold * (n / k),
-                                                  (fold + 1) * (n / k))
-            dataset.examples = train_data
+            training_set, validation_set = partition(dataset, fold, k)
             h = learner(dataset, size)
+
             fold_errT += err_ratio(h, dataset, train_data)
             fold_errV += err_ratio(h, dataset, val_data)
+
             # Reverting back to original once test is completed
             dataset.examples = examples
+
         return fold_errT / k, fold_errV / k
+
+
+def leave_one_out(learner, dataset, size=None):
+    """Leave one out cross-validation over the dataset."""
+    return cross_validation(learner, size, dataset, k=len(dataset.examples))
+
+
+def converges(err_val):
+    """Check for convergence provided err_val has more than two values"""
+    return err_val >= 2 and isclose(err_val[-2], err_val[-1], rel_tol=1e-6)
 
 
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
@@ -1039,8 +1054,9 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     err_train: A training error array, indexed by size
     err_val: A validation error array, indexed by size
     """
-    err_val = []
     err_train = []
+    err_val = []
+
     size = 1
 
     while True:
@@ -1056,15 +1072,15 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
                     min_val = err_val[i]
                     best_size = i
                 i += 1
+
         err_val.append(errV)
         err_train.append(errT)
-        print(err_val)
+
+        if converges(err_val):
+            best_size = size
+            return learner(dataset, best_size)
+
         size += 1
-
-
-def leave_one_out(learner, dataset, size=None):
-    """Leave one out cross-validation over the dataset."""
-    return cross_validation(learner, size, dataset, k=len(dataset.examples))
 
 
 def learningcurve(learner, dataset, trials=10, sizes=None):
@@ -1189,14 +1205,14 @@ def ContinuousXor(n):
 # ______________________________________________________________________________
 
 
-def compare(algorithms=[PluralityLearner, NaiveBayesLearner,
-                        NearestNeighborLearner, DecisionTreeLearner],
-            datasets=[iris, orings, zoo, restaurant, SyntheticRestaurant(20),
-                      Majority(7, 100), Parity(7, 100), Xor(100)],
-            k=10, trials=1):
+def compare(algorithms=[PluralityLearner, NaiveBayesLearner, NearestNeighborLearner,
+                        DecisionTreeLearner],
+            datasets=[iris, orings, zoo, restaurant, SyntheticRestaurant(20), Majority(7, 100),
+                      Parity(7, 100), Xor(100)],
+            k=10, size=3, trials=1):
     """Compare various learners on various datasets using cross-validation.
     Print results as a table."""
     print_table([[a.__name__.replace('Learner', '')] +
-                 [cross_validation(a, d, k, trials) for d in datasets]
+                 [cross_validation(a, size, d, k, trials) for d in datasets]
                  for a in algorithms],
-                header=[''] + [d.name[0:7] for d in datasets], numfmt='%.2f')
+                 header=[''] + [d.name[0:7] for d in datasets], numfmt='{:.2f}')
