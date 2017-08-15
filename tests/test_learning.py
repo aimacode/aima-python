@@ -106,11 +106,11 @@ def test_naive_bayes():
     assert nBC([7, 3, 6.5, 2]) == "virginica"
 
     # Simple
-    data1 = ['a']*50 + ['b']*30 + ['c']*15
+    data1 = 'a'*50 + 'b'*30 + 'c'*15
     dist1 = CountingProbDist(data1)
-    data2 = ['a']*30 + ['b']*45 + ['c']*20
+    data2 = 'a'*30 + 'b'*45 + 'c'*20
     dist2 = CountingProbDist(data2)
-    data3 = ['a']*20 + ['b']*20 + ['c']*35
+    data3 = 'a'*20 + 'b'*20 + 'c'*35
     dist3 = CountingProbDist(data3)
 
     dist = {('First', 0.5): dist1, ('Second', 0.3): dist2, ('Third', 0.2): dist3}
