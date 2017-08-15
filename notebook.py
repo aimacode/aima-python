@@ -1,3 +1,5 @@
+from inspect import getsource
+
 from utils import argmax, argmin
 from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, infinity
 from logic import parse_definite_clause, standardize_variables, unify, subst
@@ -20,6 +22,23 @@ def psource(*functions):
     import inspect
 
     print('\n\n'.join(inspect.getsource(fn) for fn in functions))
+
+# ______________________________________________________________________________
+
+
+def psource(*functions):
+    "Print the source code for the given function(s)."
+    source_code = '\n\n'.join(getsource(fn) for fn in functions)
+    try:
+        from pygments.formatters import HtmlFormatter
+        from pygments.lexers import PythonLexer
+        from pygments import highlight
+                              
+        display(HTML(highlight(source_code, PythonLexer(), HtmlFormatter(full=True))))
+    
+    except ImportError:
+        print(source_code)
+
 
 # ______________________________________________________________________________
 
