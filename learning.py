@@ -306,11 +306,33 @@ def PluralityLearner(dataset):
 # ______________________________________________________________________________
 
 
-def NaiveBayesLearner(dataset, continuous=True):
+def NaiveBayesLearner(dataset, continuous=True, simple=False):
+    if simple:
+        return NaiveBayesSimple(dataset)
     if(continuous):
         return NaiveBayesContinuous(dataset)
     else:
         return NaiveBayesDiscrete(dataset)
+
+
+def NaiveBayesSimple(distribution):
+    """A simple naive bayes classifier that takes as input a dictionary of
+    CountingProbDist objects and classifies items according to these distributions.
+    The input dictionary is in the following form:
+        (ClassName, ClassProb): CountingProbDist"""
+    target_dist = {c_name: prob for c_name, prob in distribution.keys()}
+    attr_dists = {c_name: count_prob for (c_name, _), count_prob in distribution.items()}
+
+    def predict(example):
+        """Predict the target value for example. Calculate probabilities for each
+        class and pick the max."""
+        def class_probability(targetval):
+            attr_dist = attr_dists[targetval]
+            return target_dist[targetval] * product(attr_dist[a] for a in example)
+
+        return argmax(target_dist.keys(), key=class_probability)
+
+    return predict
 
 
 def NaiveBayesDiscrete(dataset):
