@@ -20,7 +20,7 @@ When complete, this project will have Python code for all the pseudocode algorit
 
 - `nlp.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
 - `nlp.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
-- `nlp_apps.ipynbg`: A Jupyter notebook that gives example applications of the code.
+- `nlp_apps.ipynb`: A Jupyter notebook that gives example applications of the code.
 - `tests/test_nlp.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
 
 # Index of Algorithms
