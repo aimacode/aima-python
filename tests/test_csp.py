@@ -331,7 +331,7 @@ def test_backtracking_search():
 
 
 def test_min_conflicts():
-    random.seed = 'aima-python'
+    random.seed("aima-python")
     assert min_conflicts(australia)
     assert min_conflicts(usa)
     assert min_conflicts(france)
