@@ -102,7 +102,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 16.9    | Information-Gathering-Agent |          |              |
 | 17.4    | Value-Iteration    | `value_iteration` | [`mdp.py`][mdp] | Done |
 | 17.7    | Policy-Iteration   | `policy_iteration` | [`mdp.py`][mdp] | Done |
-| 17.7    | POMDP-Value-Iteration  |           |        | |
+| 17.9    | POMDP-Value-Iteration  |           |        | |
 | 18.5    | Decision-Tree-Learning | `DecisionTreeLearner` | [`learning.py`][learning] | Done |
 | 18.8    | Cross-Validation   | `cross_validation` | [`learning.py`][learning] | |
 | 18.11   | Decision-List-Learning | `DecisionListLearner` | [`learning.py`][learning]\* | |
@@ -116,7 +116,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 21.4    | Passive-TD-Agent   | `PassiveTDAgent` | [`rl.py`][rl] | Done |
 | 21.8    | Q-Learning-Agent   | `QLearningAgent` | [`rl.py`][rl] | Done |
 | 22.1    | HITS               | `HITS`  | [`nlp.py`][nlp] | Done |
-| 23      | Chart-Parse        | `Chart` | [`nlp.py`][nlp] | |
+| 23      | Chart-Parse        | `Chart` | [`nlp.py`][nlp] | Done |
 | 23.5    | CYK-Parse          | `CYK_parse` | [`nlp.py`][nlp] | Done |
 | 25.9    | Monte-Carlo-Localization| `monte_carlo_localization` | [`probability.py`][probability] | Done |
 
