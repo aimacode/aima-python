@@ -16,7 +16,7 @@ In addition to the `filename.py` files, there are also `filename.ipynb` files, w
 
 ## Structure of the Project
 
-When complete, this project will have Python code for all the pseudocode algorithms in the book. For each major topic, such as `logic`, we will have the following three files in the main branch:
+When complete, this project will have Python code for all the pseudocode algorithms in the book. For each major topic, such as `nlp`, we will have the following three files in the main branch:
 
 - `nlp.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
 - `nlp.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
@@ -29,7 +29,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 
 | **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File** | **Tests**
 |:--------|:-------------------|:---------|:-----------|:-------|
-| 2.1     | Environment        | `Environment` | [`agents.py`][agents] | |
+| 2.1     | Environment        | `Environment` | [`agents.py`][agents] | Done |
 | 2.1     | Agent              | `Agent` | [`agents.py`][agents] | Done |
 | 2.3     | Table-Driven-Vacuum-Agent | `TableDrivenVacuumAgent` | [`agents.py`][agents] | |
 | 2.7     | Table-Driven-Agent | `TableDrivenAgent` | [`agents.py`][agents] | |
