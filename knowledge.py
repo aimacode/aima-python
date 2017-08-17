@@ -207,6 +207,7 @@ def build_h_combinations(hypotheses):
 
 
 def minimal_consistent_det(E, A):
+    """Returns a minimal set of attributes which give consistent determination"""
     n = len(A)
 
     for i in range(n + 1):
@@ -216,6 +217,7 @@ def minimal_consistent_det(E, A):
 
 
 def consistent_det(A, E):
+    """Checks if the attributes(A) is consistent with the examples(E)"""
     H = {}
 
     for e in E:

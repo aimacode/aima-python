@@ -509,6 +509,47 @@ def and_or_graph_search(problem):
     return or_search(problem.initial, problem, [])
 
 
+class PeakFindingProblem(Problem):
+    """Problem of finding the highest peak in a limited grid"""
+
+    def __init__(self, initial, grid):
+        """The grid is a 2 dimensional array/list whose state is specified by tuple of indices"""
+        Problem.__init__(self, initial)
+        self.grid = grid
+        self.n = len(grid)
+        assert self.n > 0
+        self.m = len(grid[0])
+        assert self.m > 0
+
+    def actions(self, state):
+        """Allows movement in only 4 directions"""
+        # TODO: Add flag to allow diagonal motion
+        allowed_actions = []
+        if state[0] > 0:
+            allowed_actions.append('N')
+        if state[0] < self.n - 1:
+            allowed_actions.append('S')
+        if state[1] > 0:
+            allowed_actions.append('W')
+        if state[1] < self.m - 1:
+            allowed_actions.append('E')
+        return allowed_actions
+
+    def result(self, state, action):
+        """Moves in the direction specified by action"""
+        x, y = state
+        x = x + (1 if action == 'S' else (-1 if action == 'N' else 0))
+        y = y + (1 if action == 'E' else (-1 if action == 'W' else 0))
+        return (x, y)
+
+    def value(self, state):
+        """Value of a state is the value it is the index to"""
+        x, y = state
+        assert 0 <= x < self.n
+        assert 0 <= y < self.m
+        return self.grid[x][y]
+
+
 class OnlineDFSAgent:
 
     """[Figure 4.21] The abstract class for an OnlineDFSAgent. Override

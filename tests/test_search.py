@@ -6,7 +6,6 @@ romania_problem = GraphProblem('Arad', 'Bucharest', romania_map)
 vacumm_world = GraphProblemStochastic('State_1', ['State_7', 'State_8'], vacumm_world)
 LRTA_problem = OnlineSearchProblem('State_3', 'State_5', one_dim_state_space)
 
-
 def test_find_min_edge():
     assert romania_problem.find_min_edge() == 70
 
@@ -18,6 +17,22 @@ def test_breadth_first_tree_search():
 
 def test_breadth_first_search():
     assert breadth_first_search(romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
+
+
+def test_best_first_graph_search():
+    # uniform_cost_search and astar_search test it indirectly
+    assert best_first_graph_search(
+        romania_problem,
+        lambda node: node.state).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
+    assert best_first_graph_search(
+        romania_problem,
+        lambda node: node.state[::-1]).solution() == ['Timisoara',
+                                                      'Lugoj',
+                                                      'Mehadia',
+                                                      'Drobeta',
+                                                      'Craiova',
+                                                      'Pitesti',
+                                                      'Bucharest']
 
 
 def test_uniform_cost_search():
@@ -54,6 +69,33 @@ def test_astar_search():
 def test_recursive_best_first_search():
     assert recursive_best_first_search(
         romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+
+
+def test_hill_climbing():
+    prob = PeakFindingProblem((0, 0), [[0, 5, 10, 20],
+                                           [-3, 7, 11, 5]])
+    assert hill_climbing(prob) == (0, 3)
+    prob = PeakFindingProblem((0, 0), [[0, 5, 10, 8],
+                                       [-3, 7, 9, 999],
+                                       [1, 2, 5, 11]])
+    assert hill_climbing(prob) == (0, 2)
+    prob = PeakFindingProblem((2, 0), [[0, 5, 10, 8],
+                                       [-3, 7, 9, 999],
+                                       [1, 2, 5, 11]])
+    assert hill_climbing(prob) == (1, 3)
+
+
+def test_simulated_annealing():
+    random.seed("aima-python")
+    prob = PeakFindingProblem((0, 0), [[0, 5, 10, 20],
+                                       [-3, 7, 11, 5]])
+    sols = {prob.value(simulated_annealing(prob)) for i in range(100)}
+    assert max(sols) == 20
+    prob = PeakFindingProblem((0, 0), [[0, 5, 10, 8],
+                                       [-3, 7, 9, 999],
+                                       [1, 2, 5, 11]])
+    sols = {prob.value(simulated_annealing(prob)) for i in range(100)}
+    assert max(sols) == 999
 
 
 def test_BoggleFinder():

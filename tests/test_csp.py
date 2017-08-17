@@ -330,6 +330,15 @@ def test_backtracking_search():
                                order_domain_values=lcv, inference=mac)
 
 
+def test_min_conflicts():
+    random.seed("aima-python")
+    assert min_conflicts(australia)
+    assert min_conflicts(usa)
+    assert min_conflicts(france)
+    australia_impossible = MapColoringCSP(list('RG'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
+    assert min_conflicts(australia_impossible, 1000) is None
+
+
 def test_universal_dict():
     d = UniversalDict(42)
     assert d['life'] == 42
