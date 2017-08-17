@@ -196,7 +196,7 @@ def tt_entails(kb, alpha):
     True
     """
     assert not variables(alpha)
-    symbols = prop_symbols(kb & alpha)
+    symbols = list(prop_symbols(kb & alpha))
     return tt_check_all(kb, alpha, symbols, {})
 
 
@@ -216,23 +216,33 @@ def tt_check_all(kb, alpha, symbols, model):
 
 
 def prop_symbols(x):
-    """Return a list of all propositional symbols in x."""
+    """Return the set of all propositional symbols in x."""
     if not isinstance(x, Expr):
-        return []
+        return set()
     elif is_prop_symbol(x.op):
-        return [x]
+        return {x}
     else:
-        return list(set(symbol for arg in x.args for symbol in prop_symbols(arg)))
+        return {symbol for arg in x.args for symbol in prop_symbols(arg)}
 
 
 def constant_symbols(x):
-    """Return a list of all constant symbols in x."""
+    """Return the set of all constant symbols in x."""
     if not isinstance(x, Expr):
-        return []
+        return set()
     elif is_prop_symbol(x.op) and not x.args:
-        return [x]
+        return {x}
     else:
-        return list({symbol for arg in x.args for symbol in constant_symbols(arg)})
+        return {symbol for arg in x.args for symbol in constant_symbols(arg)}
+
+
+def predicate_symbols(x):
+    """Return a set of (symbol_name, arity) in x.
+    All symbols (even functional) with arity > 0 are considered."""
+    if not isinstance(x, Expr) or not x.args:
+        return set()
+    pred_set = {(x.op, len(x.args))} if is_prop_symbol(x.op) else set()
+    pred_set.update({symbol for arg in x.args for symbol in predicate_symbols(arg)})
+    return pred_set
 
 
 def tt_true(s):
@@ -549,7 +559,7 @@ def dpll_satisfiable(s):
     function find_pure_symbol is passed a list of unknown clauses, rather
     than a list of all clauses and the model; this is more efficient."""
     clauses = conjuncts(to_cnf(s))
-    symbols = prop_symbols(s)
+    symbols = list(prop_symbols(s))
     return dpll(clauses, symbols, {})
 
 
@@ -652,7 +662,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
     """Checks for satisfiability of all clauses by randomly flipping values of variables
     """
     # Set of all symbols in all clauses
-    symbols = set(sym for clause in clauses for sym in prop_symbols(clause))
+    symbols = {sym for clause in clauses for sym in prop_symbols(clause)}
     # model is a random assignment of true/false to the symbols in clauses
     model = {s: random.choice([True, False]) for s in symbols}
     for i in range(max_flips):
@@ -663,7 +673,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
             return model
         clause = random.choice(unsatisfied)
         if probability(p):
-            sym = random.choice(prop_symbols(clause))
+            sym = random.choice(list(prop_symbols(clause)))
         else:
             # Flip the symbol in clause that maximizes number of sat. clauses
             def sat_count(sym):

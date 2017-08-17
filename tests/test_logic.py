@@ -164,13 +164,28 @@ def test_tt_entails():
 
 
 def test_prop_symbols():
-    assert set(prop_symbols(expr('x & y & z | A'))) == {A}
-    assert set(prop_symbols(expr('(x & B(z)) ==> Farmer(y) | A'))) == {A, expr('Farmer(y)'), expr('B(z)')}
+    assert prop_symbols(expr('x & y & z | A')) == {A}
+    assert prop_symbols(expr('(x & B(z)) ==> Farmer(y) | A')) == {A, expr('Farmer(y)'), expr('B(z)')}
 
 
 def test_constant_symbols():
-    assert set(constant_symbols(expr('x & y & z | A'))) == {A}
-    assert set(constant_symbols(expr('(x & B(z)) & Father(John) ==> Farmer(y) | A'))) == {A, expr('John')}
+    assert constant_symbols(expr('x & y & z | A')) == {A}
+    assert constant_symbols(expr('(x & B(z)) & Father(John) ==> Farmer(y) | A')) == {A, expr('John')}
+
+
+def test_predicate_symbols():
+    assert predicate_symbols(expr('x & y & z | A')) == set()
+    assert predicate_symbols(expr('(x & B(z)) & Father(John) ==> Farmer(y) | A')) == {
+        ('B', 1),
+        ('Father', 1),
+        ('Farmer', 1)}
+    assert predicate_symbols(expr('(x & B(x, y, z)) & F(G(x, y), x) ==> P(Q(R(x, y)), x, y, z)')) == {
+        ('B', 3),
+        ('F', 2),
+        ('G', 2),
+        ('P', 4),
+        ('Q', 1),
+        ('R', 2)}
 
 
 def test_eliminate_implications():
