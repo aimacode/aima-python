@@ -29,7 +29,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 
 | **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File** | **Tests**
 |:--------|:-------------------|:---------|:-----------|:-------|
-| 2.1     | Environment        | `Environment` | [`agents.py`][agents] | |
+| 2.1     | Environment        | `Environment` | [`agents.py`][agents] | Done |
 | 2.1     | Agent              | `Agent` | [`agents.py`][agents] | Done |
 | 2.3     | Table-Driven-Vacuum-Agent | `TableDrivenVacuumAgent` | [`agents.py`][agents] | |
 | 2.7     | Table-Driven-Agent | `TableDrivenAgent` | [`agents.py`][agents] | |
