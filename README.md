@@ -10,17 +10,18 @@ Python code for the book *[Artificial Intelligence: A Modern Approach](http://ai
 ## Python 3.4
 
 This code is in Python 3.4 (Python 3.5 and later also works, but Python 2.x does not). You can [install the latest Python version](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
-You can run the code in an IDE, or from the command line with `python -i `*filename*`.py` where the `-i` option puts you in an interactive loop where you can run Python functions.
+You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions.
 
-In addition to the *filename*`.py` files, there are also *filename*`.ipynb` files, which are Jupyter (formerly Ipython) notebooks. You can read these notebooks, and you can also run the code embedded with them. See [jupyter.org](http://jupyter.org/) for instructions on setting up a Jupyter notebook environment.
+In addition to the `filename.py` files, there are also `filename.ipynb` files, which are Jupyter (formerly Ipython) notebooks. You can read these notebooks, and you can also run the code embedded with them. See [jupyter.org](http://jupyter.org/) for instructions on setting up a Jupyter notebook environment. Some modules also have `filename_apps.ipynb` files, which are notebooks for applications of the module.
 
 ## Structure of the Project
 
 When complete, this project will have Python code for all the pseudocode algorithms in the book. For each major topic, such as `logic`, we will have the following three files in the main branch:
 
-- `logic.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
-- `logic.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
-- `tests/test_logic.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
+- `nlp.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
+- `nlp.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
+- `nlp_apps.ipynb`: A Jupyter notebook that gives example applications of the code.
+- `tests/test_nlp.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
 
 # Index of Algorithms
 
