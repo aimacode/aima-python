@@ -22,6 +22,7 @@ def pseudocode(algorithm):
     from urllib.request import urlopen
     from IPython.display import Markdown
 
+    algorithm = algorithm.replace(' ', '-')
     url = "https://raw.githubusercontent.com/aimacode/aima-pseudocode/master/md/{}.md".format(algorithm)
     f = urlopen(url)
     md = f.read().decode('utf-8')
@@ -54,9 +55,9 @@ def psource(*functions):
         from pygments.formatters import HtmlFormatter
         from pygments.lexers import PythonLexer
         from pygments import highlight
-                              
+
         display(HTML(highlight(source_code, PythonLexer(), HtmlFormatter(full=True))))
-    
+
     except ImportError:
         print(source_code)
 
