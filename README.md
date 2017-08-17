@@ -16,7 +16,7 @@ In addition to the `filename.py` files, there are also `filename.ipynb` files, w
 
 ## Structure of the Project
 
-When complete, this project will have Python code for all the pseudocode algorithms in the book. For each major topic, such as `logic`, we will have the following three files in the main branch:
+When complete, this project will have Python code for all the pseudocode algorithms in the book. For each major topic, such as `nlp`, we will have the following three files in the main branch:
 
 - `nlp.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
 - `nlp.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
