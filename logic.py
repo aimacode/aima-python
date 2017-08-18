@@ -1011,6 +1011,134 @@ crime_kb = FolKB(
 
 # ______________________________________________________________________________
 
+
+class APPEND_container():
+    """Provides structures and methods used in prolog to append()"""
+    def __init__(self):
+        """Initialize the global stack and variable binding"""
+        self.global_stack = []
+        self.vars = {}
+        self.counter = itertools.count()
+
+    def __call__(self, var):
+        """Return value assigned to variable"""
+        assert var in self.vars
+        return self.vars[var]
+
+    def __getitem__(self, var):
+        return self(var)
+
+    def global_trail_pointer(self):
+        """Return the current stack address"""
+        return len(self.global_stack)
+
+    def reset_trail(self, trail):
+        """Resets the binding state of variables to a state given by trail"""
+        assert trail >= 0
+        while trail < len(self.global_stack):
+            op, data = self.global_stack.pop()
+            if op == 'add':
+                del self.vars[data]
+            elif op == 'assign':
+                assert self.vars[data[0]] == data[1]
+                self.vars[data[0]] = None
+
+    def add_var(self, var, val=None):
+        """Adds a new variable name 'var'. [Optional] Also assign an initial value"""
+        assert var not in self.vars
+        self.vars[var] = None
+        self.global_stack.append(('add', var))
+        if val is not None:
+            self.assign_var(var, val)
+
+    def assign_var(self, var, val):
+        """Assigns value 'val' to variable 'var'"""
+        assert var in self.vars and self.vars[var] is None
+        self.vars[var] = val
+        self.global_stack.append(('assign', (var ,val)))
+
+    def new_variable(self, val=None):
+        """Creates and returns a new unused variable"""
+        new_var = Expr('x_{}'.format(next(self.counter)))
+        self.add_var(new_var, val)
+        return new_var
+
+    def unify(self, x, y):
+        """Unify expressions x,y
+        Return True if unification was successful, else False."""
+        ## TODO: handle lists in a more elegant manner
+        trail = self.global_trail_pointer()
+        if x == y:
+            return True
+        elif isinstance(x, str) or isinstance(y, str):
+            return False
+        elif is_variable(x):
+            return self.unify_var(x, y)
+        elif is_variable(y):
+            return self.unify_var(y, x)
+        elif isinstance(x, Expr) and isinstance(y, Expr):
+            if x.op == y.op == '[]':
+                if len(x.args) > len(y.args):
+                    return self.unify(y, x)
+                if len(x.args) == 0:
+                    if all(self.unify(arg, Expr([])) for arg in y.args):
+                        return True
+                elif len(x.args) == 1:
+                    if self.unify(x.args[0], y):
+                        return True
+                    if self.unify(x.args[0], y.args[0]) and self.unify(y.args[1], Expr([])):
+                        return True
+                else:
+                    if self.unify(x.args[0], y.args[0]) and self.unify(x.args[1], y.args[1]):
+                        return True
+                self.reset_trail(trail)
+                return False
+            if self.unify(x.op, y.op) and self.unify(x.args, y.args):
+                return True
+            else:
+                self.reset_trail(trail)
+                return False
+        elif issequence(x) and issequence(y) and len(x) == len(y):
+            if not x:
+                # both sequences are empty
+                return True
+            if self.unify(x[0], y[0]) and self.unify(x[1:], y[1:]):
+                return True
+            else:
+                self.reset_trail(trail)
+                return False
+        else:
+            return False
+
+    def unify_var(self, var, x):
+        """Unifies variables without occur check"""
+        ## TODO: Handle infinite loops
+        trail = self.global_trail_pointer()
+
+        if is_variable(x) and x in self.vars and self[x] is not None:
+            x = self[x]
+
+        assert var in self.vars
+        if self[var] is not None:
+            return self.unify(x, self[var])
+        else:
+            self.assign_var(var, x)
+            return True
+
+    def append(self, ax, y, az, continuation=lambda : print('Done')):
+        trail = self.global_trail_pointer()
+        if ax == Expr([]) or (ax in self.vars and self[ax] == Expr([])) and self.unify(y, az):
+            continuation()
+        self.reset_trail(trail)
+        a, x, z = self.new_variable(), self.new_variable(), self.new_variable()
+        if self.unify(ax, Expr([], a, x)) and self.unify(az, Expr([], a, z)):
+            self.append(x, y, z, continuation)
+        else:
+            self.reset_trail(trail)
+
+
+# ______________________________________________________________________________
+
 # Example application (not in the book).
 # You can use the Expr class to do symbolic differentiation.  This used to be
 # a part of AI; now it is considered a separate field, Symbolic Algebra.
