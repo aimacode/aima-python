@@ -1,9 +1,12 @@
 """Knowledge in learning, Chapter 19"""
 
 from random import shuffle
+from math import log
 from utils import powerset
 from collections import defaultdict
-from itertools import combinations
+from itertools import combinations, product
+from logic import (FolKB, constant_symbols, predicate_symbols, standardize_variables,
+                   variables, is_definite_clause, subst, expr, Expr)
 
 # ______________________________________________________________________________
 
@@ -227,6 +230,117 @@ def consistent_det(A, E):
         H[attr_values] = e['GOAL']
 
     return True
+
+# ______________________________________________________________________________
+
+
+class FOIL_container(FolKB):
+    """Holds the kb and other necessary elements required by FOIL"""
+
+    def __init__(self, clauses=[]):
+        self.const_syms = set()
+        self.pred_syms = set()
+        FolKB.__init__(self, clauses)
+
+    def tell(self, sentence):
+        if is_definite_clause(sentence):
+            self.clauses.append(sentence)
+            self.const_syms.update(constant_symbols(sentence))
+            self.pred_syms.update(predicate_symbols(sentence))
+        else:
+            raise Exception("Not a definite clause: {}".format(sentence))
+
+    def foil(self, examples, target):
+        """Learns a list of first-order horn clauses
+        'examples' is a tuple: (positive_examples, negative_examples).
+        positive_examples and negative_examples are both lists which contain substitutions."""
+        clauses = []
+
+        pos_examples = examples[0]
+        neg_examples = examples[1]
+
+        while pos_examples:
+            clause, extended_pos_examples = self.new_clause((pos_examples, neg_examples), target)
+            # remove positive examples covered by clause
+            pos_examples = self.update_examples(target, pos_examples, extended_pos_examples)
+            clauses.append(clause)
+
+        return clauses
+
+    def new_clause(self, examples, target):
+        """Finds a horn clause which satisfies part of the positive
+        examples but none of the negative examples.
+        The horn clause is specified as [consequent, list of antecedents]
+        Return value is the tuple (horn_clause, extended_positive_examples)"""
+        clause = [target, []]
+        # [positive_examples, negative_examples]
+        extended_examples = examples
+        while extended_examples[1]:
+            l = self.choose_literal(self.new_literals(clause), extended_examples)
+            clause[1].append(l)
+            extended_examples = [sum([list(self.extend_example(example, l)) for example in
+                                      extended_examples[i]], []) for i in range(2)]
+
+        return (clause, extended_examples[0])
+
+    def extend_example(self, example, literal):
+        """Generates extended examples which satisfy the literal"""
+        # find all substitutions that satisfy literal
+        for s in self.ask_generator(subst(example, literal)):
+            s.update(example)
+            yield s
+
+    def new_literals(self, clause):
+        """Generates new literals based on known predicate symbols.
+        Generated literal must share atleast one variable with clause"""
+        share_vars = variables(clause[0])
+        for l in clause[1]:
+            share_vars.update(variables(l))
+
+        for pred, arity in self.pred_syms:
+            new_vars = {standardize_variables(expr('x')) for _ in range(arity - 1)}
+            for args in product(share_vars.union(new_vars), repeat=arity):
+                if any(var in share_vars for var in args):
+                    yield Expr(pred, *[var for var in args])
+
+    def choose_literal(self, literals, examples):
+        """Chooses the best literal based on the information gain"""
+        def gain(l):
+            pre_pos = len(examples[0])
+            pre_neg = len(examples[1])
+            extended_examples = [sum([list(self.extend_example(example, l)) for example in
+                                      examples[i]], []) for i in range(2)]
+            post_pos = len(extended_examples[0])
+            post_neg = len(extended_examples[1])
+            if pre_pos + pre_neg == 0 or post_pos + post_neg == 0:
+                return -1
+
+            # number of positive example that are represented in extended_examples
+            T = 0
+            for example in examples[0]:
+                def represents(d):
+                    return all(d[x] == example[x] for x in example)
+                if any(represents(l_) for l_ in extended_examples[0]):
+                    T += 1
+
+            return T * log((post_pos*(pre_pos + pre_neg) + 1e-4) / ((post_pos + post_neg)*pre_pos))
+
+        return max(literals, key=gain)
+
+    def update_examples(self, target, examples, extended_examples):
+        """Adds to the kb those examples what are represented in extended_examples
+        List of omitted examples is returned"""
+        uncovered = []
+        for example in examples:
+            def represents(d):
+                return all(d[x] == example[x] for x in example)
+            if any(represents(l) for l in extended_examples):
+                self.tell(subst(example, target))
+            else:
+                uncovered.append(example)
+
+        return uncovered
+
 
 # ______________________________________________________________________________
 
