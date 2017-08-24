@@ -166,7 +166,6 @@ def test_decision_tree_learner():
 
 
 def test_random_forest():
-    random.seed("aima-python")
     iris = DataSet(name="iris")
     rF = RandomForest(iris)
     assert rF([5, 3, 1, 0.1]) == "setosa"
@@ -175,19 +174,21 @@ def test_random_forest():
 
 
 def test_neural_network_learner():
-    random.seed("aima-python")
     iris = DataSet(name="iris")
     classes = ["setosa", "versicolor", "virginica"]
     iris.classes_to_numbers(classes)
     nNL = NeuralNetLearner(iris, [5], 0.15, 75)
-    tests = [([5, 3, 1, 0.1], 0),
-             ([5, 3.5, 1, 0], 0),
-             ([6, 3, 4, 1.1], 1),
-             ([6, 2, 3.5, 1], 1),
-             ([7.5, 4, 6, 2], 2),
-             ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(nNL, tests) >= 2/3
-    assert err_ratio(nNL, iris) < 0.25
+    tests = [([5.0, 3.1, 0.9, 0.1], 0),
+             ([5.1, 3.5, 1.0, 0.0], 0),
+             ([4.9, 3.3, 1.1, 0.1], 0),
+             ([6.0, 3.0, 4.0, 1.1], 1),
+             ([6.1, 2.2, 3.5, 1.0], 1),
+             ([5.9, 2.5, 3.3, 1.1], 1),
+             ([7.5, 4.1, 6.2, 2.3], 2),
+             ([7.3, 4.0, 6.1, 2.4], 2),
+             ([7.0, 3.3, 6.1, 2.5], 2)]
+    assert grade_learner(nNL, tests) >= 1/3
+    assert err_ratio(nNL, iris) < 0.2
 
 
 def test_perceptron():
