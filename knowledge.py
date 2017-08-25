@@ -234,7 +234,7 @@ def consistent_det(A, E):
 # ______________________________________________________________________________
 
 
-class FOIL_container(FolKB):
+class FOILKB(FolKB):
     """Holds the kb and other necessary elements required by FOIL"""
 
     def __init__(self, clauses=[]):
