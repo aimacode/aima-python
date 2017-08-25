@@ -222,7 +222,7 @@ def prop_symbols(x):
     elif is_prop_symbol(x.op):
         return {x}
     else:
-        return {symbol for arg in x.args for symbol in prop_symbols(arg)}
+        return set().union(*map(prop_symbols, x.args))
 
 
 def constant_symbols(x):
@@ -232,7 +232,7 @@ def constant_symbols(x):
     elif is_prop_symbol(x.op) and not x.args:
         return {x}
     else:
-        return {symbol for arg in x.args for symbol in constant_symbols(arg)}
+        return set().union(*map(constant_symbols, x.args))
 
 
 def predicate_symbols(x):

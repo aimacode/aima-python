@@ -246,7 +246,7 @@ B  D-->E-->G-->I
 vv     v
 C      F
 """
-test_network = FOIL_container([expr("Conn(A, B)"),
+test_network = FOILKB([expr("Conn(A, B)"),
                                expr("Conn(A ,D)"),
                                expr("Conn(B, C)"),
                                expr("Conn(D, C)"),
@@ -257,7 +257,7 @@ test_network = FOIL_container([expr("Conn(A, B)"),
                                expr("Conn(H, G)"),
                                expr("Conn(H, I)")])
 
-small_family = FOIL_container([expr("Mother(Anne, Peter)"),
+small_family = FOILKB([expr("Mother(Anne, Peter)"),
                                expr("Mother(Anne, Zara)"),
                                expr("Mother(Sarah, Beatrice)"),
                                expr("Mother(Sarah, Eugenie)"),
