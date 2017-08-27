@@ -1,28 +1,52 @@
 How to Contribute to aima-python
 ==========================
 
-Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5663121491361792/) student, or an independent contributor, here is a guide to how you can help:
+Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5663121491361792/) student, or an independent contributor, here is a guide on how you can help.
+
+The main ways you can contribute to the repository are the following:
+
+1. Implement algorithms from the [list of algorithms](https://github.com/aimacode/aima-python/blob/master/README.md#index-of-algorithms).
+1. Add tests for algorithms that are missing them (you can also add more tests to algorithms that already have some).
+1. Take care of [issues](https://github.com/aimacode/aima-python/issues).
+1. Write on the notebooks (`.ipynb` files).
+1. Add and edit documentation (the docstrings in `.py` files).
+
+In more detail:
 
 ## Read the Code and Start on an Issue
 
 - First, read and understand the code to get a feel for the extent and the style.
 - Look at the [issues](https://github.com/aimacode/aima-python/issues) and pick one to work on.
-- One of the issues is that some algorithms are missing from the [list of algorithms](https://github.com/aimacode/aima-python/blob/master/README.md#index-of-algorithms).
+- One of the issues is that some algorithms are missing from the [list of algorithms](https://github.com/aimacode/aima-python/blob/master/README.md#index-of-algorithms) and that some don't have tests.
 
 ## Port to Python 3; Pythonic Idioms; py.test
 
 - Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formating to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
 - Replace old Lisp-based idioms with proper Python idioms. For example, we have many functions that were taken directly from Common Lisp, such as the `every` function: `every(callable, items)` returns true if every element of `items` is callable. This is good Lisp style, but good Python style would be to use `all` and a generator expression: `all(callable(f) for f in items)`. Eventually, fix all calls to these legacy Lisp functions and then remove the functions.
-- Add more tests in `_test.py` files. Strive for terseness; it is ok to group multiple asserts into one `def test_something():` function. Move most tests to `_test.py`, but it is fine to have a single `doctest` example in the docstring of a function in the `.py` file, if the purpose of the doctest is to explain how to use the function, rather than test the implementation.
+- Add more tests in `test_*.py` files. Strive for terseness; it is ok to group multiple asserts into one `def test_something():` function. Move most tests to `test_*.py`, but it is fine to have a single `doctest` example in the docstring of a function in the `.py` file, if the purpose of the doctest is to explain how to use the function, rather than test the implementation.
 
 ## New and Improved Algorithms
 
 - Implement functions that were in the third edition of the book but were not yet implemented in the code. Check the [list of pseudocode algorithms (pdf)](https://github.com/aimacode/pseudocode/blob/master/aima3e-algorithms.pdf) to see what's missing.
 - As we finish chapters for the new fourth edition, we will share the new pseudocode in the [`aima-pseudocode`](https://github.com/aimacode/aima-pseudocode) repository, and describe what changes are necessary.
-We hope to have a `algorithm-name.md` file for each algorithm, eventually; it would be great if contributors could add some for the existing algorithms.
-- Give examples of how to use the code in the `.ipynb` file.
+We hope to have an `algorithm-name.md` file for each algorithm, eventually; it would be great if contributors could add some for the existing algorithms.
+- Give examples of how to use the code in the `.ipynb` files.
 
-We still support a legacy branch, `aima3python2` (for the third edition of the textbook and for Python 2 code). 
+We still support a legacy branch, `aima3python2` (for the third edition of the textbook and for Python 2 code).
+
+## Jupyter Notebooks
+
+In this project we use Jupyter/IPython Notebooks to showcase the algorithms in the book. They serve as short tutorials on what the algorithms do, how they are implemented and how one can use them. To install Jupyter, you can follow the instructions [here](https://jupyter.org/install.html). These are some ways you can contribute to the notebooks:
+
+- Proofread the notebooks for grammar mistakes, typos, or general errors.
+- Move visualization and unrelated to the algorithm code from notebooks to `notebook.py` (a file used to store code for the notebooks, like visualization and other miscellaneous stuff). Make sure the notebooks still work and have their outputs showing!
+- Replace the `%psource` magic notebook command with the function `psource` from `notebook.py` where needed. Examples where this is useful are a) when we want to show code for algorithm implementation and b) when we have consecutive cells with the magic keyword (in this case, if the code is large, it's best to leave the output hidden).
+- Add the function `pseudocode(algorithm_name)` in algorithm sections. The function prints the pseudocode of the algorithm. You can see some example usage in [`knowledge.ipynb`](https://github.com/aimacode/aima-python/blob/master/knowledge.ipynb).
+- Edit existing sections for algorithms to add more information and/or examples.
+- Add visualizations for algorithms. The visualization code should go in `notebook.py` to keep things clean.
+- Add new sections for algorithms not yet covered. The general format we use in the notebooks is the following: First start with an overview of the algorithm, printing the pseudocode and explaining how it works. Then, add some implementation details, including showing the code (using `psource`). Finally, add examples for the implementations, showing how the algorithms work. Don't fret with adding complex, real-world examples; the project is meant for educational purposes. You can of course choose another format if something better suits an algorithm.
+
+Apart from the notebooks explaining how the algorithms work, we also have notebooks showcasing some indicative applications of the algorithms. These notebooks are in the `*_apps.ipynb` format. We aim to have an `apps` notebook for each module, so if you don't see one for the module you would like to contribute to, feel free to create it from scratch! In these notebooks we are looking for applications showing what the algorithms can do. The general format of these sections is this: Add a description of the problem you are trying to solve, then explain how you are going to solve it and finally provide your solution with examples. Note that any code you write should not require any external libraries apart from the ones already provided (like `matplotlib`).
 
 # Style Guide
 
@@ -57,12 +81,14 @@ Reporting Issues
 
 - Under which versions of Python does this happen?
 
+- Provide an example of the issue occuring.
+
 - Is anybody working on this?
 
 Patch Rules
 ===========
 
-- Ensure that the patch is python 3.4 compliant.
+- Ensure that the patch is Python 3.4 compliant.
 
 - Include tests if your patch is supposed to solve a bug, and explain
   clearly under which circumstances the bug happens. Make sure the test fails
