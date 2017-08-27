@@ -123,7 +123,7 @@ def test_char_models():
 
 def test_samples():
     story = open_data("EN-text/flatland.txt").read()
-    story += open_data("EN-text/gutenberg.txt").read()
+    story += open_data("gutenberg.txt").read()
     wordseq = words(story)
     P1 = UnigramWordModel(wordseq)
     P2 = NgramWordModel(2, wordseq)
@@ -164,7 +164,7 @@ def test_shift_decoding():
 
 
 def test_permutation_decoder():
-    gutenberg = open_data("EN-text/gutenberg.txt").read()
+    gutenberg = open_data("gutenberg.txt").read()
     flatland = open_data("EN-text/flatland.txt").read()
 
     pd = PermutationDecoder(canonicalize(gutenberg))
