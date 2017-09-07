@@ -95,11 +95,14 @@ def show_iris(i=0, j=1, k=2):
 # MNIST
 
 
-def load_MNIST(path="aima-data/MNIST"):
+def load_MNIST(path="aima-data/MNIST/Digits", fashion=False):
     import os, struct
     import array
     import numpy as np
     from collections import Counter
+
+    if fashion:
+        path = "aima-data/MNIST/Fashion"
 
     plt.rcParams.update(plt.rcParamsDefault)
     plt.rcParams['figure.figsize'] = (10.0, 8.0)
