@@ -150,6 +150,7 @@ def test_find_unit_clause():
 def test_unify():
     assert unify(x, x, {}) == {}
     assert unify(x, 3, {}) == {x: 3}
+    assert unify(x, y, {y: 3}) == {x: 3, y: 3}
 
 
 def test_pl_fc_entails():
@@ -313,6 +314,145 @@ def test_SAT_plan():
                   (1, 0): {'Right': (1, 0), 'Up': (1, 0), 'Left': (1, 0), 'Down': (1, 0)},
                   (1, 1): {'Left': (1, 0), 'Up': (0, 1)}}
     assert SAT_plan((0, 0), transition, (1, 1), 4) == ['Right', 'Down']
+
+
+class TestAPPEND_container:
+    o = APPEND_container()
+
+    def test_add_var(self):
+        assert x not in self.o.vars
+        self.o.add_var(x)
+        assert x in self.o.vars and self.o[x] is None
+
+    def test_assign_var(self):
+        self.o.assign_var(x, A)
+        assert self.o[x] == A
+        with pytest.raises(AssertionError):
+            self.o.assign_var(x, A)
+
+    def test_new_variable(self):
+        num_vars = len(self.o.vars)
+        new_var = self.o.new_variable()
+        assert self.o[new_var] is None
+        assert num_vars + 1 == len(self.o.vars)
+        for i in range(100):
+            self.o.new_variable()
+        assert num_vars + 101 == len(self.o.vars)
+
+    def test_reset_trail(self):
+        self.o.reset_trail(0)
+        assert self.o.global_stack == []
+        assert self.o.vars == {}
+        self.o.add_var(x, A)
+        self.o.add_var(y, B)
+        # add var test
+        trail = self.o.global_trail_pointer()
+        self.o.add_var(z, C)
+        assert self.o.vars == {x: A, y: B, z: C}
+        self.o.reset_trail(trail)
+        assert self.o.vars == {x: A, y: B}
+        # assign test
+        self.o.add_var(z)
+        trail = self.o.global_trail_pointer()
+        self.o.assign_var(z, C)
+        assert self.o[z] == C
+        self.o.reset_trail(trail)
+        assert self.o[z] is None
+
+    def test_unify_var(self):
+        self.o.reset_trail(0)
+        v0 = self.o.new_variable()
+        v1 = self.o.new_variable()
+        v2 = self.o.new_variable(12)
+        v3 = self.o.new_variable(23)
+        v4 = self.o.new_variable()
+        v5 = self.o.new_variable()
+        assert self.o.unify_var(v0, 5)
+        assert self.o[v0] == 5
+        assert self.o.unify_var(v1, v2)
+        assert self.o[v1] == self.o[v2] == 12
+        assert self.o.unify_var(v3, v4)
+        assert self.o[v3] == self.o[v4] == 23
+        assert self.o.unify(v5, x)
+        assert self.o[v5] == x
+        with pytest.raises(AssertionError):
+            # x not in vars
+            self.o.unify_var(x, v5)
+        assert self.o.unify_var(v1, v2)
+        assert not self.o.unify_var(v1, v3)
+
+    def test_unify(self):
+        self.o.reset_trail(0)
+        self.o.add_var(x)
+        self.o.add_var(y)
+        self.o.add_var(z)
+        assert self.o.unify(x, x)
+        assert self.o[x] is None
+        assert self.o.unify(x, 3)
+        assert self.o[x] == 3
+        assert self.o.unify(x, 3)
+        assert not self.o.unify(x, 5)
+        assert self.o.unify(x, y)
+        assert self.o.unify(z, y)
+        assert self.o[x] == self.o[y] == self.o[z] == 3
+        self.o.reset_trail(0)
+        self.o.add_var(x, 1)
+        self.o.add_var(y, 2)
+        self.o.add_var(z, 3)
+        v = [self.o.new_variable() for _ in range(20)]
+        assert self.o.unify(v[0] & x, 12 & x)
+        assert self.o[v[0]] == 12
+        assert self.o.unify(v[1], v[2])
+        assert self.o[v[1]] == v[2]
+        assert self.o.unify(z & v[3] | v[4], v[5] & y | x)
+        assert [self.o[v[i]] for i in [3, 4, 5]] == [2, 1, 3]
+        assert self.o.unify(v[6], [5, 6]) and self.o.unify([12, 13], v[7])
+        assert self.o[v[6]] == [5, 6] and self.o[v[7]] == [12 ,13]
+        assert self.o.unify(v[8], Expr([], 1)) and self.o.unify(Expr([], 13), v[9])
+        assert self.o[v[8]] == Expr([], 1) and self.o[v[9]] == Expr([], 13)
+        assert self.o.unify(Expr([], v[10]), Expr([], x, Expr([], y)))
+        assert self.o[v[10]] == Expr([], x, Expr([], y))
+        assert self.o.unify(Expr([], 1, Expr([], 5, Expr([], 7))), Expr([], v[11], Expr([], v[12])))
+        assert self.o[v[11]] == 1 and self.o[v[12]] == Expr([], 5, Expr([], 7))
+
+    def test_append(self):
+        self.o.reset_trail(0)
+        self.o.add_var(y)
+        is_success = False
+        def check_y_val():
+            nonlocal is_success
+            is_success = True
+            assert self.o[y] == Expr([], 7)
+        ax = Expr([], 1, Expr([], 3))
+        az = Expr([], 1, Expr([], 3, Expr([], 7)))
+        self.o.append(ax, y, az, check_y_val)
+        assert is_success
+        self.o.reset_trail(0)
+        self.o.add_var(x, Expr([], 1, Expr([], 3)))
+        self.o.add_var(y, Expr([], 5))
+        self.o.add_var(z)
+        is_success = False
+        def check_z_val():
+            nonlocal is_success
+            is_success = True
+            num_list = []
+
+            # expand args
+            def parse_expr(e):
+                if isinstance(e, int):
+                    num_list.append(e)
+                elif e in self.o.vars:
+                        parse_expr(self.o[e])
+                else:
+                    assert e.op == '[]'
+                    for arg in e.args:
+                        parse_expr(arg)
+
+            parse_expr(z)
+            assert num_list == [1, 3, 5]
+
+        ## TODO: modify check_z_val (continuation) to stop testing
+        #self.o.append(x, y, z, check_z_val)
 
 
 if __name__ == '__main__':
