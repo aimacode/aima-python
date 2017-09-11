@@ -7,25 +7,26 @@
 
 Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
 
-## Python 3.4
 
-This code is in Python 3.4 (Python 3.5 and later also works, but Python 2.x does not). You can [install the latest Python version](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
-You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions.
-
-In addition to the `filename.py` files, there are also `filename.ipynb` files, which are Jupyter (formerly IPython) notebooks. You can read these notebooks, and you can also run the code embedded with them. See [jupyter.org](http://jupyter.org/) for instructions on setting up a Jupyter notebook environment. Some modules also have `filename_apps.ipynb` files, which are notebooks for applications of the module.
 
 ## Structure of the Project
 
-When complete, this project will have Python code for all the pseudocode algorithms in the book. For each major topic, such as `nlp`, we will have the following three files in the main branch:
+When complete, this project will have Python implementations for all the pseudocode algorithms in the book, as well as tests and examples of use. For each major topic, such as `nlp` (natural language processing), we provide the following  files:
 
 - `nlp.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
+- `tests/test_nlp.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
 - `nlp.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
 - `nlp_apps.ipynb`: A Jupyter notebook that gives example applications of the code.
-- `tests/test_nlp.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
+
+
+## Python 3.4 and up
+
+This code requires Python 3.4 or later, and does not run in Python 2. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions. See [jupyter.org](http://jupyter.org/) for instructions on setting up your own Jupyter notebook environment, or run the notebooks online with [try.jupiter.org](https://try.jupyter.org/). 
 
 # Index of Algorithms
 
-Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was made for the third edition of the book and needs to be updated for the upcoming fourth edition (this is mostly done). Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented. Another great place for contributors to start is by adding tests and writing on the notebooks. You can see which algorithms have tests and notebook sections below. If the algorithm you want to work on is covered, don't worry! You can still add more tests and expand the sections in the notebook!
+Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was made for the third edition of the book and is being updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented. Another great place for contributors to start is by adding tests and writing on the notebooks. You can see which algorithms have tests and notebook sections below. If the algorithm you want to work on is covered, don't worry! You can still add more tests and provide some examples of use in the notebook!
 
 | **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File** | **Tests** | **Notebook**
 |:-------|:----------------------------------|:------------------------------|:--------------------------------|:-----|:---------|
