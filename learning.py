@@ -984,8 +984,8 @@ def flatten(seqs): return sum(seqs, [])
 
 
 def err_ratio(predict, dataset, examples=None, verbose=0):
-    """Return the proportion of the examples that are NOT correctly predicted."""
-    """verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct"""
+    """Return the proportion of the examples that are NOT correctly predicted.
+    verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct"""
     if examples is None:
         examples = dataset.examples
     if len(examples) == 0:

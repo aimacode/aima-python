@@ -416,6 +416,16 @@ def open_data(name, mode='r'):
     return open(aima_file)
 
 
+def failure_test(algorithm, tests):
+    """Grades the given algorithm based on how many tests it passes.
+    Most algorithms have arbitary output on correct execution, which is difficult
+    to check for correctness. On the other hand, a lot of algorithms output something
+    particular on fail (for example, False, or None).
+    tests is a list with each element in the form: (values, failure_output)."""
+    from statistics import mean
+    return mean(int(algorithm(x) != y) for x, y in tests)
+
+
 # ______________________________________________________________________________
 # Expressions
 

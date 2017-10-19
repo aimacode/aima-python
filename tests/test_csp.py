@@ -1,5 +1,10 @@
 import pytest
+from utils import failure_test
 from csp import *
+import random
+
+
+random.seed("aima-python")
 
 
 def test_csp_assign():
@@ -331,10 +336,12 @@ def test_backtracking_search():
 
 
 def test_min_conflicts():
-    random.seed("aima-python")
     assert min_conflicts(australia)
-    assert min_conflicts(usa)
     assert min_conflicts(france)
+
+    tests = [(usa, None)] * 3
+    assert failure_test(min_conflicts, tests) > 1/3
+
     australia_impossible = MapColoringCSP(list('RG'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
     assert min_conflicts(australia_impossible, 1000) is None
 
@@ -351,7 +358,7 @@ def test_parse_neighbours():
 def test_topological_sort():
     root = 'NT'
     Sort, Parents = topological_sort(australia,root)
-    
+
     assert Sort == ['NT','SA','Q','NSW','V','WA']
     assert Parents['NT'] == None
     assert Parents['SA'] == 'NT'

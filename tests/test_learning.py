@@ -168,9 +168,13 @@ def test_decision_tree_learner():
 def test_random_forest():
     iris = DataSet(name="iris")
     rF = RandomForest(iris)
-    assert rF([5, 3, 1, 0.1]) == "setosa"
-    assert rF([6, 5, 3, 1]) == "versicolor"
-    assert rF([7.5, 4, 6, 2]) == "virginica"
+    tests = [([5.0, 3.0, 1.0, 0.1], "setosa"),
+             ([5.1, 3.3, 1.1, 0.1], "setosa"),
+             ([6.0, 5.0, 3.0, 1.0], "versicolor"),
+             ([6.1, 2.2, 3.5, 1.0], "versicolor"),
+             ([7.5, 4.1, 6.2, 2.3], "virginica"),
+             ([7.3, 3.7, 6.1, 2.5], "virginica")]
+    assert grade_learner(rF, tests) >= 1/3
 
 
 def test_neural_network_learner():
