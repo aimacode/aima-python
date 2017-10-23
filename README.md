@@ -97,7 +97,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 14.13  | Prior-Sample                      | `prior_sample`                | [`probability.py`][probability] |      | Included |
 | 14.14  | Rejection-Sampling                | `rejection_sampling`          | [`probability.py`][probability] | Done | Included |
 | 14.15  | Likelihood-Weighting              | `likelihood_weighting`        | [`probability.py`][probability] | Done | Included |
-| 14.16  | Gibbs-Ask                         | `gibbs_ask`                   | [`probability.py`][probability] |      | Included |
+| 14.16  | Gibbs-Ask                         | `gibbs_ask`                   | [`probability.py`][probability] | Done | Included |
 | 15.4   | Forward-Backward                  | `forward_backward`            | [`probability.py`][probability] | Done |          |
 | 15.6   | Fixed-Lag-Smoothing               | `fixed_lag_smoothing`         | [`probability.py`][probability] | Done |          |
 | 15.17  | Particle-Filtering                | `particle_filtering`          | [`probability.py`][probability] | Done |          |
