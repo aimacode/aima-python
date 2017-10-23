@@ -3,7 +3,9 @@ How to Contribute to aima-python
 
 Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5663121491361792/) student, or an independent contributor, here is a guide on how you can help.
 
-The main ways you can contribute to the repository are the following:
+First of all, you can read these write-ups from past GSoC students to get an idea on what you can do for the project. [Chipe1](https://github.com/aimacode/aima-python/issues/641) - [MrDupin](https://github.com/aimacode/aima-python/issues/632)
+
+In general, the main ways you can contribute to the repository are the following:
 
 1. Implement algorithms from the [list of algorithms](https://github.com/aimacode/aima-python/blob/master/README.md#index-of-algorithms).
 1. Add tests for algorithms that are missing them (you can also add more tests to algorithms that already have some).
