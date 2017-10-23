@@ -188,7 +188,7 @@ def test_monte_carlo_localization():
         Returns from a single element distribution (no uncertainity in motion)"""
         pos = kin_state[:2]
         orient = kin_state[2]
-        
+
         # for simplicity the robot first rotates and then moves
         orient = (orient + w)%4
         for _ in range(orient):
@@ -228,6 +228,13 @@ def test_monte_carlo_localization():
     print_table(grid)
 
     assert grid[6][7] > 700
+
+
+def test_gibbs_ask():
+    possible_solutions = ['False: 0.16, True: 0.84', 'False: 0.17, True: 0.83',
+                          'False: 0.15, True: 0.85']
+    g_solution = gibbs_ask('Cloudy', dict(Rain=True), sprinkler, 200).show_approx()
+    assert g_solution in possible_solutions
 
 
 # The following should probably go in .ipynb:
