@@ -1077,13 +1077,14 @@ def print_boggle(board):
     n2 = len(board)
     n = exact_sqrt(n2)
     for i in range(n2):
-
         if i % n == 0 and i > 0:
             print()
         if board[i] == 'Q':
-            print('Qu', end=' ')
+            print('Qu')
+            end=' '
         else:
-            print(str(board[i]) + ' ', end=' ')
+            print(str(board[i]) + ' ')
+            end=' '
     print()
 
 
