@@ -133,7 +133,7 @@ class QLearningAgent:
             self.alpha = lambda n: 1./(1+n)  # udacity video
 
     def f(self, u, n):
-        """ Exploration function. Returns fixed Rplus untill
+        """ Exploration function. Returns fixed Rplus until
         agent has visited state, action a Ne number of times.
         Same as ADP agent in book."""
         if n < self.Ne:
