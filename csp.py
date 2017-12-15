@@ -158,7 +158,18 @@ class CSP(search.Problem):
 
 
 def AC3(csp, queue=None, removals=None):
-    """[Figure 6.3]"""
+    """[Figure 6.3] The arc-consistency algorithm AC-3.
+
+    After applying AC-3, either every arc is arc-consistent, or some variable has an empty domain, indicating that the
+    CSP cannot be solved. The name "AC-3" was used by the algorithm's inventor (Mackworth, 1977) because it's the third
+    version developed in the paper.
+
+    returns false if an inconsistency is found and true otherwise
+    inputs:
+        csp         A binary CSP with components (X, D, C)
+        queue       A queue of arcs, initially all the arcs in csp
+        removals    The values that have been pruned from all domains
+    """
     if queue is None:
         queue = [(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]]
     csp.support_pruning()
@@ -373,7 +384,7 @@ def make_arc_consistent(Xj, Xk, csp):
                 # Found a consistent assignment for val1, keep it
                 keep = True
                 break
-        
+
         if not keep:
             # Remove val1
             csp.prune(Xj, val1, None)
