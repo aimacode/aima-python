@@ -23,18 +23,9 @@ def create_map(root):
     city_map = Canvas(root, width=width, height=height)
     city_map.pack()
 
-    for city in romania_locations.keys():
-        create_rectangle(
-            city_map,
-            romania_locations[city][0],
-            height -
-            romania_locations[city][1],
-            margin,
-            city)
-
     # Since lines have to be drawn between particular points, we need to list
     # them separately
-    create_line(
+    make_line(
         city_map,
         romania_locations['Arad'][0],
         height -
@@ -43,7 +34,7 @@ def create_map(root):
         height -
         romania_locations['Sibiu'][1],
         140)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Arad'][0],
         height -
@@ -52,7 +43,7 @@ def create_map(root):
         height -
         romania_locations['Zerind'][1],
         75)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Arad'][0],
         height -
@@ -61,7 +52,7 @@ def create_map(root):
         height -
         romania_locations['Timisoara'][1],
         118)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Oradea'][0],
         height -
@@ -70,7 +61,7 @@ def create_map(root):
         height -
         romania_locations['Zerind'][1],
         71)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Oradea'][0],
         height -
@@ -79,7 +70,7 @@ def create_map(root):
         height -
         romania_locations['Sibiu'][1],
         151)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Lugoj'][0],
         height -
@@ -88,7 +79,7 @@ def create_map(root):
         height -
         romania_locations['Timisoara'][1],
         111)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Lugoj'][0],
         height -
@@ -97,7 +88,7 @@ def create_map(root):
         height -
         romania_locations['Mehadia'][1],
         70)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Drobeta'][0],
         height -
@@ -106,7 +97,7 @@ def create_map(root):
         height -
         romania_locations['Mehadia'][1],
         75)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Drobeta'][0],
         height -
@@ -115,7 +106,7 @@ def create_map(root):
         height -
         romania_locations['Craiova'][1],
         120)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Pitesti'][0],
         height -
@@ -124,7 +115,7 @@ def create_map(root):
         height -
         romania_locations['Craiova'][1],
         138)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Rimnicu'][0],
         height -
@@ -133,7 +124,7 @@ def create_map(root):
         height -
         romania_locations['Craiova'][1],
         146)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Rimnicu'][0],
         height -
@@ -142,7 +133,7 @@ def create_map(root):
         height -
         romania_locations['Sibiu'][1],
         80)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Rimnicu'][0],
         height -
@@ -151,7 +142,7 @@ def create_map(root):
         height -
         romania_locations['Pitesti'][1],
         97)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Fagaras'][0],
         height -
@@ -160,7 +151,7 @@ def create_map(root):
         height -
         romania_locations['Sibiu'][1],
         99)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Fagaras'][0],
         height -
@@ -169,7 +160,7 @@ def create_map(root):
         height -
         romania_locations['Bucharest'][1],
         211)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Giurgiu'][0],
         height -
@@ -178,7 +169,7 @@ def create_map(root):
         height -
         romania_locations['Bucharest'][1],
         90)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Urziceni'][0],
         height -
@@ -187,7 +178,7 @@ def create_map(root):
         height -
         romania_locations['Bucharest'][1],
         85)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Urziceni'][0],
         height -
@@ -196,7 +187,7 @@ def create_map(root):
         height -
         romania_locations['Hirsova'][1],
         98)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Eforie'][0],
         height -
@@ -205,7 +196,7 @@ def create_map(root):
         height -
         romania_locations['Hirsova'][1],
         86)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Urziceni'][0],
         height -
@@ -214,7 +205,7 @@ def create_map(root):
         height -
         romania_locations['Vaslui'][1],
         142)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Iasi'][0],
         height -
@@ -223,7 +214,7 @@ def create_map(root):
         height -
         romania_locations['Vaslui'][1],
         92)
-    create_line(
+    make_line(
         city_map,
         romania_locations['Iasi'][0],
         height -
@@ -233,8 +224,18 @@ def create_map(root):
         romania_locations['Neamt'][1],
         87)
 
+    for city in romania_locations.keys():
+        make_rectangle(
+            city_map,
+            romania_locations[city][0],
+            height -
+            romania_locations[city][1],
+            margin,
+            city)
 
-def create_line(map, x0, y0, x1, y1, distance):
+    make_legend(city_map)
+
+def make_line(map, x0, y0, x1, y1, distance):
     '''
     This function draws out the lines joining various points.
     '''
@@ -242,7 +243,7 @@ def create_line(map, x0, y0, x1, y1, distance):
     map.create_text((x0 + x1) / 2, (y0 + y1) / 2, text=distance)
 
 
-def create_rectangle(map, x0, y0, margin, city_name):
+def make_rectangle(map, x0, y0, margin, city_name):
     '''
     This function draws out rectangles for various points.
     '''
@@ -251,7 +252,8 @@ def create_rectangle(map, x0, y0, margin, city_name):
         x0 - margin,
         y0 - margin,
         x0 + margin,
-        y0 + margin)
+        y0 + margin,
+        fill="white")
     map.create_text(
         x0 - 2 * margin,
         y0 - 2 * margin,
@@ -259,6 +261,21 @@ def create_rectangle(map, x0, y0, margin, city_name):
         anchor=SE)
     city_coord.update({city_name: rect})
 
+def make_legend(map):
+    rect1=map.create_rectangle(600,100,610,110,fill="white") 
+    text1 = map.create_text(615, 105,anchor=W,text="Un-explored")
+    
+    rect2=map.create_rectangle(600,115,610,125,fill="orange")
+    text2 = map.create_text(615, 120,anchor=W,text="Frontier")
+    
+    rect3=map.create_rectangle(600,130,610,140,fill="red")
+    text3 = map.create_text(615, 135,anchor=W,text="Currently Exploring")
+    
+    rect4=map.create_rectangle(600,145,610,155,fill="grey")
+    text4 = map.create_text(615, 150,anchor=W,text="Explored")
+    
+    rect5=map.create_rectangle(600,160,610,170,fill="dark green")
+    text5 = map.create_text(615, 165, anchor=W, text="Final Solution")
 
 def main():
     root = Tk()
