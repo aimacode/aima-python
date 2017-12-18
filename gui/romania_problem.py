@@ -372,12 +372,15 @@ def breadth_first_tree_search(problem):
 
 def depth_first_tree_search(problem):
     """Search the deepest nodes in the search tree first."""
+    # This search algorithm might not work in case of repeated paths.
     global frontier,counter
     if counter == -1:
         frontier=Stack()
     return tree_search(problem)
 
-# TODO: Remove redundant code.
+# TODO:
+# Remove redundant code.
+# Make the interchangbility work between various algorithms at each step.      
 def on_click():
     '''
     This function defines the action of the 'Next' button.
