@@ -4,7 +4,7 @@ import os.path
 import math
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from search import *
-from search import breadth_first_tree_search as bfts
+from search import breadth_first_tree_search as bfts, depth_first_tree_search as dfts
 from utils import Stack, FIFOQueue, PriorityQueue
 from copy import deepcopy
 root = None
@@ -370,6 +370,14 @@ def breadth_first_tree_search(problem):
     return tree_search(problem)
 
 
+def depth_first_tree_search(problem):
+    """Search the deepest nodes in the search tree first."""
+    global frontier,counter
+    if counter == -1:
+        frontier=Stack()
+    return tree_search(problem)
+
+# TODO: Remove redundant code.
 def on_click():
     '''
     This function defines the action of the 'Next' button.
@@ -384,7 +392,14 @@ def on_click():
             display_final(final_path)
             next_button.config(state="disabled")
         counter += 1
-
+    elif "Depth-First Tree Search" == algo.get():
+        node = depth_first_tree_search(romania_problem)
+        if node is not None:
+            final_path = dfts(romania_problem).solution()
+            final_path.append(start.get())
+            display_final(final_path)
+            next_button.config(state="disabled")
+        counter += 1
 
 def reset_map():
     global counter, city_coord, city_map, next_button
@@ -408,7 +423,8 @@ def main():
     start.set('Arad')
     goal.set('Bucharest')
     cities = sorted(romania_map.locations.keys())
-    algorithm_menu = OptionMenu(root, algo, "Breadth-First Tree Search")
+    algorithm_menu = OptionMenu(
+        root, algo, "Breadth-First Tree Search", "Depth-First Tree Search")
     Label(root, text="\n Search Algorithm").pack()
     algorithm_menu.pack()
     Label(root, text="\n Start City").pack()
