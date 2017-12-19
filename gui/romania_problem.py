@@ -4,7 +4,7 @@ import os.path
 import math
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from search import *
-from search import breadth_first_tree_search as bfts, depth_first_tree_search as dfts
+from search import breadth_first_tree_search as bfts, depth_first_tree_search as dfts,depth_first_graph_search as dfgs
 from utils import Stack, FIFOQueue, PriorityQueue
 from copy import deepcopy
 root = None
@@ -19,7 +19,7 @@ frontier = None
 front = None
 node = None
 next_button = None
-
+explored=None
 
 def create_map(root):
     '''
@@ -152,6 +152,15 @@ def create_map(root):
         height -
         romania_locations['Pitesti'][1],
         romania_map.get('Rimnicu', 'Pitesti'))
+    make_line(
+        city_map,
+        romania_locations['Bucharest'][0],
+        height -
+        romania_locations['Bucharest'][1],
+        romania_locations['Pitesti'][0],
+        height -
+        romania_locations['Pitesti'][1],
+        romania_map.get('Bucharest', 'Pitesti'))    
     make_line(
         city_map,
         romania_locations['Fagaras'][0],
@@ -293,6 +302,9 @@ def make_legend(map):
 
 def tree_search(problem):
     '''
+    earch through the successors of a problem to find a goal.
+    The argument frontier should be an empty queue.
+    Don't worry about repeated paths to a state. [Figure 3.7]
     This function has been changed to make it suitable for the Tkinter GUI.
     '''
     global counter, frontier, node
@@ -317,6 +329,34 @@ def tree_search(problem):
         display_explored(node)
     return None
 
+def graph_search(problem):
+    '''
+    Search through the successors of a problem to find a goal.
+    The argument frontier should be an empty queue.
+    If two paths reach a state, only use the first one. [Figure 3.7]
+    This function has been changed to make it suitable for the Tkinter GUI.
+    '''
+    global counter,frontier,node,explored
+    if counter == -1:
+        frontier.append(Node(problem.initial))
+        explored=set()
+        display_frontier(frontier)
+    if counter % 3 ==0 and counter >=0:
+        node = frontier.pop()
+        display_current(node)
+    if counter % 3 == 1 and counter >= 0:
+        if problem.goal_test(node.state):
+            return node
+        explored.add(node.state)
+        frontier.extend(child for child in node.expand(problem)
+                        if child.state not in explored and
+                        child not in frontier)
+        display_frontier(frontier)
+    if counter % 3 == 2 and counter >= 0:
+        display_explored(node)
+    return None
+
+
 
 def display_frontier(queue):
     '''
@@ -329,8 +369,6 @@ def display_frontier(queue):
         for city in city_coord.keys():
             if node.state == city:
                 city_map.itemconfig(city_coord[city], fill="orange")
-    return
-
 
 def display_current(node):
     '''
@@ -339,8 +377,6 @@ def display_current(node):
     global city_map, city_coord
     city = node.state
     city_map.itemconfig(city_coord[city], fill="red")
-    return
-
 
 def display_explored(node):
     '''
@@ -349,8 +385,6 @@ def display_explored(node):
     global city_map, city_coord
     city = node.state
     city_map.itemconfig(city_coord[city], fill="gray")
-    return
-
 
 def display_final(cities):
     '''
@@ -359,8 +393,6 @@ def display_final(cities):
     global city_map, city_coord
     for city in cities:
         city_map.itemconfig(city_coord[city], fill="green")
-    return
-
 
 def breadth_first_tree_search(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -377,6 +409,14 @@ def depth_first_tree_search(problem):
     if counter == -1:
         frontier=Stack()
     return tree_search(problem)
+
+# TODO: Check if the solution given by this function is consistent with the original function.
+def depth_first_graph_search(problem):
+    """Search the deepest nodes in the search tree first."""
+    global frontier, counter
+    if counter == -1:
+        frontier = Stack()
+    return graph_search(problem)
 
 # TODO:
 # Remove redundant code.
@@ -403,6 +443,18 @@ def on_click():
             display_final(final_path)
             next_button.config(state="disabled")
         counter += 1
+    elif "Depth-First Graph Search" == algo.get():
+        node = depth_first_graph_search(romania_problem)
+        if node is not None:
+            print(node)
+            final_path = dfgs(romania_problem).solution()
+            print(final_path)
+            final_path.append(start.get())
+            display_final(final_path)
+            next_button.config(state="disabled")
+        counter += 1
+
+
 
 def reset_map():
     global counter, city_coord, city_map, next_button
@@ -427,7 +479,7 @@ def main():
     goal.set('Bucharest')
     cities = sorted(romania_map.locations.keys())
     algorithm_menu = OptionMenu(
-        root, algo, "Breadth-First Tree Search", "Depth-First Tree Search")
+        root, algo, "Breadth-First Tree Search", "Depth-First Tree Search","Depth-First Graph Search")
     Label(root, text="\n Search Algorithm").pack()
     algorithm_menu.pack()
     Label(root, text="\n Start City").pack()
