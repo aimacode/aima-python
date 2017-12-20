@@ -299,7 +299,7 @@ class Environment:
     def add_thing(self, thing, location=None):
         """Add a thing to the environment, setting its location. For
         convenience, if thing is an agent program we make a new agent
-        for it. (Shouldn't need to override this."""
+        for it. (Shouldn't need to override this.)"""
         if not isinstance(thing, Thing):
             thing = Agent(thing)
         if thing in self.things:
