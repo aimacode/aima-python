@@ -97,7 +97,7 @@ def create_map(root):
         romania_locations['Mehadia'][0],
         height -
         romania_locations['Mehadia'][1],
-        romania_map.get('Lugoj', 'Mehandia'))
+        romania_map.get('Lugoj', 'Mehadia'))
     make_line(
         city_map,
         romania_locations['Drobeta'][0],
@@ -106,7 +106,7 @@ def create_map(root):
         romania_locations['Mehadia'][0],
         height -
         romania_locations['Mehadia'][1],
-        romania_map.get('Drobeta', 'Mehandia'))
+        romania_map.get('Drobeta', 'Mehadia'))
     make_line(
         city_map,
         romania_locations['Drobeta'][0],
@@ -274,11 +274,18 @@ def make_rectangle(map, x0, y0, margin, city_name):
         x0 + margin,
         y0 + margin,
         fill="white")
-    map.create_text(
-        x0 - 2 * margin,
-        y0 - 2 * margin,
-        text=city_name,
-        anchor=SE)
+    if "Bucharest" in city_name or "Pitesti" in city_name or "Lugoj" in city_name or "Mehadia" in city_name or "Drobeta" in city_name:
+        map.create_text(
+            x0 - 2 * margin,
+            y0 - 2 * margin,
+            text=city_name,
+            anchor=E)
+    else:   
+        map.create_text(
+            x0 - 2 * margin,
+            y0 - 2 * margin,
+            text=city_name,
+            anchor=SE)
     city_coord.update({city_name: rect})
 
 
@@ -302,7 +309,7 @@ def make_legend(map):
 
 def tree_search(problem):
     '''
-    earch through the successors of a problem to find a goal.
+    Search through the successors of a problem to find a goal.
     The argument frontier should be an empty queue.
     Don't worry about repeated paths to a state. [Figure 3.7]
     This function has been changed to make it suitable for the Tkinter GUI.
@@ -340,9 +347,11 @@ def graph_search(problem):
     if counter == -1:
         frontier.append(Node(problem.initial))
         explored=set()
+        #print("Frontier: "+str(frontier))
         display_frontier(frontier)
     if counter % 3 ==0 and counter >=0:
         node = frontier.pop()
+        #print("Current node: "+str(node))
         display_current(node)
     if counter % 3 == 1 and counter >= 0:
         if problem.goal_test(node.state):
@@ -351,8 +360,10 @@ def graph_search(problem):
         frontier.extend(child for child in node.expand(problem)
                         if child.state not in explored and
                         child not in frontier)
+        #print("Frontier: " + str(frontier))
         display_frontier(frontier)
     if counter % 3 == 2 and counter >= 0:
+        #print("Explored node: "+str(node))
         display_explored(node)
     return None
 
@@ -446,9 +457,7 @@ def on_click():
     elif "Depth-First Graph Search" == algo.get():
         node = depth_first_graph_search(romania_problem)
         if node is not None:
-            print(node)
             final_path = dfgs(romania_problem).solution()
-            print(final_path)
             final_path.append(start.get())
             display_final(final_path)
             next_button.config(state="disabled")
