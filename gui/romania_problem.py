@@ -4,9 +4,11 @@ import os.path
 import math
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from search import *
-from search import breadth_first_tree_search as bfts, depth_first_tree_search as dfts,depth_first_graph_search as dfgs
+from search import breadth_first_tree_search as bfts, depth_first_tree_search as dfts, \
+    depth_first_graph_search as dfgs, breadth_first_search as bfs 
 from utils import Stack, FIFOQueue, PriorityQueue
 from copy import deepcopy
+
 root = None
 city_coord = {}
 romania_problem = None
@@ -19,7 +21,8 @@ frontier = None
 front = None
 node = None
 next_button = None
-explored=None
+explored = None
+
 
 def create_map(root):
     '''
@@ -97,7 +100,7 @@ def create_map(root):
         romania_locations['Mehadia'][0],
         height -
         romania_locations['Mehadia'][1],
-        romania_map.get('Lugoj', 'Mehandia'))
+        romania_map.get('Lugoj', 'Mehadia'))
     make_line(
         city_map,
         romania_locations['Drobeta'][0],
@@ -106,7 +109,7 @@ def create_map(root):
         romania_locations['Mehadia'][0],
         height -
         romania_locations['Mehadia'][1],
-        romania_map.get('Drobeta', 'Mehandia'))
+        romania_map.get('Drobeta', 'Mehadia'))
     make_line(
         city_map,
         romania_locations['Drobeta'][0],
@@ -274,11 +277,19 @@ def make_rectangle(map, x0, y0, margin, city_name):
         x0 + margin,
         y0 + margin,
         fill="white")
-    map.create_text(
-        x0 - 2 * margin,
-        y0 - 2 * margin,
-        text=city_name,
-        anchor=SE)
+    if "Bucharest" in city_name or "Pitesti" in city_name or "Lugoj" in city_name \
+            or "Mehadia" in city_name or "Drobeta" in city_name:
+        map.create_text(
+            x0 - 2 * margin,
+            y0 - 2 * margin,
+            text=city_name,
+            anchor=E)
+    else:   
+        map.create_text(
+            x0 - 2 * margin,
+            y0 - 2 * margin,
+            text=city_name,
+            anchor=SE)
     city_coord.update({city_name: rect})
 
 
@@ -302,7 +313,7 @@ def make_legend(map):
 
 def tree_search(problem):
     '''
-    earch through the successors of a problem to find a goal.
+    Search through the successors of a problem to find a goal.
     The argument frontier should be an empty queue.
     Don't worry about repeated paths to a state. [Figure 3.7]
     This function has been changed to make it suitable for the Tkinter GUI.
@@ -329,6 +340,7 @@ def tree_search(problem):
         display_explored(node)
     return None
 
+
 def graph_search(problem):
     '''
     Search through the successors of a problem to find a goal.
@@ -336,13 +348,15 @@ def graph_search(problem):
     If two paths reach a state, only use the first one. [Figure 3.7]
     This function has been changed to make it suitable for the Tkinter GUI.
     '''
-    global counter,frontier,node,explored
+    global counter, frontier, node, explored
     if counter == -1:
         frontier.append(Node(problem.initial))
-        explored=set()
+        explored = set()
+        # print("Frontier: "+str(frontier))
         display_frontier(frontier)
-    if counter % 3 ==0 and counter >=0:
+    if counter % 3 == 0 and counter >= 0:
         node = frontier.pop()
+        # print("Current node: "+str(node))
         display_current(node)
     if counter % 3 == 1 and counter >= 0:
         if problem.goal_test(node.state):
@@ -351,11 +365,12 @@ def graph_search(problem):
         frontier.extend(child for child in node.expand(problem)
                         if child.state not in explored and
                         child not in frontier)
+        # print("Frontier: " + str(frontier))
         display_frontier(frontier)
     if counter % 3 == 2 and counter >= 0:
+        # print("Explored node: "+str(node))
         display_explored(node)
     return None
-
 
 
 def display_frontier(queue):
@@ -370,6 +385,7 @@ def display_frontier(queue):
             if node.state == city:
                 city_map.itemconfig(city_coord[city], fill="orange")
 
+
 def display_current(node):
     '''
     This function marks the currently exploring node (red) on the map.
@@ -377,6 +393,7 @@ def display_current(node):
     global city_map, city_coord
     city = node.state
     city_map.itemconfig(city_coord[city], fill="red")
+
 
 def display_explored(node):
     '''
@@ -386,6 +403,7 @@ def display_explored(node):
     city = node.state
     city_map.itemconfig(city_coord[city], fill="gray")
 
+
 def display_final(cities):
     '''
     This function marks the final solution nodes (green) on the map.
@@ -393,6 +411,7 @@ def display_final(cities):
     global city_map, city_coord
     for city in cities:
         city_map.itemconfig(city_coord[city], fill="green")
+
 
 def breadth_first_tree_search(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -405,18 +424,47 @@ def breadth_first_tree_search(problem):
 def depth_first_tree_search(problem):
     """Search the deepest nodes in the search tree first."""
     # This search algorithm might not work in case of repeated paths.
-    global frontier,counter
+    global frontier, counter
     if counter == -1:
-        frontier=Stack()
+        frontier = Stack()
     return tree_search(problem)
 
-# TODO: Check if the solution given by this function is consistent with the original function.
+
+def breadth_first_search(problem):
+    """[Figure 3.11]"""
+    global frontier, node, explored, counter
+    if counter == -1:
+        node = Node(problem.initial)
+        display_current(node)
+        if problem.goal_test(node.state):
+            return node
+        frontier = FIFOQueue()
+        frontier.append(node)
+        display_frontier(frontier)
+        explored = set()
+    if counter % 3 == 0 and counter >= 0:
+        node = frontier.pop()
+        display_current(node)
+        explored.add(node.state)
+    if counter % 3 == 1 and counter >= 0:    
+        for child in node.expand(problem):
+            if child.state not in explored and child not in frontier:
+                if problem.goal_test(child.state):
+                    return child
+                frontier.append(child)
+        display_frontier(frontier)
+    if counter % 3 == 2 and counter >= 0:
+        display_explored(node)
+    return None
+
+
 def depth_first_graph_search(problem):
     """Search the deepest nodes in the search tree first."""
     global frontier, counter
     if counter == -1:
         frontier = Stack()
     return graph_search(problem)
+
 
 # TODO:
 # Remove redundant code.
@@ -443,17 +491,22 @@ def on_click():
             display_final(final_path)
             next_button.config(state="disabled")
         counter += 1
-    elif "Depth-First Graph Search" == algo.get():
-        node = depth_first_graph_search(romania_problem)
+    elif "Breadth-First Search" == algo.get():
+        node = breadth_first_search(romania_problem)
         if node is not None:
-            print(node)
-            final_path = dfgs(romania_problem).solution()
-            print(final_path)
+            final_path = bfs(romania_problem).solution()
             final_path.append(start.get())
             display_final(final_path)
             next_button.config(state="disabled")
         counter += 1
-
+    elif "Depth-First Graph Search" == algo.get():
+        node = depth_first_graph_search(romania_problem)
+        if node is not None:
+            final_path = dfgs(romania_problem).solution()
+            final_path.append(start.get())
+            display_final(final_path)
+            next_button.config(state="disabled")
+        counter += 1
 
 
 def reset_map():
@@ -479,7 +532,9 @@ def main():
     goal.set('Bucharest')
     cities = sorted(romania_map.locations.keys())
     algorithm_menu = OptionMenu(
-        root, algo, "Breadth-First Tree Search", "Depth-First Tree Search","Depth-First Graph Search")
+        root, 
+        algo, "Breadth-First Tree Search", "Depth-First Tree Search",
+        "Breadth-First Search", "Depth-First Graph Search")
     Label(root, text="\n Search Algorithm").pack()
     algorithm_menu.pack()
     Label(root, text="\n Start City").pack()
