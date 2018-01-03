@@ -5,7 +5,7 @@ import math
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from search import *
 from search import breadth_first_tree_search as bfts, depth_first_tree_search as dfts, \
-    depth_first_graph_search as dfgs, breadth_first_search as bfs 
+    depth_first_graph_search as dfgs, breadth_first_search as bfs, uniform_cost_search as ucs
 from utils import Stack, FIFOQueue, PriorityQueue
 from copy import deepcopy
 
@@ -163,7 +163,7 @@ def create_map(root):
         romania_locations['Pitesti'][0],
         height -
         romania_locations['Pitesti'][1],
-        romania_map.get('Bucharest', 'Pitesti'))    
+        romania_map.get('Bucharest', 'Pitesti'))
     make_line(
         city_map,
         romania_locations['Fagaras'][0],
@@ -284,7 +284,7 @@ def make_rectangle(map, x0, y0, margin, city_name):
             y0 - 2 * margin,
             text=city_name,
             anchor=E)
-    else:   
+    else:
         map.create_text(
             x0 - 2 * margin,
             y0 - 2 * margin,
@@ -446,7 +446,7 @@ def breadth_first_search(problem):
         node = frontier.pop()
         display_current(node)
         explored.add(node.state)
-    if counter % 3 == 1 and counter >= 0:    
+    if counter % 3 == 1 and counter >= 0:
         for child in node.expand(problem):
             if child.state not in explored and child not in frontier:
                 if problem.goal_test(child.state):
@@ -466,9 +466,55 @@ def depth_first_graph_search(problem):
     return graph_search(problem)
 
 
+def best_first_graph_search(problem, f):
+    """Search the nodes with the lowest f scores first.
+    You specify the function f(node) that you want to minimize; for example,
+    if f is a heuristic estimate to the goal, then we have greedy best
+    first search; if f is node.depth then we have breadth-first search.
+    There is a subtlety: the line "f = memoize(f, 'f')" means that the f
+    values will be cached on the nodes as they are computed. So after doing
+    a best first search you can examine the f values of the path returned."""
+    global frontier, node, explored, counter
+
+    if counter == -1:
+        f = memoize(f, 'f')
+        node = Node(problem.initial)
+        display_current(node)
+        if problem.goal_test(node.state):
+            return node
+        frontier = PriorityQueue(min, f)
+        frontier.append(node)
+        display_frontier(frontier)
+        explored = set()
+    if counter % 3 == 0 and counter >= 0:
+        node = frontier.pop()
+        display_current(node)
+        if problem.goal_test(node.state):
+            return node
+        explored.add(node.state)
+    if counter % 3 == 1 and counter >= 0:
+        for child in node.expand(problem):
+            if child.state not in explored and child not in frontier:
+                frontier.append(child)
+            elif child in frontier:
+                incumbent = frontier[child]
+                if f(child) < f(incumbent):
+                    del frontier[incumbent]
+                    frontier.append(child)
+        display_frontier(frontier)
+    if counter % 3 == 2 and counter >= 0:
+        display_explored(node)
+    return None
+
+
+def uniform_cost_search(problem):
+    """[Figure 3.14]"""
+    return best_first_graph_search(problem, lambda node: node.path_cost)
+
+
 # TODO:
 # Remove redundant code.
-# Make the interchangbility work between various algorithms at each step.      
+# Make the interchangbility work between various algorithms at each step.
 def on_click():
     '''
     This function defines the action of the 'Next' button.
@@ -507,6 +553,14 @@ def on_click():
             display_final(final_path)
             next_button.config(state="disabled")
         counter += 1
+    elif "Uniform Cost Search" == algo.get():
+        node = uniform_cost_search(romania_problem)
+        if node is not None:
+            final_path = ucs(romania_problem).solution()
+            final_path.append(start.get())
+            display_final(final_path)
+            next_button.config(state="disabled")
+        counter += 1
 
 
 def reset_map():
@@ -532,9 +586,10 @@ def main():
     goal.set('Bucharest')
     cities = sorted(romania_map.locations.keys())
     algorithm_menu = OptionMenu(
-        root, 
+        root,
         algo, "Breadth-First Tree Search", "Depth-First Tree Search",
-        "Breadth-First Search", "Depth-First Graph Search")
+        "Breadth-First Search", "Depth-First Graph Search",
+        "Uniform Cost Search")
     Label(root, text="\n Search Algorithm").pack()
     algorithm_menu.pack()
     Label(root, text="\n Start City").pack()
