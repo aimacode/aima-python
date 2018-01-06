@@ -23,14 +23,14 @@ infinity = float('inf')
 
 class Problem(object):
 
-    """The abstract class for a formal problem.  You should subclass
+    """The abstract class for a formal problem. You should subclass
     this and implement the methods actions and result, and possibly
     __init__, goal_test, and path_cost. Then you will create instances
     of your subclass and solve them with the various search functions."""
 
     def __init__(self, initial, goal=None):
         """The constructor specifies the initial state, and possibly a goal
-        state, if there is a unique goal.  Your subclass's constructor can add
+        state, if there is a unique goal. Your subclass's constructor can add
         other arguments."""
         self.initial = initial
         self.goal = goal
@@ -708,12 +708,24 @@ def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ng
         population = [mutate(recombine(*select(2, population, fitness_fn)), gene_pool, pmut)
                       for i in range(len(population))]
 
-        if f_thres:
-            fittest_individual = argmax(population, key=fitness_fn)
-            if fitness_fn(fittest_individual) >= f_thres:
-                return fittest_individual
+        fittest_individual = fitness_threshold(fitness_fn, f_thres, population)
+        if fittest_individual:
+            return fittest_individual
+
 
     return argmax(population, key=fitness_fn)
+
+
+def fitness_threshold(fitness_fn, f_thres, population):
+    if not f_thres:
+        return None
+
+    fittest_individual = argmax(population, key=fitness_fn)
+    if fitness_fn(fittest_individual) >= f_thres:
+        return fittest_individual
+
+    return None
+
 
 
 def init_population(pop_number, gene_pool, state_length):
