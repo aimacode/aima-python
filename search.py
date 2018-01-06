@@ -637,7 +637,7 @@ class LRTAStarAgent:
 
     """ [Figure 4.24]
     Abstract class for LRTA*-Agent. A problem needs to be
-    provided which is an instanace of a subclass of Problem Class.
+    provided which is an instance of a subclass of Problem Class.
 
     Takes a OnlineSearchProblem [Figure 4.23] as a problem.
     """
