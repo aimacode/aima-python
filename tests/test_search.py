@@ -73,27 +73,27 @@ def test_recursive_best_first_search():
 
 def test_hill_climbing():
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 20],
-                                           [-3, 7, 11, 5]])
+                                           [-3, 7, 11, 5]], False)
     assert hill_climbing(prob) == (0, 3)
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 8],
                                        [-3, 7, 9, 999],
-                                       [1, 2, 5, 11]])
+                                       [1, 2, 5, 11]], False)
     assert hill_climbing(prob) == (0, 2)
     prob = PeakFindingProblem((2, 0), [[0, 5, 10, 8],
                                        [-3, 7, 9, 999],
-                                       [1, 2, 5, 11]])
+                                       [1, 2, 5, 11]], False)
     assert hill_climbing(prob) == (1, 3)
 
 
 def test_simulated_annealing():
     random.seed("aima-python")
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 20],
-                                       [-3, 7, 11, 5]])
+                                       [-3, 7, 11, 5]], False)
     sols = {prob.value(simulated_annealing(prob)) for i in range(100)}
     assert max(sols) == 20
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 8],
                                        [-3, 7, 9, 999],
-                                       [1, 2, 5, 11]])
+                                       [1, 2, 5, 11]], False)
     sols = {prob.value(simulated_annealing(prob)) for i in range(100)}
     assert max(sols) == 999
 

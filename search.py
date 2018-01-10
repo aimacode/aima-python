@@ -534,7 +534,7 @@ class PeakFindingProblem(Problem):
         if state[1] < self.m - 1:
             allowed_actions.append('S')
 
-        if allow_diagonal_motion:
+        if self.allow_diagonal_motion:
             if state[0] > 0 and state[1] > 0:
                 allowed_actions.append('NW')
             if state[0] < self.n - 1 and state[1] > 0:
