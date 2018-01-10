@@ -512,34 +512,65 @@ def and_or_graph_search(problem):
 class PeakFindingProblem(Problem):
     """Problem of finding the highest peak in a limited grid"""
 
-    def __init__(self, initial, grid):
+    def __init__(self, initial, grid, allow_diagonal_motion):
         """The grid is a 2 dimensional array/list whose state is specified by tuple of indices"""
         Problem.__init__(self, initial)
         self.grid = grid
+        self.allow_diagonal_motion = allow_diagonal_motion
         self.n = len(grid)
         assert self.n > 0
         self.m = len(grid[0])
         assert self.m > 0
 
     def actions(self, state):
-        """Allows movement in only 4 directions"""
-        # TODO: Add flag to allow diagonal motion
+        """Allows motion only in the 4 cardinal directions if diagonal motion is not allowed. Otherwise allows motion in all 8 directions"""
         allowed_actions = []
         if state[0] > 0:
+            allowed_actions.append('W')
+        if state[1] > 0:
             allowed_actions.append('N')
         if state[0] < self.n - 1:
-            allowed_actions.append('S')
-        if state[1] > 0:
-            allowed_actions.append('W')
-        if state[1] < self.m - 1:
             allowed_actions.append('E')
+        if state[1] < self.m - 1:
+            allowed_actions.append('S')
+
+        if allow_diagonal_motion:
+            if state[0] > 0 and state[1] > 0:
+                allowed_actions.append('NW')
+            if state[0] < self.n - 1 and state[1] > 0:
+                allowed_actions.append('NE')
+            if state[0] < self.n - 1 and state[1] < self.m - 1:
+                allowed_actions.append('SE')
+            if state[0] > 0 and state[1] < self.m - 1:
+                allowed_actions.append('SW')
+
         return allowed_actions
 
     def result(self, state, action):
         """Moves in the direction specified by action"""
         x, y = state
-        x = x + (1 if action == 'S' else (-1 if action == 'N' else 0))
-        y = y + (1 if action == 'E' else (-1 if action == 'W' else 0))
+
+        if action == 'W':
+            x = x - 1
+        elif action == 'N':
+            y = y - 1
+        elif action == 'E':
+            x = x + 1
+        elif action == 'S':
+            y = y + 1
+        elif action == 'NW':
+            x = x - 1
+            y = y - 1
+        elif action == 'NE':
+            x = x + 1
+            y = y - 1
+        elif action == 'SW':
+            x = x - 1
+            y = y + 1
+        elif action == 'SE':
+            x = x + 1            
+            y = y + 1
+
         return (x, y)
 
     def value(self, state):
