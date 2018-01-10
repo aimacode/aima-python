@@ -24,14 +24,14 @@ infinity = float('inf')
 
 class Problem(object):
 
-    """The abstract class for a formal problem.  You should subclass
+    """The abstract class for a formal problem. You should subclass
     this and implement the methods actions and result, and possibly
     __init__, goal_test, and path_cost. Then you will create instances
     of your subclass and solve them with the various search functions."""
 
     def __init__(self, initial, goal=None):
         """The constructor specifies the initial state, and possibly a goal
-        state, if there is a unique goal.  Your subclass's constructor can add
+        state, if there is a unique goal. Your subclass's constructor can add
         other arguments."""
         self.initial = initial
         self.goal = goal
@@ -638,7 +638,7 @@ class LRTAStarAgent:
 
     """ [Figure 4.24]
     Abstract class for LRTA*-Agent. A problem needs to be
-    provided which is an instanace of a subclass of Problem Class.
+    provided which is an instance of a subclass of Problem Class.
 
     Takes a OnlineSearchProblem [Figure 4.23] as a problem.
     """
@@ -703,27 +703,30 @@ def genetic_search(problem, fitness_fn, ngen=1000, pmut=0.1, n=20):
     return genetic_algorithm(states[:n], problem.value, ngen, pmut)
 
 
-def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ngen=1000, pmut=0.1):  # noqa
+def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ngen=1000, pmut=0.1):
     """[Figure 4.8]"""
     for i in range(ngen):
-        new_population = []
-        random_selection = selection_chances(fitness_fn, population)
-        for j in range(len(population)):
-            x = random_selection()
-            y = random_selection()
-            child = reproduce(x, y)
-            if random.uniform(0, 1) < pmut:
-                child = mutate(child, gene_pool)
-            new_population.append(child)
+        population = [mutate(recombine(*select(2, population, fitness_fn)), gene_pool, pmut)
+                      for i in range(len(population))]
 
-        population = new_population
+        fittest_individual = fitness_threshold(fitness_fn, f_thres, population)
+        if fittest_individual:
+            return fittest_individual
 
-        if f_thres:
-            fittest_individual = argmax(population, key=fitness_fn)
-            if fitness_fn(fittest_individual) >= f_thres:
-                return fittest_individual
 
     return argmax(population, key=fitness_fn)
+
+
+def fitness_threshold(fitness_fn, f_thres, population):
+    if not f_thres:
+        return None
+
+    fittest_individual = argmax(population, key=fitness_fn)
+    if fitness_fn(fittest_individual) >= f_thres:
+        return fittest_individual
+
+    return None
+
 
 
 def init_population(pop_number, gene_pool, state_length):
@@ -740,18 +743,22 @@ def init_population(pop_number, gene_pool, state_length):
     return population
 
 
-def selection_chances(fitness_fn, population):
+def select(r, population, fitness_fn):
     fitnesses = map(fitness_fn, population)
-    return weighted_sampler(population, fitnesses)
+    sampler = weighted_sampler(population, fitnesses)
+    return [sampler() for i in range(r)]
 
 
-def reproduce(x, y):
+def recombine(x, y):
     n = len(x)
-    c = random.randrange(1, n)
+    c = random.randrange(0, n)
     return x[:c] + y[c:]
 
 
-def mutate(x, gene_pool):
+def mutate(x, gene_pool, pmut):
+    if random.uniform(0, 1) >= pmut:
+        return x
+
     n = len(x)
     g = len(gene_pool)
     c = random.randrange(0, n)

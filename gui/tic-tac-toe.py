@@ -152,8 +152,8 @@ def check_victory(button):
         return True
 
     # check if previous move was on the secondary diagonal and caused a win
-    if x + \
-            y == 2 and buttons[0][2]['text'] == buttons[1][1]['text'] == buttons[2][0]['text'] != " ":
+    if x + y \
+            == 2 and buttons[0][2]['text'] == buttons[1][1]['text'] == buttons[2][0]['text'] != " ":
         buttons[0][2].config(text="/" + tt + "/")
         buttons[1][1].config(text="/" + tt + "/")
         buttons[2][0].config(text="/" + tt + "/")
@@ -218,6 +218,7 @@ def main():
 
     root = Tk()
     root.title("TicTacToe")
+    root.geometry("150x200")  # Improved the window geometry
     root.resizable(0, 0)  # To remove the maximize window option
     result = StringVar()
     result.set("Your Turn!")
@@ -233,4 +234,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
