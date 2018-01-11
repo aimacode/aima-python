@@ -5,7 +5,8 @@ import math
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from search import *
 from search import breadth_first_tree_search as bfts, depth_first_tree_search as dfts, \
-    depth_first_graph_search as dfgs, breadth_first_search as bfs, uniform_cost_search as ucs
+    depth_first_graph_search as dfgs, breadth_first_search as bfs, uniform_cost_search as ucs, \
+    astar_search as asts
 from utils import Stack, FIFOQueue, PriorityQueue
 from copy import deepcopy
 
@@ -512,6 +513,14 @@ def uniform_cost_search(problem):
     return best_first_graph_search(problem, lambda node: node.path_cost)
 
 
+def astar_search(problem, h=None):
+    """A* search is best-first graph search with f(n) = g(n)+h(n).
+    You need to specify the h function when you call astar_search, or
+    else in your Problem subclass."""
+    h = memoize(h or problem.h, 'h')
+    return best_first_graph_search(problem, lambda n: n.path_cost + h(n))
+
+
 # TODO:
 # Remove redundant code.
 # Make the interchangbility work between various algorithms at each step.
@@ -561,6 +570,14 @@ def on_click():
             display_final(final_path)
             next_button.config(state="disabled")
         counter += 1
+    elif "A* - Search" == algo.get():
+        node = astar_search(romania_problem)
+        if node is not None:
+            final_path = asts(romania_problem).solution()
+            final_path.append(start.get())
+            display_final(final_path)
+            next_button.config(state="disabled")
+        counter += 1
 
 
 def reset_map():
@@ -589,7 +606,7 @@ def main():
         root,
         algo, "Breadth-First Tree Search", "Depth-First Tree Search",
         "Breadth-First Search", "Depth-First Graph Search",
-        "Uniform Cost Search")
+        "Uniform Cost Search", "A* - Search")
     Label(root, text="\n Search Algorithm").pack()
     algorithm_menu.pack()
     Label(root, text="\n Start City").pack()
