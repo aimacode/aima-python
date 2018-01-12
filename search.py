@@ -462,12 +462,12 @@ class EightPuzzle():
         move = []
         for i in range(0,len(self.path)):
                 move.append(''.join(str(x) for x in self.path[i][0]))
-        print("Number of explored nodes by the following heuristic are: ", len(set(move)))  
+
+        print("Number of explored nodes by the following heuristic are: ", len(set(move)))	
         print(initial)
         for i in reversed(self.final):
             print(i)
-        #self.path.clear()
-        #self.final.clear()             
+
         del self.path[:]
         del self.final[:]
         return
