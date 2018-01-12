@@ -542,7 +542,7 @@ def DecisionTreeLearner(dataset):
         return DecisionLeaf(popular)
 
     def count(attr, val, examples):
-        """Count the number of examples that have attr = val."""
+        """Count the number of examples that have example[attr] = val."""
         return sum(e[attr] == val for e in examples)
 
     def all_same_class(examples):
