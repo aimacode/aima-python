@@ -508,41 +508,30 @@ def and_or_graph_search(problem):
     # body of and or search
     return or_search(problem.initial, problem, [])
 
+# Pre-defined actions for PeakFindingProblem
+primary_actions = { 'W':(-1,0), 'N':(0,1), 'E':(1,0), 'S':(0,-1) }
+aggregate_actions = { 'W':(-1,0), 'N':(0,1), 'E':(1,0), 'S':(0,-1), 'NW':(-1,1), 'NE':(1,1), 'SE':(1,-1), 'SW':(-1,-1) }
 
 class PeakFindingProblem(Problem):
     """Problem of finding the highest peak in a limited grid"""
 
-    def __init__(self, initial, grid, allow_diagonal_motion):
+    def __init__(self, initial, grid, defined_actions = primary_actions):
         """The grid is a 2 dimensional array/list whose state is specified by tuple of indices"""
         Problem.__init__(self, initial)
         self.grid = grid
-        self.allow_diagonal_motion = allow_diagonal_motion
+        self.defined_actions = defined_actions
         self.n = len(grid)
         assert self.n > 0
         self.m = len(grid[0])
         assert self.m > 0
 
     def actions(self, state):
-        """Allows motion only in the 4 cardinal directions if diagonal motion is not allowed. Otherwise allows motion in all 8 directions"""
+        """Returns the list of actions which are allowed to be taken from the given state"""
         allowed_actions = []
-        if state[0] > 0:
-            allowed_actions.append('W')
-        if state[1] > 0:
-            allowed_actions.append('N')
-        if state[0] < self.n - 1:
-            allowed_actions.append('E')
-        if state[1] < self.m - 1:
-            allowed_actions.append('S')
-
-        if self.allow_diagonal_motion:
-            if state[0] > 0 and state[1] > 0:
-                allowed_actions.append('NW')
-            if state[0] < self.n - 1 and state[1] > 0:
-                allowed_actions.append('NE')
-            if state[0] < self.n - 1 and state[1] < self.m - 1:
-                allowed_actions.append('SE')
-            if state[0] > 0 and state[1] < self.m - 1:
-                allowed_actions.append('SW')
+        for action in self.defined_actions:
+            next_state = (state[0] + self.defined_actions[action][0], state[1] + self.defined_actions[action][1]) 
+            if next_state[0] >= 0 and next_state[1] >= 0 and next_state[0] <= self.n - 1 and next_state[1] <= self.m - 1:
+                allowed_actions.append(action)
 
         return allowed_actions
 
@@ -550,26 +539,8 @@ class PeakFindingProblem(Problem):
         """Moves in the direction specified by action"""
         x, y = state
 
-        if action == 'W':
-            x = x - 1
-        elif action == 'N':
-            y = y - 1
-        elif action == 'E':
-            x = x + 1
-        elif action == 'S':
-            y = y + 1
-        elif action == 'NW':
-            x = x - 1
-            y = y - 1
-        elif action == 'NE':
-            x = x + 1
-            y = y - 1
-        elif action == 'SW':
-            x = x - 1
-            y = y + 1
-        elif action == 'SE':
-            x = x + 1            
-            y = y + 1
+        x = x + self.defined_actions[action][0]
+        y = y + self.defined_actions[action][1]
 
         return (x, y)
 
@@ -1360,3 +1331,4 @@ def compare_graph_searchers():
                                 GraphProblem('Q', 'WA', australia_map)],
                       header=['Searcher', 'romania_map(Arad, Bucharest)',
                               'romania_map(Oradea, Neamt)', 'australia_map'])
+
