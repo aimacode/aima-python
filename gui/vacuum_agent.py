@@ -116,12 +116,11 @@ def create_agent(env, agent):
     env.add_thing(agent)
     #print(agent.location)
     if agent.location == (0, 0):
-        env.agent_rect_l = env.canvas.create_rectangle(80, 140, 175, 220, fill='lime green')
-        env.agent_rect_r = None
+        env.agent_rect = env.canvas.create_rectangle(80, 140, 175, 220, fill='lime green')
+        env.text = env.canvas.create_text(128, 180, text="Agent")
     else:
-        env.agent_rect_r = env.canvas.create_rectangle(200, 140, 295, 220, fill='lime green')
-        env.agent_rect_l = None
-
+        env.agent_rect = env.canvas.create_rectangle(200, 140, 295, 220, fill='lime green')
+        env.text = env.canvas.create_text(248, 180, text="Agent")
 
 def move_agent(env, agent, before_step):
     """Moves the agent in the GUI when 'next' button is pressed."""
@@ -129,15 +128,11 @@ def move_agent(env, agent, before_step):
         pass
     else:
         if agent.location == (1, 0):
-            if env.agent_rect_r is None:
-                env.canvas.move(env.agent_rect_l, 120, 0)
-            else:
-                env.canvas.move(env.agent_rect_r, 120, 0)
+            env.canvas.move(env.text, 120, 0)
+            env.canvas.move(env.agent_rect, 120, 0)
         elif agent.location == (0, 0):
-            if env.agent_rect_l is None:
-                env.canvas.move(env.agent_rect_r, -120, 0)
-            else:
-                env.canvas.move(env.agent_rect_l, -120, 0)
+            env.canvas.move(env.text, -120, 0)
+            env.canvas.move(env.agent_rect, -120, 0)
 
 
 # TODO: Add more agents to the environment.
