@@ -103,24 +103,25 @@ class Gui(Environment):
     def update_env(self, agent):
         """Updates the GUI according to the agent's action."""
         self.read_env()
-        #print(self.status)
+        # print(self.status)
         before_step = agent.location
         self.step()
-        #print(self.status)
-        #print(agent.location)
+        # print(self.status)
+        # print(agent.location)
         move_agent(self, agent, before_step)
 
 
 def create_agent(env, agent):
     """Creates the agent in the GUI and is kept independent of the environment."""
     env.add_thing(agent)
-    #print(agent.location)
+    # print(agent.location)
     if agent.location == (0, 0):
         env.agent_rect = env.canvas.create_rectangle(80, 140, 175, 220, fill='lime green')
-        env.text = env.canvas.create_text(128, 180, text="Agent")
+        env.text = env.canvas.create_text(128, 180, font="Helvetica 10 bold italic", text="Agent")
     else:
         env.agent_rect = env.canvas.create_rectangle(200, 140, 295, 220, fill='lime green')
-        env.text = env.canvas.create_text(248, 180, text="Agent")
+        env.text = env.canvas.create_text(248, 180, font="Helvetica 10 bold italic", text="Agent")
+
 
 def move_agent(env, agent, before_step):
     """Moves the agent in the GUI when 'next' button is pressed."""
