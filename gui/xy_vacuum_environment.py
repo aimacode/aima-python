@@ -54,8 +54,8 @@ class Gui(VacuumEnvironment):
                     text='W', state='disabled', disabledforeground='black')
                 button_row[len(button_row) - 1].config(text='W',
                                                        state='disabled', disabledforeground='black')
-        # Place Agent in the bottom left corner
-        self.buttons[1][1].config(
+        # Place the agent in the centre of the grid.
+        self.buttons[3][3].config(
             text='A', state='disabled', disabledforeground='black')
 
     def display_element(self, button):
@@ -117,8 +117,6 @@ class Gui(VacuumEnvironment):
     def update_env(self):
         """Updates the GUI environment according to the current state."""
         self.read_env()
-        print(self.agents)
-        print(self.things)
         agt = self.agents[0]
         previous_agent_location = agt.location
         self.xi, self.yi = previous_agent_location
