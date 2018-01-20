@@ -12,14 +12,13 @@ class Gui(VacuumEnvironment):
     """
     xi, yi = (0, 0)
 
-    def __init__(self, root, width=7, height=7, elements=['D', 'W'], count=1):
+    def __init__(self, root, width=7, height=7, elements=['D', 'W']):
         super().__init__(width, height)
         self.root = root
         self.create_frames()
         self.create_buttons()
         self.create_walls()
         self.elements = elements
-        self.count = count
 
     def create_frames(self):
         """Adds frames to the GUI environment."""
@@ -60,14 +59,14 @@ class Gui(VacuumEnvironment):
 
     def display_element(self, button):
         """Show the things on the GUI."""
-        if button['text'] != 'A':
-            if self.count % 3 == 0:
+        txt = button['text']
+        if txt != 'A':
+            if txt == 'W':
+                button.config(text='D')
+            elif txt == 'D':
                 button.config(text='')
-            elif self.count % 2 == 0:
-                button.config(text=self.elements[1])
-            elif self.count % 1 == 0:
-                button.config(text=self.elements[0])
-            self.count += 1
+            elif txt == '':
+                button.config(text='W')
 
     def execute_action(self, agent, action):
         """Determines the action the agent performs."""

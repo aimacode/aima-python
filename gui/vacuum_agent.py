@@ -14,7 +14,7 @@ class Gui(Environment):
     or Clean. The agent perceives its location and the location's
     status."""
 
-    def __init__(self, root, height=300, width=380, count=1):
+    def __init__(self, root, height=300, width=380):
         super().__init__()
         self.status = {loc_A: 'Clean',
                        loc_B: 'Clean'}
@@ -23,7 +23,6 @@ class Gui(Environment):
         self.width = width
         self.canvas = None
         self.buttons = []
-        self.count = count
         self.create_canvas()
         self.create_buttons()
 
@@ -48,9 +47,9 @@ class Gui(Environment):
         elif action == 'Suck':
             if self.status[agent.location] == 'Dirty':
                 if agent.location == loc_A:
-                    self.buttons[0].config(bg='white')
+                    self.buttons[0].config(bg='white', activebackground='light grey')
                 else:
-                    self.buttons[1].config(bg='white')
+                    self.buttons[1].config(bg='white', activebackground='light grey')
                 agent.performance += 10
             self.status[agent.location] = 'Clean'
 
@@ -72,19 +71,19 @@ class Gui(Environment):
         button_left = Button(self.root, height=4, width=12, padx=2, pady=2, bg='white')
         button_left.config(command=lambda btn=button_left: self.dirt_switch(btn))
         self.buttons.append(button_left)
-        button_left_window = self.canvas.create_window(130, 235, anchor=N, window=button_left)
+        button_left_window = self.canvas.create_window(130, 200, anchor=N, window=button_left)
         button_right = Button(self.root, height=4, width=12, padx=2, pady=2, bg='white')
         button_right.config(command=lambda btn=button_right: self.dirt_switch(btn))
         self.buttons.append(button_right)
-        button_right_window = self.canvas.create_window(250, 235, anchor=N, window=button_right)
+        button_right_window = self.canvas.create_window(250, 200, anchor=N, window=button_right)
 
     def dirt_switch(self, button):
         """Gives user the option to put dirt in any tile."""
-        if self.count % 2 == 0:
-            button.config(bg='white')
-        elif self.count % 1 == 0:
-            button.config(bg='saddle brown')
-        self.count += 1
+        bg_color = button['bg']
+        if bg_color == 'saddle brown':
+            button.config(bg='white', activebackground='light grey')
+        elif bg_color == 'white':
+            button.config(bg='saddle brown', activebackground='light goldenrod')
 
     def read_env(self):
         """Reads the current state of the GUI."""
@@ -116,11 +115,11 @@ def create_agent(env, agent):
     env.add_thing(agent)
     # print(agent.location)
     if agent.location == (0, 0):
-        env.agent_rect = env.canvas.create_rectangle(80, 140, 175, 220, fill='lime green')
-        env.text = env.canvas.create_text(128, 180, font="Helvetica 10 bold italic", text="Agent")
+        env.agent_rect = env.canvas.create_rectangle(80, 100, 175, 180, fill='lime green')
+        env.text = env.canvas.create_text(128, 140, font="Helvetica 10 bold italic", text="Agent")
     else:
-        env.agent_rect = env.canvas.create_rectangle(200, 140, 295, 220, fill='lime green')
-        env.text = env.canvas.create_text(248, 180, font="Helvetica 10 bold italic", text="Agent")
+        env.agent_rect = env.canvas.create_rectangle(200, 100, 295, 180, fill='lime green')
+        env.text = env.canvas.create_text(248, 140, font="Helvetica 10 bold italic", text="Agent")
 
 
 def move_agent(env, agent, before_step):
