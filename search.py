@@ -473,6 +473,23 @@ def simulated_annealing(problem, schedule=exp_schedule()):
         if delta_e > 0 or probability(math.exp(delta_e / T)):
             current = next
 
+def simulated_annealing_full(problem, schedule=exp_schedule()):
+    """ This version returns all the states encountered in reaching 
+    the goal state."""
+    states = []
+    current = Node(problem.initial)
+    for t in range(sys.maxsize):
+        states.append(current.state)
+        T = schedule(t)
+        if T == 0:
+            return states
+        neighbors = current.expand(problem)
+        if not neighbors:
+            return current.state
+        next = random.choice(neighbors)
+        delta_e = problem.value(next.state) - problem.value(current.state)
+        if delta_e > 0 or probability(math.exp(delta_e / T)):
+            current = next
 
 def and_or_graph_search(problem):
     """[Figure 4.11]Used when the environment is nondeterministic and completely observable.
