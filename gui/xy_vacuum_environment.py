@@ -11,6 +11,7 @@ class Gui(VacuumEnvironment):
     dirty, clean or can have a wall. The user can change these at each step.
     """
     xi, yi = (0, 0)
+    perceptible_distance = 1
 
     def __init__(self, root, width=7, height=7, elements=['D', 'W']):
         super().__init__(width, height)
@@ -122,6 +123,20 @@ class Gui(VacuumEnvironment):
         self.step()
         xf, yf = agt.location
 
+    def reset_env(self, agt):
+        """Resets the GUI environment to the intial state."""
+        self.read_env()
+        for i, btn_row in enumerate(self.buttons):
+            for j, btn in enumerate(btn_row):
+                if (i != 0 and i != len(self.buttons) - 1) and (j != 0 and j != len(btn_row) - 1):
+                    if self.some_things_at((i, j)):
+                        for thing in self.list_things_at((i, j)):
+                            self.delete_thing(thing)
+                            btn.config(text='', state='normal')
+        self.add_thing(agt, location=(3, 3))
+        self.buttons[3][3].config(
+            text='A', state='disabled', disabledforeground='black')
+
 
 def XYReflexAgentProgram(percept):
     """The modified SimpleReflexAgentProgram for the GUI environment."""
@@ -151,7 +166,9 @@ class XYReflexAgent(Agent):
         self.direction = Direction("up")
 
 
-# TODO: Check the coordinate system.
+# TODO:
+# Check the coordinate system.
+# Give manual choice for agent's location.
 def main():
     """The main function."""
     root = Tk()
@@ -159,10 +176,9 @@ def main():
     root.geometry("420x440")
     root.resizable(0, 0)
     frame = Frame(root, bg='black')
-    # create a reset button
-    # reset_button = Button(frame, text='Reset', height=2,
-    #                      width=6, padx=2, pady=2, command=None)
-    # reset_button.pack(side='left')
+    reset_button = Button(frame, text='Reset', height=2,
+                          width=6, padx=2, pady=2)
+    reset_button.pack(side='left')
     next_button = Button(frame, text='Next', height=2,
                          width=6, padx=2, pady=2)
     next_button.pack(side='left')
@@ -171,6 +187,7 @@ def main():
     agt = XYReflexAgent(program=XYReflexAgentProgram)
     env.add_thing(agt, location=(3, 3))
     next_button.config(command=env.update_env)
+    reset_button.config(command=lambda: env.reset_env(agt))
     root.mainloop()
 
 
