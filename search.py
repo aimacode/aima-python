@@ -17,6 +17,7 @@ import sys
 import bisect
 from operator import itemgetter
 
+
 infinity = float('inf')
 
 # ______________________________________________________________________________
@@ -399,6 +400,95 @@ def astar_search(problem, h=None):
     else in your Problem subclass."""
     h = memoize(h or problem.h, 'h')
     return best_first_graph_search(problem, lambda n: n.path_cost + h(n))
+
+# ______________________________________________________________________________
+# A* heuristics 
+
+class EightPuzzle():
+
+    def __init__(self):
+        self.path = []
+        self.final = []
+    
+    def checkSolvability(self, state):
+        inversion = 0
+        for i in range(len(state)):
+               for j in range(i,len(state)):
+                    if (state[i]>state[j] and state[j]!=0):
+                                    inversion += 1
+        check = True
+        if inversion%2 != 0:
+                check = False
+        print(check)
+
+    def getPossibleMoves(self,state,heuristic,goal,moves):
+        move = {0:[1,3], 1:[0,2,4], 2:[1,5], 3:[0,6,4], 4:[1,3,5,7], 5:[2,4,8], 6:[3,7], 7:[6,8], 8:[7,5]} # create a dictionary of moves
+        index = state[0].index(0)
+        possible_moves = []
+        for i in range(len(move[index])):
+                conf = list(state[0][:])
+                a = conf[index]
+                b = conf[move[index][i]]
+                conf[move[index][i]] = a
+                conf[index] = b
+                possible_moves.append(conf)
+        scores = []
+        for i in possible_moves:
+                scores.append(heuristic(i,goal))
+        scores = [x+moves for x in scores]
+        allowed_state = []
+        for i in range(len(possible_moves)):
+                node = []
+                node.append(possible_moves[i])
+                node.append(scores[i])
+                node.append(state[0])
+                allowed_state.append(node)  
+        return allowed_state
+
+
+    def create_path(self,goal,initial):
+        node = goal[0]
+        self.final.append(goal[0])
+        if goal[2] == initial:
+                return reversed(self.final)
+        else:
+                parent = goal[2]
+                for i in self.path:
+                        if i[0] == parent:
+                                parent = i
+                self.create_path(parent,initial)
+
+    def show_path(self,initial):
+        move = []
+        for i in range(0,len(self.path)):
+                move.append(''.join(str(x) for x in self.path[i][0]))
+
+        print("Number of explored nodes by the following heuristic are: ", len(set(move)))	
+        print(initial)
+        for i in reversed(self.final):
+            print(i)
+
+        del self.path[:]
+        del self.final[:]
+        return
+
+    def solve(self,initial,goal,heuristic):
+        root = [initial,heuristic(initial,goal),'']
+        nodes = [] # nodes is a priority Queue based on the state score 
+        nodes.append(root)
+        moves = 0
+        while len(nodes) != 0:
+                node = nodes[0]
+                del nodes[0]
+                self.path.append(node)
+                if node[0] == goal:
+                        soln = self.create_path(self.path[-1],initial )
+                        self.show_path(initial)
+                        return  
+                moves +=1
+                opened_nodes = self.getPossibleMoves(node,heuristic,goal,moves)
+                nodes = sorted(opened_nodes+nodes, key=itemgetter(1))
+
 
 # ______________________________________________________________________________
 # Other search algorithms
