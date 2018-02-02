@@ -94,7 +94,7 @@ class TSP_Gui():
     def create_dropdown_menu(self):
         """ Create dropdown menu for algorithm selection """
 
-        choices = {'Simulated Annealing', 'Genetic Algorithm'}
+        choices = {'Simulated Annealing', 'Genetic Algorithm', 'Hill Climbing'}
         self.algo_var.set('Simulated Annealing')
         dropdown_menu = OptionMenu(self.frame_select_cities, self.algo_var, *choices)
         dropdown_menu.grid(row=4, column=4, columnspan=2, sticky=E + W)
@@ -178,6 +178,14 @@ class TSP_Gui():
                                         font='Times 11', relief='sunken', showvalue=0, cursor='gumby', resolution=0.001)
             mutation_rate_scale.grid(row=1, column=5, columnspan=5, sticky='nsew')
             self.genetic_algorithm(problem, map_canvas)
+        elif self.algo_var.get() == 'Hill Climbing':
+            self.no_of_neighbors = IntVar()
+            self.no_of_neighbors.set(100)
+            no_of_neighbors_scale = Scale(self.frame_canvas, from_=10, to=1000, orient=HORIZONTAL, 
+                                          length=200, variable=self.no_of_neighbors, label='Number of neighbors ---->',
+                                          font='Times 11',relief='sunken', showvalue=0, cursor='gumby')
+            no_of_neighbors_scale.grid(row=1, column=5, columnspan=5, sticky='nsew')
+            self.hill_climbing(problem, map_canvas)
 
     def exp_schedule(k=100, lam=0.03, limit=1000):
         """ One possible schedule function for simulated annealing """
@@ -269,6 +277,40 @@ class TSP_Gui():
             map_canvas.create_polygon(best_points, outline='red', width=3, fill='', tag='poly')
             map_canvas.update()
             map_canvas.after(self.speed.get())
+
+    def hill_climbing(self, problem, map_canvas):
+        """ hill climbing where number of neighbors is taken as user input """
+
+        def find_neighbors(state, number_of_neighbors=100):
+            """ finds neighbors using two_opt method """
+
+            neighbors = []
+            for i in range(number_of_neighbors):
+                new_state = problem.two_opt(state)
+                neighbors.append(Node(new_state))
+                state = new_state
+            return neighbors
+
+        current = Node(problem.initial)
+        while(1):
+            neighbors = find_neighbors(current.state, self.no_of_neighbors.get())
+            neighbor = utils.argmax_random_tie(neighbors, key=lambda node: problem.value(node.state))
+            map_canvas.delete('poly')
+            points = []
+            for city in current.state:
+                points.append(self.frame_locations[city][0])
+                points.append(self.frame_locations[city][1])
+            map_canvas.create_polygon(points, outline='red', width=3, fill='', tag='poly')
+            neighbor_points = []
+            for city in neighbor.state:
+                neighbor_points.append(self.frame_locations[city][0])
+                neighbor_points.append(self.frame_locations[city][1])
+            map_canvas.create_polygon(neighbor_points, outline='red', width=1, fill='', tag='poly')
+            map_canvas.update()
+            map_canvas.after(self.speed.get())
+            if problem.value(neighbor.state) > problem.value(current.state):
+                current.state = neighbor.state
+                self.cost.set("Cost = " + str('%0.3f' % (-1 * problem.value(current.state))))
 
 def main():
     all_cities = []
