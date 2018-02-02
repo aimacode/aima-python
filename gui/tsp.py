@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import sys
 import os.path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -88,7 +89,7 @@ class TSP_Gui():
 
         Button(self.frame_select_cities, textvariable=self.button_text,
                command=self.run_traveling_salesman).grid(row=5, column=4, sticky=E + W)
-        Button(self.frame_select_cities, text='Quit', command=self.root.destroy).grid(
+        Button(self.frame_select_cities, text='Quit', command=self.on_closing).grid(
             row=5, column=5, sticky=E + W)
 
     def create_dropdown_menu(self):
@@ -312,6 +313,10 @@ class TSP_Gui():
                 current.state = neighbor.state
                 self.cost.set("Cost = " + str('%0.3f' % (-1 * problem.value(current.state))))
 
+    def on_closing(self):
+        if messagebox.askokcancel('Quit', 'Do you want to quit?'):
+            self.root.destroy()
+
 def main():
     all_cities = []
     for city in romania_map.locations.keys():
@@ -333,6 +338,7 @@ def main():
     cities_selection_panel.create_checkboxes()
     cities_selection_panel.create_buttons()
     cities_selection_panel.create_dropdown_menu()
+    root.protocol('WM_DELETE_WINDOW', cities_selection_panel.on_closing)
     root.mainloop()
 
 
