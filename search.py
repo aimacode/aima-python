@@ -860,6 +860,19 @@ def recombine(x, y):
     return x[:c] + y[c:]
 
 
+def recombine_uniform(x, y):
+    n = len(x)
+    result = [0] * n;
+    indexes = random.sample(range(n), n)
+    for i in range(n):
+        ix = indexes[i]
+        result[ix] = x[ix] if i < n / 2 else y[ix]
+    try:
+        return ''.join(result)
+    except:
+        return result
+        
+
 def mutate(x, gene_pool, pmut):
     if random.uniform(0, 1) >= pmut:
         return x
