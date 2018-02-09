@@ -7,7 +7,7 @@ functions."""
 from utils import (
     is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
     memoize, print_table, open_data, Stack, FIFOQueue, PriorityQueue, name,
-    distance
+    distance, vector_add
 )
 
 from collections import defaultdict
@@ -16,6 +16,7 @@ import random
 import sys
 import bisect
 from operator import itemgetter
+
 
 infinity = float('inf')
 
@@ -401,6 +402,95 @@ def astar_search(problem, h=None):
     return best_first_graph_search(problem, lambda n: n.path_cost + h(n))
 
 # ______________________________________________________________________________
+# A* heuristics 
+
+class EightPuzzle():
+
+    def __init__(self):
+        self.path = []
+        self.final = []
+    
+    def checkSolvability(self, state):
+        inversion = 0
+        for i in range(len(state)):
+               for j in range(i,len(state)):
+                    if (state[i]>state[j] and state[j]!=0):
+                                    inversion += 1
+        check = True
+        if inversion%2 != 0:
+                check = False
+        print(check)
+
+    def getPossibleMoves(self,state,heuristic,goal,moves):
+        move = {0:[1,3], 1:[0,2,4], 2:[1,5], 3:[0,6,4], 4:[1,3,5,7], 5:[2,4,8], 6:[3,7], 7:[6,8], 8:[7,5]} # create a dictionary of moves
+        index = state[0].index(0)
+        possible_moves = []
+        for i in range(len(move[index])):
+                conf = list(state[0][:])
+                a = conf[index]
+                b = conf[move[index][i]]
+                conf[move[index][i]] = a
+                conf[index] = b
+                possible_moves.append(conf)
+        scores = []
+        for i in possible_moves:
+                scores.append(heuristic(i,goal))
+        scores = [x+moves for x in scores]
+        allowed_state = []
+        for i in range(len(possible_moves)):
+                node = []
+                node.append(possible_moves[i])
+                node.append(scores[i])
+                node.append(state[0])
+                allowed_state.append(node)  
+        return allowed_state
+
+
+    def create_path(self,goal,initial):
+        node = goal[0]
+        self.final.append(goal[0])
+        if goal[2] == initial:
+                return reversed(self.final)
+        else:
+                parent = goal[2]
+                for i in self.path:
+                        if i[0] == parent:
+                                parent = i
+                self.create_path(parent,initial)
+
+    def show_path(self,initial):
+        move = []
+        for i in range(0,len(self.path)):
+                move.append(''.join(str(x) for x in self.path[i][0]))
+
+        print("Number of explored nodes by the following heuristic are: ", len(set(move)))	
+        print(initial)
+        for i in reversed(self.final):
+            print(i)
+
+        del self.path[:]
+        del self.final[:]
+        return
+
+    def solve(self,initial,goal,heuristic):
+        root = [initial,heuristic(initial,goal),'']
+        nodes = [] # nodes is a priority Queue based on the state score 
+        nodes.append(root)
+        moves = 0
+        while len(nodes) != 0:
+                node = nodes[0]
+                del nodes[0]
+                self.path.append(node)
+                if node[0] == goal:
+                        soln = self.create_path(self.path[-1],initial )
+                        self.show_path(initial)
+                        return  
+                moves +=1
+                opened_nodes = self.getPossibleMoves(node,heuristic,goal,moves)
+                nodes = sorted(opened_nodes+nodes, key=itemgetter(1))
+
+
+# ______________________________________________________________________________
 # Other search algorithms
 
 
@@ -526,39 +616,37 @@ def and_or_graph_search(problem):
     # body of and or search
     return or_search(problem.initial, problem, [])
 
+# Pre-defined actions for PeakFindingProblem
+directions4 = { 'W':(-1, 0), 'N':(0, 1), 'E':(1, 0), 'S':(0, -1) }
+directions8 = dict(directions4) 
+directions8.update({'NW':(-1, 1), 'NE':(1, 1), 'SE':(1, -1), 'SW':(-1, -1) })
 
 class PeakFindingProblem(Problem):
     """Problem of finding the highest peak in a limited grid"""
 
-    def __init__(self, initial, grid):
+    def __init__(self, initial, grid, defined_actions=directions4):
         """The grid is a 2 dimensional array/list whose state is specified by tuple of indices"""
         Problem.__init__(self, initial)
         self.grid = grid
+        self.defined_actions = defined_actions
         self.n = len(grid)
         assert self.n > 0
         self.m = len(grid[0])
         assert self.m > 0
 
     def actions(self, state):
-        """Allows movement in only 4 directions"""
-        # TODO: Add flag to allow diagonal motion
+        """Returns the list of actions which are allowed to be taken from the given state"""
         allowed_actions = []
-        if state[0] > 0:
-            allowed_actions.append('N')
-        if state[0] < self.n - 1:
-            allowed_actions.append('S')
-        if state[1] > 0:
-            allowed_actions.append('W')
-        if state[1] < self.m - 1:
-            allowed_actions.append('E')
+        for action in self.defined_actions:
+            next_state = vector_add(state, self.defined_actions[action])
+            if next_state[0] >= 0 and next_state[1] >= 0 and next_state[0] <= self.n - 1 and next_state[1] <= self.m - 1:
+                allowed_actions.append(action)
+
         return allowed_actions
 
     def result(self, state, action):
         """Moves in the direction specified by action"""
-        x, y = state
-        x = x + (1 if action == 'S' else (-1 if action == 'N' else 0))
-        y = y + (1 if action == 'E' else (-1 if action == 'W' else 0))
-        return (x, y)
+        return vector_add(state, self.defined_actions[action])
 
     def value(self, state):
         """Value of a state is the value it is the index to"""
@@ -771,6 +859,19 @@ def recombine(x, y):
     c = random.randrange(0, n)
     return x[:c] + y[c:]
 
+
+def recombine_uniform(x, y):
+    n = len(x)
+    result = [0] * n;
+    indexes = random.sample(range(n), n)
+    for i in range(n):
+        ix = indexes[i]
+        result[ix] = x[ix] if i < n / 2 else y[ix]
+    try:
+        return ''.join(result)
+    except:
+        return result
+        
 
 def mutate(x, gene_pool, pmut):
     if random.uniform(0, 1) >= pmut:
@@ -1347,3 +1448,4 @@ def compare_graph_searchers():
                                 GraphProblem('Q', 'WA', australia_map)],
                       header=['Searcher', 'romania_map(Arad, Bucharest)',
                               'romania_map(Oradea, Neamt)', 'australia_map'])
+

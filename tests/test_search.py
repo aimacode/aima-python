@@ -88,12 +88,12 @@ def test_hill_climbing():
 def test_simulated_annealing():
     random.seed("aima-python")
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 20],
-                                       [-3, 7, 11, 5]])
+                                       [-3, 7, 11, 5]], directions4)
     sols = {prob.value(simulated_annealing(prob)) for i in range(100)}
     assert max(sols) == 20
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 8],
                                        [-3, 7, 9, 999],
-                                       [1, 2, 5, 11]])
+                                       [1, 2, 5, 11]], directions8)
     sols = {prob.value(simulated_annealing(prob)) for i in range(100)}
     assert max(sols) == 999
 
