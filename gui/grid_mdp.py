@@ -350,6 +350,7 @@ class MDPapp(tk.Tk):
 		build_page = self.get_page(BuildMDP)
 		_height = self.shared_data['height'].get()
 		_width = self.shared_data['width'].get()
+		print(build_page.gridmdp)
 		display(build_page.gridmdp, _height, _width)
 
 	def view_terminals(self):
