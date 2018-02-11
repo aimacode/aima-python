@@ -342,3 +342,33 @@ class ConnectFour(TicTacToe):
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
                 if y == 1 or (x, y - 1) in state.board]
+
+
+class Backgammon(Game):
+	def __init__(self):
+		dice_roll = (random.randint(1, 6), random.randint(1, 6))
+		# self.initial = GameState(to_move='W', utility=0, board=Board(), moves=moves)
+
+class Board:
+	def __init__(self):
+		self.points = [Point()]*24
+		self.points[0].checkers['B'] = self.points[23].checkers['W'] = 2
+		self.points[5].checkers['W'] = self.points[18].checkers['B'] = 5
+		self.points[7].checkers['W'] = self.points[16].checkers['B'] = 3
+		self.points[11].checkers['B'] = self.points[12].checkers['W'] = 5
+		self.bar = {'W':0, 'B':0}
+
+class Point:
+	def __init__(self):
+		self.checkers = {'W':0, 'B':0}
+		
+	def is_open_for(self, player):
+		opponent = 'B' if player=='W' else 'W'
+		return self.checkers[opponent] <= 1
+			
+	def add_checker(self, player):
+		self.checkers[player] += 1 
+		
+	def remove_checker(self, player):
+		self.checkers[player] -= 1
+
