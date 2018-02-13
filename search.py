@@ -202,9 +202,9 @@ def graph_search(problem, frontier):
         node = frontier.pop()
         if problem.goal_test(node.state):
             return node
-        explored.add(node.state)
+        explored.add(tuple(node.state))
         frontier.extend(child for child in node.expand(problem)
-                        if child.state not in explored and
+                        if tuple(child.state) not in explored and
                         child not in frontier)
     return None
 
@@ -234,9 +234,9 @@ def breadth_first_search(problem):
     explored = set()
     while frontier:
         node = frontier.pop()
-        explored.add(node.state)
+        explored.add(tuple(node.state))
         for child in node.expand(problem):
-            if child.state not in explored and child not in frontier:
+            if tuple(child.state) not in explored and child not in frontier:
                 if problem.goal_test(child.state):
                     return child
                 frontier.append(child)
@@ -262,9 +262,9 @@ def best_first_graph_search(problem, f):
         node = frontier.pop()
         if problem.goal_test(node.state):
             return node
-        explored.add(node.state)
+        explored.add(tuple(node.state))
         for child in node.expand(problem):
-            if child.state not in explored and child not in frontier:
+            if tuple(child.state) not in explored and child not in frontier:
                 frontier.append(child)
             elif child in frontier:
                 incumbent = frontier[child]
