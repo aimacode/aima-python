@@ -420,11 +420,11 @@ class EightPuzzle(Problem):
         Problem.__init__(self, initial, goal)
     
     def find_blank_square(self, state):
-        """Return the index of the blank square in a given state."""
+        """Return the index of the blank square in a given state"""
         for row in len(state):
             for column in len(row):
-                if state[row][column]==0:
-                    index_blank_square = (row,column)
+                if state[row][column] == 0:
+                    index_blank_square = (row, column)
         return index_blank_square
     
     def actions(self, state):
@@ -435,25 +435,25 @@ class EightPuzzle(Problem):
         possible_actions = list()
         index_blank_square = self.find_blank_square(state)
 
-        if index_blank_square(0)==0:
+        if index_blank_square(0) == 0:
             possible_actions += ['DOWN']
-        elif index_blank_square(0)==1:
-            possible_actions += ['UP','DOWN']
-        elif index_blank_square(0)==2:
+        elif index_blank_square(0) == 1:
+            possible_actions += ['UP', 'DOWN']
+        elif index_blank_square(0) == 2:
             possible_actions += ['UP']
         
-        if index_blank_square(1)==0:
+        if index_blank_square(1) == 0:
             possible_actions += ['RIGHT']
-        elif index_blank_square(1)==1:
-            possible_actions += ['LEFT','RIGHT']
-        elif index_blank_square(1)==2:
+        elif index_blank_square(1) == 1:
+            possible_actions += ['LEFT', 'RIGHT']
+        elif index_blank_square(1) == 2:
             possible_actions += ['LEFT']
 
         return possible_actions
 
     def result(self, state, action):
         """Given state and action, return a new state that is the result of the action.
-        Action is assumed to be a valid action."""
+        Action is assumed to be a valid action in the state."""
 
         blank_square = self.find_blank_square(state)
         new_state = [row[:] for row in state]
@@ -475,18 +475,18 @@ class EightPuzzle(Problem):
         return new_state
 
     def goal_test(self, state):
-        """Given a state, return True if state is a goal state or False, otherwise."""
+        """Given a state, return True if state is a goal state or False, otherwise"""
         for row in len(state):
             for column in len(row):
-                if state[row][col]!=self.goal[row][column]:
+                if state[row][col] != self.goal[row][column]:
                     return False
         return True
 
     def checkSolvability(self, state):
         inversion = 0
         for i in range(len(state)):
-               for j in range(i,len(state)):
-                    if (state[i]>state[j] and state[j]!=0):
+               for j in range(i, len(state)):
+                    if (state[i] > state[j] and state[j] != 0):
                                     inversion += 1
         check = True
         if inversion%2 != 0:
@@ -499,8 +499,8 @@ class EightPuzzle(Problem):
         num_misplaced_tiles = 0
         for row in len(state):
             for column in len(row):
-                if state[row][col]!=self.goal[row][column]:
-                    num_misplaced_tiles+=1
+                if state[row][col] != self.goal[row][column]:
+                    num_misplaced_tiles += 1
         return num_misplaced_tiles
 
 # ______________________________________________________________________________
