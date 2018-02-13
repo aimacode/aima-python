@@ -497,7 +497,6 @@ class EightPuzzle(Problem):
         """Return the heuristic value for a given state. Heuristic function used is 
         h(n) = number of misplaced tiles."""
         num_misplaced_tiles = 0
-
         for row in len(state):
             for column in len(row):
                 if state[row][col]!=self.goal[row][column]:
