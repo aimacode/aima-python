@@ -103,9 +103,8 @@ def test_TableDrivenVacuumAgent() :
     environment.add_thing(agent)
     # run the environment
     environment.run()
-    print(environment.status)
     # check final status of the environment
-    assert environment.status == {(0,0):'Clean' , (1,0) : 'Clean'}
+    assert environment.status == {(1, 0):'Clean', (0, 0):'Clean'}
 
 
 def test_compare_agents() :
