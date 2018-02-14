@@ -145,7 +145,7 @@ class SimpleProblemSolvingAgentProgram:
     """Abstract framework for a problem-solving agent. [Figure 3.1]"""
 
     def __init__(self, initial_state=None):
-        """State is an sbstract representation of the state
+        """State is an abstract representation of the state
         of the world, and seq is the list of actions required
         to get to a particular state from the initial state(root)."""
         self.state = initial_state
