@@ -98,7 +98,7 @@ def initialize_dialogbox(_width, _height, gridmdp, terminals, buttons):
 
 	btn_apply = ttk.Button(container, text='Apply', command=partial(initialize_update_table, _width, _height, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_term, rbtn_wall))
 	btn_apply.grid(row=5, column=0, sticky='nsew', pady=5, padx=5)
-	btn_reset = ttk.Button(container, text='Reset', command=partial(initialize_reset_all, _width, _height, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term))
+	btn_reset = ttk.Button(container, text='Reset', command=partial(initialize_reset_all, _width, _height, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term))
 	btn_reset.grid(row=5, column=1, sticky='nsew', pady=5, padx=5)
 	btn_ok = ttk.Button(container, text='Ok', command=dialog.destroy)
 	btn_ok.grid(row=5, column=2, sticky='nsew', pady=5, padx=5)
@@ -146,9 +146,12 @@ def initialize_update_table(_width, _height, gridmdp, terminals, buttons, reward
 		for j in range(max(1, _width)):
 			update_table(i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_term, rbtn_wall)
 
-def reset_all(_height, i, j, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term):
+def reset_all(_height, i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term):
 	''' functionality for reset button '''
 
+	reward.set(0.0)
+	term.set(0)
+	wall.set(0)
 	gridmdp[i][j] = 0.0
 	buttons[i][j].configure(style='TButton')
 	buttons[i][j].config(text=f'({_height - i - 1}, {j})')
@@ -163,12 +166,12 @@ def reset_all(_height, i, j, gridmdp, terminals, buttons, label_reward, entry_re
 	rbtn_wall.state(['!focus', '!selected'])
 	rbtn_term.state(['!focus', '!selected'])
 
-def initialize_reset_all(_width, _height, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term):
+def initialize_reset_all(_width, _height, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term):
 	''' runs reset_all for all cells '''
 
 	for i in range(max(1, _height)):
 		for j in range(max(1, _width)):
-			reset_all(_height, i, j, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term)
+			reset_all(_height, i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term)
 
 def external_reset(_width, _height, gridmdp, terminals, buttons):
 	''' reset from edit menu '''
@@ -263,7 +266,7 @@ def dialogbox(i, j, gridmdp, terminals, buttons, _height):
 
 	btn_apply = ttk.Button(container, text='Apply', command=partial(update_table, i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_term, rbtn_wall))
 	btn_apply.grid(row=5, column=0, sticky='nsew', pady=5, padx=5)
-	btn_reset = ttk.Button(container, text='Reset', command=partial(reset_all, _height, i, j, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term))
+	btn_reset = ttk.Button(container, text='Reset', command=partial(reset_all, _height, i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term))
 	btn_reset.grid(row=5, column=1, sticky='nsew', pady=5, padx=5)
 	btn_ok = ttk.Button(container, text='Ok', command=dialog.destroy)
 	btn_ok.grid(row=5, column=2, sticky='nsew', pady=5, padx=5)
