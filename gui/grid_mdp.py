@@ -64,6 +64,22 @@ def display(gridmdp, _height, _width):
 
 	dialog.mainloop()
 
+def display_best_policy(_best_policy, _height, _width):
+	''' displays best policy '''
+
+	dialog = tk.Toplevel()
+	dialog.wm_title('Best Policy')
+
+	container = tk.Frame(dialog)
+	container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+	for i in range(max(1, _height)):
+		for j in range(max(1, _width)):
+			label = ttk.Label(container, text=_best_policy[i][j], font=('Helvetica', 12, 'bold'))
+			label.grid(row=i + 1, column=j + 1, padx=3, pady=3)
+
+	dialog.mainloop()
+
 def initialize_dialogbox(_width, _height, gridmdp, terminals, buttons):
 	''' creates dialogbox for initialization '''
 
@@ -598,6 +614,9 @@ class SolveMDP(tk.Frame):
 		if (self.delta < self.epsilon * (1 - self.gamma) / self.gamma) or (self.iterations > 60) and self.terminated == False:
 			self.terminated = True
 			display(self.grid_to_show, self._height, self._width)
+
+			pi = best_policy(self.sequential_decision_environment, value_iteration(self.sequential_decision_environment, .01))
+			display_best_policy(self.sequential_decision_environment.to_arrows(pi), self._height, self._width)
 		
 		ax = fig.gca()
 		ax.xaxis.set_major_locator(MaxNLocator(integer=True))
