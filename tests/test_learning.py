@@ -226,10 +226,11 @@ def test_adaboost():
     WeightedPerceptron = WeightedLearner(PerceptronLearner)
     AdaboostLearner = AdaBoost(WeightedPerceptron, 5)
     adaboost = AdaboostLearner(iris)
-    assert adaboost([5, 3, 1, 0.1]) == 0
-    assert adaboost([5, 3.5, 1, 0]) == 0
-    assert adaboost([6, 3, 4, 1.1]) == 1
-    assert adaboost([6, 2, 3.5, 1]) == 1
-    assert adaboost([7.5, 4, 6, 2]) == 2
-    assert adaboost([7, 3, 6, 2.5]) == 2
-    assert err_ratio(adaboost, iris) < 0.05
+    tests = [([5, 3, 1, 0.1], 0),
+             ([5, 3.5, 1, 0], 0),
+             ([6, 3, 4, 1.1], 1),
+             ([6, 2, 3.5, 1], 1),
+             ([7.5, 4, 6, 2], 2),
+             ([7, 3, 6, 2.5], 2)]
+    assert grade_learner(adaboost, tests) > 5/6
+    assert err_ratio(adaboost, iris) < 0.1
