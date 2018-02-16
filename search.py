@@ -894,7 +894,7 @@ def mutate(x, gene_pool, pmut):
 
 class Graph:
 
-    """A graph connects nodes (verticies) by edges (links).  Each edge can also
+    """A graph connects nodes (vertices) by edges (links).  Each edge can also
     have a length associated with it.  The constructor call is something like:
         g = Graph({'A': {'B': 1, 'C': 2})
     this makes a graph with 3 nodes, A, B, and C, with an edge of length 1 from

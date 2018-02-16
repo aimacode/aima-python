@@ -281,7 +281,7 @@ def test_FIFOQueue() :
             front_head += 1
         # check for __len__ method
         assert len(queue) == front_head - back_head
-        # chek for __contains__ method
+        # check for __contains__ method
         if front_head - back_head > 0 :
             assert random.choice(test_data[back_head:front_head]) in queue
 

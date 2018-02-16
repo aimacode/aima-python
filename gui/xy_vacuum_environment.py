@@ -124,7 +124,7 @@ class Gui(VacuumEnvironment):
         xf, yf = agt.location
 
     def reset_env(self, agt):
-        """Resets the GUI environment to the intial state."""
+        """Resets the GUI environment to the initial state."""
         self.read_env()
         for i, btn_row in enumerate(self.buttons):
             for j, btn in enumerate(btn_row):
