@@ -141,8 +141,8 @@ class Rule:
     """This defines a tempelate for a rule. Different kinds of rules can
     be defined using this template by specifying two attributes:
             i.  'state'  : The current abstracted state of the environment.
-                           This is determined using the agent percepts
-            ii. 'action' : The action to be taken by the agent at the given sate
+                           This is determined using the agent percepts.
+            ii. 'action' : The action to be taken by the agent at the given state.
     """
     def __init__(self, state, action):
         self.__state = state
