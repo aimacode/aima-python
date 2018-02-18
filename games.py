@@ -41,6 +41,43 @@ def minimax_decision(state, game):
 
 # ______________________________________________________________________________
 
+def expectiminimax(state, game):
+
+	player = game.to_move(state)
+
+	def max_value(state):
+		if game.terminal_test(state):
+			return game.utility(state, player)
+		v = -infinity
+		for a in game.actions('W', state):
+			v = max(v, chance_node(state, a, 'max'))
+
+	def min_value(state):
+		if game.terminal_test(state):
+			return game.utility(state, player)
+		v = infinity
+		for a in game.actions('B', state):
+			v = min(v, chance_node(state, a, 'min'))
+		return v
+
+	def chance_node(state, action, called_from):
+		sum_res = 0
+		num_res = 21
+		dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
+		if called_from == 'max':
+			for val in dice_rolls:
+				game.dice_roll = (-val[0], -val[1])
+				sum_res += min_value(game.result(state, action)) * (1/36 if val[0] == val[1] else 1/18)
+		elif called_from == 'min':		
+			for val in dice_rolls:
+				game.dice_roll = val
+				sum_res += max_value(game.result(state, action)) * (1/36 if val[0] == val[1] else 1/18)
+
+		return sum_res / num_res
+
+    # Body of minimax_decision:
+	return argmax(game.actions(player, state),
+				key=lambda a: chance_node(game.result(state, a), a, 'max'))
 
 def alphabeta_search(state, game):
     """Search game to determine best action; use alpha-beta pruning.
@@ -155,6 +192,9 @@ def random_player(game, state):
 
 def alphabeta_player(game, state):
     return alphabeta_search(state, game)
+
+def expectiminimax_player(game, state):
+    return expectiminimax(state, game)
 
 
 # ______________________________________________________________________________
