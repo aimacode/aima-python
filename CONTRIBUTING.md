@@ -101,6 +101,18 @@ Patch Rules
 Running the Test-Suite
 =====================
 
+Install virtualenv to keep python 2.x and python 3.x separated
+
+    sudo pip3 install virtualenv 
+
+Then create a virtual environment
+
+    virtualenv -p python3 env
+    
+Activate this virtual environment
+
+    source env/bin/activate
+
 The minimal requirement for running the testsuite is ``py.test``.  You can
 install it with:
 
@@ -119,6 +131,10 @@ Fetch the aima-data submodule:
 Then you can run the testsuite from the `aima-python` or `tests` directory with:
 
     py.test
+    
+If you want to deactivate the virtualenv you created, simply use command:
+    
+    deactivate
 
 # Choice of Programming Languages
 
