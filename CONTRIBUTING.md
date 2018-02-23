@@ -23,7 +23,7 @@ In more detail:
 
 ## Port to Python 3; Pythonic Idioms; py.test
 
-- Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formating to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
+- Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formatting to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
 - Replace old Lisp-based idioms with proper Python idioms. For example, we have many functions that were taken directly from Common Lisp, such as the `every` function: `every(callable, items)` returns true if every element of `items` is callable. This is good Lisp style, but good Python style would be to use `all` and a generator expression: `all(callable(f) for f in items)`. Eventually, fix all calls to these legacy Lisp functions and then remove the functions.
 - Add more tests in `test_*.py` files. Strive for terseness; it is ok to group multiple asserts into one `def test_something():` function. Move most tests to `test_*.py`, but it is fine to have a single `doctest` example in the docstring of a function in the `.py` file, if the purpose of the doctest is to explain how to use the function, rather than test the implementation.
 
@@ -83,7 +83,7 @@ Reporting Issues
 
 - Under which versions of Python does this happen?
 
-- Provide an example of the issue occuring.
+- Provide an example of the issue occurring.
 
 - Is anybody working on this?
 
