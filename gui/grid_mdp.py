@@ -64,6 +64,22 @@ def display(gridmdp, _height, _width):
 
 	dialog.mainloop()
 
+def display_best_policy(_best_policy, _height, _width):
+	''' displays best policy '''
+
+	dialog = tk.Toplevel()
+	dialog.wm_title('Best Policy')
+
+	container = tk.Frame(dialog)
+	container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+	for i in range(max(1, _height)):
+		for j in range(max(1, _width)):
+			label = ttk.Label(container, text=_best_policy[i][j], font=('Helvetica', 12, 'bold'))
+			label.grid(row=i + 1, column=j + 1, padx=3, pady=3)
+
+	dialog.mainloop()
+
 def initialize_dialogbox(_width, _height, gridmdp, terminals, buttons):
 	''' creates dialogbox for initialization '''
 
@@ -98,7 +114,7 @@ def initialize_dialogbox(_width, _height, gridmdp, terminals, buttons):
 
 	btn_apply = ttk.Button(container, text='Apply', command=partial(initialize_update_table, _width, _height, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_term, rbtn_wall))
 	btn_apply.grid(row=5, column=0, sticky='nsew', pady=5, padx=5)
-	btn_reset = ttk.Button(container, text='Reset', command=partial(initialize_reset_all, _width, _height, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term))
+	btn_reset = ttk.Button(container, text='Reset', command=partial(initialize_reset_all, _width, _height, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term))
 	btn_reset.grid(row=5, column=1, sticky='nsew', pady=5, padx=5)
 	btn_ok = ttk.Button(container, text='Ok', command=dialog.destroy)
 	btn_ok.grid(row=5, column=2, sticky='nsew', pady=5, padx=5)
@@ -146,9 +162,12 @@ def initialize_update_table(_width, _height, gridmdp, terminals, buttons, reward
 		for j in range(max(1, _width)):
 			update_table(i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_term, rbtn_wall)
 
-def reset_all(_height, i, j, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term):
+def reset_all(_height, i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term):
 	''' functionality for reset button '''
 
+	reward.set(0.0)
+	term.set(0)
+	wall.set(0)
 	gridmdp[i][j] = 0.0
 	buttons[i][j].configure(style='TButton')
 	buttons[i][j].config(text=f'({_height - i - 1}, {j})')
@@ -163,12 +182,12 @@ def reset_all(_height, i, j, gridmdp, terminals, buttons, label_reward, entry_re
 	rbtn_wall.state(['!focus', '!selected'])
 	rbtn_term.state(['!focus', '!selected'])
 
-def initialize_reset_all(_width, _height, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term):
+def initialize_reset_all(_width, _height, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term):
 	''' runs reset_all for all cells '''
 
 	for i in range(max(1, _height)):
 		for j in range(max(1, _width)):
-			reset_all(_height, i, j, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term)
+			reset_all(_height, i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term)
 
 def external_reset(_width, _height, gridmdp, terminals, buttons):
 	''' reset from edit menu '''
@@ -263,7 +282,7 @@ def dialogbox(i, j, gridmdp, terminals, buttons, _height):
 
 	btn_apply = ttk.Button(container, text='Apply', command=partial(update_table, i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_term, rbtn_wall))
 	btn_apply.grid(row=5, column=0, sticky='nsew', pady=5, padx=5)
-	btn_reset = ttk.Button(container, text='Reset', command=partial(reset_all, _height, i, j, gridmdp, terminals, buttons, label_reward, entry_reward, rbtn_wall, rbtn_term))
+	btn_reset = ttk.Button(container, text='Reset', command=partial(reset_all, _height, i, j, gridmdp, terminals, buttons, reward, term, wall, label_reward, entry_reward, rbtn_wall, rbtn_term))
 	btn_reset.grid(row=5, column=1, sticky='nsew', pady=5, padx=5)
 	btn_ok = ttk.Button(container, text='Ok', command=dialog.destroy)
 	btn_ok.grid(row=5, column=2, sticky='nsew', pady=5, padx=5)
@@ -595,6 +614,9 @@ class SolveMDP(tk.Frame):
 		if (self.delta < self.epsilon * (1 - self.gamma) / self.gamma) or (self.iterations > 60) and self.terminated == False:
 			self.terminated = True
 			display(self.grid_to_show, self._height, self._width)
+
+			pi = best_policy(self.sequential_decision_environment, value_iteration(self.sequential_decision_environment, .01))
+			display_best_policy(self.sequential_decision_environment.to_arrows(pi), self._height, self._width)
 		
 		ax = fig.gca()
 		ax.xaxis.set_major_locator(MaxNLocator(integer=True))
