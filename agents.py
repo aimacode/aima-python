@@ -137,6 +137,20 @@ def RandomAgentProgram(actions):
 # ______________________________________________________________________________
 
 
+class Rule:
+    """This defines a tempelate for a rule. Different kinds of rules can
+    be defined using this template by specifying two attributes:
+            i.  'state'  : The current abstracted state of the environment.
+                           This is determined using the agent percepts.
+            ii. 'action' : The action to be taken by the agent at the given state.
+    """
+    def __init__(self, state, action):
+        self.__state = state
+        self.action = action
+        
+    def matches(self, state):
+        return self.__state == state
+
 def SimpleReflexAgentProgram(rules, interpret_input):
     """This agent takes action based solely on the percept. [Figure 2.10]"""
     def program(percept):
@@ -193,15 +207,17 @@ def TableDrivenVacuumAgent():
 
 def ReflexVacuumAgent():
     """A reflex agent for the two-state vacuum environment. [Figure 2.8]"""
-    def program(percept):
-        location, status = percept
-        if status == 'Dirty':
-            return 'Suck'
-        elif location == loc_A:
-            return 'Right'
-        elif location == loc_B:
-            return 'Left'
-    return Agent(program)
+    
+    # interpret_input() abstracts away the unnecessary percept features
+    interpret_input = lambda percept: percept[1] if percept[1] == 'Dirty' else percept[0] 
+    
+    # Define rules
+    clean_rule = Rule('Dirty', 'Suck')
+    move_right_rule = Rule(loc_A, 'Right')
+    move_left_rule = Rule(loc_B, 'Left')
+    rules = [clean_rule, move_left_rule, move_right_rule]
+    
+    return Agent(SimpleReflexAgentProgram(rules, interpret_input))
 
 
 def ModelBasedVacuumAgent():
