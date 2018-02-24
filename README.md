@@ -41,7 +41,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`][agents]           |      | Included         |
 | 3      | Problem                           | `Problem`                     | [`search.py`][search]           | Done |          |
 | 3      | Node                              | `Node`                        | [`search.py`][search]           | Done |          |
-| 3      | Queue                             | `Queue`                       | [`utils.py`][utils]             | Done |          |
+| 3      | Queue                             | `Queue`                       | [`utils.py`][utils]             | Done | No Need       |
 | 3.1    | Simple-Problem-Solving-Agent      | `SimpleProblemSolvingAgent`   | [`search.py`][search]           |      | Included         |
 | 3.2    | Romania                           | `romania`                     | [`search.py`][search]           | Done | Included |
 | 3.7    | Tree-Search                       | `tree_search`                 | [`search.py`][search]           | Done |          |
