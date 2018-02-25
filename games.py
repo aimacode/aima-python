@@ -51,6 +51,7 @@ def expectiminimax(state, game):
 		v = -infinity
 		for a in game.actions('W', state):
 			v = max(v, chance_node(state, a, 'max'))
+		return v
 
 	def min_value(state):
 		if game.terminal_test(state):
@@ -66,18 +67,19 @@ def expectiminimax(state, game):
 		dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
 		if called_from == 'max':
 			for val in dice_rolls:
-				game.dice_roll = (-val[0], -val[1])
+				game.dice_roll = val
 				sum_res += min_value(game.result(state, action)) * (1/36 if val[0] == val[1] else 1/18)
 		elif called_from == 'min':		
 			for val in dice_rolls:
-				game.dice_roll = val
+				game.dice_roll = (-val[0], -val[1])
 				sum_res += max_value(game.result(state, action)) * (1/36 if val[0] == val[1] else 1/18)
 
 		return sum_res / num_res
 
     # Body of minimax_decision:
-	return argmax(game.actions(player, state),
-				key=lambda a: chance_node(game.result(state, a), a, 'max'))
+	print("Dice roll: ",game.dice_roll)
+	return max_value(state)
+
 
 def alphabeta_search(state, game):
     """Search game to determine best action; use alpha-beta pruning.
@@ -241,12 +243,12 @@ class Game:
         """Play an n-person, move-alternating game."""
         state = self.initial
         while True:
-            for player in players:
-                move = player(self, state)
-                state = self.result(state, move)
-                if self.terminal_test(state):
-                    self.display(state)
-                    return self.utility(state, self.to_move(self.initial))
+        	for player in players:
+        		move = player(self, state)
+        		state = self.result(state, move)
+        		if self.terminal_test(state):
+        		    self.display(state)
+        		    return self.utility(state, self.to_move(self.initial))
 
 
 class Fig52Game(Game):
@@ -387,29 +389,36 @@ class ConnectFour(TicTacToe):
 
 class Backgammon(Game):
 	def __init__(self):
-		self.dice_roll = (random.randint(1, 6), random.randint(1, 6))
+		self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
 		board=Board()
 		self.initial = GameState(to_move='W', utility=0, board=board, moves=self.get_all_moves(board, 'W'))
 
 	def actions(self, player, state):
 		moves = state.moves
+		print("all moves : ", state.moves)
 		valid_moves = []
 		for move in moves:
-			board = copy.copy(state.board)
+			board = copy.deepcopy(state.board)
 			if board.is_valid_move(move, self.dice_roll, player):
 				valid_moves.append(move)
+		print(player,"player")
+		print("valid moves : ", valid_moves)
 		return valid_moves
 
 	def result(self, state, move):
-		board = copy.copy(state.board)
+		board = copy.deepcopy(state.board)
 		player = state.to_move
-		print(move, " xxxxx ",self.dice_roll)
-		board.move_checker(move[0], self.dice_roll[0], state.to_move)
-		board.move_checker(move[1], self.dice_roll[1], state.to_move)
-		return GameState(to_move=('W' if player == 'B' else 'B'),
-						 utility=self.compute_utility(board, move, player), 
+		self.display(state)
+		print("Move : ",move)		
+		board.move_checker(move[0], self.dice_roll[0], player)
+		board.move_checker(move[1], self.dice_roll[1], player)
+		print("===============================================")
+		print("Dice roll: ", self.dice_roll)		
+		to_move = ('W' if player == 'B' else 'B')
+		return GameState(to_move=to_move,
+						 utility=self.compute_utility(board, move, to_move), 
 						 board=board,
-						 moves=self.get_all_moves(board, player))
+						 moves=self.get_all_moves(board, to_move))
 
 
 	def utility(self, state, player):
@@ -423,18 +432,19 @@ class Backgammon(Game):
 	def get_all_moves(self, board, player):
 		all_points = board.points
 		taken_points = [index for index, point in enumerate(all_points) if point.checkers[player] > 0]
-		moves =  list(itertools.product(taken_points, repeat=2))
+		moves = list(itertools.permutations(taken_points,2))
+		moves = moves + [(index, index) for index, point in enumerate(all_points) if point.checkers[player] >= 2]
 		return moves
 
 	def display(self, state):
-		"""Print or otherwise display the state."""
+		"""Display state of the game."""
 		board = state.board
 		player = state.to_move
 		for index, point in enumerate(board.points):
-			print("Point : ",index)
-			print("W : ", point.checkers['W'])
-			print("B : ", point.checkers['B'])
+			if point.checkers['W'] != 0 or point.checkers['B'] != 0:
+				print("Point : ",index, "	W : ", point.checkers['W'], "	B : ", point.checkers['B'])
 		print("player : ", state.to_move )
+
 
 	def compute_utility(self, board, move, player):
 		"""If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
@@ -513,3 +523,6 @@ class Point:
 	def remove_checker(self, player):
 		self.checkers[player] -= 1
 
+if __name__ == "__main__":
+	bgm = Backgammon()
+	bgm.play_game(expectiminimax_player, query_player)
