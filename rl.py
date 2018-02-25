@@ -13,7 +13,7 @@ class PassiveADPAgent:
     on a given MDP and policy. [Figure 21.2]"""
 
     class ModelMDP(MDP):
-        """ Class for implementing modifed Version of input MDP with
+        """ Class for implementing modified Version of input MDP with
         an editable transition model P and a custom function T. """
         def __init__(self, init, actlist, terminals, gamma, states):
             super().__init__(init, actlist, terminals, gamma)

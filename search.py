@@ -404,91 +404,104 @@ def astar_search(problem, h=None):
 # ______________________________________________________________________________
 # A* heuristics 
 
-class EightPuzzle():
+class EightPuzzle(Problem):
 
-    def __init__(self):
-        self.path = []
-        self.final = []
+    """The problem of sliding tiles numbered from 1 to 8 on a 3x3 board,
+    where one of the squares is a blank. A state is represented as a 3x3 list,
+    where element at index i,j represents the tile number (0 if it's an empty square)."""
+ 
+    def __init__(self, initial, goal=None):
+        if goal:
+            self.goal = goal
+        else:
+            self.goal = [ [0,1,2], 
+                          [3,4,5], 
+                          [6,7,8] ]
+        Problem.__init__(self, initial, goal)
     
+    def find_blank_square(self, state):
+        """Return the index of the blank square in a given state"""
+        for row in len(state):
+            for column in len(row):
+                if state[row][column] == 0:
+                    index_blank_square = (row, column)
+        return index_blank_square
+    
+    def actions(self, state):
+        """Return the actions that can be executed in the given state.
+        The result would be a list, since there are only four possible actions
+        in any given state of the environment."""
+       
+        possible_actions = list()
+        index_blank_square = self.find_blank_square(state)
+
+        if index_blank_square(0) == 0:
+            possible_actions += ['DOWN']
+        elif index_blank_square(0) == 1:
+            possible_actions += ['UP', 'DOWN']
+        elif index_blank_square(0) == 2:
+            possible_actions += ['UP']
+        
+        if index_blank_square(1) == 0:
+            possible_actions += ['RIGHT']
+        elif index_blank_square(1) == 1:
+            possible_actions += ['LEFT', 'RIGHT']
+        elif index_blank_square(1) == 2:
+            possible_actions += ['LEFT']
+
+        return possible_actions
+
+    def result(self, state, action):
+        """Given state and action, return a new state that is the result of the action.
+        Action is assumed to be a valid action in the state."""
+
+        blank_square = self.find_blank_square(state)
+        new_state = [row[:] for row in state]
+
+        if action=='UP':
+            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)-1][blank_square(1)]
+            new_state[blank_square(0)-1][blank_square(1)] = 0
+        elif action=='LEFT':
+            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)][blank_square(1)-1]
+            new_state[blank_square(0)][blank_square(1)-1] = 0
+        elif action=='DOWN':
+            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)+1][blank_square(1)]
+            new_state[blank_square(0)+1][blank_square(1)] = 0
+        elif action=='RIGHT':
+            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)][blank_square(1)+1]
+            new_state[blank_square(0)][blank_square(1)+1] = 0
+        else:
+            print("Invalid Action!")
+        return new_state
+
+    def goal_test(self, state):
+        """Given a state, return True if state is a goal state or False, otherwise"""
+        for row in len(state):
+            for column in len(row):
+                if state[row][col] != self.goal[row][column]:
+                    return False
+        return True
+
     def checkSolvability(self, state):
         inversion = 0
         for i in range(len(state)):
-               for j in range(i,len(state)):
-                    if (state[i]>state[j] and state[j]!=0):
+               for j in range(i, len(state)):
+                    if (state[i] > state[j] and state[j] != 0):
                                     inversion += 1
         check = True
         if inversion%2 != 0:
                 check = False
         print(check)
-
-    def getPossibleMoves(self,state,heuristic,goal,moves):
-        move = {0:[1,3], 1:[0,2,4], 2:[1,5], 3:[0,6,4], 4:[1,3,5,7], 5:[2,4,8], 6:[3,7], 7:[4,6,8], 8:[7,5]} # create a dictionary of moves
-        index = state[0].index(0)
-        possible_moves = []
-        for i in range(len(move[index])):
-                conf = list(state[0][:])
-                a = conf[index]
-                b = conf[move[index][i]]
-                conf[move[index][i]] = a
-                conf[index] = b
-                possible_moves.append(conf)
-        scores = []
-        for i in possible_moves:
-                scores.append(heuristic(i,goal))
-        scores = [x+moves for x in scores]
-        allowed_state = []
-        for i in range(len(possible_moves)):
-                node = []
-                node.append(possible_moves[i])
-                node.append(scores[i])
-                node.append(state[0])
-                allowed_state.append(node)  
-        return allowed_state
-
-
-    def create_path(self,goal,initial):
-        node = goal[0]
-        self.final.append(goal[0])
-        if goal[2] == initial:
-                return reversed(self.final)
-        else:
-                parent = goal[2]
-                for i in self.path:
-                        if i[0] == parent:
-                                parent = i
-                self.create_path(parent,initial)
-
-    def show_path(self,initial):
-        move = []
-        for i in range(0,len(self.path)):
-                move.append(''.join(str(x) for x in self.path[i][0]))
-
-        print("Number of explored nodes by the following heuristic are: ", len(set(move)))	
-        print(initial)
-        for i in reversed(self.final):
-            print(i)
-
-        del self.path[:]
-        del self.final[:]
-        return
-
-    def solve(self,initial,goal,heuristic):
-        root = [initial,heuristic(initial,goal),'']
-        nodes = [] # nodes is a priority Queue based on the state score 
-        nodes.append(root)
-        moves = 0
-        while len(nodes) != 0:
-                node = nodes[0]
-                del nodes[0]
-                self.path.append(node)
-                if node[0] == goal:
-                        soln = self.create_path(self.path[-1],initial )
-                        self.show_path(initial)
-                        return  
-                moves +=1
-                opened_nodes = self.getPossibleMoves(node,heuristic,goal,moves)
-                nodes = sorted(opened_nodes+nodes, key=itemgetter(1))
-
+    
+    def h(self, state):
+        """Return the heuristic value for a given state. Heuristic function used is 
+        h(n) = number of misplaced tiles."""
+        num_misplaced_tiles = 0
+        for row in len(state):
+            for column in len(row):
+                if state[row][col] != self.goal[row][column]:
+                    num_misplaced_tiles += 1
+        return num_misplaced_tiles
 
 # ______________________________________________________________________________
 # Other search algorithms
@@ -894,7 +907,7 @@ def mutate(x, gene_pool, pmut):
 
 class Graph:
 
-    """A graph connects nodes (verticies) by edges (links).  Each edge can also
+    """A graph connects nodes (vertices) by edges (links).  Each edge can also
     have a length associated with it.  The constructor call is something like:
         g = Graph({'A': {'B': 1, 'C': 2})
     this makes a graph with 3 nodes, A, B, and C, with an edge of length 1 from

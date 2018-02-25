@@ -309,7 +309,7 @@ def PluralityLearner(dataset):
 def NaiveBayesLearner(dataset, continuous=True, simple=False):
     if simple:
         return NaiveBayesSimple(dataset)
-    if(continuous):
+    if continuous:
         return NaiveBayesContinuous(dataset)
     else:
         return NaiveBayesDiscrete(dataset)
