@@ -2,7 +2,7 @@ import random
 from agents import Direction
 from agents import Agent
 from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
-                   RandomVacuumAgent, TableDrivenVacuumAgent
+                   RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram
 
 
 random.seed("aima-python")
@@ -66,6 +66,34 @@ def test_RandomVacuumAgent() :
     environment.run()
     # check final status of the environment
     assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+
+def test_TableDrivenAgent() :
+    #create a table that would consist of all the possible states of the agent
+    loc_A = (0,0)
+    loc_B = (1,0)
+    
+    table = {((loc_A, 'Clean'),): 'Right',
+             ((loc_A, 'Dirty'),): 'Suck',
+             ((loc_B, 'Clean'),): 'Left',
+             ((loc_B, 'Dirty'),): 'Suck',
+             ((loc_A, 'Dirty'), (loc_A, 'Clean')): 'Right',
+             ((loc_A, 'Clean'), (loc_B, 'Dirty')): 'Suck',
+             ((loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck',
+             ((loc_B, 'Dirty'), (loc_B, 'Clean')): 'Left',
+             ((loc_A, 'Dirty'), (loc_A, 'Clean'), (loc_B, 'Dirty')): 'Suck',
+             ((loc_B, 'Dirty'), (loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck'
+             }
+    # create an program and then an object of the TableDrivenAgent
+    program = TableDrivenAgentProgram(table)
+    agent = Agent(program)
+    # create an object of the TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # add agent to the environment
+    environment.add_thing(agent)
+    # run the environment
+    environment.run()
+    # check final status of the environment
+    assert environment.status == {(1, 0):'Clean', (0, 0):'Clean'}
 
 
 def test_ReflexVacuumAgent() :
