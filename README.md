@@ -111,7 +111,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]       |      |          |
 | 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]\*     |      |          |
 | 18.24  | Back-Prop-Learning                | `BackPropagationLearner`      | [`learning.py`][learning]       | Done | Included |
-| 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`][learning]       |      |          |
+| 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`][learning]       | Done | Included |
 | 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](knowledge.py)  | Done |          |
