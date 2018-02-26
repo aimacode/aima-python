@@ -1,4 +1,4 @@
-This is a guide on how to update the `aima-data` submodule. This needs to be done every time something changes in the [aima-data](https://github.com/aimacode/aima-data) repository. All the below commands should be executed from the local directory of the `aima-python` repository, using `git`.
+This is a guide on how to update the `aima-data` submodule to the latest version. This needs to be done every time something changes in the [aima-data](https://github.com/aimacode/aima-data) repository. All the below commands should be executed from the local directory of the `aima-python` repository, using `git`.
 
 ```
 git submodule deinit aima-data
