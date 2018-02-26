@@ -69,8 +69,7 @@ def test_RandomVacuumAgent() :
 
 def test_TableDrivenAgent() :
     #create a table that would consist of all the possible states of the agent
-    loc_A = (0,0)
-    loc_B = (1,0)
+    loc_A, loc_B = (0, 0), (1, 0)
     
     table = {((loc_A, 'Clean'),): 'Right',
              ((loc_A, 'Dirty'),): 'Suck',
@@ -93,7 +92,7 @@ def test_TableDrivenAgent() :
     # run the environment
     environment.run()
     # check final status of the environment
-    assert environment.status == {(1, 0):'Clean', (0, 0):'Clean'}
+    assert environment.status == {(1, 0): 'Clean', (0, 0): 'Clean'}
 
 
 def test_ReflexVacuumAgent() :
