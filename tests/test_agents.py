@@ -54,6 +54,21 @@ def test_add():
     assert l1.direction == Direction.U
     assert l2.direction == Direction.D
 
+def test_RandomAgentProgram() :
+    #create a list of all the actions a vacuum cleaner can perform
+    list = ['Right', 'Left', 'Suck', 'NoOp']
+    # create a program and then an object of the RandomAgentProgram
+    program = RandomAgentProgram(list)
+    
+    agent = Agent(program)
+    # create an object of TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # add agent to the environment
+    environment.add_thing(agent)
+    # run the environment
+    environment.run()
+    # check final status of the environment
+    assert environment.status == {(1,0): 'Clean' , (0,0): 'Clean'}
 
 def test_RandomVacuumAgent() :
     # create an object of the RandomVacuumAgent
@@ -66,6 +81,7 @@ def test_RandomVacuumAgent() :
     environment.run()
     # check final status of the environment
     assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+
 
 def test_TableDrivenAgent() :
     #create a table that would consist of all the possible states of the agent
