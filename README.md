@@ -34,19 +34,8 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 2      | Model-Based-Vacuum-Agent          | `ModelBasedVacuumAgent`       | [`agents.py`][agents]           | Done | Included |
 | 2.1    | Environment                       | `Environment`                 | [`agents.py`][agents]           | Done | Included |
 | 2.1    | Agent                             | `Agent`                       | [`agents.py`][agents]           | Done | Included |
-<<<<<<< HEAD
-| 2.3    | Table-Driven-Vacuum-Agent         | `TableDrivenVacuumAgent`      | [`agents.py`][agents]           | Done | Included         |
-| 2.7    | Table-Driven-Agent                | `TableDrivenAgent`            | [`agents.py`][agents]           | Done | Included         |
-| 2.8    | Reflex-Vacuum-Agent               | `ReflexVacuumAgent`           | [`agents.py`][agents]           | Done | Included         |
-| 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           |      | Included         |
-| 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`][agents]           |      | Included         |
-| 3      | Problem                           | `Problem`                     | [`search.py`][search]           | Done |          |
-| 3      | Node                              | `Node`                        | [`search.py`][search]           | Done |          |
-| 3      | Queue                             | `Queue`                       | [`utils.py`][utils]             | Done | No Need       |
-| 3.1    | Simple-Problem-Solving-Agent      | `SimpleProblemSolvingAgent`   | [`search.py`][search]           |      | Included         |
-=======
 | 2.3    | Table-Driven-Vacuum-Agent         | `TableDrivenVacuumAgent`      | [`agents.py`][agents]           | Done | Included |
-| 2.7    | Table-Driven-Agent                | `TableDrivenAgent`            | [`agents.py`][agents]           |      | Included |
+| 2.7    | Table-Driven-Agent                | `TableDrivenAgent`            | [`agents.py`][agents]           | Done | Included |
 | 2.8    | Reflex-Vacuum-Agent               | `ReflexVacuumAgent`           | [`agents.py`][agents]           | Done | Included |
 | 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           |      | Included |
 | 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`][agents]           |      | Included |
@@ -54,7 +43,6 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 3      | Node                              | `Node`                        | [`search.py`][search]           | Done | Included |
 | 3      | Queue                             | `Queue`                       | [`utils.py`][utils]             | Done | No Need  |
 | 3.1    | Simple-Problem-Solving-Agent      | `SimpleProblemSolvingAgent`   | [`search.py`][search]           |      | Included |
->>>>>>> upstream/master
 | 3.2    | Romania                           | `romania`                     | [`search.py`][search]           | Done | Included |
 | 3.7    | Tree-Search                       | `tree_search`                 | [`search.py`][search]           | Done |          |
 | 3.7    | Graph-Search                      | `graph_search`                | [`search.py`][search]           | Done |          |
