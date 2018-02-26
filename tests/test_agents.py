@@ -68,7 +68,7 @@ def test_RandomAgentProgram() :
     # run the environment
     environment.run()
     # check final status of the environment
-    assert environment.status == {(1,0): 'Clean' , (0,0): 'Clean'}
+    assert environment.status == {(1, 0): 'Clean' , (0, 0): 'Clean'}
 
 def test_RandomVacuumAgent() :
     # create an object of the RandomVacuumAgent
