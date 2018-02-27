@@ -2,7 +2,7 @@ import random
 from agents import Direction
 from agents import Agent
 from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
-                   RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram
+                   RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram
 
 
 random.seed("aima-python")
@@ -54,8 +54,36 @@ def test_add():
     assert l1.direction == Direction.U
     assert l2.direction == Direction.D
 
+def test_RandomAgentProgram() :
+    #create a list of all the actions a vacuum cleaner can perform
+    list = ['Right', 'Left', 'Suck', 'NoOp']
+    # create a program and then an object of the RandomAgentProgram
+    program = RandomAgentProgram(list)
+    
+    agent = Agent(program)
+    # create an object of TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # add agent to the environment
+    environment.add_thing(agent)
+    # run the environment
+    environment.run()
+    # check final status of the environment
+    assert environment.status == {(1, 0): 'Clean' , (0, 0): 'Clean'}
 
-def test_TableDrivenAgentProgram():
+def test_RandomVacuumAgent() :
+    # create an object of the RandomVacuumAgent
+    agent = RandomVacuumAgent()
+    # create an object of TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # add agent to the environment
+    environment.add_thing(agent)
+    # run the environment
+    environment.run()
+    # check final status of the environment
+    assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+
+
+def test_TableDrivenAgent():
     loc_A, loc_B = (0, 0), (1, 0)
     # table defining all the possible states of the agent
     table = {((loc_A, 'Clean'),): 'Right',
@@ -70,8 +98,9 @@ def test_TableDrivenAgentProgram():
              ((loc_B, 'Dirty'), (loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck'
              }
 
-    # create an object of the TableDrivenAgentProgram
-    agent = TableDrivenAgentProgram(table)
+    # create an program and then an object of the TableDrivenAgent
+    program = TableDrivenAgentProgram(table)
+    agent = Agent(program)
     # create an object of TrivialVacuumEnvironment
     environment = TrivialVacuumEnvironment()
     # initializing some environment status
@@ -88,19 +117,6 @@ def test_TableDrivenAgentProgram():
 
     environment.run(steps = 1)
     assert environment.status == {(1,0): 'Clean', (0,0): 'Clean'}
-
-
-def test_RandomVacuumAgent() :
-    # create an object of the RandomVacuumAgent
-    agent = RandomVacuumAgent()
-    # create an object of TrivialVacuumEnvironment
-    environment = TrivialVacuumEnvironment()
-    # add agent to the environment
-    environment.add_thing(agent)
-    # run the environment
-    environment.run()
-    # check final status of the environment
-    assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
 
 
 def test_ReflexVacuumAgent() :
