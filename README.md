@@ -22,7 +22,33 @@ When complete, this project will have Python implementations for all the pseudoc
 ## Python 3.4 and up
 
 This code requires Python 3.4 or later, and does not run in Python 2. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
-You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions. See [jupyter.org](http://jupyter.org/) for instructions on setting up your own Jupyter notebook environment, or run the notebooks online with [try.jupiter.org](https://try.jupyter.org/). 
+You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions. See [jupyter.org](http://jupyter.org/) for instructions on setting up your own Jupyter notebook environment, or run the notebooks online with [try.jupiter.org](https://try.jupyter.org/).
+
+
+## Installation Guide
+
+To download the repository:
+
+`git clone https://github.com/aimacode/aima-python.git`
+
+You also need to fetch the datasets from the [`aima-data`](https://github.com/aimacode/aima-data) repository:
+
+```
+cd aima-python
+git submodule init
+git submodule update
+```
+
+Wait for the datasets to download, it may take a while. Once they are downloaded, you need to install `pytest`, so that you can run the test suite:
+
+`pip install pytest`
+
+Then to run the tests:
+
+`py.test`
+
+And you are good to go!
+
 
 # Index of Algorithms
 
@@ -35,7 +61,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 2.1    | Environment                       | `Environment`                 | [`agents.py`][agents]           | Done | Included |
 | 2.1    | Agent                             | `Agent`                       | [`agents.py`][agents]           | Done | Included |
 | 2.3    | Table-Driven-Vacuum-Agent         | `TableDrivenVacuumAgent`      | [`agents.py`][agents]           | Done | Included |
-| 2.7    | Table-Driven-Agent                | `TableDrivenAgent`            | [`agents.py`][agents]           |      | Included |
+| 2.7    | Table-Driven-Agent                | `TableDrivenAgent`            | [`agents.py`][agents]           | Done | Included |
 | 2.8    | Reflex-Vacuum-Agent               | `ReflexVacuumAgent`           | [`agents.py`][agents]           | Done | Included |
 | 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           |      | Included |
 | 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`][agents]           |      | Included |
