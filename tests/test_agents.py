@@ -2,7 +2,7 @@ import random
 from agents import Direction
 from agents import Agent
 from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
-                   RandomVacuumAgent, TableDrivenVacuumAgent
+                   RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram
 
 
 random.seed("aima-python")
@@ -81,14 +81,14 @@ def test_TableDrivenAgentProgram():
 
     # run the environment by single step everytime to check how environment evolves using TableDrivenAgentProgram
     environment.run(steps = 1)
-    assert environment.status == {(0,0): 'Clean', (1,0): 'Dirty'}
+    assert environment.status == {(1,0): 'Clean', (0,0): 'Dirty'}
 
     environment.run(steps = 1)
-    assert environment.status == {(0,0): 'Clean', (1,0): 'Dirty'}
+    assert environment.status == {(1,0): 'Clean', (0,0): 'Dirty'}
 
     environment.run(steps = 1)
-    assert environment.status == {(0,0): 'Clean', (1,0): 'Clean'}
-    
+    assert environment.status == {(1,0): 'Clean', (0,0): 'Clean'}
+
 
 def test_RandomVacuumAgent() :
     # create an object of the RandomVacuumAgent
