@@ -55,6 +55,41 @@ def test_add():
     assert l2.direction == Direction.D
 
 
+def test_TableDrivenAgentProgram():
+    loc_A, loc_B = (0, 0), (1, 0)
+    # table defining all the possible states of the agent
+    table = {((loc_A, 'Clean'),): 'Right',
+             ((loc_A, 'Dirty'),): 'Suck',
+             ((loc_B, 'Clean'),): 'Left',
+             ((loc_B, 'Dirty'),): 'Suck',
+             ((loc_A, 'Dirty'), (loc_A, 'Clean')): 'Right',
+             ((loc_A, 'Clean'), (loc_B, 'Dirty')): 'Suck',
+             ((loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck',
+             ((loc_B, 'Dirty'), (loc_B, 'Clean')): 'Left',
+             ((loc_A, 'Dirty'), (loc_A, 'Clean'), (loc_B, 'Dirty')): 'Suck',
+             ((loc_B, 'Dirty'), (loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck'
+             }
+
+    # create an object of the TableDrivenAgentProgram
+    agent = TableDrivenAgentProgram(table)
+    # create an object of TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # initializing some environment status
+    environment.status = {loc_A:'Dirty', loc_B:'Dirty'}
+    # add agent to the environment
+    environment.add_thing(agent)
+
+    # run the environment by single step everytime to check how environment evolves using TableDrivenAgentProgram
+    environment.run(steps = 1)
+    assert environment.status == {(0,0): 'Clean', (1,0): 'Dirty'}
+
+    environment.run(steps = 1)
+    assert environment.status == {(0,0): 'Clean', (1,0): 'Dirty'}
+
+    environment.run(steps = 1)
+    assert environment.status == {(0,0): 'Clean', (1,0): 'Clean'}
+    
+
 def test_RandomVacuumAgent() :
     # create an object of the RandomVacuumAgent
     agent = RandomVacuumAgent()
