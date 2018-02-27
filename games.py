@@ -50,7 +50,7 @@ def expectiminimax(state, game):
 			return game.utility(state, player)
 		v = -infinity
 		for a in game.actions('W', state):
-			v = max(v, chance_node(state, a, 'max'))
+			v = max(v, chance_node(state, a))
 		return v
 
 	def min_value(state):
@@ -58,27 +58,30 @@ def expectiminimax(state, game):
 			return game.utility(state, player)
 		v = infinity
 		for a in game.actions('B', state):
-			v = min(v, chance_node(state, a, 'min'))
+			v = min(v, chance_node(state, a))
 		return v
 
-	def chance_node(state, action, called_from):
+	def chance_node(state, action):
+		res_state = game.result(state, action)
+		game.display(res_state)
 		sum_res = 0
 		num_res = 21
 		dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
-		if called_from == 'max':
-			for val in dice_rolls:
-				game.dice_roll = val
-				sum_res += min_value(game.result(state, action)) * (1/36 if val[0] == val[1] else 1/18)
-		elif called_from == 'min':		
+		if res_state.to_move == 'W':
 			for val in dice_rolls:
 				game.dice_roll = (-val[0], -val[1])
-				sum_res += max_value(game.result(state, action)) * (1/36 if val[0] == val[1] else 1/18)
+				sum_res += max_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
+		elif res_state.to_move == 'B':		
+			for val in dice_rolls:
+				game.dice_roll = val
+				sum_res += min_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
 
 		return sum_res / num_res
 
     # Body of minimax_decision:
-	print("Dice roll: ",game.dice_roll)
-	return max_value(state)
+	game.display(state)
+	return argmax(game.actions(player, state),
+                  key=lambda a: chance_node(state, a))
 
 
 def alphabeta_search(state, game):
@@ -243,12 +246,12 @@ class Game:
         """Play an n-person, move-alternating game."""
         state = self.initial
         while True:
-        	for player in players:
-        		move = player(self, state)
-        		state = self.result(state, move)
-        		if self.terminal_test(state):
-        		    self.display(state)
-        		    return self.utility(state, self.to_move(self.initial))
+            for player in players:
+                move = player(self, state)
+                state = self.result(state, move)
+                if self.terminal_test(state):
+                    self.display(state)
+                    return self.utility(state, self.to_move(self.initial))
 
 
 class Fig52Game(Game):
@@ -395,25 +398,18 @@ class Backgammon(Game):
 
 	def actions(self, player, state):
 		moves = state.moves
-		print("all moves : ", state.moves)
 		valid_moves = []
 		for move in moves:
 			board = copy.deepcopy(state.board)
 			if board.is_valid_move(move, self.dice_roll, player):
 				valid_moves.append(move)
-		print(player,"player")
-		print("valid moves : ", valid_moves)
 		return valid_moves
 
 	def result(self, state, move):
 		board = copy.deepcopy(state.board)
-		player = state.to_move
-		self.display(state)
-		print("Move : ",move)		
+		player = state.to_move		
 		board.move_checker(move[0], self.dice_roll[0], player)
 		board.move_checker(move[1], self.dice_roll[1], player)
-		print("===============================================")
-		print("Dice roll: ", self.dice_roll)		
 		to_move = ('W' if player == 'B' else 'B')
 		return GameState(to_move=to_move,
 						 utility=self.compute_utility(board, move, to_move), 
