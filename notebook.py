@@ -260,7 +260,7 @@ class Canvas:
     """Inherit from this class to manage the HTML canvas element in jupyter notebooks.
     To create an object of this class any_name_xyz = Canvas("any_name_xyz")
     The first argument given must be the name of the object being created.
-    IPython must be able to refernce the variable name that is being passed."""
+    IPython must be able to reference the variable name that is being passed."""
 
     def __init__(self, varname, width=800, height=600, cid=None):
         self.name = varname
@@ -279,10 +279,10 @@ class Canvas:
         raise NotImplementedError
 
     def execute(self, exec_str):
-        """Stores the command to be exectued to a list which is used later during update()"""
+        """Stores the command to be executed to a list which is used later during update()"""
         if not isinstance(exec_str, str):
             print("Invalid execution argument:", exec_str)
-            self.alert("Recieved invalid execution command format")
+            self.alert("Received invalid execution command format")
         prefix = "{0}_canvas_object.".format(self.cid)
         self.exec_list.append(prefix + exec_str + ';')
 

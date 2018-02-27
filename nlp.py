@@ -214,7 +214,7 @@ E_NP_ = Grammar('E_NP_',  # Another Trivial Grammar for testing
 
 E_Prob = ProbGrammar('E_Prob', # The Probabilistic Grammar from the notebook
                      ProbRules(
-                         S="NP VP [0.6] | S Conjuction S [0.4]",
+                         S="NP VP [0.6] | S Conjunction S [0.4]",
                          NP="Pronoun [0.2] | Name [0.05] | Noun [0.2] | Article Noun [0.15] \
                              | Article Adjs Noun [0.1] | Digit [0.05] | NP PP [0.15] | NP RelClause [0.1]",
                          VP="Verb [0.3] | VP NP [0.2] | VP Adjective [0.25] | VP PP [0.15] | VP Adverb [0.1]",
@@ -232,7 +232,7 @@ E_Prob = ProbGrammar('E_Prob', # The Probabilistic Grammar from the notebook
                          Name="john [0.4] | mary [0.4] | peter [0.2]",
                          Article="the [0.5] | a [0.25] | an [0.25]",
                          Preposition="to [0.4] | in [0.3] | at [0.3]",
-                         Conjuction="and [0.5] | or [0.2] | but [0.3]",
+                         Conjunction="and [0.5] | or [0.2] | but [0.3]",
                          Digit="0 [0.35] | 1 [0.35] | 2 [0.3]"
                      ))
 

@@ -21,6 +21,11 @@ class UnigramWordModel(CountingProbDist):
     can add, sample, or get P[word], just like with CountingProbDist. You can
     also generate a random text, n words long, with P.samples(n)."""
 
+    def __init__(self, observations, default=0):
+        # Call CountingProbDist constructor,
+        # passing the observations and default parameters.
+        super(UnigramWordModel, self).__init__(observations, default)
+
     def samples(self, n):
         """Return a string of n words, random according to the model."""
         return ' '.join(self.sample() for i in range(n))
@@ -203,7 +208,7 @@ class UnixConsultant(IRSystem):
 
     def __init__(self):
         IRSystem.__init__(self, stopwords="how do i the a of")
-        
+
         import os
         aima_root = os.path.dirname(__file__)
         mandir = os.path.join(aima_root, 'aima-data/MAN/')

@@ -651,7 +651,7 @@ def particle_filtering(e, N, HMM):
     return s
 
 # _________________________________________________________________________
-## TODO: Implement continous map for MonteCarlo similar to Fig25.10 from the book
+## TODO: Implement continuous map for MonteCarlo similar to Fig25.10 from the book
 
 class MCLmap:
     """Map which provides probability distributions and sensor readings.
