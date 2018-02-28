@@ -50,7 +50,7 @@ class MDP:
             self.reward = reward
         else:
             self.reward = {s : 0 for s in self.states}
-        self.check_consistency()
+        #self.check_consistency()
 
     def R(self, state):
         """Return a numeric reward for this state."""
@@ -74,12 +74,15 @@ class MDP:
             return self.actlist
 
     def get_states_from_transitions(self, transitions):
-        assert isinstance(transitions, dict)
-        s1 = set(transitions.keys())
-        s2 = set([tr[1] for actions in transitions.values() 
-                          for effects in actions.values() for tr in effects])
-        return s1.union(s2)
-    
+        if isinstance(transitions, dict):
+            s1 = set(transitions.keys())
+            s2 = set([tr[1] for actions in transitions.values() 
+                              for effects in actions.values() for tr in effects])
+            return s1.union(s2)
+        else:
+            print('Could not retrieve states from transitions')
+            return None
+
     def check_consistency(self):
         # check that all states in transitions are valid
         assert set(self.states) == self.get_states_from_transitions(self.transitions)
@@ -249,3 +252,19 @@ __doc__ += """
 ^   None   ^   .
 ^   >      ^   <
 """  # noqa
+
+"""
+s = { 'a' : {	'plan1' : [(0.2, 'a'), (0.3, 'b'), (0.3, 'c'), (0.2, 'd')],
+				'plan2' : [(0.4, 'a'), (0.15, 'b'), (0.45, 'c')],
+				'plan3' : [(0.2, 'a'), (0.5, 'b'), (0.3, 'c')],
+			},
+	  'b' : {	'plan1' : [(0.2, 'a'), (0.6, 'b'), (0.2, 'c'), (0.1, 'd')],
+				'plan2' : [(0.6, 'a'), (0.2, 'b'), (0.1, 'c'), (0.1, 'd')],
+				'plan3' : [(0.3, 'a'), (0.3, 'b'), (0.4, 'c')],
+			},
+	  'c' : {	'plan1' : [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')],
+				'plan2' : [(0.5, 'a'), (0.3, 'b'), (0.1, 'c'), (0.1, 'd')],
+				'plan3' : [(0.1, 'a'), (0.3, 'b'), (0.1, 'c'), (0.5, 'd')],
+	  		},
+	}
+"""

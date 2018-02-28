@@ -16,7 +16,7 @@ class PassiveADPAgent:
         """ Class for implementing modified Version of input MDP with
         an editable transition model P and a custom function T. """
         def __init__(self, init, actlist, terminals, gamma, states):
-            super().__init__(init, actlist, terminals, gamma)
+            super().__init__(init, actlist, terminals, states = states, gamma = gamma)
             nested_dict = lambda: defaultdict(nested_dict)
             # StackOverflow:whats-the-best-way-to-initialize-a-dict-of-dicts-in-python
             self.P = nested_dict()
