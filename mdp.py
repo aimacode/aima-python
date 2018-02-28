@@ -21,7 +21,7 @@ class MDP:
     list of (p, s') pairs. We also keep track of the possible states,
     terminal states, and actions for each state. [page 646]"""
 
-    def __init__(self, init, actlist, terminals, reward, transitions, states=None, gamma=.9):
+    def __init__(self, init, actlist, terminals, transitions = {}, reward = None, states=None, gamma=.9):
         if not (0 < gamma <= 1):
             raise ValueError("An MDP must have 0 < gamma <= 1")
 
@@ -43,9 +43,13 @@ class MDP:
         
         self.terminals = terminals
         self.transitions = transitions
+        if self.transitions == {}:
+            print("Warning: Transition table is empty.")
         self.gamma = gamma
-        self.reward = reward
-        
+        if reward:
+            self.reward = reward
+        else:
+            self.reward = {s : 0 for s in self.states}
         self.check_consistency()
 
     def R(self, state):
@@ -122,8 +126,8 @@ class GridMDP(MDP):
             for a in actlist:
                 transitions[s][a] = self.calculate_T(s, a)
         MDP.__init__(self, init, actlist=actlist,
-                     terminals=terminals, reward = reward,
-                     transitions = transitions, states = states, gamma=gamma)
+                     terminals=terminals, transitions = transitions, 
+                     reward = reward, states = states, gamma=gamma)
 
     def calculate_T(self, state, action):
         if action is None:
