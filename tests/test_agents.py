@@ -83,10 +83,9 @@ def test_RandomVacuumAgent() :
     assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
 
 
-def test_TableDrivenAgent() :
-    #create a table that would consist of all the possible states of the agent
+def test_TableDrivenAgent():
     loc_A, loc_B = (0, 0), (1, 0)
-    
+    # table defining all the possible states of the agent
     table = {((loc_A, 'Clean'),): 'Right',
              ((loc_A, 'Dirty'),): 'Suck',
              ((loc_B, 'Clean'),): 'Left',
@@ -98,17 +97,26 @@ def test_TableDrivenAgent() :
              ((loc_A, 'Dirty'), (loc_A, 'Clean'), (loc_B, 'Dirty')): 'Suck',
              ((loc_B, 'Dirty'), (loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck'
              }
+
     # create an program and then an object of the TableDrivenAgent
     program = TableDrivenAgentProgram(table)
     agent = Agent(program)
-    # create an object of the TrivialVacuumEnvironment
+    # create an object of TrivialVacuumEnvironment
     environment = TrivialVacuumEnvironment()
+    # initializing some environment status
+    environment.status = {loc_A:'Dirty', loc_B:'Dirty'}
     # add agent to the environment
     environment.add_thing(agent)
-    # run the environment
-    environment.run()
-    # check final status of the environment
-    assert environment.status == {(1, 0): 'Clean', (0, 0): 'Clean'}
+
+    # run the environment by single step everytime to check how environment evolves using TableDrivenAgentProgram
+    environment.run(steps = 1)
+    assert environment.status == {(1,0): 'Clean', (0,0): 'Dirty'}
+
+    environment.run(steps = 1)
+    assert environment.status == {(1,0): 'Clean', (0,0): 'Dirty'}
+
+    environment.run(steps = 1)
+    assert environment.status == {(1,0): 'Clean', (0,0): 'Clean'}
 
 
 def test_ReflexVacuumAgent() :
