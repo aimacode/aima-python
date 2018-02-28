@@ -42,45 +42,46 @@ def minimax_decision(state, game):
 # ______________________________________________________________________________
 
 def expectiminimax(state, game):
+    """Returns the best move for a player after dice are thrown. The game tree
+	includes chance nodes along with min and max nodes. [Figure 5.11]"""
+    player = game.to_move(state)
 
-	player = game.to_move(state)
+    def max_value(state):
+        if game.terminal_test(state):
+            return game.utility(state, player)
+        v = -infinity
+        for a in game.actions(state):
+            v = max(v, chance_node(state, a))
+        return v
 
-	def max_value(state):
-		if game.terminal_test(state):
-			return game.utility(state, player)
-		v = -infinity
-		for a in game.actions('W', state):
-			v = max(v, chance_node(state, a))
-		return v
+    def min_value(state):
+        if game.terminal_test(state):
+            return game.utility(state, player)
+        v = infinity
+        for a in game.actions(state):
+            v = min(v, chance_node(state, a))
+        return v
 
-	def min_value(state):
-		if game.terminal_test(state):
-			return game.utility(state, player)
-		v = infinity
-		for a in game.actions('B', state):
-			v = min(v, chance_node(state, a))
-		return v
+    def chance_node(state, action):
+        res_state = game.result(state, action)
+        game.display(res_state)
+        sum_chances = 0
+        num_chances = 21
+        dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
+        if res_state.to_move == 'W':
+            for val in dice_rolls:
+                game.dice_roll = (-val[0], -val[1])
+                sum_chances += max_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
+        elif res_state.to_move == 'B':
+            for val in dice_rolls:
+                game.dice_roll = val
+                sum_chances += min_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
 
-	def chance_node(state, action):
-		res_state = game.result(state, action)
-		game.display(res_state)
-		sum_res = 0
-		num_res = 21
-		dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
-		if res_state.to_move == 'W':
-			for val in dice_rolls:
-				game.dice_roll = (-val[0], -val[1])
-				sum_res += max_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
-		elif res_state.to_move == 'B':		
-			for val in dice_rolls:
-				game.dice_roll = val
-				sum_res += min_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
-
-		return sum_res / num_res
+        return sum_chances / num_chances
 
     # Body of minimax_decision:
-	game.display(state)
-	return argmax(game.actions(player, state),
+    game.display(state)
+    return argmax(game.actions(state),
                   key=lambda a: chance_node(state, a))
 
 
@@ -391,134 +392,159 @@ class ConnectFour(TicTacToe):
 
 
 class Backgammon(Game):
-	def __init__(self):
-		self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
-		board=Board()
-		self.initial = GameState(to_move='W', utility=0, board=board, moves=self.get_all_moves(board, 'W'))
+    """A two player game where the goal of each player is to move all the
+	checkers off the board. The moves for each state are determined by
+	rolling a pair of dice."""
 
-	def actions(self, player, state):
-		moves = state.moves
-		valid_moves = []
-		for move in moves:
-			board = copy.deepcopy(state.board)
-			if board.is_valid_move(move, self.dice_roll, player):
-				valid_moves.append(move)
-		return valid_moves
+    def __init__(self):
+        self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
+        board = Board()
+        self.initial = GameState(to_move='W',
+                                 utility=0, board=board, moves=self.get_all_moves(board, 'W'))
 
-	def result(self, state, move):
-		board = copy.deepcopy(state.board)
-		player = state.to_move		
-		board.move_checker(move[0], self.dice_roll[0], player)
-		board.move_checker(move[1], self.dice_roll[1], player)
-		to_move = ('W' if player == 'B' else 'B')
-		return GameState(to_move=to_move,
-						 utility=self.compute_utility(board, move, to_move), 
-						 board=board,
-						 moves=self.get_all_moves(board, to_move))
+    def actions(self, state):
+        """Returns a list of legal moves for a state."""
+        player = state.to_move
+        moves = state.moves
+        valid_moves = []
+        for move in moves:
+            board = copy.deepcopy(state.board)
+            if board.is_valid_move(move, self.dice_roll, player):
+                valid_moves.append(move)
+        return valid_moves
 
-
-	def utility(self, state, player):
-		"""Return the value to player; 1 for win, -1 for loss, 0 otherwise."""
-		return state.utility if player == 'W' else -state.utility
-
-	def terminal_test(self, state):
-		"""A state is terminal if one player wins."""
-		return state.utility != 0
-
-	def get_all_moves(self, board, player):
-		all_points = board.points
-		taken_points = [index for index, point in enumerate(all_points) if point.checkers[player] > 0]
-		moves = list(itertools.permutations(taken_points,2))
-		moves = moves + [(index, index) for index, point in enumerate(all_points) if point.checkers[player] >= 2]
-		return moves
-
-	def display(self, state):
-		"""Display state of the game."""
-		board = state.board
-		player = state.to_move
-		for index, point in enumerate(board.points):
-			if point.checkers['W'] != 0 or point.checkers['B'] != 0:
-				print("Point : ",index, "	W : ", point.checkers['W'], "	B : ", point.checkers['B'])
-		print("player : ", state.to_move )
+    def result(self, state, move):
+        board = copy.deepcopy(state.board)
+        player = state.to_move
+        board.move_checker(move[0], self.dice_roll[0], player)
+        board.move_checker(move[1], self.dice_roll[1], player)
+        to_move = ('W' if player == 'B' else 'B')
+        return GameState(to_move=to_move,
+                         utility=self.compute_utility(board, move, to_move),
+                         board=board,
+                         moves=self.get_all_moves(board, to_move))
 
 
-	def compute_utility(self, board, move, player):
-		"""If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
-		count = 0
-		for idx in range(0, 24):
-			count = count + board.points[idx].checkers[player] 
-		
-		if player == 'W' and count == 0:
-			return 1
-		elif player == 'B' and count == 0:
-			return -1
-		else:
-			return 0
+    def utility(self, state, player):
+        """Return the value to player; 1 for win, -1 for loss, 0 otherwise."""
+        return state.utility if player == 'W' else -state.utility
+
+    def terminal_test(self, state):
+        """A state is terminal if one player wins."""
+        return state.utility != 0
+
+    def get_all_moves(self, board, player):
+        """All possible moves for a player i.e. all possible ways of
+        choosing two checkers of a player from the board for a move
+        at a given state."""
+        all_points = board.points
+        taken_points = [index for index, point in enumerate(all_points)
+                        if point.checkers[player] > 0]
+        moves = list(itertools.permutations(taken_points, 2))
+        moves = moves + [(index, index) for index, point in enumerate(all_points)
+                         if point.checkers[player] >= 2]
+        return moves
+
+    def display(self, state):
+        """Display state of the game."""
+        board = state.board
+        player = state.to_move
+        for index, point in enumerate(board.points):
+            if point.checkers['W'] != 0 or point.checkers['B'] != 0:
+                print("Point : ", index, "	W : ", point.checkers['W'], "	B : ", point.checkers['B'])
+        print("player : ", player)
+
+
+    def compute_utility(self, board, move, player):
+        """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
+        count = 0
+        for idx in range(0, 24):
+            count = count + board.points[idx].checkers[player]
+        if player == 'W' and count == 0:
+            return 1
+        if player == 'B' and count == 0:
+            return -1
+        return 0
 
 
 class Board:
-	def __init__(self):
-		self.points = [Point() for index in range(24)]	
-		self.points[0].checkers['B'] = self.points[23].checkers['W'] = 2
-		self.points[5].checkers['W'] = self.points[18].checkers['B'] = 5
-		self.points[7].checkers['W'] = self.points[16].checkers['B'] = 3
-		self.points[11].checkers['B'] = self.points[12].checkers['W'] = 5
-		self.bar = {'W':0, 'B':0}
-		self.allow_bear_off = {'W': False, 'B': False}
+    """The board consists of 24 points. Each player('W' and 'B') initially
+    has 15 checkers on board. Player 'W' moves from point 23 to point 0
+    and player 'B' moves from point 0 to 23. Points 0-7 are
+    home for player W and points 17-24 are home for B."""
 
-	def checkers_at_home(self, player):
-		sum_range = range(0, 7) if player == 'W' else range(17, 24)
-		count = 0
-		for idx in sum_range:
-			count = count + self.points[idx].checkers[player] 
-		return count
+    def __init__(self):
+        """Initial state of the game"""
+        # TODO : Add bar to Board class where a blot is placed when it is hit. 
+        self.points = [Point() for index in range(24)]
+        self.points[0].checkers['B'] = self.points[23].checkers['W'] = 2
+        self.points[5].checkers['W'] = self.points[18].checkers['B'] = 5
+        self.points[7].checkers['W'] = self.points[16].checkers['B'] = 3
+        self.points[11].checkers['B'] = self.points[12].checkers['W'] = 5
+        self.allow_bear_off = {'W': False, 'B': False}
 
-	def is_valid_move(self, start, steps, player):
-		dest1, dest2 = vector_add(start, steps)
-		dest_range = range(0, 24)
-		move1_valid = move2_valid = False
-		if dest1 in dest_range:
-			if self.points[dest1].is_open_for(player):
-				self.move_checker(start[0], steps[0], player)
-				move1_valid = True
-		else:
-			if self.allow_bear_off[player]:
-				self.move_checker(start[0], steps[0], player)
-				move1_valid = True
-		if not move1_valid:
-			return False
-		if dest2 in dest_range:
-			if self.points[dest2].is_open_for(player):
-				move2_valid = True
-		else:
-			if self.allow_bear_off[player]:
-				move2_valid = True
-		return move1_valid and move2_valid
-		
+    def checkers_at_home(self, player):
+        """Returns the no. of checkers at home for a player."""
+        sum_range = range(0, 7) if player == 'W' else range(17, 24)
+        count = 0
+        for idx in sum_range:
+            count = count + self.points[idx].checkers[player]
+        return count
 
-	def move_checker(self, start, steps, player):
-		dest = start + steps
-		dest_range = range(0,24)
-		self.points[start].remove_checker(player)
-		if dest in dest_range:
-			self.points[dest].add_checker(player)
-			if self.checkers_at_home(player) == 15:
-				self.allow_bear_off[player] = True
+    def is_legal_move(self, start, steps, player):
+        """Move is a tuple which contains starting points of checkers to be
+		moved during a player's turn. An on-board move is legal if both the destinations
+		are open. A bear-off move is the one where a checker is moved off-board.
+        It is legal only after a player has moved all his checkers to his home."""
+        dest1, dest2 = vector_add(start, steps)
+        dest_range = range(0, 24)
+        move1_legal = move2_legal = False
+        if dest1 in dest_range:
+            if self.points[dest1].is_open_for(player):
+                self.move_checker(start[0], steps[0], player)
+                move1_legal = True
+        else:
+            if self.allow_bear_off[player]:
+                self.move_checker(start[0], steps[0], player)
+                move1_legal = True
+        if not move1_legal:
+            return False
+        if dest2 in dest_range:
+            if self.points[dest2].is_open_for(player):
+                move2_legal = True
+        else:
+            if self.allow_bear_off[player]:
+                move2_legal = True
+        return move1_legal and move2_legal
+
+    def move_checker(self, start, steps, player):
+        """Moves a checker from starting point by a given number of steps"""
+        dest = start + steps
+        dest_range = range(0, 24)
+        self.points[start].remove_checker(player)
+        if dest in dest_range:
+            self.points[dest].add_checker(player)
+            if self.checkers_at_home(player) == 15:
+                self.allow_bear_off[player] = True
 
 class Point:
-	def __init__(self):
-		self.checkers = {'W':0, 'B':0}
-		
-	def is_open_for(self, player):
-		opponent = 'B' if player=='W' else 'W'
-		return self.checkers[opponent] <= 1
-			
-	def add_checker(self, player):
-		self.checkers[player] += 1 
-		
-	def remove_checker(self, player):
-		self.checkers[player] -= 1
+    """A point is one of the 24 triangles on the board where
+    the players' checkers are placed."""
 
-if __name__ == "__main__":
-	bgm = Backgammon()
-	bgm.play_game(expectiminimax_player, query_player)
+    def __init__(self):
+        self.checkers = {'W':0, 'B':0}
+
+    def is_open_for(self, player):
+        """A point is open for a player if the no. of opponent's
+        checkers already present on it is 0 or 1. A player can
+        move a checker to a point only if it is open."""
+        opponent = 'B' if player == 'W' else 'W'
+        return self.checkers[opponent] <= 1
+
+    def add_checker(self, player):
+        """Place a player's checker on a point."""
+        self.checkers[player] += 1
+
+    def remove_checker(self, player):
+        """Remove a player's checker from a point."""
+        self.checkers[player] -= 1
