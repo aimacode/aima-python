@@ -199,7 +199,44 @@ def GA_GraphColoringInts(edges, fitness):
     population = init_population(8, [0, 1], 4)
 
     return genetic_algorithm(population, fitness)
-
+def test_simpleProblemSolvingAgent():
+    class vacuumAgent(SimpleProblemSolvingAgentProgram):
+        def update_state(self, state, percept):
+            state = percept
+            return state
+        def formulate_goal(self, state):
+            goal = [state7, state8]
+            return goal  
+        def formulate_problem(self, state, goal):
+            problem = state
+            return problem       
+        def search(self, problem):
+            if (problem == state1):
+                seq = ["Suck", "Right", "Suck"]
+            elif (problem == state2):
+                seq = ["Suck", "Left", "Suck"]
+            elif (problem == state3):
+                seq = ["Right", "Suck"]
+            elif (problem == state4):
+                seq = ["Suck"]
+            elif (problem == state5):
+                seq = ["Suck"]
+            elif (problem == state6):
+                seq = ["Left", "Suck"]
+            return seq
+    state1 = [(0, 0), [(0, 0), "Dirty"], [(1, 0), ["Dirty"]]]
+    state2 = [(1, 0), [(0, 0), "Dirty"], [(1, 0), ["Dirty"]]]
+    state3 = [(0, 0), [(0, 0), "Clean"], [(1, 0), ["Dirty"]]]
+    state4 = [(1, 0), [(0, 0), "Clean"], [(1, 0), ["Dirty"]]]
+    state5 = [(0, 0), [(0, 0), "Dirty"], [(1, 0), ["Clean"]]]
+    state6 = [(1, 0), [(0, 0), "Dirty"], [(1, 0), ["Clean"]]]
+    state7 = [(0, 0), [(0, 0), "Clean"], [(1, 0), ["Clean"]]]
+    state8 = [(1, 0), [(0, 0), "Clean"], [(1, 0), ["Clean"]]]
+    a = vacuumAgent(state1)
+    assert a.__call__(state6) == "Left"
+    assert a.__call__(state1) == "Suck"
+    assert a.__call__(state3) == "Right"
+    
 
 
 # TODO: for .ipynb:
