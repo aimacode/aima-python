@@ -35,16 +35,15 @@ class PassiveADPAgent:
         self.Ns1_sa = defaultdict(int)
         self.s = None
         self.a = None
-        self.visited = set()
+        self.visited = set()        # keeping track of visited states
 
     def __call__(self, percept):
         s1, r1 = percept
-        self.mdp.states.add(s1)  # Model keeps track of visited states.
         mdp = self.mdp
         R, P, terminals, pi = mdp.reward, mdp.P, mdp.terminals, self.pi
         s, a, Nsa, Ns1_sa, U = self.s, self.a, self.Nsa, self.Ns1_sa, self.U
 
-        if s1 not in self.visited:  # Reward is only available for visited state.
+        if s1 not in self.visited:  # Reward is only known for visited state.
             U[s1] = R[s1] = r1
             self.visited.add(s1)
         if s is not None:
