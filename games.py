@@ -64,7 +64,6 @@ def expectiminimax(state, game):
 
     def chance_node(state, action):
         res_state = game.result(state, action)
-        game.display(res_state)
         sum_chances = 0
         num_chances = 21
         dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
@@ -79,8 +78,7 @@ def expectiminimax(state, game):
 
         return sum_chances / num_chances
 
-    # Body of minimax_decision:
-    game.display(state)
+    # Body of expectiminimax:
     return argmax(game.actions(state),
                   key=lambda a: chance_node(state, a))
 
@@ -406,12 +404,12 @@ class Backgammon(Game):
         """Returns a list of legal moves for a state."""
         player = state.to_move
         moves = state.moves
-        valid_moves = []
+        legal_moves = []
         for move in moves:
             board = copy.deepcopy(state.board)
-            if board.is_valid_move(move, self.dice_roll, player):
-                valid_moves.append(move)
-        return valid_moves
+            if board.is_legal_move(move, self.dice_roll, player):
+                legal_moves.append(move)
+        return legal_moves
 
     def result(self, state, move):
         board = copy.deepcopy(state.board)
@@ -475,7 +473,7 @@ class Board:
 
     def __init__(self):
         """Initial state of the game"""
-        # TODO : Add bar to Board class where a blot is placed when it is hit. 
+        # TODO : Add bar to Board class where a blot is placed when it is hit.
         self.points = [Point() for index in range(24)]
         self.points[0].checkers['B'] = self.points[23].checkers['W'] = 2
         self.points[5].checkers['W'] = self.points[18].checkers['B'] = 5
