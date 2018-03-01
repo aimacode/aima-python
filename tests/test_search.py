@@ -203,7 +203,7 @@ def GA_GraphColoringInts(edges, fitness):
 
 def test_simpleProblemSolvingAgent():
     class vacuumAgent(SimpleProblemSolvingAgentProgram):
-        def update_state(self, percept):
+        def update_state(self, state, percept):
             return percept
 
         def formulate_goal(self, state):
