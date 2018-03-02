@@ -71,3 +71,7 @@ target/
 # dotenv
 .env
 .idea
+
+# for macOS
+.DS_Store
+._.DS_Store
