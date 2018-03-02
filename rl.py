@@ -16,7 +16,7 @@ class PassiveADPAgent:
         """ Class for implementing modified Version of input MDP with
         an editable transition model P and a custom function T. """
         def __init__(self, init, actlist, terminals, gamma, states):
-            super().__init__(init, actlist, terminals, gamma)
+            super().__init__(init, actlist, terminals, states = states, gamma = gamma)
             nested_dict = lambda: defaultdict(nested_dict)
             # StackOverflow:whats-the-best-way-to-initialize-a-dict-of-dicts-in-python
             self.P = nested_dict()
@@ -35,15 +35,17 @@ class PassiveADPAgent:
         self.Ns1_sa = defaultdict(int)
         self.s = None
         self.a = None
+        self.visited = set()        # keeping track of visited states
 
     def __call__(self, percept):
         s1, r1 = percept
-        self.mdp.states.add(s1)  # Model keeps track of visited states.
-        R, P, mdp, pi = self.mdp.reward, self.mdp.P, self.mdp, self.pi
+        mdp = self.mdp
+        R, P, terminals, pi = mdp.reward, mdp.P, mdp.terminals, self.pi
         s, a, Nsa, Ns1_sa, U = self.s, self.a, self.Nsa, self.Ns1_sa, self.U
 
-        if s1 not in R:  # Reward is only available for visted state.
+        if s1 not in self.visited:  # Reward is only known for visited state.
             U[s1] = R[s1] = r1
+            self.visited.add(s1)
         if s is not None:
             Nsa[(s, a)] += 1
             Ns1_sa[(s1, s, a)] += 1
@@ -52,8 +54,11 @@ class PassiveADPAgent:
                       if (state, act) == (s, a) and freq != 0]:
                 P[(s, a)][t] = Ns1_sa[(t, s, a)] / Nsa[(s, a)]
 
-        U = policy_evaluation(pi, U, mdp)
-        if s1 in mdp.terminals:
+        self.U = policy_evaluation(pi, U, mdp)
+        ##
+        ##
+        self.Nsa, self.Ns1_sa = Nsa, Ns1_sa
+        if s1 in terminals:
             self.s = self.a = None
         else:
             self.s, self.a = s1, self.pi[s1]

@@ -100,14 +100,22 @@ def test_best_policy():
 
 
 def test_transition_model():
-    transition_model = {
-        "A": {"a1": (0.3, "B"), "a2": (0.7, "C")},
-        "B": {"a1": (0.5, "B"), "a2": (0.5, "A")},
-        "C": {"a1": (0.9, "A"), "a2": (0.1, "B")},
-    }
+    transition_model = { 'a' : {   'plan1' : [(0.2, 'a'), (0.3, 'b'), (0.3, 'c'), (0.2, 'd')],
+                    'plan2' : [(0.4, 'a'), (0.15, 'b'), (0.45, 'c')],
+                    'plan3' : [(0.2, 'a'), (0.5, 'b'), (0.3, 'c')],
+                },
+          'b' : {   'plan1' : [(0.2, 'a'), (0.6, 'b'), (0.2, 'c'), (0.1, 'd')],
+                    'plan2' : [(0.6, 'a'), (0.2, 'b'), (0.1, 'c'), (0.1, 'd')],
+                    'plan3' : [(0.3, 'a'), (0.3, 'b'), (0.4, 'c')],
+                },
+          'c' : {   'plan1' : [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')],
+                    'plan2' : [(0.5, 'a'), (0.3, 'b'), (0.1, 'c'), (0.1, 'd')],
+                    'plan3' : [(0.1, 'a'), (0.3, 'b'), (0.1, 'c'), (0.5, 'd')],
+                },
+        }
 
-    mdp = MDP(init="A", actlist={"a1","a2"}, terminals={"C"}, states={"A","B","C"}, transitions=transition_model)
+    mdp = MDP(init="a", actlist={"plan1","plan2", "plan3"}, terminals={"d"}, states={"a","b","c", "d"}, transitions=transition_model)
 
-    assert mdp.T("A","a1") == (0.3, "B")
-    assert mdp.T("B","a2") == (0.5, "A")
-    assert mdp.T("C","a1") == (0.9, "A")
+    assert mdp.T("a","plan3") == [(0.2, 'a'), (0.5, 'b'), (0.3, 'c')]
+    assert mdp.T("b","plan2") == [(0.6, 'a'), (0.2, 'b'), (0.1, 'c'), (0.1, 'd')]
+    assert mdp.T("c","plan1") == [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')]
