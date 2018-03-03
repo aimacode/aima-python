@@ -94,7 +94,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`][csp]                 | Done | Included |
 | 7      | KB                                | `KB`                          | [`logic.py`][logic]             | Done | Included |
 | 7.1    | KB-Agent                          | `KB_Agent`                    | [`logic.py`][logic]             | Done |          |
-| 7.7    | Propositional Logic Sentence      | `Expr`                        | [`logic.py`][logic]             | Done |          |
+| 7.7    | Propositional Logic Sentence      | `Expr`                        | [`utils.py`][utils]             | Done | Included |
 | 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`][logic]             | Done | Included |
 | 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`][logic]             | Done | Included |
 | 7.14   | Convert to CNF                    | `to_cnf`                      | [`logic.py`][logic]             | Done |          |
