@@ -7,6 +7,61 @@ from mdp import MDP, policy_evaluation
 import random
 
 
+class PassiveDUEAgent:
+    
+    """Passive (non-learning) agent that uses direct utility estimation
+    on a given MDP and policy."""
+    def __init__(self, pi, mdp):
+        self.pi = pi
+        self.mdp = mdp
+        self.U = {}
+        self.s = None
+        self.a = None
+        self.s_history = []
+        self.r_history = []
+        self.init = mdp.init
+        
+    def __call__(self, percept):
+        s1, r1 = percept
+        self.s_history.append(s1)
+        self.r_history.append(r1)
+        ##
+        ##
+        if s1 in self.mdp.terminals:
+            self.s = self.a = None
+        else:
+            self.s, self.a = s1, self.pi[s1]
+        return self.a
+    
+    def estimate_U(self):
+        # this function can be called only if the MDP has reached a terminal state
+        # it will also reset the mdp history
+        assert self.a is None, 'MDP is not in terminal state'
+        assert len(self.s_history) == len(self.r_history)
+        # calculating the utilities based on the current iteration
+        U2 = {s : [] for s in set(self.s_history)}
+        for i in range(len(self.s_history)):
+            s = self.s_history[i]
+            U2[s] += [sum(self.r_history[i:])]
+        U2 = {k : sum(v)/max(len(v), 1) for k, v in U2.items()}
+        # resetting history
+        self.s_history, self.r_history = [], []
+        # setting the new utilities to the average of the previous 
+        # iteration and this one
+        for k in U2.keys():
+            if k in self.U.keys():
+                self.U[k] = (self.U[k] + U2[k]) /2
+            else:
+                self.U[k] = U2[k]
+        return self.U
+
+    def update_state(self, percept):
+        '''To be overridden in most cases. The default case
+        assumes the percept to be of type (state, reward)'''
+        return percept
+    
+
+
 class PassiveADPAgent:
 
     """Passive (non-learning) agent that uses adaptive dynamic programming
