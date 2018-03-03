@@ -75,7 +75,6 @@ def expectiminimax(state, game):
             for val in dice_rolls:
                 game.dice_roll = val
                 sum_chances += min_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
-
         return sum_chances / num_chances
 
     # Body of expectiminimax:
@@ -396,7 +395,7 @@ class Backgammon(Game):
 
     def __init__(self):
         self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
-        board = Board()
+        board = BackgammonBoard()
         self.initial = GameState(to_move='W',
                                  utility=0, board=board, moves=self.get_all_moves(board, 'W'))
 
@@ -437,10 +436,10 @@ class Backgammon(Game):
         at a given state."""
         all_points = board.points
         taken_points = [index for index, point in enumerate(all_points)
-                        if point.checkers[player] > 0]
+                        if point[player] > 0]
         moves = list(itertools.permutations(taken_points, 2))
         moves = moves + [(index, index) for index, point in enumerate(all_points)
-                         if point.checkers[player] >= 2]
+                         if point[player] >= 2]
         return moves
 
     def display(self, state):
@@ -448,8 +447,8 @@ class Backgammon(Game):
         board = state.board
         player = state.to_move
         for index, point in enumerate(board.points):
-            if point.checkers['W'] != 0 or point.checkers['B'] != 0:
-                print("Point : ", index, "	W : ", point.checkers['W'], "	B : ", point.checkers['B'])
+            if point['W'] != 0 or point['B'] != 0:
+                print("Point : ", index, "	W : ", point['W'], "	B : ", point['B'])
         print("player : ", player)
 
 
@@ -457,7 +456,7 @@ class Backgammon(Game):
         """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
         count = 0
         for idx in range(0, 24):
-            count = count + board.points[idx].checkers[player]
+            count = count + board.points[idx][player]
         if player == 'W' and count == 0:
             return 1
         if player == 'B' and count == 0:
@@ -465,7 +464,7 @@ class Backgammon(Game):
         return 0
 
 
-class Board:
+class BackgammonBoard:
     """The board consists of 24 points. Each player('W' and 'B') initially
     has 15 checkers on board. Player 'W' moves from point 23 to point 0
     and player 'B' moves from point 0 to 23. Points 0-7 are
@@ -474,11 +473,12 @@ class Board:
     def __init__(self):
         """Initial state of the game"""
         # TODO : Add bar to Board class where a blot is placed when it is hit.
-        self.points = [Point() for index in range(24)]
-        self.points[0].checkers['B'] = self.points[23].checkers['W'] = 2
-        self.points[5].checkers['W'] = self.points[18].checkers['B'] = 5
-        self.points[7].checkers['W'] = self.points[16].checkers['B'] = 3
-        self.points[11].checkers['B'] = self.points[12].checkers['W'] = 5
+        point = {'W':0, 'B':0}
+        self.points = [point.copy() for index in range(24)]
+        self.points[0]['B'] = self.points[23]['W'] = 2
+        self.points[5]['W'] = self.points[18]['B'] = 5
+        self.points[7]['W'] = self.points[16]['B'] = 3
+        self.points[11]['B'] = self.points[12]['W'] = 5
         self.allow_bear_off = {'W': False, 'B': False}
 
     def checkers_at_home(self, player):
@@ -486,7 +486,7 @@ class Board:
         sum_range = range(0, 7) if player == 'W' else range(17, 24)
         count = 0
         for idx in sum_range:
-            count = count + self.points[idx].checkers[player]
+            count = count + self.points[idx][player]
         return count
 
     def is_legal_move(self, start, steps, player):
@@ -498,7 +498,7 @@ class Board:
         dest_range = range(0, 24)
         move1_legal = move2_legal = False
         if dest1 in dest_range:
-            if self.points[dest1].is_open_for(player):
+            if self.is_point_open(player, self.points[dest1]):
                 self.move_checker(start[0], steps[0], player)
                 move1_legal = True
         else:
@@ -508,7 +508,7 @@ class Board:
         if not move1_legal:
             return False
         if dest2 in dest_range:
-            if self.points[dest2].is_open_for(player):
+            if self.is_point_open(player, self.points[dest2]):
                 move2_legal = True
         else:
             if self.allow_bear_off[player]:
@@ -519,30 +519,15 @@ class Board:
         """Moves a checker from starting point by a given number of steps"""
         dest = start + steps
         dest_range = range(0, 24)
-        self.points[start].remove_checker(player)
+        self.points[start][player] -= 1
         if dest in dest_range:
-            self.points[dest].add_checker(player)
+            self.points[dest][player] += 1
             if self.checkers_at_home(player) == 15:
                 self.allow_bear_off[player] = True
 
-class Point:
-    """A point is one of the 24 triangles on the board where
-    the players' checkers are placed."""
-
-    def __init__(self):
-        self.checkers = {'W':0, 'B':0}
-
-    def is_open_for(self, player):
+    def is_point_open(self, player, point):
         """A point is open for a player if the no. of opponent's
         checkers already present on it is 0 or 1. A player can
         move a checker to a point only if it is open."""
         opponent = 'B' if player == 'W' else 'W'
-        return self.checkers[opponent] <= 1
-
-    def add_checker(self, player):
-        """Place a player's checker on a point."""
-        self.checkers[player] += 1
-
-    def remove_checker(self, player):
-        """Remove a player's checker from a point."""
-        self.checkers[player] -= 1
+        return point[opponent] <= 1
