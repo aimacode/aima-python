@@ -19,11 +19,12 @@ policy = {
 
 def test_PassiveADPAgent():
 	agent = PassiveADPAgent(policy, sequential_decision_environment)
-	for i in range(75):
+	for i in range(100):
 		run_single_trial(agent,sequential_decision_environment)
 	
 	# Agent does not always produce same results.
 	# Check if results are good enough.
+	#print(agent.U[(0, 0)], agent.U[(0,1)], agent.U[(1,0)])
 	assert agent.U[(0, 0)] > 0.15 # In reality around 0.3
 	assert agent.U[(0, 1)] > 0.15 # In reality around 0.4
 	assert agent.U[(1, 0)] > 0 # In reality around 0.2
