@@ -64,26 +64,26 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 2.8    | Reflex-Vacuum-Agent               | `ReflexVacuumAgent`           | [`agents.py`][agents]           | Done | Included |
 | 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           |      | Included |
 | 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`][agents]           |      | Included |
-| 3      | Problem                           | `Problem`                     | [`search.py`][search]           | Done | Included |
-| 3      | Node                              | `Node`                        | [`search.py`][search]           | Done | Included |
+| 3      | Problem                           | `Problem`                     | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3      | Node                              | `Node`                        | [`search.py`](/aima-core/search/search.py)             | Done | Included |
 | 3      | Queue                             | `Queue`                       | [`utils.py`][utils]             | Done | No Need  |
-| 3.1    | Simple-Problem-Solving-Agent      | `SimpleProblemSolvingAgent`   | [`search.py`][search]           | Done | Included |
-| 3.2    | Romania                           | `romania`                     | [`search.py`][search]           | Done | Included |
-| 3.7    | Tree-Search                       | `tree_search`                 | [`search.py`][search]           | Done |          |
-| 3.7    | Graph-Search                      | `graph_search`                | [`search.py`][search]           | Done |          |
-| 3.11   | Breadth-First-Search              | `breadth_first_search`        | [`search.py`][search]           | Done | Included |
-| 3.14   | Uniform-Cost-Search               | `uniform_cost_search`         | [`search.py`][search]           | Done | Included |
-| 3.17   | Depth-Limited-Search              | `depth_limited_search`        | [`search.py`][search]           | Done |          |
-| 3.18   | Iterative-Deepening-Search        | `iterative_deepening_search`  | [`search.py`][search]           | Done |          |
-| 3.22   | Best-First-Search                 | `best_first_graph_search`     | [`search.py`][search]           | Done | Included |
-| 3.24   | A\*-Search                        | `astar_search`                | [`search.py`][search]           | Done | Included |
-| 3.26   | Recursive-Best-First-Search       | `recursive_best_first_search` | [`search.py`][search]           | Done |          |
-| 4.2    | Hill-Climbing                     | `hill_climbing`               | [`search.py`][search]           | Done | Included |
-| 4.5    | Simulated-Annealing               | `simulated_annealing`         | [`search.py`][search]           | Done |          |
-| 4.8    | Genetic-Algorithm                 | `genetic_algorithm`           | [`search.py`][search]           | Done | Included |
-| 4.11   | And-Or-Graph-Search               | `and_or_graph_search`         | [`search.py`][search]           | Done |          |
-| 4.21   | Online-DFS-Agent                  | `online_dfs_agent`            | [`search.py`][search]           |      |          |
-| 4.24   | LRTA\*-Agent                      | `LRTAStarAgent`               | [`search.py`][search]           | Done |          |
+| 3.1    | Simple-Problem-Solving-Agent      | `SimpleProblemSolvingAgent`   | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3.2    | Romania                           | `romania`                     | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3.7    | Tree-Search                       | `tree_search`                 | [`search.py`](/aima-core/search/search.py)             | Done |          |
+| 3.7    | Graph-Search                      | `graph_search`                | [`search.py`](/aima-core/search/search.py)             | Done |          |
+| 3.11   | Breadth-First-Search              | `breadth_first_search`        | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3.14   | Uniform-Cost-Search               | `uniform_cost_search`         | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3.17   | Depth-Limited-Search              | `depth_limited_search`        | [`search.py`](/aima-core/search/search.py)             | Done |          |
+| 3.18   | Iterative-Deepening-Search        | `iterative_deepening_search`  | [`search.py`](/aima-core/search/search.py)             | Done |          |
+| 3.22   | Best-First-Search                 | `best_first_graph_search`     | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3.24   | A\*-Search                        | `astar_search`                | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3.26   | Recursive-Best-First-Search       | `recursive_best_first_search` | [`search.py`](/aima-core/search/search.py)             | Done |          |
+| 4.2    | Hill-Climbing                     | `hill_climbing`               | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 4.5    | Simulated-Annealing               | `simulated_annealing`         | [`search.py`](/aima-core/search/search.py)             | Done |          |
+| 4.8    | Genetic-Algorithm                 | `genetic_algorithm`           | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 4.11   | And-Or-Graph-Search               | `and_or_graph_search`         | [`search.py`](/aima-core/search/search.py)             | Done |          |
+| 4.21   | Online-DFS-Agent                  | `online_dfs_agent`            | [`search.py`](/aima-core/search/search.py)             |      |          |
+| 4.24   | LRTA\*-Agent                      | `LRTAStarAgent`               | [`search.py`](/aima-core/search/search.py)             | Done |          |
 | 5.3    | Minimax-Decision                  | `minimax_decision`            | [`games.py`][games]             | Done | Included |
 | 5.7    | Alpha-Beta-Search                 | `alphabeta_search`            | [`games.py`][games]             | Done | Included |
 | 6      | CSP                               | `CSP`                         | [`csp.py`][csp]                 | Done | Included |
@@ -156,10 +156,10 @@ Here is a table of the implemented data structures, the figure, name of the impl
 
 | **Figure** | **Name (in repository)** | **File** |
 |:-------|:--------------------------------|:--------------------------|
-| 3.2    | romania_map                     | [`search.py`][search]     |
-| 4.9    | vacumm_world                    | [`search.py`][search]     |
-| 4.23   | one_dim_state_space             | [`search.py`][search]     |
-| 6.1    | australia_map                   | [`search.py`][search]     |
+| 3.2    | romania_map                     | [`search.py`](/aima-core/search/search.py)       |
+| 4.9    | vacumm_world                    | [`search.py`](/aima-core/search/search.py)       |
+| 4.23   | one_dim_state_space             | [`search.py`](/aima-core/search/search.py)       |
+| 6.1    | australia_map                   | [`search.py`](/aima-core/search/search.py)       |
 | 7.13   | wumpus_world_inference          | [`logic.py`][logic]       |
 | 7.16   | horn_clauses_KB                 | [`logic.py`][logic]       |
 | 17.1   | sequential_decision_environment | [`mdp.py`][mdp]           |
@@ -183,6 +183,6 @@ Many thanks for contributions over the years. I got bug reports, corrected code,
 [planning]:../master/planning.py
 [probability]:../master/probability.py
 [rl]:../master/rl.py
-[search]:../master/search.py
+(/aima-core/search/search.py)  :../master/search.py
 [utils]:../master/utils.py
 [text]:../master/text.py
