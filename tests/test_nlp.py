@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/nlp/")
+sys.path.append("./aima-core/utils/")
 import pytest
 import nlp
 

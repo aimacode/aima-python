@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/search/")
+sys.path.append("./aima-core/utils/")
 import pytest
 from search import *
 

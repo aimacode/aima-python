@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/rl/")
+sys.path.append("./aima-core/utils/")
 import pytest
 
 from rl import *

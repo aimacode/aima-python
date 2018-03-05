@@ -410,7 +410,7 @@ def print_table(table, header=None, sep='   ', numfmt='{}'):
 
 
 def open_data(name, mode='r'):
-    aima_root = os.path.dirname(__file__)
+    aima_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     aima_file = os.path.join(aima_root, *['aima-data', name])
 
     return open(aima_file)

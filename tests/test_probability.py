@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/probability/")
+sys.path.append("./aima-core/utils/")
 import random
 from probability import *
 from utils import rounder

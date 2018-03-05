@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/learning/")
+sys.path.append("./aima-core/utils/")
 import pytest
 import math
 import random

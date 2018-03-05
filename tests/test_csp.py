@@ -1,3 +1,7 @@
+import sys
+sys.path.append("./aima-core/csp/")
+sys.path.append("./aima-core/utils/")
+sys.path.append("./aima-core/search/")
 import pytest
 from utils import failure_test
 from csp import *

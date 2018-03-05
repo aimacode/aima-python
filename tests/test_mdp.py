@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/mdp/")
+sys.path.append("./aima-core/utils/")
 from mdp import *
 
 sequential_decision_environment_1 = GridMDP([[-0.1, -0.1, -0.1, +1],

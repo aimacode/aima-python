@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/text/")
+sys.path.append("./aima-core/utils/")
 import pytest
 import os
 import random

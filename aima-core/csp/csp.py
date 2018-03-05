@@ -1,5 +1,7 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
-
+import sys
+sys.path.append("../utils")
+sys.path.append("../search")
 from utils import argmin_random_tie, count, first
 import search
 
