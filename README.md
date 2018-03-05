@@ -93,7 +93,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`](/aima-core/csp/csp.py)                   | Done | [Included](/aima-core/csp/csp.ipynb) |
 | 7      | KB                                | `KB`                          | [`logic.py`](/aima-core/logic/logic.py)               | Done | [Included](/aima-core/logic/logic.ipynb) |
 | 7.1    | KB-Agent                          | `KB_Agent`                    | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
-| 7.7    | Propositional Logic Sentence      | `Expr`                        | [`utils.py`](/aima-core/utils/utils.py)               | Done | [Included] |
+| 7.7    | Propositional Logic Sentence      | `Expr`                        | [`utils.py`](/aima-core/utils/utils.py)               | Done | [Included](/aima-core/utils/utils.ipynb)     |
 | 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`](/aima-core/logic/logic.py)               | Done | [Included](/aima-core/logic/logic.ipynb) |
 | 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`](/aima-core/logic/logic.py)               | Done | [Included](/aima-core/logic/logic.ipynb) |
 | 7.14   | Convert to CNF                    | `to_cnf`                      | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
