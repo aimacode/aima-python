@@ -170,19 +170,3 @@ Here is a table of the implemented data structures, the figure, name of the impl
 
 Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially @darius, @SnShine, @reachtarunhere, @MrDupin, and @Chipe1.
 
-<!---Reference Links-->
-(/aima-core/agents/agents.py)  :../master/agents.py
-(/aima-core/csp/csp.py)  :../master/csp.py
-(/aima-core/games/games.py)  :../master/games.py
-[grid]:../master/grid.py
-(/aima-core/knowledge/knowledge.py)  :../master/knowledge.py
-(/aima-core/learning/learning.py)  :../master/learning.py
-(/aima-core/logic/logic.py)  :../master/logic.py
-(/aima-core/mdp/mdp.py)  :../master/mdp.py
-(/aima-core/nlp/nlp.py)  :../master/nlp.py
-(/aima-core/planning/planning.py)  :../master/planning.py
-(/aima-core/probability/probability.py)  :../master/probability.py
-(/aima-core/rl/rl.py)  :../master/rl.py
-(/aima-core/search/search.py)  :../master/search.py
-(/aima-core/utils/utils.py)  :../master/utils.py
-[text]:../master/text.py
