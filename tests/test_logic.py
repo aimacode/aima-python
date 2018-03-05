@@ -1,3 +1,7 @@
+import sys
+sys.path.append("../aima-core/logic/")
+sys.path.append("../aima-core/agents/")
+sys.path.append("../aima-core/utils/")
 import pytest
 from logic import *
 from utils import expr_handle_infix_ops, count, Symbol

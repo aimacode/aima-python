@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/games/")
+sys.path.append("./aima-core/utils/")
 from games import *
 
 # Creating the game instances

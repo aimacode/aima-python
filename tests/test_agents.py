@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/agents/")
+sys.path.append("./aima-core/utils/")
 import random
 from agents import Direction
 from agents import Agent

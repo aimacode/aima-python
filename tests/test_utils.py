@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../aima-core/utils/")
 import pytest
 from utils import *
 import random

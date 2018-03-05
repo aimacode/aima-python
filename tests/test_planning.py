@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/planning/")
+sys.path.append("./aima-core/utils/")
 from planning import *
 from utils import expr
 from logic import FolKB

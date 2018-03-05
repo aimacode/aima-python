@@ -1,3 +1,8 @@
+import sys
+sys.path.append("./aima-core/knowledge/")
+sys.path.append("./aima-core/utils/")
+sys.path.append("./aima-core/logic/")
+sys.path.append("./aima-core/agents/")
 from knowledge import *
 from utils import expr
 import random

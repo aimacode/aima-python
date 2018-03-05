@@ -210,7 +210,7 @@ class UnixConsultant(IRSystem):
         IRSystem.__init__(self, stopwords="how do i the a of")
 
         import os
-        aima_root = os.path.dirname(__file__)
+        aima_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
         mandir = os.path.join(aima_root, 'aima-data/MAN/')
         man_files = [mandir + f for f in os.listdir(mandir)
                      if f.endswith('.txt')]
