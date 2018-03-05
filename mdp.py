@@ -21,20 +21,36 @@ class MDP:
     list of (p, s') pairs. We also keep track of the possible states,
     terminal states, and actions for each state. [page 646]"""
 
-    def __init__(self, init, actlist, terminals, transitions={}, states=None, gamma=.9):
+    def __init__(self, init, actlist, terminals, transitions = {}, reward = None, states=None, gamma=.9):
         if not (0 < gamma <= 1):
             raise ValueError("An MDP must have 0 < gamma <= 1")
 
         if states:
             self.states = states
         else:
-            self.states = set()
+            ## collect states from transitions table
+            self.states = self.get_states_from_transitions(transitions)
+            
+        
         self.init = init
-        self.actlist = actlist
+        
+        if isinstance(actlist, list):
+            ## if actlist is a list, all states have the same actions
+            self.actlist = actlist
+        elif isinstance(actlist, dict):
+            ## if actlist is a dict, different actions for each state
+            self.actlist = actlist
+        
         self.terminals = terminals
         self.transitions = transitions
+        if self.transitions == {}:
+            print("Warning: Transition table is empty.")
         self.gamma = gamma
-        self.reward = {}
+        if reward:
+            self.reward = reward
+        else:
+            self.reward = {s : 0 for s in self.states}
+        #self.check_consistency()
 
     def R(self, state):
         """Return a numeric reward for this state."""
@@ -57,6 +73,34 @@ class MDP:
         else:
             return self.actlist
 
+    def get_states_from_transitions(self, transitions):
+        if isinstance(transitions, dict):
+            s1 = set(transitions.keys())
+            s2 = set([tr[1] for actions in transitions.values() 
+                              for effects in actions.values() for tr in effects])
+            return s1.union(s2)
+        else:
+            print('Could not retrieve states from transitions')
+            return None
+
+    def check_consistency(self):
+        # check that all states in transitions are valid
+        assert set(self.states) == self.get_states_from_transitions(self.transitions)
+        # check that init is a valid state
+        assert self.init in self.states
+        # check reward for each state
+        #assert set(self.reward.keys()) == set(self.states)
+        assert set(self.reward.keys()) == set(self.states)
+        # check that all terminals are valid states
+        assert all([t in self.states for t in self.terminals])
+        # check that probability distributions for all actions sum to 1
+        for s1, actions in self.transitions.items():
+            for a in actions.keys():
+                s = 0
+                for o in actions[a]:
+                    s += o[0]
+                assert abs(s - 1) < 0.001
+
 
 class GridMDP(MDP):
 
@@ -67,25 +111,41 @@ class GridMDP(MDP):
 
     def __init__(self, grid, terminals, init=(0, 0), gamma=.9):
         grid.reverse()  # because we want row 0 on bottom, not on top
-        MDP.__init__(self, init, actlist=orientations,
-                     terminals=terminals, gamma=gamma)
-        self.grid = grid
+        reward = {}
+        states = set()
         self.rows = len(grid)
         self.cols = len(grid[0])
+        self.grid = grid
         for x in range(self.cols):
             for y in range(self.rows):
-                self.reward[x, y] = grid[y][x]
                 if grid[y][x] is not None:
-                    self.states.add((x, y))
+                    states.add((x, y))
+                    reward[(x, y)] = grid[y][x]
+        self.states = states
+        actlist = orientations
+        transitions = {}
+        for s in states:
+            transitions[s] = {}
+            for a in actlist:
+                transitions[s][a] = self.calculate_T(s, a)
+        MDP.__init__(self, init, actlist=actlist,
+                     terminals=terminals, transitions = transitions, 
+                     reward = reward, states = states, gamma=gamma)
 
-    def T(self, state, action):
+    def calculate_T(self, state, action):
         if action is None:
             return [(0.0, state)]
         else:
             return [(0.8, self.go(state, action)),
                     (0.1, self.go(state, turn_right(action))),
                     (0.1, self.go(state, turn_left(action)))]
-
+    
+    def T(self, state, action):
+        if action is None:
+            return [(0.0, state)]
+        else:
+            return self.transitions[state][action]
+ 
     def go(self, state, direction):
         """Return the state that results from going in this direction."""
         state1 = vector_add(state, direction)
@@ -192,3 +252,19 @@ __doc__ += """
 ^   None   ^   .
 ^   >      ^   <
 """  # noqa
+
+"""
+s = { 'a' : {	'plan1' : [(0.2, 'a'), (0.3, 'b'), (0.3, 'c'), (0.2, 'd')],
+				'plan2' : [(0.4, 'a'), (0.15, 'b'), (0.45, 'c')],
+				'plan3' : [(0.2, 'a'), (0.5, 'b'), (0.3, 'c')],
+			},
+	  'b' : {	'plan1' : [(0.2, 'a'), (0.6, 'b'), (0.2, 'c'), (0.1, 'd')],
+				'plan2' : [(0.6, 'a'), (0.2, 'b'), (0.1, 'c'), (0.1, 'd')],
+				'plan3' : [(0.3, 'a'), (0.3, 'b'), (0.4, 'c')],
+			},
+	  'c' : {	'plan1' : [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')],
+				'plan2' : [(0.5, 'a'), (0.3, 'b'), (0.1, 'c'), (0.1, 'd')],
+				'plan3' : [(0.1, 'a'), (0.3, 'b'), (0.1, 'c'), (0.5, 'd')],
+	  		},
+	}
+"""

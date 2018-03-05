@@ -7,6 +7,61 @@ from mdp import MDP, policy_evaluation
 import random
 
 
+class PassiveDUEAgent:
+    
+    """Passive (non-learning) agent that uses direct utility estimation
+    on a given MDP and policy."""
+    def __init__(self, pi, mdp):
+        self.pi = pi
+        self.mdp = mdp
+        self.U = {}
+        self.s = None
+        self.a = None
+        self.s_history = []
+        self.r_history = []
+        self.init = mdp.init
+        
+    def __call__(self, percept):
+        s1, r1 = percept
+        self.s_history.append(s1)
+        self.r_history.append(r1)
+        ##
+        ##
+        if s1 in self.mdp.terminals:
+            self.s = self.a = None
+        else:
+            self.s, self.a = s1, self.pi[s1]
+        return self.a
+    
+    def estimate_U(self):
+        # this function can be called only if the MDP has reached a terminal state
+        # it will also reset the mdp history
+        assert self.a is None, 'MDP is not in terminal state'
+        assert len(self.s_history) == len(self.r_history)
+        # calculating the utilities based on the current iteration
+        U2 = {s : [] for s in set(self.s_history)}
+        for i in range(len(self.s_history)):
+            s = self.s_history[i]
+            U2[s] += [sum(self.r_history[i:])]
+        U2 = {k : sum(v)/max(len(v), 1) for k, v in U2.items()}
+        # resetting history
+        self.s_history, self.r_history = [], []
+        # setting the new utilities to the average of the previous 
+        # iteration and this one
+        for k in U2.keys():
+            if k in self.U.keys():
+                self.U[k] = (self.U[k] + U2[k]) /2
+            else:
+                self.U[k] = U2[k]
+        return self.U
+
+    def update_state(self, percept):
+        '''To be overridden in most cases. The default case
+        assumes the percept to be of type (state, reward)'''
+        return percept
+    
+
+
 class PassiveADPAgent:
 
     """Passive (non-learning) agent that uses adaptive dynamic programming
@@ -16,7 +71,7 @@ class PassiveADPAgent:
         """ Class for implementing modified Version of input MDP with
         an editable transition model P and a custom function T. """
         def __init__(self, init, actlist, terminals, gamma, states):
-            super().__init__(init, actlist, terminals, gamma)
+            super().__init__(init, actlist, terminals, states = states, gamma = gamma)
             nested_dict = lambda: defaultdict(nested_dict)
             # StackOverflow:whats-the-best-way-to-initialize-a-dict-of-dicts-in-python
             self.P = nested_dict()
@@ -35,15 +90,17 @@ class PassiveADPAgent:
         self.Ns1_sa = defaultdict(int)
         self.s = None
         self.a = None
+        self.visited = set()        # keeping track of visited states
 
     def __call__(self, percept):
         s1, r1 = percept
-        self.mdp.states.add(s1)  # Model keeps track of visited states.
-        R, P, mdp, pi = self.mdp.reward, self.mdp.P, self.mdp, self.pi
+        mdp = self.mdp
+        R, P, terminals, pi = mdp.reward, mdp.P, mdp.terminals, self.pi
         s, a, Nsa, Ns1_sa, U = self.s, self.a, self.Nsa, self.Ns1_sa, self.U
 
-        if s1 not in R:  # Reward is only available for visted state.
+        if s1 not in self.visited:  # Reward is only known for visited state.
             U[s1] = R[s1] = r1
+            self.visited.add(s1)
         if s is not None:
             Nsa[(s, a)] += 1
             Ns1_sa[(s1, s, a)] += 1
@@ -52,8 +109,11 @@ class PassiveADPAgent:
                       if (state, act) == (s, a) and freq != 0]:
                 P[(s, a)][t] = Ns1_sa[(t, s, a)] / Nsa[(s, a)]
 
-        U = policy_evaluation(pi, U, mdp)
-        if s1 in mdp.terminals:
+        self.U = policy_evaluation(pi, U, mdp)
+        ##
+        ##
+        self.Nsa, self.Ns1_sa = Nsa, Ns1_sa
+        if s1 in terminals:
             self.s = self.a = None
         else:
             self.s, self.a = s1, self.pi[s1]
