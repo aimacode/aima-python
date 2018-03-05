@@ -1,3 +1,6 @@
+import sys
+sys.path.append("./aima-core/agents/")
+sys.path.append("./aima-core/utils/")
 from IPython.display import HTML, display, clear_output
 from collections import defaultdict
 from agents import PolygonObstacle
