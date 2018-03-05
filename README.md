@@ -61,41 +61,41 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 2.1    | Agent                             | `Agent`                       | [`agents.py`](/aima-core/agents/agents.py#L71)            | Done | [Included](/aima-core/agents/agents.ipynb) |
 | 2.3    | Table-Driven-Vacuum-Agent         | `TableDrivenVacuumAgent`      | [`agents.py`](/aima-core/agents/agents.py#L178)            | Done | [Included](/aima-core/agents/agents.ipynb) |
 | 2.7    | Table-Driven-Agent                | `TableDrivenAgent`            | [`agents.py`](/aima-core/agents/agents.py#L173)            | Done | [Included](/aima-core/agents/agents.ipynb) |
-| 2.8    | Reflex-Vacuum-Agent               | `ReflexVacuumAgent`           | [`agents.py`][agents]           | Done | Included |
-| 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           |      | Included |
-| 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`][agents]           |      | Included |
-| 3      | Problem                           | `Problem`                     | [`search.py`](/aima-core/search/search.py)             | Done | Included |
-| 3      | Node                              | `Node`                        | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 2.8    | Reflex-Vacuum-Agent               | `ReflexVacuumAgent`           | [`agents.py`](/aima-core/agents/agents.py)             | Done | [Included](/aima-core/agents/agents.ipynb) |
+| 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`](/aima-core/agents/agents.py)             |      | [Included](/aima-core/agents/agents.ipynb) |
+| 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`](/aima-core/agents/agents.py)             |      | [Included](/aima-core/agents/agents.ipynb) |
+| 3      | Problem                           | `Problem`                     | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
+| 3      | Node                              | `Node`                        | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
 | 3      | Queue                             | `Queue`                       | [`utils.py`](/aima-core/utils/utils.py)             | Done | No Need  |
-| 3.1    | Simple-Problem-Solving-Agent      | `SimpleProblemSolvingAgent`   | [`search.py`](/aima-core/search/search.py)             | Done | Included |
-| 3.2    | Romania                           | `romania`                     | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3.1    | Simple-Problem-Solving-Agent      | `SimpleProblemSolvingAgent`   | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
+| 3.2    | Romania                           | `romania`                     | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
 | 3.7    | Tree-Search                       | `tree_search`                 | [`search.py`](/aima-core/search/search.py)             | Done |          |
 | 3.7    | Graph-Search                      | `graph_search`                | [`search.py`](/aima-core/search/search.py)             | Done |          |
-| 3.11   | Breadth-First-Search              | `breadth_first_search`        | [`search.py`](/aima-core/search/search.py)             | Done | Included |
-| 3.14   | Uniform-Cost-Search               | `uniform_cost_search`         | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3.11   | Breadth-First-Search              | `breadth_first_search`        | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
+| 3.14   | Uniform-Cost-Search               | `uniform_cost_search`         | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
 | 3.17   | Depth-Limited-Search              | `depth_limited_search`        | [`search.py`](/aima-core/search/search.py)             | Done |          |
 | 3.18   | Iterative-Deepening-Search        | `iterative_deepening_search`  | [`search.py`](/aima-core/search/search.py)             | Done |          |
-| 3.22   | Best-First-Search                 | `best_first_graph_search`     | [`search.py`](/aima-core/search/search.py)             | Done | Included |
-| 3.24   | A\*-Search                        | `astar_search`                | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 3.22   | Best-First-Search                 | `best_first_graph_search`     | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
+| 3.24   | A\*-Search                        | `astar_search`                | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
 | 3.26   | Recursive-Best-First-Search       | `recursive_best_first_search` | [`search.py`](/aima-core/search/search.py)             | Done |          |
-| 4.2    | Hill-Climbing                     | `hill_climbing`               | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 4.2    | Hill-Climbing                     | `hill_climbing`               | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
 | 4.5    | Simulated-Annealing               | `simulated_annealing`         | [`search.py`](/aima-core/search/search.py)             | Done |          |
-| 4.8    | Genetic-Algorithm                 | `genetic_algorithm`           | [`search.py`](/aima-core/search/search.py)             | Done | Included |
+| 4.8    | Genetic-Algorithm                 | `genetic_algorithm`           | [`search.py`](/aima-core/search/search.py)             | Done | [Included](/aima-core/search/search.ipynb) |
 | 4.11   | And-Or-Graph-Search               | `and_or_graph_search`         | [`search.py`](/aima-core/search/search.py)             | Done |          |
 | 4.21   | Online-DFS-Agent                  | `online_dfs_agent`            | [`search.py`](/aima-core/search/search.py)             |      |          |
 | 4.24   | LRTA\*-Agent                      | `LRTAStarAgent`               | [`search.py`](/aima-core/search/search.py)             | Done |          |
-| 5.3    | Minimax-Decision                  | `minimax_decision`            | [`games.py`](/aima-core/games/games.py)               | Done | Included |
-| 5.7    | Alpha-Beta-Search                 | `alphabeta_search`            | [`games.py`](/aima-core/games/games.py)               | Done | Included |
-| 6      | CSP                               | `CSP`                         | [`csp.py`](/aima-core/csp/csp.py)                   | Done | Included |
+| 5.3    | Minimax-Decision                  | `minimax_decision`            | [`games.py`](/aima-core/games/games.py)               | Done | [Included](/aima-core/games/games.ipynb) |
+| 5.7    | Alpha-Beta-Search                 | `alphabeta_search`            | [`games.py`](/aima-core/games/games.py)               | Done | [Included](/aima-core/games/games.ipynb) |
+| 6      | CSP                               | `CSP`                         | [`csp.py`](/aima-core/csp/csp.py)                   | Done | [Included](/aima-core/csp/csp.ipynb)|
 | 6.3    | AC-3                              | `AC3`                         | [`csp.py`](/aima-core/csp/csp.py)                   | Done |          |
-| 6.5    | Backtracking-Search               | `backtracking_search`         | [`csp.py`](/aima-core/csp/csp.py)                   | Done | Included |
+| 6.5    | Backtracking-Search               | `backtracking_search`         | [`csp.py`](/aima-core/csp/csp.py)                   | Done | [Included](/aima-core/csp/csp.ipynb) |
 | 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`](/aima-core/csp/csp.py)                   | Done |          |
-| 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`](/aima-core/csp/csp.py)                   | Done | Included |
-| 7      | KB                                | `KB`                          | [`logic.py`](/aima-core/logic/logic.py)               | Done | Included |
+| 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`](/aima-core/csp/csp.py)                   | Done | [Included](/aima-core/csp/csp.ipynb) |
+| 7      | KB                                | `KB`                          | [`logic.py`](/aima-core/logic/logic.py)               | Done | [Included](/aima-core/logic/logic.ipynb) |
 | 7.1    | KB-Agent                          | `KB_Agent`                    | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
-| 7.7    | Propositional Logic Sentence      | `Expr`                        | [`utils.py`][utils]             | Done | Included |
-| 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`](/aima-core/logic/logic.py)               | Done | Included |
-| 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`](/aima-core/logic/logic.py)               | Done | Included |
+| 7.7    | Propositional Logic Sentence      | `Expr`                        | [`utils.py`](/aima-core/utils/utils.py)               | Done | [Included] |
+| 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`](/aima-core/logic/logic.py)               | Done | [Included](/aima-core/logic/logic.ipynb) |
+| 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`](/aima-core/logic/logic.py)               | Done | [Included](/aima-core/logic/logic.ipynb) |
 | 7.14   | Convert to CNF                    | `to_cnf`                      | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
 | 7.15   | PL-FC-Entails?                    | `pl_fc_resolution`            | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
 | 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
@@ -103,7 +103,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |
 | 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
 | 9      | Subst                             | `subst`                       | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
-| 9.1    | Unify                             | `unify`                       | [`logic.py`](/aima-core/logic/logic.py)               | Done | Included |
+| 9.1    | Unify                             | `unify`                       | [`logic.py`](/aima-core/logic/logic.py)               | Done | [Included](/aima-core/logic/logic.ipynb) |
 | 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
 | 9.6    | FOL-BC-Ask                        | `fol_bc_ask`                  | [`logic.py`](/aima-core/logic/logic.py)               | Done |          |
 | 9.8    | Append                            |                               |                                 |      |          |
@@ -117,36 +117,36 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 11.5   | Hierarchical-Search               | `hierarchical_search`         | [`planning.py`](/aima-core/planning/planning.py)         |      |          |
 | 11.8   | Angelic-Search                    |                               |                                 |      |          |
 | 11.10  | Doubles-tennis                    | `double_tennis_problem`       | [`planning.py`](/aima-core/planning/planning.py)         |      |          |
-| 13     | Discrete Probability Distribution | `ProbDist`                    | [`probability.py`](/aima-core/probability/probability.py)   | Done | Included |
+| 13     | Discrete Probability Distribution | `ProbDist`                    | [`probability.py`](/aima-core/probability/probability.py)   | Done | [Included](/aima-core/probability/probability.ipynb) |
 | 13.1   | DT-Agent                          | `DTAgent`                     | [`probability.py`](/aima-core/probability/probability.py)   |      |          |
-| 14.9   | Enumeration-Ask                   | `enumeration_ask`             | [`probability.py`](/aima-core/probability/probability.py)   | Done | Included |
-| 14.11  | Elimination-Ask                   | `elimination_ask`             | [`probability.py`](/aima-core/probability/probability.py)   | Done | Included |
-| 14.13  | Prior-Sample                      | `prior_sample`                | [`probability.py`](/aima-core/probability/probability.py)   |      | Included |
-| 14.14  | Rejection-Sampling                | `rejection_sampling`          | [`probability.py`](/aima-core/probability/probability.py)   | Done | Included |
-| 14.15  | Likelihood-Weighting              | `likelihood_weighting`        | [`probability.py`](/aima-core/probability/probability.py)   | Done | Included |
-| 14.16  | Gibbs-Ask                         | `gibbs_ask`                   | [`probability.py`](/aima-core/probability/probability.py)   | Done | Included |
+| 14.9   | Enumeration-Ask                   | `enumeration_ask`             | [`probability.py`](/aima-core/probability/probability.py)   | Done | [Included](/aima-core/probability/probability.ipynb) |
+| 14.11  | Elimination-Ask                   | `elimination_ask`             | [`probability.py`](/aima-core/probability/probability.py)   | Done | [Included](/aima-core/probability/probability.ipynb) |
+| 14.13  | Prior-Sample                      | `prior_sample`                | [`probability.py`](/aima-core/probability/probability.py)   |      | [Included](/aima-core/probability/probability.ipynb) |
+| 14.14  | Rejection-Sampling                | `rejection_sampling`          | [`probability.py`](/aima-core/probability/probability.py)   | Done | [Included](/aima-core/probability/probability.ipynb) |
+| 14.15  | Likelihood-Weighting              | `likelihood_weighting`        | [`probability.py`](/aima-core/probability/probability.py)   | Done | [Included](/aima-core/probability/probability.ipynb) |
+| 14.16  | Gibbs-Ask                         | `gibbs_ask`                   | [`probability.py`](/aima-core/probability/probability.py)   | Done | [Included](/aima-core/probability/probability.ipynb) |
 | 15.4   | Forward-Backward                  | `forward_backward`            | [`probability.py`](/aima-core/probability/probability.py)   | Done |          |
 | 15.6   | Fixed-Lag-Smoothing               | `fixed_lag_smoothing`         | [`probability.py`](/aima-core/probability/probability.py)   | Done |          |
 | 15.17  | Particle-Filtering                | `particle_filtering`          | [`probability.py`](/aima-core/probability/probability.py)   | Done |          |
 | 16.9   | Information-Gathering-Agent       |                               |                                 |      |          |
-| 17.4   | Value-Iteration                   | `value_iteration`             | [`mdp.py`](/aima-core/mdp/mdp.py)                   | Done | Included |
-| 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`](/aima-core/mdp/mdp.py)                   | Done | Included |
+| 17.4   | Value-Iteration                   | `value_iteration`             | [`mdp.py`](/aima-core/mdp/mdp.py)                   | Done | [Included](/aima-core/mdp/mdp.ipynb) |
+| 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`](/aima-core/mdp/mdp.py)                   | Done | [Included](/aima-core/mdp/mdp.ipynb) |
 | 17.9   | POMDP-Value-Iteration             |                               |                                 |      |          |
-| 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`](/aima-core/learning/learning.py)         | Done | Included |
+| 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`](/aima-core/learning/learning.py)         | Done | [Included](/aima-core/learning/learning.ipynb) |
 | 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`](/aima-core/learning/learning.py)         |      |          |
 | 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`](/aima-core/learning/learning.py)  \*     |      |          |
-| 18.24  | Back-Prop-Learning                | `BackPropagationLearner`      | [`learning.py`](/aima-core/learning/learning.py)         | Done | Included |
-| 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`](/aima-core/learning/learning.py)         | Done | Included |
-| 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](/aima-core/knowledge/knowledge.py)    | Done | Included |
-| 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](/aima-core/knowledge/knowledge.py)    | Done | Included |
+| 18.24  | Back-Prop-Learning                | `BackPropagationLearner`      | [`learning.py`](/aima-core/learning/learning.py)         | Done | [Included](/aima-core/learning/learning.ipynb) |
+| 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`](/aima-core/learning/learning.py)         | Done | [Included](/aima-core/knowledge/knowledge.ipynb) |
+| 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](/aima-core/knowledge/knowledge.py)    | Done | [Included](/aima-core/knowledge/knowledge.ipynb) |
+| 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](/aima-core/knowledge/knowledge.py)    | Done | [Included](/aima-core/knowledge/knowledge.ipynb)  |
 | 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](/aima-core/knowledge/knowledge.py)    | Done |          |
 | 19.12  | FOIL                              | `FOIL_container`              | [`knowledge.py`](/aima-core/knowledge/knowledge.py)    | Done |          |
-| 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`](/aima-core/rl/rl.py)                     | Done | Included |
-| 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`](/aima-core/rl/rl.py)                     | Done | Included |
-| 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`rl.py`](/aima-core/rl/rl.py)                     | Done | Included |
-| 22.1   | HITS                              | `HITS`                        | [`nlp.py`](/aima-core/nlp/nlp.py)                   | Done | Included |
-| 23     | Chart-Parse                       | `Chart`                       | [`nlp.py`](/aima-core/nlp/nlp.py)                   | Done | Included |
-| 23.5   | CYK-Parse                         | `CYK_parse`                   | [`nlp.py`](/aima-core/nlp/nlp.py)                   | Done | Included |
+| 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`](/aima-core/rl/rl.py)                     | Done | [Included] |
+| 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`](/aima-core/rl/rl.py)                     | Done | [Included] |
+| 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`rl.py`](/aima-core/rl/rl.py)                     | Done | [Included] |
+| 22.1   | HITS                              | `HITS`                        | [`nlp.py`](/aima-core/nlp/nlp.py)                   | Done | [Included](/aima-core/nlp/nlp.ipynb)  |
+| 23     | Chart-Parse                       | `Chart`                       | [`nlp.py`](/aima-core/nlp/nlp.py)                   | Done | [Included](/aima-core/nlp/nlp.ipynb)  |
+| 23.5   | CYK-Parse                         | `CYK_parse`                   | [`nlp.py`](/aima-core/nlp/nlp.py)                   | Done | [Included](/aima-core/nlp/nlp.ipynb) |
 | 25.9   | Monte-Carlo-Localization          | `monte_carlo_localization`    | [`probability.py`](/aima-core/probability/probability.py)   | Done |          |
 
 
@@ -171,7 +171,7 @@ Here is a table of the implemented data structures, the figure, name of the impl
 Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially @darius, @SnShine, @reachtarunhere, @MrDupin, and @Chipe1.
 
 <!---Reference Links-->
-[agents]:../master/agents.py
+(/aima-core/agents/agents.py)  :../master/agents.py
 (/aima-core/csp/csp.py)  :../master/csp.py
 (/aima-core/games/games.py)  :../master/games.py
 [grid]:../master/grid.py
@@ -184,5 +184,5 @@ Many thanks for contributions over the years. I got bug reports, corrected code,
 (/aima-core/probability/probability.py)  :../master/probability.py
 (/aima-core/rl/rl.py)  :../master/rl.py
 (/aima-core/search/search.py)  :../master/search.py
-[utils]:../master/utils.py
+(/aima-core/utils/utils.py)  :../master/utils.py
 [text]:../master/text.py
