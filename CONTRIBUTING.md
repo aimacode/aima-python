@@ -1,14 +1,14 @@
 How to Contribute to aima-python
 ==========================
 
-Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5663121491361792/) student, or an independent contributor, here is a guide on how you can help.
+Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5674023002832896/) student, or an independent contributor, here is a guide on how you can help.
 
-First of all, you can read these write-ups from past GSoC students to get an idea on what you can do for the project. [Chipe1](https://github.com/aimacode/aima-python/issues/641) - [MrDupin](https://github.com/aimacode/aima-python/issues/632)
+First of all, you can read these write-ups from past GSoC students to get an idea about what you can do for the project. [Chipe1](https://github.com/aimacode/aima-python/issues/641) - [MrDupin](https://github.com/aimacode/aima-python/issues/632)
 
 In general, the main ways you can contribute to the repository are the following:
 
 1. Implement algorithms from the [list of algorithms](https://github.com/aimacode/aima-python/blob/master/README.md#index-of-algorithms).
-1. Add tests for algorithms that are missing them (you can also add more tests to algorithms that already have some).
+1. Add tests for algorithms.
 1. Take care of [issues](https://github.com/aimacode/aima-python/issues).
 1. Write on the notebooks (`.ipynb` files).
 1. Add and edit documentation (the docstrings in `.py` files).
@@ -21,20 +21,16 @@ In more detail:
 - Look at the [issues](https://github.com/aimacode/aima-python/issues) and pick one to work on.
 - One of the issues is that some algorithms are missing from the [list of algorithms](https://github.com/aimacode/aima-python/blob/master/README.md#index-of-algorithms) and that some don't have tests.
 
-## Port to Python 3; Pythonic Idioms; py.test
+## Port to Python 3; Pythonic Idioms
 
 - Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formatting to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
 - Replace old Lisp-based idioms with proper Python idioms. For example, we have many functions that were taken directly from Common Lisp, such as the `every` function: `every(callable, items)` returns true if every element of `items` is callable. This is good Lisp style, but good Python style would be to use `all` and a generator expression: `all(callable(f) for f in items)`. Eventually, fix all calls to these legacy Lisp functions and then remove the functions.
-- Add more tests in `test_*.py` files. Strive for terseness; it is ok to group multiple asserts into one `def test_something():` function. Move most tests to `test_*.py`, but it is fine to have a single `doctest` example in the docstring of a function in the `.py` file, if the purpose of the doctest is to explain how to use the function, rather than test the implementation.
 
 ## New and Improved Algorithms
 
 - Implement functions that were in the third edition of the book but were not yet implemented in the code. Check the [list of pseudocode algorithms (pdf)](https://github.com/aimacode/pseudocode/blob/master/aima3e-algorithms.pdf) to see what's missing.
 - As we finish chapters for the new fourth edition, we will share the new pseudocode in the [`aima-pseudocode`](https://github.com/aimacode/aima-pseudocode) repository, and describe what changes are necessary.
 We hope to have an `algorithm-name.md` file for each algorithm, eventually; it would be great if contributors could add some for the existing algorithms.
-- Give examples of how to use the code in the `.ipynb` files.
-
-We still support a legacy branch, `aima3python2` (for the third edition of the textbook and for Python 2 code).
 
 ## Jupyter Notebooks
 
@@ -69,15 +65,6 @@ a one-line docstring suffices. It is rarely necessary to list what each argument
 - At some point I may add [Pep 484](https://www.python.org/dev/peps/pep-0484/) type annotations, but I think I'll hold off for now;
   I want to get more experience with them, and some people may still be in Python 3.4.
 
-
-Contributing a Patch
-====================
-
-1. Submit an issue describing your proposed change to the repo in question (or work on an existing issue).
-1. The repo owner will respond to your issue promptly.
-1. Fork the desired repo, develop and test your code changes.
-1. Submit a pull request.
-
 Reporting Issues
 ================
 
@@ -97,28 +84,6 @@ Patch Rules
   without your patch.
 
 - Follow the style guidelines described above.
-
-Running the Test-Suite
-=====================
-
-The minimal requirement for running the testsuite is ``py.test``.  You can
-install it with:
-
-    pip install pytest
-
-Clone this repository:
-
-    git clone https://github.com/aimacode/aima-python.git
-
-Fetch the aima-data submodule:
-
-    cd aima-python
-    git submodule init
-    git submodule update
-
-Then you can run the testsuite from the `aima-python` or `tests` directory with:
-
-    py.test
 
 # Choice of Programming Languages
 
