@@ -141,9 +141,9 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](/aima-core/knowledge/knowledge.py)    | Done | [Included](/aima-core/knowledge/knowledge.ipynb)  |
 | 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](/aima-core/knowledge/knowledge.py)    | Done |          |
 | 19.12  | FOIL                              | `FOIL_container`              | [`knowledge.py`](/aima-core/knowledge/knowledge.py)    | Done |          |
-| 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`](/aima-core/rl/rl.py)                     | Done | [Included] |
-| 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`](/aima-core/rl/rl.py)                     | Done | [Included] |
-| 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`rl.py`](/aima-core/rl/rl.py)                     | Done | [Included] |
+| 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`](/aima-core/rl/rl.py)                     | Done | [Included](/aima-core/rl/rl.ipynb)  |
+| 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`](/aima-core/rl/rl.py)                     | Done | [Included](/aima-core/rl/rl.ipynb)  |
+| 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`rl.py`](/aima-core/rl/rl.py)                     | Done | [Included](/aima-core/rl/rl.ipynb)  |
 | 22.1   | HITS                              | `HITS`                        | [`nlp.py`](/aima-core/nlp/nlp.py)                   | Done | [Included](/aima-core/nlp/nlp.ipynb)  |
 | 23     | Chart-Parse                       | `Chart`                       | [`nlp.py`](/aima-core/nlp/nlp.py)                   | Done | [Included](/aima-core/nlp/nlp.ipynb)  |
 | 23.5   | CYK-Parse                         | `CYK_parse`                   | [`nlp.py`](/aima-core/nlp/nlp.py)                   | Done | [Included](/aima-core/nlp/nlp.ipynb) |
