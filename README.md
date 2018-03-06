@@ -190,7 +190,7 @@ Here is a table of the implemented data structures, the figure, name of the impl
 | **Figure** | **Name (in repository)** | **File** |
 |:-------|:--------------------------------|:--------------------------|
 | 3.2    | romania_map                     | [`search.py`][search]     |
-| 4.9    | vacumm_world                    | [`search.py`][search]     |
+| 4.9    | vacuum_world                    | [`search.py`][search]     |
 | 4.23   | one_dim_state_space             | [`search.py`][search]     |
 | 6.1    | australia_map                   | [`search.py`][search]     |
 | 7.13   | wumpus_world_inference          | [`logic.py`][logic]       |
