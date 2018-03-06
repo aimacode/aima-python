@@ -49,7 +49,39 @@ Then to run the tests:
 
 And you are good to go!
 
+# Index of Notebooks (Chapter-wise)
 
+Here is a table of notebooks relevant to each chapter of the book Artificial Intelligence : A Modern Approach (as of the **3rd** edition))).
+
+| **Chapter** 	| **Chapter Name (in 3<sup>rd</sup> edition)** 	| **Notebook**                             	|
+|-------------	|----------------------------------------------	|------------------------------------------	|
+| 1           	| Introduction                                 	| None                                     	|
+| 2           	| Intelligent Agents                           	| [`agents.ipynb`](agents.ipynb)           	|
+| 3           	| Solving Problems by Searching                	| [`search.ipynb`](search.ipynb)           	|
+| 4           	| Beyond Classical Search                      	| [`search.ipynb`](search.ipynb)           	|
+| 5           	| Adversarial Search                           	| [`games.ipynb`](games.ipynb)             	|
+| 6           	| Constraint Satisfaction Problems             	| [`csp.ipynb`](csp.ipynb)                 	|
+| 7           	| Logical Agents                               	| [`logic.ipynb`](logic.ipynb)             	|
+| 8           	| First-Order Logic                            	| None                                     	|
+| 9           	| Inference in First-Order Logic               	| [`logic.ipynb`](logic.ipynb)             	|
+| 10          	| Classical Planning                           	| [`planning.ipynb`](planning.ipynb)       	|
+| 11          	| Planning and Acting in the Real World        	| [`planning.ipynb`](planning.ipynb)       	|
+| 12          	| Knowledge Representation                     	| None                                     	|
+| 13          	| Quantifying Uncertainty                      	| [`probability.ipynb`](probability.ipynb) 	|
+| 14          	| Probabilistic Reasoning                      	| [`probability.ipynb`](probability.ipynb) 	|
+| 15          	| Probabilistic Reasoning over Time            	| [`probability.ipynb`](probability.ipynb) 	|
+| 16          	| Making Simple Decisions                      	|                                          	|
+| 17          	| Making Complex Decisions                     	| [`mdp.ipynb`](mdp.ipynb)                 	|
+| 18          	| Learning from Examples                       	| [`learning.ipynb`](learning.ipynb)       	|
+| 19          	| Knowledge in Learning                        	| [`knowledge.ipynb`](knowledge.ipynb)     	|
+| 20          	| Learning Probabilistic Models                	| None                                     	|
+| 21          	| Reinforcement Learning                       	| [`rl.ipynb`](rl.ipynb)                   	|
+| 22          	| Natural Language Processing                  	| [`nlp.ipynb`](nlp.ipynb)                 	|
+| 23          	| Natural Language for Communication           	| [`nlp.ipynb`](nlp.ipynb)                 	|
+| 24          	| Perception                                   	| None                                     	|
+| 25          	| Robotics                                     	| [`probability.ipynb`](probability.ipynb) 	|
+| 26          	| Philosophical Foundations                    	| None                                     	|
+| 27          	| AI : The Present and Future                  	| None                                     	|
 # Index of Algorithms
 
 Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was made for the third edition of the book and is being updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented. Another great place for contributors to start is by adding tests and writing on the notebooks. You can see which algorithms have tests and notebook sections below. If the algorithm you want to work on is covered, don't worry! You can still add more tests and provide some examples of use in the notebook!
