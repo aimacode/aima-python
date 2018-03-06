@@ -51,7 +51,7 @@ And you are good to go!
 
 # Index of Notebooks (Chapter-wise)
 
-Here is a table of notebooks relevant to each chapter of the book Artificial Intelligence : A Modern Approach (as of the **3rd** edition))).
+Here is a table of notebooks relevant to each chapter of the book Artificial Intelligence : A Modern Approach (as of the **3rd** edition).
 
 | **Chapter** 	| **Chapter Name (in 3<sup>rd</sup> edition)** 	| **Notebook**                             	|
 |-------------	|----------------------------------------------	|------------------------------------------	|
@@ -70,7 +70,7 @@ Here is a table of notebooks relevant to each chapter of the book Artificial Int
 | 13          	| Quantifying Uncertainty                      	| [`probability.ipynb`](probability.ipynb) 	|
 | 14          	| Probabilistic Reasoning                      	| [`probability.ipynb`](probability.ipynb) 	|
 | 15          	| Probabilistic Reasoning over Time            	| [`probability.ipynb`](probability.ipynb) 	|
-| 16          	| Making Simple Decisions                      	|                                          	|
+| 16          	| Making Simple Decisions                      	| None                                     	|
 | 17          	| Making Complex Decisions                     	| [`mdp.ipynb`](mdp.ipynb)                 	|
 | 18          	| Learning from Examples                       	| [`learning.ipynb`](learning.ipynb)       	|
 | 19          	| Knowledge in Learning                        	| [`knowledge.ipynb`](knowledge.ipynb)     	|
@@ -82,6 +82,7 @@ Here is a table of notebooks relevant to each chapter of the book Artificial Int
 | 25          	| Robotics                                     	| [`probability.ipynb`](probability.ipynb) 	|
 | 26          	| Philosophical Foundations                    	| None                                     	|
 | 27          	| AI : The Present and Future                  	| None                                     	|
+
 # Index of Algorithms
 
 Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was made for the third edition of the book and is being updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented. Another great place for contributors to start is by adding tests and writing on the notebooks. You can see which algorithms have tests and notebook sections below. If the algorithm you want to work on is covered, don't worry! You can still add more tests and provide some examples of use in the notebook!
