@@ -480,7 +480,7 @@ class EightPuzzle(Problem):
 
         if inversion % 2 != 0:
             check = False
-        print(check)
+        return check
     
     def h(self, node):
         ''' Return the heuristic value for a given state. Default heuristic function used is 
