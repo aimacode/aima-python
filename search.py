@@ -154,7 +154,7 @@ class SimpleProblemSolvingAgentProgram:
     def __call__(self, percept):
         """[Figure 3.1] Formulate a goal and problem, then
         search for a sequence of actions to solve it."""
-        self.state = self.update_state(percept)
+        self.state = self.update_state(self.state, percept)
         if not self.seq:
             goal = self.formulate_goal(self.state)
             problem = self.formulate_problem(self.state, goal)
@@ -163,7 +163,7 @@ class SimpleProblemSolvingAgentProgram:
                 return None
         return self.seq.pop(0)
 
-    def update_state(self, percept):
+    def update_state(self, state, percept):
         raise NotImplementedError
 
     def formulate_goal(self, state):
@@ -960,12 +960,15 @@ class Graph:
 
     def nodes(self):
         """Return a list of nodes in the graph."""
-        return list(self.graph_dict.keys())
+        s1 = set([k for k in self.graph_dict.keys()])
+        s2 = set([k2 for v in self.graph_dict.values() for k2, v2 in v.items()])
+        nodes = s1.union(s2)
+        return list(nodes)
 
 
-def UndirectedGraph(dict=None):
+def UndirectedGraph(graph_dict=None):
     """Build a Graph where every edge (including future ones) goes both ways."""
-    return Graph(dict=dict, directed=False)
+    return Graph(graph_dict = graph_dict, directed=False)
 
 
 def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
