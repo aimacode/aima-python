@@ -109,10 +109,10 @@ class Node:
 
     def child_node(self, problem, action):
         """[Figure 3.10]"""
-        next = problem.result(self.state, action)
-        return Node(next, self, action,
+        next_node = problem.result(self.state, action)
+        return Node(next_node, self, action,
                     problem.path_cost(self.path_cost, self.state,
-                                      action, next))
+                                      action, next_node))
 
     def solution(self):
         """Return the sequence of actions to go from the root to this node."""
@@ -576,10 +576,10 @@ def simulated_annealing(problem, schedule=exp_schedule()):
         neighbors = current.expand(problem)
         if not neighbors:
             return current.state
-        next = random.choice(neighbors)
-        delta_e = problem.value(next.state) - problem.value(current.state)
+        next_choice = random.choice(neighbors)
+        delta_e = problem.value(next_choice.state) - problem.value(current.state)
         if delta_e > 0 or probability(math.exp(delta_e / T)):
-            current = next
+            current = next_choice
 
 def simulated_annealing_full(problem, schedule=exp_schedule()):
     """ This version returns all the states encountered in reaching 
@@ -594,10 +594,10 @@ def simulated_annealing_full(problem, schedule=exp_schedule()):
         neighbors = current.expand(problem)
         if not neighbors:
             return current.state
-        next = random.choice(neighbors)
-        delta_e = problem.value(next.state) - problem.value(current.state)
+        next_choice = random.choice(neighbors)
+        delta_e = problem.value(next_choice.state) - problem.value(current.state)
         if delta_e > 0 or probability(math.exp(delta_e / T)):
-            current = next
+            current = next_choice
 
 def and_or_graph_search(problem):
     """[Figure 4.11]Used when the environment is nondeterministic and completely observable.
