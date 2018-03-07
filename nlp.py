@@ -267,12 +267,12 @@ E_Prob_Chomsky_ = ProbGrammar('E_Prob_Chomsky_',
     ProbRules(
         S='NP VP [1]',
         NP='NP PP [0.4] | Noun Verb [0.6]',
-        PP='Preposition NNP [1]',
+        PP='Preposition NP [1]',
         VP='Verb NP [0.7] | VP PP [0.3]',
         ),
     ProbLexicon(
-        Noun='astronomers [0.18] | ears [0.16] | stars [0.32] | telescopes [0.18] | \'\' [0.16]',
-        Verb='saw [1]',
+        Noun='astronomers [0.18] | eyes [0.32] | stars [0.32] | telescopes [0.18]',
+        Verb='saw [0.5] | \'\' [0.5]',
         Preposition='with [1]'
         ))
 
