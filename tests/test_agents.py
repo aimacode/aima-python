@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0,'./../')
 import random
 from agents import Direction
 from agents import Agent

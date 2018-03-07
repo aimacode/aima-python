@@ -263,7 +263,18 @@ E_Prob_Chomsky = ProbGrammar('E_Prob_Chomsky', # A Probabilistic Grammar in CNF
                                 Adjective='good [0.5] | new [0.2] | sad [0.3]',
                                 Verb='is [0.5] | say [0.3] | are [0.2]'
                              ))
-
+E_Prob_Chomsky_ = ProbGrammar('E_Prob_Chomsky_',
+    ProbRules(
+        S='NP VP [1]',
+        NP='NP PP [0.4] | Noun Verb [0.6]',
+        PP='Preposition NNP [1]',
+        VP='Verb NP [0.7] | VP PP [0.3]',
+        ),
+    ProbLexicon(
+        Noun='astronomers [0.18] | ears [0.16] | stars [0.32] | telescopes [0.18] | \'\' [0.16]',
+        Verb='saw [1]',
+        Preposition='with [1]'
+        ))
 
 # ______________________________________________________________________________
 # Chart Parsing
