@@ -131,6 +131,38 @@ def test_ReflexVacuumAgent() :
     # check final status of the environment
     assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
 
+def test_SimpleReflexAgentProgram():
+    class Rule:
+        
+        def __init__(self, state, action):
+            self.__state = state
+            self.action = action
+            
+        def matches(self, state):
+            return self.__state == state
+        
+    loc_A = (0, 0)
+    loc_B = (1, 0)
+    
+    # create rules for a two state Vacuum Environment
+    rules = [Rule((loc_A, "Dirty"), "Suck"), Rule((loc_A, "Clean"), "Right"),
+            Rule((loc_B, "Dirty"), "Suck"), Rule((loc_B, "Clean"), "Left")]
+    
+    def interpret_input(state):
+        return state
+    
+    # create a program and then an object of the SimpleReflexAgentProgram
+    program = SimpleReflexAgentProgram(rules, interpret_input) 
+    agent = Agent(program)
+    # create an object of TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # add agent to the environment
+    environment.add_thing(agent)
+    # run the environment
+    environment.run()
+    # check final status of the environment
+    assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+
 
 def test_ModelBasedVacuumAgent() :
     # create an object of the ModelBasedVacuumAgent
