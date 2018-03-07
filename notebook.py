@@ -900,6 +900,7 @@ from ipywidgets import interact
 import ipywidgets as widgets
 from IPython.display import display
 import time
+from search import GraphProblem, romania_map
 
 def show_map(graph_data, node_colors = None):
     G = nx.Graph(graph_data['graph_dict'])
@@ -984,17 +985,21 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
     
     if user_input == True:
         node_colors = dict(initial_node_colors)
-        if algorithm == None:
-            algorithms = {"Breadth First Tree Search": breadth_first_tree_search,
-                          "Depth First Tree Search": depth_first_tree_search,
-                          "Breadth First Search": breadth_first_search,
-                          "Depth First Graph Search": depth_first_graph_search,
-                          "Uniform Cost Search": uniform_cost_search,
-                          "A-star Search": astar_search}
+        if isinstance(algorithm, dict):
+            assert set(algorithm.keys()).issubset(set(["Breadth First Tree Search", 
+                                                       "Depth First Tree Search", 
+                                                       "Breadth First Search", 
+                                                       "Depth First Graph Search", 
+                                                       "Uniform Cost Search", 
+                                                       "A-star Search"]))
+
             algo_dropdown = widgets.Dropdown(description = "Search algorithm: ",
-                                             options = sorted(list(algorithms.keys())),
+                                             options = sorted(list(algorithm.keys())),
                                              value = "Breadth First Tree Search")
             display(algo_dropdown)
+        elif algorithm is None:
+            print("No algorithm to run.")
+            return 0
         
         def slider_callback(iteration):
             # don't show graph for the first time running the cell calling this function
@@ -1010,11 +1015,7 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
                 problem = GraphProblem(start_dropdown.value, end_dropdown.value, romania_map)
                 global all_node_colors
                 
-                if algorithm == None:
-                    user_algorithm = algorithms[algo_dropdown.value]
-                
-#                 print(user_algorithm)
-#                 print(problem)
+                user_algorithm = algorithm[algo_dropdown.value]
                 
                 iterations, all_node_colors, node = user_algorithm(problem)
                 solution = node.solution()
@@ -1024,7 +1025,7 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
                 
                 for i in range(slider.max + 1):
                     slider.value = i
-#                     time.sleep(.5)
+                    #time.sleep(.5)
                          
         start_dropdown = widgets.Dropdown(description = "Start city: ",
                                           options = sorted(list(node_colors.keys())), value = "Arad")
