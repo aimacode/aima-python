@@ -154,7 +154,7 @@ class SimpleProblemSolvingAgentProgram:
     def __call__(self, percept):
         """[Figure 3.1] Formulate a goal and problem, then
         search for a sequence of actions to solve it."""
-        self.state = self.update_state(self.state, percept)
+        self.state = self.update_state(percept)
         if not self.seq:
             goal = self.formulate_goal(self.state)
             problem = self.formulate_problem(self.state, goal)
@@ -182,7 +182,7 @@ class SimpleProblemSolvingAgentProgram:
 def tree_search(problem, frontier):
     """Search through the successors of a problem to find a goal.
     The argument frontier should be an empty queue.
-    Don't worry about repeated paths to a state. [Figure 3.7]"""
+    Repeats infinites in case of loops. [Figure 3.7]"""
     frontier.append(Node(problem.initial))
     while frontier:
         node = frontier.pop()
@@ -195,6 +195,7 @@ def tree_search(problem, frontier):
 def graph_search(problem, frontier):
     """Search through the successors of a problem to find a goal.
     The argument frontier should be an empty queue.
+    Does not get trapped by loops.
     If two paths reach a state, only use the first one. [Figure 3.7]"""
     frontier.append(Node(problem.initial))
     explored = set()
@@ -225,7 +226,11 @@ def depth_first_graph_search(problem):
 
 
 def breadth_first_search(problem):
-    """[Figure 3.11]"""
+    """[Figure 3.11]
+	Note that this function can be implemented in a 
+	single line as below:
+	return graph_search(problem, FIFOQueue())
+    """
     node = Node(problem.initial)
     if problem.goal_test(node.state):
         return node
@@ -730,10 +735,10 @@ class OnlineSearchProblem(Problem):
         self.graph = graph
 
     def actions(self, state):
-        return self.graph.dict[state].keys()
+        return self.graph.graph_dict[state].keys()
 
     def output(self, state, action):
-        return self.graph.dict[state][action]
+        return self.graph.graph_dict[state][action]
 
     def h(self, state):
         """Returns least possible cost to reach a goal for the given state."""
@@ -920,16 +925,16 @@ class Graph:
     length of the link from A to B.  'Lengths' can actually be any object at
     all, and nodes can be any hashable object."""
 
-    def __init__(self, dict=None, directed=True):
-        self.dict = dict or {}
+    def __init__(self, graph_dict=None, directed=True):
+        self.graph_dict = graph_dict or {}
         self.directed = directed
         if not directed:
             self.make_undirected()
 
     def make_undirected(self):
         """Make a digraph into an undirected graph by adding symmetric edges."""
-        for a in list(self.dict.keys()):
-            for (b, dist) in self.dict[a].items():
+        for a in list(self.graph_dict.keys()):
+            for (b, dist) in self.graph_dict[a].items():
                 self.connect1(b, a, dist)
 
     def connect(self, A, B, distance=1):
@@ -941,13 +946,13 @@ class Graph:
 
     def connect1(self, A, B, distance):
         """Add a link from A to B of given distance, in one direction only."""
-        self.dict.setdefault(A, {})[B] = distance
+        self.graph_dict.setdefault(A, {})[B] = distance
 
     def get(self, a, b=None):
         """Return a link distance or a dict of {node: distance} entries.
         .get(a,b) returns the distance or None;
         .get(a) returns a dict of {node: distance} entries, possibly {}."""
-        links = self.dict.setdefault(a, {})
+        links = self.graph_dict.setdefault(a, {})
         if b is None:
             return links
         else:
@@ -955,7 +960,7 @@ class Graph:
 
     def nodes(self):
         """Return a list of nodes in the graph."""
-        return list(self.dict.keys())
+        return list(self.graph_dict.keys())
 
 
 def UndirectedGraph(dict=None):
@@ -1097,7 +1102,7 @@ class GraphProblem(Problem):
     def find_min_edge(self):
         """Find minimum value of edges."""
         m = infinity
-        for d in self.graph.dict.values():
+        for d in self.graph.graph_dict.values():
             local_min = min(d.values())
             m = min(m, local_min)
 
