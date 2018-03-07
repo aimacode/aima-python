@@ -2,6 +2,10 @@ import pytest
 from logic import *
 from utils import expr_handle_infix_ops, count, Symbol
 
+definite_clauses_KB = PropDefiniteKB()
+for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B', 'C']:
+    definite_clauses_KB.tell(expr(clause))           
+
 
 def test_is_symbol():
     assert is_symbol('x')
@@ -154,6 +158,10 @@ def test_unify():
 
 def test_pl_fc_entails():
     assert pl_fc_entails(horn_clauses_KB, expr('Q'))
+    assert pl_fc_entails(definite_clauses_KB, expr('G'))
+    assert pl_fc_entails(definite_clauses_KB, expr('H'))
+    assert not pl_fc_entails(definite_clauses_KB, expr('I'))
+    assert not pl_fc_entails(definite_clauses_KB, expr('J'))
     assert not pl_fc_entails(horn_clauses_KB, expr('SomethingSilly'))
 
 
