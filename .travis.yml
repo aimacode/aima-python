@@ -13,6 +13,8 @@ install:
   - pip install ipython
   - pip install matplotlib
   - pip install networkx
+  - pip install ipywidgets
+  - pip install time
 
 script:
   - py.test
