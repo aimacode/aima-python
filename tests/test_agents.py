@@ -2,7 +2,8 @@ import random
 from agents import Direction
 from agents import Agent
 from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
-                   RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram
+                   RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram, 
+		   SimpleReflexAgentProgram, rule_match
 
 
 random.seed("aima-python")
