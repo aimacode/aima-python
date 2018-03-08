@@ -16,13 +16,13 @@ from itertools import chain, combinations
 
 
 def sequence(iterable):
-    """Coerce iterable to sequence, if it is not already one."""
+    """Coerces iterable to sequence, if it is not already one."""
     return (iterable if isinstance(iterable, collections.abc.Sequence)
             else tuple(iterable))
 
 
 def removeall(item, seq):
-    """Return a copy of seq (or string) with all occurrences of item removed."""
+    """Returns a copy of seq (or string) with all occurrences of item removed."""
     if isinstance(seq, str):
         return seq.replace(item, '')
     else:
@@ -30,17 +30,17 @@ def removeall(item, seq):
 
 
 def unique(seq):  # TODO: replace with set
-    """Remove duplicate elements from seq. Assumes hashable elements."""
+    """Removes duplicate elements from seq. Assumes hashable elements."""
     return list(set(seq))
 
 
 def count(seq):
-    """Count the number of items in sequence that are interpreted as true."""
+    """Counts the number of items in sequence that are interpreted as true."""
     return sum(bool(x) for x in seq)
 
 
 def product(numbers):
-    """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
+    """Returns the product of the numbers, e.g. product([2, 3, 10]) == 60"""
     result = 1
     for x in numbers:
         result *= x
@@ -48,13 +48,8 @@ def product(numbers):
 
 
 def first(iterable, default=None):
-    """Return the first element of an iterable or the next element of a generator; or default."""
-    try:
-        return iterable[0]
-    except IndexError:
-        return default
-    except TypeError:
-        return next(iterable, default)
+    """Returns the first element of an iterable or the next element of a generator; or default."""
+    return next(iter(iterable), default)
 
 
 def is_in(elt, seq):
@@ -63,13 +58,14 @@ def is_in(elt, seq):
 
 
 def mode(data):
-    """Return the most common data item. If there are ties, return any one of them."""
+    """Returns the most common data item. If there are ties, return any one of them."""
     [(item, count)] = collections.Counter(data).most_common(1)
     return item
 
 
 def powerset(iterable):
-    """powerset([1,2,3]) --> (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
+    """Returns list of all subsets of iterable.
+    powerset([1,2,3]) --> (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
     s = list(iterable)
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s)+1)))[1:]
 
@@ -85,17 +81,17 @@ argmax = max
 
 
 def argmin_random_tie(seq, key=identity):
-    """Return a minimum element of seq; break ties at random."""
+    """Returns a minimum element of seq; break ties at random."""
     return argmin(shuffled(seq), key=key)
 
 
 def argmax_random_tie(seq, key=identity):
-    """Return an element with highest fn(seq[i]) score; break ties at random."""
+    """Returns an element with highest fn(seq[i]) score; break ties at random."""
     return argmax(shuffled(seq), key=key)
 
 
 def shuffled(iterable):
-    """Randomly shuffle a copy of iterable."""
+    """Returns a list of randomly shuffled copy of iterable."""
     items = list(iterable)
     random.shuffle(items)
     return items
@@ -106,8 +102,8 @@ def shuffled(iterable):
 
 
 def histogram(values, mode=0, bin_function=None):
-    """Return a list of (value, count) pairs, summarizing the input values.
-    Sorted by increasing value, or if mode=1, by decreasing count.
+    """Returns a list of (value, count) pairs, summarizing the input values
+    sorted by increasing value, or if mode=1, by decreasing count.
     If bin_function is given, map it over values first."""
     if bin_function:
         values = map(bin_function, values)
@@ -124,27 +120,28 @@ def histogram(values, mode=0, bin_function=None):
 
 
 def dotproduct(X, Y):
-    """Return the sum of the element-wise product of vectors X and Y."""
+    """Returns the sum of the element-wise product of vectors X and Y."""
     return sum(x * y for x, y in zip(X, Y))
 
 
 def element_wise_product(X, Y):
-    """Return vector as an element-wise product of vectors X and Y"""
+    """Returns vector as an element-wise product of vectors X and Y"""
     assert len(X) == len(Y)
     return [x * y for x, y in zip(X, Y)]
 
 
 def matrix_multiplication(X_M, *Y_M):
-    """Return a matrix as a matrix-multiplication of X_M and arbitrary number of matrices *Y_M"""
+    """Returns a matrix as a matrix-multiplication of X_M and arbitrary number of matrices *Y_M"""
 
     def _mat_mult(X_M, Y_M):
-        """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
+        """Returns a matrix as a matrix-multiplication of two matrices X_M and Y_M
         >>> matrix_multiplication([[1, 2, 3],
-                                   [2, 3, 4]],
-                                   [[3, 4],
-                                    [1, 2],
-                                    [1, 0]])
-        [[8, 8],[13, 14]]
+            ...                       [2, 3, 4]],
+            ...                       [[3, 4],
+            ...                        [1, 2],
+            ...                        [1, 0]])
+            ...
+        >>> [[8, 8], [13, 14]]
         """
         assert len(X_M[0]) == len(Y_M)
 
@@ -164,7 +161,7 @@ def matrix_multiplication(X_M, *Y_M):
 
 def vector_to_diagonal(v):
     """Converts a vector to a diagonal matrix with vector elements
-    as the diagonal elements of the matrix"""
+    as the diagonal elements of the matrix."""
     diag_matrix = [[0 for i in range(len(v))] for j in range(len(v))]
     for i in range(len(v)):
         diag_matrix[i][i] = v[i]
@@ -178,17 +175,17 @@ def vector_add(a, b):
 
 
 def scalar_vector_product(X, Y):
-    """Return vector as a product of a scalar and a vector"""
+    """Returns vector as a product of a scalar and a vector."""
     return [X * y for y in Y]
 
 
 def scalar_matrix_product(X, Y):
-    """Return matrix as a product of a scalar and a matrix"""
+    """Returns matrix as a product of a scalar and a matrix."""
     return [scalar_vector_product(X, y) for y in Y]
 
 
 def inverse_matrix(X):
-    """Inverse a given square matrix of size 2x2"""
+    """Returns inverse matrix of a given square matrix of size 2x2."""
     assert len(X) == 2
     assert len(X[0]) == 2
     det = X[0][0] * X[1][1] - X[0][1] * X[1][0]
@@ -199,21 +196,12 @@ def inverse_matrix(X):
 
 
 def probability(p):
-    """Return true with probability p."""
+    """Returns true with probability p."""
     return p > random.uniform(0.0, 1.0)
 
 
-def weighted_sample_with_replacement(n, seq, weights):
-    """Pick n samples from seq at random, with replacement, with the
-    probability of each element in proportion to its corresponding
-    weight."""
-    sample = weighted_sampler(seq, weights)
-
-    return [sample() for _ in range(n)]
-
-
 def weighted_sampler(seq, weights):
-    """Return a random-sample function that picks from seq weighted by weights."""
+    """Returns a random-sample function that picks from seq weighted by weights."""
     totals = []
     for w in weights:
         totals.append(w + totals[-1] if totals else w)
@@ -221,18 +209,29 @@ def weighted_sampler(seq, weights):
     return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
 
 
+def weighted_sample_with_replacement(n, seq, weights):
+    """Picks and samples from seq at random, with replacement, with the
+    probability of each element in proportion to its corresponding
+    weight."""
+    sample = weighted_sampler(seq, weights)
+
+    return [sample() for _ in range(n)]
+
+
 def rounder(numbers, d=4):
-    """Round a single number, or sequence of numbers, to d decimal places."""
+    """Rounds a single number, or sequence of numbers, to d decimal places."""
     if isinstance(numbers, (int, float)):
         return round(numbers, d)
     else:
+        assert isinstance(numbers, collections.abc.Sequence)
         constructor = type(numbers)     # Can be list, set, tuple, etc.
         return constructor(rounder(n, d) for n in numbers)
 
 
 def num_or_str(x):
-    """The argument is a string; convert to a number if
-       possible, or strip it."""
+    """The argument is a string; converts to a number if
+       possible, or strip it.
+       :type x: str """
     try:
         return int(x)
     except ValueError:
@@ -243,7 +242,7 @@ def num_or_str(x):
 
 
 def normalize(dist):
-    """Multiply each number by a constant such that the sum is 1.0"""
+    """Multiplies each number by a constant such that the sum is 1.0"""
     if isinstance(dist, dict):
         total = sum(dist.values())
         for key in dist:
@@ -255,12 +254,12 @@ def normalize(dist):
 
 
 def norm(X, n=2):
-    """Return the n-norm of vector X"""
-    return sum([x**n for x in X])**(1/n)
+    """Returns the n-norm of vector X"""
+    return sum(x**n for x in X)**(1/n)
 
 
 def clip(x, lowest, highest):
-    """Return x clipped to the range [lowest..highest]."""
+    """Returns x clipped to the range [lowest..highest]."""
     return max(lowest, min(x, highest))
 
 
@@ -269,12 +268,12 @@ def sigmoid_derivative(value):
 
 
 def sigmoid(x):
-    """Return activation value of x with sigmoid function"""
+    """Returns activation value of x with sigmoid function."""
     return 1/(1 + math.exp(-x))
 
 
 def step(x):
-    """Return activation value of x with sign function"""
+    """Returns activation value of x with sign function."""
     return 1 if x >= 0 else 0
 
 
@@ -283,17 +282,18 @@ def gaussian(mean, st_dev, x):
     return 1/(math.sqrt(2*math.pi)*st_dev)*math.e**(-0.5*(float(x-mean)/st_dev)**2)
 
 
-try:  # math.isclose was added in Python 3.5; but we might be in 3.4
+# math.isclose() is available in Python >=3.5
+try:
     from math import isclose
 except ImportError:
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
-        """Return true if numbers a and b are close to each other."""
+        """Returns true if numbers a and b are close to each other."""
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 def weighted_choice(choices):
-    """A weighted version of random.choice"""
-    # NOTE: Shoule be replaced by random.choices if we port to Python 3.6
+    """A weighted version of random.choice
+     NOTE: Should be replaced by random.choices if we port to Python 3.6"""
 
     total = sum(w for _, w in choices)
     r = random.uniform(0, total)
@@ -313,6 +313,7 @@ turns = LEFT, RIGHT = (+1, -1)
 
 
 def turn_heading(heading, inc, headings=orientations):
+    """Helper function."""
     return headings[(headings.index(heading) + inc) % len(headings)]
 
 
@@ -325,7 +326,7 @@ def turn_left(heading):
 
 
 def distance(a, b):
-    """The distance between two (x, y) points."""
+    """Returns the distance between two (x, y) points."""
     xA, yA = a
     xB, yB = b
     return math.hypot((xA - xB), (yA - yB))
@@ -339,7 +340,7 @@ def distance_squared(a, b):
 
 
 def vector_clip(vector, lowest, highest):
-    """Return vector, except if any element is less than the corresponding
+    """Returns a vector, except if any element is less than the corresponding
     value of lowest or more than the corresponding value of highest, clip to
     those values."""
     return type(vector)(map(clip, vector, lowest, highest))
@@ -377,21 +378,24 @@ def name(obj):
 
 
 def isnumber(x):
-    """Is x a number?"""
+    """Is x a number?
+    :rtype :bool"""
     return hasattr(x, '__int__')
 
 
 def issequence(x):
-    """Is x a sequence?"""
+    """Is x a sequence?
+    :rtype :bool"""
     return isinstance(x, collections.abc.Sequence)
 
 
 def print_table(table, header=None, sep='   ', numfmt='{}'):
-    """Print a list of lists as a table, so that columns line up nicely.
-    header, if specified, will be printed as the first row.
-    numfmt is the format for all numbers; you might want e.g. '{:.2f}'.
+    """Prints a list of lists as a table, so that columns line up nicely.
+    :argument header:   if specified, will be printed as the first row.
+    :argument numfmt:   is the format for all numbers; you might want e.g. '{:.2f}'.
+    :argument sep:      is the separator between columns.
     (If you want different formats in different columns,
-    don't use print_table.) sep is the separator between columns."""
+    don't use print_table.)"""
     justs = ['rjust' if isnumber(x) else 'ljust' for x in table[0]]
 
     if header:
@@ -413,7 +417,7 @@ def open_data(name, mode='r'):
     aima_root = os.path.dirname(__file__)
     aima_file = os.path.join(aima_root, *['aima-data', name])
 
-    return open(aima_file)
+    return open(aima_file, mode=mode)
 
 
 def failure_test(algorithm, tests):
@@ -443,6 +447,7 @@ class Expr(object):
         self.args = args
 
     # Operator overloads
+
     def __neg__(self):
         return Expr('-', self)
 
@@ -496,6 +501,7 @@ class Expr(object):
             return PartialExpr(rhs, self)
 
     # Reverse operator overloads
+
     def __radd__(self, lhs):
         return Expr('+', lhs, self)
 
@@ -539,20 +545,22 @@ class Expr(object):
         return Expr('@', lhs, self)
 
     def __call__(self, *args):
-        "Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."
+        """Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."""
         if self.args:
             raise ValueError('can only do a call for a Symbol, not an Expr')
         else:
             return Expr(self.op, *args)
 
     # Equality and repr
+
     def __eq__(self, other):
-        "'x == y' evaluates to True or False; does not build an Expr."
+        """"'x == y' evaluates to True or False; does not build an Expr."""
         return (isinstance(other, Expr)
                 and self.op == other.op
                 and self.args == other.args)
 
-    def __hash__(self): return hash(self.op) ^ hash(self.args)
+    def __hash__(self):
+        return hash(self.op) ^ hash(self.args)
 
     def __repr__(self):
         op = self.op
@@ -579,12 +587,13 @@ def Symbol(name):
 
 
 def symbols(names):
-    """Return a tuple of Symbols; names is a comma/whitespace delimited str."""
+    """Returns a tuple of Symbols;
+     :argument names:  a comma/whitespace delimited str."""
     return tuple(Symbol(name) for name in names.replace(',', ' ').split())
 
 
 def subexpressions(x):
-    """Yield the subexpressions of an Expression (including x itself)."""
+    """Yields the subexpressions of an Expression (including x itself)."""
     yield x
     if isinstance(x, Expr):
         for arg in x.args:
@@ -592,14 +601,13 @@ def subexpressions(x):
 
 
 def arity(expression):
-    """The number of sub-expressions in this expression."""
+    """Returns the number of sub-expressions in this expression."""
     if isinstance(expression, Expr):
         return len(expression.args)
-    else:  # expression is a number
+    else:             # expression is a number
         return 0
 
 # For operators that are not defined in Python, we allow new InfixOps:
-
 
 class PartialExpr:
     """Given 'P |'==>'| Q, first form PartialExpr('==>', P), then combine with Q."""
@@ -702,18 +710,33 @@ class Queue:
     def __init__(self):
         raise NotImplementedError
 
+    def append(self, item):
+        """Abstract method."""
+        raise NotImplementedError
+
     def extend(self, items):
-        for item in items:
-            self.append(item)
+        """Abstract method."""
+        raise NotImplementedError
+
+    def pop(self):
+        """Abstract method."""
+        raise NotImplementedError
+
+    def __len__(self):
+        """Abstract method."""
+        raise NotImplementedError
+
+    def __contains__(self, item):
+        """Abstract method."""
+        raise NotImplementedError
 
 
 def Stack():
-    """Return an empty list, suitable as a Last-In-First-Out Queue."""
+    """Returns an empty list, suitable as a Last-In-First-Out Queue."""
     return []
 
 
 class FIFOQueue(Queue):
-
     """A First-In-First-Out Queue."""
 
     def __init__(self, maxlen=None, items=[]):
@@ -752,34 +775,38 @@ class PriorityQueue(Queue):
     Also supports dict-like lookup."""
 
     def __init__(self, order=min, f=lambda x: x):
-        self.A = []
+        self.queue = []
         self.order = order
         self.f = f
 
     def append(self, item):
-        bisect.insort(self.A, (self.f(item), item))
+        bisect.insort(self.queue, (self.f(item), item))
 
-    def __len__(self):
-        return len(self.A)
+    def extend(self, items):
+        for item in items:
+            self.queue.append(item)
 
     def pop(self):
         if self.order == min:
-            return self.A.pop(0)[1]
+            return self.queue.pop(0)[1]
         else:
-            return self.A.pop()[1]
+            return self.queue.pop()[1]
+
+    def __len__(self):
+        return len(self.queue)
 
     def __contains__(self, item):
-        return any(item == pair[1] for pair in self.A)
+        return any(item == pair[1] for pair in self.queue)
 
     def __getitem__(self, key):
-        for _, item in self.A:
+        for _, item in self.queue:
             if item == key:
                 return item
 
     def __delitem__(self, key):
-        for i, (value, item) in enumerate(self.A):
+        for i, (value, item) in enumerate(self.queue):
             if item == key:
-                self.A.pop(i)
+                self.queue.pop(i)
 
 
 # ______________________________________________________________________________
