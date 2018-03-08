@@ -426,7 +426,7 @@ class EightPuzzle(Problem):
                 if state[row][column] == 0:
                     index_blank_square = (row, column)
         return index_blank_square
-    
+     
     def actions(self, state):
         """Return the actions that can be executed in the given state.
         The result would be a list, since there are only four possible actions
@@ -434,44 +434,51 @@ class EightPuzzle(Problem):
        
         possible_actions = list()
         index_blank_square = self.find_blank_square(state)
+        (row, col) = index_blank_square
 
-        if index_blank_square(0) == 0:
+        if row == 0:
             possible_actions += ['DOWN']
-        elif index_blank_square(0) == 1:
+        elif row == 1:
             possible_actions += ['UP', 'DOWN']
-        elif index_blank_square(0) == 2:
+        elif row == 2:
             possible_actions += ['UP']
         
-        if index_blank_square(1) == 0:
+        if col == 0:
             possible_actions += ['RIGHT']
-        elif index_blank_square(1) == 1:
+        elif col == 1:
             possible_actions += ['LEFT', 'RIGHT']
-        elif index_blank_square(1) == 2:
+        elif col == 2:
             possible_actions += ['LEFT']
 
         return possible_actions
 
-    def result(self, state, action):
+        def result(self, state, action):
         """Given state and action, return a new state that is the result of the action.
         Action is assumed to be a valid action in the state."""
 
-        blank_square = self.find_blank_square(state)
         new_state = [row[:] for row in state]
+        index_blank_square = self.find_blank_square(state)
+        (row, col) = index_blank_square
 
-        if action=='UP':
-            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)-1][blank_square(1)]
-            new_state[blank_square(0)-1][blank_square(1)] = 0
-        elif action=='LEFT':
-            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)][blank_square(1)-1]
-            new_state[blank_square(0)][blank_square(1)-1] = 0
-        elif action=='DOWN':
-            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)+1][blank_square(1)]
-            new_state[blank_square(0)+1][blank_square(1)] = 0
-        elif action=='RIGHT':
-            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)][blank_square(1)+1]
-            new_state[blank_square(0)][blank_square(1)+1] = 0
+        if action == 'UP':
+            new_state[row][col] = new_state[row - 1][col]
+            new_state[row - 1][col] = 0
+
+        elif action == 'LEFT':
+            new_state[row][col] = new_state[row][col - 1]
+            new_state[row][col - 1] = 0
+
+        elif action == 'DOWN':
+            new_state[row][col] = new_state[row + 1][col]
+            new_state[row + 1][col] = 0
+
+        elif action == 'RIGHT':
+            new_state[row][col] = new_state[row][col + 1]
+            new_state[row][col + 1] = 0
+
         else:
             print("Invalid Action!")
+
         return new_state
 
     def goal_test(self, state):
