@@ -730,7 +730,7 @@ class FIFOQueue(Queue):
     """A First-In-First-Out Queue."""
 
     def __init__(self, maxlen=None, items=None):
-        """Initialize a FIFIQueue with capacity as maxlen and
+        """Initialize a FIFOQueue with capacity as maxlen and
         initial items as items.
         If items is not passed, initialize queue with no items."""
         if not items:
