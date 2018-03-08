@@ -627,7 +627,7 @@ def expr(x):
     - ==> is treated as an infix |'==>'|, as are <== and <=>.
     If x is already an Expression, it is returned unchanged. Example:
     >>> expr('P & Q ==> Q')
-        ((P & Q) ==> Q)
+    ((P & Q) ==> Q)
     """
     if isinstance(x, str):
         return eval(expr_handle_infix_ops(x), defaultkeydict(Symbol))
@@ -641,7 +641,7 @@ infix_ops = '==> <== <=>'.split()
 def expr_handle_infix_ops(x):
     """Given a str, return a new str with ==> replaced by |'==>'|, etc.
     >>> expr_handle_infix_ops('P ==> Q')
-       "P |'==>'| Q"
+    "P |'==>'| Q"
     """
     for op in infix_ops:
         x = x.replace(op, '|' + repr(op) + '|')
