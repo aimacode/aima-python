@@ -483,7 +483,7 @@ def best_first_graph_search(problem, f):
         display_current(node)
         if problem.goal_test(node.state):
             return node
-        frontier = PriorityQueue(min, f)
+        frontier = PriorityQueue('min', f)
         frontier.append(node)
         display_frontier(frontier)
         explored = set()
