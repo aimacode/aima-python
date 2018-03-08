@@ -455,7 +455,7 @@ class EightPuzzle(Problem):
         def result(self, state, action):
         """Given state and action, return a new state that is the result of the action.
         Action is assumed to be a valid action in the state."""
-
+        
         new_state = [row[:] for row in state]
         index_blank_square = self.find_blank_square(state)
         (row, col) = index_blank_square
