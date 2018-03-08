@@ -223,7 +223,7 @@ def rounder(numbers, d=4):
     if isinstance(numbers, (int, float)):
         return round(numbers, d)
     else:
-        assert isinstance(x, collections.abc.Sequence)
+        assert isinstance(numbers, collections.abc.Sequence)
         constructor = type(numbers)     # Can be list, set, tuple, etc.
         return constructor(rounder(n, d) for n in numbers)
 
