@@ -808,7 +808,7 @@ class PriorityQueue(Queue):
         return (self.f(item), item) in self.q
 
     def __getitem__(self, key):
-        for _, item in self.queue:
+        for _, item in self.q:
             if item == key:
                 return item
 
