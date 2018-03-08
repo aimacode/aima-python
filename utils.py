@@ -651,7 +651,7 @@ class defaultkeydict(collections.defaultdict):
 
 
 class hashabledict(dict):
-    """Allows hashing by representing a dictionary as tuple of key:value pairs
+    """Allow hashing by representing a dictionary as tuple of key:value pairs
        May cause problems as the hash value may change during runtime
     """
     def __tuplify__(self):
@@ -680,12 +680,10 @@ class hashabledict(dict):
 # ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
 
-# TODO: queue.PriorityQueue
 # TODO: Priority queues may not belong here -- see treatment in search.py
 
 
 class Queue:
-
     """Queue is an abstract class/interface. There are three types:
         Stack(): A Last In First Out Queue.
         FIFOQueue(): A First In First Out Queue.
@@ -702,9 +700,25 @@ class Queue:
     def __init__(self):
         raise NotImplementedError
 
+    def append(self, item):
+        """Abstract method."""
+        raise NotImplementedError
+
     def extend(self, items):
-        for item in items:
-            self.append(item)
+        """Abstract method."""
+        raise NotImplementedError
+
+    def pop(self):
+        """Abstract method."""
+        raise NotImplementedError
+
+    def __len__(self):
+        """Abstract method."""
+        raise NotImplementedError
+
+    def __contains__(self, item):
+        """Abstract method."""
+        raise NotImplementedError
 
 
 def Stack():
@@ -713,73 +727,94 @@ def Stack():
 
 
 class FIFOQueue(Queue):
-
     """A First-In-First-Out Queue."""
 
-    def __init__(self, maxlen=None, items=[]):
-        self.queue = collections.deque(items, maxlen)
+    def __init__(self, maxlen=None, items=None):
+        """Initialize a FIFIQueue with capacity as maxlen and
+        initial items as items.
+        If items is not passed, initialize queue with no items."""
+        if not items:
+            items = []
+        self.q = collections.deque(items, maxlen)
 
     def append(self, item):
-        if not self.queue.maxlen or len(self.queue) < self.queue.maxlen:
-            self.queue.append(item)
+        """Insert item at the back."""
+        if not self.q.maxlen or len(self.q) < self.q.maxlen:
+            self.q.append(item)
         else:
-            raise Exception('FIFOQueue is full')
+            raise Exception('FIFOQueue is full.')
 
     def extend(self, items):
-        if not self.queue.maxlen or len(self.queue) + len(items) <= self.queue.maxlen:
-            self.queue.extend(items)
+        """Insert items at the back if it does not exceed max length."""
+        if not self.q.maxlen or len(self.q) + len(items) <= self.q.maxlen:
+            self.q.extend(items)
         else:
-            raise Exception('FIFOQueue max length exceeded')
+            raise Exception('FIFOQueue max length exceeded.')
 
     def pop(self):
-        if len(self.queue) > 0:
-            return self.queue.popleft()
+        """Pop and return the item from the front."""
+        if self.q:
+            return self.q.popleft()
         else:
-            raise Exception('FIFOQueue is empty')
+            raise Exception('Trying to pop from empty FIFOQueue.')
 
     def __len__(self):
-        return len(self.queue)
+        return len(self.q)
 
     def __contains__(self, item):
-        return item in self.queue
+        return item in self.q
 
 
 class PriorityQueue(Queue):
-
-    """A queue in which the minimum (or maximum) element (as determined by f and
-    order) is returned first. If order is min, the item with minimum f(x) is
-    returned first; if order is max, then it is the item with maximum f(x).
+    """A Queue in which the minimum (or maximum) element (as determined by f and
+    order) is returned first. 
+    If order is 'min', the item with minimum f(x) is
+    returned first; if order is 'max', then it is the item with maximum f(x).
     Also supports dict-like lookup."""
 
-    def __init__(self, order=min, f=lambda x: x):
-        self.A = []
-        self.order = order
-        self.f = f
+    def __init__(self, order='min', f=lambda x: x):
+        self.q = collections.deque()
+
+        if order == 'min':
+            self.f = f
+        elif order == 'max':            # now item with max f(x)
+            self.f = lambda x: -f(x)    # will be popped first
+        else:
+            raise ValueError("order must be either 'min' or max'.")
 
     def append(self, item):
-        bisect.insort(self.A, (self.f(item), item))
+        """Insert item at its correct position."""
+        bisect.insort(self.q, (self.f(item), item))
 
-    def __len__(self):
-        return len(self.A)
+    def extend(self, items):
+        """Insert each item in items at its correct position."""
+        for item in items:
+            self.q.append(item)
 
     def pop(self):
-        if self.order == min:
-            return self.A.pop(0)[1]
+        """Pop and return the item (with min or max f(x) value
+        depending on the order."""
+        if self.q:
+            return self.q.popleft()[1]
         else:
-            return self.A.pop()[1]
+            raise Exception('Trying to pop from empty PriorityQueue.')
+
+    def __len__(self):
+        """Return current capacity of PriorityQueue."""
+        return len(self.q)
 
     def __contains__(self, item):
-        return any(item == pair[1] for pair in self.A)
+        """Return True if item in PriorityQueue."""
+        return (self.f(item), item) in self.q
 
     def __getitem__(self, key):
-        for _, item in self.A:
+        for _, item in self.queue:
             if item == key:
                 return item
 
     def __delitem__(self, key):
-        for i, (value, item) in enumerate(self.A):
-            if item == key:
-                self.A.pop(i)
+        """Delete the first occurrence of key."""
+        self.q.remove((self.f(key), key))
 
 
 # ______________________________________________________________________________
