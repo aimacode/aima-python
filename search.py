@@ -426,7 +426,7 @@ class EightPuzzle(Problem):
                 if state[row][column] == 0:
                     index_blank_square = (row, column)
         return index_blank_square
-     
+    
     def actions(self, state):
         """Return the actions that can be executed in the given state.
         The result would be a list, since there are only four possible actions
@@ -452,7 +452,7 @@ class EightPuzzle(Problem):
 
         return possible_actions
 
-        def result(self, state, action):
+    def result(self, state, action):
         """Given state and action, return a new state that is the result of the action.
         Action is assumed to be a valid action in the state."""
         
