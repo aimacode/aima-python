@@ -767,13 +767,13 @@ class FIFOQueue(Queue):
 
 class PriorityQueue(Queue):
     """A Queue in which the minimum (or maximum) element (as determined by f and
-    order) is returned first. 
+    order) is returned first.
     If order is 'min', the item with minimum f(x) is
     returned first; if order is 'max', then it is the item with maximum f(x).
     Also supports dict-like lookup."""
 
     def __init__(self, order='min', f=lambda x: x):
-        self.q = collections.deque()
+        self.q = []
 
         if order == 'min':
             self.f = f
@@ -795,7 +795,7 @@ class PriorityQueue(Queue):
         """Pop and return the item (with min or max f(x) value
         depending on the order."""
         if self.q:
-            return self.q.popleft()[1]
+            return self.q.pop(0)[1]
         else:
             raise Exception('Trying to pop from empty PriorityQueue.')
 
