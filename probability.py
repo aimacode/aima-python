@@ -653,6 +653,7 @@ def particle_filtering(e, N, HMM):
 # _________________________________________________________________________
 ## TODO: Implement continuous map for MonteCarlo similar to Fig25.10 from the book
 
+
 class MCLmap:
     """Map which provides probability distributions and sensor readings.
     Consists of discrete cells which are either an obstacle or empty"""
@@ -679,7 +680,7 @@ class MCLmap:
         #  0
         # 3R1
         #  2
-        delta = ((sensor_num%2 == 0)*(sensor_num - 1), (sensor_num%2 == 1)*(2 - sensor_num))
+        delta = ((sensor_num % 2 == 0)*(sensor_num - 1), (sensor_num % 2 == 1)*(2 - sensor_num))
         # sensor direction changes based on orientation
         for _ in range(orient):
             delta = (delta[1], -delta[0])
