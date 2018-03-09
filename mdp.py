@@ -2,8 +2,8 @@
 
 First we define an MDP, and the special case of a GridMDP, in which
 states are laid out in a 2-dimensional grid. We also represent a policy
-as a dictionary of {state:action} pairs, and a Utility function as a
-dictionary of {state:number} pairs. We then define the value_iteration
+as a dictionary of {state: action} pairs, and a Utility function as a
+dictionary of {state: number} pairs. We then define the value_iteration
 and policy_iteration algorithms."""
 
 from utils import argmax, vector_add, orientations, turn_right, turn_left
@@ -21,36 +21,33 @@ class MDP:
     list of (p, s') pairs. We also keep track of the possible states,
     terminal states, and actions for each state. [page 646]"""
 
-    def __init__(self, init, actlist, terminals, transitions = {}, reward = None, states=None, gamma=.9):
+    def __init__(self, init, actlist, terminals, transitions=None, reward=None, states=None, gamma=0.9):
         if not (0 < gamma <= 1):
             raise ValueError("An MDP must have 0 < gamma <= 1")
 
-        if states:
-            self.states = states
-        else:
-            ## collect states from transitions table
-            self.states = self.get_states_from_transitions(transitions)
+        # collect states from transitions table if not passed.
+        self.states = states or self.get_states_from_transitions(transitions)
             
-        
         self.init = init
         
         if isinstance(actlist, list):
-            ## if actlist is a list, all states have the same actions
+            # if actlist is a list, all states have the same actions
             self.actlist = actlist
+
         elif isinstance(actlist, dict):
-            ## if actlist is a dict, different actions for each state
+            # if actlist is a dict, different actions for each state
             self.actlist = actlist
         
         self.terminals = terminals
-        self.transitions = transitions
-        if self.transitions == {}:
+        self.transitions = transitions or {}
+        if not self.transitions:
             print("Warning: Transition table is empty.")
+
         self.gamma = gamma
-        if reward:
-            self.reward = reward
-        else:
-            self.reward = {s : 0 for s in self.states}
-        #self.check_consistency()
+
+        self.reward = reward or {s: 0 for s in self.states}
+
+        # self.check_consistency()
 
     def R(self, state):
         """Return a numeric reward for this state."""
@@ -59,13 +56,13 @@ class MDP:
     def T(self, state, action):
         """Transition model. From a state and an action, return a list
         of (probability, result-state) pairs."""
-        if(self.transitions == {}):
+        if not self.transitions:
             raise ValueError("Transition model is missing")
         else:
             return self.transitions[state][action]
 
     def actions(self, state):
-        """Set of actions that can be performed in this state. By default, a
+        """Return a set of actions that can be performed in this state. By default, a
         fixed list of actions, except for terminal states. Override this
         method if you need to specialize by state."""
         if state in self.terminals:
@@ -76,23 +73,28 @@ class MDP:
     def get_states_from_transitions(self, transitions):
         if isinstance(transitions, dict):
             s1 = set(transitions.keys())
-            s2 = set([tr[1] for actions in transitions.values() 
-                              for effects in actions.values() for tr in effects])
+            s2 = set(tr[1] for actions in transitions.values()
+                     for effects in actions.values()
+                     for tr in effects)
             return s1.union(s2)
         else:
             print('Could not retrieve states from transitions')
             return None
 
     def check_consistency(self):
+
         # check that all states in transitions are valid
         assert set(self.states) == self.get_states_from_transitions(self.transitions)
+
         # check that init is a valid state
         assert self.init in self.states
+
         # check reward for each state
-        #assert set(self.reward.keys()) == set(self.states)
         assert set(self.reward.keys()) == set(self.states)
+
         # check that all terminals are valid states
-        assert all([t in self.states for t in self.terminals])
+        assert all(t in self.states for t in self.terminals)
+
         # check that probability distributions for all actions sum to 1
         for s1, actions in self.transitions.items():
             for a in actions.keys():
@@ -110,7 +112,7 @@ class GridMDP(MDP):
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
 
     def __init__(self, grid, terminals, init=(0, 0), gamma=.9):
-        grid.reverse()  # because we want row 0 on bottom, not on top
+        grid.reverse()     # because we want row 0 on bottom, not on top
         reward = {}
         states = set()
         self.rows = len(grid)
@@ -118,7 +120,7 @@ class GridMDP(MDP):
         self.grid = grid
         for x in range(self.cols):
             for y in range(self.rows):
-                if grid[y][x] is not None:
+                if grid[y][x]:
                     states.add((x, y))
                     reward[(x, y)] = grid[y][x]
         self.states = states
@@ -129,22 +131,19 @@ class GridMDP(MDP):
             for a in actlist:
                 transitions[s][a] = self.calculate_T(s, a)
         MDP.__init__(self, init, actlist=actlist,
-                     terminals=terminals, transitions = transitions, 
-                     reward = reward, states = states, gamma=gamma)
+                     terminals=terminals, transitions=transitions, 
+                     reward=reward, states=states, gamma=gamma)
 
     def calculate_T(self, state, action):
-        if action is None:
-            return [(0.0, state)]
-        else:
+        if action:
             return [(0.8, self.go(state, action)),
                     (0.1, self.go(state, turn_right(action))),
                     (0.1, self.go(state, turn_left(action)))]
+        else:
+            return [(0.0, state)]
     
     def T(self, state, action):
-        if action is None:
-            return [(0.0, state)]
-        else:
-            return self.transitions[state][action]
+        return self.transitions[state][action] if action else [(0.0, state)]
  
     def go(self, state, direction):
         """Return the state that results from going in this direction."""
@@ -158,8 +157,7 @@ class GridMDP(MDP):
                               for y in range(self.rows)]))
 
     def to_arrows(self, policy):
-        chars = {
-            (1, 0): '>', (0, 1): '^', (-1, 0): '<', (0, -1): 'v', None: '.'}
+        chars = {(1, 0): '>', (0, 1): '^', (-1, 0): '<', (0, -1): 'v', None: '.'}
         return self.to_grid({s: chars[a] for (s, a) in policy.items()})
 
 # ______________________________________________________________________________
@@ -185,10 +183,10 @@ def value_iteration(mdp, epsilon=0.001):
         U = U1.copy()
         delta = 0
         for s in mdp.states:
-            U1[s] = R(s) + gamma * max([sum([p * U[s1] for (p, s1) in T(s, a)])
-                                        for a in mdp.actions(s)])
+            U1[s] = R(s) + gamma * max(sum(p*U[s1] for (p, s1) in T(s, a))
+                                                   for a in mdp.actions(s))
             delta = max(delta, abs(U1[s] - U[s]))
-        if delta < epsilon * (1 - gamma) / gamma:
+        if delta < epsilon*(1 - gamma)/gamma:
             return U
 
 
@@ -203,7 +201,7 @@ def best_policy(mdp, U):
 
 def expected_utility(a, s, U, mdp):
     """The expected utility of doing a in state s, according to the MDP and U."""
-    return sum([p * U[s1] for (p, s1) in mdp.T(s, a)])
+    return sum(p*U[s1] for (p, s1) in mdp.T(s, a))
 
 # ______________________________________________________________________________
 
@@ -230,7 +228,7 @@ def policy_evaluation(pi, U, mdp, k=20):
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
     for i in range(k):
         for s in mdp.states:
-            U[s] = R(s) + gamma * sum([p * U[s1] for (p, s1) in T(s, pi[s])])
+            U[s] = R(s) + gamma*sum(p*U[s1] for (p, s1) in T(s, pi[s]))
     return U
 
 
