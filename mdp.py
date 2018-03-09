@@ -62,7 +62,7 @@ class MDP:
             return self.transitions[state][action]
 
     def actions(self, state):
-        """Return a set of actions that can be performed in this state. By default, a
+        """Return a list of actions that can be performed in this state. By default, a
         fixed list of actions, except for terminal states. Override this
         method if you need to specialize by state."""
         if state in self.terminals:
