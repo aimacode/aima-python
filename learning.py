@@ -19,7 +19,7 @@ from collections import defaultdict
 
 
 def euclidean_distance(X, Y):
-    return math.sqrt(sum([(x - y)**2 for x, y in zip(X, Y)]))
+    return math.sqrt(sum((x - y)**2 for x, y in zip(X, Y)))
 
 
 def rms_error(X, Y):
@@ -27,15 +27,15 @@ def rms_error(X, Y):
 
 
 def ms_error(X, Y):
-    return mean([(x - y)**2 for x, y in zip(X, Y)])
+    return mean((x - y)**2 for x, y in zip(X, Y))
 
 
 def mean_error(X, Y):
-    return mean([abs(x - y) for x, y in zip(X, Y)])
+    return mean(abs(x - y) for x, y in zip(X, Y))
 
 
 def manhattan_distance(X, Y):
-    return sum([abs(x - y) for x, y in zip(X, Y)])
+    return sum(abs(x - y) for x, y in zip(X, Y))
 
 
 def mean_boolean_error(X, Y):
@@ -86,22 +86,20 @@ class DataSet:
         self.source = source
         self.values = values
         self.distance = distance
-        if values is None:
-            self.got_values_flag = False
-        else:
-            self.got_values_flag = True
-
+        self.got_values_flag = bool(values)
+        
         # Initialize .examples from string or list or data directory
         if isinstance(examples, str):
             self.examples = parse_csv(examples)
-        elif examples is None:
-            self.examples = parse_csv(open_data(name + '.csv').read())
         else:
-            self.examples = examples
+            self.examples = examples or parse_csv(open_data(name + '.csv').read())
+       
         # Attrs are the indices of examples, unless otherwise stated.
-        if attrs is None and self.examples is not None:
+        if self.examples and not attrs:
             attrs = list(range(len(self.examples[0])))
+        
         self.attrs = attrs
+        
         # Initialize .attrnames from string, list, or by default
         if isinstance(attrnames, str):
             self.attrnames = attrnames.split()
@@ -201,14 +199,15 @@ class DataSet:
 
         item_buckets = self.split_values_by_classes()
 
-        means = defaultdict(lambda: [0 for i in range(feature_numbers)])
-        deviations = defaultdict(lambda: [0 for i in range(feature_numbers)])
+        means = defaultdict(lambda: [0] * feature_numbers)
+        deviations = defaultdict(lambda: [0] * feature_numbers)
 
         for t in target_names:
             # Find all the item feature values for item in class t
             features = [[] for i in range(feature_numbers)]
             for item in item_buckets[t]:
-                features = [features[i] + [item[i]] for i in range(feature_numbers)]
+                for i in range(feature_numbers):
+                    features[i].append(item[i])
 
             # Calculate means and deviations fo the class
             for i in range(feature_numbers):
@@ -245,12 +244,14 @@ class CountingProbDist:
     p.sample() returns a random element from the distribution.
     p[o] returns the probability for o (as in a regular ProbDist)."""
 
-    def __init__(self, observations=[], default=0):
+    def __init__(self, observations=None, default=0):
         """Create a distribution, and optionally add in some observations.
         By default this is an unsmoothed distribution, but saying default=1,
         for example, gives you add-one smoothing."""
+        if observations is None:
+            observations = []
         self.dictionary = {}
-        self.n_obs = 0.0
+        self.n_obs = 0
         self.default = default
         self.sampler = None
 
@@ -400,10 +401,10 @@ def NearestNeighborLearner(dataset, k=1):
 
 
 def truncated_svd(X, num_val=2, max_iter=1000):
-    """Computes the first component of SVD"""
+    """Compute the first component of SVD."""
 
-    def normalize_vec(X, n = 2):
-        """Normalizes two parts (:m and m:) of the vector"""
+    def normalize_vec(X, n=2):
+        """Normalize two parts (:m and m:) of the vector."""
         X_m = X[:m]
         X_n = X[m:]
         norm_X_m = norm(X_m, n)
@@ -413,7 +414,7 @@ def truncated_svd(X, num_val=2, max_iter=1000):
         return Y_m + Y_n
 
     def remove_component(X):
-        """Removes components of already obtained eigen vectors from X"""
+        """Remove components of already obtained eigen vectors from X."""
         X_m = X[:m]
         X_n = X[m:]
         for eivec in eivec_m:
@@ -425,21 +426,21 @@ def truncated_svd(X, num_val=2, max_iter=1000):
         return X_m + X_n
 
     m, n = len(X), len(X[0])
-    A = [[0 for _ in range(n + m)] for _ in range(n + m)]
+    A = [[0]*(n+m) for _ in range(n+m)]
     for i in range(m):
         for j in range(n):
-            A[i][m + j] = A[m + j][i] = X[i][j]
+            A[i][m+j] = A[m+j][i] = X[i][j]
 
     eivec_m = []
     eivec_n = []
     eivals = []
 
     for _ in range(num_val):
-        X = [random.random() for _ in range(m + n)]
+        X = [random.random() for _ in range(m+n)]
         X = remove_component(X)
         X = normalize_vec(X)
 
-        for _ in range(max_iter):
+        for i in range(max_iter):
             old_X = X
             X = matrix_multiplication(A, [[x] for x in X])
             X = [x[0] for x in X]
@@ -489,6 +490,7 @@ class DecisionFork:
         for (val, subtree) in self.branches.items():
             print(' ' * 4 * indent, name, '=', val, '==>', end=' ')
             subtree.display(indent + 1)
+        print()   # newline
 
     def __repr__(self):
         return ('DecisionFork({0!r}, {1!r}, {2!r})'
@@ -560,8 +562,8 @@ def DecisionTreeLearner(dataset):
         def I(examples):
             return information_content([count(target, v, examples)
                                         for v in values[target]])
-        N = float(len(examples))
-        remainder = sum((len(examples_i) / N) * I(examples_i)
+        N = len(examples)
+        remainder = sum((len(examples_i)/N) * I(examples_i)
                         for (v, examples_i) in split_by(attr, examples))
         return I(examples) - remainder
 
@@ -643,7 +645,7 @@ def DecisionListLearner(dataset):
 # ______________________________________________________________________________
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
+def NeuralNetLearner(dataset, hidden_layer_sizes=None,
                      learning_rate=0.01, epochs=100):
     """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
@@ -651,6 +653,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     epochs: Number of passes over the dataset
     """
 
+    hidden_layer_sizes = hidden_layer_sizes or [3]  # default value
     i_units = len(dataset.inputs)
     o_units = len(dataset.values[dataset.target])
 
@@ -684,7 +687,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
 
 
 def random_weights(min_value, max_value, num_weights):
-    return [random.uniform(min_value, max_value) for i in range(num_weights)]
+    return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
 def BackPropagationLearner(dataset, net, learning_rate, epochs):
@@ -699,7 +702,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs):
     '''
     As of now dataset.target gives an int instead of list,
     Changing dataset class will have effect on all the learners.
-    Will be taken care of later
+    Will be taken care of later.
     '''
     o_nodes = net[-1]
     i_nodes = net[0]
@@ -728,12 +731,13 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs):
                     node.value = node.activation(in_val)
 
             # Initialize delta
-            delta = [[] for i in range(n_layers)]
+            delta = [[] for _ in range(n_layers)]
 
             # Compute outer layer delta
 
             # Error for the MSE cost function
             err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
+
             # The activation function used is the sigmoid function
             delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
 
@@ -743,6 +747,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs):
                 layer = net[i]
                 h_units = len(layer)
                 nx_layer = net[i+1]
+
                 # weights from each ith layer node to each i + 1th layer node
                 w = [[node.weights[k] for node in nx_layer] for k in range(h_units)]
 
@@ -791,8 +796,8 @@ class NNUnit:
     """
 
     def __init__(self, weights=None, inputs=None):
-        self.weights = []
-        self.inputs = []
+        self.weights = weights or []
+        self.inputs = inputs or []
         self.value = None
         self.activation = sigmoid
 
@@ -827,6 +832,7 @@ def init_examples(examples, idx_i, idx_t, o_units):
 
     for i in range(len(examples)):
         e = examples[i]
+
         # Input values of e
         inputs[i] = [e[i] for i in idx_i]
 
@@ -902,24 +908,26 @@ def EnsembleLearner(learners):
 
 def AdaBoost(L, K):
     """[Figure 18.34]"""
+
     def train(dataset):
         examples, target = dataset.examples, dataset.target
         N = len(examples)
-        epsilon = 1. / (2 * N)
-        w = [1. / N] * N
+        epsilon = 1/(2*N)
+        w = [1/N]*N
         h, z = [], []
         for k in range(K):
             h_k = L(dataset, w)
             h.append(h_k)
             error = sum(weight for example, weight in zip(examples, w)
                         if example[target] != h_k(example))
+
             # Avoid divide-by-0 from either 0% or 100% error rates:
             error = clip(error, epsilon, 1 - epsilon)
             for j, example in enumerate(examples):
                 if example[target] == h_k(example):
-                    w[j] *= error / (1. - error)
+                    w[j] *= error/(1 - error)
             w = normalize(w)
-            z.append(math.log((1. - error) / error))
+            z.append(math.log((1 - error)/error))
         return WeightedMajority(h, z)
     return train
 
@@ -934,13 +942,13 @@ def WeightedMajority(predictors, weights):
 
 def weighted_mode(values, weights):
     """Return the value with the greatest total weight.
-    >>> weighted_mode('abbaa', [1,2,3,1,2])
+    >>> weighted_mode('abbaa', [1, 2, 3, 1, 2])
     'b'
     """
     totals = defaultdict(int)
     for v, w in zip(values, weights):
         totals[v] += w
-    return max(list(totals.keys()), key=totals.get)
+    return max(totals, key=totals.__getitem__)
 
 # _____________________________________________________________________________
 # Adapting an unweighted learner for AdaBoost
@@ -966,14 +974,14 @@ def weighted_replicate(seq, weights, n):
     """Return n selections from seq, with the count of each element of
     seq proportional to the corresponding weight (filling in fractions
     randomly).
-    >>> weighted_replicate('ABC', [1,2,1], 4)
+    >>> weighted_replicate('ABC', [1, 2, 1], 4)
     ['A', 'B', 'B', 'C']
     """
     assert len(seq) == len(weights)
     weights = normalize(weights)
-    wholes = [int(w * n) for w in weights]
-    fractions = [(w * n) % 1 for w in weights]
-    return (flatten([x] * nx for x, nx in zip(seq, wholes)) +
+    wholes = [int(w*n) for w in weights]
+    fractions = [(w*n) % 1 for w in weights]
+    return (flatten([x]*nx for x, nx in zip(seq, wholes)) +
             weighted_sample_with_replacement(n - sum(wholes), seq, fractions))
 
 
@@ -986,11 +994,10 @@ def flatten(seqs): return sum(seqs, [])
 def err_ratio(predict, dataset, examples=None, verbose=0):
     """Return the proportion of the examples that are NOT correctly predicted.
     verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct"""
-    if examples is None:
-        examples = dataset.examples
+    examples = examples or dataset.examples
     if len(examples) == 0:
         return 0.0
-    right = 0.0
+    right = 0
     for example in examples:
         desired = example[dataset.target]
         output = predict(dataset.sanitize(example))
@@ -1001,7 +1008,7 @@ def err_ratio(predict, dataset, examples=None, verbose=0):
         elif verbose:
             print('WRONG: got {}, expected {} for {}'.format(
                 output, desired, example))
-    return 1 - (right / len(examples))
+    return 1 - (right/len(examples))
 
 
 def grade_learner(predict, tests):
@@ -1025,8 +1032,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
     That is, keep out 1/k of the examples for testing on each of k runs.
     Shuffle the examples first; if trials>1, average over several shuffles.
     Returns Training error, Validataion error"""
-    if k is None:
-        k = len(dataset.examples)
+    k = k or len(dataset.examples)
     if trials > 1:
         trial_errT = 0
         trial_errV = 0
@@ -1035,7 +1041,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
                                           k=10, trials=1)
             trial_errT += errT
             trial_errV += errV
-        return trial_errT / trials, trial_errV / trials
+        return trial_errT/trials, trial_errV/trials
     else:
         fold_errT = 0
         fold_errV = 0
@@ -1049,9 +1055,10 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
             h = learner(dataset, size)
             fold_errT += err_ratio(h, dataset, train_data)
             fold_errV += err_ratio(h, dataset, val_data)
+
             # Reverting back to original once test is completed
             dataset.examples = examples
-        return fold_errT / k, fold_errV / k
+        return fold_errT/k, fold_errV/k
 
 
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
@@ -1073,7 +1080,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
             min_val = math.inf
 
             i = 0
-            while i<size:
+            while i < size:
                 if err_val[i] < min_val:
                     min_val = err_val[i]
                     best_size = i
@@ -1082,6 +1089,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
         err_train.append(errT)
         print(err_val)
         size += 1
+
 
 
 def leave_one_out(learner, dataset, size=None):
@@ -1211,13 +1219,17 @@ def ContinuousXor(n):
 # ______________________________________________________________________________
 
 
-def compare(algorithms=[PluralityLearner, NaiveBayesLearner,
-                        NearestNeighborLearner, DecisionTreeLearner],
-            datasets=[iris, orings, zoo, restaurant, SyntheticRestaurant(20),
-                      Majority(7, 100), Parity(7, 100), Xor(100)],
+def compare(algorithms=None,
+            datasets=None,
             k=10, trials=1):
     """Compare various learners on various datasets using cross-validation.
     Print results as a table."""
+    algorithms = algorithms or [PluralityLearner, NaiveBayesLearner,                 # default list
+                                NearestNeighborLearner, DecisionTreeLearner]         # of algorithms
+
+    datasets = datasets or [iris, orings, zoo, restaurant, SyntheticRestaurant(20),  # default list
+                            Majority(7, 100), Parity(7, 100), Xor(100)]              # of datasets
+    
     print_table([[a.__name__.replace('Learner', '')] +
                  [cross_validation(a, d, k, trials) for d in datasets]
                  for a in algorithms],
