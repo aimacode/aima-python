@@ -87,19 +87,19 @@ class DataSet:
         self.values = values
         self.distance = distance
         self.got_values_flag = bool(values)
-        
+
         # Initialize .examples from string or list or data directory
         if isinstance(examples, str):
             self.examples = parse_csv(examples)
         else:
             self.examples = examples or parse_csv(open_data(name + '.csv').read())
-       
+
         # Attrs are the indices of examples, unless otherwise stated.
         if self.examples and not attrs:
             attrs = list(range(len(self.examples[0])))
-        
+
         self.attrs = attrs
-        
+
         # Initialize .attrnames from string, list, or by default
         if isinstance(attrnames, str):
             self.attrnames = attrnames.split()
@@ -206,8 +206,7 @@ class DataSet:
             # Find all the item feature values for item in class t
             features = [[] for i in range(feature_numbers)]
             for item in item_buckets[t]:
-                for i in range(feature_numbers):
-                    features[i].append(item[i])
+                features = [features[i].append(item[i]) for i in range(feature_numbers)]
 
             # Calculate means and deviations fo the class
             for i in range(feature_numbers):
@@ -1017,7 +1016,7 @@ def grade_learner(predict, tests):
     return mean(int(predict(X) == y) for X, y in tests)
 
 
-def train_and_test(dataset, start, end):
+def train_test_split(dataset, start, end):
     """Reserve dataset.examples[start:end] for test; train on the remainder."""
     start = int(start)
     end = int(end)
@@ -1049,8 +1048,8 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
         examples = dataset.examples
         for fold in range(k):
             random.shuffle(dataset.examples)
-            train_data, val_data = train_and_test(dataset, fold * (n / k),
-                                                  (fold + 1) * (n / k))
+            train_data, val_data = train_test_split(dataset, fold * (n / k),
+                                                    (fold + 1) * (n / k))
             dataset.examples = train_data
             h = learner(dataset, size)
             fold_errT += err_ratio(h, dataset, train_data)
@@ -1060,7 +1059,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
             dataset.examples = examples
         return fold_errT/k, fold_errV/k
 
-
+# TODO: The function cross_validation_wrapper need to be fixed.(The while loop runs forever!)
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     """[Fig 18.8]
     Return the optimal value of size having minimum error
@@ -1096,14 +1095,14 @@ def leave_one_out(learner, dataset, size=None):
     """Leave one out cross-validation over the dataset."""
     return cross_validation(learner, size, dataset, k=len(dataset.examples))
 
-
+# TODO learningcurve needs to fixed
 def learningcurve(learner, dataset, trials=10, sizes=None):
     if sizes is None:
         sizes = list(range(2, len(dataset.examples) - 10, 2))
 
     def score(learner, size):
         random.shuffle(dataset.examples)
-        return train_and_test(learner, dataset, 0, size)
+        return train_test_split(learner, dataset, 0, size)
     return [(size, mean([score(learner, size) for t in range(trials)]))
             for size in sizes]
 
@@ -1229,7 +1228,7 @@ def compare(algorithms=None,
 
     datasets = datasets or [iris, orings, zoo, restaurant, SyntheticRestaurant(20),  # default list
                             Majority(7, 100), Parity(7, 100), Xor(100)]              # of datasets
-    
+
     print_table([[a.__name__.replace('Learner', '')] +
                  [cross_validation(a, d, k, trials) for d in datasets]
                  for a in algorithms],
