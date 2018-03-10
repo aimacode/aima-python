@@ -107,9 +107,9 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`][logic]             | Done | [`logic.ipynb`](logic.ipynb) |
 | 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`][logic]             | Done | [`logic.ipynb`](logic.ipynb) |
 | 7.14   | Convert to CNF                    | `to_cnf`                      | [`logic.py`][logic]             | Done | [`logic.ipynb`](logic.ipynb) |
-| 7.15   | PL-FC-Entails?                    | `pl_fc_resolution`            | [`logic.py`][logic]             | Done |          |
-| 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`][logic]             | Done |          |
-| 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done |          |
+| 7.15   | PL-FC-Entails?                    | `pl_fc_resolution`            | [`logic.py`][logic]             | Done | [`logic.ipynb`](logic.ipynb) |
+| 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`][logic]             | Done | [`logic.ipynb`](logic.ipynb) |
+| 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done | [`logic.ipynb`](logic.ipynb) |
 | 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |
 | 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done |          |
 | 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done |          |
