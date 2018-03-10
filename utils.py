@@ -348,7 +348,20 @@ def vector_clip(vector, lowest, highest):
 # ______________________________________________________________________________
 # Misc Functions
 
-
+class injection():
+    """Dependency injection of temporary values for global functions/classes/etc.
+    E.g., `with injection(DataBase=MockDataBase): ...`"""
+    def __init__(self, **kwds): 
+        self.new = kwds
+    
+    def __enter__(self): 
+        self.old = {v: globals()[v] for v in self.new}
+        globals().update(self.new)
+    
+    def __exit__(self, type, value, traceback): 
+        globals().update(self.old)
+        
+        
 def memoize(fn, slot=None, maxsize=32):
     """Memoize fn: make it remember the computed value for any argument list.
     If slot is specified, store result in that slot of first argument.
@@ -654,27 +667,27 @@ class hashabledict(dict):
     """Allow hashing by representing a dictionary as tuple of key:value pairs
        May cause problems as the hash value may change during runtime
     """
-    def __tuplify__(self):
+    def __tuplify(self):
         return tuple(sorted(self.items()))
 
     def __hash__(self):
-        return hash(self.__tuplify__())
+        return hash(self.__tuplify())
 
     def __lt__(self, odict):
         assert isinstance(odict, hashabledict)
-        return self.__tuplify__() < odict.__tuplify__()
+        return self.__tuplify() < odict.__tuplify()
 
     def __gt__(self, odict):
         assert isinstance(odict, hashabledict)
-        return self.__tuplify__() > odict.__tuplify__()
+        return self.__tuplify() > odict.__tuplify()
 
     def __le__(self, odict):
         assert isinstance(odict, hashabledict)
-        return self.__tuplify__() <= odict.__tuplify__()
+        return self.__tuplify() <= odict.__tuplify()
 
     def __ge__(self, odict):
         assert isinstance(odict, hashabledict)
-        return self.__tuplify__() >= odict.__tuplify__()
+        return self.__tuplify() >= odict.__tuplify()
 
 
 # ______________________________________________________________________________
