@@ -361,7 +361,6 @@ class injection():
     def __exit__(self, type, value, traceback): 
         globals().update(self.old)
         
-        
 def memoize(fn, slot=None, maxsize=32):
     """Memoize fn: make it remember the computed value for any argument list.
     If slot is specified, store result in that slot of first argument.
