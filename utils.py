@@ -348,17 +348,6 @@ def vector_clip(vector, lowest, highest):
 # ______________________________________________________________________________
 # Misc Functions
 
-class injection():
-    """Dependency injection of temporary values for global functions/classes/etc.
-    E.g., `with injection(DataBase=MockDataBase): ...`"""
-    def __init__(self, **kwds): 
-        self.new = kwds
-    def __enter__(self): 
-        self.old = {v: globals()[v] for v in self.new}
-        globals().update(self.new)
-    def __exit__(self, type, value, traceback): 
-        globals().update(self.old)
-
 
 def memoize(fn, slot=None, maxsize=32):
     """Memoize fn: make it remember the computed value for any argument list.
