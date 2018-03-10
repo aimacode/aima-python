@@ -410,11 +410,11 @@ class EightPuzzle(Problem):
     where one of the squares is a blank. A state is represented as a 3x3 list,
     where element at index i,j represents the tile number (0 if it's an empty square) '''
  
-    def __init__(self, initial, goal=[1, 2, 3, 4, 5, 6, 7, 8, 0]):
+    def __init__(self, initial, goal=(1, 2, 3, 4, 5, 6, 7, 8, 0)):
         ''' Define goal state and initialize a problem '''
 
-        self.goal = tuple(goal)
-        Problem.__init__(self, tuple(initial), tuple(goal))
+        self.goal = goal
+        Problem.__init__(self, initial, goal)
     
     def find_blank_square(self, state):
         '''Return the index of the blank square in a given state'''
@@ -444,27 +444,20 @@ class EightPuzzle(Problem):
         ''' Given state and action, return a new state that is the result of the action.
         Action is assumed to be a valid action in the state '''
 
-        # ix is the index of the blank square
-        ix = self.find_blank_square(state)
+        # blank is the index of the blank square
+        blank = self.find_blank_square(state)
         new_state = list(state)
 
-        if action == 'UP':
-            new_state[ix], new_state[ix - 3] = new_state[ix - 3], 0
-        elif action == 'DOWN':
-            new_state[ix], new_state[ix + 3] = new_state[ix + 3], 0
-        elif action == 'LEFT':
-            new_state[ix], new_state[ix - 1] = new_state[ix - 1], 0
-        elif action == 'RIGHT':
-            new_state[ix], new_state[ix + 1] = new_state[ix + 1], 0
-        else:
-            print('Invalid Action')
+        delta = {'UP':-3, 'DOWN':3, 'LEFT':-1, 'RIGHT':1}
+        neighbor = blank + delta[action]
+        new_state[blank], new_state[neighbor] = new_state[neighbor], new_state[blank]
 
         return tuple(new_state)
 
     def goal_test(self, state):
         ''' Given a state, return True if state is a goal state or False, otherwise '''
 
-        if tuple(state) == self.goal:
+        if state == self.goal:
             return True
         return False
 
@@ -476,23 +469,14 @@ class EightPuzzle(Problem):
             for j in range(i, len(state)):
                 if (state[i] > state[j] and state[j] != 0):
                     inversion += 1
-        check = True
-
-        if inversion % 2 != 0:
-            check = False
-        return check
+        
+        return (inversion % 2 == 0)
     
     def h(self, node):
         ''' Return the heuristic value for a given state. Default heuristic function used is 
         h(n) = number of misplaced tiles '''
 
-        num_misplaced_tiles = 0
-
-        for i in range(len(node.state)):
-            if node.state[i] != self.goal[i]:
-                num_misplaced_tiles += 1
-
-        return num_misplaced_tiles
+        return sum(s != g for (s, g) in zip(node.state, self.goal))
 
 # ______________________________________________________________________________
 # Other search algorithms
