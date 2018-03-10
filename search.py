@@ -457,9 +457,7 @@ class EightPuzzle(Problem):
     def goal_test(self, state):
         ''' Given a state, return True if state is a goal state or False, otherwise '''
 
-        if state == self.goal:
-            return True
-        return False
+        return state == self.goal
 
     def check_solvability(self, state):
         ''' Checks if the given state is solvable '''
