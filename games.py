@@ -46,40 +46,46 @@ def expectiminimax(state, game):
 	includes chance nodes along with min and max nodes. [Figure 5.11]"""
     player = game.to_move(state)
 
-    def max_value(state):
-        if game.terminal_test(state):
-            return game.utility(state, player)
+    def max_value(state, depth):
         v = -infinity
         for a in game.actions(state):
-            v = max(v, chance_node(state, a))
+            v = max(v, chance_node(copy.deepcopy(state), a, depth+1))
         return v
 
-    def min_value(state):
-        if game.terminal_test(state):
-            return game.utility(state, player)
+    def min_value(state, depth):
         v = infinity
         for a in game.actions(state):
-            v = min(v, chance_node(state, a))
+            v = min(v, chance_node(copy.deepcopy(state), a, depth+1))
         return v
 
-    def chance_node(state, action):
+    def chance_node(state, action, depth):
         res_state = game.result(state, action)
+        if game.terminal_test(state):
+            return game.utility(state, player)
+        print(action, " : Action")
         sum_chances = 0
         num_chances = 21
         dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
         if res_state.to_move == 'W':
             for val in dice_rolls:
+                game.display(res_state)
                 game.dice_roll = (-val[0], -val[1])
-                sum_chances += max_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
+                print(depth)
+                print(game.dice_roll," : Dice roll")
+                sum_chances += max_value(res_state, depth+1) * (1/36 if val[0] == val[1] else 1/18)
         elif res_state.to_move == 'B':
             for val in dice_rolls:
+                game.display(res_state)
                 game.dice_roll = val
-                sum_chances += min_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
+                print(depth)
+                print(game.dice_roll)
+                sum_chances += min_value(res_state, depth+1) * (1/36 if val[0] == val[1] else 1/18)
+        print("chaaaaaaaaaaaaaaaaaaaaaaaaannnnce : ", sum_chances / num_chances)
         return sum_chances / num_chances
 
     # Body of expectiminimax:
     return argmax(game.actions(state),
-                  key=lambda a: chance_node(state, a))
+                  key=lambda a: chance_node(state, a, 0))
 
 
 def alphabeta_search(state, game):
@@ -197,6 +203,8 @@ def alphabeta_player(game, state):
     return alphabeta_search(state, game)
 
 def expectiminimax_player(game, state):
+    game.display(state)
+    print(game.dice_roll)
     return expectiminimax(state, game)
 
 
@@ -246,6 +254,7 @@ class Game:
         while True:
             for player in players:
                 move = player(self, state)
+                print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
                 state = self.result(state, move)
                 if self.terminal_test(state):
                     self.display(state)
@@ -403,6 +412,8 @@ class Backgammon(Game):
         """Returns a list of legal moves for a state."""
         player = state.to_move
         moves = state.moves
+        if len(moves) == 1 and len(moves[0]) == 1:
+            return moves
         legal_moves = []
         for move in moves:
             board = copy.deepcopy(state.board)
@@ -414,7 +425,8 @@ class Backgammon(Game):
         board = copy.deepcopy(state.board)
         player = state.to_move
         board.move_checker(move[0], self.dice_roll[0], player)
-        board.move_checker(move[1], self.dice_roll[1], player)
+        if len(move) == 2:
+            board.move_checker(move[1], self.dice_roll[1], player)
         to_move = ('W' if player == 'B' else 'B')
         return GameState(to_move=to_move,
                          utility=self.compute_utility(board, move, to_move),
@@ -437,6 +449,8 @@ class Backgammon(Game):
         all_points = board.points
         taken_points = [index for index, point in enumerate(all_points)
                         if point[player] > 0]
+        if board.checkers_at_home(player) == 1:
+            return [(taken_points[0], )] 
         moves = list(itertools.permutations(taken_points, 2))
         moves = moves + [(index, index) for index, point in enumerate(all_points)
                          if point[player] >= 2]
@@ -448,12 +462,12 @@ class Backgammon(Game):
         player = state.to_move
         for index, point in enumerate(board.points):
             if point['W'] != 0 or point['B'] != 0:
-                print("Point : ", index, "	W : ", point['W'], "	B : ", point['B'])
+                print("Point : ", index, "	W : ", point['W'], "    B : ", point['B'])
         print("player : ", player)
 
 
     def compute_utility(self, board, move, player):
-        """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
+        """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""        
         count = 0
         for idx in range(0, 24):
             count = count + board.points[idx][player]
@@ -531,3 +545,23 @@ class BackgammonBoard:
         move a checker to a point only if it is open."""
         opponent = 'B' if player == 'W' else 'W'
         return point[opponent] <= 1
+
+
+if __name__ == "__main__":
+    bgm = Backgammon()
+    board = BackgammonBoard()
+    board.points[0]['B'] = board.points[23]['W'] = 0
+    board.points[5]['W'] = board.points[18]['B'] = 0
+    board.points[7]['W'] = board.points[16]['B'] = 0
+    board.points[11]['B'] = board.points[12]['W'] = 0
+    board.points[11]['B'] = board.points[0]['W'] = 1
+    board.allow_bear_off = {'W': True, 'B': False}
+    initial =  GameState(to_move='W',
+                                 utility=0, board=board, moves=bgm.get_all_moves(board, 'W'))
+    moves = bgm.actions(initial)    
+    print(moves)
+    print(bgm.get_all_moves(board, 'W'))
+    bgm.display(initial)
+    res = bgm.result(initial, moves[0])
+    bgm.display(res)
+    print(bgm.utility(res, res.to_move))
