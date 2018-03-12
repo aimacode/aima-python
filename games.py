@@ -429,7 +429,7 @@ class Backgammon(Game):
             board.move_checker(move[1], self.dice_roll[1], player)
         to_move = ('W' if player == 'B' else 'B')
         return GameState(to_move=to_move,
-                         utility=self.compute_utility(board, move, to_move),
+                         utility=self.compute_utility(board, move, player),
                          board=board,
                          moves=self.get_all_moves(board, to_move))
 
@@ -545,7 +545,6 @@ class BackgammonBoard:
         move a checker to a point only if it is open."""
         opponent = 'B' if player == 'W' else 'W'
         return point[opponent] <= 1
-
 
 if __name__ == "__main__":
     bgm = Backgammon()
