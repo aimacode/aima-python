@@ -688,12 +688,99 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
     return None
 
 # ______________________________________________________________________________
+class WumpusKB(PropKB):
+    """
+    Create a Knowledge Base that contains the atemporal "Wumpus physics" and temporal rules with time zero.
+    """
+    def __init__(self,dimrow):
+        super().__init__()
+        self.dimrow = dimrow
+        self.tell('( NOT W1s1 )')
+        self.tell('( NOT P1s1 )')
+        for i in range(1, dimrow+1):
+            for j in range(1, dimrow+1):
+                bracket = 0
+                sentence_b_str = "( B" + i + "s" + j + " <=> "
+                sentence_s_str = "( S" + i + "s" + j + " <=> "
+                if i > 1:
+                    sentence_b_str += "( P" + (i-1) + "s" + j + " OR "
+                    sentence_s_str += "( W" + (i-1) + "s" + j + " OR "
+                    bracket += 1
+
+                if i < dimRow:
+                    sentence_b_str += "( P" + (i+1) + "s" + j + " OR "
+                    sentence_s_str += "( W" + (i+1) + "s" + j + " OR "
+                    bracket += 1
+
+                if j > 1:
+                    if j == dimRow:
+                        sentence_b_str += "P" + i + "s" + (j-1) + " "
+                        sentence_s_str += "W "+ i + "s" + (j-1) + " "
+                    else:
+                        sentence_b_str += "( P" + i + "s" + (j-1) + " OR "
+                        sentence_s_str += "( W" + i + "s" + (j-1) + " OR "
+                        bracket += 1
+
+                if j < dimRow:
+                sentence_b_str += "P" + i + "s" + (j+1) + " "
+                sentence_s_str += "W" + i + "s" + (j+1) + " "
+
+
+                for _ in range(bracket):
+                    sentence_b_str += ") "
+                    sentence_s_str += ") "
+
+                sentence_b_str += ") "
+                sentence_s_str += ") "
+
+                self.tell(sentence_b_str)
+                self.tell(sentence_s_str)
+
+
+        ## Rule that describes existence of at least one Wumpus
+        sentence_w_str = ""
+        for i in range(1, dimrow+1):
+            for j in range(1, dimrow+1):
+                if (i == dimrow) and (j == dimrow):
+                    sentence_w_str += " W" + dimRow + "s" + dimrow + " "
+                else:
+                    sentence_w_str += "( W" + i + "s" + j + " OR "
+        for _ in range(dimrow**2):
+            sentence_w_str += ") "
+        self.tell(sentence_w_str)
+
+
+        ## Rule that describes existence of at most one Wumpus
+        for i in range(1, dimrow+1):
+            for j in range(1, dimrow+1):
+                for u in range(1, dimrow+1):
+                    for v in range(1, dimrow+1):
+                        if i!=u or j!=v:
+                            self.tell("( ( NOT W" + i + "s" + j + " ) OR ( NOT W" + u + "s" + v + " ) )")
+
+        ## Temporal rules at time zero
+        self.tell("L1s1s0")
+        for i in range(1, dimrow+1):
+            for j in range(1, dimrow + 1):
+                self.tell("( L" + i + "s" + j + "s0 => ( Breeze0 <=> B" + i + "s" + j + " ) )")
+                self.tell("( L" + i + "s" + j + "s0 => ( Stench0 <=> S" + i + "s" + j + " ) )")
+                if i != 1 or j != 1:
+                    self.tell("( NOT L" + i + "s" + j + "s" + "0 )")
+        self.tell("WumpusAlive0")
+        self.tell("HaveArrow0")
+        self.tell("FacingEast0")
+        self.tell("( NOT FacingWest0 )")
+        self.tell("( NOT FacingNorth0 )")
+        self.tell("( NOT FacingSouth0 )")
+
+
 
 
 class HybridWumpusAgent(agents.Agent):
     """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
     def __init__(self):
+        # KB = WumpusKB()
         raise NotImplementedError
 
 
