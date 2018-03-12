@@ -722,8 +722,8 @@ class WumpusKB(PropKB):
                         bracket += 1
 
                 if j < dimRow:
-                sentence_b_str += "P" + i + "s" + (j+1) + " "
-                sentence_s_str += "W" + i + "s" + (j+1) + " "
+                    sentence_b_str += "P" + i + "s" + (j+1) + " "
+                    sentence_s_str += "W" + i + "s" + (j+1) + " "
 
 
                 for _ in range(bracket):
