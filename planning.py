@@ -524,7 +524,7 @@ def spare_tire_graphplan():
             if solution:
                 return solution
         graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels)>=2 and graphplan.check_leveloff():
+        if len(graphplan.graph.levels) >=2 and graphplan.check_leveloff():
             return None
 
 
