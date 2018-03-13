@@ -276,8 +276,8 @@ class Level():
             if negeff in self.next_state_links_neg:
                 for a in self.next_state_links_pos[poseff]:
                     for b in self.next_state_links_neg[negeff]:
-                        if set([a, b]) not in self.mutex:
-                            self.mutex.append(set([a, b]))
+                        if {a, b} not in self.mutex:
+                            self.mutex.append({a, b})
 
         # Interference
         for posprecond in self.current_state_links_pos:
@@ -285,16 +285,16 @@ class Level():
             if negeff in self.next_state_links_neg:
                 for a in self.current_state_links_pos[posprecond]:
                     for b in self.next_state_links_neg[negeff]:
-                        if set([a, b]) not in self.mutex:
-                            self.mutex.append(set([a, b]))
+                        if {a, b} not in self.mutex:
+                            self.mutex.append({a, b})
 
         for negprecond in self.current_state_links_neg:
             poseff = negprecond
             if poseff in self.next_state_links_pos:
                 for a in self.next_state_links_pos[poseff]:
                     for b in self.current_state_links_neg[negprecond]:
-                        if set([a, b]) not in self.mutex:
-                            self.mutex.append(set([a, b]))
+                        if {a, b} not in self.mutex:
+                            self.mutex.append({a, b})
 
         # Competing needs
         for posprecond in self.current_state_links_pos:
@@ -302,8 +302,8 @@ class Level():
             if negprecond in self.current_state_links_neg:
                 for a in self.current_state_links_pos[posprecond]:
                     for b in self.current_state_links_neg[negprecond]:
-                        if set([a, b]) not in self.mutex:
-                            self.mutex.append(set([a, b]))
+                        if {a, b} not in self.mutex:
+                            self.mutex.append({a, b})
 
         # Inconsistent support
         state_mutex = []
@@ -314,7 +314,7 @@ class Level():
             else:
                 next_state_1 = self.next_action_links[list(pair)[0]]
             if (len(next_state_0) == 1) and (len(next_state_1) == 1):
-                state_mutex.append(set([next_state_0[0], next_state_1[0]]))
+                state_mutex.append({next_state_0[0], next_state_1[0]})
 
         self.mutex = self.mutex+state_mutex
 
@@ -565,18 +565,20 @@ class HLA(Action):
     """
     unique_group = 1
 
-    def __init__(self, action, precond=[None, None], effect=[None, None], duration=0,
-                 consume={}, use={}):
+    def __init__(self, action, precond=None, effect=None, duration=0,
+                 consume=None, use=None):
         """
         As opposed to actions, to define HLA, we have added constraints.
         duration holds the amount of time required to execute the task
         consumes holds a dictionary representing the resources the task consumes
         uses holds a dictionary representing the resources the task uses
         """
+        precond = precond or [None, None]
+        effect = effect or [None, None]
         super().__init__(action, precond, effect)
         self.duration = duration
-        self.consumes = consume
-        self.uses = use
+        self.consumes = consume or {}
+        self.uses = use or {}
         self.completed = False
         # self.priority = -1 #  must be assigned in relation to other HLAs
         # self.job_group = -1 #  must be assigned in relation to other HLAs
@@ -644,10 +646,10 @@ class Problem(PDDL):
     This class is identical to PDLL, except that it overloads the act function to handle
     resource and ordering conditions imposed by HLA as opposed to Action.
     """
-    def __init__(self, initial_state, actions, goal_test, jobs=None, resources={}):
+    def __init__(self, initial_state, actions, goal_test, jobs=None, resources=None):
         super().__init__(initial_state, actions, goal_test)
         self.jobs = jobs
-        self.resources = resources
+        self.resources = resources or {}
 
     def act(self, action):
         """

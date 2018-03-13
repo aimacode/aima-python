@@ -165,10 +165,11 @@ def enumerate_joint(variables, e, P):
 class BayesNet:
     """Bayesian network containing only boolean-variable nodes."""
 
-    def __init__(self, node_specs=[]):
+    def __init__(self, node_specs=None):
         """Nodes must be ordered with parents before children."""
         self.nodes = []
         self.variables = []
+        node_specs = node_specs or []
         for node_spec in node_specs:
             self.add(node_spec)
 
@@ -526,10 +527,10 @@ def markov_blanket_sample(X, e, bn):
 class HiddenMarkovModel:
     """A Hidden markov model which takes Transition model and Sensor model as inputs"""
 
-    def __init__(self, transition_model, sensor_model, prior=[0.5, 0.5]):
+    def __init__(self, transition_model, sensor_model, prior=None):
         self.transition_model = transition_model
         self.sensor_model = sensor_model
-        self.prior = prior
+        self.prior = prior or [0.5, 0.5]
 
     def sensor_dist(self, ev):
         if ev is True:
@@ -561,10 +562,10 @@ def forward_backward(HMM, ev, prior):
     t = len(ev)
     ev.insert(0, None)  # to make the code look similar to pseudo code
 
-    fv = [[0.0, 0.0] for i in range(len(ev))]
+    fv = [[0.0, 0.0] for _ in range(len(ev))]
     b = [1.0, 1.0]
     bv = [b]    # we don't need bv; but we will have a list of all backward messages here
-    sv = [[0, 0] for i in range(len(ev))]
+    sv = [[0, 0] for _ in range(len(ev))]
 
     fv[0] = prior
 

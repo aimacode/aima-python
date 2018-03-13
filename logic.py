@@ -901,10 +901,11 @@ class FolKB(KB):
     False
     """
 
-    def __init__(self, initial_clauses=[]):
+    def __init__(self, initial_clauses=None):
         self.clauses = []  # inefficient: no indexing
-        for clause in initial_clauses:
-            self.tell(clause)
+        if initial_clauses:
+            for clause in initial_clauses:
+                self.tell(clause)
 
     def tell(self, sentence):
         if is_definite_clause(sentence):

@@ -37,19 +37,19 @@ class NgramWordModel(CountingProbDist):
     You can add, sample or get P[(word1, ..., wordn)]. The method P.samples(n)
     builds up an n-word sequence; P.add_cond_prob and P.add_sequence add data."""
 
-    def __init__(self, n, observation_sequence=[], default=0):
+    def __init__(self, n, observation_sequence=None, default=0):
         # In addition to the dictionary of n-tuples, cond_prob is a
         # mapping from (w1, ..., wn-1) to P(wn | w1, ... wn-1)
         CountingProbDist.__init__(self, default=default)
         self.n = n
         self.cond_prob = defaultdict()
-        self.add_sequence(observation_sequence)
+        self.add_sequence(observation_sequence or [])
 
     # __getitem__, top, sample inherited from CountingProbDist
     # Note that they deal with tuples, not strings, as inputs
 
     def add_cond_prob(self, ngram):
-        """Builds the conditional probabilities P(wn | (w1, ..., wn-1)"""
+        """Build the conditional probabilities P(wn | (w1, ..., wn-1)"""
         if ngram[:-1] not in self.cond_prob:
             self.cond_prob[ngram[:-1]] = CountingProbDist()
         self.cond_prob[ngram[:-1]].add(ngram[-1])
@@ -88,14 +88,16 @@ class NgramCharModel(NgramWordModel):
 
 
 class UnigramCharModel(NgramCharModel):
-    def __init__(self, observation_sequence=[], default=0):
+    def __init__(self, observation_sequence=None, default=0):
         CountingProbDist.__init__(self, default=default)
         self.n = 1
         self.cond_prob = defaultdict()
-        self.add_sequence(observation_sequence)
+        self.add_sequence(observation_sequence or [])
 
     def add_sequence(self, words):
-        [self.add(char) for word in words for char in list(word)]
+        for word in words:
+            for char in word:
+                self.add(char)
 
 # ______________________________________________________________________________
 
@@ -368,9 +370,9 @@ class PermutationDecoder:
         """Search for a decoding of the ciphertext."""
         self.ciphertext = canonicalize(ciphertext)
         # reduce domain to speed up search
-        self.chardomain = {c for c in self.ciphertext if c is not ' '}
+        self.chardomain = {c for c in self.ciphertext if c != ' '}
         problem = PermutationDecoderProblem(decoder=self)
-        solution =  search.best_first_graph_search(
+        solution = search.best_first_graph_search(
             problem, lambda node: self.score(node.state))
 
         solution.state[' '] = ' '
@@ -388,9 +390,9 @@ class PermutationDecoder:
 
         # add small positive value to prevent computing log(0)
         # TODO: Modify the values to make score more accurate
-        logP = (sum([log(self.Pwords[word] + 1e-20) for word in words(text)]) +
-                sum([log(self.P1[c] + 1e-5) for c in text]) +
-                sum([log(self.P2[b] + 1e-10) for b in bigrams(text)]))
+        logP = (sum(log(self.Pwords[word] + 1e-20) for word in words(text)) +
+                sum(log(self.P1[c] + 1e-5) for c in text) +
+                sum(log(self.P2[b] + 1e-10) for b in bigrams(text)))
         return -exp(logP)
 
 

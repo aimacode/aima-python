@@ -71,13 +71,13 @@ class PassiveADPAgent:
         """ Class for implementing modified Version of input MDP with
         an editable transition model P and a custom function T. """
         def __init__(self, init, actlist, terminals, gamma, states):
-            super().__init__(init, actlist, terminals, states = states, gamma = gamma)
+            super().__init__(init, actlist, terminals, states=states, gamma=gamma)
             nested_dict = lambda: defaultdict(nested_dict)
             # StackOverflow:whats-the-best-way-to-initialize-a-dict-of-dicts-in-python
             self.P = nested_dict()
 
         def T(self, s, a):
-            """Returns a list of tuples with probabilities for states
+            """Return a list of tuples with probabilities for states
             based on the learnt model P."""
             return [(prob, res) for (res, prob) in self.P[(s, a)].items()]
 
@@ -120,8 +120,8 @@ class PassiveADPAgent:
         return self.a
 
     def update_state(self, percept):
-        '''To be overridden in most cases. The default case
-        assumes the percept to be of type (state, reward)'''
+        """To be overridden in most cases. The default case
+        assumes the percept to be of type (state, reward)."""
         return percept
 
 
@@ -146,7 +146,7 @@ class PassiveTDAgent:
         if alpha:
             self.alpha = alpha
         else:
-            self.alpha = lambda n: 1./(1+n)  # udacity video
+            self.alpha = lambda n: 1/(1+n)  # udacity video
 
     def __call__(self, percept):
         s1, r1 = self.update_state(percept)
@@ -164,8 +164,8 @@ class PassiveTDAgent:
         return self.a
 
     def update_state(self, percept):
-        ''' To be overridden in most cases. The default case
-        assumes the percept to be of type (state, reward)'''
+        """To be overridden in most cases. The default case
+        assumes the percept to be of type (state, reward)."""
         return percept
 
 
@@ -202,7 +202,7 @@ class QLearningAgent:
             return u
 
     def actions_in_state(self, state):
-        """ Returns actions possible in given state.
+        """ Return actions possible in given state.
             Useful for max and argmax. """
         if state in self.terminals:
             return [None]
@@ -229,21 +229,21 @@ class QLearningAgent:
         return self.a
 
     def update_state(self, percept):
-        ''' To be overridden in most cases. The default case
-        assumes the percept to be of type (state, reward)'''
+        """To be overridden in most cases. The default case
+        assumes the percept to be of type (state, reward)."""
         return percept
 
 
 def run_single_trial(agent_program, mdp):
-    ''' Execute trial for given agent_program
+    """Execute trial for given agent_program
     and mdp. mdp should be an instance of subclass
-    of mdp.MDP '''
+    of mdp.MDP """
 
     def take_single_action(mdp, s, a):
-        '''
-        Selects outcome of taking action a
+        """
+        Select outcome of taking action a
         in state s. Weighted Sampling.
-        '''
+        """
         x = random.uniform(0, 1)
         cumulative_probability = 0.0
         for probability_state in mdp.T(s, a):
