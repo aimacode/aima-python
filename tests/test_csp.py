@@ -351,6 +351,61 @@ def test_min_conflicts():
 
     australia_impossible = MapColoringCSP(list('RG'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
     assert min_conflicts(australia_impossible, 1000) is None
+    assert min_conflicts(NQueensCSP(2), 1000) is None
+    assert min_conflicts(NQueensCSP(3), 1000) is None
+
+
+def test_nqueens_csp():
+    csp = NQueensCSP(8)
+
+    assignment = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4}
+    csp.assign(5, 5, assignment)
+    assert len(assignment) == 6
+    csp.assign(6, 6, assignment)
+    assert len(assignment) == 7
+    csp.assign(7, 7, assignment)
+    assert len(assignment) == 8
+    assert assignment[5] == 5
+    assert assignment[6] == 6
+    assert assignment[7] == 7
+    assert csp.nconflicts(3, 2, assignment) == 0
+    assert csp.nconflicts(3, 3, assignment) == 0
+    assert csp.nconflicts(1, 5, assignment) == 1
+    assert csp.nconflicts(7, 5, assignment) == 2
+    csp.unassign(1, assignment)
+    csp.unassign(2, assignment)
+    csp.unassign(3, assignment)
+    assert 1 not in assignment
+    assert 2 not in assignment
+    assert 3 not in assignment
+
+    assignment = {}
+    assignment = {0: 0, 1: 1, 2: 4, 3: 1, 4: 6}
+    csp.assign(5, 7, assignment)
+    assert len(assignment) == 6
+    csp.assign(6, 6, assignment)
+    assert len(assignment) == 7
+    csp.assign(7, 2, assignment)
+    assert len(assignment) == 8
+    assert assignment[5] == 7
+    assert assignment[6] == 6
+    assert assignment[7] == 2
+    assignment = {0: 0, 1: 1, 2: 4, 3: 1, 4: 6, 5: 7, 6: 6, 7: 2}
+    assert csp.nconflicts(7, 7, assignment) == 4
+    assert csp.nconflicts(3, 4, assignment) == 0
+    assert csp.nconflicts(2, 6, assignment) == 2
+    assert csp.nconflicts(5, 5, assignment) == 3
+    csp.unassign(4, assignment)
+    csp.unassign(5, assignment)
+    csp.unassign(6, assignment)
+    assert 4 not in assignment
+    assert 5 not in assignment
+    assert 6 not in assignment
+
+    for n in range(5, 9):
+        csp = NQueensCSP(n)
+        solution = min_conflicts(csp)
+        assert not solution or sorted(solution.values()) == list(range(n))
 
 
 def test_universal_dict():
