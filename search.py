@@ -406,25 +406,25 @@ def astar_search(problem, h=None):
 
 class EightPuzzle(Problem):
 
-    ''' The problem of sliding tiles numbered from 1 to 8 on a 3x3 board,
+    """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board,
     where one of the squares is a blank. A state is represented as a 3x3 list,
-    where element at index i,j represents the tile number (0 if it's an empty square) '''
+    where element at index i,j represents the tile number (0 if it's an empty square) """
  
     def __init__(self, initial, goal=(1, 2, 3, 4, 5, 6, 7, 8, 0)):
-        ''' Define goal state and initialize a problem '''
+        """ Define goal state and initialize a problem """
 
         self.goal = goal
         Problem.__init__(self, initial, goal)
     
     def find_blank_square(self, state):
-        '''Return the index of the blank square in a given state'''
+        """Return the index of the blank square in a given state"""
 
         return state.index(0)
     
     def actions(self, state):
-        ''' Return the actions that can be executed in the given state.
+        """ Return the actions that can be executed in the given state.
         The result would be a list, since there are only four possible actions
-        in any given state of the environment '''
+        in any given state of the environment """
         
         possible_actions = ['UP', 'DOWN', 'LEFT', 'RIGHT']       
         index_blank_square = self.find_blank_square(state)
@@ -441,8 +441,8 @@ class EightPuzzle(Problem):
         return possible_actions
 
     def result(self, state, action):
-        ''' Given state and action, return a new state that is the result of the action.
-        Action is assumed to be a valid action in the state '''
+        """ Given state and action, return a new state that is the result of the action.
+        Action is assumed to be a valid action in the state """
 
         # blank is the index of the blank square
         blank = self.find_blank_square(state)
@@ -455,12 +455,12 @@ class EightPuzzle(Problem):
         return tuple(new_state)
 
     def goal_test(self, state):
-        ''' Given a state, return True if state is a goal state or False, otherwise '''
+        """ Given a state, return True if state is a goal state or False, otherwise """
 
         return state == self.goal
 
     def check_solvability(self, state):
-        ''' Checks if the given state is solvable '''
+        """ Checks if the given state is solvable """
 
         inversion = 0
         for i in range(len(state)):
@@ -471,8 +471,8 @@ class EightPuzzle(Problem):
         return (inversion % 2 == 0)
     
     def h(self, node):
-        ''' Return the heuristic value for a given state. Default heuristic function used is 
-        h(n) = number of misplaced tiles '''
+        """ Return the heuristic value for a given state. Default heuristic function used is 
+        h(n) = number of misplaced tiles """
 
         return sum(s != g for (s, g) in zip(node.state, self.goal))
 
