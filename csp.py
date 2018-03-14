@@ -351,7 +351,7 @@ def topological_sort(X, root):
 
 
 def build_topological(node, parent, neighbors, visited, stack, parents):
-    """Builds the topological sort and the parents of each node in the graph"""
+    """Build the topological sort and the parents of each node in the graph."""
     visited[node] = True
 
     for n in neighbors[node]:
@@ -427,7 +427,7 @@ def MapColoringCSP(colors, neighbors):
                different_values_constraint)
 
 
-def parse_neighbors(neighbors, variables=[]):
+def parse_neighbors(neighbors, variables=None):
     """Convert a string of the form 'X: Y Z; Y: Z' into a dict mapping
     regions to neighbors. The syntax is a region name followed by a ':'
     followed by zero or more region names, followed by ';', repeated for
