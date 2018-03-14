@@ -870,15 +870,140 @@ class WumpusKB(PropKB):
 # ______________________________________________________________________________
 
 
+class WumpusPosition():
+    def __init__(self, X, Y, orientation):
+        self.X = X
+        self.Y = Y
+        self.orientation = orientation
+
+
+    def get_location(self):
+        return self.X, self.Y
+
+    def get_orientation(self):
+        return self.orientation
+
+    def equals(self, wumpus_position):
+        if wumpus_position.get_location() == self.get_location() and \
+                        wumpus_position.get_orientation()==self.get_orientation():
+            return True
+        else:
+            return False
+        
+# ______________________________________________________________________________
+
+
 class HybridWumpusAgent(agents.Agent):
     """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
     def __init__(self):
-        raise NotImplementedError
+        super().__init__()
+        self.dimrow = 3
+        self.kb = WumpusKB(self.dimrow)
+        self.t = 0
+        self.plan = list()
+        self.current_position = WumpusPosition(1, 1, 'UP')
+
+
+    def execute(self, percept):
+        self.kb.make_percept_sentence(percept, self.t)
+        self.kb.add_temporal_sentences(self.t)
+
+        temp = list()
+
+        for i in range(1, self.dimrow+1):
+            for j in range(1, self.dimrow+1):
+                if self.kb.ask_with_dpll('L' + i + 's' + j + 's' + self.t):
+                    temp.append(i)
+                    temp.append(j)
+
+        if self.kb.ask_with_dpll('FacingNorth' + self.t):
+            self.current_position = WumpusPosition(temp[0], temp[1], 'UP')
+        elif self.kb.ask_with_dpll('FacingSouth' + self.t):
+            self.current_position = WumpusPosition(temp[0], temp[1], 'DOWN')
+        elif self.kb.ask_with_dpll('FacingWest' + self.t):
+            self.current_position = WumpusPosition(temp[0], temp[1], 'LEFT')
+        elif self.kb.ask_with_dpll('FacingEast' + self.t):
+            self.current_position = WumpusPosition(temp[0], temp[1], 'RIGHT')
+
+        safe_points = list()
+        for i in range(1, self.dimrow+1):
+            for j in range(1, self.dimrow+1):
+                if self.kb.ask_with_dpll('OK' + i + 's' + j + 's' + self.t):
+                    safe_points.append([i, j])
+
+        if self.kb.ask_with_dpll('Glitter' + self.t):
+            goals = list()
+            goals.append([1, 1])
+            self.plan.append('Grab')
+            actions = plan_route(self.current_position,goals,safe_points)
+            for action in actions:
+                self.plan.append(action)
+            self.plan.append('Climb')
+
+        if len(self.plan) == 0:
+            unvisited = list()
+            for i in range(1, self.dimrow+1):
+                for j in range(1, self.dimrow+1):
+                    for k in range(1, self.dimrow+1):
+                        if self.kb.ask_with_dpll("L" + i + "s" + j + "s" + k):
+                            unvisited.append([i, j])
+            unvisited_and_safe = list()
+            for u in unvisited:
+                for s in safe_points:
+                    if u not in unvisited_and_safe and s == u:
+                        unvisited_and_safe.append(u)
+
+            temp = plan_route(self.current_position,unvisited_and_safe,safe_points)
+            for t in temp:
+                self.plan.append(t)
+
+        if len(self.plan) == 0 and self.kb.ask_with_dpll('HaveArrow' + self.t):
+            possible_wumpus = list()
+            for i in range(1, self.dimrow+1):
+                for j in range(1, self.dimrow+1):
+                    if not self.kb.ask_with_dpll('W' + i + 's' + j):
+                        possible_wumpus.append([i, j])
+
+            temp = plan_shot(self.current_position, possible_wumpus, safe_points)
+            for t in temp:
+                self.plan.append(t)
+
+        if len(self.plan) == 0:
+            not_unsafe = list()
+            for i in range(1, self.dimrow+1):
+                for j in range(1, self.dimrow+1):
+                    if not self.kb.ask_with_dpll('OK' + i + 's' + j + 's' + self.t):
+                        not_unsafe.append([i, j])
+            temp = plan_route(self.current_position, not_unsafe, safe_points)
+            for t in temp:
+                self.plan.append(t)
+
+        if len(self.plan) == 0:
+            start = list()
+            start.append([1, 1])
+            temp = plan_route(self.current_position, start, safe_points)
+            for t in temp:
+                self.plan.append(t)
+            self.plan.append('Climb')
+
+
+
+        action = self.plan[1:]
+
+        self.kb.make_action_sentence(action, self.t)
+        self.t += 1
+
+        return action
 
 
 def plan_route(current, goals, allowed):
     raise NotImplementedError
+
+    
+def plan_shot(current, goals, allowed):
+    raise NotImplementedError
+
 
 # ______________________________________________________________________________
 
