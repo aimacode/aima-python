@@ -63,7 +63,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 2.3    | Table-Driven-Vacuum-Agent         | `TableDrivenVacuumAgent`      | [`agents.py`][agents]           | Done | Included |
 | 2.7    | Table-Driven-Agent                | `TableDrivenAgent`            | [`agents.py`][agents]           | Done | Included |
 | 2.8    | Reflex-Vacuum-Agent               | `ReflexVacuumAgent`           | [`agents.py`][agents]           | Done | Included |
-| 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           |      | Included |
+| 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           | Done | Included |
 | 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`][agents]           |      | Included |
 | 3      | Problem                           | `Problem`                     | [`search.py`][search]           | Done | Included |
 | 3      | Node                              | `Node`                        | [`search.py`][search]           | Done | Included |
