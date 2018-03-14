@@ -26,7 +26,7 @@ class PDDL:
         """
         Performs the action given as argument.
         Note that action is an Expr like expr('Remove(Glass, Table)') or expr('Eat(Sandwich)')
-        """
+        """       
         action_name = action.op
         args = action.args
         list_action = first(a for a in self.actions if a.name == action_name)
@@ -74,6 +74,7 @@ class Action:
     def check_precond(self, kb, args):
         """Checks if the precondition is satisfied in the current state"""
         # check for positive clauses
+        #print (self.precond_pos[0].__eq__(expr('At(actor, loc)')), self.precond_neg)
         for clause in self.precond_pos:
             if self.substitute(clause, args) not in kb.clauses:
                 return False
@@ -536,7 +537,7 @@ def double_tennis_problem():
             expr('Partner(B, A)')]
 
     def goal_test(kb):
-        required = [expr('Goal(Returned(Ball))'), expr('At(a, RightNet)'), expr('At(a, LeftNet)')]
+        required = [expr('Returned(Ball)'), expr('At(a, LeftNet)'), expr('At(a, RightNet)')]
         return all(kb.ask(q) is not False for q in required)
 
     # Actions
@@ -546,14 +547,14 @@ def double_tennis_problem():
     precond_neg = []
     effect_add = [expr("Returned(Ball)")]
     effect_rem = []
-    hit = Action(expr("Hit(actor, Ball)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    hit = Action(expr("Hit(actor, Ball, loc)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     # Go
     precond_pos = [expr("At(actor, loc)")]
     precond_neg = []
     effect_add = [expr("At(actor, to)")]
     effect_rem = [expr("At(actor, loc)")]
-    go = Action(expr("Go(actor, to)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+    go = Action(expr("Go(actor, to, loc)"), [precond_pos, precond_neg], [effect_add, effect_rem])
 
     return PDDL(init, [hit, go], goal_test)
 
@@ -864,3 +865,17 @@ def job_shop_problem():
 
     return Problem(init, [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2],
                    goal_test, [job_group1, job_group2], resources)
+
+
+def test_three_block_tower():
+    p = three_block_tower()
+    assert p.goal_test() is False
+    solution = [expr("MoveToTable(C, A)"),
+                expr("Move(B, Table, C)"),
+                expr("Move(A, Table, B)")]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()
+
