@@ -12,6 +12,9 @@ install:
   - pip install flake8
   - pip install ipython
   - pip install matplotlib
+  - pip install networkx
+  - pip install ipywidgets
+  - pip install Pillow
 
 script:
   - py.test

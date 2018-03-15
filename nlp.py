@@ -272,7 +272,7 @@ E_Prob_Chomsky = ProbGrammar('E_Prob_Chomsky', # A Probabilistic Grammar in CNF
 class Chart:
 
     """Class for parsing sentences using a chart data structure.
-    >>> chart = Chart(E0);
+    >>> chart = Chart(E0)
     >>> len(chart.parses('the stench is in 2 2'))
     1
     """

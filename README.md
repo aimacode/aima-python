@@ -63,7 +63,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 2.3    | Table-Driven-Vacuum-Agent         | `TableDrivenVacuumAgent`      | [`agents.py`][agents]           | Done | Included |
 | 2.7    | Table-Driven-Agent                | `TableDrivenAgent`            | [`agents.py`][agents]           | Done | Included |
 | 2.8    | Reflex-Vacuum-Agent               | `ReflexVacuumAgent`           | [`agents.py`][agents]           | Done | Included |
-| 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           |      | Included |
+| 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           | Done | Included |
 | 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`][agents]           |      | Included |
 | 3      | Problem                           | `Problem`                     | [`search.py`][search]           | Done | Included |
 | 3      | Node                              | `Node`                        | [`search.py`][search]           | Done | Included |
@@ -90,7 +90,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 6      | CSP                               | `CSP`                         | [`csp.py`][csp]                 | Done | Included |
 | 6.3    | AC-3                              | `AC3`                         | [`csp.py`][csp]                 | Done |          |
 | 6.5    | Backtracking-Search               | `backtracking_search`         | [`csp.py`][csp]                 | Done | Included |
-| 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done |          |
+| 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done | Included |
 | 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`][csp]                 | Done | Included |
 | 7      | KB                                | `KB`                          | [`logic.py`][logic]             | Done | Included |
 | 7.1    | KB-Agent                          | `KB_Agent`                    | [`logic.py`][logic]             | Done |          |
@@ -108,7 +108,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`][logic]             | Done |          |
 | 9.6    | FOL-BC-Ask                        | `fol_bc_ask`                  | [`logic.py`][logic]             | Done |          |
 | 9.8    | Append                            |                               |                                 |      |          |
-| 10.1   | Air-Cargo-problem                 | `air_cargo`                   | [`planning.py`][planning]       | Done |          |
+| 10.1   | Air-Cargo-problem                 | `air_cargo`                   | [`planning.py`][planning]       | Done | Included |
 | 10.2   | Spare-Tire-Problem                | `spare_tire`                  | [`planning.py`][planning]       | Done |          |
 | 10.3   | Three-Block-Tower                 | `three_block_tower`           | [`planning.py`][planning]       | Done |          |
 | 10.7   | Cake-Problem                      | `have_cake_and_eat_cake_too`  | [`planning.py`][planning]       | Done |          |
