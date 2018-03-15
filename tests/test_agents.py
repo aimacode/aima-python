@@ -208,6 +208,20 @@ def test_compare_agents() :
     assert performance_ReflexVacummAgent <= performance_ModelBasedVacummAgent
 
 
+def test_TableDrivenAgentProgram():
+    table = {(('foo', 1),): 'action1',
+             (('foo', 2),): 'action2',
+             (('bar', 1),): 'action3',
+             (('bar', 2),): 'action1',
+             (('foo', 1), ('foo', 1),): 'action2',
+             (('foo', 1), ('foo', 2),): 'action3',
+             }
+    agent_program = TableDrivenAgentProgram(table)
+    assert agent_program(('foo', 1)) == 'action1'
+    assert agent_program(('foo', 2)) == 'action3'
+    assert agent_program(('invalid percept',)) == None
+
+
 def test_Agent():
     def constant_prog(percept):
         return percept
