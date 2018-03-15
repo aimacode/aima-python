@@ -74,7 +74,6 @@ class Action:
     def check_precond(self, kb, args):
         """Checks if the precondition is satisfied in the current state"""
         # check for positive clauses
-        #print (self.precond_pos[0].__eq__(expr('At(actor, loc)')), self.precond_neg)
         for clause in self.precond_pos:
             if self.substitute(clause, args) not in kb.clauses:
                 return False
