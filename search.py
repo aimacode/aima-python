@@ -1128,7 +1128,8 @@ class NQueensProblem(Problem):
 
     def __init__(self, N):
         self.N = N
-        self.initial = [None] * N
+        self.initial = tuple([None] * N)
+        Problem.__init__(self, self.initial)
 
     def actions(self, state):
         """In the leftmost empty column, try all non-conflicting rows."""
@@ -1142,9 +1143,9 @@ class NQueensProblem(Problem):
     def result(self, state, row):
         """Place the next queen at the given row."""
         col = state.index(None)
-        new = state[:]
+        new = list(state[:])
         new[col] = row
-        return new
+        return tuple(new)
 
     def conflicted(self, state, row, col):
         """Would placing a queen at (row, col) conflict with anything?"""
