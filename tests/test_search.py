@@ -7,6 +7,7 @@ vacumm_world = GraphProblemStochastic('State_1', ['State_7', 'State_8'], vacumm_
 LRTA_problem = OnlineSearchProblem('State_3', 'State_5', one_dim_state_space)
 eight_puzzle = EightPuzzle((1, 2, 3, 4, 5, 7, 8, 6, 0))
 eight_puzzle2 = EightPuzzle((1, 0, 6, 8, 7, 5, 4, 2), (0, 1, 2, 3, 4, 5, 6, 7, 8))
+nqueens = NQueensProblem(8)
 
 def test_find_min_edge():
     assert romania_problem.find_min_edge() == 70
@@ -15,6 +16,7 @@ def test_find_min_edge():
 def test_breadth_first_tree_search():
     assert breadth_first_tree_search(
         romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
+    assert breadth_first_search(nqueens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
 
 
 def test_breadth_first_search():
@@ -40,6 +42,11 @@ def test_best_first_graph_search():
 def test_uniform_cost_search():
     assert uniform_cost_search(
         romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+    assert uniform_cost_search(nqueens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
+
+
+def test_depth_first_tree_search():
+    assert depth_first_tree_search(nqueens).solution() == [7, 3, 0, 2, 5, 1, 6, 4]
 
 
 def test_depth_first_graph_search():
@@ -68,6 +75,7 @@ def test_astar_search():
     assert astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
     assert astar_search(eight_puzzle).solution() == ['LEFT', 'LEFT', 'UP', 'RIGHT', 'RIGHT', 'DOWN', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT']
     assert astar_search(EightPuzzle((1, 2, 3, 4, 5, 6, 0, 7, 8))).solution() == ['RIGHT', 'RIGHT']
+    assert astar_search(nqueens).solution() == [7, 1, 3, 0, 6, 4, 2, 5]
 
 
 def test_find_blank_square():
@@ -110,6 +118,10 @@ def test_goal_test():
     assert eight_puzzle2.goal_test((3, 4, 1, 7, 6, 0, 2, 8, 5)) == False
     assert eight_puzzle2.goal_test((1, 2, 3, 4, 5, 6, 7, 8, 0)) == False
     assert eight_puzzle2.goal_test((0, 1, 2, 3, 4, 5, 6, 7, 8)) == True
+    assert nqueens.goal_test((7, 3, 0, 2, 5, 1, 6, 4)) == True
+    assert nqueens.goal_test((0, 4, 7, 5, 2, 6, 1, 3)) == True
+    assert nqueens.goal_test((7, 1, 3, 0, 6, 4, 2, 5)) == True
+    assert nqueens.goal_test((0, 1, 2, 3, 4, 5, 6, 7)) == False
 
 
 def test_check_solvability():
@@ -123,6 +135,17 @@ def test_check_solvability():
     assert eight_puzzle.check_solvability((1, 2, 3, 4, 5, 6, 8, 7, 0)) == False
     assert eight_puzzle.check_solvability((1, 0, 3, 2, 4, 5, 6, 7, 8)) == False
     assert eight_puzzle.check_solvability((7, 0, 2, 8, 5, 3, 6, 4, 1)) == False
+
+
+def test_conflict():
+    assert not nqueens.conflict(7, 0, 1, 1)
+    assert not nqueens.conflict(0, 3, 6, 4)
+    assert not nqueens.conflict(2, 6, 5, 7)
+    assert not nqueens.conflict(2, 4, 1, 6)
+    assert nqueens.conflict(0, 0, 1, 1)
+    assert nqueens.conflict(4, 3, 4, 4)
+    assert nqueens.conflict(6, 5, 5, 6)
+    assert nqueens.conflict(0, 6, 1, 7)
 
 
 def test_recursive_best_first_search():
