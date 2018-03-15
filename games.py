@@ -42,39 +42,40 @@ def minimax_decision(state, game):
 # ______________________________________________________________________________
 
 def expectiminimax(state, game):
-    """Returns the best move for a player after dice are thrown. The game tree
+    """Return the best move for a player after dice are thrown. The game tree
 	includes chance nodes along with min and max nodes. [Figure 5.11]"""
     player = game.to_move(state)
 
-    def max_value(state):
-        if game.terminal_test(state):
-            return game.utility(state, player)
+    def max_value(state, dice_roll):
         v = -infinity
         for a in game.actions(state):
             v = max(v, chance_node(state, a))
+            game.dice_roll = dice_roll
         return v
 
-    def min_value(state):
-        if game.terminal_test(state):
-            return game.utility(state, player)
+    def min_value(state, dice_roll):    
         v = infinity
         for a in game.actions(state):
             v = min(v, chance_node(state, a))
+            game.dice_roll = dice_roll
         return v
 
     def chance_node(state, action):
         res_state = game.result(state, action)
+        if game.terminal_test(res_state):
+            return game.utility(res_state, player)
         sum_chances = 0
         num_chances = 21
         dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
         if res_state.to_move == 'W':
             for val in dice_rolls:
                 game.dice_roll = (-val[0], -val[1])
-                sum_chances += max_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
+                sum_chances += max_value(res_state,
+                                         (-val[0], -val[1])) * (1/36 if val[0] == val[1] else 1/18)
         elif res_state.to_move == 'B':
             for val in dice_rolls:
                 game.dice_roll = val
-                sum_chances += min_value(res_state) * (1/36 if val[0] == val[1] else 1/18)
+                sum_chances += min_value(res_state, val) * (1/36 if val[0] == val[1] else 1/18)
         return sum_chances / num_chances
 
     # Body of expectiminimax:
@@ -403,6 +404,8 @@ class Backgammon(Game):
         """Returns a list of legal moves for a state."""
         player = state.to_move
         moves = state.moves
+        if len(moves) == 1 and len(moves[0]) == 1:
+            return moves
         legal_moves = []
         for move in moves:
             board = copy.deepcopy(state.board)
@@ -414,10 +417,11 @@ class Backgammon(Game):
         board = copy.deepcopy(state.board)
         player = state.to_move
         board.move_checker(move[0], self.dice_roll[0], player)
-        board.move_checker(move[1], self.dice_roll[1], player)
+        if len(move) == 2:
+            board.move_checker(move[1], self.dice_roll[1], player)
         to_move = ('W' if player == 'B' else 'B')
         return GameState(to_move=to_move,
-                         utility=self.compute_utility(board, move, to_move),
+                         utility=self.compute_utility(board, move, player),
                          board=board,
                          moves=self.get_all_moves(board, to_move))
 
@@ -437,6 +441,8 @@ class Backgammon(Game):
         all_points = board.points
         taken_points = [index for index, point in enumerate(all_points)
                         if point[player] > 0]
+        if board.checkers_at_home(player) == 1:
+            return [(taken_points[0], )]
         moves = list(itertools.permutations(taken_points, 2))
         moves = moves + [(index, index) for index, point in enumerate(all_points)
                          if point[player] >= 2]
@@ -446,11 +452,11 @@ class Backgammon(Game):
         """Display state of the game."""
         board = state.board
         player = state.to_move
+        print("Current State : ")
         for index, point in enumerate(board.points):
             if point['W'] != 0 or point['B'] != 0:
-                print("Point : ", index, "	W : ", point['W'], "	B : ", point['B'])
-        print("player : ", player)
-
+                print("Point : ", index, "	W : ", point['W'], "    B : ", point['B'])
+        print("To play : ", player)
 
     def compute_utility(self, board, move, player):
         """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
@@ -482,7 +488,7 @@ class BackgammonBoard:
         self.allow_bear_off = {'W': False, 'B': False}
 
     def checkers_at_home(self, player):
-        """Returns the no. of checkers at home for a player."""
+        """Return the no. of checkers at home for a player."""
         sum_range = range(0, 7) if player == 'W' else range(17, 24)
         count = 0
         for idx in sum_range:
@@ -516,7 +522,7 @@ class BackgammonBoard:
         return move1_legal and move2_legal
 
     def move_checker(self, start, steps, player):
-        """Moves a checker from starting point by a given number of steps"""
+        """Move a checker from starting point by a given number of steps"""
         dest = start + steps
         dest_range = range(0, 24)
         self.points[start][player] -= 1
