@@ -19,7 +19,7 @@ def test_euclidean():
     assert distance == 0
 
 def test_cross_entropy():
-    loss=cross_entropy_loss([1,0], [0,9, 0.3])
+    loss=cross_entropy_loss([1,0], [0.9, 0.3])
     assert round(loss,2)==0.23
 
     loss=cross_entropy_loss([1,0,0,1], [0.9,0.3,0.5,0.75])
