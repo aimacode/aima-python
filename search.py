@@ -1123,7 +1123,7 @@ class NQueensProblem(Problem):
     row r, and a value of None means that the c-th column has not been
     filled in yet.  We fill in columns left to right.
     >>> depth_first_tree_search(NQueensProblem(8))
-    <Node [7, 3, 0, 2, 5, 1, 6, 4]>
+    <Node (7, 3, 0, 2, 5, 1, 6, 4)>
     """
 
     def __init__(self, N):
