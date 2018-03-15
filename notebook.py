@@ -1054,7 +1054,7 @@ def plot_NQueens(solution):
     im = np.array(im).astype(np.float) / 255
     fig = plt.figure(figsize=(7, 7))
     ax = fig.add_subplot(111)
-    ax.set_title(f'{n} Queens')
+    ax.set_title('{} Queens'.format(n))
     plt.imshow(board, cmap='binary', interpolation='nearest')
     # NQueensCSP gives a solution as a dictionary
     if isinstance(solution, dict):
@@ -1070,4 +1070,3 @@ def plot_NQueens(solution):
             newax.axis('off')
     fig.tight_layout()
     plt.show()
-    
