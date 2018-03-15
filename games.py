@@ -42,7 +42,7 @@ def minimax_decision(state, game):
 # ______________________________________________________________________________
 
 def expectiminimax(state, game):
-    """Returns the best move for a player after dice are thrown. The game tree
+    """Return the best move for a player after dice are thrown. The game tree
 	includes chance nodes along with min and max nodes. [Figure 5.11]"""
     player = game.to_move(state)
 
@@ -51,40 +51,31 @@ def expectiminimax(state, game):
         for a in game.actions(state):
             v = max(v, chance_node(state, a))
             game.dice_roll = dice_roll
-        print("qqqqqqqqqqqqqqqqqqqqq")
-        game.display(state)
         return v
 
-    def min_value(state, dice_roll):       
+    def min_value(state, dice_roll):    
         v = infinity
         for a in game.actions(state):
             v = min(v, chance_node(state, a))
             game.dice_roll = dice_roll
-        print("qqqqqqqqqqqqqqqqqqqqq")
-        game.display(state)
         return v
 
     def chance_node(state, action):
         res_state = game.result(state, action)
         if game.terminal_test(res_state):
             return game.utility(res_state, player)
-        #print("Move checker from :",action)
         sum_chances = 0
         num_chances = 21
         dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
         if res_state.to_move == 'W':
             for val in dice_rolls:
-                #game.display(res_state)
                 game.dice_roll = (-val[0], -val[1])
-                #print("Player:", res_state.to_move, " threw dice with value:", game.dice_roll)
-                sum_chances += max_value(res_state, (-val[0], -val[1])) * (1/36 if val[0] == val[1] else 1/18)
+                sum_chances += max_value(res_state,
+                                         (-val[0], -val[1])) * (1/36 if val[0] == val[1] else 1/18)
         elif res_state.to_move == 'B':
             for val in dice_rolls:
-                #game.display(res_state)
                 game.dice_roll = val
-                #print("Player:", res_state.to_move, " threw dice with value:", game.dice_roll)
                 sum_chances += min_value(res_state, val) * (1/36 if val[0] == val[1] else 1/18)
-        #print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", sum_chances/num_chances)
         return sum_chances / num_chances
 
     # Body of expectiminimax:
@@ -207,8 +198,6 @@ def alphabeta_player(game, state):
     return alphabeta_search(state, game)
 
 def expectiminimax_player(game, state):
-    game.display(state)
-    print("Player:", state.to_move, " threw dice with value:", game.dice_roll)
     return expectiminimax(state, game)
 
 
@@ -258,7 +247,6 @@ class Game:
         while True:
             for player in players:
                 move = player(self, state)
-                print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
                 state = self.result(state, move)
                 if self.terminal_test(state):
                     self.display(state)
@@ -454,7 +442,7 @@ class Backgammon(Game):
         taken_points = [index for index, point in enumerate(all_points)
                         if point[player] > 0]
         if board.checkers_at_home(player) == 1:
-            return [(taken_points[0], )] 
+            return [(taken_points[0], )]
         moves = list(itertools.permutations(taken_points, 2))
         moves = moves + [(index, index) for index, point in enumerate(all_points)
                          if point[player] >= 2]
@@ -464,15 +452,14 @@ class Backgammon(Game):
         """Display state of the game."""
         board = state.board
         player = state.to_move
+        print("Current State : ")
         for index, point in enumerate(board.points):
             if point['W'] != 0 or point['B'] != 0:
                 print("Point : ", index, "	W : ", point['W'], "    B : ", point['B'])
-        print("----------------------------Turn Over---------------------------")
-        print("Next to play : ", player)
-
+        print("To play : ", player)
 
     def compute_utility(self, board, move, player):
-        """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""        
+        """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
         count = 0
         for idx in range(0, 24):
             count = count + board.points[idx][player]
@@ -501,7 +488,7 @@ class BackgammonBoard:
         self.allow_bear_off = {'W': False, 'B': False}
 
     def checkers_at_home(self, player):
-        """Returns the no. of checkers at home for a player."""
+        """Return the no. of checkers at home for a player."""
         sum_range = range(0, 7) if player == 'W' else range(17, 24)
         count = 0
         for idx in sum_range:
@@ -535,7 +522,7 @@ class BackgammonBoard:
         return move1_legal and move2_legal
 
     def move_checker(self, start, steps, player):
-        """Moves a checker from starting point by a given number of steps"""
+        """Move a checker from starting point by a given number of steps"""
         dest = start + steps
         dest_range = range(0, 24)
         self.points[start][player] -= 1
@@ -550,26 +537,3 @@ class BackgammonBoard:
         move a checker to a point only if it is open."""
         opponent = 'B' if player == 'W' else 'W'
         return point[opponent] <= 1
-
-if __name__ == "__main__":
-    """
-    bgm = Backgammon()
-    board = BackgammonBoard()
-    board.points[0]['B'] = board.points[23]['W'] = 0
-    board.points[5]['W'] = board.points[18]['B'] = 0
-    board.points[7]['W'] = board.points[16]['B'] = 0
-    board.points[11]['B'] = board.points[12]['W'] = 0
-    board.points[11]['B'] = board.points[0]['W'] = 1
-    board.allow_bear_off = {'W': True, 'B': False}
-    initial =  GameState(to_move='W',
-                                 utility=0, board=board, moves=bgm.get_all_moves(board, 'W'))
-    moves = bgm.actions(initial)    
-    print(moves)
-    print(bgm.get_all_moves(board, 'W'))
-    bgm.display(initial)
-    res = bgm.result(initial, moves[0])
-    bgm.display(res)
-    """
-    bgm = Backgammon()
-    bgm.play_game(expectiminimax_player, query_player)
-    # print(bgm.utility(res, res.to_move))
