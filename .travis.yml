@@ -14,6 +14,7 @@ install:
   - pip install matplotlib
   - pip install networkx
   - pip install ipywidgets
+  - pip install Pillow
 
 script:
   - py.test
