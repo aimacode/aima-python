@@ -90,7 +90,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 6      | CSP                               | `CSP`                         | [`csp.py`][csp]                 | Done | Included |
 | 6.3    | AC-3                              | `AC3`                         | [`csp.py`][csp]                 | Done |          |
 | 6.5    | Backtracking-Search               | `backtracking_search`         | [`csp.py`][csp]                 | Done | Included |
-| 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done |          |
+| 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done | Included |
 | 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`][csp]                 | Done | Included |
 | 7      | KB                                | `KB`                          | [`logic.py`][logic]             | Done | Included |
 | 7.1    | KB-Agent                          | `KB_Agent`                    | [`logic.py`][logic]             | Done |          |
