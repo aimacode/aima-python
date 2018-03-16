@@ -779,7 +779,6 @@ class WumpusKB(PropKB):
     def make_action_sentence(self, action, time):
         self.tell(action + time)
 
-
     def make_percept_sentence(self, percept, time):
         self.tell(percept + time)
 
@@ -865,7 +864,13 @@ class WumpusKB(PropKB):
 
         ##Rule about Wumpus (dead or alive)
         self.tell("( WumpusAlive" + time + " <=> ( WumpusAlive" + (time - 1) + " AND ( NOT Scream" + time + " ) ) )")
-
+        
+        
+    def ask_with_dpll(self, sentence):
+        if self.ask_if_true(sentence) and dpll_satisfiable(sentence):
+            return True
+        else:
+            return False
         
 # ______________________________________________________________________________
 
