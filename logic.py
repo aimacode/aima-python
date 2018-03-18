@@ -966,15 +966,8 @@ class WumpusKB(PropKB):
 
         ##Rule about Wumpus (dead or alive)
         self.tell(implies_and_implies(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
-
-        
-    def ask_with_dpll(self, sentence):
-        if self.ask_if_true(sentence) and dpll_satisfiable(sentence):
-            return True
-        else:
-            return False        
-        
-        
+      
+          
 # ______________________________________________________________________________
 
 
@@ -1006,7 +999,7 @@ class HybridWumpusAgent(agents.Agent):
 
     def __init__(self):
         super().__init__()
-        self.dimrow = 3
+        self.dimrow = 4
         self.kb = WumpusKB(self.dimrow)
         self.t = 0
         self.plan = list()
@@ -1021,26 +1014,26 @@ class HybridWumpusAgent(agents.Agent):
 
         for i in range(1, self.dimrow+1):
             for j in range(1, self.dimrow+1):
-                if self.kb.ask_with_dpll(location(i, j, self.t)):
+                if self.kb.ask_if_true(location(i, j, self.t)):
                     temp.append(i)
                     temp.append(j)
 
-        if self.kb.ask_with_dpll(facing_north(self.t)):
+        if self.kb.ask_if_true(facing_north(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'UP')
-        elif self.kb.ask_with_dpll(facing_south(self.t)):
+        elif self.kb.ask_if_true(facing_south(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'DOWN')
-        elif self.kb.ask_with_dpll(facing_west(self.t)):
+        elif self.kb.ask_if_true(facing_west(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'LEFT')
-        elif self.kb.ask_with_dpll(facing_east(self.t)):
+        elif self.kb.ask_if_true(facing_east(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'RIGHT')
 
         safe_points = list()
         for i in range(1, self.dimrow+1):
             for j in range(1, self.dimrow+1):
-                if self.kb.ask_with_dpll(ok_to_move(i, j, self.t)):
+                if self.kb.ask_if_true(ok_to_move(i, j, self.t)):
                     safe_points.append([i, j])
 
-        if self.kb.ask_with_dpll(percept_glitter(self.t)):
+        if self.kb.ask_if_true(percept_glitter(self.t)):
             goals = list()
             goals.append([1, 1])
             self.plan.append('Grab')
@@ -1054,7 +1047,7 @@ class HybridWumpusAgent(agents.Agent):
             for i in range(1, self.dimrow+1):
                 for j in range(1, self.dimrow+1):
                     for k in range(self.t):
-                        if self.kb.ask_with_dpll(location(i, j, k)):
+                        if self.kb.ask_if_true(location(i, j, k)):
                             unvisited.append([i, j])
             unvisited_and_safe = list()
             for u in unvisited:
@@ -1066,12 +1059,11 @@ class HybridWumpusAgent(agents.Agent):
             for t in temp:
                 self.plan.append(t)
 
-        if len(self.plan) == 0 and self.kb.ask_with_dpll(have_arrow(self.t)) \
-                and self.kb.ask_with_dpll(wumpus_alive(self.t)):
+        if len(self.plan) == 0 and self.kb.ask_if_true(have_arrow(self.t)):
             possible_wumpus = list()
             for i in range(1, self.dimrow+1):
                 for j in range(1, self.dimrow+1):
-                    if self.kb.ask_with_dpll(wumpus(i, j)):
+                    if not self.kb.ask_if_true(wumpus(i, j)):
                         possible_wumpus.append([i, j])
 
             temp = plan_shot(self.current_position, possible_wumpus, safe_points)
@@ -1082,7 +1074,7 @@ class HybridWumpusAgent(agents.Agent):
             not_unsafe = list()
             for i in range(1, self.dimrow+1):
                 for j in range(1, self.dimrow+1):
-                    if not self.kb.ask_with_dpll(ok_to_move(i, j, self.t)):
+                    if not self.kb.ask_if_true(ok_to_move(i, j, self.t)):
                         not_unsafe.append([i, j])
             temp = plan_route(self.current_position, not_unsafe, safe_points)
             for t in temp:
