@@ -93,7 +93,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done | Included |
 | 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`][csp]                 | Done | Included |
 | 7      | KB                                | `KB`                          | [`logic.py`][logic]             | Done | Included |
-| 7.1    | KB-Agent                          | `KB_Agent`                    | [`logic.py`][logic]             | Done |          |
+| 7.1    | KB-Agent                          | `KB_AgentProgram`             | [`logic.py`][logic]             | Done |          |
 | 7.7    | Propositional Logic Sentence      | `Expr`                        | [`utils.py`][utils]             | Done | Included |
 | 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`][logic]             | Done | Included |
 | 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`][logic]             | Done | Included |
@@ -105,8 +105,8 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done |          |
 | 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done |          |
 | 9.1    | Unify                             | `unify`                       | [`logic.py`][logic]             | Done | Included |
-| 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`][logic]             | Done |          |
-| 9.6    | FOL-BC-Ask                        | `fol_bc_ask`                  | [`logic.py`][logic]             | Done |          |
+| 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`][logic]             | Done | Included |
+| 9.6    | FOL-BC-Ask                        | `fol_bc_ask`                  | [`logic.py`][logic]             | Done | Included |
 | 9.8    | Append                            |                               |                                 |      |          |
 | 10.1   | Air-Cargo-problem                 | `air_cargo`                   | [`planning.py`][planning]       | Done | Included |
 | 10.2   | Spare-Tire-Problem                | `spare_tire`                  | [`planning.py`][planning]       | Done | Included |
