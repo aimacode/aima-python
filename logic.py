@@ -1021,26 +1021,26 @@ class HybridWumpusAgent(agents.Agent):
 
         for i in range(1, self.dimrow+1):
             for j in range(1, self.dimrow+1):
-                if self.kb.ask_with_dpll('L' + i + 's' + j + 's' + self.t):
+                if self.kb.ask_with_dpll(location(i, j, self.t)):
                     temp.append(i)
                     temp.append(j)
 
-        if self.kb.ask_with_dpll('FacingNorth' + self.t):
+        if self.kb.ask_with_dpll(facing_north(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'UP')
-        elif self.kb.ask_with_dpll('FacingSouth' + self.t):
+        elif self.kb.ask_with_dpll(facing_south(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'DOWN')
-        elif self.kb.ask_with_dpll('FacingWest' + self.t):
+        elif self.kb.ask_with_dpll(facing_west(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'LEFT')
-        elif self.kb.ask_with_dpll('FacingEast' + self.t):
+        elif self.kb.ask_with_dpll(facing_east(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'RIGHT')
 
         safe_points = list()
         for i in range(1, self.dimrow+1):
             for j in range(1, self.dimrow+1):
-                if self.kb.ask_with_dpll('OK' + i + 's' + j + 's' + self.t):
+                if self.kb.ask_with_dpll(ok_to_move(i, j, self.t)):
                     safe_points.append([i, j])
 
-        if self.kb.ask_with_dpll('Glitter' + self.t):
+        if self.kb.ask_with_dpll(percept_glitter(self.t)):
             goals = list()
             goals.append([1, 1])
             self.plan.append('Grab')
@@ -1053,8 +1053,8 @@ class HybridWumpusAgent(agents.Agent):
             unvisited = list()
             for i in range(1, self.dimrow+1):
                 for j in range(1, self.dimrow+1):
-                    for k in range(1, self.dimrow+1):
-                        if self.kb.ask_with_dpll("L" + i + "s" + j + "s" + k):
+                    for k in range(self.t):
+                        if self.kb.ask_with_dpll(location(i, j, k)):
                             unvisited.append([i, j])
             unvisited_and_safe = list()
             for u in unvisited:
@@ -1066,11 +1066,12 @@ class HybridWumpusAgent(agents.Agent):
             for t in temp:
                 self.plan.append(t)
 
-        if len(self.plan) == 0 and self.kb.ask_with_dpll('HaveArrow' + self.t):
+        if len(self.plan) == 0 and self.kb.ask_with_dpll(have_arrow(self.t)) \
+                and self.kb.ask_with_dpll(wumpus_alive(self.t)):
             possible_wumpus = list()
             for i in range(1, self.dimrow+1):
                 for j in range(1, self.dimrow+1):
-                    if not self.kb.ask_with_dpll('W' + i + 's' + j):
+                    if self.kb.ask_with_dpll(wumpus(i, j)):
                         possible_wumpus.append([i, j])
 
             temp = plan_shot(self.current_position, possible_wumpus, safe_points)
@@ -1081,7 +1082,7 @@ class HybridWumpusAgent(agents.Agent):
             not_unsafe = list()
             for i in range(1, self.dimrow+1):
                 for j in range(1, self.dimrow+1):
-                    if not self.kb.ask_with_dpll('OK' + i + 's' + j + 's' + self.t):
+                    if not self.kb.ask_with_dpll(ok_to_move(i, j, self.t)):
                         not_unsafe.append([i, j])
             temp = plan_route(self.current_position, not_unsafe, safe_points)
             for t in temp:
@@ -1095,10 +1096,8 @@ class HybridWumpusAgent(agents.Agent):
                 self.plan.append(t)
             self.plan.append('Climb')
 
-
-
-        action = self.plan[1:]
-
+        action = self.plan[0]
+        self.plan = self.plan[1:]
         self.kb.make_action_sentence(action, self.t)
         self.t += 1
 
