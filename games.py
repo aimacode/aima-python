@@ -53,7 +53,7 @@ def expectiminimax(state, game):
             game.dice_roll = dice_roll
         return v
 
-    def min_value(state, dice_roll):    
+    def min_value(state, dice_roll):
         v = infinity
         for a in game.actions(state):
             v = min(v, chance_node(state, a))
@@ -407,7 +407,9 @@ class Backgammon(Game):
         self.allow_bear_off = {'W': False, 'B': False}
 
         self.initial = GameState(to_move='W',
-                                 utility=0, board=self.board, moves=self.get_all_moves(self.board, 'W'))
+                                 utility=0, 
+                                 board=self.board,
+                                 moves=self.get_all_moves(self.board, 'W'))
 
     def actions(self, state):
         """Returns a list of legal moves for a state."""
@@ -528,8 +530,3 @@ class Backgammon(Game):
         move a checker to a point only if it is open."""
         opponent = 'B' if player == 'W' else 'W'
         return point[opponent] <= 1
-
-
-if __name__ == "__main__":
-	bgm = Backgammon()
-	bgm.play_game(expectiminimax_player, query_player)
