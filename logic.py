@@ -966,6 +966,11 @@ class WumpusKB(PropKB):
 
         ##Rule about Wumpus (dead or alive)
         self.tell(implies_and_implies(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
+
+
+    def ask_if_true(self, query):
+        return pl_resolution(self, query)
+
       
           
 # ______________________________________________________________________________
