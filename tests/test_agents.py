@@ -192,8 +192,8 @@ def test_TableDrivenVacuumAgent() :
 
 
 def test_compare_agents() :
-    environment = TrivialVacuumEnvironment
-    agents = [ModelBasedVacuumAgent, ReflexVacuumAgent]
+    environment = TrivialVacuumEnvironment()
+    agents = [ModelBasedVacuumAgent(), ReflexVacuumAgent()]
 
     result = compare_agents(environment, agents)
     performance_ModelBasedVacummAgent = result[0][1]
