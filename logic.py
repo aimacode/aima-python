@@ -970,7 +970,6 @@ class WumpusKB(PropKB):
 
     def ask_if_true(self, query):
         return pl_resolution(self, query)
-
       
           
 # ______________________________________________________________________________
