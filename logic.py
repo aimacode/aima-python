@@ -690,66 +690,138 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 # ______________________________________________________________________________
 
 
+# Expr functions for WumpusKB and HybridWumpusAgent
+
+def facing_east (time):
+    return Expr('FacingEast', time)
+
+def facing_west (time):
+    return Expr('FacingWest', time)
+
+def facing_north (time):
+    return Expr('FacingNorth', time)
+
+def facing_south (time):
+    return Expr('FacingSouth', time)
+
+def wumpus (x, y):
+    return Expr('W', x, y)
+
+def pit(x, y):
+    return Expr('P', x, y)
+
+def breeze(x, y):
+    return Expr('B', x, y)
+
+def stench(x, y):
+    return Expr('S', x, y)
+
+def wumpus_alive(time):
+    return Expr('WumpusAlive', time)
+
+def have_arrow(time):
+    return Expr('HaveArrow', time)
+
+def percept_stench(time):
+    return Expr('Stench', time)
+
+def percept_breeze(time):
+    return Expr('Breeze', time)
+
+def percept_glitter(time):
+    return Expr('Glitter', time)
+
+def percept_bump(time):
+    return Expr('Bump', time)
+
+def percept_scream(time):
+    return Expr('Scream', time)
+
+def move_forward(time):
+    return Expr('Forward', time)
+
+def shoot(time):
+    return Expr('Shoot', time)
+
+def turn_left(time):
+    return Expr('TurnLeft', time)
+
+def turn_right(time):
+    return Expr('TurnRight', time)
+
+def ok_to_move(x, y, time):
+    return Expr('OK', x, y, time)
+
+def location(x, y, time = None):
+    if time is None:
+        return Expr('L', x, y)
+    else:
+        return Expr('L', x, y, time)
+
+# Symbols
+
+def implies(lhs, rhs):
+    return Expr('==>', lhs, rhs)
+
+def implies_and_implies(lhs, rhs):
+    return Expr('<=>', lhs, rhs)
+
+# Helper Function
+
+def new_disjunction(sentences):
+    t = sentences[0]
+    for i in range(1,len(sentences)):
+        t |= sentences[i]
+    return t
+
+
+# ______________________________________________________________________________
+
+
 class WumpusKB(PropKB):
     """
     Create a Knowledge Base that contains the atemporal "Wumpus physics" and temporal rules with time zero.
     """
+
     def __init__(self,dimrow):
         super().__init__()
         self.dimrow = dimrow
-        self.tell('( NOT W1s1 )')
-        self.tell('( NOT P1s1 )')
-        for i in range(1, dimrow+1):
-            for j in range(1, dimrow+1):
-                bracket = 0
-                sentence_b_str = "( B" + i + "s" + j + " <=> "
-                sentence_s_str = "( S" + i + "s" + j + " <=> "
-                if i > 1:
-                    sentence_b_str += "( P" + (i-1) + "s" + j + " OR "
-                    sentence_s_str += "( W" + (i-1) + "s" + j + " OR "
-                    bracket += 1
+        self.tell( ~wumpus(1, 1) )
+        self.tell( ~pit(1, 1) )
 
-                if i < dimRow:
-                    sentence_b_str += "( P" + (i+1) + "s" + j + " OR "
-                    sentence_s_str += "( W" + (i+1) + "s" + j + " OR "
-                    bracket += 1
+        for y in range(1, dimrow+1):
+            for x in range(1, dimrow+1):
 
-                if j > 1:
-                    if j == dimRow:
-                        sentence_b_str += "P" + i + "s" + (j-1) + " "
-                        sentence_s_str += "W "+ i + "s" + (j-1) + " "
-                    else:
-                        sentence_b_str += "( P" + i + "s" + (j-1) + " OR "
-                        sentence_s_str += "( W" + i + "s" + (j-1) + " OR "
-                        bracket += 1
+                pits_in = list()
+                wumpus_in = list()
 
-                if j < dimRow:
-                    sentence_b_str += "P" + i + "s" + (j+1) + " "
-                    sentence_s_str += "W" + i + "s" + (j+1) + " "
+                if x > 1: # West room exists
+                    pits_in.append(pit(x - 1, y))
+                    wumpus_in.append(wumpus(x - 1, y))
 
+                if y < dimrow: # North room exists
+                    pits_in.append(pit(x, y + 1))
+                    wumpus_in.append(wumpus(x, y + 1))
 
-                for _ in range(bracket):
-                    sentence_b_str += ") "
-                    sentence_s_str += ") "
+                if x < dimrow: # East room exists
+                    pits_in.append(pit(x + 1, y))
+                    wumpus_in.append(wumpus(x + 1, y))
 
-                sentence_b_str += ") "
-                sentence_s_str += ") "
+                if y > 1: # South room exists
+                    pits_in.append(pit(x, y - 1))
+                    wumpus_in.append(wumpus(x, y - 1))
 
-                self.tell(sentence_b_str)
-                self.tell(sentence_s_str)
+                self.tell(implies_and_implies(breeze(x, y), new_disjunction(pits_in)))
+                self.tell(implies_and_implies(stench(x, y), new_disjunction(wumpus_in)))
 
 
         ## Rule that describes existence of at least one Wumpus
-        sentence_w_str = ""
-        for i in range(1, dimrow+1):
-            for j in range(1, dimrow+1):
-                if (i == dimrow) and (j == dimrow):
-                    sentence_w_str += " W" + dimRow + "s" + dimrow + " "
-                else:
-                    sentence_w_str += "( W" + i + "s" + j + " OR "
-        for _ in range(dimrow**2):
-            sentence_w_str += ") "
-        self.tell(sentence_w_str)
+        wumpus_at_least = list()
+        for x in range(1, dimrow+1):
+            for y in range(1, dimrow + 1):
+                wumps_at_least.append(wumpus(x, y))
+
+        self.tell(new_disjunction(wumpus_at_least))
 
 
         ## Rule that describes existence of at most one Wumpus
@@ -758,115 +830,148 @@ class WumpusKB(PropKB):
                 for u in range(1, dimrow+1):
                     for v in range(1, dimrow+1):
                         if i!=u or j!=v:
-                            self.tell("( ( NOT W" + i + "s" + j + " ) OR ( NOT W" + u + "s" + v + " ) )")
+                            self.tell(~wumpus(i, j) | ~wumpus(u, v))
+
 
         ## Temporal rules at time zero
-        self.tell("L1s1s0")
+        self.tell(location(1, 1, 0))
         for i in range(1, dimrow+1):
             for j in range(1, dimrow + 1):
-                self.tell("( L" + i + "s" + j + "s0 => ( Breeze0 <=> B" + i + "s" + j + " ) )")
-                self.tell("( L" + i + "s" + j + "s0 => ( Stench0 <=> S" + i + "s" + j + " ) )")
+                self.tell(implies(location(i, j, 0), implies_and_implies(percept_breeze(0), breeze(i, j))))
+                self.tell(implies(location(i, j, 0), implies_and_implies(percept_stench(0), stench(i, j))))
                 if i != 1 or j != 1:
-                    self.tell("( NOT L" + i + "s" + j + "s" + "0 )")
-        self.tell("WumpusAlive0")
-        self.tell("HaveArrow0")
-        self.tell("FacingEast0")
-        self.tell("( NOT FacingWest0 )")
-        self.tell("( NOT FacingNorth0 )")
-        self.tell("( NOT FacingSouth0 )")
+                    self.tell(~location(i, j, 0))
+
+        self.tell(wumpus_alive(0))
+        self.tell(have_arrow(0))
+        self.tell(facing_east(0))
+        self.tell(~facing_north(0))
+        self.tell(~facing_south(0))
+        self.tell(~facing_west(0))
 
 
     def make_action_sentence(self, action, time):
-        self.tell(action + time)
+        actions = [move_forward(time), shoot(time), turn_left(time), turn_right(time)]
 
+        for a in actions:
+            if action is a:
+                self.tell(action)
+            else:
+                self.tell(~a)
 
     def make_percept_sentence(self, percept, time):
-        self.tell(percept + time)
+        # Glitter, Bump, Stench, Breeze, Scream
+        flags = [0, 0, 0, 0, 0]
+
+        ## Things perceived
+        if isinstance(percept, Glitter):
+            flags[0] = 1
+            self.tell(percept_glitter(time))
+        elif isinstance(percept, Bump):
+            flags[1] = 1
+            self.tell(percept_bump(time))
+        elif isinstance(percept, Stench):
+            flags[2] = 1
+            self.tell(percept_stench(time))
+        elif isinstance(percept, Breeze):
+            flags[3] = 1
+            self.tell(percept_breeze(time))
+        elif isinstance(percept, Scream):
+            flags[4] = 1
+            self.tell(percept_scream(time))
+
+        ## Things not perceived
+        for i in len(range(flags)):
+            if flags[i] == 0:
+                if i == 0:
+                    self.tell(~percept_glitter(time))
+                elif i == 1:
+                    self.tell(~percept_bump(time))
+                elif i == 2:
+                    self.tell(~percept_stench(time))
+                elif i == 3:
+                    self.tell(~percept_breeze(time))
+                elif i == 4:
+                    self.tell(~percept_scream(time))
+
 
     def add_temporal_sentences(self, time):
         if time == 0:
             return
         t = time - 1
 
-        ## current location rules (L2s2s3 represent tile 2,2 at time 3)
-        ## ex.: ( L2s2s3 <=> ( ( L2s2s2 AND ( ( NOT Forward2 ) OR Bump3 ) )
-        ## OR ( ( L1s2s2 AND ( FacingEast2 AND Forward2 ) ) OR ( L2s1s2 AND ( FacingNorth2 AND Forward2 ) ) )
+        ## current location rules
         for i in range(1, self.dimrow+1):
             for j in range(1, self.dimrow+1):
-                self.tell("( L" + i + "s" + j + "s" + time + " => ( Breeze" + time + " <=> B" + i + "s" + j + " ) )")
-                self.tell("( L" + i + "s" + j + "s" + time + " => ( Stench" + time + " <=> S" + i + "s" + j + " ) )")
-                s = "( L" + i + "s" + j + "s" + time + " <=> ( ( L" + i + "s" + j + "s" + t + " AND ( ( NOT Forward"\
-                    + t + " ) OR Bump" + time + " ) )"
+                self.tell(implies(location(i, j, time), implies_and_implies(percept_breeze(time), breeze(i, j))))
+                self.tell(implies(location(i, j, time), implies_and_implies(percept_stench(time), stench(i, j))))
 
-                count = 2
+                s = list()
+
+                s.append(
+                    implies_and_implies(
+                        location(i, j, time), location(i, j, time) & ~move_forward(time) | percept_bump(time)))
+
                 if i != 1:
-                    s += " OR ( ( L" + (i - 1) + "s" + j + "s" + t + " AND ( FacingEast" + t + " AND Forward" + t\
-                         + " ) )"
-                    count += 1
-                if i != self.dimrow:
-                    s += " OR ( ( L" + (i + 1) + "s" + j + "s" + t + " AND ( FacingWest" + t + " AND Forward" + t\
-                         + " ) )"
-                    count += 1
-                if j != 1:
-                    if j == self.dimrow:
-                        s += " OR ( L" + i + "s" + (j - 1) + "s" + t + " AND ( FacingNorth" + t + " AND Forward" + t\
-                             + " ) )"
-                    else:
-                        s += " OR ( ( L" + i + "s" + (j - 1) + "s" + t + " AND ( FacingNorth" + t + " AND Forward" \
-                             + t + " ) )"
-                        count += 1
-                if j != self.dimrow:
-                    s += " OR ( L" + i + "s" + (j + 1) + "s" + t + " AND ( FacingSouth" + t + " AND Forward" + t\
-                         + " ) )"
+                    s.append(location(i - 1, j, t) & facing_east(t) & move_forward(t))
 
-                for _ in range(count):
-                    s += " )"
+                if i != self.dimrow:
+                    s.append(location(i + 1, j, t) & facing_west(t) & move_forward(t))
+
+                if j != 1:
+                    s.append(location(i, j - 1, t) & facing_north(t) & move_forward(t))
+
+                if j != self.dimrow:
+                    s.append(location(i, j + 1, t) & facing_south(t) & move_forward(t))
 
                 ## add sentence about location i,j
-                self.tell(s)
+                self.tell(new_disjunction(s))
 
                 ## add sentence about safety of location i,j
-                self.tell("( OK" + i + "s" + j + "s" + time + " <=> ( ( NOT P" + i + "s" + j + " ) AND ( NOT ( W" + i\
-                          + "s" + j + " AND WumpusAlive" + time + " ) ) ) )")
+                self.tell(
+                    implies_and_implies(ok_to_move(i, j, time), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(time))
+                )
 
         ## Rules about current orientation
-        ## ex.: ( FacingEast3 <=> ( ( FacingNorth2 AND TurnRight2 ) OR ( ( FacingSouth2 AND TurnLeft2 )
-        ## OR ( FacingEast2 AND ( ( NOT TurnRight2 ) AND ( NOT TurnLeft2 ) ) ) ) ) )
-        a = "( FacingNorth" + t + " AND TurnRight" + t + " )"
-        b = "( FacingSouth" + t + " AND TurnLeft" + t + " )"
-        c = "( FacingEast" + t + " AND ( ( NOT TurnRight" + t + " ) AND ( NOT TurnLeft" + t + " ) ) )"
-        s = "( FacingEast" + (t + 1) + " <=> ( " + a + " OR ( " + b + " OR " + c + " ) ) )"
-        this.tell(s)
 
-        a = "( FacingNorth" + t + " AND TurnLeft" + t + " )"
-        b = "( FacingSouth" + t + " AND TurnRight" + t + " )"
-        c = "( FacingWest" + t + " AND ( ( NOT TurnRight" + t + " ) AND ( NOT TurnLeft" + t + " ) ) )"
-        s = "( FacingWest" + (t + 1) + " <=> ( " + a + " OR ( " + b + " OR " + c + " ) ) )"
-        this.tell(s)
+        a = facing_north(t) & turn_right(t)
+        b = facing_south(t) & turn_left(t)
+        c = facing_east(t) & ~turn_left(t) & ~turn_right(t)
+        s = implies_and_implies(facing_east(time), a | b | c)
+        self.tell(s)
 
-        a = "( FacingEast" + t + " AND TurnLeft" + t + " )"
-        b = "( FacingWest" + t + " AND TurnRight" + t + " )"
-        c = "( FacingNorth" + t + " AND ( ( NOT TurnRight" + t + " ) AND ( NOT TurnLeft" + t + " ) ) )"
-        s = "( FacingNorth" + (t + 1) + " <=> ( " + a + " OR ( " + b + " OR " + c + " ) ) )"
-        this.tell(s)
+        a = facing_north(t) & turn_left(t)
+        b = facing_south(t) & turn_right(t)
+        c = facing_west(t) & ~turn_left(t) & ~turn_right(t)
+        s = implies_and_implies(facing_west(time), a | b | c)
+        self.tell(s)
 
-        a = "( FacingWest" + t + " AND TurnLeft" + t + " )"
-        b = "( FacingEast" + t + " AND TurnRight" + t + " )"
-        c = "( FacingSouth" + t + " AND ( ( NOT TurnRight" + t + " ) AND ( NOT TurnLeft" + t + " ) ) )"
-        s = "( FacingSouth" + (t + 1) + " <=> ( " + a + " OR ( " + b + " OR " + c + " ) ) )"
-        this.tell(s)
+        a = facing_east(t) & turn_left(t)
+        b = facing_west(t) & turn_right(t)
+        c = facing_north(t) & ~turn_left(t) & ~turn_right(t)
+        s = implies_and_implies(facing_north(time), a | b | c)
+        self.tell(s)
+
+        a = facing_west(t) & turn_left(t)
+        b = facing_east(t) & turn_right(t)
+        c = facing_south(t) & ~turn_left(t) & ~turn_right(t)
+        s = implies_and_implies(facing_south(time), a | b | c)
+        self.tell(s)
 
         ## Rules about last action
-        self.tell("( Forward" + t + " <=> ( NOT TurnRight" + t + " ) )")
-        self.tell("( Forward" + t + " <=> ( NOT TurnLeft" + t + " ) )")
+        self.tell(implies_and_implies(move_forward(t), ~turn_right(t) & ~turn_left(t)))
 
         ##Rule about the arrow
-        self.tell("( HaveArrow" + time + " <=> ( HaveArrow" + (time - 1) + " AND ( NOT Shot" + (time - 1) + " ) ) )")
+        self.tell(implies_and_implies(have_arrow(time), have_arrow(t) & ~shoot(t)))
 
         ##Rule about Wumpus (dead or alive)
-        self.tell("( WumpusAlive" + time + " <=> ( WumpusAlive" + (time - 1) + " AND ( NOT Scream" + time + " ) ) )")
+        self.tell(implies_and_implies(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
 
-        
+
+    def ask_if_true(self, query):
+        return pl_resolution(self, query)
+      
+          
 # ______________________________________________________________________________
 
 
@@ -898,7 +1003,7 @@ class HybridWumpusAgent(agents.Agent):
 
     def __init__(self):
         super().__init__()
-        self.dimrow = 3
+        self.dimrow = 4
         self.kb = WumpusKB(self.dimrow)
         self.t = 0
         self.plan = list()
@@ -913,26 +1018,26 @@ class HybridWumpusAgent(agents.Agent):
 
         for i in range(1, self.dimrow+1):
             for j in range(1, self.dimrow+1):
-                if self.kb.ask_with_dpll('L' + i + 's' + j + 's' + self.t):
+                if self.kb.ask_if_true(location(i, j, self.t)):
                     temp.append(i)
                     temp.append(j)
 
-        if self.kb.ask_with_dpll('FacingNorth' + self.t):
+        if self.kb.ask_if_true(facing_north(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'UP')
-        elif self.kb.ask_with_dpll('FacingSouth' + self.t):
+        elif self.kb.ask_if_true(facing_south(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'DOWN')
-        elif self.kb.ask_with_dpll('FacingWest' + self.t):
+        elif self.kb.ask_if_true(facing_west(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'LEFT')
-        elif self.kb.ask_with_dpll('FacingEast' + self.t):
+        elif self.kb.ask_if_true(facing_east(self.t)):
             self.current_position = WumpusPosition(temp[0], temp[1], 'RIGHT')
 
         safe_points = list()
         for i in range(1, self.dimrow+1):
             for j in range(1, self.dimrow+1):
-                if self.kb.ask_with_dpll('OK' + i + 's' + j + 's' + self.t):
+                if self.kb.ask_if_true(ok_to_move(i, j, self.t)):
                     safe_points.append([i, j])
 
-        if self.kb.ask_with_dpll('Glitter' + self.t):
+        if self.kb.ask_if_true(percept_glitter(self.t)):
             goals = list()
             goals.append([1, 1])
             self.plan.append('Grab')
@@ -945,8 +1050,8 @@ class HybridWumpusAgent(agents.Agent):
             unvisited = list()
             for i in range(1, self.dimrow+1):
                 for j in range(1, self.dimrow+1):
-                    for k in range(1, self.dimrow+1):
-                        if self.kb.ask_with_dpll("L" + i + "s" + j + "s" + k):
+                    for k in range(self.t):
+                        if self.kb.ask_if_true(location(i, j, k)):
                             unvisited.append([i, j])
             unvisited_and_safe = list()
             for u in unvisited:
@@ -958,11 +1063,11 @@ class HybridWumpusAgent(agents.Agent):
             for t in temp:
                 self.plan.append(t)
 
-        if len(self.plan) == 0 and self.kb.ask_with_dpll('HaveArrow' + self.t):
+        if len(self.plan) == 0 and self.kb.ask_if_true(have_arrow(self.t)):
             possible_wumpus = list()
             for i in range(1, self.dimrow+1):
                 for j in range(1, self.dimrow+1):
-                    if not self.kb.ask_with_dpll('W' + i + 's' + j):
+                    if not self.kb.ask_if_true(wumpus(i, j)):
                         possible_wumpus.append([i, j])
 
             temp = plan_shot(self.current_position, possible_wumpus, safe_points)
@@ -973,7 +1078,7 @@ class HybridWumpusAgent(agents.Agent):
             not_unsafe = list()
             for i in range(1, self.dimrow+1):
                 for j in range(1, self.dimrow+1):
-                    if not self.kb.ask_with_dpll('OK' + i + 's' + j + 's' + self.t):
+                    if not self.kb.ask_if_true(ok_to_move(i, j, self.t)):
                         not_unsafe.append([i, j])
             temp = plan_route(self.current_position, not_unsafe, safe_points)
             for t in temp:
@@ -987,10 +1092,8 @@ class HybridWumpusAgent(agents.Agent):
                 self.plan.append(t)
             self.plan.append('Climb')
 
-
-
-        action = self.plan[1:]
-
+        action = self.plan[0]
+        self.plan = self.plan[1:]
         self.kb.make_action_sentence(action, self.t)
         self.t += 1
 
