@@ -181,7 +181,7 @@ def tree_search(problem, frontier):
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
-            return node
+            yield node
         frontier.extend(node.expand(problem))
     return None
 
@@ -195,7 +195,7 @@ def graph_search(problem, frontier):
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
-            return node
+            yield node
         explored.add(node.state)
         frontier.extend(child for child in node.expand(problem)
                         if child.state not in explored and
@@ -222,7 +222,7 @@ def breadth_first_search(problem):
     "[Figure 3.11]"
     node = Node(problem.initial)
     if problem.goal_test(node.state):
-        return node
+        yield node
     frontier = FIFOQueue()
     frontier.append(node)
     explored = set()
@@ -232,7 +232,7 @@ def breadth_first_search(problem):
         for child in node.expand(problem):
             if child.state not in explored and child not in frontier:
                 if problem.goal_test(child.state):
-                    return child
+                    yield child
                 frontier.append(child)
     return None
 
@@ -247,15 +247,24 @@ def best_first_graph_search(problem, f):
     a best first search you can examine the f values of the path returned."""
     f = memoize(f, 'f')
     node = Node(problem.initial)
+    best_cost = sys.maxsize
     if problem.goal_test(node.state):
-        return node
+        if node.path_cost < best_cost:
+            best_cost = node.path_cost
+            yield node
+        else:
+            return None
     frontier = PriorityQueue(min, f)
     frontier.append(node)
     explored = set()
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
-            return node
+            if node.path_cost < best_cost:
+                best_cost = node.path_cost
+                yield node
+            else:
+                return None
         explored.add(node.state)
         for child in node.expand(problem):
             if child.state not in explored and child not in frontier:

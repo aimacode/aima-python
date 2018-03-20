@@ -364,7 +364,6 @@ class Expr(object):
     op is a str like '+' or 'sin'; args are Expressions.
     Expr('x') or Symbol('x') creates a symbol (a nullary Expr).
     Expr('-', x) creates a unary; Expr('+', x, 1) creates a binary."""
-
     def __init__(self, op, *args):
         self.op = str(op)
         self.args = args

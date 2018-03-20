@@ -1,9 +1,10 @@
 """Planning (Chapters 10-11)
 """
 import copy
-from logic import fol_bc_and
+from logic import fol_bc_and, FolKB
 from utils import expr, Expr, partition
-from search import Problem, astar_search
+from search import Problem, astar_search, depth_first_tree_search, depth_first_graph_search
+import timeit
 
 
 class PlanningKB:
@@ -67,7 +68,7 @@ class PlanningProblem(Problem):
     def actions(self, state):
         for action in self.action_list:
             for subst in action.check_precond(state):
-                new_action = copy.deepcopy(action)
+                new_action = action.copy()
                 new_action.subst = subst
                 yield new_action
 
@@ -86,7 +87,7 @@ class PlanningProblem(Problem):
         raise NotImplementedError
 
 
-class Action:
+class PlanningAction:
     """
     Defines an action schema using preconditions and effects
     Use this to describe actions in PDDL
@@ -117,6 +118,18 @@ class Action:
         return '{}({}, {}, {})'.format(self.__class__.__name__, Expr(self.name, self.args),
                                        list(self.precond_pos) + ['~{0}'.format(p) for p in self.precond_neg],
                                        list(self.effect_add) + ['~{0}'.format(e) for e in self.effect_rem])
+
+    def copy(self):
+        """Returns a copy of this object."""
+        act = self.__new__(self.__class__, object)
+        act.name = self.name
+        act.args = self.args[:]
+        act.subst = self.subst
+        act.precond_pos = self.precond_pos.copy()
+        act.precond_neg = self.precond_neg.copy()
+        act.effect_add = self.effect_add.copy()
+        act.effect_rem = self.effect_rem.copy()
+        return act
 
     def substitute(self, subst, e):
         """Replaces variables in expression with the same substitution used for the precondition. """
@@ -149,19 +162,32 @@ class Action:
         yield from self.check_neg_precond(kb, self.precond_neg, self.check_pos_precond(kb, self.precond_pos, {}))
 
     def act(self, subst, kb):
+        """ Executes the action on a new copy of the PlanningKB """
         new_kb = PlanningKB(kb.goal_clauses, kb.clause_set)
-        """Executes the action on the state's kb"""
         clause_set = set(new_kb.clause_set)
-        # remove negative literals
-        for clause in self.effect_rem:
-            subst_clause = self.substitute(subst, clause)
-            clause_set.discard(subst_clause)
-        # add positive literals
-        for clause in self.effect_add:
-            subst_clause = self.substitute(subst, clause)
-            clause_set.add(subst_clause)
-        new_kb.clause_set = frozenset(clause_set)
+        neg_literals = set(self.substitute(subst, clause) for clause in self.effect_rem)
+        pos_literals = set(self.substitute(subst, clause) for clause in self.effect_add)
+        new_kb.clause_set = frozenset(clause_set - neg_literals | pos_literals)
         return new_kb
+
+
+class POPPlan:
+    def __init__(self, initial_kb):
+        precond = []
+        effect = initial_kb.clause_set
+        start = PlanningAction(expr('Start'), precond, effect)
+
+        precond = initial_kb.goal_clauses
+        effect = []
+        finish = PlanningAction(expr('Finish'), precond, effect)
+
+        self.action_list = [start, finish]
+        self.constraints = {(start, finish)}
+        self.causal_links = set()
+        self.open_preconds = set(initial_kb.goal_clauses)
+
+    def successors(self):
+        pass
 
 
 def print_solution(node):
@@ -169,7 +195,11 @@ def print_solution(node):
         print(action.name, end='(')
         for a in action.args[:-1]:
             print('{},'.format(action.subst.get(a, a)), end=' ')
-        print('{})'.format(action.subst.get(action.args[-1], action.args[-1])))
+        if action.args:
+            print('{})'.format(action.subst.get(action.args[-1], action.args[-1])))
+        else:
+            print(')')
+    print()
 
 
 def air_cargo():
@@ -191,22 +221,22 @@ def air_cargo():
     #  Load
     precond = [expr('At(c, a)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
     effect = [expr('In(c, p)'), expr('~At(c, a)')]
-    load = Action(expr('Load(c, p, a)'), precond, effect)
+    load = PlanningAction(expr('Load(c, p, a)'), precond, effect)
 
     #  Unload
     precond = [expr('In(c, p)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
     effect = [expr('At(c, a)'), expr('~In(c, p)')]
-    unload = Action(expr('Unload(c, p, a)'), precond, effect)
+    unload = PlanningAction(expr('Unload(c, p, a)'), precond, effect)
 
     #  Fly
     #  Used used 'f' instead of 'from' because 'from' is a python keyword and expr uses eval() function
     precond = [expr('At(p, f)'), expr('Plane(p)'), expr('Airport(f)'), expr('Airport(to)')]
     effect = [expr('At(p, to)'), expr('~At(p, f)')]
-    fly = Action(expr('Fly(p, f, to)'), precond, effect)
+    fly = PlanningAction(expr('Fly(p, f, to)'), precond, effect)
 
     p = PlanningProblem(init, [load, unload, fly], goals)
-    n = astar_search(p)
-    print_solution(n)
+    for solution in astar_search(p):
+        print_solution(solution)
 
 
 def spare_tire():
@@ -220,27 +250,27 @@ def spare_tire():
     #  Remove(Spare, Trunk)
     precond = [expr('At(Spare, Trunk)')]
     effect = [expr('At(Spare, Ground)'), expr('~At(Spare, Trunk)')]
-    remove_spare = Action(expr('Remove(Spare, Trunk)'), precond, effect)
+    remove_spare = PlanningAction(expr('Remove(Spare, Trunk)'), precond, effect)
 
     #  Remove(Flat, Axle)
     precond = [expr('At(Flat, Axle)')]
     effect = [expr('At(Flat, Ground)'), expr('~At(Flat, Axle)')]
-    remove_flat = Action(expr('Remove(Flat, Axle)'), precond, effect)
+    remove_flat = PlanningAction(expr('Remove(Flat, Axle)'), precond, effect)
 
     #  PutOn(Spare, Axle)
     precond = [expr('At(Spare, Ground)'), expr('~At(Flat, Axle)')]
     effect = [expr('At(Spare, Axle)'), expr('~At(Spare, Ground)')]
-    put_on_spare = Action(expr('PutOn(Spare, Axle)'), precond, effect)
+    put_on_spare = PlanningAction(expr('PutOn(Spare, Axle)'), precond, effect)
 
     #  LeaveOvernight
     precond = []
     effect = [expr('~At(Spare, Ground)'), expr('~At(Spare, Axle)'), expr('~At(Spare, Trunk)'),
               expr('~At(Flat, Ground)'), expr('~At(Flat, Axle)')]
-    leave_overnight = Action(expr('LeaveOvernight'), precond, effect)
+    leave_overnight = PlanningAction(expr('LeaveOvernight'), precond, effect)
 
     p = PlanningProblem(init, [remove_spare, remove_flat, put_on_spare, leave_overnight], goals)
-    n = astar_search(p)
-    print_solution(n)
+    for s in astar_search(p):
+        print_solution(s)
 
 
 def three_block_tower():
@@ -260,16 +290,16 @@ def three_block_tower():
     #  Move(b, x, y)
     precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)')]
     effect = [expr('On(b, y)'), expr('Clear(x)'), expr('~On(b, x)'), expr('~Clear(y)')]
-    move = Action(expr('Move(b, x, y)'), precond, effect)
+    move = PlanningAction(expr('Move(b, x, y)'), precond, effect)
 
     #  MoveToTable(b, x)
     precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
     effect = [expr('On(b, Table)'), expr('Clear(x)'), expr('~On(b, x)')]
-    move_to_table = Action(expr('MoveToTable(b, x)'), precond, effect)
+    move_to_table = PlanningAction(expr('MoveToTable(b, x)'), precond, effect)
 
     p = PlanningProblem(init, [move, move_to_table], goals)
-    n = astar_search(p)
-    print_solution(n)
+    for s in astar_search(p):
+        print_solution(s)
 
 
 def sussman_anomaly():
@@ -288,23 +318,63 @@ def sussman_anomaly():
     #  Move(b, x, y)
     precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)')]
     effect = [expr('On(b, y)'), expr('Clear(x)'), expr('~On(b, x)'), expr('~Clear(y)')]
-    move = Action(expr('Move(b, x, y)'), precond, effect)
+    move = PlanningAction(expr('Move(b, x, y)'), precond, effect)
 
     #  MoveToTable(b, x)
     precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
     effect = [expr('On(b, Table)'), expr('Clear(x)'), expr('~On(b, x)')]
-    move_to_table = Action(expr('MoveToTable(b, x)'), precond, effect)
+    move_to_table = PlanningAction(expr('MoveToTable(b, x)'), precond, effect)
 
     p = PlanningProblem(init, [move, move_to_table], goals)
-    n = astar_search(p)
-    print_solution(n)
+    for s in astar_search(p):
+        print_solution(s)
+
+
+def put_on_shoes():
+    goals = [expr('On(RightShoe, RF)'), expr('On(LeftShoe, LF)')]
+    init = PlanningKB(goals, [expr('Clear(LF)'),
+                              expr('Clear(RF)'),
+                              expr('LeftFoot(LF)'),
+                              expr('RightFoot(RF)')])
+
+    # Actions
+    #  RightShoe
+    precond = [expr('On(RightSock, x)'), expr('RightFoot(x)'), expr('~On(RightShoe, x)')]
+    effect = [expr('On(RightShoe, x)')]
+    right_shoe = PlanningAction(expr('RightShoeOn'), precond, effect)
+
+    #  RightSock
+    precond = [expr('Clear(x)'), expr('RightFoot(x)')]
+    effect = [expr('On(RightSock, x)'), expr('~Clear(x)')]
+    right_sock = PlanningAction(expr('RightSockOn'), precond, effect)
+
+    #  LeftShoe
+    precond = [expr('On(LeftSock, x)'), expr('LeftFoot(x)'), expr('~On(LeftShoe, x)')]
+    effect = [expr('On(LeftShoe, x)')]
+    left_shoe = PlanningAction(expr('LeftShoeOn'), precond, effect)
+
+    #  LeftSock
+    precond = [expr('Clear(x)'), expr('LeftFoot(x)')]
+    effect = [expr('On(LeftSock, x)'), expr('~Clear(x)')]
+    left_sock = PlanningAction(expr('LeftSockOn'), precond, effect)
+
+    p = PlanningProblem(init, [right_shoe, right_sock, left_shoe, left_sock], goals)
+    # find all six solutions as listed in the book
+    for s in depth_first_tree_search(p):
+        print_solution(s)
+
+
+def tester():
+    print('Air cargo solution:')
+    air_cargo()
+    print('\nSpare tire solution:')
+    spare_tire()
+    print('\nThree block tower solution:')
+    three_block_tower()
+    print('\nSussman anomaly solution:')
+    sussman_anomaly()
 
 
 if __name__ == '__main__':
-    air_cargo()
-    print()
-    spare_tire()
-    print()
-    three_block_tower()
-    print()
-    sussman_anomaly()
+    import timeit
+    print(timeit.timeit("tester()", setup="from __main__ import tester", number=10))
