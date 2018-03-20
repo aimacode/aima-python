@@ -80,7 +80,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 3.24   | A\*-Search                        | `astar_search`                | [`search.py`][search]           | Done | Included |
 | 3.26   | Recursive-Best-First-Search       | `recursive_best_first_search` | [`search.py`][search]           | Done |          |
 | 4.2    | Hill-Climbing                     | `hill_climbing`               | [`search.py`][search]           | Done | Included |
-| 4.5    | Simulated-Annealing               | `simulated_annealing`         | [`search.py`][search]           | Done |          |
+| 4.5    | Simulated-Annealing               | `simulated_annealing`         | [`search.py`][search]           | Done | Included |
 | 4.8    | Genetic-Algorithm                 | `genetic_algorithm`           | [`search.py`][search]           | Done | Included |
 | 4.11   | And-Or-Graph-Search               | `and_or_graph_search`         | [`search.py`][search]           | Done |          |
 | 4.21   | Online-DFS-Agent                  | `online_dfs_agent`            | [`search.py`][search]           |      |          |
