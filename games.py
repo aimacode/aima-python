@@ -53,7 +53,7 @@ def expectiminimax(state, game):
             game.dice_roll = dice_roll
         return v
 
-    def min_value(state, dice_roll):    
+    def min_value(state, dice_roll):
         v = infinity
         for a in game.actions(state):
             v = min(v, chance_node(state, a))
@@ -395,10 +395,21 @@ class Backgammon(Game):
 	rolling a pair of dice."""
 
     def __init__(self):
+        """Initial state of the game"""
         self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
-        board = BackgammonBoard()
+        # TODO : Add bar to Board class where a blot is placed when it is hit.
+        point = {'W':0, 'B':0}
+        self.board = [point.copy() for index in range(24)]
+        self.board[0]['B'] = self.board[23]['W'] = 2
+        self.board[5]['W'] = self.board[18]['B'] = 5
+        self.board[7]['W'] = self.board[16]['B'] = 3
+        self.board[11]['B'] = self.board[12]['W'] = 5
+        self.allow_bear_off = {'W': False, 'B': False}
+
         self.initial = GameState(to_move='W',
-                                 utility=0, board=board, moves=self.get_all_moves(board, 'W'))
+                                 utility=0, 
+                                 board=self.board,
+                                 moves=self.get_all_moves(self.board, 'W'))
 
     def actions(self, state):
         """Returns a list of legal moves for a state."""
@@ -409,16 +420,16 @@ class Backgammon(Game):
         legal_moves = []
         for move in moves:
             board = copy.deepcopy(state.board)
-            if board.is_legal_move(move, self.dice_roll, player):
+            if self.is_legal_move(move, self.dice_roll, player):
                 legal_moves.append(move)
         return legal_moves
 
     def result(self, state, move):
         board = copy.deepcopy(state.board)
         player = state.to_move
-        board.move_checker(move[0], self.dice_roll[0], player)
+        self.move_checker(move[0], self.dice_roll[0], player)
         if len(move) == 2:
-            board.move_checker(move[1], self.dice_roll[1], player)
+            self.move_checker(move[1], self.dice_roll[1], player)
         to_move = ('W' if player == 'B' else 'B')
         return GameState(to_move=to_move,
                          utility=self.compute_utility(board, move, player),
@@ -438,10 +449,10 @@ class Backgammon(Game):
         """All possible moves for a player i.e. all possible ways of
         choosing two checkers of a player from the board for a move
         at a given state."""
-        all_points = board.points
+        all_points = board
         taken_points = [index for index, point in enumerate(all_points)
                         if point[player] > 0]
-        if board.checkers_at_home(player) == 1:
+        if self.checkers_at_home(player) == 1:
             return [(taken_points[0], )]
         moves = list(itertools.permutations(taken_points, 2))
         moves = moves + [(index, index) for index, point in enumerate(all_points)
@@ -453,7 +464,7 @@ class Backgammon(Game):
         board = state.board
         player = state.to_move
         print("Current State : ")
-        for index, point in enumerate(board.points):
+        for index, point in enumerate(board):
             if point['W'] != 0 or point['B'] != 0:
                 print("Point : ", index, "	W : ", point['W'], "    B : ", point['B'])
         print("To play : ", player)
@@ -462,37 +473,19 @@ class Backgammon(Game):
         """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
         count = 0
         for idx in range(0, 24):
-            count = count + board.points[idx][player]
+            count = count + board[idx][player]
         if player == 'W' and count == 0:
             return 1
         if player == 'B' and count == 0:
             return -1
         return 0
 
-
-class BackgammonBoard:
-    """The board consists of 24 points. Each player('W' and 'B') initially
-    has 15 checkers on board. Player 'W' moves from point 23 to point 0
-    and player 'B' moves from point 0 to 23. Points 0-7 are
-    home for player W and points 17-24 are home for B."""
-
-    def __init__(self):
-        """Initial state of the game"""
-        # TODO : Add bar to Board class where a blot is placed when it is hit.
-        point = {'W':0, 'B':0}
-        self.points = [point.copy() for index in range(24)]
-        self.points[0]['B'] = self.points[23]['W'] = 2
-        self.points[5]['W'] = self.points[18]['B'] = 5
-        self.points[7]['W'] = self.points[16]['B'] = 3
-        self.points[11]['B'] = self.points[12]['W'] = 5
-        self.allow_bear_off = {'W': False, 'B': False}
-
     def checkers_at_home(self, player):
         """Return the no. of checkers at home for a player."""
         sum_range = range(0, 7) if player == 'W' else range(17, 24)
         count = 0
         for idx in sum_range:
-            count = count + self.points[idx][player]
+            count = count + self.board[idx][player]
         return count
 
     def is_legal_move(self, start, steps, player):
@@ -504,7 +497,7 @@ class BackgammonBoard:
         dest_range = range(0, 24)
         move1_legal = move2_legal = False
         if dest1 in dest_range:
-            if self.is_point_open(player, self.points[dest1]):
+            if self.is_point_open(player, self.board[dest1]):
                 self.move_checker(start[0], steps[0], player)
                 move1_legal = True
         else:
@@ -514,7 +507,7 @@ class BackgammonBoard:
         if not move1_legal:
             return False
         if dest2 in dest_range:
-            if self.is_point_open(player, self.points[dest2]):
+            if self.is_point_open(player, self.board[dest2]):
                 move2_legal = True
         else:
             if self.allow_bear_off[player]:
@@ -525,9 +518,9 @@ class BackgammonBoard:
         """Move a checker from starting point by a given number of steps"""
         dest = start + steps
         dest_range = range(0, 24)
-        self.points[start][player] -= 1
+        self.board[start][player] -= 1
         if dest in dest_range:
-            self.points[dest][player] += 1
+            self.board[dest][player] += 1
             if self.checkers_at_home(player) == 15:
                 self.allow_bear_off[player] = True
 
