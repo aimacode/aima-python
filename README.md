@@ -102,7 +102,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`][logic]             | Done | Included |
 | 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done | Included |
 | 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |
-| 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done |          |
+| 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done | Included          |
 | 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done |          |
 | 9.1    | Unify                             | `unify`                       | [`logic.py`][logic]             | Done | Included |
 | 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`][logic]             | Done | Included |
