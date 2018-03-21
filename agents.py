@@ -152,8 +152,8 @@ def ModelBasedReflexAgentProgram(rules, update_state, model):
     def program(percept):
         program.state = update_state(program.state, program.action, percept, model)
         rule = rule_match(program.state, rules)
-        action = rule.action
-        return action
+        program.action = rule.action
+        return program.action
     program.state = program.action = None
     return program
 

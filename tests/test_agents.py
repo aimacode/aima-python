@@ -3,7 +3,7 @@ from agents import Direction
 from agents import Agent
 from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
                    RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram, \
-		   SimpleReflexAgentProgram, rule_match
+		   SimpleReflexAgentProgram, rule_match, ModelBasedReflexAgentProgram
 
 
 random.seed("aima-python")
@@ -164,6 +164,64 @@ def test_SimpleReflexAgentProgram():
     # check final status of the environment
     assert environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
 
+def test_ModelBasedReflexAgentProgram():
+
+    loc_A = (0, 0)
+    loc_B = (1, 0)
+
+    model = {loc_A: None, loc_B: None}
+
+    class Rule:
+        def __init__(self, state, action):
+            self.__state = state
+            self.action = action
+
+        def matches(self, state):
+            return self.__state == state
+
+    # create rules for a two state Vacuum Environment
+    rules = [Rule((loc_A, "Dirty"), "Suck"), Rule((loc_A, "Clean"), "Right"),
+             Rule((loc_B, "Dirty"), "Suck"), Rule((loc_B, "Clean"), "Left")]
+
+    def update_state(state, action, percept, model):
+        loc, status = percept
+
+        # the other location
+        loc2 = tuple(map(lambda x: x[0]-x[1], zip((1,0), loc)))
+
+        # initial guess of the other location
+        if not state or not action or not model[loc2]:
+            model[loc2] = random.choice(['Dirty', 'Clean'])
+
+        model[loc] = status
+
+        # the model think environment will keep clean if agent chose to suck last step
+        if action == 'Suck':
+            state = percept
+            return state
+
+        # rubbish may appears suddenly, so the model guess randomly
+        if status == 'Clean':
+            status = random.choice(['Dirty', 'Clean'])
+            model[loc] = status
+
+        # move right or left will not influence the environment
+        state = (loc, model[loc])
+        return state
+
+    # create a program and then an object of the ModelBasedReflexAgentProgram
+
+    program = ModelBasedReflexAgentProgram(rules, update_state, model)
+    agent = Agent(program)
+
+    # create an object of TrivialVacuumEnvironment
+    environment = TrivialVacuumEnvironment()
+    # add agent to the environment
+    environment.add_thing(agent)
+    # run the environment
+    environment.run()
+    # check final status of the environment
+    assert environment.status == {(1, 0): 'Clean', (0, 0): 'Clean'}
 
 def test_ModelBasedVacuumAgent() :
     # create an object of the ModelBasedVacuumAgent
@@ -228,3 +286,5 @@ def test_Agent():
     agent = Agent(constant_prog)
     result = agent.program(5)
     assert result == 5
+
+test_ModelBasedReflexAgentProgram()
