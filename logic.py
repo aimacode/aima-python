@@ -1105,7 +1105,7 @@ class HybridWumpusAgent(agents.Agent):
 
     def plan_route(self, current, goals, allowed):
         problem = PlanRoute(current, goals, allowed, self.dimrow)
-        return astar_search(problem)
+        return astar_search(problem).solution()
 
 
     def plan_shot(self, current, goals, allowed):
