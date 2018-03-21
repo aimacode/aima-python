@@ -260,7 +260,7 @@ def best_first_graph_search(problem, f):
     node = Node(problem.initial)
     if problem.goal_test(node.state):
         return node
-    frontier = PriorityQueue(min, f)
+    frontier = PriorityQueue('min', f)
     frontier.append(node)
     explored = set()
     while frontier:
@@ -1453,4 +1453,3 @@ def compare_graph_searchers():
                                 GraphProblem('Q', 'WA', australia_map)],
                       header=['Searcher', 'romania_map(Arad, Bucharest)',
                               'romania_map(Oradea, Neamt)', 'australia_map'])
-
