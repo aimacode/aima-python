@@ -36,6 +36,7 @@ from utils import (
     isnumber, issequence, Expr, expr, subexpressions
 )
 import agents
+from search import astar_search, PlanRoute
 
 import itertools
 import random
@@ -763,7 +764,7 @@ def location(x, y, time = None):
 def implies(lhs, rhs):
     return Expr('==>', lhs, rhs)
 
-def implies_and_implies(lhs, rhs):
+def equiv(lhs, rhs):
     return Expr('<=>', lhs, rhs)
 
 # Helper Function
@@ -811,8 +812,8 @@ class WumpusKB(PropKB):
                     pits_in.append(pit(x, y - 1))
                     wumpus_in.append(wumpus(x, y - 1))
 
-                self.tell(implies_and_implies(breeze(x, y), new_disjunction(pits_in)))
-                self.tell(implies_and_implies(stench(x, y), new_disjunction(wumpus_in)))
+                self.tell(equiv(breeze(x, y), new_disjunction(pits_in)))
+                self.tell(equiv(stench(x, y), new_disjunction(wumpus_in)))
 
 
         ## Rule that describes existence of at least one Wumpus
@@ -837,8 +838,8 @@ class WumpusKB(PropKB):
         self.tell(location(1, 1, 0))
         for i in range(1, dimrow+1):
             for j in range(1, dimrow + 1):
-                self.tell(implies(location(i, j, 0), implies_and_implies(percept_breeze(0), breeze(i, j))))
-                self.tell(implies(location(i, j, 0), implies_and_implies(percept_stench(0), stench(i, j))))
+                self.tell(implies(location(i, j, 0), equiv(percept_breeze(0), breeze(i, j))))
+                self.tell(implies(location(i, j, 0), equiv(percept_stench(0), stench(i, j))))
                 if i != 1 or j != 1:
                     self.tell(~location(i, j, 0))
 
@@ -903,13 +904,13 @@ class WumpusKB(PropKB):
         ## current location rules
         for i in range(1, self.dimrow+1):
             for j in range(1, self.dimrow+1):
-                self.tell(implies(location(i, j, time), implies_and_implies(percept_breeze(time), breeze(i, j))))
-                self.tell(implies(location(i, j, time), implies_and_implies(percept_stench(time), stench(i, j))))
+                self.tell(implies(location(i, j, time), equiv(percept_breeze(time), breeze(i, j))))
+                self.tell(implies(location(i, j, time), equiv(percept_stench(time), stench(i, j))))
 
                 s = list()
 
                 s.append(
-                    implies_and_implies(
+                    equiv(
                         location(i, j, time), location(i, j, time) & ~move_forward(time) | percept_bump(time)))
 
                 if i != 1:
@@ -929,7 +930,7 @@ class WumpusKB(PropKB):
 
                 ## add sentence about safety of location i,j
                 self.tell(
-                    implies_and_implies(ok_to_move(i, j, time), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(time))
+                    equiv(ok_to_move(i, j, time), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(time))
                 )
 
         ## Rules about current orientation
@@ -937,64 +938,71 @@ class WumpusKB(PropKB):
         a = facing_north(t) & turn_right(t)
         b = facing_south(t) & turn_left(t)
         c = facing_east(t) & ~turn_left(t) & ~turn_right(t)
-        s = implies_and_implies(facing_east(time), a | b | c)
+        s = equiv(facing_east(time), a | b | c)
         self.tell(s)
 
         a = facing_north(t) & turn_left(t)
         b = facing_south(t) & turn_right(t)
         c = facing_west(t) & ~turn_left(t) & ~turn_right(t)
-        s = implies_and_implies(facing_west(time), a | b | c)
+        s = equiv(facing_west(time), a | b | c)
         self.tell(s)
 
         a = facing_east(t) & turn_left(t)
         b = facing_west(t) & turn_right(t)
         c = facing_north(t) & ~turn_left(t) & ~turn_right(t)
-        s = implies_and_implies(facing_north(time), a | b | c)
+        s = equiv(facing_north(time), a | b | c)
         self.tell(s)
 
         a = facing_west(t) & turn_left(t)
         b = facing_east(t) & turn_right(t)
         c = facing_south(t) & ~turn_left(t) & ~turn_right(t)
-        s = implies_and_implies(facing_south(time), a | b | c)
+        s = equiv(facing_south(time), a | b | c)
         self.tell(s)
 
         ## Rules about last action
-        self.tell(implies_and_implies(move_forward(t), ~turn_right(t) & ~turn_left(t)))
+        self.tell(equiv(move_forward(t), ~turn_right(t) & ~turn_left(t)))
 
         ##Rule about the arrow
-        self.tell(implies_and_implies(have_arrow(time), have_arrow(t) & ~shoot(t)))
+        self.tell(equiv(have_arrow(time), have_arrow(t) & ~shoot(t)))
 
         ##Rule about Wumpus (dead or alive)
-        self.tell(implies_and_implies(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
+        self.tell(equiv(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
 
 
     def ask_if_true(self, query):
         return pl_resolution(self, query)
-      
-          
+
+
 # ______________________________________________________________________________
 
 
 class WumpusPosition():
-    def __init__(self, X, Y, orientation):
-        self.X = X
-        self.Y = Y
+    def __init__(self, x, y, orientation):
+        self.X = x
+        self.Y = y
         self.orientation = orientation
 
 
     def get_location(self):
         return self.X, self.Y
 
+    def set_location(self, x, y):
+        self.X = x
+        self.Y = y
+
     def get_orientation(self):
         return self.orientation
 
-    def equals(self, wumpus_position):
-        if wumpus_position.get_location() == self.get_location() and \
-                        wumpus_position.get_orientation()==self.get_orientation():
+    def set_orientation(self, orientation):
+        self.orientation = orientation
+
+    def __eq__(self, other):
+        if other.get_location() == self.get_location() and \
+                        other.get_orientation()==self.get_orientation():
             return True
         else:
             return False
-        
+
 # ______________________________________________________________________________
 
 
@@ -1041,9 +1049,8 @@ class HybridWumpusAgent(agents.Agent):
             goals = list()
             goals.append([1, 1])
             self.plan.append('Grab')
-            actions = plan_route(self.current_position,goals,safe_points)
-            for action in actions:
-                self.plan.append(action)
+            actions = self.plan_route(self.current_position,goals,safe_points)
+            self.plan.extend(actions)
             self.plan.append('Climb')
 
         if len(self.plan) == 0:
@@ -1059,9 +1066,8 @@ class HybridWumpusAgent(agents.Agent):
                     if u not in unvisited_and_safe and s == u:
                         unvisited_and_safe.append(u)
 
-            temp = plan_route(self.current_position,unvisited_and_safe,safe_points)
-            for t in temp:
-                self.plan.append(t)
+            temp = self.plan_route(self.current_position,unvisited_and_safe,safe_points)
+            self.plan.extend(temp)
 
         if len(self.plan) == 0 and self.kb.ask_if_true(have_arrow(self.t)):
             possible_wumpus = list()
@@ -1070,9 +1076,8 @@ class HybridWumpusAgent(agents.Agent):
                     if not self.kb.ask_if_true(wumpus(i, j)):
                         possible_wumpus.append([i, j])
 
-            temp = plan_shot(self.current_position, possible_wumpus, safe_points)
-            for t in temp:
-                self.plan.append(t)
+            temp = self.plan_shot(self.current_position, possible_wumpus, safe_points)
+            self.plan.extend(temp)
 
         if len(self.plan) == 0:
             not_unsafe = list()
@@ -1080,16 +1085,14 @@ class HybridWumpusAgent(agents.Agent):
                 for j in range(1, self.dimrow+1):
                     if not self.kb.ask_if_true(ok_to_move(i, j, self.t)):
                         not_unsafe.append([i, j])
-            temp = plan_route(self.current_position, not_unsafe, safe_points)
-            for t in temp:
-                self.plan.append(t)
+            temp = self.plan_route(self.current_position, not_unsafe, safe_points)
+            self.plan.extend(temp)
 
         if len(self.plan) == 0:
             start = list()
             start.append([1, 1])
-            temp = plan_route(self.current_position, start, safe_points)
-            for t in temp:
-                self.plan.append(t)
+            temp = self.plan_route(self.current_position, start, safe_points)
+            self.plan.extend(temp)
             self.plan.append('Climb')
 
         action = self.plan[0]
@@ -1100,12 +1103,36 @@ class HybridWumpusAgent(agents.Agent):
         return action
 
 
-def plan_route(current, goals, allowed):
-    raise NotImplementedError
+    def plan_route(self, current, goals, allowed):
+        problem = PlanRoute(current,goals,allowed, self.dimrow)
+        return astar_search(problem)
 
-    
-def plan_shot(current, goals, allowed):
-    raise NotImplementedError
+
+    def plan_shot(self, current, goals, allowed):
+        shooting_positions = set()
+
+        for loc in goals:
+            x = loc[0]
+            y = loc[1]
+            for i in range(1, self.dimrow+1):
+                if i < x:
+                    shooting_positions.add(WumpusPosition(i, y, 'EAST'))
+                if i > x:
+                    shooting_positions.add(WumpusPosition(i, y, 'WEST'))
+                if i < y:
+                    shooting_positions.add(WumpusPosition(x, i, 'NORTH'))
+                if i > y:
+                    shooting_positions.add(WumpusPosition(x, i, 'SOUTH'))
+
+        # Can't have a shooting position from any of the rooms the Wumpus could reside
+        for loc in goals:
+            for orientation in ['EAST', 'WEST', 'NORTH', 'SOUTH']:
+                shooting_positions.remove(WumpusPosition(loc[0], loc[1], orientation))
+
+        actions = list()
+        actions.extend(self.plan_route(current, shooting_positions, allowed))
+        actions.append('Shoot')
+        return actions
 
 
 # ______________________________________________________________________________
