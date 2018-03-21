@@ -62,7 +62,19 @@ def test_spare_tire():
 
     assert p.goal_test()
 
+def test_double_tennis():
+    p = double_tennis_problem()
+    assert p.goal_test() is False
 
+    solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
+                expr("Hit(A, Ball, RightBaseLine)"),
+                expr("Go(A, LeftNet, RightBaseLine)")]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()
+    
 def test_three_block_tower():
     p = three_block_tower()
     assert p.goal_test() is False
