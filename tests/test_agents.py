@@ -286,5 +286,3 @@ def test_Agent():
     agent = Agent(constant_prog)
     result = agent.program(5)
     assert result == 5
-
-test_ModelBasedReflexAgentProgram()
