@@ -1104,7 +1104,7 @@ class HybridWumpusAgent(agents.Agent):
 
 
     def plan_route(self, current, goals, allowed):
-        problem = PlanRoute(current,goals,allowed, self.dimrow)
+        problem = PlanRoute(current, goals, allowed, self.dimrow)
         return astar_search(problem)
 
 
@@ -1125,8 +1125,9 @@ class HybridWumpusAgent(agents.Agent):
                     shooting_positions.add(WumpusPosition(x, i, 'SOUTH'))
 
         # Can't have a shooting position from any of the rooms the Wumpus could reside
-        for loc in goals:
-            for orientation in ['EAST', 'WEST', 'NORTH', 'SOUTH']:
+        orientations = ['EAST', 'WEST', 'NORTH', 'SOUTH']
+        for loc in goals:            
+            for orientation in orientations:
                 shooting_positions.remove(WumpusPosition(loc[0], loc[1], orientation))
 
         actions = list()
