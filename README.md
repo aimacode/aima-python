@@ -80,7 +80,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 3.24   | A\*-Search                        | `astar_search`                | [`search.py`][search]           | Done | Included |
 | 3.26   | Recursive-Best-First-Search       | `recursive_best_first_search` | [`search.py`][search]           | Done |          |
 | 4.2    | Hill-Climbing                     | `hill_climbing`               | [`search.py`][search]           | Done | Included |
-| 4.5    | Simulated-Annealing               | `simulated_annealing`         | [`search.py`][search]           | Done |          |
+| 4.5    | Simulated-Annealing               | `simulated_annealing`         | [`search.py`][search]           | Done | Included |
 | 4.8    | Genetic-Algorithm                 | `genetic_algorithm`           | [`search.py`][search]           | Done | Included |
 | 4.11   | And-Or-Graph-Search               | `and_or_graph_search`         | [`search.py`][search]           | Done |          |
 | 4.21   | Online-DFS-Agent                  | `online_dfs_agent`            | [`search.py`][search]           |      |          |
@@ -90,10 +90,10 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 6      | CSP                               | `CSP`                         | [`csp.py`][csp]                 | Done | Included |
 | 6.3    | AC-3                              | `AC3`                         | [`csp.py`][csp]                 | Done |          |
 | 6.5    | Backtracking-Search               | `backtracking_search`         | [`csp.py`][csp]                 | Done | Included |
-| 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done |          |
+| 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done | Included |
 | 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`][csp]                 | Done | Included |
 | 7      | KB                                | `KB`                          | [`logic.py`][logic]             | Done | Included |
-| 7.1    | KB-Agent                          | `KB_Agent`                    | [`logic.py`][logic]             | Done |          |
+| 7.1    | KB-Agent                          | `KB_AgentProgram`             | [`logic.py`][logic]             | Done |          |
 | 7.7    | Propositional Logic Sentence      | `Expr`                        | [`utils.py`][utils]             | Done | Included |
 | 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`][logic]             | Done | Included |
 | 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`][logic]             | Done | Included |
@@ -102,15 +102,15 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`][logic]             | Done | Included |
 | 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done | Included |
 | 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |
-| 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done |          |
+| 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done | Included          |
 | 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done |          |
 | 9.1    | Unify                             | `unify`                       | [`logic.py`][logic]             | Done | Included |
-| 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`][logic]             | Done |          |
-| 9.6    | FOL-BC-Ask                        | `fol_bc_ask`                  | [`logic.py`][logic]             | Done |          |
+| 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`][logic]             | Done | Included |
+| 9.6    | FOL-BC-Ask                        | `fol_bc_ask`                  | [`logic.py`][logic]             | Done | Included |
 | 9.8    | Append                            |                               |                                 |      |          |
 | 10.1   | Air-Cargo-problem                 | `air_cargo`                   | [`planning.py`][planning]       | Done | Included |
-| 10.2   | Spare-Tire-Problem                | `spare_tire`                  | [`planning.py`][planning]       | Done |          |
-| 10.3   | Three-Block-Tower                 | `three_block_tower`           | [`planning.py`][planning]       | Done |          |
+| 10.2   | Spare-Tire-Problem                | `spare_tire`                  | [`planning.py`][planning]       | Done | Included |
+| 10.3   | Three-Block-Tower                 | `three_block_tower`           | [`planning.py`][planning]       | Done | Included |
 | 10.7   | Cake-Problem                      | `have_cake_and_eat_cake_too`  | [`planning.py`][planning]       | Done |          |
 | 10.9   | Graphplan                         | `GraphPlan`                   | [`planning.py`][planning]       |      |          |
 | 10.13  | Partial-Order-Planner             |                               |                                 |      |          |
@@ -140,7 +140,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`][learning]       | Done | Included |
 | 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](knowledge.py)  | Done |          |
+| 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.12  | FOIL                              | `FOIL_container`              | [`knowledge.py`](knowledge.py)  | Done |          |
 | 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`][rl]                   | Done | Included |
 | 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`][rl]                   | Done | Included |
