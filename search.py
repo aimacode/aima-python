@@ -486,6 +486,110 @@ class EightPuzzle(Problem):
         return sum(s != g for (s, g) in zip(node.state, self.goal))
 
 # ______________________________________________________________________________
+
+
+class PlanRoute(Problem):
+    """ The problem of moving the Hybrid Wumpus Agent from one place to other """
+
+    def __init__(self, initial, goal, allowed, dimrow):
+        """ Define goal state and initialize a problem """
+
+        self.dimrow = dimrow
+        self.goal = goal
+        self.allowed = allowed
+        Problem.__init__(self, initial, goal)
+
+    def actions(self, state):
+        """ Return the actions that can be executed in the given state.
+        The result would be a list, since there are only three possible actions
+        in any given state of the environment """
+
+        possible_actions = ['Forward', 'TurnLeft', 'TurnRight']
+        x, y = state.get_location()
+        orientation = state.get_orientation()
+
+        # Prevent Bumps
+        if x == 1 and orientation == 'LEFT':
+            if 'Forward' in possible_actions:
+                possible_actions.remove('Forward')
+        if y == 1 and orientation == 'DOWN':
+            if 'Forward' in possible_actions:
+                possible_actions.remove('Forward')
+        if x == self.dimrow and orientation == 'RIGHT':
+            if 'Forward' in possible_actions:
+                possible_actions.remove('Forward')
+        if y == self.dimrow and orientation == 'UP':
+            if 'Forward' in possible_actions:
+                possible_actions.remove('Forward')
+
+        return possible_actions
+
+    def result(self, state, action):
+        """ Given state and action, return a new state that is the result of the action.
+        Action is assumed to be a valid action in the state """
+        x, y = state.get_location()
+        proposed_loc = list()
+
+        # Move Forward
+        if action == 'Forward':
+            if state.get_orientation() == 'UP':
+                proposed_loc = [x, y + 1]
+            elif state.get_orientation() == 'DOWN':
+                proposed_loc = [x, y - 1]
+            elif state.get_orientation() == 'LEFT':
+                proposed_loc = [x - 1, y]
+            elif state.get_orientation() == 'RIGHT':
+                proposed_loc = [x + 1, y]
+            else:
+                raise Exception('InvalidOrientation')
+
+        # Rotate counter-clockwise
+        elif action == 'TurnLeft':
+            if state.get_orientation() == 'UP':
+                state.set_orientation('LEFT')
+            elif state.get_orientation() == 'DOWN':
+                state.set_orientation('RIGHT')
+            elif state.get_orientation() == 'LEFT':
+                state.set_orientation('DOWN')
+            elif state.get_orientation() == 'RIGHT':
+                state.set_orientation('UP')
+            else:
+                raise Exception('InvalidOrientation')
+
+        # Rotate clockwise
+        elif action == 'TurnRight':
+            if state.get_orientation() == 'UP':
+                state.set_orientation('RIGHT')
+            elif state.get_orientation() == 'DOWN':
+                state.set_orientation('LEFT')
+            elif state.get_orientation() == 'LEFT':
+                state.set_orientation('UP')
+            elif state.get_orientation() == 'RIGHT':
+                state.set_orientation('DOWN')
+            else:
+                raise Exception('InvalidOrientation')
+
+        if proposed_loc in self.allowed:
+            state.set_location(proposed_loc[0], [proposed_loc[1]])
+
+        return state
+
+    def goal_test(self, state):
+        """ Given a state, return True if state is a goal state or False, otherwise """
+
+        return state.get_location() == tuple(self.goal)
+
+    def h(self, node):
+        """ Return the heuristic value for a given state."""
+
+        # Manhattan Heuristic Function
+        x1, y1 = node.state.get_location()
+        x2, y2 = self.goal
+
+        return abs(x2 - x1) + abs(y2 - y1)
+
+
+# ______________________________________________________________________________
 # Other search algorithms
 
 
