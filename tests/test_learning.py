@@ -227,6 +227,23 @@ def test_perceptron():
              ([7, 3, 6, 2.5], 2)]
     assert grade_learner(perceptron, tests) > 1/2
     assert err_ratio(perceptron, iris) < 0.4
+   
+
+def test_linear_learner():
+    iris = DataSet(name="iris")
+    iris.classes_to_numbers()
+    classes_number = len(iris.values[iris.target])
+    linear_learner = LinearLearner(iris)
+    tests = [([5.0, 3.1, 0.9, 0.1], 0),
+             ([5.1, 3.5, 1.0, 0.0], 0),
+             ([4.9, 3.3, 1.1, 0.1], 0),
+             ([6.0, 3.0, 4.0, 1.1], 1),
+             ([6.1, 2.2, 3.5, 1.0], 1),
+             ([5.9, 2.5, 3.3, 1.1], 1),
+             ([7.5, 4.1, 6.2, 2.3], 2),
+             ([7.3, 4.0, 6.1, 2.4], 2),
+             ([7.0, 3.3, 6.1, 2.5], 2)]
+    assert grade_learner(linear_learner, tests) > 1/2
 
 
 def test_random_weights():
