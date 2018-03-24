@@ -6,11 +6,11 @@ functions."""
 
 from utils import (
     is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
-    memoize, print_table, open_data, Stack, FIFOQueue, PriorityQueue, name,
+    memoize, print_table, open_data, PriorityQueue, name,
     distance, vector_add
 )
 
-from collections import defaultdict
+from collections import defaultdict, deque
 import math
 import random
 import sys
@@ -126,7 +126,7 @@ class Node:
             node = node.parent
         return list(reversed(path_back))
 
-    # We want for a queue of nodes in breadth_first_search or
+    # We want for a queue of nodes in breadth_first_graph_search or
     # astar_search to have no duplicated states, so we treat nodes
     # with the same state as equal. [Problem: this may not be what you
     # want in other contexts.]
@@ -179,11 +179,30 @@ class SimpleProblemSolvingAgentProgram:
 # Uninformed Search algorithms
 
 
-def tree_search(problem, frontier):
-    """Search through the successors of a problem to find a goal.
-    The argument frontier should be an empty queue.
-    Repeats infinites in case of loops. [Figure 3.7]"""
-    frontier.append(Node(problem.initial))
+def breadth_first_tree_search(problem):
+    """Search the shallowest nodes in the search tree first.
+        Search through the successors of a problem to find a goal.
+        The argument frontier should be an empty queue.
+        Repeats infinitely in case of loops. [Figure 3.7]"""
+
+    frontier = deque([Node(problem.initial)])  # FIFO queue
+
+    while frontier:
+        node = frontier.popleft()
+        if problem.goal_test(node.state):
+            return node
+        frontier.extend(node.expand(problem))
+    return None
+
+
+def depth_first_tree_search(problem):
+    """Search the deepest nodes in the search tree first.
+        Search through the successors of a problem to find a goal.
+        The argument frontier should be an empty queue.
+        Repeats infinitely in case of loops. [Figure 3.7]"""
+
+    frontier = [Node(problem.initial)]  # Stack
+
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
@@ -192,12 +211,13 @@ def tree_search(problem, frontier):
     return None
 
 
-def graph_search(problem, frontier):
-    """Search through the successors of a problem to find a goal.
-    The argument frontier should be an empty queue.
-    Does not get trapped by loops.
-    If two paths reach a state, only use the first one. [Figure 3.7]"""
-    frontier.append(Node(problem.initial))
+def depth_first_graph_search(problem):
+    """Search the deepest nodes in the search tree first.
+        Search through the successors of a problem to find a goal.
+        The argument frontier should be an empty queue.
+        Does not get trapped by loops.
+        If two paths reach a state, only use the first one. [Figure 3.7]"""
+    frontier = [(Node(problem.initial))]  # Stack
     explored = set()
     while frontier:
         node = frontier.pop()
@@ -210,35 +230,19 @@ def graph_search(problem, frontier):
     return None
 
 
-def breadth_first_tree_search(problem):
-    """Search the shallowest nodes in the search tree first."""
-    return tree_search(problem, FIFOQueue())
-
-
-def depth_first_tree_search(problem):
-    """Search the deepest nodes in the search tree first."""
-    return tree_search(problem, Stack())
-
-
-def depth_first_graph_search(problem):
-    """Search the deepest nodes in the search tree first."""
-    return graph_search(problem, Stack())
-
-
-def breadth_first_search(problem):
+def breadth_first_graph_search(problem):
     """[Figure 3.11]
-	Note that this function can be implemented in a 
-	single line as below:
-	return graph_search(problem, FIFOQueue())
+    Note that this function can be implemented in a
+    single line as below:
+    return graph_search(problem, FIFOQueue())
     """
     node = Node(problem.initial)
     if problem.goal_test(node.state):
         return node
-    frontier = FIFOQueue()
-    frontier.append(node)
+    frontier = deque([node])
     explored = set()
     while frontier:
-        node = frontier.pop()
+        node = frontier.popleft()
         explored.add(node.state)
         for child in node.expand(problem):
             if child.state not in explored and child not in frontier:
@@ -260,7 +264,7 @@ def best_first_graph_search(problem, f):
     node = Node(problem.initial)
     if problem.goal_test(node.state):
         return node
-    frontier = PriorityQueue(min, f)
+    frontier = PriorityQueue('min', f)
     frontier.append(node)
     explored = set()
     while frontier:
@@ -470,10 +474,10 @@ class EightPuzzle(Problem):
         inversion = 0
         for i in range(len(state)):
             for j in range(i, len(state)):
-                if (state[i] > state[j] and state[j] != 0):
+                if state[i] > state[j] != 0:
                     inversion += 1
         
-        return (inversion % 2 == 0)
+        return inversion % 2 == 0
     
     def h(self, node):
         """ Return the heuristic value for a given state. Default heuristic function used is 
@@ -853,15 +857,13 @@ def recombine(x, y):
 
 def recombine_uniform(x, y):
     n = len(x)
-    result = [0] * n;
+    result = [0] * n
     indexes = random.sample(range(n), n)
     for i in range(n):
         ix = indexes[i]
         result[ix] = x[ix] if i < n / 2 else y[ix]
-    try:
-        return ''.join(result)
-    except:
-        return result
+
+    return ''.join(str(r) for r in result)
         
 
 def mutate(x, gene_pool, pmut):
@@ -1433,7 +1435,7 @@ class InstrumentedProblem(Problem):
 
 def compare_searchers(problems, header,
                       searchers=[breadth_first_tree_search,
-                                 breadth_first_search,
+                                 breadth_first_graph_search,
                                  depth_first_graph_search,
                                  iterative_deepening_search,
                                  depth_limited_search,

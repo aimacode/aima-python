@@ -3,8 +3,9 @@
 
 import itertools
 from search import Node
-from utils import Expr, expr, first, FIFOQueue
+from utils import Expr, expr, first
 from logic import FolKB
+from collections import deque
 
 
 class PDDL:
@@ -727,16 +728,16 @@ class Problem(PDDL):
         """
         [Figure 11.5] 'Hierarchical Search, a Breadth First Search implementation of Hierarchical
         Forward Planning Search'
-        The problem is a real-world prodlem defined by the problem class, and the hierarchy is
+        The problem is a real-world problem defined by the problem class, and the hierarchy is
         a dictionary of HLA - refinements (see refinements generator for details)
         """
         act = Node(problem.actions[0])
-        frontier = FIFOQueue()
+        frontier = deque()
         frontier.append(act)
-        while(True):
+        while True:
             if not frontier:
                 return None
-            plan = frontier.pop()
+            plan = frontier.popleft()
             print(plan.state.name)
             hla = plan.state  # first_or_null(plan)
             prefix = None

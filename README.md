@@ -72,7 +72,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 3.2    | Romania                           | `romania`                     | [`search.py`][search]           | Done | Included |
 | 3.7    | Tree-Search                       | `tree_search`                 | [`search.py`][search]           | Done |          |
 | 3.7    | Graph-Search                      | `graph_search`                | [`search.py`][search]           | Done |          |
-| 3.11   | Breadth-First-Search              | `breadth_first_search`        | [`search.py`][search]           | Done | Included |
+| 3.11   | Breadth-First-Search              | `breadth_first_graph_search`        | [`search.py`][search]           | Done | Included |
 | 3.14   | Uniform-Cost-Search               | `uniform_cost_search`         | [`search.py`][search]           | Done | Included |
 | 3.17   | Depth-Limited-Search              | `depth_limited_search`        | [`search.py`][search]           | Done |          |
 | 3.18   | Iterative-Deepening-Search        | `iterative_deepening_search`  | [`search.py`][search]           | Done |          |

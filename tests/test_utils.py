@@ -255,53 +255,6 @@ def test_expr():
     assert (expr('GP(x, z) <== P(x, y) & P(y, z)')
             == Expr('<==', GP(x, z), P(x, y) & P(y, z)))
 
-def test_FIFOQueue() :
-    # Create an object
-    queue = FIFOQueue()
-    # Generate an array of number to be used for testing
-    test_data = [ random.choice(range(100)) for i in range(100) ]
-    # Index of the element to be added in the queue
-    front_head = 0
-    # Index of the element to be removed from the queue
-    back_head = 0
-    while front_head < 100 or back_head < 100 :
-        if front_head == 100 : # only possible to remove
-            # check for pop and append method
-            assert queue.pop() == test_data[back_head]
-            back_head += 1
-        elif back_head == front_head : # only possible to push element into queue
-            queue.append(test_data[front_head])
-            front_head += 1
-        # else do it in a random manner
-        elif random.random() < 0.5 :
-            assert queue.pop() == test_data[back_head]
-            back_head += 1
-        else :
-            queue.append(test_data[front_head])
-            front_head += 1
-        # check for __len__ method
-        assert len(queue) == front_head - back_head
-        # check for __contains__ method
-        if front_head - back_head > 0 :
-            assert random.choice(test_data[back_head:front_head]) in queue
-
-    # check extend method
-    test_data1 = [ random.choice(range(100)) for i in range(50) ]
-    test_data2 = [ random.choice(range(100)) for i in range(50) ]
-    # append elements of test data 1
-    queue.extend(test_data1)
-    # append elements of test data 2
-    queue.extend(test_data2)
-    # reset front_head
-    front_head = 0
-
-    while front_head < 50 :
-        assert test_data1[front_head] == queue.pop()
-        front_head += 1
-
-    while front_head < 100 :
-        assert test_data2[front_head - 50] == queue.pop()
-        front_head += 1
 
 if __name__ == '__main__':
     pytest.main()

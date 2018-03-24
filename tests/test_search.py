@@ -16,11 +16,11 @@ def test_find_min_edge():
 def test_breadth_first_tree_search():
     assert breadth_first_tree_search(
         romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
-    assert breadth_first_search(nqueens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
+    assert breadth_first_graph_search(nqueens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
 
 
-def test_breadth_first_search():
-    assert breadth_first_search(romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
+def test_breadth_first_graph_search():
+    assert breadth_first_graph_search(romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
 
 
 def test_best_first_graph_search():
@@ -333,7 +333,7 @@ def test_simpleProblemSolvingAgent():
 >>> compare_graph_searchers()
     Searcher                      romania_map(A, B)        romania_map(O, N)         australia_map
     breadth_first_tree_search     <  21/  22/  59/B>   <1158/1159/3288/N>    <   7/   8/  22/WA>
-    breadth_first_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/   6/   8/WA>
+    breadth_first_graph_search          <   7/  11/  18/B>   <  19/  20/  45/N>    <   2/   6/   8/WA>
     depth_first_graph_search      <   8/   9/  20/B>   <  16/  17/  38/N>    <   4/   5/  11/WA>
     iterative_deepening_search    <  11/  33/  31/B>   < 656/1815/1812/N>    <   3/  11/  11/WA>
     depth_limited_search          <  54/  65/ 185/B>   < 387/1012/1125/N>    <  50/  54/ 200/WA>
