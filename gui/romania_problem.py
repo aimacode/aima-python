@@ -5,9 +5,9 @@ import math
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from search import *
 from search import breadth_first_tree_search as bfts, depth_first_tree_search as dfts, \
-    depth_first_graph_search as dfgs, breadth_first_search as bfs, uniform_cost_search as ucs, \
+    depth_first_graph_search as dfgs, breadth_first_graph_search as bfs, uniform_cost_search as ucs, \
     astar_search as asts
-from utils import Stack, FIFOQueue, PriorityQueue
+from utils import PriorityQueue
 from copy import deepcopy
 
 root = None
@@ -26,9 +26,7 @@ explored = None
 
 
 def create_map(root):
-    '''
-    This function draws out the required map.
-    '''
+    """This function draws out the required map."""
     global city_map, start, goal
     romania_locations = romania_map.locations
     width = 750
@@ -260,17 +258,13 @@ def create_map(root):
 
 
 def make_line(map, x0, y0, x1, y1, distance):
-    '''
-    This function draws out the lines joining various points.
-    '''
+    """This function draws out the lines joining various points."""
     map.create_line(x0, y0, x1, y1)
     map.create_text((x0 + x1) / 2, (y0 + y1) / 2, text=distance)
 
 
 def make_rectangle(map, x0, y0, margin, city_name):
-    '''
-    This function draws out rectangles for various points.
-    '''
+    """This function draws out rectangles for various points."""
     global city_coord
     rect = map.create_rectangle(
         x0 - margin,
@@ -313,51 +307,51 @@ def make_legend(map):
 
 
 def tree_search(problem):
-    '''
+    """
     Search through the successors of a problem to find a goal.
     The argument frontier should be an empty queue.
     Don't worry about repeated paths to a state. [Figure 3.7]
     This function has been changed to make it suitable for the Tkinter GUI.
-    '''
+    """
     global counter, frontier, node
-    # print(counter)
+
     if counter == -1:
         frontier.append(Node(problem.initial))
-        # print(frontier)
+
         display_frontier(frontier)
     if counter % 3 == 0 and counter >= 0:
         node = frontier.pop()
-        # print(node)
+
         display_current(node)
     if counter % 3 == 1 and counter >= 0:
         if problem.goal_test(node.state):
-            # print(node)
+
             return node
         frontier.extend(node.expand(problem))
-        # print(frontier)
+
         display_frontier(frontier)
     if counter % 3 == 2 and counter >= 0:
-        # print(node)
+
         display_explored(node)
     return None
 
 
 def graph_search(problem):
-    '''
+    """
     Search through the successors of a problem to find a goal.
     The argument frontier should be an empty queue.
     If two paths reach a state, only use the first one. [Figure 3.7]
     This function has been changed to make it suitable for the Tkinter GUI.
-    '''
+    """
     global counter, frontier, node, explored
     if counter == -1:
         frontier.append(Node(problem.initial))
         explored = set()
-        # print("Frontier: "+str(frontier))
+
         display_frontier(frontier)
     if counter % 3 == 0 and counter >= 0:
         node = frontier.pop()
-        # print("Current node: "+str(node))
+
         display_current(node)
     if counter % 3 == 1 and counter >= 0:
         if problem.goal_test(node.state):
@@ -366,18 +360,15 @@ def graph_search(problem):
         frontier.extend(child for child in node.expand(problem)
                         if child.state not in explored and
                         child not in frontier)
-        # print("Frontier: " + str(frontier))
+
         display_frontier(frontier)
     if counter % 3 == 2 and counter >= 0:
-        # print("Explored node: "+str(node))
         display_explored(node)
     return None
 
 
 def display_frontier(queue):
-    '''
-    This function marks the frontier nodes (orange) on the map.
-    '''
+    """This function marks the frontier nodes (orange) on the map."""
     global city_map, city_coord
     qu = deepcopy(queue)
     while qu:
@@ -388,27 +379,21 @@ def display_frontier(queue):
 
 
 def display_current(node):
-    '''
-    This function marks the currently exploring node (red) on the map.
-    '''
+    """This function marks the currently exploring node (red) on the map."""
     global city_map, city_coord
     city = node.state
     city_map.itemconfig(city_coord[city], fill="red")
 
 
 def display_explored(node):
-    '''
-    This function marks the already explored node (gray) on the map.
-    '''
+    """This function marks the already explored node (gray) on the map."""
     global city_map, city_coord
     city = node.state
     city_map.itemconfig(city_coord[city], fill="gray")
 
 
 def display_final(cities):
-    '''
-    This function marks the final solution nodes (green) on the map.
-    '''
+    """This function marks the final solution nodes (green) on the map."""
     global city_map, city_coord
     for city in cities:
         city_map.itemconfig(city_coord[city], fill="green")
@@ -416,22 +401,56 @@ def display_final(cities):
 
 def breadth_first_tree_search(problem):
     """Search the shallowest nodes in the search tree first."""
-    global frontier, counter
+    global frontier, counter, node
     if counter == -1:
-        frontier = FIFOQueue()
-    return tree_search(problem)
+        frontier = deque()
+
+    if counter == -1:
+        frontier.append(Node(problem.initial))
+
+        display_frontier(frontier)
+    if counter % 3 == 0 and counter >= 0:
+        node = frontier.popleft()
+
+        display_current(node)
+    if counter % 3 == 1 and counter >= 0:
+        if problem.goal_test(node.state):
+            return node
+        frontier.extend(node.expand(problem))
+
+        display_frontier(frontier)
+    if counter % 3 == 2 and counter >= 0:
+        display_explored(node)
+    return None
 
 
 def depth_first_tree_search(problem):
     """Search the deepest nodes in the search tree first."""
     # This search algorithm might not work in case of repeated paths.
-    global frontier, counter
+    global frontier, counter, node
     if counter == -1:
-        frontier = Stack()
-    return tree_search(problem)
+        frontier = []  # stack
+
+    if counter == -1:
+        frontier.append(Node(problem.initial))
+
+        display_frontier(frontier)
+    if counter % 3 == 0 and counter >= 0:
+        node = frontier.pop()
+
+        display_current(node)
+    if counter % 3 == 1 and counter >= 0:
+        if problem.goal_test(node.state):
+            return node
+        frontier.extend(node.expand(problem))
+
+        display_frontier(frontier)
+    if counter % 3 == 2 and counter >= 0:
+        display_explored(node)
+    return None
 
 
-def breadth_first_search(problem):
+def breadth_first_graph_search(problem):
     """[Figure 3.11]"""
     global frontier, node, explored, counter
     if counter == -1:
@@ -439,12 +458,13 @@ def breadth_first_search(problem):
         display_current(node)
         if problem.goal_test(node.state):
             return node
-        frontier = FIFOQueue()
-        frontier.append(node)
+
+        frontier = deque([node])  # FIFO queue
+
         display_frontier(frontier)
         explored = set()
     if counter % 3 == 0 and counter >= 0:
-        node = frontier.pop()
+        node = frontier.popleft()
         display_current(node)
         explored.add(node.state)
     if counter % 3 == 1 and counter >= 0:
@@ -461,10 +481,30 @@ def breadth_first_search(problem):
 
 def depth_first_graph_search(problem):
     """Search the deepest nodes in the search tree first."""
-    global frontier, counter
+    global counter, frontier, node, explored
     if counter == -1:
-        frontier = Stack()
-    return graph_search(problem)
+        frontier = []  # stack
+    if counter == -1:
+        frontier.append(Node(problem.initial))
+        explored = set()
+
+        display_frontier(frontier)
+    if counter % 3 == 0 and counter >= 0:
+        node = frontier.pop()
+
+        display_current(node)
+    if counter % 3 == 1 and counter >= 0:
+        if problem.goal_test(node.state):
+            return node
+        explored.add(node.state)
+        frontier.extend(child for child in node.expand(problem)
+                        if child.state not in explored and
+                        child not in frontier)
+
+        display_frontier(frontier)
+    if counter % 3 == 2 and counter >= 0:
+        display_explored(node)
+    return None
 
 
 def best_first_graph_search(problem, f):
@@ -483,7 +523,7 @@ def best_first_graph_search(problem, f):
         display_current(node)
         if problem.goal_test(node.state):
             return node
-        frontier = PriorityQueue(min, f)
+        frontier = PriorityQueue('min', f)
         frontier.append(node)
         display_frontier(frontier)
         explored = set()
@@ -525,9 +565,9 @@ def astar_search(problem, h=None):
 # Remove redundant code.
 # Make the interchangbility work between various algorithms at each step.
 def on_click():
-    '''
+    """
     This function defines the action of the 'Next' button.
-    '''
+    """
     global algo, counter, next_button, romania_problem, start, goal
     romania_problem = GraphProblem(start.get(), goal.get(), romania_map)
     if "Breadth-First Tree Search" == algo.get():
@@ -546,8 +586,8 @@ def on_click():
             display_final(final_path)
             next_button.config(state="disabled")
         counter += 1
-    elif "Breadth-First Search" == algo.get():
-        node = breadth_first_search(romania_problem)
+    elif "Breadth-First Graph Search" == algo.get():
+        node = breadth_first_graph_search(romania_problem)
         if node is not None:
             final_path = bfs(romania_problem).solution()
             final_path.append(start.get())
@@ -605,7 +645,7 @@ def main():
     algorithm_menu = OptionMenu(
         root,
         algo, "Breadth-First Tree Search", "Depth-First Tree Search",
-        "Breadth-First Search", "Depth-First Graph Search",
+        "Breadth-First Graph Search", "Depth-First Graph Search",
         "Uniform Cost Search", "A* - Search")
     Label(root, text="\n Search Algorithm").pack()
     algorithm_menu.pack()

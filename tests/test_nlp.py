@@ -113,6 +113,11 @@ def test_CYK_parse():
     P = CYK_parse(words, grammar)
     assert len(P) == 52
 
+    grammar = nlp.E_Prob_Chomsky_
+    words = ['astronomers', 'saw', 'stars']
+    P = CYK_parse(words, grammar)
+    assert len(P) == 32
+
 
 # ______________________________________________________________________________
 # Data Setup

@@ -2,6 +2,10 @@ import pytest
 from logic import *
 from utils import expr_handle_infix_ops, count, Symbol
 
+definite_clauses_KB = PropDefiniteKB()
+for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B', 'C']:
+    definite_clauses_KB.tell(expr(clause))           
+
 
 def test_is_symbol():
     assert is_symbol('x')
@@ -127,6 +131,9 @@ def test_dpll():
     assert (dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F)
                              & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D))
             == {B: False, C: True, A: True, F: False, D: True, E: False})
+    assert dpll_satisfiable(A & B & ~C & D) == {C: False,  A: True, D: True, B: True}
+    assert dpll_satisfiable((A | (B & C)) |'<=>'| ((A | B) & (A | C))) == {C: True, A: True} or {C: True, B: True}
+    assert dpll_satisfiable(A |'<=>'| B) == {A: True, B: True}
     assert dpll_satisfiable(A & ~B) == {A: True, B: False}
     assert dpll_satisfiable(P & ~P) is False
 
@@ -150,10 +157,17 @@ def test_find_unit_clause():
 def test_unify():
     assert unify(x, x, {}) == {}
     assert unify(x, 3, {}) == {x: 3}
+    assert unify(x & 4 & y, 6 & y & 4, {}) == {x: 6, y: 4}
+    assert unify(expr('A(x)'), expr('A(B)')) == {x: B}
+    assert unify(expr('American(x) & Weapon(B)'), expr('American(A) & Weapon(y)')) == {x: A, y: B}
 
 
 def test_pl_fc_entails():
     assert pl_fc_entails(horn_clauses_KB, expr('Q'))
+    assert pl_fc_entails(definite_clauses_KB, expr('G'))
+    assert pl_fc_entails(definite_clauses_KB, expr('H'))
+    assert not pl_fc_entails(definite_clauses_KB, expr('I'))
+    assert not pl_fc_entails(definite_clauses_KB, expr('J'))
     assert not pl_fc_entails(horn_clauses_KB, expr('SomethingSilly'))
 
 
@@ -161,6 +175,9 @@ def test_tt_entails():
     assert tt_entails(P & Q, Q)
     assert not tt_entails(P | Q, Q)
     assert tt_entails(A & (B | C) & E & F & ~(P | Q), A & E & F & ~P & ~Q)
+    assert not tt_entails(P |'<=>'| Q, Q)
+    assert tt_entails((P |'==>'| Q) & P, Q)
+    assert not tt_entails((P |'<=>'| Q) & ~P, Q)
 
 
 def test_prop_symbols():
@@ -214,30 +231,39 @@ def test_move_not_inwards():
 
 
 def test_distribute_and_over_or():
-    def test_enatilment(s, has_and = False):
+    def test_entailment(s, has_and = False):
         result = distribute_and_over_or(s)
         if has_and:
             assert result.op == '&'
         assert tt_entails(s, result)
         assert tt_entails(result, s)
-    test_enatilment((A & B) | C, True)
-    test_enatilment((A | B) & C, True)
-    test_enatilment((A | B) | C, False)
-    test_enatilment((A & B) | (C | D), True)
+    test_entailment((A & B) | C, True)
+    test_entailment((A | B) & C, True)
+    test_entailment((A | B) | C, False)
+    test_entailment((A & B) | (C | D), True)
+
 
 def test_to_cnf():
     assert (repr(to_cnf(wumpus_world_inference & ~expr('~P12'))) ==
             "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)")
     assert repr(to_cnf((P & Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
+    assert repr(to_cnf('A <=> B')) == '((A | ~B) & (B | ~A))'
     assert repr(to_cnf("B <=> (P1 | P2)")) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
+    assert repr(to_cnf('A <=> (B & C)')) == '((A | ~B | ~C) & (B | ~A) & (C | ~A))'
     assert repr(to_cnf("a | (b & c) | d")) == '((b | a | d) & (c | a | d))'
     assert repr(to_cnf("A & (B | (D & E))")) == '(A & (D | B) & (E | B))'
     assert repr(to_cnf("A | (B | (C | (D & E)))")) == '((D | A | B | C) & (E | A | B | C))'
+    assert repr(to_cnf('(A <=> ~B) ==> (C | ~D)')) == '((B | ~A | C | ~D) & (A | ~A | C | ~D) & (B | ~B | C | ~D) & (A | ~B | C | ~D))'
 
 
 def test_pl_resolution():
-    # TODO: Add fast test cases
     assert pl_resolution(wumpus_kb, ~P11)
+    assert pl_resolution(wumpus_kb, ~B11)
+    assert not pl_resolution(wumpus_kb, P22)
+    assert pl_resolution(horn_clauses_KB, A)
+    assert pl_resolution(horn_clauses_KB, B)
+    assert not pl_resolution(horn_clauses_KB, P)
+    assert not pl_resolution(definite_clauses_KB, P)
 
 
 def test_standardize_variables():
@@ -294,8 +320,10 @@ def test_WalkSAT():
     check_SAT([A & B, A & C])
     check_SAT([A | B, P & Q, P & B])
     check_SAT([A & B, C | D, ~(D | P)], {A: True, B: True, C: True, D: False, P: False})
+    check_SAT([A, B, ~C, D], {C: False, A: True, B: True, D: True})
     # Test WalkSat for problems without solution
     assert WalkSAT([A & ~A], 0.5, 100) is None
+    assert WalkSAT([A & B, C | D, ~(D | B)], 0.5, 100) is None
     assert WalkSAT([A | B, ~A, ~(B | C), C | D, P | Q], 0.5, 100) is None
     assert WalkSAT([A | B, B & C, C | D, D & A, P, ~P], 0.5, 100) is None
 

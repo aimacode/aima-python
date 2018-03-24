@@ -6,11 +6,11 @@ functions."""
 
 from utils import (
     is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
-    memoize, print_table, open_data, Stack, FIFOQueue, PriorityQueue, name,
+    memoize, print_table, open_data, PriorityQueue, name,
     distance, vector_add
 )
 
-from collections import defaultdict
+from collections import defaultdict, deque
 import math
 import random
 import sys
@@ -126,7 +126,7 @@ class Node:
             node = node.parent
         return list(reversed(path_back))
 
-    # We want for a queue of nodes in breadth_first_search or
+    # We want for a queue of nodes in breadth_first_graph_search or
     # astar_search to have no duplicated states, so we treat nodes
     # with the same state as equal. [Problem: this may not be what you
     # want in other contexts.]
@@ -178,12 +178,30 @@ class SimpleProblemSolvingAgentProgram:
 # ______________________________________________________________________________
 # Uninformed Search algorithms
 
+def breadth_first_tree_search(problem):
+    """Search the shallowest nodes in the search tree first.
+        Search through the successors of a problem to find a goal.
+        The argument frontier should be an empty queue.
+        Repeats infinitely in case of loops. [Figure 3.7]"""
 
-def tree_search(problem, frontier):
-    """Search through the successors of a problem to find a goal.
-    The argument frontier should be an empty queue.
-    Don't worry about repeated paths to a state. [Figure 3.7]"""
-    frontier.append(Node(problem.initial))
+    frontier = deque([Node(problem.initial)])  # FIFO queue
+
+    while frontier:
+        node = frontier.popleft()
+        if problem.goal_test(node.state):
+            return node
+        frontier.extend(node.expand(problem))
+    return None
+
+
+def depth_first_tree_search(problem):
+    """Search the deepest nodes in the search tree first.
+        Search through the successors of a problem to find a goal.
+        The argument frontier should be an empty queue.
+        Repeats infinitely in case of loops. [Figure 3.7]"""
+
+    frontier = [Node(problem.initial)]  # Stack
+
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
@@ -192,11 +210,13 @@ def tree_search(problem, frontier):
     return None
 
 
-def graph_search(problem, frontier):
-    """Search through the successors of a problem to find a goal.
-    The argument frontier should be an empty queue.
-    If two paths reach a state, only use the first one. [Figure 3.7]"""
-    frontier.append(Node(problem.initial))
+def depth_first_graph_search(problem):
+    """Search the deepest nodes in the search tree first.
+        Search through the successors of a problem to find a goal.
+        The argument frontier should be an empty queue.
+        Does not get trapped by loops.
+        If two paths reach a state, only use the first one. [Figure 3.7]"""
+    frontier = [(Node(problem.initial))]  # Stack
     explored = set()
     while frontier:
         node = frontier.pop()
@@ -209,31 +229,20 @@ def graph_search(problem, frontier):
     return None
 
 
-def breadth_first_tree_search(problem):
-    """Search the shallowest nodes in the search tree first."""
-    return tree_search(problem, FIFOQueue())
 
-
-def depth_first_tree_search(problem):
-    """Search the deepest nodes in the search tree first."""
-    return tree_search(problem, Stack())
-
-
-def depth_first_graph_search(problem):
-    """Search the deepest nodes in the search tree first."""
-    return graph_search(problem, Stack())
-
-
-def breadth_first_search(problem):
-    """[Figure 3.11]"""
+def breadth_first_graph_search(problem):
+    """[Figure 3.11]
+    Note that this function can be implemented in a
+    single line as below:
+    return graph_search(problem, FIFOQueue())
+    """
     node = Node(problem.initial)
     if problem.goal_test(node.state):
         return node
-    frontier = FIFOQueue()
-    frontier.append(node)
+    frontier = deque([node])
     explored = set()
     while frontier:
-        node = frontier.pop()
+        node = frontier.popleft()
         explored.add(node.state)
         for child in node.expand(problem):
             if child.state not in explored and child not in frontier:
@@ -255,7 +264,7 @@ def best_first_graph_search(problem, f):
     node = Node(problem.initial)
     if problem.goal_test(node.state):
         return node
-    frontier = PriorityQueue(min, f)
+    frontier = PriorityQueue('min', f)
     frontier.append(node)
     explored = set()
     while frontier:
@@ -406,102 +415,179 @@ def astar_search(problem, h=None):
 
 class EightPuzzle(Problem):
 
-    """The problem of sliding tiles numbered from 1 to 8 on a 3x3 board,
+    """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board,
     where one of the squares is a blank. A state is represented as a 3x3 list,
-    where element at index i,j represents the tile number (0 if it's an empty square)."""
+    where element at index i,j represents the tile number (0 if it's an empty square) """
  
-    def __init__(self, initial, goal=None):
-        if goal:
-            self.goal = goal
-        else:
-            self.goal = [ [0,1,2], 
-                          [3,4,5], 
-                          [6,7,8] ]
+    def __init__(self, initial, goal=(1, 2, 3, 4, 5, 6, 7, 8, 0)):
+        """ Define goal state and initialize a problem """
+
+        self.goal = goal
         Problem.__init__(self, initial, goal)
     
     def find_blank_square(self, state):
         """Return the index of the blank square in a given state"""
-        for row in len(state):
-            for column in len(row):
-                if state[row][column] == 0:
-                    index_blank_square = (row, column)
-        return index_blank_square
+
+        return state.index(0)
     
     def actions(self, state):
-        """Return the actions that can be executed in the given state.
+        """ Return the actions that can be executed in the given state.
         The result would be a list, since there are only four possible actions
-        in any given state of the environment."""
-       
-        possible_actions = list()
+        in any given state of the environment """
+        
+        possible_actions = ['UP', 'DOWN', 'LEFT', 'RIGHT']       
         index_blank_square = self.find_blank_square(state)
 
-        if index_blank_square(0) == 0:
-            possible_actions += ['DOWN']
-        elif index_blank_square(0) == 1:
-            possible_actions += ['UP', 'DOWN']
-        elif index_blank_square(0) == 2:
-            possible_actions += ['UP']
-        
-        if index_blank_square(1) == 0:
-            possible_actions += ['RIGHT']
-        elif index_blank_square(1) == 1:
-            possible_actions += ['LEFT', 'RIGHT']
-        elif index_blank_square(1) == 2:
-            possible_actions += ['LEFT']
+        if index_blank_square % 3 == 0:
+            possible_actions.remove('LEFT')
+        if index_blank_square < 3:
+            possible_actions.remove('UP')
+        if index_blank_square % 3 == 2:
+            possible_actions.remove('RIGHT')
+        if index_blank_square > 5:
+            possible_actions.remove('DOWN')
 
         return possible_actions
 
     def result(self, state, action):
-        """Given state and action, return a new state that is the result of the action.
-        Action is assumed to be a valid action in the state."""
+        """ Given state and action, return a new state that is the result of the action.
+        Action is assumed to be a valid action in the state """
 
-        blank_square = self.find_blank_square(state)
-        new_state = [row[:] for row in state]
+        # blank is the index of the blank square
+        blank = self.find_blank_square(state)
+        new_state = list(state)
 
-        if action=='UP':
-            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)-1][blank_square(1)]
-            new_state[blank_square(0)-1][blank_square(1)] = 0
-        elif action=='LEFT':
-            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)][blank_square(1)-1]
-            new_state[blank_square(0)][blank_square(1)-1] = 0
-        elif action=='DOWN':
-            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)+1][blank_square(1)]
-            new_state[blank_square(0)+1][blank_square(1)] = 0
-        elif action=='RIGHT':
-            new_state[blank_square(0)][blank_square(1)] = new_state[blank_square(0)][blank_square(1)+1]
-            new_state[blank_square(0)][blank_square(1)+1] = 0
-        else:
-            print("Invalid Action!")
-        return new_state
+        delta = {'UP':-3, 'DOWN':3, 'LEFT':-1, 'RIGHT':1}
+        neighbor = blank + delta[action]
+        new_state[blank], new_state[neighbor] = new_state[neighbor], new_state[blank]
+
+        return tuple(new_state)
 
     def goal_test(self, state):
-        """Given a state, return True if state is a goal state or False, otherwise"""
-        for row in len(state):
-            for column in len(row):
-                if state[row][col] != self.goal[row][column]:
-                    return False
-        return True
+        """ Given a state, return True if state is a goal state or False, otherwise """
 
-    def checkSolvability(self, state):
+        return state == self.goal
+
+    def check_solvability(self, state):
+        """ Checks if the given state is solvable """
+
         inversion = 0
         for i in range(len(state)):
-               for j in range(i, len(state)):
-                    if (state[i] > state[j] and state[j] != 0):
-                                    inversion += 1
-        check = True
-        if inversion%2 != 0:
-                check = False
-        print(check)
+            for j in range(i, len(state)):
+                if state[i] > state[j] != 0:
+                    inversion += 1
+        
+        return inversion % 2 == 0
     
-    def h(self, state):
-        """Return the heuristic value for a given state. Heuristic function used is 
-        h(n) = number of misplaced tiles."""
-        num_misplaced_tiles = 0
-        for row in len(state):
-            for column in len(row):
-                if state[row][col] != self.goal[row][column]:
-                    num_misplaced_tiles += 1
-        return num_misplaced_tiles
+    def h(self, node):
+        """ Return the heuristic value for a given state. Default heuristic function used is 
+        h(n) = number of misplaced tiles """
+
+        return sum(s != g for (s, g) in zip(node.state, self.goal))
+
+# ______________________________________________________________________________
+
+
+class PlanRoute(Problem):
+    """ The problem of moving the Hybrid Wumpus Agent from one place to other """
+
+    def __init__(self, initial, goal, allowed, dimrow):
+        """ Define goal state and initialize a problem """
+
+        self.dimrow = dimrow
+        self.goal = goal
+        self.allowed = allowed
+        Problem.__init__(self, initial, goal)
+
+    def actions(self, state):
+        """ Return the actions that can be executed in the given state.
+        The result would be a list, since there are only three possible actions
+        in any given state of the environment """
+
+        possible_actions = ['Forward', 'TurnLeft', 'TurnRight']
+        x, y = state.get_location()
+        orientation = state.get_orientation()
+
+        # Prevent Bumps
+        if x == 1 and orientation == 'LEFT':
+            if 'Forward' in possible_actions:
+                possible_actions.remove('Forward')
+        if y == 1 and orientation == 'DOWN':
+            if 'Forward' in possible_actions:
+                possible_actions.remove('Forward')
+        if x == self.dimrow and orientation == 'RIGHT':
+            if 'Forward' in possible_actions:
+                possible_actions.remove('Forward')
+        if y == self.dimrow and orientation == 'UP':
+            if 'Forward' in possible_actions:
+                possible_actions.remove('Forward')
+
+        return possible_actions
+
+    def result(self, state, action):
+        """ Given state and action, return a new state that is the result of the action.
+        Action is assumed to be a valid action in the state """
+        x, y = state.get_location()
+        proposed_loc = list()
+
+        # Move Forward
+        if action == 'Forward':
+            if state.get_orientation() == 'UP':
+                proposed_loc = [x, y + 1]
+            elif state.get_orientation() == 'DOWN':
+                proposed_loc = [x, y - 1]
+            elif state.get_orientation() == 'LEFT':
+                proposed_loc = [x - 1, y]
+            elif state.get_orientation() == 'RIGHT':
+                proposed_loc = [x + 1, y]
+            else:
+                raise Exception('InvalidOrientation')
+
+        # Rotate counter-clockwise
+        elif action == 'TurnLeft':
+            if state.get_orientation() == 'UP':
+                state.set_orientation('LEFT')
+            elif state.get_orientation() == 'DOWN':
+                state.set_orientation('RIGHT')
+            elif state.get_orientation() == 'LEFT':
+                state.set_orientation('DOWN')
+            elif state.get_orientation() == 'RIGHT':
+                state.set_orientation('UP')
+            else:
+                raise Exception('InvalidOrientation')
+
+        # Rotate clockwise
+        elif action == 'TurnRight':
+            if state.get_orientation() == 'UP':
+                state.set_orientation('RIGHT')
+            elif state.get_orientation() == 'DOWN':
+                state.set_orientation('LEFT')
+            elif state.get_orientation() == 'LEFT':
+                state.set_orientation('UP')
+            elif state.get_orientation() == 'RIGHT':
+                state.set_orientation('DOWN')
+            else:
+                raise Exception('InvalidOrientation')
+
+        if proposed_loc in self.allowed:
+            state.set_location(proposed_loc[0], [proposed_loc[1]])
+
+        return state
+
+    def goal_test(self, state):
+        """ Given a state, return True if state is a goal state or False, otherwise """
+
+        return state.get_location() == tuple(self.goal)
+
+    def h(self, node):
+        """ Return the heuristic value for a given state."""
+
+        # Manhattan Heuristic Function
+        x1, y1 = node.state.get_location()
+        x2, y2 = self.goal
+
+        return abs(x2 - x1) + abs(y2 - y1)
+
 
 # ______________________________________________________________________________
 # Other search algorithms
@@ -875,15 +961,13 @@ def recombine(x, y):
 
 def recombine_uniform(x, y):
     n = len(x)
-    result = [0] * n;
+    result = [0] * n
     indexes = random.sample(range(n), n)
     for i in range(n):
         ix = indexes[i]
         result[ix] = x[ix] if i < n / 2 else y[ix]
-    try:
-        return ''.join(result)
-    except:
-        return result
+
+    return ''.join(str(r) for r in result)
         
 
 def mutate(x, gene_pool, pmut):
@@ -1139,31 +1223,32 @@ class NQueensProblem(Problem):
     """The problem of placing N queens on an NxN board with none attacking
     each other.  A state is represented as an N-element array, where
     a value of r in the c-th entry means there is a queen at column c,
-    row r, and a value of None means that the c-th column has not been
+    row r, and a value of -1 means that the c-th column has not been
     filled in yet.  We fill in columns left to right.
     >>> depth_first_tree_search(NQueensProblem(8))
-    <Node [7, 3, 0, 2, 5, 1, 6, 4]>
+    <Node (7, 3, 0, 2, 5, 1, 6, 4)>
     """
 
     def __init__(self, N):
         self.N = N
-        self.initial = [None] * N
+        self.initial = tuple([-1] * N)
+        Problem.__init__(self, self.initial)
 
     def actions(self, state):
         """In the leftmost empty column, try all non-conflicting rows."""
-        if state[-1] is not None:
+        if state[-1] is not -1:
             return []  # All columns filled; no successors
         else:
-            col = state.index(None)
+            col = state.index(-1)
             return [row for row in range(self.N)
                     if not self.conflicted(state, row, col)]
 
     def result(self, state, row):
         """Place the next queen at the given row."""
-        col = state.index(None)
-        new = state[:]
+        col = state.index(-1)
+        new = list(state[:])
         new[col] = row
-        return new
+        return tuple(new)
 
     def conflicted(self, state, row, col):
         """Would placing a queen at (row, col) conflict with anything?"""
@@ -1179,10 +1264,20 @@ class NQueensProblem(Problem):
 
     def goal_test(self, state):
         """Check if all columns filled, no conflicts."""
-        if state[-1] is None:
+        if state[-1] is -1:
             return False
         return not any(self.conflicted(state, state[col], col)
                        for col in range(len(state)))
+
+    def h(self, node):
+        """Return number of conflicting queens for a given node"""
+        num_conflicts = 0
+        for (r1, c1) in enumerate(node.state):
+            for (r2, c2) in enumerate(node.state):
+                if (r1, c1) != (r2, c2):
+                    num_conflicts += self.conflict(r1, c1, r2, c2)
+
+        return num_conflicts
 
 # ______________________________________________________________________________
 # Inverse Boggle: Search for a high-scoring Boggle board. A good domain for
@@ -1441,7 +1536,7 @@ class InstrumentedProblem(Problem):
 
 def compare_searchers(problems, header,
                       searchers=[breadth_first_tree_search,
-                                 breadth_first_search,
+                                 breadth_first_graph_search,
                                  depth_first_graph_search,
                                  iterative_deepening_search,
                                  depth_limited_search,
