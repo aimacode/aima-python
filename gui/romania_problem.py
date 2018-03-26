@@ -369,13 +369,8 @@ def graph_search(problem):
 
 def display_frontier(queue):
     """This function marks the frontier nodes (orange) on the map."""
-    global city_map, city_coord
-    qu = deepcopy(queue)
-    while qu:
-        node = qu.pop()
-        for city in city_coord.keys():
-            if node.state == city:
-                city_map.itemconfig(city_coord[city], fill="orange")
+    if node.state in city_coord:
+        city_map.itemconfig(city_coord[node.state], fill="orange")
 
 
 def display_current(node):
