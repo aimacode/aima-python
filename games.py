@@ -61,7 +61,9 @@ def expectiminimax(state, game):
         return v
 
     def chance_node(state, action):
+        print(action, game.dice_roll)
         res_state = game.result(state, action)
+        game.display(res_state)
         if game.terminal_test(res_state):
             return game.utility(res_state, player)
         sum_chances = 0
@@ -79,6 +81,7 @@ def expectiminimax(state, game):
         return sum_chances / num_chances
 
     # Body of expectiminimax:
+    print(game.dice_roll)
     return argmax(game.actions(state),
                   key=lambda a: chance_node(state, a))
 
@@ -246,6 +249,7 @@ class Game:
         state = self.initial
         while True:
             for player in players:
+                self.display(state)
                 move = player(self, state)
                 state = self.result(state, move)
                 if self.terminal_test(state):
@@ -399,17 +403,17 @@ class Backgammon(Game):
         self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
         # TODO : Add bar to Board class where a blot is placed when it is hit.
         point = {'W':0, 'B':0}
-        self.board = [point.copy() for index in range(24)]
-        self.board[0]['B'] = self.board[23]['W'] = 2
-        self.board[5]['W'] = self.board[18]['B'] = 5
-        self.board[7]['W'] = self.board[16]['B'] = 3
-        self.board[11]['B'] = self.board[12]['W'] = 5
+        board = [point.copy() for index in range(24)]
+        board[0]['B'] = board[23]['W'] = 2
+        board[5]['W'] = board[18]['B'] = 5
+        board[7]['W'] = board[16]['B'] = 3
+        board[11]['B'] = board[12]['W'] = 5
         self.allow_bear_off = {'W': False, 'B': False}
 
         self.initial = GameState(to_move='W',
                                  utility=0, 
-                                 board=self.board,
-                                 moves=self.get_all_moves(self.board, 'W'))
+                                 board=board,
+                                 moves=self.get_all_moves(board, 'W'))
 
     def actions(self, state):
         """Returns a list of legal moves for a state."""
@@ -420,16 +424,16 @@ class Backgammon(Game):
         legal_moves = []
         for move in moves:
             board = copy.deepcopy(state.board)
-            if self.is_legal_move(move, self.dice_roll, player):
+            if self.is_legal_move(board, move, self.dice_roll, player):
                 legal_moves.append(move)
         return legal_moves
 
     def result(self, state, move):
         board = copy.deepcopy(state.board)
         player = state.to_move
-        self.move_checker(move[0], self.dice_roll[0], player)
+        self.move_checker(board, move[0], self.dice_roll[0], player)
         if len(move) == 2:
-            self.move_checker(move[1], self.dice_roll[1], player)
+            self.move_checker(board, move[1], self.dice_roll[1], player)
         to_move = ('W' if player == 'B' else 'B')
         return GameState(to_move=to_move,
                          utility=self.compute_utility(board, move, player),
@@ -452,7 +456,7 @@ class Backgammon(Game):
         all_points = board
         taken_points = [index for index, point in enumerate(all_points)
                         if point[player] > 0]
-        if self.checkers_at_home(player) == 1:
+        if self.checkers_at_home(board, player) == 1:
             return [(taken_points[0], )]
         moves = list(itertools.permutations(taken_points, 2))
         moves = moves + [(index, index) for index, point in enumerate(all_points)
@@ -480,15 +484,15 @@ class Backgammon(Game):
             return -1
         return 0
 
-    def checkers_at_home(self, player):
+    def checkers_at_home(self, board, player):
         """Return the no. of checkers at home for a player."""
         sum_range = range(0, 7) if player == 'W' else range(17, 24)
         count = 0
         for idx in sum_range:
-            count = count + self.board[idx][player]
+            count = count + board[idx][player]
         return count
 
-    def is_legal_move(self, start, steps, player):
+    def is_legal_move(self, board, start, steps, player):
         """Move is a tuple which contains starting points of checkers to be
 		moved during a player's turn. An on-board move is legal if both the destinations
 		are open. A bear-off move is the one where a checker is moved off-board.
@@ -497,31 +501,31 @@ class Backgammon(Game):
         dest_range = range(0, 24)
         move1_legal = move2_legal = False
         if dest1 in dest_range:
-            if self.is_point_open(player, self.board[dest1]):
-                self.move_checker(start[0], steps[0], player)
+            if self.is_point_open(player, board[dest1]):
+                self.move_checker(board, start[0], steps[0], player)
                 move1_legal = True
         else:
             if self.allow_bear_off[player]:
-                self.move_checker(start[0], steps[0], player)
+                self.move_checker(board, start[0], steps[0], player)
                 move1_legal = True
         if not move1_legal:
             return False
         if dest2 in dest_range:
-            if self.is_point_open(player, self.board[dest2]):
+            if self.is_point_open(player, board[dest2]):
                 move2_legal = True
         else:
             if self.allow_bear_off[player]:
                 move2_legal = True
         return move1_legal and move2_legal
 
-    def move_checker(self, start, steps, player):
+    def move_checker(self, board, start, steps, player):
         """Move a checker from starting point by a given number of steps"""
         dest = start + steps
         dest_range = range(0, 24)
-        self.board[start][player] -= 1
+        board[start][player] -= 1
         if dest in dest_range:
-            self.board[dest][player] += 1
-            if self.checkers_at_home(player) == 15:
+            board[dest][player] += 1
+            if self.checkers_at_home(board, player) == 15:
                 self.allow_bear_off[player] = True
 
     def is_point_open(self, player, point):
@@ -530,3 +534,7 @@ class Backgammon(Game):
         move a checker to a point only if it is open."""
         opponent = 'B' if player == 'W' else 'W'
         return point[opponent] <= 1
+
+if __name__ == "__main__":
+	bgm = Backgammon()
+	print(bgm.play_game(expectiminimax_player, query_player))
