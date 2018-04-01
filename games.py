@@ -83,7 +83,7 @@ def expectiminimax(state, game):
     # Body of expectiminimax:
     print(game.dice_roll)
     return argmax(game.actions(state),
-                  key=lambda a: chance_node(state, a))
+                  key=lambda a: chance_node(state, a)) if len(game.actions(state)) > 0 else None
 
 
 def alphabeta_search(state, game):
@@ -184,18 +184,21 @@ def query_player(game, state):
     game.display(state)
     print("available moves: {}".format(game.actions(state)))
     print("")
-    move_string = input('Your move? ')
-    try:
-        move = eval(move_string)
-    except NameError:
-        move = move_string
+    move = None
+    if len(game.actions(state)) > 0:
+        move_string = input('Your move? ')
+        try:
+            move = eval(move_string)
+        except NameError:
+            move = move_string
+    else:
+        print('No legal moves. Passing turn to next player.')    
     return move
 
 
 def random_player(game, state):
     """A player that chooses a legal move at random."""
-    return random.choice(game.actions(state))
-
+    return random.choice(game.actions(state)) if len(game.actions(state)) > 0 else None
 
 def alphabeta_player(game, state):
     return alphabeta_search(state, game)
@@ -409,7 +412,6 @@ class Backgammon(Game):
         board[7]['W'] = board[16]['B'] = 3
         board[11]['B'] = board[12]['W'] = 5
         self.allow_bear_off = {'W': False, 'B': False}
-
         self.initial = GameState(to_move='W',
                                  utility=0, 
                                  board=board,
@@ -439,7 +441,6 @@ class Backgammon(Game):
                          utility=self.compute_utility(board, move, player),
                          board=board,
                          moves=self.get_all_moves(board, to_move))
-
 
     def utility(self, state, player):
         """Return the value to player; 1 for win, -1 for loss, 0 otherwise."""
