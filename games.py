@@ -61,9 +61,7 @@ def expectiminimax(state, game):
         return v
 
     def chance_node(state, action):
-        print(action, game.dice_roll)
         res_state = game.result(state, action)
-        game.display(res_state)
         if game.terminal_test(res_state):
             return game.utility(res_state, player)
         sum_chances = 0
@@ -81,9 +79,8 @@ def expectiminimax(state, game):
         return sum_chances / num_chances
 
     # Body of expectiminimax:
-    print(game.dice_roll)
     return argmax(game.actions(state),
-                  key=lambda a: chance_node(state, a)) if len(game.actions(state)) > 0 else None
+                  key=lambda a: chance_node(state, a)) if game.actions(state) else None
 
 
 def alphabeta_search(state, game):
@@ -185,20 +182,20 @@ def query_player(game, state):
     print("available moves: {}".format(game.actions(state)))
     print("")
     move = None
-    if len(game.actions(state)) > 0:
+    if game.actions(state):
         move_string = input('Your move? ')
         try:
             move = eval(move_string)
         except NameError:
             move = move_string
     else:
-        print('No legal moves. Passing turn to next player.')    
+        print('no legal moves: passing turn to next player')
     return move
 
 
 def random_player(game, state):
     """A player that chooses a legal move at random."""
-    return random.choice(game.actions(state)) if len(game.actions(state)) > 0 else None
+    return random.choice(game.actions(state)) if game.actions(state) else None
 
 def alphabeta_player(game, state):
     return alphabeta_search(state, game)
@@ -252,7 +249,6 @@ class Game:
         state = self.initial
         while True:
             for player in players:
-                self.display(state)
                 move = player(self, state)
                 state = self.result(state, move)
                 if self.terminal_test(state):
@@ -413,12 +409,12 @@ class Backgammon(Game):
         board[11]['B'] = board[12]['W'] = 5
         self.allow_bear_off = {'W': False, 'B': False}
         self.initial = GameState(to_move='W',
-                                 utility=0, 
+                                 utility=0,
                                  board=board,
                                  moves=self.get_all_moves(board, 'W'))
 
     def actions(self, state):
-        """Returns a list of legal moves for a state."""
+        """Return a list of legal moves for a state."""
         player = state.to_move
         moves = state.moves
         if len(moves) == 1 and len(moves[0]) == 1:
@@ -468,11 +464,11 @@ class Backgammon(Game):
         """Display state of the game."""
         board = state.board
         player = state.to_move
-        print("Current State : ")
+        print("current state : ")
         for index, point in enumerate(board):
             if point['W'] != 0 or point['B'] != 0:
-                print("Point : ", index, "	W : ", point['W'], "    B : ", point['B'])
-        print("To play : ", player)
+                print("point : ", index, "	W : ", point['W'], "    B : ", point['B'])
+        print("to play : ", player)
 
     def compute_utility(self, board, move, player):
         """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
@@ -536,6 +532,20 @@ class Backgammon(Game):
         opponent = 'B' if player == 'W' else 'W'
         return point[opponent] <= 1
 
-if __name__ == "__main__":
-	bgm = Backgammon()
-	print(bgm.play_game(expectiminimax_player, query_player))
+    def play_game(self, *players):
+        """Play backgammon."""
+        state = self.initial
+        while True:
+            for player in players:
+                saved_dice_roll = self.dice_roll
+                move = player(self, state)
+                self.dice_roll = saved_dice_roll
+                if move is not None:
+                    state = self.result(state, move)
+                    if state.to_move == 'W':
+                        self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
+                    else:
+                        self.dice_roll = (random.randint(1, 6), random.randint(1, 6))
+                    if self.terminal_test(state):
+                        self.display(state)
+                        return self.utility(state, self.to_move(self.initial))
