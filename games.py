@@ -41,6 +41,9 @@ def minimax_decision(state, game):
 
 # ______________________________________________________________________________
 
+dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
+direction = {'W' : -1, 'B' : 1}
+
 def expectiminimax(state, game):
     """Return the best move for a player after dice are thrown. The game tree
 	includes chance nodes along with min and max nodes. [Figure 5.11]"""
@@ -66,16 +69,14 @@ def expectiminimax(state, game):
             return game.utility(res_state, player)
         sum_chances = 0
         num_chances = 21
-        dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
-        if res_state.to_move == 'W':
-            for val in dice_rolls:
-                game.dice_roll = (-val[0], -val[1])
-                sum_chances += max_value(res_state,
-                                         (-val[0], -val[1])) * (1/36 if val[0] == val[1] else 1/18)
-        elif res_state.to_move == 'B':
-            for val in dice_rolls:
-                game.dice_roll = val
-                sum_chances += min_value(res_state, val) * (1/36 if val[0] == val[1] else 1/18)
+        for val in dice_rolls:
+            game.dice_roll = tuple(map((direction[res_state.to_move]).__mul__, val))
+            util = 0
+            if res_state.to_move == player:
+                util = max_value(res_state, game.dice_roll)
+            else:
+                util = min_value(res_state, game.dice_roll)
+            sum_chances += util * (1/36 if val[0] == val[1] else 1/18)
         return sum_chances / num_chances
 
     # Body of expectiminimax:
@@ -399,15 +400,15 @@ class Backgammon(Game):
 
     def __init__(self):
         """Initial state of the game"""
-        self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
+        self.dice_roll = tuple(map((direction['W']).__mul__, random.choice(dice_rolls)))
         # TODO : Add bar to Board class where a blot is placed when it is hit.
-        point = {'W':0, 'B':0}
+        point = {'W' : 0, 'B' : 0}
         board = [point.copy() for index in range(24)]
         board[0]['B'] = board[23]['W'] = 2
         board[5]['W'] = board[18]['B'] = 5
         board[7]['W'] = board[16]['B'] = 3
         board[11]['B'] = board[12]['W'] = 5
-        self.allow_bear_off = {'W': False, 'B': False}
+        self.allow_bear_off = {'W' : False, 'B' : False}
         self.initial = GameState(to_move='W',
                                  utility=0,
                                  board=board,
@@ -466,20 +467,16 @@ class Backgammon(Game):
         player = state.to_move
         print("current state : ")
         for index, point in enumerate(board):
-            if point['W'] != 0 or point['B'] != 0:
-                print("point : ", index, "	W : ", point['W'], "    B : ", point['B'])
+            print("point : ", index, "	W : ", point['W'], "    B : ", point['B'])
         print("to play : ", player)
 
     def compute_utility(self, board, move, player):
         """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
-        count = 0
+        util = {'W' : 1, 'B' : '-1'}
         for idx in range(0, 24):
-            count = count + board[idx][player]
-        if player == 'W' and count == 0:
-            return 1
-        if player == 'B' and count == 0:
-            return -1
-        return 0
+            if board[idx][player] > 0:
+                return 0
+        return util[player]
 
     def checkers_at_home(self, board, player):
         """Return the no. of checkers at home for a player."""
@@ -542,10 +539,8 @@ class Backgammon(Game):
                 self.dice_roll = saved_dice_roll
                 if move is not None:
                     state = self.result(state, move)
-                    if state.to_move == 'W':
-                        self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
-                    else:
-                        self.dice_roll = (random.randint(1, 6), random.randint(1, 6))
+                    self.dice_roll = tuple(map((direction[player]).__mul__,
+                                               random.choice(dice_rolls)))
                     if self.terminal_test(state):
                         self.display(state)
                         return self.utility(state, self.to_move(self.initial))
