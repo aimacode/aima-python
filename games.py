@@ -81,7 +81,7 @@ def expectiminimax(state, game):
 
     # Body of expectiminimax:
     return argmax(game.actions(state),
-                  key=lambda a: chance_node(state, a)) if game.actions(state) else None
+                  key=lambda a: chance_node(state, a), default=None)
 
 
 def alphabeta_search(state, game):
