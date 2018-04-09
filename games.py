@@ -41,6 +41,9 @@ def minimax_decision(state, game):
 
 # ______________________________________________________________________________
 
+dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
+direction = {'W' : -1, 'B' : 1}
+
 def expectiminimax(state, game):
     """Return the best move for a player after dice are thrown. The game tree
 	includes chance nodes along with min and max nodes. [Figure 5.11]"""
@@ -66,21 +69,19 @@ def expectiminimax(state, game):
             return game.utility(res_state, player)
         sum_chances = 0
         num_chances = 21
-        dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
-        if res_state.to_move == 'W':
-            for val in dice_rolls:
-                game.dice_roll = (-val[0], -val[1])
-                sum_chances += max_value(res_state,
-                                         (-val[0], -val[1])) * (1/36 if val[0] == val[1] else 1/18)
-        elif res_state.to_move == 'B':
-            for val in dice_rolls:
-                game.dice_roll = val
-                sum_chances += min_value(res_state, val) * (1/36 if val[0] == val[1] else 1/18)
+        for val in dice_rolls:
+            game.dice_roll = tuple(map((direction[res_state.to_move]).__mul__, val))
+            util = 0
+            if res_state.to_move == player:
+                util = max_value(res_state, game.dice_roll)
+            else:
+                util = min_value(res_state, game.dice_roll)
+            sum_chances += util * (1/36 if val[0] == val[1] else 1/18)
         return sum_chances / num_chances
 
     # Body of expectiminimax:
     return argmax(game.actions(state),
-                  key=lambda a: chance_node(state, a))
+                  key=lambda a: chance_node(state, a), default=None)
 
 
 def alphabeta_search(state, game):
@@ -181,18 +182,21 @@ def query_player(game, state):
     game.display(state)
     print("available moves: {}".format(game.actions(state)))
     print("")
-    move_string = input('Your move? ')
-    try:
-        move = eval(move_string)
-    except NameError:
-        move = move_string
+    move = None
+    if game.actions(state):
+        move_string = input('Your move? ')
+        try:
+            move = eval(move_string)
+        except NameError:
+            move = move_string
+    else:
+        print('no legal moves: passing turn to next player')
     return move
 
 
 def random_player(game, state):
     """A player that chooses a legal move at random."""
-    return random.choice(game.actions(state))
-
+    return random.choice(game.actions(state)) if game.actions(state) else None
 
 def alphabeta_player(game, state):
     return alphabeta_search(state, game)
@@ -396,23 +400,22 @@ class Backgammon(Game):
 
     def __init__(self):
         """Initial state of the game"""
-        self.dice_roll = (-random.randint(1, 6), -random.randint(1, 6))
+        self.dice_roll = tuple(map((direction['W']).__mul__, random.choice(dice_rolls)))
         # TODO : Add bar to Board class where a blot is placed when it is hit.
-        point = {'W':0, 'B':0}
-        self.board = [point.copy() for index in range(24)]
-        self.board[0]['B'] = self.board[23]['W'] = 2
-        self.board[5]['W'] = self.board[18]['B'] = 5
-        self.board[7]['W'] = self.board[16]['B'] = 3
-        self.board[11]['B'] = self.board[12]['W'] = 5
-        self.allow_bear_off = {'W': False, 'B': False}
-
+        point = {'W' : 0, 'B' : 0}
+        board = [point.copy() for index in range(24)]
+        board[0]['B'] = board[23]['W'] = 2
+        board[5]['W'] = board[18]['B'] = 5
+        board[7]['W'] = board[16]['B'] = 3
+        board[11]['B'] = board[12]['W'] = 5
+        self.allow_bear_off = {'W' : False, 'B' : False}
         self.initial = GameState(to_move='W',
-                                 utility=0, 
-                                 board=self.board,
-                                 moves=self.get_all_moves(self.board, 'W'))
+                                 utility=0,
+                                 board=board,
+                                 moves=self.get_all_moves(board, 'W'))
 
     def actions(self, state):
-        """Returns a list of legal moves for a state."""
+        """Return a list of legal moves for a state."""
         player = state.to_move
         moves = state.moves
         if len(moves) == 1 and len(moves[0]) == 1:
@@ -420,22 +423,21 @@ class Backgammon(Game):
         legal_moves = []
         for move in moves:
             board = copy.deepcopy(state.board)
-            if self.is_legal_move(move, self.dice_roll, player):
+            if self.is_legal_move(board, move, self.dice_roll, player):
                 legal_moves.append(move)
         return legal_moves
 
     def result(self, state, move):
         board = copy.deepcopy(state.board)
         player = state.to_move
-        self.move_checker(move[0], self.dice_roll[0], player)
+        self.move_checker(board, move[0], self.dice_roll[0], player)
         if len(move) == 2:
-            self.move_checker(move[1], self.dice_roll[1], player)
+            self.move_checker(board, move[1], self.dice_roll[1], player)
         to_move = ('W' if player == 'B' else 'B')
         return GameState(to_move=to_move,
                          utility=self.compute_utility(board, move, player),
                          board=board,
                          moves=self.get_all_moves(board, to_move))
-
 
     def utility(self, state, player):
         """Return the value to player; 1 for win, -1 for loss, 0 otherwise."""
@@ -452,7 +454,7 @@ class Backgammon(Game):
         all_points = board
         taken_points = [index for index, point in enumerate(all_points)
                         if point[player] > 0]
-        if self.checkers_at_home(player) == 1:
+        if self.checkers_at_home(board, player) == 1:
             return [(taken_points[0], )]
         moves = list(itertools.permutations(taken_points, 2))
         moves = moves + [(index, index) for index, point in enumerate(all_points)
@@ -463,32 +465,28 @@ class Backgammon(Game):
         """Display state of the game."""
         board = state.board
         player = state.to_move
-        print("Current State : ")
+        print("current state : ")
         for index, point in enumerate(board):
-            if point['W'] != 0 or point['B'] != 0:
-                print("Point : ", index, "	W : ", point['W'], "    B : ", point['B'])
-        print("To play : ", player)
+            print("point : ", index, "	W : ", point['W'], "    B : ", point['B'])
+        print("to play : ", player)
 
     def compute_utility(self, board, move, player):
         """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
-        count = 0
+        util = {'W' : 1, 'B' : '-1'}
         for idx in range(0, 24):
-            count = count + board[idx][player]
-        if player == 'W' and count == 0:
-            return 1
-        if player == 'B' and count == 0:
-            return -1
-        return 0
+            if board[idx][player] > 0:
+                return 0
+        return util[player]
 
-    def checkers_at_home(self, player):
+    def checkers_at_home(self, board, player):
         """Return the no. of checkers at home for a player."""
         sum_range = range(0, 7) if player == 'W' else range(17, 24)
         count = 0
         for idx in sum_range:
-            count = count + self.board[idx][player]
+            count = count + board[idx][player]
         return count
 
-    def is_legal_move(self, start, steps, player):
+    def is_legal_move(self, board, start, steps, player):
         """Move is a tuple which contains starting points of checkers to be
 		moved during a player's turn. An on-board move is legal if both the destinations
 		are open. A bear-off move is the one where a checker is moved off-board.
@@ -497,31 +495,31 @@ class Backgammon(Game):
         dest_range = range(0, 24)
         move1_legal = move2_legal = False
         if dest1 in dest_range:
-            if self.is_point_open(player, self.board[dest1]):
-                self.move_checker(start[0], steps[0], player)
+            if self.is_point_open(player, board[dest1]):
+                self.move_checker(board, start[0], steps[0], player)
                 move1_legal = True
         else:
             if self.allow_bear_off[player]:
-                self.move_checker(start[0], steps[0], player)
+                self.move_checker(board, start[0], steps[0], player)
                 move1_legal = True
         if not move1_legal:
             return False
         if dest2 in dest_range:
-            if self.is_point_open(player, self.board[dest2]):
+            if self.is_point_open(player, board[dest2]):
                 move2_legal = True
         else:
             if self.allow_bear_off[player]:
                 move2_legal = True
         return move1_legal and move2_legal
 
-    def move_checker(self, start, steps, player):
+    def move_checker(self, board, start, steps, player):
         """Move a checker from starting point by a given number of steps"""
         dest = start + steps
         dest_range = range(0, 24)
-        self.board[start][player] -= 1
+        board[start][player] -= 1
         if dest in dest_range:
-            self.board[dest][player] += 1
-            if self.checkers_at_home(player) == 15:
+            board[dest][player] += 1
+            if self.checkers_at_home(board, player) == 15:
                 self.allow_bear_off[player] = True
 
     def is_point_open(self, player, point):
@@ -530,3 +528,19 @@ class Backgammon(Game):
         move a checker to a point only if it is open."""
         opponent = 'B' if player == 'W' else 'W'
         return point[opponent] <= 1
+
+    def play_game(self, *players):
+        """Play backgammon."""
+        state = self.initial
+        while True:
+            for player in players:
+                saved_dice_roll = self.dice_roll
+                move = player(self, state)
+                self.dice_roll = saved_dice_roll
+                if move is not None:
+                    state = self.result(state, move)
+                    self.dice_roll = tuple(map((direction[player]).__mul__,
+                                               random.choice(dice_rolls)))
+                    if self.terminal_test(state):
+                        self.display(state)
+                        return self.utility(state, self.to_move(self.initial))
