@@ -256,6 +256,32 @@ class Game:
                     self.display(state)
                     return self.utility(state, self.to_move(self.initial))
 
+class StochasticGame(Game):
+    """A stochastic game includes uncertain events which influence
+    the moves of players at each state. To create a stochastic game, subclass
+    this class and implement chances and outcome along with the other
+    unimplemented game class methods."""
+
+    def chances(self, state):
+        """Return a list of all possible uncertain events at a state."""
+        raise NotImplementedError
+
+    def outcome(self, chance):
+        """Return the state which is the outcome of a chance trial."""
+        raise NotImplementedError
+
+    def play_game(self, *players):
+        """Play an n-person, move-alternating stochastic game."""
+        state = self.initial
+        while True:
+            for player in players:
+                chance = random.choice(self.chances(state))
+                self.outcome(chance)
+                move = player(self, state)
+                state = self.result(state, move)
+                if self.terminal_test(state):
+                    self.display(state)
+                    return self.utility(state, self.to_move(self.initial))
 
 class Fig52Game(Game):
     """The game represented in [Figure 5.2]. Serves as a simple test case."""
