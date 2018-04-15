@@ -32,7 +32,7 @@ def parse(pddl):
 
 def tokenize(s):
     """Convert a string into a list of tokens."""
-    return s.replace('(', ' ( ').replace(')', ' ) ').split()
+    return s.replace('(', ' ( ').replace(')', ' ) ').replace(':', ' : ').split()
 
 
 def read_from_tokens(tokens):
@@ -45,6 +45,8 @@ def read_from_tokens(tokens):
         while tokens[0] != ')':
             L.append(read_from_tokens(tokens))
         tokens.pop(0)  # pop off ')'
+        # reverse each list so we can continue to use .pop() on it, and the elements will be in order.
+        L.reverse()
         return L
     elif ')' == token:
         raise SyntaxError('unexpected )')
