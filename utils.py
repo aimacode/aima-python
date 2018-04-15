@@ -3,11 +3,13 @@
 import bisect
 import collections
 import collections.abc
-import functools
 import operator
 import os.path
 import random
 import math
+import functools
+from itertools import chain, combinations
+
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -32,7 +34,7 @@ def sequence(iterable):
 
 
 def removeall(item, seq):
-    """Return a copy of seq (or string) with all occurences of item removed."""
+    """Return a copy of seq (or string) with all occurrences of item removed."""
     if isinstance(seq, str):
         return seq.replace(item, '')
     else:
@@ -71,8 +73,22 @@ def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
     return any(x is elt for x in seq)
 
+
+def mode(data):
+    """Return the most common data item. If there are ties, return any one of them."""
+    [(item, count)] = collections.Counter(data).most_common(1)
+    return item
+
+
+def powerset(iterable):
+    """powerset([1,2,3]) --> (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
+    s = list(iterable)
+    return list(chain.from_iterable(combinations(s, r) for r in range(len(s)+1)))[1:]
+
+
 # ______________________________________________________________________________
 # argmin and argmax
+
 
 identity = lambda x: x
 
@@ -99,6 +115,8 @@ def shuffled(iterable):
 
 # ______________________________________________________________________________
 # Statistical and mathematical functions
+
+
 def histogram(values, mode=0, bin_function=None):
     """Return a list of (value, count) pairs, summarizing the input values.
     Sorted by increasing value, or if mode=1, by decreasing count.
@@ -129,7 +147,7 @@ def element_wise_product(X, Y):
 
 
 def matrix_multiplication(X_M, *Y_M):
-    """Return a matrix as a matrix-multiplication of X_M and arbitary number of matrices *Y_M"""
+    """Return a matrix as a matrix-multiplication of X_M and arbitrary number of matrices *Y_M"""
 
     def _mat_mult(X_M, Y_M):
         """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
@@ -177,6 +195,7 @@ def scalar_vector_product(X, Y):
 
 
 def scalar_matrix_product(X, Y):
+    """Return matrix as a product of a scalar and a matrix"""
     return [scalar_vector_product(X, y) for y in Y]
 
 
@@ -192,11 +211,11 @@ def inverse_matrix(X):
 
 
 def probability(p):
-    "Return true with probability p."
+    """Return true with probability p."""
     return p > random.uniform(0.0, 1.0)
 
 
-def weighted_sample_with_replacement(seq, weights, n):
+def weighted_sample_with_replacement(n, seq, weights):
     """Pick n samples from seq at random, with replacement, with the
     probability of each element in proportion to its corresponding
     weight."""
@@ -206,7 +225,7 @@ def weighted_sample_with_replacement(seq, weights, n):
 
 
 def weighted_sampler(seq, weights):
-    "Return a random-sample function that picks from seq weighted by weights."
+    """Return a random-sample function that picks from seq weighted by weights."""
     totals = []
     for w in weights:
         totals.append(w + totals[-1] if totals else w)
@@ -215,7 +234,7 @@ def weighted_sampler(seq, weights):
 
 
 def rounder(numbers, d=4):
-    "Round a single number, or sequence of numbers, to d decimal places."
+    """Round a single number, or sequence of numbers, to d decimal places."""
     if isinstance(numbers, (int, float)):
         return round(numbers, d)
     else:
@@ -225,8 +244,7 @@ def rounder(numbers, d=4):
 
 def num_or_str(x):
     """The argument is a string; convert to a number if
-       possible, or strip it.
-    """
+       possible, or strip it."""
     try:
         return int(x)
     except ValueError:
@@ -248,9 +266,18 @@ def normalize(dist):
     return [(n / total) for n in dist]
 
 
+def norm(X, n=2):
+    """Return the n-norm of vector X"""
+    return sum([x**n for x in X])**(1/n)
+
+
 def clip(x, lowest, highest):
     """Return x clipped to the range [lowest..highest]."""
     return max(lowest, min(x, highest))
+
+
+def sigmoid_derivative(value):
+    return value * (1 - value)
 
 
 def sigmoid(x):
@@ -262,24 +289,82 @@ def step(x):
     """Return activation value of x with sign function"""
     return 1 if x >= 0 else 0
 
+
+def gaussian(mean, st_dev, x):
+    """Given the mean and standard deviation of a distribution, it returns the probability of x."""
+    return 1/(math.sqrt(2*math.pi)*st_dev)*math.e**(-0.5*(float(x-mean)/st_dev)**2)
+
+
 try:  # math.isclose was added in Python 3.5; but we might be in 3.4
     from math import isclose
 except ImportError:
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
-        "Return true if numbers a and b are close to each other."
+        """Return true if numbers a and b are close to each other."""
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+
+def weighted_choice(choices):
+    """A weighted version of random.choice"""
+    # NOTE: Shoule be replaced by random.choices if we port to Python 3.6
+
+    total = sum(w for _, w in choices)
+    r = random.uniform(0, total)
+    upto = 0
+    for c, w in choices:
+        if upto + w >= r:
+            return c, w
+        upto += w
+
+
+# ______________________________________________________________________________
+# Grid Functions
+
+
+orientations = EAST, NORTH, WEST, SOUTH = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+turns = LEFT, RIGHT = (+1, -1)
+
+
+def turn_heading(heading, inc, headings=orientations):
+    return headings[(headings.index(heading) + inc) % len(headings)]
+
+
+def turn_right(heading):
+    return turn_heading(heading, RIGHT)
+
+
+def turn_left(heading):
+    return turn_heading(heading, LEFT)
+
+
+def distance(a, b):
+    """The distance between two (x, y) points."""
+    xA, yA = a
+    xB, yB = b
+    return math.hypot((xA - xB), (yA - yB))
+
+
+def distance_squared(a, b):
+    """The square of the distance between two (x, y) points."""
+    xA, yA = a
+    xB, yB = b
+    return (xA - xB)**2 + (yA - yB)**2
+
+
+def vector_clip(vector, lowest, highest):
+    """Return vector, except if any element is less than the corresponding
+    value of lowest or more than the corresponding value of highest, clip to
+    those values."""
+    return type(vector)(map(clip, vector, lowest, highest))
+
 
 # ______________________________________________________________________________
 # Misc Functions
 
 
-# TODO: Use functools.lru_cache memoization decorator
-
-
-def memoize(fn, slot=None):
+def memoize(fn, slot=None, maxsize=32):
     """Memoize fn: make it remember the computed value for any argument list.
     If slot is specified, store result in that slot of first argument.
-    If slot is false, store results in a dictionary."""
+    If slot is false, use lru_cache for caching the values."""
     if slot:
         def memoized_fn(obj, *args):
             if hasattr(obj, slot):
@@ -289,37 +374,34 @@ def memoize(fn, slot=None):
                 setattr(obj, slot, val)
                 return val
     else:
+        @functools.lru_cache(maxsize=maxsize)
         def memoized_fn(*args):
-            if args not in memoized_fn.cache:
-                memoized_fn.cache[args] = fn(*args)
-            return memoized_fn.cache[args]
-
-        memoized_fn.cache = {}
+            return fn(*args)
 
     return memoized_fn
 
 
 def name(obj):
-    "Try to find some reasonable name for the object."
+    """Try to find some reasonable name for the object."""
     return (getattr(obj, 'name', 0) or getattr(obj, '__name__', 0) or
             getattr(getattr(obj, '__class__', 0), '__name__', 0) or
             str(obj))
 
 
 def isnumber(x):
-    "Is x a number?"
+    """Is x a number?"""
     return hasattr(x, '__int__')
 
 
 def issequence(x):
-    "Is x a sequence?"
+    """Is x a sequence?"""
     return isinstance(x, collections.abc.Sequence)
 
 
-def print_table(table, header=None, sep='   ', numfmt='%g'):
+def print_table(table, header=None, sep='   ', numfmt='{}'):
     """Print a list of lists as a table, so that columns line up nicely.
     header, if specified, will be printed as the first row.
-    numfmt is the format for all numbers; you might want e.g. '%6.2f'.
+    numfmt is the format for all numbers; you might want e.g. '{:.2f}'.
     (If you want different formats in different columns,
     don't use print_table.) sep is the separator between columns."""
     justs = ['rjust' if isnumber(x) else 'ljust' for x in table[0]]
@@ -339,18 +421,21 @@ def print_table(table, header=None, sep='   ', numfmt='%g'):
             str(x), j)(size) for (j, size, x) in zip(justs, sizes, row)))
 
 
-def AIMAFile(components, mode='r'):
-    "Open a file based at the AIMA root directory."
+def open_data(name, mode='r'):
     aima_root = os.path.dirname(__file__)
-
-    aima_file = os.path.join(aima_root, *components)
+    aima_file = os.path.join(aima_root, *['aima-data', name])
 
     return open(aima_file)
 
 
-def DataFile(name, mode='r'):
-    "Return a file in the AIMA /aima-data directory."
-    return AIMAFile(['aima-data', name], mode)
+def failure_test(algorithm, tests):
+    """Grades the given algorithm based on how many tests it passes.
+    Most algorithms have arbitrary output on correct execution, which is difficult
+    to check for correctness. On the other hand, a lot of algorithms output something
+    particular on fail (for example, False, or None).
+    tests is a list with each element in the form: (values, failure_output)."""
+    from statistics import mean
+    return mean(int(algorithm(x) != y) for x, y in tests)
 
 
 # ______________________________________________________________________________
@@ -364,49 +449,106 @@ class Expr(object):
     op is a str like '+' or 'sin'; args are Expressions.
     Expr('x') or Symbol('x') creates a symbol (a nullary Expr).
     Expr('-', x) creates a unary; Expr('+', x, 1) creates a binary."""
+
     def __init__(self, op, *args):
         self.op = str(op)
         self.args = args
 
     # Operator overloads
-    def __neg__(self):      return Expr('-', self)
-    def __pos__(self):      return Expr('+', self)
-    def __invert__(self):   return Expr('~', self)
-    def __add__(self, rhs): return Expr('+', self, rhs)
-    def __sub__(self, rhs): return Expr('-', self, rhs)
-    def __mul__(self, rhs): return Expr('*', self, rhs)
-    def __pow__(self, rhs): return Expr('**',self, rhs)
-    def __mod__(self, rhs): return Expr('%', self, rhs)
-    def __and__(self, rhs): return Expr('&', self, rhs)
-    def __xor__(self, rhs): return Expr('^', self, rhs)
-    def __rshift__(self, rhs):   return Expr('>>', self, rhs)
-    def __lshift__(self, rhs):   return Expr('<<', self, rhs)
-    def __truediv__(self, rhs):  return Expr('/',  self, rhs)
-    def __floordiv__(self, rhs): return Expr('//', self, rhs)
-    def __matmul__(self, rhs):   return Expr('@',  self, rhs)
+    def __neg__(self):
+        return Expr('-', self)
+
+    def __pos__(self):
+        return Expr('+', self)
+
+    def __invert__(self):
+        return Expr('~', self)
+
+    def __add__(self, rhs):
+        return Expr('+', self, rhs)
+
+    def __sub__(self, rhs):
+        return Expr('-', self, rhs)
+
+    def __mul__(self, rhs):
+        return Expr('*', self, rhs)
+
+    def __pow__(self, rhs):
+        return Expr('**', self, rhs)
+
+    def __mod__(self, rhs):
+        return Expr('%', self, rhs)
+
+    def __and__(self, rhs):
+        return Expr('&', self, rhs)
+
+    def __xor__(self, rhs):
+        return Expr('^', self, rhs)
+
+    def __rshift__(self, rhs):
+        return Expr('>>', self, rhs)
+
+    def __lshift__(self, rhs):
+        return Expr('<<', self, rhs)
+
+    def __truediv__(self, rhs):
+        return Expr('/', self, rhs)
+
+    def __floordiv__(self, rhs):
+        return Expr('//', self, rhs)
+
+    def __matmul__(self, rhs):
+        return Expr('@', self, rhs)
 
     def __or__(self, rhs):
-        "Allow both P | Q, and P |'==>'| Q."
+        """Allow both P | Q, and P |'==>'| Q."""
         if isinstance(rhs, Expression):
             return Expr('|', self, rhs)
         else:
             return PartialExpr(rhs, self)
 
     # Reverse operator overloads
-    def __radd__(self, lhs): return Expr('+',  lhs, self)
-    def __rsub__(self, lhs): return Expr('-',  lhs, self)
-    def __rmul__(self, lhs): return Expr('*',  lhs, self)
-    def __rdiv__(self, lhs): return Expr('/',  lhs, self)
-    def __rpow__(self, lhs): return Expr('**', lhs, self)
-    def __rmod__(self, lhs): return Expr('%',  lhs, self)
-    def __rand__(self, lhs): return Expr('&',  lhs, self)
-    def __rxor__(self, lhs): return Expr('^',  lhs, self)
-    def __ror__(self, lhs):  return Expr('|',  lhs, self)
-    def __rrshift__(self, lhs):   return Expr('>>',  lhs, self)
-    def __rlshift__(self, lhs):   return Expr('<<',  lhs, self)
-    def __rtruediv__(self, lhs):  return Expr('/',  lhs, self)
-    def __rfloordiv__(self, lhs): return Expr('//',  lhs, self)
-    def __rmatmul__(self, lhs):   return Expr('@', lhs, self)
+    def __radd__(self, lhs):
+        return Expr('+', lhs, self)
+
+    def __rsub__(self, lhs):
+        return Expr('-', lhs, self)
+
+    def __rmul__(self, lhs):
+        return Expr('*', lhs, self)
+
+    def __rdiv__(self, lhs):
+        return Expr('/', lhs, self)
+
+    def __rpow__(self, lhs):
+        return Expr('**', lhs, self)
+
+    def __rmod__(self, lhs):
+        return Expr('%', lhs, self)
+
+    def __rand__(self, lhs):
+        return Expr('&', lhs, self)
+
+    def __rxor__(self, lhs):
+        return Expr('^', lhs, self)
+
+    def __ror__(self, lhs):
+        return Expr('|', lhs, self)
+
+    def __rrshift__(self, lhs):
+        return Expr('>>', lhs, self)
+
+    def __rlshift__(self, lhs):
+        return Expr('<<', lhs, self)
+
+    def __rtruediv__(self, lhs):
+        return Expr('/', lhs, self)
+
+    def __rfloordiv__(self, lhs):
+        return Expr('//', lhs, self)
+
+    def __rmatmul__(self, lhs):
+        return Expr('@', lhs, self)
 
     def __call__(self, *args):
         "Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."
@@ -438,22 +580,23 @@ class Expr(object):
 # An 'Expression' is either an Expr or a Number.
 # Symbol is not an explicit type; it is any Expr with 0 args.
 
+
 Number = (int, float, complex)
 Expression = (Expr, Number)
 
 
 def Symbol(name):
-    "A Symbol is just an Expr with no args."
+    """A Symbol is just an Expr with no args."""
     return Expr(name)
 
 
 def symbols(names):
-    "Return a tuple of Symbols; names is a comma/whitespace delimited str."
+    """Return a tuple of Symbols; names is a comma/whitespace delimited str."""
     return tuple(Symbol(name) for name in names.replace(',', ' ').split())
 
 
 def subexpressions(x):
-    "Yield the subexpressions of an Expression (including x itself)."
+    """Yield the subexpressions of an Expression (including x itself)."""
     yield x
     if isinstance(x, Expr):
         for arg in x.args:
@@ -461,7 +604,7 @@ def subexpressions(x):
 
 
 def arity(expression):
-    "The number of sub-expressions in this expression."
+    """The number of sub-expressions in this expression."""
     if isinstance(expression, Expr):
         return len(expression.args)
     else:  # expression is a number
@@ -472,9 +615,14 @@ def arity(expression):
 
 class PartialExpr:
     """Given 'P |'==>'| Q, first form PartialExpr('==>', P), then combine with Q."""
-    def __init__(self, op, lhs): self.op, self.lhs = op, lhs
-    def __or__(self, rhs):       return Expr(self.op, self.lhs, rhs)
-    def __repr__(self):          return "PartialExpr('{}', {})".format(self.op, self.lhs)
+    def __init__(self, op, lhs):
+        self.op, self.lhs = op, lhs
+
+    def __or__(self, rhs):
+        return Expr(self.op, self.lhs, rhs)
+
+    def __repr__(self):
+        return "PartialExpr('{}', {})".format(self.op, self.lhs)
 
 
 def expr(x):
@@ -489,6 +637,7 @@ def expr(x):
         return eval(expr_handle_infix_ops(x), defaultkeydict(Symbol))
     else:
         return x
+
 
 infix_ops = '==> <== <=>'.split()
 
@@ -513,10 +662,37 @@ class defaultkeydict(collections.defaultdict):
         return result
 
 
+class hashabledict(dict):
+    """Allows hashing by representing a dictionary as tuple of key:value pairs
+       May cause problems as the hash value may change during runtime
+    """
+    def __tuplify__(self):
+        return tuple(sorted(self.items()))
+
+    def __hash__(self):
+        return hash(self.__tuplify__())
+
+    def __lt__(self, odict):
+        assert isinstance(odict, hashabledict)
+        return self.__tuplify__() < odict.__tuplify__()
+
+    def __gt__(self, odict):
+        assert isinstance(odict, hashabledict)
+        return self.__tuplify__() > odict.__tuplify__()
+
+    def __le__(self, odict):
+        assert isinstance(odict, hashabledict)
+        return self.__tuplify__() <= odict.__tuplify__()
+
+    def __ge__(self, odict):
+        assert isinstance(odict, hashabledict)
+        return self.__tuplify__() >= odict.__tuplify__()
+
+
 # ______________________________________________________________________________
 # Queues: Stack, FIFOQueue, PriorityQueue
 
-# TODO: Possibly use queue.Queue, queue.PriorityQueue
+# TODO: queue.PriorityQueue
 # TODO: Priority queues may not belong here -- see treatment in search.py
 
 
@@ -552,29 +728,32 @@ class FIFOQueue(Queue):
 
     """A First-In-First-Out Queue."""
 
-    def __init__(self):
-        self.A = []
-        self.start = 0
+    def __init__(self, maxlen=None, items=[]):
+        self.queue = collections.deque(items, maxlen)
 
     def append(self, item):
-        self.A.append(item)
-
-    def __len__(self):
-        return len(self.A) - self.start
+        if not self.queue.maxlen or len(self.queue) < self.queue.maxlen:
+            self.queue.append(item)
+        else:
+            raise Exception('FIFOQueue is full')
 
     def extend(self, items):
-        self.A.extend(items)
+        if not self.queue.maxlen or len(self.queue) + len(items) <= self.queue.maxlen:
+            self.queue.extend(items)
+        else:
+            raise Exception('FIFOQueue max length exceeded')
 
     def pop(self):
-        e = self.A[self.start]
-        self.start += 1
-        if self.start > 5 and self.start > len(self.A) / 2:
-            self.A = self.A[self.start:]
-            self.start = 0
-        return e
+        if len(self.queue) > 0:
+            return self.queue.popleft()
+        else:
+            raise Exception('FIFOQueue is empty')
+
+    def __len__(self):
+        return len(self.queue)
 
     def __contains__(self, item):
-        return item in self.A[self.start:]
+        return item in self.queue
 
 
 class PriorityQueue(Queue):
@@ -614,6 +793,7 @@ class PriorityQueue(Queue):
             if item == key:
                 self.A.pop(i)
 
+
 # ______________________________________________________________________________
 # Useful Shorthands
 
@@ -621,6 +801,7 @@ class PriorityQueue(Queue):
 class Bool(int):
     """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'"""
     __str__ = __repr__ = lambda self: 'T' if self else 'F'
+
 
 T = Bool(True)
 F = Bool(False)
