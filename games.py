@@ -41,8 +41,6 @@ def minimax_decision(state, game):
 
 # ______________________________________________________________________________
 
-dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
-direction = {'W' : -1, 'B' : 1}
 
 def expectiminimax(state, game):
     """Return the best move for a player after dice are thrown. The game tree
@@ -266,7 +264,7 @@ class StochasticGame(Game):
         """Return a list of all possible uncertain events at a state."""
         raise NotImplementedError
 
-    def outcome(self, chance):
+    def outcome(self, state, chance):
         """Return the state which is the outcome of a chance trial."""
         raise NotImplementedError
 
@@ -419,7 +417,7 @@ class ConnectFour(TicTacToe):
                 if y == 1 or (x, y - 1) in state.board]
 
 
-class Backgammon(Game):
+class Backgammon(StochasticGame):
     """A two player game where the goal of each player is to move all the
 	checkers off the board. The moves for each state are determined by
 	rolling a pair of dice."""
@@ -435,6 +433,7 @@ class Backgammon(Game):
         board[7]['W'] = board[16]['B'] = 3
         board[11]['B'] = board[12]['W'] = 5
         self.allow_bear_off = {'W' : False, 'B' : False}
+        self.direction = {'W' : -1, 'B' : 1}
         self.initial = GameState(to_move='W',
                                  utility=0,
                                  board=board,
@@ -555,6 +554,15 @@ class Backgammon(Game):
         opponent = 'B' if player == 'W' else 'W'
         return point[opponent] <= 1
 
+    def chances(self, state):
+        """Return a list of all possible uncertain events at a state."""
+        dice_rolls = list(itertools.combinations_with_replacement([1, 2, 3, 4, 5, 6], 2))
+        return dice_rolls
+
+    def outcome(self, chance):
+        """Return the state which is the outcome of a chance trial."""
+        self.dice_roll = tuple(map((self.direction[state.to_move]).__mul__, chance))
+'''
     def play_game(self, *players):
         """Play backgammon."""
         state = self.initial
@@ -570,3 +578,4 @@ class Backgammon(Game):
                     if self.terminal_test(state):
                         self.display(state)
                         return self.utility(state, self.to_move(self.initial))
+'''
