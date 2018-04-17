@@ -3,8 +3,7 @@
 from logic import fol_bc_and
 from utils import expr, Expr, partition
 from search import astar_search
-from parse import read_pddl_file, ParseError
-from collections.abc import MutableSequence
+from parse import PDDLDomainParser, PDDLProblemParser
 
 
 class PlanningKB:
@@ -175,210 +174,6 @@ class PlanningAction:
         return new_kb
 
 
-class PDDLDomainParser:
-    def __init__(self):
-        self.domain_name = ''
-        self.action_name = ''
-        self.tokens = []
-        self.requirements = []
-        self.predicates = []
-        self.actions = []
-        self.types = []
-        self.constants = []
-        self.parameters = []
-        self.preconditions = []
-        self.effects = []
-
-    def _parse_define(self, tokens) -> bool:
-        domain_list = tokens.pop()
-        token = domain_list.pop()
-        if token != 'domain':
-            raise ParseError('domain keyword not found after define statement')
-        self.domain_name = domain_list.pop()
-        return True
-
-    def _parse_requirements(self, tokens) -> bool:
-        self.requirements = tokens
-        if ':strips' not in self.requirements:
-            raise ParseError(':strips is not in list of domain requirements. Cannot parse this domain file.')
-        return True
-
-    def _parse_constants(self, tokens) -> bool:
-        self.constants = self._parse_variables(tokens)
-        for const, ctype in self.constants:
-            if ctype not in self.types:
-                raise ParseError('Constant type {0} not found in list of valid types'.format(ctype))
-        return True
-
-    def _parse_types(self, tokens) -> bool:
-        self.types = tokens
-        return True
-
-    def _parse_predicates(self, tokens) -> bool:
-        while tokens:
-            predicate = tokens.pop()
-            predicate.reverse()
-            new_predicate = [predicate[0]] + self._parse_variables(predicate)
-            self.predicates.append(new_predicate)
-        return True
-
-    def _parse_variables(self, tokens) -> list:
-        variables = []
-        num_tokens = len(tokens)
-        idx = 1
-        while idx < num_tokens:
-            if not tokens[idx].startswith('?'):
-                raise ParseError("Unrecognized variable name ({0}) " +
-                                 "that doesn't begin with a question mark".format(tokens[idx]))
-            pred_var = tokens[idx][1:]
-            if not self.types:
-                variables.append(pred_var)
-                idx += 1
-            else:
-                # lookahead to see if there's a dash indicating an upcoming type name
-                if tokens[idx + 1] == '-':
-                    pred_type = tokens[idx + 2].lower()
-                    if pred_type not in self.types:
-                        raise ParseError("Predicate type {0} not in type list.".format(pred_type))
-                else:
-                    pred_type = None
-                arg = [pred_var, pred_type]
-                variables.append(arg)
-                # if any immediately prior variables didn't have an assigned type, then assign them this one.
-                for j in range(len(variables) - 1, 0, -1):
-                    if variables[j][1] is not None:
-                        break
-                    else:
-                        variables[j][1] = pred_type
-                idx += 3
-        return variables
-
-    def _parse_action(self, tokens) -> bool:
-        self.action_name = self.tokens[idx].lower()
-        idx += 1
-        match = {':parameters': self._parse_parameters,
-                 ':precondition': self._parse_precondition,
-                 ':effect': self._parse_effect
-                 }
-        idx = self.match_and_parse_tokens(idx, match)
-        return True
-
-    def _parse_parameters(self, tokens) -> bool:
-        idx += 1
-        if self.tokens[idx] != '(':
-            raise IOError('Start of parameter list is missing an open parenthesis.')
-        self.parameters.clear()
-        while idx < self.num_tokens:
-            if self.tokens[idx] == ')':
-                self.num_parens -= 1
-                break
-            elif self.tokens[idx] == '(':
-                self.num_parens += 1
-                try:
-                    param_vars, idx = self._parse_variables(idx+1)
-                except IOError:
-                    raise IOError('Action name {0} has an invalid argument list.'.format(self.action_name))
-                self.parameters.extend(param_vars)
-        return True
-
-    def _parse_single_expr(self, idx):
-        if self.tokens[idx+1] == 'not':
-            e = self._parse_single_expr(idx + 2)
-            if '~' in e:
-                raise IOError('Multiple not operators in expression.')
-            return expr('~' + e)
-        else:
-            if self.tokens[idx] != '(':
-                raise IOError('Expression in {0} is missing an open parenthesis.'.format(self.action_name))
-            while idx < self.num_tokens:
-                if self.tokens[idx] == ')':
-                    self.num_parens -= 1
-                    idx += 1
-                    break
-                elif self.tokens[idx] == '(':
-                    expr_name = self.tokens[idx + 1]
-                    variables = []
-                    idx += 2
-                    while idx < self.num_tokens:
-                        if self.tokens[idx] == ')':
-                            self.num_parens -= 1
-                            break
-                        param = self.tokens[idx]
-                        if param.startswith('?'):
-                            variables.append(param.lower())
-                        else:
-                            variables.append(param)
-            estr = expr_name + '('
-            vlen = len(variables)
-            for i in range(vlen - 1):
-                estr += variables[i] + ', '
-            estr += variables[vlen-1] + ')'
-            return estr
-
-    def _parse_expr_list(self, idx):
-        expr_lst = []
-        while idx < self.num_tokens:
-            if self.tokens[idx] == ')':
-                self.num_parens -= 1
-                break
-            elif self.tokens[idx] == '(':
-                idx, expr = self._parse_single_expr(idx)
-                expr_lst.append(expr)
-            idx += 1
-        return expr_lst
-
-    def _parse_formula(self, idx, label):
-        expr_lst = []
-        idx += 1
-        if self.tokens[idx] == '(':
-            self.num_parens += 1
-        else:
-            raise IOError('Start of {0} {1} is missing an open parenthesis.'.format(self.action_name, label))
-        if self.tokens[idx + 1] == 'and':  # preconds and effects only use 'and' keyword
-            exprs = self._parse_expr_list(idx + 2)
-            expr_lst.extend(exprs)
-        else:  # parse single expression
-            expr = self._parse_single_expr(idx + 2)
-            expr_lst.append(expr)
-        return expr_lst
-
-    def _parse_precondition(self, tokens):
-        idx, self.preconditions = self._parse_formula(idx, 'preconditions')
-        return True
-
-    def _parse_effect(self, tokens):
-        idx, self.effects = self._parse_formula(idx, 'effects')
-        return True
-
-    def read(self, filename):
-        pddl_list = read_pddl_file(filename)
-
-        # Use dictionaries for parsing. If the token matches the key, then call the associated value (method)
-        # for parsing.
-        match = {'define': self._parse_define,
-                 ':requirements': self._parse_requirements,
-                 ':constants': self._parse_constants,
-                 ':types': self._parse_types,
-                 ':predicates': self._parse_predicates,
-                 ':action': self._parse_action
-                 }
-
-        def parse_tokens(tokens):
-            if not tokens:
-                return
-            item = tokens.pop()
-            if isinstance(item, MutableSequence):
-                parse_tokens(item)
-            else:
-                for text in match:
-                    if item.startswith(text):
-                        if match[text](tokens):
-                            break
-
-        while True:
-            parse_tokens(pddl_list)
-
-
 def print_solution(node):
     for action in node.solution():
         print(action.name, end='(')
@@ -541,9 +336,15 @@ def put_on_shoes():
     print_solution(astar_search(p))
 
 
-def parse_domain_file(filename):
-    parser = PDDLDomainParser()
-    parser.read(filename)
+def parse_domain_file(filename) -> PDDLDomainParser:
+    return parser
+
+
+def solution_from_PDDL_files(domain_file, problem_file) -> None:
+    domain_parser = PDDLDomainParser()
+    domain_parser.read(domain_file)
+    problem_parser = PDDLProblemParser(domain_parser.types)
+    problem_parser.read(problem_file)
 
 
 def tester():
@@ -557,7 +358,8 @@ def tester():
     sussman_anomaly()
     print('\nPut on shoes solution:')
     put_on_shoes()
-    parse_domain_file('blocks-domain.pddl')
+    print('\nBlocks solution via PDDL:')
+    solution_from_PDDL_files('blocks-domain.pddl', 'blocks-problem.pddl')
 
 
 if __name__ == '__main__':
