@@ -113,7 +113,7 @@ def alphabeta_search(state, game):
             beta = min(beta, v)
         return v
 
-    # Body of alphabeta_cutoff_search:
+    # Body of alphabeta_search:
     best_score = -infinity
     beta = infinity
     best_action = None
