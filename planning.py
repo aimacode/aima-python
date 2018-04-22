@@ -1,9 +1,9 @@
 """Planning (Chapters 10-11)
 """
+import pddl_parse
 from logic import fol_bc_and
 from utils import expr, Expr, partition
 from search import astar_search
-from parse import PDDLDomainParser, PDDLProblemParser
 
 
 class PlanningKB:
@@ -336,14 +336,10 @@ def put_on_shoes():
     print_solution(astar_search(p))
 
 
-def parse_domain_file(filename) -> PDDLDomainParser:
-    return parser
-
-
 def solution_from_PDDL_files(domain_file, problem_file) -> None:
-    domain_parser = PDDLDomainParser()
+    domain_parser = pddl_parse.PDDLDomainParser()
     domain_parser.read(domain_file)
-    problem_parser = PDDLProblemParser(domain_parser.types)
+    problem_parser = pddl_parse.PDDLProblemParser(domain_parser.types)
     problem_parser.read(problem_file)
 
 
