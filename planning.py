@@ -1,9 +1,10 @@
 """Planning (Chapters 10-11)
 """
-import pddl_parse
+import os
 from logic import fol_bc_and
 from utils import expr, Expr, partition
 from search import astar_search
+from pddl_parse import DomainParser, ProblemParser, ParseError
 
 
 class PlanningKB:
@@ -186,40 +187,42 @@ def print_solution(node):
     print()
 
 
-def air_cargo():
-    goals = [expr('At(C1, JFK)'), expr('At(C2, SFO)')]
+def construct_solution_from_pddl(pddl_domain, pddl_problem) -> None:
+    initial_kb = PlanningKB([expr(g) for g in pddl_problem.goals],
+                            [expr(s) for s in pddl_problem.initial_state])
 
-    init = PlanningKB(goals,
-                      [expr('At(C1, SFO)'),
-                       expr('At(C2, JFK)'),
-                       expr('At(P1, SFO)'),
-                       expr('At(P2, JFK)'),
-                       expr('Cargo(C1)'),
-                       expr('Cargo(C2)'),
-                       expr('Plane(P1)'),
-                       expr('Plane(P2)'),
-                       expr('Airport(JFK)'),
-                       expr('Airport(SFO)')])
-
-    # Actions
-    #  Load
-    precond = [expr('At(c, a)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
-    effect = [expr('In(c, p)'), expr('~At(c, a)')]
-    load = PlanningAction(expr('Load(c, p, a)'), precond, effect)
-
-    #  Unload
-    precond = [expr('In(c, p)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
-    effect = [expr('At(c, a)'), expr('~In(c, p)')]
-    unload = PlanningAction(expr('Unload(c, p, a)'), precond, effect)
-
-    #  Fly
-    #  Used used 'f' instead of 'from' because 'from' is a python keyword and expr uses eval() function
-    precond = [expr('At(p, f)'), expr('Plane(p)'), expr('Airport(f)'), expr('Airport(to)')]
-    effect = [expr('At(p, to)'), expr('~At(p, f)')]
-    fly = PlanningAction(expr('Fly(p, f, to)'), precond, effect)
-
-    p = PlanningProblem(init, [load, unload, fly])
+    planning_actions = [PlanningAction(expr(name),
+                                       [expr(p) for p in preconds],
+                                       [expr(e) for e in effects])
+                        for name, preconds, effects in pddl_domain.actions]
+    p = PlanningProblem(initial_kb, planning_actions)
+    print('\n{} solution:'.format(pddl_problem.problem_name))
     print_solution(astar_search(p))
+
+
+def gather_test_pairs() -> list:
+    pddl_direntries = os.scandir(os.getcwd() + os.sep + 'pddl_files')
+    domain_objects = []
+    problem_objects = []
+    for de in pddl_direntries:
+        try:
+            domain_parser = DomainParser()
+            domain_parser.read(de.path)
+            domain_objects.append(domain_parser)
+        except ParseError:
+            try:
+                problem_parser = ProblemParser()
+                problem_parser.read(de.path)
+                problem_objects.append(problem_parser)
+            except ParseError:
+                raise ParseError('Unparseable PDDL file: {}'.format(de.name))
+
+    object_pairs = []
+    for p in problem_objects:
+        for d in domain_objects:
+            if p.domain_name == d.domain_name:
+                object_pairs.append((d, p))
+    return object_pairs
 
 
 def spare_tire():
@@ -246,34 +249,6 @@ def spare_tire():
               expr('~At(Flat, Ground)'), expr('~At(Flat, Axle)')]
     leave_overnight = PlanningAction(expr('LeaveOvernight'), precond, effect)
     p = PlanningProblem(init, [remove_spare, remove_flat, put_on_spare, leave_overnight])
-    print_solution(astar_search(p))
-
-
-def three_block_tower():
-    goals = [expr('On(A, B)'), expr('On(B, C)')]
-    init = PlanningKB(goals,
-                      [expr('On(A, Table)'),
-                       expr('On(B, Table)'),
-                       expr('On(C, Table)'),
-                       expr('Block(A)'),
-                       expr('Block(B)'),
-                       expr('Block(C)'),
-                       expr('Clear(A)'),
-                       expr('Clear(B)'),
-                       expr('Clear(C)')])
-
-    # Actions
-    #  Move(b, x, y)
-    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)')]
-    effect = [expr('On(b, y)'), expr('Clear(x)'), expr('~On(b, x)'), expr('~Clear(y)')]
-    move = PlanningAction(expr('Move(b, x, y)'), precond, effect)
-
-    #  MoveToTable(b, x)
-    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
-    effect = [expr('On(b, Table)'), expr('Clear(x)'), expr('~On(b, x)')]
-    move_to_table = PlanningAction(expr('MoveToTable(b, x)'), precond, effect)
-
-    p = PlanningProblem(init, [move, move_to_table])
     print_solution(astar_search(p))
 
 
@@ -336,27 +311,10 @@ def put_on_shoes():
     print_solution(astar_search(p))
 
 
-def solution_from_PDDL_files(domain_file, problem_file) -> None:
-    domain_parser = pddl_parse.PDDLDomainParser()
-    domain_parser.read(domain_file)
-    problem_parser = pddl_parse.PDDLProblemParser(domain_parser.types)
-    problem_parser.read(problem_file)
-
-
-def tester():
-    print('Air cargo solution:')
-    air_cargo()
-    print('\nSpare tire solution:')
-    spare_tire()
-    print('\nThree block tower solution:')
-    three_block_tower()
-    print('\nSussman anomaly solution:')
-    sussman_anomaly()
-    print('\nPut on shoes solution:')
-    put_on_shoes()
-    print('\nBlocks solution via PDDL:')
-    solution_from_PDDL_files('blocks-domain.pddl', 'blocks-problem.pddl')
+def test_solutions():
+    for domain, problem in gather_test_pairs():
+        construct_solution_from_pddl(domain, problem)
 
 
 if __name__ == '__main__':
-    tester()
+    test_solutions()
