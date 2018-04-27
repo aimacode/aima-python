@@ -1,9 +1,9 @@
+import os
 from typing import Deque
 from collections import deque
-from planning import PlanningAction
-from utils import expr
 
-
+CHAR = 0
+WHITESPACE = [' ', '\t']
 Symbol = str          # A Lisp Symbol is implemented as a Python str
 List = list           # A Lisp List is implemented as a Python list
 
@@ -12,15 +12,14 @@ class ParseError(Exception):
     pass
 
 
-def read_pddl_file(filename) -> list:
+def read_pddl_file(filename) -> deque:
     with open(filename) as f:
         # read in lines from PDDL file and remove newline characters
         lines = [line.strip() for line in f.readlines()]
     strip_comments(lines)
-    # join all lines into single string
-    s = ''.join(lines)
-    # transform into Python-compatible S-expressions (using lists of strings)
-    return parse(s)
+
+    # transform into Python-compatible S-expressions (using deques of strings)
+    return readlines(filename, lines)
 
 
 def strip_comments(lines) -> None:
@@ -31,31 +30,53 @@ def strip_comments(lines) -> None:
             lines[i] = line[:idx]
 
 
-def parse(pddl):
+def readlines(filename: str, pddl: list) -> deque:
     """Read PDDL contained in a string."""
-    return read_from_tokens(tokenize(pddl))
+    return parse(filename, tokenize(pddl))
 
 
-def tokenize(s: str) -> deque:
-    """Convert a string into a list of tokens."""
-    return deque(s.replace('(', ' ( ').replace(')', ' ) ').replace(':', ' :').split())
-
-
-def read_from_tokens(tokens: deque):
-    """Read an expression from a sequence of tokens."""
+def parse(filename: str, tokens: deque):
+    # read the tokens one at time (left to right) and separate them into list of keywords and parameters.
     if len(tokens) == 0:
-        raise SyntaxError('unexpected EOF while reading')
-    token = tokens.popleft()
-    if '(' == token:
+        raise ParseError('unexpected EOF while reading {}.'.format(os.path.basename(filename)))
+    char, line_no, col_no = tokens.popleft()
+    if '(' == char:
         D = deque()
-        while tokens[0] != ')':
-            D.appendleft(read_from_tokens(tokens))
-        tokens.popleft()  # pop off ')'
+        s = ''
+        while True:
+            try:
+                if tokens[0][CHAR] == '(':
+                    D.append(parse(filename, tokens))
+                elif tokens[0][CHAR] == ')':
+                    if s:
+                        D.append(s)
+                    tokens.popleft()
+                    break
+                elif tokens[0][CHAR] in WHITESPACE:
+                    if s:
+                        D.append(s)
+                    tokens.popleft()
+                    s = ''
+                else:
+                    char, line_no, col_no = tokens.popleft()
+                    s += char
+            except IndexError:
+                raise ParseError('unexpected EOF while reading {}.'.format(os.path.basename(filename)))
         return D
-    elif ')' == token:
-        raise SyntaxError('unexpected )')
+    elif ')' == char:
+        raise ParseError("unexpected ')' token in {}, line {}, col {}".format(os.path.basename(filename),
+                                                                              line_no + 1, col_no + 1))
     else:
-        return token
+        return char
+
+
+def tokenize(pddl: list) -> deque:
+    """Convert a string into a deque of tokens."""
+    d = deque()
+    for lineno, line in enumerate(pddl):
+        for column, char in enumerate(line):
+            d.append((char, lineno, column))
+    return d
 
 
 def parse_tokens(match_dict, token_list):
@@ -78,7 +99,7 @@ def parse_tokens(match_dict, token_list):
             break
 
 
-def parse_variables(tokens, types) -> list:
+def parse_variables(tokens, has_types) -> list:
     """ Extracts a list of variables from the PDDL. """
     variables = []
     while tokens:
@@ -87,7 +108,7 @@ def parse_variables(tokens, types) -> list:
             raise ParseError("Unrecognized variable name ({0}) " +
                              "that doesn't begin with a question mark".format(token))
         pred_var = token[1:]
-        if types:
+        if has_types:
             # lookahead to see if there's a dash indicating an upcoming type name
             if tokens[0] == '-':
                 # get rid of the dash character and the type name
@@ -99,13 +120,14 @@ def parse_variables(tokens, types) -> list:
 
 def _parse_single_expr_string(tokens: deque) -> str:
     if tokens[0] == 'not':
-        token = tokens.popleft()
+        # expression is not(e), so next, parse the expression e before prepending the ~ operator to it.
+        token = tokens.pop()
         e = _parse_single_expr_string(token)
         if '~' in e:
             raise ParseError('Multiple not operators in expression.')
         return '~' + e
-    else:
-        expr_name = tokens.popleft().lower()
+    else:  # expression is a standard Op(param1, param2, etc ...) format
+        expr_name = tokens.popleft().capitalize()
         variables = []
         while tokens:
             param = tokens.popleft()
@@ -120,8 +142,7 @@ def _parse_expr_list(tokens) -> list:
     expr_lst = []
     while tokens:
         token = tokens.popleft()
-        e = _parse_single_expr_string(token)
-        expr_lst.append(expr(e))
+        expr_lst.append(_parse_single_expr_string(token))
     return expr_lst
 
 
@@ -132,13 +153,13 @@ def parse_formula(tokens: deque) -> list:
         exprs = _parse_expr_list(tokens)
         expr_lst.extend(exprs)
     else:  # parse single expression
-        e = _parse_single_expr_string([token] + tokens)
-        expr_lst.append(expr(e))
+        expr_lst.append(_parse_single_expr_string(deque([token]) + tokens))
     return expr_lst
 
 
 def build_expr_string(expr_name: str, variables: list) -> str:
-    estr = expr_name + '('
+    # can't have actions with a dash in the name; it confuses the Expr class
+    estr = expr_name.replace('-', '').capitalize() + '('
     vlen = len(variables)
     if vlen:
         for i in range(vlen - 1):
@@ -148,82 +169,88 @@ def build_expr_string(expr_name: str, variables: list) -> str:
     return estr
 
 
-class PDDLDomainParser:
+class DomainParser:
     def __init__(self):
         self.domain_name = ''
-        self.action_name = ''
-        self.requirements = []
+        self._action_name = ''
+        self._requirements = []
         self.predicates = []
         self.actions = []
-        self.types = []
         self.constants = []
-        self.parameters = []
-        self.preconditions = []
-        self.effects = []
+        self._types = []
+        self._parameters = []
+        self._preconditions = []
+        self._effects = []
 
     def _parse_define(self, tokens: deque) -> bool:
-        domain_list = tokens.popleft()
-        token = domain_list.popleft()
+        domain_seq = tokens.popleft()
+        token = domain_seq.popleft()
         if token != 'domain':
             raise ParseError('domain keyword not found after define statement')
-        self.domain_name = domain_list.popleft()
+            return False
+        self.domain_name = domain_seq.popleft()
         return True
 
     def _parse_requirements(self, tokens: deque) -> bool:
-        self.requirements = list(tokens)
-        if ':strips' not in self.requirements:
+        self._requirements = list(tokens)
+        if ':strips' not in self._requirements:
             raise ParseError(':strips is not in list of domain requirements. Cannot parse this domain file.')
         return True
 
     def _parse_constants(self, tokens: deque) -> bool:
-        self.constants = parse_variables(tokens)
+        self.constants = parse_variables(tokens, self._types)
         return True
 
+    # noinspection PyUnusedLocal
     def _parse_types(self, tokens: deque) -> bool:
-        self.types = True
+        self._types = True
         return True
 
     def _parse_predicates(self, tokens: deque) -> bool:
         while tokens:
             predicate = tokens.popleft()
             pred_name = predicate.popleft()
-            new_predicate = [pred_name] + parse_variables(predicate, self.types)
+            new_predicate = [pred_name] + parse_variables(predicate, self._types)
             self.predicates.append(new_predicate)
         return True
 
     def _parse_action(self, tokens) -> bool:
-        self.action_name = tokens.pop()
-        self.parameters = []
-        self.preconditions = []
-        self.effects = []
+        self._action_name = tokens.popleft()
         match = {':parameters': self._parse_parameters,
-                 ':precondition': self._parse_precondition,
-                 ':effect': self._parse_effect
+                 ':precondition': self._parse_preconditions,
+                 ':effect': self._parse_effects
                  }
         parse_tokens(match, tokens)
-        params = [p[0] for p in self.parameters]
-        action_str = build_expr_string(self.action_name, params)
-        action = PlanningAction(expr(action_str), self.preconditions, self.effects)
+        params = [p[0] for p in self._parameters]
+        action = (build_expr_string(self._action_name, params), self._preconditions, self._effects)
         self.actions.append(action)
+        # reset the temporary storage for this action before processing the next one.
+        self._action_name = ''
+        self._parameters = []
+        self._preconditions = []
+        self._effects = []
         return True
 
     def _parse_parameters(self, tokens: deque) -> bool:
-        param_list = tokens.popleft()
-        self.parameters = parse_variables(param_list, self.types)
+        if tokens:
+            param_list = tokens.popleft()
+            self._parameters = parse_variables(param_list, self._types)
         return True
 
-    def _parse_precondition(self, tokens: deque) -> bool:
-        precond_list = tokens.popleft()
-        self.preconditions = parse_formula(precond_list)
+    def _parse_preconditions(self, tokens: deque) -> bool:
+        if tokens:
+            precond_seq = tokens.popleft()
+            self._preconditions = parse_formula(precond_seq)
         return True
 
-    def _parse_effect(self, tokens: deque) -> bool:
-        effects_list = tokens.popleft()
-        self.effects = parse_formula(effects_list)
+    def _parse_effects(self, tokens: deque) -> bool:
+        if tokens:
+            effects_seq = tokens.popleft()
+            self._effects = parse_formula(effects_seq)
         return True
 
     def read(self, filename) -> None:
-        pddl_list = read_pddl_file(filename)
+        pddl = read_pddl_file(filename)
 
         # Use dictionaries for parsing. If the token matches the key, then call the associated value (method)
         # for parsing.
@@ -235,16 +262,15 @@ class PDDLDomainParser:
                  ':action': self._parse_action
                  }
 
-        parse_tokens(match, pddl_list)
+        parse_tokens(match, pddl)
 
 
-class PDDLProblemParser:
-    def __init__(self, types):
+class ProblemParser:
+    def __init__(self):
         self.problem_name = ''
-        self.types = types
-        self.objects = []
-        self.init = []
-        self.goal = []
+        self.domain_name = ''
+        self.initial_state = []
+        self.goals = []
 
     def _parse_define(self, tokens: deque) -> bool:
         problem_list = tokens.popleft()
@@ -258,17 +284,17 @@ class PDDLProblemParser:
         self.domain_name = tokens.popleft()
         return True
 
-    def _parse_init(self, tokens: deque):
-        self.initial_kb = _parse_expr_list(tokens)
+    def _parse_init(self, tokens: deque) -> bool:
+        self.initial_state = _parse_expr_list(tokens)
         return True
 
-    def _parse_goal(self, tokens: deque):
+    def _parse_goal(self, tokens: deque) -> bool:
         goal_list = tokens.popleft()
-        self.goal = parse_formula(goal_list)
+        self.goals = parse_formula(goal_list)
         return True
 
-    def read(self, filename):
-        pddl_list = read_pddl_file(filename)
+    def read(self, filename) -> None:
+        pddl = read_pddl_file(filename)
 
         # Use dictionaries for parsing. If the token matches the key, then call the associated value (method)
         # for parsing.
@@ -278,4 +304,4 @@ class PDDLProblemParser:
                  ':goal': self._parse_goal
                  }
 
-        parse_tokens(match, pddl_list)
+        parse_tokens(match, pddl)
