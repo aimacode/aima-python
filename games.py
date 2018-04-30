@@ -498,7 +498,7 @@ class Backgammon(StochasticGame):
 
     def compute_utility(self, board, move, player):
         """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
-        util = {'W' : 1, 'B' : '-1'}
+        util = {'W' : 1, 'B' : -1}
         for idx in range(0, 24):
             if board[idx][player] > 0:
                 return 0
