@@ -63,7 +63,7 @@ def test_spare_tire():
     assert p.goal_test()
 
 
-def spare_tire_2():
+def test_spare_tire_2():
     p = spare_tire()
     assert p.goal_test() is False
     solution_2 = [expr('Remove(Spare, Trunk)'),
@@ -74,7 +74,7 @@ def spare_tire_2():
         p.act(action)
 
     assert p.goal_test()
-    
+
 
 def test_double_tennis():
     p = double_tennis_problem()
@@ -123,6 +123,34 @@ def test_graph_call():
     graph()
 
     assert levels_size == len(graph.levels) - 1
+
+
+def test_graphplan():
+    spare_tire_solution = spare_tire_graphplan()
+    spare_tire_solution = refine_solution(spare_tire_solution)
+    assert expr('Remove(Flat, Axle)') in spare_tire_solution
+    assert expr('Remove(Spare, Trunk)') in spare_tire_solution
+    assert expr('PutOn(Spare, Axle)') in spare_tire_solution
+
+    cake_solution = have_cake_and_eat_cake_too_graphplan()
+    cake_solution = refine_solution(cake_solution)
+    assert expr('Eat(Cake)') in cake_solution
+    assert expr('Bake(Cake)') in cake_solution
+
+    air_cargo_solution = air_cargo_graphplan()
+    air_cargo_solution = refine_solution(air_cargo_solution)
+    assert expr('Load(C1, P1, SFO)') in air_cargo_solution
+    assert expr('Load(C2, P2, JFK)') in air_cargo_solution
+    assert expr('Fly(P1, SFO, JFK)') in air_cargo_solution
+    assert expr('Fly(P2, JFK, SFO)') in air_cargo_solution
+    assert expr('Unload(C1, P1, JFK)') in air_cargo_solution
+    assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
+
+    sussman_anomaly_solution = three_block_tower_graphplan()
+    sussman_anomaly_solution = refine_solution(sussman_anomaly_solution)
+    assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
+    assert expr('Move(B, Table, C)') in sussman_anomaly_solution
+    assert expr('Move(A, Table, B)') in sussman_anomaly_solution
 
 
 def test_job_shop_problem():
