@@ -72,10 +72,10 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 3.2    | Romania                           | `romania`                     | [`search.py`][search]           | Done | Included |
 | 3.7    | Tree-Search                       | `tree_search`                 | [`search.py`][search]           | Done |          |
 | 3.7    | Graph-Search                      | `graph_search`                | [`search.py`][search]           | Done |          |
-| 3.11   | Breadth-First-Search              | `breadth_first_graph_search`        | [`search.py`][search]           | Done | Included |
+| 3.11   | Breadth-First-Search              | `breadth_first_graph_search`  | [`search.py`][search]           | Done | Included |
 | 3.14   | Uniform-Cost-Search               | `uniform_cost_search`         | [`search.py`][search]           | Done | Included |
-| 3.17   | Depth-Limited-Search              | `depth_limited_search`        | [`search.py`][search]           | Done |     Included |
-| 3.18   | Iterative-Deepening-Search        | `iterative_deepening_search`  | [`search.py`][search]           | Done |     Included |
+| 3.17   | Depth-Limited-Search              | `depth_limited_search`        | [`search.py`][search]           | Done | Included |
+| 3.18   | Iterative-Deepening-Search        | `iterative_deepening_search`  | [`search.py`][search]           | Done | Included |
 | 3.22   | Best-First-Search                 | `best_first_graph_search`     | [`search.py`][search]           | Done | Included |
 | 3.24   | A\*-Search                        | `astar_search`                | [`search.py`][search]           | Done | Included |
 | 3.26   | Recursive-Best-First-Search       | `recursive_best_first_search` | [`search.py`][search]           | Done |          |
@@ -102,7 +102,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`][logic]             | Done | Included |
 | 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done | Included |
 | 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |
-| 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done | Included          |
+| 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done | Included |
 | 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done |          |
 | 9.1    | Unify                             | `unify`                       | [`logic.py`][logic]             | Done | Included |
 | 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`][logic]             | Done | Included |
@@ -111,8 +111,8 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 10.1   | Air-Cargo-problem                 | `air_cargo`                   | [`planning.py`][planning]       | Done | Included |
 | 10.2   | Spare-Tire-Problem                | `spare_tire`                  | [`planning.py`][planning]       | Done | Included |
 | 10.3   | Three-Block-Tower                 | `three_block_tower`           | [`planning.py`][planning]       | Done | Included |
-| 10.7   | Cake-Problem                      | `have_cake_and_eat_cake_too`  | [`planning.py`][planning]       | Done |     Included |
-| 10.9   | Graphplan                         | `GraphPlan`                   | [`planning.py`][planning]       |      |          |
+| 10.7   | Cake-Problem                      | `have_cake_and_eat_cake_too`  | [`planning.py`][planning]       | Done | Included |
+| 10.9   | Graphplan                         | `GraphPlan`                   | [`planning.py`][planning]       | Done |          |
 | 10.13  | Partial-Order-Planner             |                               |                                 |      |          |
 | 11.1   | Job-Shop-Problem-With-Resources   | `job_shop_problem`            | [`planning.py`][planning]       | Done |          |
 | 11.5   | Hierarchical-Search               | `hierarchical_search`         | [`planning.py`][planning]       |      |          |
