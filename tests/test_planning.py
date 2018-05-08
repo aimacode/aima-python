@@ -115,6 +115,21 @@ def test_have_cake_and_eat_cake_too():
     assert p.goal_test()
 
 
+def test_shopping_problem():
+    p = shopping_problem()
+    assert p.goal_test() is False
+    solution = [expr('Go(Home, SM)'), 
+                expr('Buy(Banana, SM)'), 
+                expr('Buy(Milk, SM)'), 
+                expr('Go(SM, HW)'), 
+                expr('Buy(Drill, HW)')]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()
+
+
 def test_graph_call():
     pddl = spare_tire()
     graph = Graph(pddl)
@@ -151,6 +166,14 @@ def test_graphplan():
     assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
     assert expr('Move(B, Table, C)') in sussman_anomaly_solution
     assert expr('Move(A, Table, B)') in sussman_anomaly_solution
+
+    shopping_problem_solution = shopping_graphplan()
+    shopping_problem_solution = refine_solution(shopping_problem_solution)
+    assert expr('Go(Home, HW)') in shopping_problem_solution
+    assert expr('Go(Home, SM)') in shopping_problem_solution
+    assert expr('Buy(Drill, HW)') in shopping_problem_solution
+    assert expr('Buy(Banana, SM)') in shopping_problem_solution
+    assert expr('Buy(Milk, SM)') in shopping_problem_solution
 
 
 def test_job_shop_problem():
