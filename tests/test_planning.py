@@ -63,6 +63,19 @@ def test_spare_tire():
     assert p.goal_test()
 
 
+def spare_tire_2():
+    p = spare_tire()
+    assert p.goal_test() is False
+    solution_2 = [expr('Remove(Spare, Trunk)'),
+                  expr('Remove(Flat, Axle)'),
+                  expr('PutOn(Spare, Axle)')]
+
+    for action in solution_2:
+        p.act(action)
+
+    assert p.goal_test()
+    
+
 def test_double_tennis():
     p = double_tennis_problem()
     assert p.goal_test() is False
@@ -127,7 +140,7 @@ def test_job_shop_problem():
         p.act(action)
 
     assert p.goal_test()
-    
+
 
 def test_refinements() :
     init = [expr('At(Home)')]
