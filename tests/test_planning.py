@@ -62,6 +62,7 @@ def test_spare_tire():
 
     assert p.goal_test()
 
+
 def test_double_tennis():
     p = double_tennis_problem()
     assert p.goal_test() is False
@@ -74,6 +75,7 @@ def test_double_tennis():
         p.act(action)
 
     assert p.goal_test()
+
     
 def test_three_block_tower():
     p = three_block_tower()
@@ -102,8 +104,7 @@ def test_have_cake_and_eat_cake_too():
 
 def test_graph_call():
     pddl = spare_tire()
-    negkb = FolKB([expr('At(Flat, Trunk)')])
-    graph = Graph(pddl, negkb)
+    graph = Graph(pddl)
 
     levels_size = len(graph.levels)
     graph()
@@ -126,6 +127,7 @@ def test_job_shop_problem():
         p.act(action)
 
     assert p.goal_test()
+    
 
 def test_refinements() :
     init = [expr('At(Home)')]
