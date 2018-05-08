@@ -277,6 +277,30 @@ def have_cake_and_eat_cake_too():
     return PDDL(init, [eat_cake, bake_cake], goal_test)
 
 
+def shopping_problem():
+    init = [expr('At(Home)'), 
+            expr('Sells(SM, Milk)'),
+            expr('Sells(SM, Banana)'),
+            expr('Sells(HW, Drill)')]
+
+    def goal_test(kb):
+        required = [expr('Have(Milk)'), expr('Have(Banana)'), expr('Have(Drill)')]
+        return all(kb.ask(q) is not False for q in required)
+
+    # Actions
+    # Buy
+    precond = [expr('At(store)'), expr('Sells(store, x)')]
+    effect = [expr('Have(x)')]
+    buy = UnaryAction(expr('Buy(x, store)'), precond, effect)
+
+    # Go
+    precond = [expr('At(x)')]
+    effect = [expr('At(y)'), expr('NotAt(x)')]
+    go = UnaryAction(expr('Go(x, y)'), precond, effect)
+
+    return PDDL(init, [buy, go], goal_test)
+
+
 class Level:
     """
     Contains the state of the planning problem
@@ -608,9 +632,29 @@ def air_cargo_graphplan():
             return None
 
 
+def shopping_graphplan():
+    pddl = shopping_problem()
+    graphplan = GraphPlan(pddl)
+
+    def goal_test(kb, goals):
+        return all(kb.ask(q) is not False for q in goals)
+
+    goals = [expr('Have(Milk)'), expr('Have(Banana)'), expr('Have(Drill)')]
+
+    while True:
+        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
+            solution = graphplan.extract_solution(goals, -1)
+            if solution:
+                return solution
+
+        graphplan.graph.expand_graph()
+        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
+            return None
+
+
 def refine_solution(solution):
     """Converts a level-ordered solution into a linear solution"""
-    
+
     linear_solution = []
     for section in solution[0]:
         for operation in section:
