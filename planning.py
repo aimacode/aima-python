@@ -867,15 +867,3 @@ def job_shop_problem():
                    goal_test, [job_group1, job_group2], resources)
 
 
-def test_three_block_tower():
-    p = three_block_tower()
-    assert p.goal_test() is False
-    solution = [expr("MoveToTable(C, A)"),
-                expr("Move(B, Table, C)"),
-                expr("Move(A, Table, B)")]
-
-    for action in solution:
-        p.act(action)
-
-    assert p.goal_test()
-
