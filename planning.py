@@ -138,7 +138,7 @@ class Action:
 def air_cargo():
     """Air cargo problem"""
 
-    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)', 
+    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)',
                 goals='At(C1, JFK) & At(C2, SFO)', 
                 actions=[Action('Load(c, p, a)', 
                                 precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)', 
@@ -812,21 +812,6 @@ def job_shop_problem():
     with resource and ordering constraints.
 
     Example:
-    >>> from planning import *
-    >>> p = job_shop_problem()
-    >>> p.goal_test()
-    False
-    >>> p.act(p.jobs[1][0])
-    >>> p.act(p.jobs[1][1])
-    >>> p.act(p.jobs[1][2])
-    >>> p.act(p.jobs[0][0])
-    >>> p.act(p.jobs[0][1])
-    >>> p.goal_test()
-    False
-    >>> p.act(p.jobs[0][2])
-    >>> p.goal_test()
-    True
-    >>>
     """
     init = [expr('Car(C1)'),
             expr('Car(C2)'),
