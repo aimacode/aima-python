@@ -1,20 +1,20 @@
 from planning import *
 from utils import expr
-from logic import FolKB
+from logic import FolKB, conjuncts
 
 
 def test_action():
-    precond = [[expr("P(x)"), expr("Q(y, z)")], [expr("Q(x)")]]
-    effect = [[expr("Q(x)")], [expr("P(x)")]]
-    a=Action(expr("A(x,y,z)"), precond, effect)
-    args = [expr("A"), expr("B"), expr("C")]
-    assert a.substitute(expr("P(x, z, y)"), args) == expr("P(A, C, B)")
-    test_kb = FolKB([expr("P(A)"), expr("Q(B, C)"), expr("R(D)")])
+    precond = 'At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)'
+    effect = 'In(c, p) & ~At(c, a)'
+    a = Action('Load(c, p, a)', precond, effect)
+    args = [expr("C1"), expr("P1"), expr("SFO")]
+    assert a.substitute(expr("Load(c, p, a)"), args) == expr("Load(C1, P1, SFO)")
+    test_kb = FolKB(conjuncts(expr('At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)')))
     assert a.check_precond(test_kb, args)
     a.act(test_kb, args)
-    assert test_kb.ask(expr("P(A)")) is False
-    assert test_kb.ask(expr("Q(A)")) is not False
-    assert test_kb.ask(expr("Q(B, C)")) is not False
+    assert test_kb.ask(expr("In(C1, P2)")) is False
+    assert test_kb.ask(expr("In(C1, P1)")) is not False
+    assert test_kb.ask(expr("Plane(P2)")) is not False
     assert not a.check_precond(test_kb, args)
 
 
@@ -62,18 +62,19 @@ def test_spare_tire():
 
     assert p.goal_test()
 
-def test_double_tennis():
-    p = double_tennis_problem()
+
+def test_spare_tire_2():
+    p = spare_tire()
     assert p.goal_test() is False
+    solution_2 = [expr('Remove(Spare, Trunk)'),
+                  expr('Remove(Flat, Axle)'),
+                  expr('PutOn(Spare, Axle)')]
 
-    solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
-                expr("Hit(A, Ball, RightBaseLine)"),
-                expr("Go(A, LeftNet, RightBaseLine)")]
-
-    for action in solution:
+    for action in solution_2:
         p.act(action)
 
     assert p.goal_test()
+
     
 def test_three_block_tower():
     p = three_block_tower()
@@ -100,10 +101,24 @@ def test_have_cake_and_eat_cake_too():
     assert p.goal_test()
 
 
+def test_shopping_problem():
+    p = shopping_problem()
+    assert p.goal_test() is False
+    solution = [expr('Go(Home, SM)'), 
+                expr('Buy(Banana, SM)'), 
+                expr('Buy(Milk, SM)'), 
+                expr('Go(SM, HW)'), 
+                expr('Buy(Drill, HW)')]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()
+
+
 def test_graph_call():
     pddl = spare_tire()
-    negkb = FolKB([expr('At(Flat, Trunk)')])
-    graph = Graph(pddl, negkb)
+    graph = Graph(pddl)
 
     levels_size = len(graph.levels)
     graph()
@@ -111,49 +126,100 @@ def test_graph_call():
     assert levels_size == len(graph.levels) - 1
 
 
-def test_job_shop_problem():
-    p = job_shop_problem()
-    assert p.goal_test() is False
+def test_graphplan():
+    spare_tire_solution = spare_tire_graphplan()
+    spare_tire_solution = linearize(spare_tire_solution)
+    assert expr('Remove(Flat, Axle)') in spare_tire_solution
+    assert expr('Remove(Spare, Trunk)') in spare_tire_solution
+    assert expr('PutOn(Spare, Axle)') in spare_tire_solution
 
-    solution = [p.jobs[1][0],
-                p.jobs[0][0],
-                p.jobs[0][1],
-                p.jobs[0][2],
-                p.jobs[1][1],
-                p.jobs[1][2]]
+    cake_solution = have_cake_and_eat_cake_too_graphplan()
+    cake_solution = linearize(cake_solution)
+    assert expr('Eat(Cake)') in cake_solution
+    assert expr('Bake(Cake)') in cake_solution
 
-    for action in solution:
-        p.act(action)
+    air_cargo_solution = air_cargo_graphplan()
+    air_cargo_solution = linearize(air_cargo_solution)
+    assert expr('Load(C1, P1, SFO)') in air_cargo_solution
+    assert expr('Load(C2, P2, JFK)') in air_cargo_solution
+    assert expr('Fly(P1, SFO, JFK)') in air_cargo_solution
+    assert expr('Fly(P2, JFK, SFO)') in air_cargo_solution
+    assert expr('Unload(C1, P1, JFK)') in air_cargo_solution
+    assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
 
-    assert p.goal_test()
+    sussman_anomaly_solution = three_block_tower_graphplan()
+    sussman_anomaly_solution = linearize(sussman_anomaly_solution)
+    assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
+    assert expr('Move(B, Table, C)') in sussman_anomaly_solution
+    assert expr('Move(A, Table, B)') in sussman_anomaly_solution
 
-def test_refinements() :
-    init = [expr('At(Home)')]
-    def goal_test(kb):
-        return kb.ask(expr('At(SFO)'))
+    shopping_problem_solution = shopping_graphplan()
+    shopping_problem_solution = linearize(shopping_problem_solution)
+    assert expr('Go(Home, HW)') in shopping_problem_solution
+    assert expr('Go(Home, SM)') in shopping_problem_solution
+    assert expr('Buy(Drill, HW)') in shopping_problem_solution
+    assert expr('Buy(Banana, SM)') in shopping_problem_solution
+    assert expr('Buy(Milk, SM)') in shopping_problem_solution
+
+
+# def test_double_tennis():
+#     p = double_tennis_problem()
+#     assert p.goal_test() is False
+
+#     solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
+#                 expr("Hit(A, Ball, RightBaseLine)"),
+#                 expr("Go(A, LeftNet, RightBaseLine)")]
+
+#     for action in solution:
+#         p.act(action)
+
+#     assert p.goal_test()
+
+
+# def test_job_shop_problem():
+#     p = job_shop_problem()
+#     assert p.goal_test() is False
+
+#     solution = [p.jobs[1][0],
+#                 p.jobs[0][0],
+#                 p.jobs[0][1],
+#                 p.jobs[0][2],
+#                 p.jobs[1][1],
+#                 p.jobs[1][2]]
+
+#     for action in solution:
+#         p.act(action)
+
+#     assert p.goal_test()
+
+
+# def test_refinements():
+#     init = [expr('At(Home)')]
+#     def goal_test(kb):
+#         return kb.ask(expr('At(SFO)'))
         
-    library = {"HLA": ["Go(Home,SFO)","Taxi(Home, SFO)"],
-    "steps": [["Taxi(Home, SFO)"],[]],
-    "precond_pos": [["At(Home)"],["At(Home)"]],
-    "precond_neg": [[],[]],
-    "effect_pos": [["At(SFO)"],["At(SFO)"]],
-    "effect_neg": [["At(Home)"],["At(Home)"],]}
-    # Go SFO
-    precond_pos = [expr("At(Home)")]
-    precond_neg = []
-    effect_add = [expr("At(SFO)")]
-    effect_rem = [expr("At(Home)")]
-    go_SFO = HLA(expr("Go(Home,SFO)"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem])
-    # Taxi SFO
-    precond_pos = [expr("At(Home)")]
-    precond_neg = []
-    effect_add = [expr("At(SFO)")]
-    effect_rem = [expr("At(Home)")]
-    taxi_SFO = HLA(expr("Go(Home,SFO)"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem])
-    prob = Problem(init, [go_SFO, taxi_SFO], goal_test)
-    result = [i for i in Problem.refinements(go_SFO, prob, library)]
-    assert(len(result) == 1)
-    assert(result[0].name == "Taxi")
-    assert(result[0].args == (expr("Home"), expr("SFO")))
+#     library = {"HLA": ["Go(Home,SFO)","Taxi(Home, SFO)"],
+#     "steps": [["Taxi(Home, SFO)"],[]],
+#     "precond_pos": [["At(Home)"],["At(Home)"]],
+#     "precond_neg": [[],[]],
+#     "effect_pos": [["At(SFO)"],["At(SFO)"]],
+#     "effect_neg": [["At(Home)"],["At(Home)"],]}
+#     # Go SFO
+#     precond_pos = [expr("At(Home)")]
+#     precond_neg = []
+#     effect_add = [expr("At(SFO)")]
+#     effect_rem = [expr("At(Home)")]
+#     go_SFO = HLA(expr("Go(Home,SFO)"),
+#                       [precond_pos, precond_neg], [effect_add, effect_rem])
+#     # Taxi SFO
+#     precond_pos = [expr("At(Home)")]
+#     precond_neg = []
+#     effect_add = [expr("At(SFO)")]
+#     effect_rem = [expr("At(Home)")]
+#     taxi_SFO = HLA(expr("Go(Home,SFO)"),
+#                       [precond_pos, precond_neg], [effect_add, effect_rem])
+#     prob = Problem(init, [go_SFO, taxi_SFO], goal_test)
+#     result = [i for i in Problem.refinements(go_SFO, prob, library)]
+#     assert(len(result) == 1)
+#     assert(result[0].name == "Taxi")
+#     assert(result[0].args == (expr("Home"), expr("SFO")))
