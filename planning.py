@@ -4,7 +4,7 @@
 import itertools
 from search import Node
 from utils import Expr, expr, first
-from logic import FolKB
+from logic import FolKB, conjuncts
 from collections import deque
 
 
@@ -15,13 +15,22 @@ class PDDL:
     The conjunction of these logical statements completely defines a state.
     """
 
-    def __init__(self, initial_state, actions, goal_test):
-        self.kb = FolKB(initial_state)
+    def __init__(self, init, goals, actions):
+        self.init = self.convert(init)
+        self.goals = expr(goals)
         self.actions = actions
-        self.goal_test_func = goal_test
+
+    def convert(self, init):
+        """Converts strings into exprs"""
+        try:
+            init = conjuncts(expr(init))
+        except AttributeError:
+            init = expr(init)
+        return init
 
     def goal_test(self):
-        return self.goal_test_func(self.kb)
+        """Checks if the goals have been reached"""
+        return all(goal in self.init for goal in conjuncts(self.goals))
 
     def act(self, action):
         """
@@ -33,71 +42,12 @@ class PDDL:
         list_action = first(a for a in self.actions if a.name == action_name)
         if list_action is None:
             raise Exception("Action '{}' not found".format(action_name))
-        if not list_action.check_precond(self.kb, args):
+        if not list_action.check_precond(self.init, args):
             raise Exception("Action '{}' pre-conditions not satisfied".format(action))
-        list_action(self.kb, args)
+        self.init = list_action(self.init, args).clauses
 
 
 class Action:
-    """
-    Defines an action schema using preconditions and effects.
-    Use this to describe actions in PDDL.
-    action is an Expr where variables are given as arguments(args).
-    Precondition and effect are both lists with positive and negated literals.
-    Example:
-    precond_pos = [expr("Human(person)"), expr("Hungry(Person)")]
-    precond_neg = [expr("Eaten(food)")]
-    effect_add = [expr("Eaten(food)")]
-    effect_rem = [expr("Hungry(person)")]
-    eat = Action(expr("Eat(person, food)"), [precond_pos, precond_neg], [effect_add, effect_rem])
-    """
-
-    def __init__(self, action, precond, effect):
-        self.name = action.op
-        self.args = action.args
-        self.precond_pos = precond[0]
-        self.precond_neg = precond[1]
-        self.effect_add = effect[0]
-        self.effect_rem = effect[1]
-
-    def __call__(self, kb, args):
-        return self.act(kb, args)
-
-    def substitute(self, e, args):
-        """Replaces variables in expression with their respective Propositional symbol"""
-        new_args = list(e.args)
-        for num, x in enumerate(e.args):
-            for i, _ in enumerate(self.args):
-                if self.args[i] == x:
-                    new_args[num] = args[i]
-        return Expr(e.op, *new_args)
-
-    def check_precond(self, kb, args):
-        """Checks if the precondition is satisfied in the current state"""
-        # check for positive clauses
-        for clause in self.precond_pos:
-            if self.substitute(clause, args) not in kb.clauses:
-                return False
-        # check for negative clauses
-        for clause in self.precond_neg:
-            if self.substitute(clause, args) in kb.clauses:
-                return False
-        return True
-
-    def act(self, kb, args):
-        """Executes the action on the state's kb"""
-        # check if the preconditions are satisfied
-        if not self.check_precond(kb, args):
-            raise Exception("Action pre-conditions not satisfied")
-        # remove negative literals
-        for clause in self.effect_rem:
-            kb.retract(self.substitute(clause, args))
-        # add positive literals
-        for clause in self.effect_add:
-            kb.tell(self.substitute(clause, args))
-
-
-class UnaryAction:
     """
     Defines an action schema using preconditions and effects.
     Use this to describe actions in PDDL.
@@ -107,17 +57,38 @@ class UnaryAction:
     Example:
     precond = [expr("Human(person)"), expr("Hungry(Person)"), expr("NotEaten(food)")]
     effect = [expr("Eaten(food)"), expr("Hungry(person)")]
-    eat = UnaryAction(expr("Eat(person, food)"), precond, effect)
+    eat = Action(expr("Eat(person, food)"), precond, effect)
     """
 
     def __init__(self, action, precond, effect):
+        action = expr(action)
         self.name = action.op
         self.args = action.args
-        self.precond = precond
-        self.effect = effect
+        self.precond, self.effect = self.convert(precond, effect)
 
     def __call__(self, kb, args):
         return self.act(kb, args)
+
+    def convert(self, precond, effect):
+        """Converts strings into Exprs"""
+
+        precond = precond.replace('~', 'Not')
+        if len(precond) > 0:
+            precond = expr(precond)
+        effect = effect.replace('~', 'Not')
+        if len(effect) > 0:
+            effect = expr(effect)
+
+        try:
+            precond = conjuncts(precond)
+        except AttributeError:
+            pass
+        try:
+            effect = conjuncts(effect)
+        except AttributeError:
+            pass
+
+        return precond, effect
 
     def substitute(self, e, args):
         """Replaces variables in expression with their respective Propositional symbol"""
@@ -132,6 +103,9 @@ class UnaryAction:
     def check_precond(self, kb, args):
         """Checks if the precondition is satisfied in the current state"""
 
+        if isinstance(kb, list):
+            kb = FolKB(kb)
+
         for clause in self.precond:
             if self.substitute(clause, args) not in kb.clauses:
                 return False
@@ -140,8 +114,11 @@ class UnaryAction:
     def act(self, kb, args):
         """Executes the action on the state's knowledge base"""
 
+        if isinstance(kb, list):
+            kb = FolKB(kb)
+
         if not self.check_precond(kb, args):
-            raise Exception('UnaryAction pre-conditions not satisfied')
+            raise Exception('Action pre-conditions not satisfied')
         for clause in self.effect:
             kb.tell(self.substitute(clause, args))
             if clause.op[:3] == 'Not':
@@ -155,150 +132,79 @@ class UnaryAction:
                 if kb.ask(self.substitute(new_clause, args)) is not False:    
                     kb.retract(self.substitute(new_clause, args))
 
+        return kb
+
 
 def air_cargo():
     """Air cargo problem"""
 
-    init = [expr('At(C1, SFO)'),
-            expr('At(C2, JFK)'),
-            expr('At(P1, SFO)'),
-            expr('At(P2, JFK)'),
-            expr('Cargo(C1)'),
-            expr('Cargo(C2)'),
-            expr('Plane(P1)'),
-            expr('Plane(P2)'),
-            expr('Airport(SFO)'),
-            expr('Airport(JFK)')]
-
-    def goal_test(kb):
-        required = [expr('At(C1, JFK)'), expr('At(C2, SFO)')]
-        return all(kb.ask(q) is not False for q in required)
-
-    # Actions
-    # Load
-    precond = [expr('At(c, a)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
-    effect = [expr('In(c, p)'), expr('NotAt(c, a)')]
-    load = UnaryAction(expr('Load(c, p, a)'), precond, effect)
-
-    # Unload
-    precond = [expr('In(c, p)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
-    effect = [expr('At(c, a)'), expr('NotIn(c, p)')]
-    unload = UnaryAction(expr('Unload(c, p, a)'), precond, effect)
-
-    # Fly
-    precond = [expr('At(p, f)'), expr('Plane(p)'), expr('Airport(f)'), expr('Airport(to)')]
-    effect = [expr('At(p, to)'), expr('NotAt(p, f)')]
-    fly = UnaryAction(expr('Fly(p, f, to)'), precond, effect)
-
-    return PDDL(init, [load, unload, fly], goal_test)
+    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)', 
+                goals='At(C1, JFK) & At(C2, SFO)', 
+                actions=[Action('Load(c, p, a)', 
+                                precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)', 
+                                effect='In(c, p) & ~At(c, a)'),
+                         Action('Unload(c, p, a)',
+                                precond='In(c, p) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
+                                effect='At(c, a) & ~In(c, p)'),
+                         Action('Fly(p, f, to)',
+                                precond='At(p, f) & Plane(p) & Airport(f) & Airport(to)',
+                                effect='At(p, to) & ~At(p, f)')])
 
 
 def spare_tire():
     """Spare tire problem"""
 
-    init = [expr('Tire(Flat)'),
-            expr('Tire(Spare)'),
-            expr('At(Flat, Axle)'),
-            expr('At(Spare, Trunk)')]
-
-    def goal_test(kb):
-        required = [expr('At(Spare, Axle)'), expr('At(Flat, Ground)')]
-        return all(kb.ask(q) is not False for q in required)
-
-    # Actions
-    # Remove
-    precond = [expr('At(obj, loc)')]
-    effect = [expr('At(obj, Ground)'), expr('NotAt(obj, loc)')]
-    remove = UnaryAction(expr('Remove(obj, loc)'), precond, effect)
-
-    # PutOn
-    precond = [expr('Tire(t)'), expr('At(t, Ground)'), expr('NotAt(Flat, Axle)')]
-    effect = [expr('At(t, Axle)'), expr('NotAt(t, Ground)')]
-    put_on = UnaryAction(expr('PutOn(t, Axle)'), precond, effect)
-
-    # LeaveOvernight
-    precond = []
-    effect = [expr('NotAt(Spare, Ground)'), expr('NotAt(Spare, Axle)'), expr('NotAt(Spare, Trunk)'), expr('NotAt(Flat, Ground)'), expr('NotAt(Flat, Axle)'), expr('NotAt(Flat, Trunk)')]
-    leave_overnight = UnaryAction(expr('LeaveOvernight'), precond, effect)
-
-    return PDDL(init, [remove, put_on, leave_overnight], goal_test)
+    return PDDL(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
+                goals='At(Spare, Axle) & At(Flat, Ground)',
+                actions=[Action('Remove(obj, loc)',
+                                precond='At(obj, loc)',
+                                effect='At(obj, Ground) & ~At(obj, loc)'),
+                         Action('PutOn(t, Axle)',
+                                precond='Tire(t) & At(t, Ground) & ~At(Flat, Axle)',
+                                effect='At(t, Axle) & ~At(t, Ground)'),
+                         Action('LeaveOvernight',
+                                precond='',
+                                effect='~At(Spare, Ground) & ~At(Spare, Axle) & ~At(Spare, Trunk) & \
+                                        ~At(Flat, Ground) & ~At(Flat, Axle) & ~At(Flat, Trunk)')])
 
 
 def three_block_tower():
     """Sussman Anomaly problem"""
 
-    init = [expr('On(A, Table)'),
-            expr('On(B, Table)'),
-            expr('On(C, A)'),
-            expr('Block(A)'),
-            expr('Block(B)'),
-            expr('Block(C)'),
-            expr('Clear(B)'),
-            expr('Clear(C)')]
-
-    def goal_test(kb):
-        required = [expr('On(A, B)'), expr('On(B, C)')]
-        return all(kb.ask(q) is not False for q in required)
-
-    # Actions
-    # Move
-    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)'), expr('Block(y)')]
-    effect = [expr('On(b, y)'), expr('Clear(x)'), expr('NotOn(b, x)'), expr('NotClear(y)')]
-    move = UnaryAction(expr('Move(b, x, y)'), precond, effect)
-
-    # MoveToTable
-    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
-    effect = [expr('On(b, Table)'), expr('Clear(x)'), expr('NotOn(b, x)')]
-    move_to_table = UnaryAction(expr('MoveToTable(b, x)'), precond, effect)
-
-    return PDDL(init, [move, move_to_table], goal_test)
+    return PDDL(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
+                goals='On(A, B) & On(B, C)',
+                actions=[Action('Move(b, x, y)',
+                                precond='On(b, x) & Clear(b) & Clear(y) & Block(b) & Block(y)',
+                                effect='On(b, y) & Clear(x) & ~On(b, x) & ~Clear(y)'),
+                         Action('MoveToTable(b, x)',
+                                precond='On(b, x) & Clear(b) & Block(b)',
+                                effect='On(b, Table) & Clear(x) & ~On(b, x)')])
 
 
 def have_cake_and_eat_cake_too():
     """Cake problem"""
 
-    init = [expr('Have(Cake)')]
-
-    def goal_test(kb):
-        required = [expr('Have(Cake)'), expr('Eaten(Cake)')]
-        return all(kb.ask(q) is not False for q in required)
-
-    # Actions
-    # Eat cake
-    precond = [expr('Have(Cake)')]
-    effect = [expr('Eaten(Cake)'), expr('NotHave(Cake)')]
-    eat_cake = UnaryAction(expr('Eat(Cake)'), precond, effect)
-
-    # Bake cake
-    precond = [expr('NotHave(Cake)')]
-    effect = [expr('Have(Cake)')]
-    bake_cake = UnaryAction(expr('Bake(Cake)'), precond, effect)
-
-    return PDDL(init, [eat_cake, bake_cake], goal_test)
+    return PDDL(init='Have(Cake)',
+                goals='Have(Cake) & Eaten(Cake)',
+                actions=[Action('Eat(Cake)',
+                                precond='Have(Cake)',
+                                effect='Eaten(Cake) & ~Have(Cake)'),
+                         Action('Bake(Cake)',
+                                precond='~Have(Cake)',
+                                effect='Have(Cake)')])
 
 
 def shopping_problem():
-    init = [expr('At(Home)'), 
-            expr('Sells(SM, Milk)'),
-            expr('Sells(SM, Banana)'),
-            expr('Sells(HW, Drill)')]
+    """Shopping problem"""
 
-    def goal_test(kb):
-        required = [expr('Have(Milk)'), expr('Have(Banana)'), expr('Have(Drill)')]
-        return all(kb.ask(q) is not False for q in required)
-
-    # Actions
-    # Buy
-    precond = [expr('At(store)'), expr('Sells(store, x)')]
-    effect = [expr('Have(x)')]
-    buy = UnaryAction(expr('Buy(x, store)'), precond, effect)
-
-    # Go
-    precond = [expr('At(x)')]
-    effect = [expr('At(y)'), expr('NotAt(x)')]
-    go = UnaryAction(expr('Go(x, y)'), precond, effect)
-
-    return PDDL(init, [buy, go], goal_test)
+    return PDDL(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
+                goals='Have(Milk) & Have(Banana) & Have(Drill)', 
+                actions=[Action('Buy(x, store)',
+                                precond='At(store) & Sells(store, x)',
+                                effect='Have(x)'),
+                         Action('Go(x, y)',
+                                precond='At(x)',
+                                effect='At(y) & ~At(x)')])
 
 
 class Level:
@@ -440,8 +346,9 @@ class Graph:
 
     def __init__(self, pddl):
         self.pddl = pddl
-        self.levels = [Level(pddl.kb)]
-        self.objects = set(arg for clause in pddl.kb.clauses for arg in clause.args)
+        self.kb = FolKB(pddl.init)
+        self.levels = [Level(self.kb)]
+        self.objects = set(arg for clause in self.kb.clauses for arg in clause.args)
 
     def __call__(self):
         self.expand_graph()
@@ -553,7 +460,7 @@ def spare_tire_graphplan():
     def goal_test(kb, goals):
         return all(kb.ask(q) is not False for q in goals)
 
-    goals = [expr('At(Spare, Axle)'), expr('At(Flat, Ground)')]
+    goals = expr('At(Spare, Axle), At(Flat, Ground)')
 
     while True:
         graphplan.graph.expand_graph()
@@ -575,7 +482,7 @@ def have_cake_and_eat_cake_too_graphplan():
     def goal_test(kb, goals):
         return all(kb.ask(q) is not False for q in goals)
 
-    goals = [expr('Have(Cake)'), expr('Eaten(Cake)')]
+    goals = expr('Have(Cake), Eaten(Cake)')
 
     while True:
         graphplan.graph.expand_graph()
@@ -597,7 +504,7 @@ def three_block_tower_graphplan():
     def goal_test(kb, goals):
         return all(kb.ask(q) is not False for q in goals)
 
-    goals = [expr('On(A, B)'), expr('On(B, C)')]
+    goals = expr('On(A, B), On(B, C)')
 
     while True:
         if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
@@ -619,7 +526,7 @@ def air_cargo_graphplan():
     def goal_test(kb, goals):
         return all(kb.ask(q) is not False for q in goals)
 
-    goals = [expr('At(C1, JFK)'), expr('At(C2, SFO)')]
+    goals = expr('At(C1, JFK), At(C2, SFO)')
 
     while True:
         if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
@@ -639,7 +546,7 @@ def shopping_graphplan():
     def goal_test(kb, goals):
         return all(kb.ask(q) is not False for q in goals)
 
-    goals = [expr('Have(Milk)'), expr('Have(Banana)'), expr('Have(Drill)')]
+    goals = expr('Have(Milk), Have(Banana), Have(Drill)')
 
     while True:
         if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
@@ -652,7 +559,7 @@ def shopping_graphplan():
             return None
 
 
-def refine_solution(solution):
+def linearize(solution):
     """Converts a level-ordered solution into a linear solution"""
 
     linear_solution = []

@@ -142,18 +142,18 @@ def test_graph_call():
 
 def test_graphplan():
     spare_tire_solution = spare_tire_graphplan()
-    spare_tire_solution = refine_solution(spare_tire_solution)
+    spare_tire_solution = linearize(spare_tire_solution)
     assert expr('Remove(Flat, Axle)') in spare_tire_solution
     assert expr('Remove(Spare, Trunk)') in spare_tire_solution
     assert expr('PutOn(Spare, Axle)') in spare_tire_solution
 
     cake_solution = have_cake_and_eat_cake_too_graphplan()
-    cake_solution = refine_solution(cake_solution)
+    cake_solution = linearize(cake_solution)
     assert expr('Eat(Cake)') in cake_solution
     assert expr('Bake(Cake)') in cake_solution
 
     air_cargo_solution = air_cargo_graphplan()
-    air_cargo_solution = refine_solution(air_cargo_solution)
+    air_cargo_solution = linearize(air_cargo_solution)
     assert expr('Load(C1, P1, SFO)') in air_cargo_solution
     assert expr('Load(C2, P2, JFK)') in air_cargo_solution
     assert expr('Fly(P1, SFO, JFK)') in air_cargo_solution
@@ -162,13 +162,13 @@ def test_graphplan():
     assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
 
     sussman_anomaly_solution = three_block_tower_graphplan()
-    sussman_anomaly_solution = refine_solution(sussman_anomaly_solution)
+    sussman_anomaly_solution = linearize(sussman_anomaly_solution)
     assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
     assert expr('Move(B, Table, C)') in sussman_anomaly_solution
     assert expr('Move(A, Table, B)') in sussman_anomaly_solution
 
     shopping_problem_solution = shopping_graphplan()
-    shopping_problem_solution = refine_solution(shopping_problem_solution)
+    shopping_problem_solution = linearize(shopping_problem_solution)
     assert expr('Go(Home, HW)') in shopping_problem_solution
     assert expr('Go(Home, SM)') in shopping_problem_solution
     assert expr('Buy(Drill, HW)') in shopping_problem_solution
@@ -193,7 +193,7 @@ def test_job_shop_problem():
     assert p.goal_test()
 
 
-def test_refinements() :
+def test_refinements():
     init = [expr('At(Home)')]
     def goal_test(kb):
         return kb.ask(expr('At(SFO)'))
