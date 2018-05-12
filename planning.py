@@ -1,5 +1,6 @@
 """Planning (Chapters 10-11)
 """
+import sys
 import os
 from logic import fol_bc_and
 from utils import expr, Expr, partition
@@ -117,7 +118,13 @@ class PlanningAction:
         self.args = expression.args
         self.subst = None
         self.preconds = preconds
+        precond_neg, precond_pos = partition(preconds, is_negative_clause)
+        self.precond_pos = set(precond_pos)
+        self.precond_neg = set(e.args[0] for e in precond_neg)  # change the negative Exprs to positive
         self.effects = effects
+        effect_rem, effect_add = partition(effects, is_negative_clause)
+        self.effect_add = set(effect_add)
+        self.effect_rem = set(e.args[0] for e in effect_rem)  # change the negative Exprs to positive
 
     def __repr__(self):
         return '{}({}, {}, {})'.format(self.__class__.__name__, Expr(self.name, *self.args),
@@ -130,7 +137,11 @@ class PlanningAction:
         act.args = self.args[:]
         act.subst = self.subst
         act.preconds = self.preconds.copy()
+        act.precond_pos = self.precond_pos.copy()
+        act.precond_neg = self.precond_neg.copy()
         act.effects = self.effects.copy()
+        act.effect_add = self.effect_add.copy()
+        act.effect_rem = self.effect_rem.copy()
         return act
 
     def substitute(self, subst, e):
@@ -161,17 +172,15 @@ class PlanningAction:
 
     def check_precond(self, kb):
         """Checks if preconditions are satisfied in the current state"""
-        precond_neg, precond_pos = partition(self.preconds, is_negative_clause)
-        precond_neg = set(e.args[0] for e in precond_neg)  # change the negative Exprs to positive
-        yield from self.check_neg_precond(kb, precond_neg, self.check_pos_precond(kb, precond_pos, {}))
+        yield from self.check_neg_precond(kb, self.precond_neg, self.check_pos_precond(kb, self.precond_pos, {}))
 
     def act(self, subst, kb):
         """ Executes the action on a new copy of the PlanningKB """
         new_kb = PlanningKB(kb.goal_clauses, kb.clause_set)
-        neg_effects, pos_effects = partition(self.effects, is_negative_clause)
-        neg_effects = set(self.substitute(subst, e.args[0]) for e in neg_effects)
-        pos_effects = set(self.substitute(subst, e) for e in pos_effects)
-        new_kb.clause_set = frozenset(kb.clause_set - neg_effects | pos_effects)
+        clause_set = set(new_kb.clause_set)
+        neg_literals = set(self.substitute(subst, clause) for clause in self.effect_rem)
+        pos_literals = set(self.substitute(subst, clause) for clause in self.effect_add)
+        new_kb.clause_set = frozenset(clause_set - neg_literals | pos_literals)
         return new_kb
 
 
@@ -201,7 +210,7 @@ def construct_solution_from_pddl(pddl_domain, pddl_problem) -> None:
 
 
 def gather_test_pairs() -> list:
-    pddl_direntries = os.scandir(os.getcwd() + os.sep + 'pddl_files')
+    pddl_direntries = [de for de in os.scandir(os.getcwd() + os.sep + 'pddl_files') if de.name.endswith('.pddl')]
     domain_objects = []
     problem_objects = []
     for de in pddl_direntries:
@@ -209,20 +218,62 @@ def gather_test_pairs() -> list:
             domain_parser = DomainParser()
             domain_parser.read(de.path)
             domain_objects.append(domain_parser)
-        except ParseError:
+        except ParseError as pe1:
             try:
                 problem_parser = ProblemParser()
                 problem_parser.read(de.path)
                 problem_objects.append(problem_parser)
-            except ParseError:
-                raise ParseError('Unparseable PDDL file: {}'.format(de.name))
+            except ParseError as pe2:
+                exc_text = "Unable to recognize format of {}\n".format(de.name)
+                exc_text += pe1.args[0] + '\n'
+                exc_text += pe2.args[0] + '\n'
+                raise ParseError(exc_text)
 
     object_pairs = []
     for p in problem_objects:
         for d in domain_objects:
             if p.domain_name == d.domain_name:
                 object_pairs.append((d, p))
-    return object_pairs
+    if object_pairs:
+        return object_pairs
+    else:
+        raise ParseError('No matching PDDL domain and problem files found.')
+
+
+def air_cargo():
+    goals = [expr('At(C1, JFK)'), expr('At(C2, SFO)')]
+
+    init = PlanningKB(goals,
+                      [expr('At(C1, SFO)'),
+                       expr('At(C2, JFK)'),
+                       expr('At(P1, SFO)'),
+                       expr('At(P2, JFK)'),
+                       expr('Cargo(C1)'),
+                       expr('Cargo(C2)'),
+                       expr('Plane(P1)'),
+                       expr('Plane(P2)'),
+                       expr('Airport(JFK)'),
+                       expr('Airport(SFO)')])
+
+    # Actions
+    #  Load
+    precond = [expr('At(c, a)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
+    effect = [expr('In(c, p)'), expr('~At(c, a)')]
+    load = PlanningAction(expr('Load(c, p, a)'), precond, effect)
+
+    #  Unload
+    precond = [expr('In(c, p)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
+    effect = [expr('At(c, a)'), expr('~In(c, p)')]
+    unload = PlanningAction(expr('Unload(c, p, a)'), precond, effect)
+
+    #  Fly
+    #  Used used 'f' instead of 'from' because 'from' is a python keyword and expr uses eval() function
+    precond = [expr('At(p, f)'), expr('Plane(p)'), expr('Airport(f)'), expr('Airport(to)')]
+    effect = [expr('At(p, to)'), expr('~At(p, f)')]
+    fly = PlanningAction(expr('Fly(p, f, to)'), precond, effect)
+
+    p = PlanningProblem(init, [load, unload, fly])
+    print_solution(astar_search(p))
 
 
 def spare_tire():
@@ -317,4 +368,7 @@ def test_solutions():
 
 
 if __name__ == '__main__':
-    test_solutions()
+    air_cargo()
+    spare_tire()
+    sussman_anomaly()
+    put_on_shoes()
