@@ -15,3 +15,4 @@
     )
 
     (:goal (and (on A B) (on B C)))
+)
