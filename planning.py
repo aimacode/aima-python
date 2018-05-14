@@ -1,6 +1,5 @@
 """Planning (Chapters 10-11)
 """
-import sys
 import os
 from logic import fol_bc_and
 from utils import expr, Expr, partition
@@ -210,24 +209,19 @@ def construct_solution_from_pddl(pddl_domain, pddl_problem) -> None:
 
 
 def gather_test_pairs() -> list:
-    pddl_direntries = [de for de in os.scandir(os.getcwd() + os.sep + 'pddl_files') if de.name.endswith('.pddl')]
+    domain_entries = [de for de in os.scandir(os.getcwd() + os.sep + 'pddl_files') if de.name.endswith('domain.pddl')]
+    problem_entries = [de for de in os.scandir(os.getcwd() + os.sep + 'pddl_files') if de.name.endswith('problem.pddl')]
     domain_objects = []
     problem_objects = []
-    for de in pddl_direntries:
-        try:
-            domain_parser = DomainParser()
-            domain_parser.read(de.path)
-            domain_objects.append(domain_parser)
-        except ParseError as pe1:
-            try:
-                problem_parser = ProblemParser()
-                problem_parser.read(de.path)
-                problem_objects.append(problem_parser)
-            except ParseError as pe2:
-                exc_text = "Unable to recognize format of {}\n".format(de.name)
-                exc_text += pe1.args[0] + '\n'
-                exc_text += pe2.args[0] + '\n'
-                raise ParseError(exc_text)
+    for de in domain_entries:
+        domain_parser = DomainParser()
+        domain_parser.read(de.path)
+        domain_objects.append(domain_parser)
+
+    for de in problem_entries:
+        problem_parser = ProblemParser()
+        problem_parser.read(de.path)
+        problem_objects.append(problem_parser)
 
     object_pairs = []
     for p in problem_objects:
@@ -240,135 +234,10 @@ def gather_test_pairs() -> list:
         raise ParseError('No matching PDDL domain and problem files found.')
 
 
-def air_cargo():
-    goals = [expr('At(C1, JFK)'), expr('At(C2, SFO)')]
-
-    init = PlanningKB(goals,
-                      [expr('At(C1, SFO)'),
-                       expr('At(C2, JFK)'),
-                       expr('At(P1, SFO)'),
-                       expr('At(P2, JFK)'),
-                       expr('Cargo(C1)'),
-                       expr('Cargo(C2)'),
-                       expr('Plane(P1)'),
-                       expr('Plane(P2)'),
-                       expr('Airport(JFK)'),
-                       expr('Airport(SFO)')])
-
-    # Actions
-    #  Load
-    precond = [expr('At(c, a)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
-    effect = [expr('In(c, p)'), expr('~At(c, a)')]
-    load = PlanningAction(expr('Load(c, p, a)'), precond, effect)
-
-    #  Unload
-    precond = [expr('In(c, p)'), expr('At(p, a)'), expr('Cargo(c)'), expr('Plane(p)'), expr('Airport(a)')]
-    effect = [expr('At(c, a)'), expr('~In(c, p)')]
-    unload = PlanningAction(expr('Unload(c, p, a)'), precond, effect)
-
-    #  Fly
-    #  Used used 'f' instead of 'from' because 'from' is a python keyword and expr uses eval() function
-    precond = [expr('At(p, f)'), expr('Plane(p)'), expr('Airport(f)'), expr('Airport(to)')]
-    effect = [expr('At(p, to)'), expr('~At(p, f)')]
-    fly = PlanningAction(expr('Fly(p, f, to)'), precond, effect)
-
-    p = PlanningProblem(init, [load, unload, fly])
-    print_solution(astar_search(p))
-
-
-def spare_tire():
-    goals = [expr('At(Spare, Axle)')]
-    init = PlanningKB(goals,
-                      [expr('At(Flat, Axle)'),
-                       expr('At(Spare, Trunk)')])
-    # Actions
-    #  Remove(Spare, Trunk)
-    precond = [expr('At(Spare, Trunk)')]
-    effect = [expr('At(Spare, Ground)'), expr('~At(Spare, Trunk)')]
-    remove_spare = PlanningAction(expr('Remove(Spare, Trunk)'), precond, effect)
-    #  Remove(Flat, Axle)
-    precond = [expr('At(Flat, Axle)')]
-    effect = [expr('At(Flat, Ground)'), expr('~At(Flat, Axle)')]
-    remove_flat = PlanningAction(expr('Remove(Flat, Axle)'), precond, effect)
-    #  PutOn(Spare, Axle)
-    precond = [expr('At(Spare, Ground)'), expr('~At(Flat, Axle)')]
-    effect = [expr('At(Spare, Axle)'), expr('~At(Spare, Ground)')]
-    put_on_spare = PlanningAction(expr('PutOn(Spare, Axle)'), precond, effect)
-    #  LeaveOvernight
-    precond = []
-    effect = [expr('~At(Spare, Ground)'), expr('~At(Spare, Axle)'), expr('~At(Spare, Trunk)'),
-              expr('~At(Flat, Ground)'), expr('~At(Flat, Axle)')]
-    leave_overnight = PlanningAction(expr('LeaveOvernight'), precond, effect)
-    p = PlanningProblem(init, [remove_spare, remove_flat, put_on_spare, leave_overnight])
-    print_solution(astar_search(p))
-
-
-def sussman_anomaly():
-    goals = [expr('On(A, B)'), expr('On(B, C)')]
-    init = PlanningKB(goals,
-                      [expr('On(A, Table)'),
-                       expr('On(B, Table)'),
-                       expr('On(C, A)'),
-                       expr('Block(A)'),
-                       expr('Block(B)'),
-                       expr('Block(C)'),
-                       expr('Clear(B)'),
-                       expr('Clear(C)')])
-
-    # Actions
-    #  Move(b, x, y)
-    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Clear(y)'), expr('Block(b)')]
-    effect = [expr('On(b, y)'), expr('Clear(x)'), expr('~On(b, x)'), expr('~Clear(y)')]
-    move = PlanningAction(expr('Move(b, x, y)'), precond, effect)
-
-    #  MoveToTable(b, x)
-    precond = [expr('On(b, x)'), expr('Clear(b)'), expr('Block(b)')]
-    effect = [expr('On(b, Table)'), expr('Clear(x)'), expr('~On(b, x)')]
-    move_to_table = PlanningAction(expr('MoveToTable(b, x)'), precond, effect)
-
-    p = PlanningProblem(init, [move, move_to_table])
-    print_solution(astar_search(p))
-
-
-def put_on_shoes():
-    goals = [expr('On(RightShoe, RF)'), expr('On(LeftShoe, LF)')]
-    init = PlanningKB(goals, [expr('Clear(LF)'),
-                              expr('Clear(RF)'),
-                              expr('LeftFoot(LF)'),
-                              expr('RightFoot(RF)')])
-
-    # Actions
-    #  RightShoe
-    precond = [expr('On(RightSock, x)'), expr('RightFoot(x)'), expr('~On(RightShoe, x)')]
-    effect = [expr('On(RightShoe, x)')]
-    right_shoe = PlanningAction(expr('RightShoeOn'), precond, effect)
-
-    #  RightSock
-    precond = [expr('Clear(x)'), expr('RightFoot(x)')]
-    effect = [expr('On(RightSock, x)'), expr('~Clear(x)')]
-    right_sock = PlanningAction(expr('RightSockOn'), precond, effect)
-
-    #  LeftShoe
-    precond = [expr('On(LeftSock, x)'), expr('LeftFoot(x)'), expr('~On(LeftShoe, x)')]
-    effect = [expr('On(LeftShoe, x)')]
-    left_shoe = PlanningAction(expr('LeftShoeOn'), precond, effect)
-
-    #  LeftSock
-    precond = [expr('Clear(x)'), expr('LeftFoot(x)')]
-    effect = [expr('On(LeftSock, x)'), expr('~Clear(x)')]
-    left_sock = PlanningAction(expr('LeftSockOn'), precond, effect)
-
-    p = PlanningProblem(init, [right_shoe, right_sock, left_shoe, left_sock])
-    print_solution(astar_search(p))
-
-
 def test_solutions():
     for domain, problem in gather_test_pairs():
         construct_solution_from_pddl(domain, problem)
 
 
 if __name__ == '__main__':
-    air_cargo()
-    spare_tire()
-    sussman_anomaly()
-    put_on_shoes()
+    test_solutions()
