@@ -1,38 +1,30 @@
+;; TPP Task 02
+
 (define (problem TPP)
 (:domain TPP-Propositional)
 (:objects
-	Goods1 Goods2 Goods3 Goods4 - goods
-	Truck1 - truck
-	Market1 - market
-	Depot1 - depot
-	Level0 Level1 - level)
+	goods1 goods2 - goods
+	truck1 - truck
+	market1 - market
+	depot1 - depot
+	level0 level1 - level)
 
 (:init
-	(next Level1 Level0)
-	(ready-to-load Goods1 Market1 Level0)
-	(ready-to-load Goods2 Market1 Level0)
-	(ready-to-load Goods3 Market1 Level0)
-	(ready-to-load Goods4 Market1 Level0)
-	(stored Goods1 Level0)
-	(stored Goods2 Level0)
-	(stored Goods3 Level0)
-	(stored Goods4 Level0)
-	(loaded Goods1 Truck1 Level0)
-	(loaded Goods2 Truck1 Level0)
-	(loaded Goods3 Truck1 Level0)
-	(loaded Goods4 Truck1 Level0)
-	(connected Depot1 Market1)
-	(connected Market1 Depot1)
-	(on-sale Goods1 Market1 Level1)
-	(on-sale Goods2 Market1 Level1)
-	(on-sale Goods3 Market1 Level1)
-	(on-sale Goods4 Market1 Level1)
-	(at Truck1 Depot1))
+	(next level1 level0)
+	(ready-to-load goods1 market1 level0)
+	(ready-to-load goods2 market1 level0)
+	(stored goods1 level0)
+	(stored goods2 level0)
+	(loaded goods1 truck1 level0)
+	(loaded goods2 truck1 level0)
+	(connected depot1 market1)
+	(connected market1 depot1)
+	(on-sale goods1 market1 level1)
+	(on-sale goods2 market1 level1)
+	(at truck1 depot1))
 
 (:goal (and
-	(stored Goods1 Level1)
-	(stored Goods2 Level1)
-	(stored Goods3 Level1)
-	(stored Goods4 Level1)))
+	(stored goods1 level1)
+	(stored goods2 level1)))
 
 )
