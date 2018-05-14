@@ -3,58 +3,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (domain BlocksWorld)
-  (:requirements :strips :typing)
-  (:types block)
-  (:predicates (on ?x - block ?y - block)
-	       (ontable ?x - block)
-	       (clear ?x - block)
-	       (handempty)
-	       (holding ?x - block)
-	       )
+  (:requirements :strips)
+  (:predicates (on ?x ?y)
+	       (clear ?x)
+	       (block ?x)
+  )
 
-  (:action pick-up
-	     :parameters (?x - block)
-	     :precondition (and (clear ?x) (ontable ?x) (handempty))
-	     :effect
-	     (and (not (ontable ?x))
-		   (not (clear ?x))
-		   (not (handempty))
-		   (holding ?x)))
+  (:action Move
+	     :parameters (?b ?x ?y)
+	     :precondition (and (on ?b ?x) (clear ?b) (clear ?y) (block ?b))
+	     :effect (and (on ?b ?y) (clear ?x) (not (on ?b ?x)) (not (clear ?y)))
+  )
 
-  (:action put-down
-	     :parameters (?x - block)
-	     :precondition (holding ?x)
-	     :effect
-	     (and (not (holding ?x))
-		   (clear ?x)
-		   (handempty)
-		   (ontable ?x)))
+  (:action Move_To_Table
+         :parameters (?b ?x)
+         :precondition (and (on ?b ?x) (clear ?b) (block ?b))
+         :effect (and (on ?b Table) (clear ?x) (not (on ?b ?x)))
+   )
+)
 
-  (:action stack
-	     :parameters (?x - block ?y - block)
-	     :precondition (and (holding ?x) (clear ?y))
-	     :effect
-	     (and (not (holding ?x))
-		   (not (clear ?y))
-		   (clear ?x)
-		   (handempty)
-		   (on ?x ?y)))
-
-  (:action unstack
-	     :parameters (?x - block ?y - block)
-	     :precondition (and (on ?x ?y) (clear ?x) (handempty))
-	     :effect
-	     (and (holding ?x)
-		   (clear ?y)
-		   (not (clear ?x))
-		   (not (handempty))
-		   (not (on ?x ?y))))
-
-  (:action pick-up
-	     :parameters (?x - block)
-	     :precondition (and (clear ?x) (ontable ?x) (handempty))
-	     :effect
-	     (and (not (ontable ?x))
-		   (not (clear ?x))
-		   (not (handempty))
-		   (holding ?x))))

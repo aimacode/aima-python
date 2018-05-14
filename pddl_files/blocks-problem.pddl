@@ -1,16 +1,17 @@
 (define (problem ThreeBlockTower)
 
-(:domain BlocksWorld)
+   (:domain BlocksWorld)
 
-(:objects D B A C - block)
+   (:init
+        (on A Table)
+        (on B Table)
+	    (on C Table)
+	    (block A)
+	    (block B)
+	    (block C)
+	    (clear A)
+	    (clear B)
+	    (clear C)
+    )
 
-(:INIT 	(CLEAR C) 
-	(CLEAR A) 
-	(CLEAR B)
-	(ONTABLE C) 
-	(ONTABLE A)
-	(ONTABLE B)
-	(HANDEMPTY))
-
-(:goal (AND (ON B C) (ON A B)))
-)
+    (:goal (and (on A B) (on B C)))
