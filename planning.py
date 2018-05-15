@@ -23,7 +23,10 @@ class PDDL:
     def convert(self, clauses):
         """Converts strings into exprs"""
         if not isinstance(clauses, Expr):
-            clauses = expr(clauses)
+            if len(clauses) > 0:
+                clauses = expr(clauses)
+            else:
+                clauses = []
         try:
             clauses = conjuncts(clauses)
         except AttributeError:
@@ -32,7 +35,7 @@ class PDDL:
 
     def goal_test(self):
         """Checks if the goals have been reached"""
-        return all(goal in self.init for goal in conjuncts(self.goals))
+        return all(goal in self.init for goal in self.goals)
 
     def act(self, action):
         """
@@ -141,10 +144,10 @@ class Action:
 def air_cargo():
     """Air cargo problem"""
 
-    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)',
+    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)', 
                 goals='At(C1, JFK) & At(C2, SFO)', 
                 actions=[Action('Load(c, p, a)', 
-                                precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)', 
+                                precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
                                 effect='In(c, p) & ~At(c, a)'),
                          Action('Unload(c, p, a)',
                                 precond='In(c, p) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
@@ -208,6 +211,25 @@ def shopping_problem():
                          Action('Go(x, y)',
                                 precond='At(x)',
                                 effect='At(y) & ~At(x)')])
+
+
+def socks_and_shoes():
+    """Socks and shoes problem"""
+
+    return PDDL(init='',
+                goals='RightShoeOn & LeftShoeOn',
+                actions=[Action('RightShoe',
+                                precond='RightSockOn',
+                                effect='RightShoeOn'),
+                        Action('RightSock',
+                                precond='',
+                                effect='RightSockOn'),
+                        Action('LeftShoe',
+                                precond='LeftSockOn',
+                                effect='LeftShoeOn'),
+                        Action('LeftSock',
+                                precond='',
+                                effect='LeftSockOn')])
 
 
 class Level:
@@ -550,6 +572,26 @@ def shopping_graphplan():
         return all(kb.ask(q) is not False for q in goals)
 
     goals = expr('Have(Milk), Have(Banana), Have(Drill)')
+
+    while True:
+        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
+            solution = graphplan.extract_solution(goals, -1)
+            if solution:
+                return solution
+
+        graphplan.graph.expand_graph()
+        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
+            return None
+
+
+def socks_and_shoes_graphplan():
+    pddl = socks_and_shoes()
+    graphplan = GraphPlan(pddl)
+
+    def goal_test(kb, goals):
+        return all(kb.ask(q) is not False for q in goals)
+
+    goals = expr('RightShoeOn, LeftShoeOn')
 
     while True:
         if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
