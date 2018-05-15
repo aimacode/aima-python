@@ -4,7 +4,7 @@ import os
 from logic import fol_bc_and
 from utils import expr, Expr, partition
 from search import astar_search
-from pddl_parse import DomainParser, ProblemParser, ParseError
+from pddl_parse import DomainParser, ProblemParser
 
 
 class PlanningKB:
@@ -231,7 +231,7 @@ def gather_test_pairs() -> list:
     if object_pairs:
         return object_pairs
     else:
-        raise ParseError('No matching PDDL domain and problem files found.')
+        raise IOError('No matching PDDL domain and problem files found.')
 
 
 def test_solutions():
