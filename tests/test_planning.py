@@ -147,12 +147,6 @@ def test_graphplan():
     assert expr('Unload(C1, P1, JFK)') in air_cargo_solution
     assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
 
-    sussman_anomaly_solution = three_block_tower_graphplan()
-    sussman_anomaly_solution = linearize(sussman_anomaly_solution)
-    assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
-    assert expr('Move(B, Table, C)') in sussman_anomaly_solution
-    assert expr('Move(A, Table, B)') in sussman_anomaly_solution
-
     shopping_problem_solution = shopping_graphplan()
     shopping_problem_solution = linearize(shopping_problem_solution)
     assert expr('Go(Home, HW)') in shopping_problem_solution
@@ -163,7 +157,7 @@ def test_graphplan():
 
 
 # def test_double_tennis():
-#     p = double_tennis_problem()
+#     p = double_tennis_problem
 #     assert p.goal_test() is False
 
 #     solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
@@ -176,50 +170,36 @@ def test_graphplan():
 #     assert p.goal_test()
 
 
-# def test_job_shop_problem():
-#     p = job_shop_problem()
-#     assert p.goal_test() is False
+def test_job_shop_problem():
+    p = job_shop_problem()
+    assert p.goal_test() is False
 
-#     solution = [p.jobs[1][0],
-#                 p.jobs[0][0],
-#                 p.jobs[0][1],
-#                 p.jobs[0][2],
-#                 p.jobs[1][1],
-#                 p.jobs[1][2]]
+    solution = [p.jobs[1][0],
+                p.jobs[0][0],
+                p.jobs[0][1],
+                p.jobs[0][2],
+                p.jobs[1][1],
+                p.jobs[1][2]]
 
-#     for action in solution:
-#         p.act(action)
+    for action in solution:
+        p.act(action)
 
-#     assert p.goal_test()
+    assert p.goal_test()
 
 
-# def test_refinements():
-#     init = [expr('At(Home)')]
-#     def goal_test(kb):
-#         return kb.ask(expr('At(SFO)'))
-        
-#     library = {"HLA": ["Go(Home,SFO)","Taxi(Home, SFO)"],
-#     "steps": [["Taxi(Home, SFO)"],[]],
-#     "precond_pos": [["At(Home)"],["At(Home)"]],
-#     "precond_neg": [[],[]],
-#     "effect_pos": [["At(SFO)"],["At(SFO)"]],
-#     "effect_neg": [["At(Home)"],["At(Home)"],]}
-#     # Go SFO
-#     precond_pos = [expr("At(Home)")]
-#     precond_neg = []
-#     effect_add = [expr("At(SFO)")]
-#     effect_rem = [expr("At(Home)")]
-#     go_SFO = HLA(expr("Go(Home,SFO)"),
-#                       [precond_pos, precond_neg], [effect_add, effect_rem])
-#     # Taxi SFO
-#     precond_pos = [expr("At(Home)")]
-#     precond_neg = []
-#     effect_add = [expr("At(SFO)")]
-#     effect_rem = [expr("At(Home)")]
-#     taxi_SFO = HLA(expr("Go(Home,SFO)"),
-#                       [precond_pos, precond_neg], [effect_add, effect_rem])
-#     prob = Problem(init, [go_SFO, taxi_SFO], goal_test)
-#     result = [i for i in Problem.refinements(go_SFO, prob, library)]
-#     assert(len(result) == 1)
-#     assert(result[0].name == "Taxi")
-#     assert(result[0].args == (expr("Home"), expr("SFO")))
+def test_refinements():
+    
+    library = {'HLA': ['Go(Home,SFO)','Taxi(Home, SFO)'],
+    'steps': [['Taxi(Home, SFO)'],[]],
+    'precond': [['At(Home)'],['At(Home)']],
+    'effect': [['At(SFO)'],['At(SFO)'],['~At(Home)'],['~At(Home)']]}
+
+    go_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
+    taxi_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
+
+    prob = Problem('At(Home)', 'At(SFO)', [go_SFO, taxi_SFO])
+
+    result = [i for i in Problem.refinements(go_SFO, prob, library)]
+    assert(len(result) == 1)
+    assert(result[0].name == 'Taxi')
+    assert(result[0].args == (expr('Home'), expr('SFO')))
