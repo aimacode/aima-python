@@ -147,86 +147,100 @@ class Action:
         return kb
 
 
-# Air cargo problem
-air_cargo = PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)', 
-                 goals='At(C1, JFK) & At(C2, SFO)', 
-                 actions=[Action('Load(c, p, a)', 
-                                 precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
-                                 effect='In(c, p) & ~At(c, a)'),
-                          Action('Unload(c, p, a)',
-                                 precond='In(c, p) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
-                                 effect='At(c, a) & ~In(c, p)'),
-                          Action('Fly(p, f, to)',
-                                 precond='At(p, f) & Plane(p) & Airport(f) & Airport(to)',
-                                 effect='At(p, to) & ~At(p, f)')])
+def air_cargo():
+    """Air cargo problem"""
+
+    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)', 
+                goals='At(C1, JFK) & At(C2, SFO)', 
+                actions=[Action('Load(c, p, a)', 
+                                precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
+                                effect='In(c, p) & ~At(c, a)'),
+                         Action('Unload(c, p, a)',
+                                precond='In(c, p) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
+                                effect='At(c, a) & ~In(c, p)'),
+                         Action('Fly(p, f, to)',
+                                precond='At(p, f) & Plane(p) & Airport(f) & Airport(to)',
+                                effect='At(p, to) & ~At(p, f)')])
 
 
-# Spare tire problem
-spare_tire = PDDL(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
-                  goals='At(Spare, Axle) & At(Flat, Ground)',
-                  actions=[Action('Remove(obj, loc)',
-                                  precond='At(obj, loc)',
-                                  effect='At(obj, Ground) & ~At(obj, loc)'),
-                           Action('PutOn(t, Axle)',
-                                  precond='Tire(t) & At(t, Ground) & ~At(Flat, Axle)',
-                                  effect='At(t, Axle) & ~At(t, Ground)'),
-                           Action('LeaveOvernight',
-                                  precond='',
-                                  effect='~At(Spare, Ground) & ~At(Spare, Axle) & ~At(Spare, Trunk) & ~At(Flat, Ground) & ~At(Flat, Axle) & ~At(Flat, Trunk)')])
+def spare_tire():
+    """Spare tire problem"""
+
+    return PDDL(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
+                goals='At(Spare, Axle) & At(Flat, Ground)',
+                actions=[Action('Remove(obj, loc)',
+                                precond='At(obj, loc)',
+                                effect='At(obj, Ground) & ~At(obj, loc)'),
+                         Action('PutOn(t, Axle)',
+                                precond='Tire(t) & At(t, Ground) & ~At(Flat, Axle)',
+                                effect='At(t, Axle) & ~At(t, Ground)'),
+                         Action('LeaveOvernight',
+                                precond='',
+                                effect='~At(Spare, Ground) & ~At(Spare, Axle) & ~At(Spare, Trunk) & \
+                                        ~At(Flat, Ground) & ~At(Flat, Axle) & ~At(Flat, Trunk)')])
 
 
-# Sussman Anomaly problem
-three_block_tower = PDDL(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
-                         goals='On(A, B) & On(B, C)',
-                         actions=[Action('Move(b, x, y)',
-                                         precond='On(b, x) & Clear(b) & Clear(y) & Block(b) & Block(y)',
-                                         effect='On(b, y) & Clear(x) & ~On(b, x) & ~Clear(y)'),
-                                  Action('MoveToTable(b, x)',
-                                         precond='On(b, x) & Clear(b) & Block(b)',
-                                         effect='On(b, Table) & Clear(x) & ~On(b, x)')])
+def three_block_tower():
+    """Sussman Anomaly problem"""
+
+    return PDDL(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
+                goals='On(A, B) & On(B, C)',
+                actions=[Action('Move(b, x, y)',
+                                precond='On(b, x) & Clear(b) & Clear(y) & Block(b) & Block(y)',
+                                effect='On(b, y) & Clear(x) & ~On(b, x) & ~Clear(y)'),
+                         Action('MoveToTable(b, x)',
+                                precond='On(b, x) & Clear(b) & Block(b)',
+                                effect='On(b, Table) & Clear(x) & ~On(b, x)')])
 
 
-# Cake problem
-have_cake_and_eat_cake_too = PDDL(init='Have(Cake)',
-                                  goals='Have(Cake) & Eaten(Cake)',
-                                  actions=[Action('Eat(Cake)',
-                                                  precond='Have(Cake)',
-                                                  effect='Eaten(Cake) & ~Have(Cake)'),
-                                           Action('Bake(Cake)',
-                                                  precond='~Have(Cake)',
-                                                  effect='Have(Cake)')])
+def have_cake_and_eat_cake_too():
+    """Cake problem"""
+
+    return PDDL(init='Have(Cake)',
+                goals='Have(Cake) & Eaten(Cake)',
+                actions=[Action('Eat(Cake)',
+                                precond='Have(Cake)',
+                                effect='Eaten(Cake) & ~Have(Cake)'),
+                         Action('Bake(Cake)',
+                                precond='~Have(Cake)',
+                                effect='Have(Cake)')])
 
 
-# Shopping problem
-shopping_problem = PDDL(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
-                        goals='Have(Milk) & Have(Banana) & Have(Drill)', 
-                        actions=[Action('Buy(x, store)',
-                                        precond='At(store) & Sells(store, x)',
-                                        effect='Have(x)'),
-                                 Action('Go(x, y)',
-                                        precond='At(x)',
-                                        effect='At(y) & ~At(x)')])
+def shopping_problem():
+    """Shopping problem"""
+
+    return PDDL(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
+                goals='Have(Milk) & Have(Banana) & Have(Drill)', 
+                actions=[Action('Buy(x, store)',
+                                precond='At(store) & Sells(store, x)',
+                                effect='Have(x)'),
+                         Action('Go(x, y)',
+                                precond='At(x)',
+                                effect='At(y) & ~At(x)')])
 
 
-# Socks and shoes problem
-socks_and_shoes = PDDL(init='',
-                       goals='RightShoeOn & LeftShoeOn',
-                       actions=[Action('RightShoe',
-                                       precond='RightSockOn',
-                                       effect='RightShoeOn'),
-                                Action('RightSock',
-                                       precond='',
-                                       effect='RightSockOn'),
-                                Action('LeftShoe',
-                                       precond='LeftSockOn',
-                                       effect='LeftShoeOn'),
-                                Action('LeftSock',
-                                       precond='',
-                                       effect='LeftSockOn')])
+def socks_and_shoes():
+    """Socks and shoes problem"""
+
+    return PDDL(init='',
+                goals='RightShoeOn & LeftShoeOn',
+                actions=[Action('RightShoe',
+                                precond='RightSockOn',
+                                effect='RightShoeOn'),
+                        Action('RightSock',
+                                precond='',
+                                effect='RightSockOn'),
+                        Action('LeftShoe',
+                                precond='LeftSockOn',
+                                effect='LeftShoeOn'),
+                        Action('LeftSock',
+                                precond='',
+                                effect='LeftSockOn')])
 
 
 # Doubles tennis problem
-double_tennis_problem = PDDL(init='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
+def double_tennis_problem():
+    return PDDL(init='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
                              goals='Returned(Ball) & At(a, LeftNet) & At(a, RightNet)',
                              actions=[Action('Hit(actor, Ball, loc)',
                                              precond='Approaching(Ball,loc) & At(actor,loc)',
@@ -483,7 +497,7 @@ class GraphPlan:
 def spare_tire_graphplan():
     """Solves the spare tire problem using GraphPlan"""
 
-    pddl = spare_tire
+    pddl = spare_tire()
     graphplan = GraphPlan(pddl)
 
     def goal_test(kb, goals):
@@ -505,7 +519,7 @@ def spare_tire_graphplan():
 def have_cake_and_eat_cake_too_graphplan():
     """Solves the cake problem using GraphPlan"""
 
-    pddl = have_cake_and_eat_cake_too
+    pddl = have_cake_and_eat_cake_too()
     graphplan = GraphPlan(pddl)
 
     def goal_test(kb, goals):
@@ -527,7 +541,7 @@ def have_cake_and_eat_cake_too_graphplan():
 def three_block_tower_graphplan():
     """Solves the Sussman Anomaly problem using GraphPlan"""
 
-    pddl = three_block_tower
+    pddl = three_block_tower()
     graphplan = GraphPlan(pddl)
 
     def goal_test(kb, goals):
@@ -549,7 +563,7 @@ def three_block_tower_graphplan():
 def air_cargo_graphplan():
     """Solves the air cargo problem using GraphPlan"""
 
-    pddl = air_cargo
+    pddl = air_cargo()
     graphplan = GraphPlan(pddl)
 
     def goal_test(kb, goals):
@@ -569,7 +583,7 @@ def air_cargo_graphplan():
 
 
 def shopping_graphplan():
-    pddl = shopping_problem
+    pddl = shopping_problem()
     graphplan = GraphPlan(pddl)
 
     def goal_test(kb, goals):
@@ -589,7 +603,7 @@ def shopping_graphplan():
 
 
 def socks_and_shoes_graphplan():
-    pddl = socks_and_shoes
+    pddl = socks_and_shoes()
     graphplan = GraphPlan(pddl)
 
     def goal_test(kb, goals):
@@ -635,6 +649,8 @@ class HLA(Action):
         consumes holds a dictionary representing the resources the task consumes
         uses holds a dictionary representing the resources the task uses
         """
+        precond = precond or [None]
+        effect = effect or [None]
         super().__init__(action, precond, effect)
         self.duration = duration
         self.consumes = consume or {}
@@ -801,11 +817,11 @@ def job_shop_problem():
 
     resources = {'EngineHoists': 1, 'WheelStations': 2, 'Inspectors': 2, 'LugNuts': 500}
 
-    add_engine1 = HLA('AddEngine1', precond='~Has(C1, E1)', effect='Has(C1, E1)', duration=30, use={'EngineHoists': 1}),
-    add_engine2 = HLA('AddEngine2', precond='~Has(C2, E2)', effect='Has(C2, E2)', duration=60, use={'EngineHoists': 1}),
-    add_wheels1 = HLA('AddWheels1', precond='~Has(C1, W1)', effect='Has(C1, W1)', duration=30, use={'WheelStations': 1}, consume={'LugNuts': 20}),
-    add_wheels2 = HLA('AddWheels2', precond='~Has(C2, W2)', effect='Has(C2, W2)', duration=15, use={'WheelStations': 1}, consume={'LugNuts': 20}),
-    inspect1 = HLA('Inspect1', precond='~Inspected(C1)', effect='Inspected(C1)', duration=10, use={'Inspectors': 1}),
+    add_engine1 = HLA('AddEngine1', precond='~Has(C1, E1)', effect='Has(C1, E1)', duration=30, use={'EngineHoists': 1})
+    add_engine2 = HLA('AddEngine2', precond='~Has(C2, E2)', effect='Has(C2, E2)', duration=60, use={'EngineHoists': 1})
+    add_wheels1 = HLA('AddWheels1', precond='~Has(C1, W1)', effect='Has(C1, W1)', duration=30, use={'WheelStations': 1}, consume={'LugNuts': 20})
+    add_wheels2 = HLA('AddWheels2', precond='~Has(C2, W2)', effect='Has(C2, W2)', duration=15, use={'WheelStations': 1}, consume={'LugNuts': 20})
+    inspect1 = HLA('Inspect1', precond='~Inspected(C1)', effect='Inspected(C1)', duration=10, use={'Inspectors': 1})
     inspect2 = HLA('Inspect2', precond='~Inspected(C2)', effect='Inspected(C2)', duration=10, use={'Inspectors': 1})
 
     actions = [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2]
