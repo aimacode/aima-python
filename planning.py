@@ -514,26 +514,21 @@ def spare_tire_graphplan():
     """Solves the spare tire problem using GraphPlan"""
     return GraphPlan(spare_tire()).execute()
 
-
-def have_cake_and_eat_cake_too_graphplan():
-    """Solves the cake problem using GraphPlan"""
-    return GraphPlan(have_cake_and_eat_cake_too()).execute()[1]
-
-
 def three_block_tower_graphplan():
     """Solves the Sussman Anomaly problem using GraphPlan"""
     return GraphPlan(three_block_tower()).execute()
-
 
 def air_cargo_graphplan():
     """Solves the air cargo problem using GraphPlan"""
     return GraphPlan(air_cargo()).execute()
 
+def have_cake_and_eat_cake_too_graphplan():
+    """Solves the cake problem using GraphPlan"""
+    return [GraphPlan(have_cake_and_eat_cake_too()).execute()[1]]
 
 def shopping_graphplan():
     """Solves the shopping problem using GraphPlan"""
     return GraphPlan(shopping_problem()).execute()
-
 
 def socks_and_shoes_graphplan():
     """Solves the socks and shoes problem using GraphpPlan"""
