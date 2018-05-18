@@ -493,133 +493,51 @@ class GraphPlan:
 
         return solution
 
+    def goal_test(self, kb):
+        return all(kb.ask(q) is not False for q in self.graph.pddl.goals)
+
+    def execute(self):
+        """Executes the GraphPlan algorithm for the given problem"""
+
+        while True:
+            self.graph.expand_graph()
+            if (self.goal_test(self.graph.levels[-1].kb) and self.graph.non_mutex_goals(self.graph.pddl.goals, -1)):
+                solution = self.extract_solution(self.graph.pddl.goals, -1)
+                if solution:
+                    return solution
+            
+            if len(self.graph.levels) >= 2 and self.check_leveloff():
+                return None
+
 
 def spare_tire_graphplan():
     """Solves the spare tire problem using GraphPlan"""
-
-    pddl = spare_tire()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('At(Spare, Axle), At(Flat, Ground)')
-
-    while True:
-        graphplan.graph.expand_graph()
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-        
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+    return GraphPlan(spare_tire()).execute()
 
 
 def have_cake_and_eat_cake_too_graphplan():
     """Solves the cake problem using GraphPlan"""
-
-    pddl = have_cake_and_eat_cake_too()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('Have(Cake), Eaten(Cake)')
-
-    while True:
-        graphplan.graph.expand_graph()
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return [solution[1]]
-
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+    return GraphPlan(have_cake_and_eat_cake_too()).execute()[1]
 
 
 def three_block_tower_graphplan():
     """Solves the Sussman Anomaly problem using GraphPlan"""
-
-    pddl = three_block_tower()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('On(A, B), On(B, C)')
-
-    while True:
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-
-        graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+    return GraphPlan(three_block_tower()).execute()
 
 
 def air_cargo_graphplan():
     """Solves the air cargo problem using GraphPlan"""
-
-    pddl = air_cargo()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('At(C1, JFK), At(C2, SFO)')
-
-    while True:
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-
-        graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+    return GraphPlan(air_cargo()).execute()
 
 
 def shopping_graphplan():
-    pddl = shopping_problem()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('Have(Milk), Have(Banana), Have(Drill)')
-
-    while True:
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-
-        graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+    """Solves the shopping problem using GraphPlan"""
+    return GraphPlan(shopping_problem()).execute()
 
 
 def socks_and_shoes_graphplan():
-    pddl = socks_and_shoes()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('RightShoeOn, LeftShoeOn')
-
-    while True:
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-
-        graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+    """Solves the socks and shoes problem using GraphpPlan"""
+    return GraphPlan(socks_and_shoes()).execute()
 
 
 def linearize(solution):
@@ -814,7 +732,29 @@ class Problem(PDDL):
 
 
 def job_shop_problem():
+    """
+    [figure 11.1] JOB-SHOP-PROBLEM
 
+    A job-shop scheduling problem for assembling two cars,
+    with resource and ordering constraints.
+
+    Example:
+    >>> from planning import *
+    >>> p = job_shop_problem()
+    >>> p.goal_test()
+    False
+    >>> p.act(p.jobs[1][0])
+    >>> p.act(p.jobs[1][1])
+    >>> p.act(p.jobs[1][2])
+    >>> p.act(p.jobs[0][0])
+    >>> p.act(p.jobs[0][1])
+    >>> p.goal_test()
+    False
+    >>> p.act(p.jobs[0][2])
+    >>> p.goal_test()
+    True
+    >>>
+    """
     resources = {'EngineHoists': 1, 'WheelStations': 2, 'Inspectors': 2, 'LugNuts': 500}
 
     add_engine1 = HLA('AddEngine1', precond='~Has(C1, E1)', effect='Has(C1, E1)', duration=30, use={'EngineHoists': 1})
