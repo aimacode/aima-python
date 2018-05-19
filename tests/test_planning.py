@@ -147,6 +147,12 @@ def test_graphplan():
     assert expr('Unload(C1, P1, JFK)') in air_cargo_solution
     assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
 
+    sussman_anomaly_solution = three_block_tower_graphplan()
+    sussman_anomaly_solution = linearize(sussman_anomaly_solution)
+    assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
+    assert expr('Move(B, Table, C)') in sussman_anomaly_solution
+    assert expr('Move(A, Table, B)') in sussman_anomaly_solution
+
     shopping_problem_solution = shopping_graphplan()
     shopping_problem_solution = linearize(shopping_problem_solution)
     assert expr('Go(Home, HW)') in shopping_problem_solution
