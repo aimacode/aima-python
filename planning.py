@@ -561,6 +561,18 @@ class TotalOrderPlanner:
         return ordered_solution
 
 
+def linearize(solution):
+    """Converts a level-ordered solution into a linear solution"""
+
+    linear_solution = []
+    for section in solution[0]:
+        for operation in section:
+            if not (operation.op[0] == 'P' and operation.op[1].isupper()):
+                linear_solution.append(operation)
+
+    return linear_solution
+
+
 def spare_tire_graphplan():
     """Solves the spare tire problem using GraphPlan"""
     return GraphPlan(spare_tire()).execute()
