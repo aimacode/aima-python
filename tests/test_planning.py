@@ -195,6 +195,50 @@ def test_total_order_planner():
     assert TotalOrderPlanner(ss).execute() in possible_solutions
 
 
+def test_expand_actions():
+    assert len(PartialOrderPlanner(spare_tire()).expand_actions()) == 16
+    assert len(PartialOrderPlanner(air_cargo()).expand_actions()) == 360
+    assert len(PartialOrderPlanner(have_cake_and_eat_cake_too()).expand_actions()) == 2
+    assert len(PartialOrderPlanner(socks_and_shoes()).expand_actions()) == 4
+    assert len(PartialOrderPlanner(simple_blocks_world()).expand_actions()) == 12
+    assert len(PartialOrderPlanner(three_block_tower()).expand_actions()) == 36
+
+
+def test_find_open_precondition():
+    st = spare_tire()
+    pop = PartialOrderPlanner(st)
+    assert pop.find_open_precondition()[0] == expr('At(Spare, Axle)')
+    assert pop.find_open_precondition()[1] == pop.finish
+    assert pop.find_open_precondition()[2][0].name == 'PutOn'
+
+    ss = socks_and_shoes()
+    pop = PartialOrderPlanner(ss)
+    assert (pop.find_open_precondition()[0] == expr('LeftShoeOn') and pop.find_open_precondition()[2][0].name == 'LeftShoe') or (pop.find_open_precondition()[0] == expr('RightShoeOn') and pop.find_open_precondition()[2][0].name == 'RightShoe')
+    assert pop.find_open_precondition()[1] == pop.finish
+
+    cp = have_cake_and_eat_cake_too()
+    pop = PartialOrderPlanner(cp)
+    assert pop.find_open_precondition()[0] == expr('Eaten(Cake)')
+    assert pop.find_open_precondition()[1] == pop.finish
+    assert pop.find_open_precondition()[2][0].name == 'Eat'
+
+
+def test_cyclic():
+    st = spare_tire()
+    pop = PartialOrderPlanner(st)
+    graph = [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c')]
+    assert not pop.cyclic(graph)
+
+    graph =  [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c'), ('e', 'b')]
+    assert pop.cyclic(graph)
+
+    graph = [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c'), ('b', 'e'), ('a', 'e')]
+    assert not pop.cyclic(graph)
+
+    graph = [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c'), ('e', 'b'), ('b', 'e'), ('a', 'e')]
+    assert pop.cyclic(graph)
+
+
 # def test_double_tennis():
 #     p = double_tennis_problem
 #     assert p.goal_test() is False
