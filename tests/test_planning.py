@@ -162,8 +162,41 @@ def test_graphplan():
     assert expr('Buy(Milk, SM)') in shopping_problem_solution
 
 
+def test_total_order_planner():
+    st = spare_tire()
+    possible_solutions = [[expr('Remove(Spare, Trunk)'), expr('Remove(Flat, Axle)'), expr('PutOn(Spare, Axle)')],
+                          [expr('Remove(Flat, Axle)'), expr('Remove(Spare, Trunk)'), expr('PutOn(Spare, Axle)')]]
+    assert TotalOrderPlanner(st).execute() in possible_solutions
+
+    ac = air_cargo()
+    possible_solutions = [[expr('Load(C1, P1, SFO)'), expr('Load(C2, P2, JFK)'), expr('Fly(P1, SFO, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
+                          [expr('Load(C1, P1, SFO)'), expr('Load(C2, P2, JFK)'), expr('Fly(P1, SFO, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')],
+                          [expr('Load(C1, P1, SFO)'), expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
+                          [expr('Load(C1, P1, SFO)'), expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')],
+                          [expr('Load(C2, P2, JFK)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
+                          [expr('Load(C2, P2, JFK)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')],
+                          [expr('Load(C2, P2, JFK)'), expr('Load(C1, P1, SFO)'), expr('Fly(P2, JFK, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
+                          [expr('Load(C2, P2, JFK)'), expr('Load(C1, P1, SFO)'), expr('Fly(P2, JFK, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')],
+                          [expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
+                          [expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')],
+                          [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
+                          [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')]
+                          ]
+    assert TotalOrderPlanner(ac).execute() in possible_solutions
+
+    ss = socks_and_shoes()
+    possible_solutions = [[expr('LeftSock'), expr('RightSock'), expr('LeftShoe'), expr('RightShoe')],
+                          [expr('LeftSock'), expr('RightSock'), expr('RightShoe'), expr('LeftShoe')],
+                          [expr('RightSock'), expr('LeftSock'), expr('LeftShoe'), expr('RightShoe')],
+                          [expr('RightSock'), expr('LeftSock'), expr('RightShoe'), expr('LeftShoe')],
+                          [expr('LeftSock'), expr('LeftShoe'), expr('RightSock'), expr('RightShoe')],
+                          [expr('RightSock'), expr('RightShoe'), expr('LeftSock'), expr('LeftShoe')]
+                          ]
+    assert TotalOrderPlanner(ss).execute() in possible_solutions
+
+
 # def test_double_tennis():
-#     p = double_tennis_problem()
+#     p = double_tennis_problem
 #     assert p.goal_test() is False
 
 #     solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
@@ -176,50 +209,36 @@ def test_graphplan():
 #     assert p.goal_test()
 
 
-# def test_job_shop_problem():
-#     p = job_shop_problem()
-#     assert p.goal_test() is False
+def test_job_shop_problem():
+    p = job_shop_problem()
+    assert p.goal_test() is False
 
-#     solution = [p.jobs[1][0],
-#                 p.jobs[0][0],
-#                 p.jobs[0][1],
-#                 p.jobs[0][2],
-#                 p.jobs[1][1],
-#                 p.jobs[1][2]]
+    solution = [p.jobs[1][0],
+                p.jobs[0][0],
+                p.jobs[0][1],
+                p.jobs[0][2],
+                p.jobs[1][1],
+                p.jobs[1][2]]
 
-#     for action in solution:
-#         p.act(action)
+    for action in solution:
+        p.act(action)
 
-#     assert p.goal_test()
+    assert p.goal_test()
 
 
-# def test_refinements():
-#     init = [expr('At(Home)')]
-#     def goal_test(kb):
-#         return kb.ask(expr('At(SFO)'))
-        
-#     library = {"HLA": ["Go(Home,SFO)","Taxi(Home, SFO)"],
-#     "steps": [["Taxi(Home, SFO)"],[]],
-#     "precond_pos": [["At(Home)"],["At(Home)"]],
-#     "precond_neg": [[],[]],
-#     "effect_pos": [["At(SFO)"],["At(SFO)"]],
-#     "effect_neg": [["At(Home)"],["At(Home)"],]}
-#     # Go SFO
-#     precond_pos = [expr("At(Home)")]
-#     precond_neg = []
-#     effect_add = [expr("At(SFO)")]
-#     effect_rem = [expr("At(Home)")]
-#     go_SFO = HLA(expr("Go(Home,SFO)"),
-#                       [precond_pos, precond_neg], [effect_add, effect_rem])
-#     # Taxi SFO
-#     precond_pos = [expr("At(Home)")]
-#     precond_neg = []
-#     effect_add = [expr("At(SFO)")]
-#     effect_rem = [expr("At(Home)")]
-#     taxi_SFO = HLA(expr("Go(Home,SFO)"),
-#                       [precond_pos, precond_neg], [effect_add, effect_rem])
-#     prob = Problem(init, [go_SFO, taxi_SFO], goal_test)
-#     result = [i for i in Problem.refinements(go_SFO, prob, library)]
-#     assert(len(result) == 1)
-#     assert(result[0].name == "Taxi")
-#     assert(result[0].args == (expr("Home"), expr("SFO")))
+def test_refinements():
+    
+    library = {'HLA': ['Go(Home,SFO)','Taxi(Home, SFO)'],
+    'steps': [['Taxi(Home, SFO)'],[]],
+    'precond': [['At(Home)'],['At(Home)']],
+    'effect': [['At(SFO)'],['At(SFO)'],['~At(Home)'],['~At(Home)']]}
+
+    go_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
+    taxi_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
+
+    prob = Problem('At(Home)', 'At(SFO)', [go_SFO, taxi_SFO])
+
+    result = [i for i in Problem.refinements(go_SFO, prob, library)]
+    assert(len(result) == 1)
+    assert(result[0].name == 'Taxi')
+    assert(result[0].args == (expr('Home'), expr('SFO')))
