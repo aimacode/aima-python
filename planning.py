@@ -153,7 +153,29 @@ class Action:
 
 
 def air_cargo():
-    """Air cargo problem"""
+    """
+    [Figure 10.1] AIR-CARGO-PROBLEM
+
+    An air-cargo shipment problem for delivering cargo to different locations,
+    given the starting location and airplanes.
+
+    Example:
+    >>> from planning import *
+    >>> ac = air_cargo()
+    >>> ac.goal_test()
+    False
+    >>> ac.act(expr('Load(C2, P2, JFK)'))
+    >>> ac.act(expr('Load(C1, P2, SFO)'))
+    >>> ac.act(expr('Fly(P1, SFO, JFK)'))
+    >>> ac.act(expr('Fly(P2, JFK, SFO)'))
+    >>> ac.act(expr('Unload(C2, P2, SFO)'))
+    >>> ac.goal_test()
+    False
+    >>> ac.act(expr('Unload(C1, P1, JFK)'))
+    >>> ac.goal_test()
+    True
+    >>>
+    """
 
     return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)', 
                 goals='At(C1, JFK) & At(C2, SFO)',
@@ -169,7 +191,25 @@ def air_cargo():
 
 
 def spare_tire():
-    """Spare tire problem"""
+    """[Figure 10.2] SPARE-TIRE-PROBLEM
+
+    A problem involving changing the flat tire of a car
+    with a spare tire from the trunk.
+
+    Example:
+    >>> from planning import *
+    >>> st = spare_tire()
+    >>> st.goal_test()
+    False
+    >>> st.act(expr('Remove(Spare, Trunk)'))
+    >>> st.act(expr('Remove(Flat, Axle)'))
+    >>> st.goal_test()
+    False
+    >>> st.act(expr('PutOn(Spare, Axle)'))
+    >>> st.goal_test()
+    True
+    >>>
+    """
 
     return PDDL(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
                 goals='At(Spare, Axle) & At(Flat, Ground)',
@@ -186,7 +226,26 @@ def spare_tire():
 
 
 def three_block_tower():
-    """Sussman Anomaly problem"""
+    """
+    [Figure 10.3] THREE-BLOCK-TOWER
+
+    A blocks-world problem of stacking three blocks in a certain configuration,
+    also known as the Sussman Anomaly.
+
+    Example:
+    >>> from planning import *
+    >>> tbt = three_block_tower()
+    >>> tbt.goal_test()
+    False
+    >>> tbt.act(expr('MoveToTable(C, A)'))
+    >>> tbt.act(expr('Move(B, Table, C)'))
+    >>> tbt.goal_test()
+    False
+    >>> tbt.act(expr('Move(A, Table, B)'))
+    >>> tbt.goal_test()
+    True
+    >>>
+    """
 
     return PDDL(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
                 goals='On(A, B) & On(B, C)',
@@ -199,7 +258,25 @@ def three_block_tower():
 
 
 def simple_blocks_world():
-    """Simplified blocks world"""
+    """
+    SIMPLE-BLOCKS-WORLD
+
+    A simplified definition of the Sussman Anomaly problem.
+
+    Example:
+    >>> from planning import *
+    >>> sbw = simple_blocks_world()
+    >>> sbw.goal_test()
+    False
+    >>> sbw.act(expr('ToTable(A, B)'))
+    >>> sbw.act(expr('FromTable(B, A)'))
+    >>> sbw.goal_test()
+    False
+    >>> sbw.act(expr('FromTable(C, B)'))
+    >>> sbw.goal_test()
+    True
+    >>>
+    """
 
     return PDDL(init='On(A, B) & Clear(A) & OnTable(B) & OnTable(C) & Clear(C)',
                 goals='On(B, A) & On(C, B)',
@@ -212,7 +289,26 @@ def simple_blocks_world():
 
 
 def have_cake_and_eat_cake_too():
-    """Cake problem"""
+    """
+    [Figure 10.7] CAKE-PROBLEM
+
+    A problem where we begin with a cake and want to 
+    reach the state of having a cake and having eaten a cake.
+    The possible actions include baking a cake and eating a cake.
+
+    Example:
+    >>> from planning import *
+    >>> cp = have_cake_and_eat_cake_too()
+    >>> cp.goal_test()
+    False
+    >>> cp.act(expr('Bake(Cake)'))
+    >>> cp.goal_test()
+    False
+    >>> cp.act(expr('Eat(Cake)'))
+    >>> cp.goal_test()
+    True
+    >>>
+    """
 
     return PDDL(init='Have(Cake)',
                 goals='Have(Cake) & Eaten(Cake)',
@@ -225,7 +321,27 @@ def have_cake_and_eat_cake_too():
 
 
 def shopping_problem():
-    """Shopping problem"""
+    """
+    SHOPPING-PROBLEM
+
+    A problem of acquiring some items given their availability at certain stores.
+
+    Example:
+    >>> from planning import *
+    >>> sp = shopping_problem()
+    >>> sp.goal_test()
+    False
+    >>> sp.act(expr('Go(Home, HW)'))
+    >>> sp.act(expr('Buy(Drill, HW)'))
+    >>> sp.act(expr('Go(HW, SM)'))
+    >>> sp.act(expr('Buy(Banana, SM)'))
+    >>> sp.goal_test()
+    False
+    >>> sp.act(expr('Buy(Milk, SM)'))
+    >>> sp.goal_test()
+    True
+    >>>
+    """
 
     return PDDL(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
                 goals='Have(Milk) & Have(Banana) & Have(Drill)', 
@@ -238,7 +354,26 @@ def shopping_problem():
 
 
 def socks_and_shoes():
-    """Socks and shoes problem"""
+    """
+    SOCKS-AND-SHOES-PROBLEM
+
+    A task of wearing socks and shoes on both feet
+
+    Example:
+    >>> from planning import *
+    >>> ss = socks_and_shoes()
+    >>> ss.goal_test()
+    False
+    >>> ss.act(expr('RightSock'))
+    >>> ss.act(expr('RightShoe'))
+    >>> ss.act(expr('LeftSock'))
+    >>> ss.goal_test()
+    False
+    >>> ss.act(expr('LeftShoe'))
+    >>> ss.goal_test()
+    True
+    >>>
+    """
 
     return PDDL(init='',
                 goals='RightShoeOn & LeftShoeOn',
@@ -592,10 +727,25 @@ def linearize(solution):
 
 
 '''
-[10.13 PartialOrderPlanner: Partially ordered plans are created by a search through the space of plans
+[Section 10.13] PARTIAL-ORDER-PLANNER
+
+Partially ordered plans are created by a search through the space of plans
 rather than a search through the state space. It views planning as a refinement of partially ordered plans.
 A partially ordered plan is defined by a set of actions and a set of constraints of the form A < B,
-which denotes that action A has to be performed before action B.]
+which denotes that action A has to be performed before action B.
+To summarize the working of a partial order planner,
+1. An open precondition is selected (a sub-goal that we want to achieve).
+2. An action that fulfils the open precondition is chosen.
+3. Temporal constraints are updated.
+4. Existing causal links are protected. Protection is a method that checks if the causal links conflict
+   and if they do, temporal constraints are added to fix the threats.
+5. The set of open preconditions is updated.
+6. Temporal constraints of the selected action and the next action are established.
+7. A new causal link is added between the selected action and the owner of the open precondition.
+8. The set of new causal links is checked for threats and if found, the threat is removed by either promotion or demotion.
+   If promotion or demotion is unable to solve the problem, the planning problem cannot be solved with the current sequence of actions
+   or it may not be solvable at all.
+9. These steps are repeated until the set of open preconditions is empty.
 '''
 
 class PartialOrderPlanner:
@@ -829,7 +979,7 @@ class PartialOrderPlanner:
         return constraints
 
     def convert(self, constraints):
-        """Convert constraints into a dict of Action: set() orderings"""
+        """Convert constraints into a dict of Action to set orderings"""
 
         graph = dict()
         for constraint in constraints:
@@ -1146,7 +1296,7 @@ class Problem(PDDL):
 
 def job_shop_problem():
     """
-    [figure 11.1] JOB-SHOP-PROBLEM
+    [Figure 11.1] JOB-SHOP-PROBLEM
 
     A job-shop scheduling problem for assembling two cars,
     with resource and ordering constraints.
