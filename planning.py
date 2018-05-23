@@ -165,7 +165,7 @@ def air_cargo():
     >>> ac.goal_test()
     False
     >>> ac.act(expr('Load(C2, P2, JFK)'))
-    >>> ac.act(expr('Load(C1, P2, SFO)'))
+    >>> ac.act(expr('Load(C1, P1, SFO)'))
     >>> ac.act(expr('Fly(P1, SFO, JFK)'))
     >>> ac.act(expr('Fly(P2, JFK, SFO)'))
     >>> ac.act(expr('Unload(C2, P2, SFO)'))
@@ -301,10 +301,10 @@ def have_cake_and_eat_cake_too():
     >>> cp = have_cake_and_eat_cake_too()
     >>> cp.goal_test()
     False
-    >>> cp.act(expr('Bake(Cake)'))
+    >>> cp.act(expr('Eat(Cake)'))
     >>> cp.goal_test()
     False
-    >>> cp.act(expr('Eat(Cake)'))
+    >>> cp.act(expr('Bake(Cake)'))
     >>> cp.goal_test()
     True
     >>>
