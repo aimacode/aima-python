@@ -239,6 +239,17 @@ def test_cyclic():
     assert pop.cyclic(graph)
 
 
+def test_partial_order_planner():
+    ss = socks_and_shoes()
+    pop = PartialOrderPlanner(ss)
+    constraints, causal_links = pop.execute(display=False)
+    plan = list(reversed(list(pop.toposort(pop.convert(pop.constraints)))))
+    assert list(plan[0])[0].name == 'Start'
+    assert (list(plan[1])[0].name == 'LeftSock' and list(plan[1])[1].name == 'RightSock') or (list(plan[1])[0].name == 'RightSock' and list(plan[1])[1].name == 'LeftSock')
+    assert (list(plan[2])[0].name == 'LeftShoe' and list(plan[2])[1].name == 'RightShoe') or (list(plan[2])[0].name == 'RightShoe' and list(plan[2])[1].name == 'LeftShoe')
+    assert list(plan[3])[0].name == 'Finish'
+
+
 # def test_double_tennis():
 #     p = double_tennis_problem
 #     assert p.goal_test() is False
