@@ -250,18 +250,18 @@ def test_partial_order_planner():
     assert list(plan[3])[0].name == 'Finish'
 
 
-# def test_double_tennis():
-#     p = double_tennis_problem
-#     assert p.goal_test() is False
+def test_double_tennis():
+    p = double_tennis_problem()
+    assert not goal_test(p.goals, p.init)
 
-#     solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
-#                 expr("Hit(A, Ball, RightBaseLine)"),
-#                 expr("Go(A, LeftNet, RightBaseLine)")]
+    solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
+                expr("Hit(A, Ball, RightBaseLine)"),
+                expr("Go(A, LeftNet, RightBaseLine)")]
 
-#     for action in solution:
-#         p.act(action)
+    for action in solution:
+        p.act(action)
 
-#     assert p.goal_test()
+    assert goal_test(p.goals, p.init)
 
 
 def test_job_shop_problem():
