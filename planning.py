@@ -152,6 +152,16 @@ class Action:
         return kb
 
 
+def goal_test(goals, state):
+    """Generic goal testing helper function"""
+
+    if isinstance(state, list):
+        kb = FolKB(state)
+    else:
+        kb = state
+    return all(kb.ask(q) is not False for q in goals)
+
+
 def air_cargo():
     """
     [Figure 10.1] AIR-CARGO-PROBLEM
@@ -392,12 +402,31 @@ def socks_and_shoes():
 
 
 def double_tennis_problem():
-    """Doubles tennis problem"""
+    """
+    [Figure 11.10] DOUBLE-TENNIS-PROBLEM
+
+    A multiagent planning problem involving two partner tennis players
+    trying to return an approaching ball and repositioning around in the court.
+
+    Example:
+    >>> from planning import *
+    >>> dtp = double_tennis_problem()
+    >>> goal_test(dtp.goals, dtp.init)
+    False
+    >>> dtp.act(expr('Go(A, RightBaseLine, LeftBaseLine)'))
+    >>> dtp.act(expr('Hit(A, Ball, RightBaseLine)'))
+    >>> goal_test(dtp.goals, dtp.init)
+    False
+    >>> dtp.act(expr('Go(A, LeftNet, RightBaseLine)'))
+    >>> goal_test(dtp.goals, dtp.init)
+    True
+    >>>
+    """
 
     return PDDL(init='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
                              goals='Returned(Ball) & At(a, LeftNet) & At(a, RightNet)',
                              actions=[Action('Hit(actor, Ball, loc)',
-                                             precond='Approaching(Ball,loc) & At(actor,loc)',
+                                             precond='Approaching(Ball, loc) & At(actor, loc)',
                                              effect='Returned(Ball)'),
                                       Action('Go(actor, to, loc)', 
                                              precond='At(actor, loc)',
