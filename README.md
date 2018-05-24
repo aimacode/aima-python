@@ -116,7 +116,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 11.1   | Job-Shop-Problem-With-Resources   | `job_shop_problem`            | [`planning.py`][planning]       | Done |          |
 | 11.5   | Hierarchical-Search               | `hierarchical_search`         | [`planning.py`][planning]       |      |          |
 | 11.8   | Angelic-Search                    |                               |                                 |      |          |
-| 11.10  | Doubles-tennis                    | `double_tennis_problem`       | [`planning.py`][planning]       |      |          |
+| 11.10  | Doubles-tennis                    | `double_tennis_problem`       | [`planning.py`][planning]       | Done |          |
 | 13     | Discrete Probability Distribution | `ProbDist`                    | [`probability.py`][probability] | Done | Included |
 | 13.1   | DT-Agent                          | `DTAgent`                     | [`probability.py`][probability] |      |          |
 | 14.9   | Enumeration-Ask                   | `enumeration_ask`             | [`probability.py`][probability] | Done | Included |
