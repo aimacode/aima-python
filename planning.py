@@ -1258,11 +1258,35 @@ class Problem(PDDL):
         state is a Problem, containing the current state kb
         library is a dictionary containing details for every possible refinement. eg:
         {
-        'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
-        'steps': [['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'], ['Taxi(Home, SFO)'], [], [], []],
-        # empty refinements ie primitive action
-        'precond': [['At(Home), Have(Car)'], ['At(Home)'], ['At(Home)', 'Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
-        'effect': [['At(SFO)'], ['At(SFO)'], ['At(SFOLongTermParking)'], ['At(SFO)'], ['At(SFO)'], ['~At(Home)'], ['~At(Home)'], ['~At(Home)'], ['~At(SFOLongTermParking)'], ['~At(Home)']]
+        'HLA': [
+            'Go(Home, SFO)',
+            'Go(Home, SFO)',
+            'Drive(Home, SFOLongTermParking)',
+            'Shuttle(SFOLongTermParking, SFO)',
+            'Taxi(Home, SFO)'
+            ],
+        'steps': [
+            ['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'],
+            ['Taxi(Home, SFO)'],
+            [],
+            [],
+            []
+            ],
+        # empty refinements indicate a primitive action
+        'precond': [
+            ['At(Home)', 'Have(Car)'],
+            ['At(Home)'],
+            ['At(Home)', 'Have(Car)'],
+            ['At(SFOLongTermParking)'],
+            ['At(Home)']
+            ],
+        'effect': [
+            ['At(SFO)', '~At(Home)'],
+            ['At(SFO)', '~At(Home)'],
+            ['At(SFOLongTermParking)', '~At(Home)'],
+            ['At(SFO)', '~At(SFOLongTermParking)'],
+            ['At(SFO)', '~At(Home)']
+            ]
         }
         """
         e = Expr(hla.name, hla.args)
