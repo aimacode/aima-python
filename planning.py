@@ -1390,3 +1390,48 @@ def job_shop_problem():
                    actions=actions,
                    jobs=[job_group1, job_group2],
                    resources=resources)
+
+
+def go_to_sfo():
+    """Go to SFO Problem"""
+
+    go_home_sfo1 = HLA('Go(Home, SFO)', precond='At(Home) & Have(Car)', effect='At(SFO) & ~At(Home)')
+    go_home_sfo2 = HLA('Go(Home, SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
+    drive_home_sfoltp = HLA('Drive(Home, SFOLongTermParking)', precond='At(Home) & Have(Car)', effect='At(SFOLongTermParking) & ~At(Home)')
+    shuttle_sfoltp_sfo = HLA('Shuttle(SFOLongTermParking, SFO)', precond='At(SFOLongTermParking)', effect='At(SFO) & ~At(SFOLongTermParking)')
+    taxi_home_sfo = HLA('Taxi(Home, SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
+
+    actions = [go_home_sfo1, go_home_sfo2, drive_home_sfoltp, shuttle_sfoltp_sfo, taxi_home_sfo]
+
+    library = {
+        'HLA': [
+            'Go(Home, SFO)',
+            'Go(Home, SFO)',
+            'Drive(Home, SFOLongTermParking)',
+            'Shuttle(SFOLongTermParking, SFO)',
+            'Taxi(Home, SFO)'
+        ],
+        'steps': [
+            ['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'],
+            ['Taxi(Home, SFO)'],
+            [],
+            [],
+            []
+        ],
+        'precond': [
+            ['At(Home)', 'Have(Car)'],
+            ['At(Home)'],
+            ['At(Home)', 'Have(Car)'],
+            ['At(SFOLongTermParking)'],
+            ['At(Home)']
+        ],
+        'effect': [
+            ['At(SFO)', '~At(Home)'],
+            ['At(SFO)', '~At(Home)'],
+            ['At(SFOLongTermParking)', '~At(Home)'],
+            ['At(SFO)', '~At(SFOLongTermParking)'],
+            ['At(SFO)', '~At(Home)']
+        ]
+    }
+
+    return Problem(init='At(Home)', goals='At(SFO)', actions=actions), library
