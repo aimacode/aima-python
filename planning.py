@@ -1,6 +1,7 @@
 """Planning (Chapters 10-11)
 """
 
+import copy
 import itertools
 from search import Node
 from utils import Expr, expr, first
@@ -31,7 +32,14 @@ class PDDL:
             clauses = conjuncts(clauses)
         except AttributeError:
             clauses = clauses
-        return clauses
+
+        new_clauses = []
+        for clause in clauses:
+            if clause.op == '~':
+                new_clauses.append(expr('Not' + str(clause.args[0])))
+            else:
+                new_clauses.append(clause)
+        return new_clauses
 
     def goal_test(self):
         """Checks if the goals have been reached"""
@@ -111,7 +119,6 @@ class Action:
 
         if isinstance(kb, list):
             kb = FolKB(kb)
-
         for clause in self.precond:
             if self.substitute(clause, args) not in kb.clauses:
                 return False
@@ -230,6 +237,18 @@ def socks_and_shoes():
                         Action('LeftSock',
                                 precond='',
                                 effect='LeftSockOn')])
+
+
+# Doubles tennis problem
+def double_tennis_problem():
+    return PDDL(init='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
+                             goals='Returned(Ball) & At(a, LeftNet) & At(a, RightNet)',
+                             actions=[Action('Hit(actor, Ball, loc)',
+                                             precond='Approaching(Ball,loc) & At(actor,loc)',
+                                             effect='Returned(Ball)'),
+                                      Action('Go(actor, to, loc)', 
+                                             precond='At(actor, loc)',
+                                             effect='At(actor, to) & ~At(actor, loc)')])
 
 
 class Level:
@@ -475,133 +494,71 @@ class GraphPlan:
 
         return solution
 
+    def goal_test(self, kb):
+        return all(kb.ask(q) is not False for q in self.graph.pddl.goals)
 
-def spare_tire_graphplan():
-    """Solves the spare tire problem using GraphPlan"""
+    def execute(self):
+        """Executes the GraphPlan algorithm for the given problem"""
 
-    pddl = spare_tire()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('At(Spare, Axle), At(Flat, Ground)')
-
-    while True:
-        graphplan.graph.expand_graph()
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-        
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+        while True:
+            self.graph.expand_graph()
+            if (self.goal_test(self.graph.levels[-1].kb) and self.graph.non_mutex_goals(self.graph.pddl.goals, -1)):
+                solution = self.extract_solution(self.graph.pddl.goals, -1)
+                if solution:
+                    return solution
+            
+            if len(self.graph.levels) >= 2 and self.check_leveloff():
+                return None
 
 
-def have_cake_and_eat_cake_too_graphplan():
-    """Solves the cake problem using GraphPlan"""
+class TotalOrderPlanner:
 
-    pddl = have_cake_and_eat_cake_too()
-    graphplan = GraphPlan(pddl)
+    def __init__(self, pddl):
+        self.pddl = pddl
 
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
+    def filter(self, solution):
+        """Filter out persistence actions from a solution"""
 
-    goals = expr('Have(Cake), Eaten(Cake)')
+        new_solution = []
+        for section in solution[0]:
+            new_section = []
+            for operation in section:
+                if not (operation.op[0] == 'P' and operation.op[1].isupper()):
+                    new_section.append(operation)
+            new_solution.append(new_section)
+        return new_solution
 
-    while True:
-        graphplan.graph.expand_graph()
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return [solution[1]]
+    def orderlevel(self, level, pddl):
+        """Return valid linear order of actions for a given level"""
 
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+        for permutation in itertools.permutations(level):
+            temp = copy.deepcopy(pddl)
+            count = 0
+            for action in permutation:
+                try:
+                    temp.act(action)
+                    count += 1
+                except:
+                    count = 0
+                    temp = copy.deepcopy(pddl)
+                    break
+            if count == len(permutation):
+                return list(permutation), temp
+        return None
 
+    def execute(self):
+        """Finds total-order solution for a planning graph"""
 
-def three_block_tower_graphplan():
-    """Solves the Sussman Anomaly problem using GraphPlan"""
+        graphplan_solution = GraphPlan(self.pddl).execute()
+        filtered_solution = self.filter(graphplan_solution)
+        ordered_solution = []
+        pddl = self.pddl
+        for level in filtered_solution:
+            level_solution, pddl = self.orderlevel(level, pddl)
+            for element in level_solution:
+                ordered_solution.append(element)
 
-    pddl = three_block_tower()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('On(A, B), On(B, C)')
-
-    while True:
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-
-        graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
-
-
-def air_cargo_graphplan():
-    """Solves the air cargo problem using GraphPlan"""
-
-    pddl = air_cargo()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('At(C1, JFK), At(C2, SFO)')
-
-    while True:
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-
-        graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
-
-
-def shopping_graphplan():
-    pddl = shopping_problem()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('Have(Milk), Have(Banana), Have(Drill)')
-
-    while True:
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-
-        graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
-
-
-def socks_and_shoes_graphplan():
-    pddl = socks_and_shoes()
-    graphplan = GraphPlan(pddl)
-
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
-
-    goals = expr('RightShoeOn, LeftShoeOn')
-
-    while True:
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-
-        graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+        return ordered_solution
 
 
 def linearize(solution):
@@ -616,34 +573,29 @@ def linearize(solution):
     return linear_solution
 
 
-def double_tennis_problem():
-    init = [expr('At(A, LeftBaseLine)'),
-            expr('At(B, RightNet)'),
-            expr('Approaching(Ball, RightBaseLine)'),
-            expr('Partner(A, B)'),
-            expr('Partner(B, A)')]
+def spare_tire_graphplan():
+    """Solves the spare tire problem using GraphPlan"""
+    return GraphPlan(spare_tire()).execute()
 
-    def goal_test(kb):
-        required = [expr('Returned(Ball)'), expr('At(a, LeftNet)'), expr('At(a, RightNet)')]
-        return all(kb.ask(q) is not False for q in required)
+def three_block_tower_graphplan():
+    """Solves the Sussman Anomaly problem using GraphPlan"""
+    return GraphPlan(three_block_tower()).execute()
 
-    # Actions
+def air_cargo_graphplan():
+    """Solves the air cargo problem using GraphPlan"""
+    return GraphPlan(air_cargo()).execute()
 
-    # Hit
-    precond_pos = [expr("Approaching(Ball,loc)"), expr("At(actor,loc)")]
-    precond_neg = []
-    effect_add = [expr("Returned(Ball)")]
-    effect_rem = []
-    hit = Action(expr("Hit(actor, Ball, loc)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+def have_cake_and_eat_cake_too_graphplan():
+    """Solves the cake problem using GraphPlan"""
+    return [GraphPlan(have_cake_and_eat_cake_too()).execute()[1]]
 
-    # Go
-    precond_pos = [expr("At(actor, loc)")]
-    precond_neg = []
-    effect_add = [expr("At(actor, to)")]
-    effect_rem = [expr("At(actor, loc)")]
-    go = Action(expr("Go(actor, to, loc)"), [precond_pos, precond_neg], [effect_add, effect_rem])
+def shopping_graphplan():
+    """Solves the shopping problem using GraphPlan"""
+    return GraphPlan(shopping_problem()).execute()
 
-    return PDDL(init, [hit, go], goal_test)
+def socks_and_shoes_graphplan():
+    """Solves the socks and shoes problem using GraphpPlan"""
+    return GraphPlan(socks_and_shoes()).execute()
 
 
 class HLA(Action):
@@ -661,8 +613,8 @@ class HLA(Action):
         consumes holds a dictionary representing the resources the task consumes
         uses holds a dictionary representing the resources the task uses
         """
-        precond = precond or [None, None]
-        effect = effect or [None, None]
+        precond = precond or [None]
+        effect = effect or [None]
         super().__init__(action, precond, effect)
         self.duration = duration
         self.consumes = consume or {}
@@ -684,10 +636,11 @@ class HLA(Action):
         if not self.inorder(job_order):
             raise Exception("Can't execute {} - execute prerequisite actions first".
                             format(self.name))
-        super().act(kb, args)  # update knowledge base
+        kb = super().act(kb, args)  # update knowledge base
         for resource in self.consumes:  # remove consumed resources
             available_resources[resource] -= self.consumes[resource]
         self.completed = True  # set the task status to complete
+        return kb
 
     def has_consumable_resource(self, available_resources):
         """
@@ -734,8 +687,8 @@ class Problem(PDDL):
     This class is identical to PDLL, except that it overloads the act function to handle
     resource and ordering conditions imposed by HLA as opposed to Action.
     """
-    def __init__(self, initial_state, actions, goal_test, jobs=None, resources=None):
-        super().__init__(initial_state, actions, goal_test)
+    def __init__(self, init, goals, actions, jobs=None, resources=None):
+        super().__init__(init, goals, actions)
         self.jobs = jobs
         self.resources = resources or {}
 
@@ -752,63 +705,38 @@ class Problem(PDDL):
         list_action = first(a for a in self.actions if a.name == action.name)
         if list_action is None:
             raise Exception("Action '{}' not found".format(action.name))
-        list_action.do_action(self.jobs, self.resources, self.kb, args)
+        self.init = list_action.do_action(self.jobs, self.resources, self.init, args).clauses
 
     def refinements(hla, state, library):  # TODO - refinements may be (multiple) HLA themselves ...
         """
         state is a Problem, containing the current state kb
         library is a dictionary containing details for every possible refinement. eg:
         {
-        "HLA": [
-            "Go(Home,SFO)",
-            "Go(Home,SFO)",
-            "Drive(Home, SFOLongTermParking)",
-            "Shuttle(SFOLongTermParking, SFO)",
-            "Taxi(Home, SFO)"
-               ],
-        "steps": [
-            ["Drive(Home, SFOLongTermParking)", "Shuttle(SFOLongTermParking, SFO)"],
-            ["Taxi(Home, SFO)"],
-            [], # empty refinements ie primitive action
-            [],
-            []
-               ],
-        "precond_pos": [
-            ["At(Home), Have(Car)"],
-            ["At(Home)"],
-            ["At(Home)", "Have(Car)"]
-            ["At(SFOLongTermParking)"]
-            ["At(Home)"]
-                       ],
-        "precond_neg": [[],[],[],[],[]],
-        "effect_pos": [
-            ["At(SFO)"],
-            ["At(SFO)"],
-            ["At(SFOLongTermParking)"],
-            ["At(SFO)"],
-            ["At(SFO)"]
-                      ],
-        "effect_neg": [
-            ["At(Home)"],
-            ["At(Home)"],
-            ["At(Home)"],
-            ["At(SFOLongTermParking)"],
-            ["At(Home)"]
-                      ]
+        'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
+        'steps': [['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'], ['Taxi(Home, SFO)'], [], [], []],
+        # empty refinements ie primitive action
+        'precond': [['At(Home), Have(Car)'], ['At(Home)'], ['At(Home)', 'Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
+        'effect': [['At(SFO)'], ['At(SFO)'], ['At(SFOLongTermParking)'], ['At(SFO)'], ['At(SFO)'], ['~At(Home)'], ['~At(Home)'], ['~At(Home)'], ['~At(SFOLongTermParking)'], ['~At(Home)']]
         }
         """
         e = Expr(hla.name, hla.args)
-        indices = [i for i, x in enumerate(library["HLA"]) if expr(x).op == hla.name]
+        indices = [i for i, x in enumerate(library['HLA']) if expr(x).op == hla.name]
         for i in indices:
-            action = HLA(expr(library["steps"][i][0]), [  # TODO multiple refinements
-                    [expr(x) for x in library["precond_pos"][i]],
-                    [expr(x) for x in library["precond_neg"][i]]
-                ],
-                [
-                    [expr(x) for x in library["effect_pos"][i]],
-                    [expr(x) for x in library["effect_neg"][i]]
-                ])
-            if action.check_precond(state.kb, action.args):
+            # TODO multiple refinements
+            precond = []
+            for p in library['precond'][i]:
+                if p[0] == '~':
+                    precond.append(expr('Not' + p[1:]))
+                else:
+                    precond.append(expr(p))
+            effect = []
+            for e in library['effect'][i]:
+                if e[0] == '~':
+                    effect.append(expr('Not' + e[1:]))
+                else:
+                    effect.append(expr(e))
+            action = HLA(library['steps'][i][0], precond, effect)
+            if action.check_precond(state.init, action.args):
                 yield action
 
     def hierarchical_search(problem, hierarchy):
@@ -857,85 +785,38 @@ def job_shop_problem():
     with resource and ordering constraints.
 
     Example:
+    >>> from planning import *
+    >>> p = job_shop_problem()
+    >>> p.goal_test()
+    False
+    >>> p.act(p.jobs[1][0])
+    >>> p.act(p.jobs[1][1])
+    >>> p.act(p.jobs[1][2])
+    >>> p.act(p.jobs[0][0])
+    >>> p.act(p.jobs[0][1])
+    >>> p.goal_test()
+    False
+    >>> p.act(p.jobs[0][2])
+    >>> p.goal_test()
+    True
+    >>>
     """
-    init = [expr('Car(C1)'),
-            expr('Car(C2)'),
-            expr('Wheels(W1)'),
-            expr('Wheels(W2)'),
-            expr('Engine(E2)'),
-            expr('Engine(E2)')]
-
-    def goal_test(kb):
-        # print(kb.clauses)
-        required = [expr('Has(C1, W1)'), expr('Has(C1, E1)'), expr('Inspected(C1)'),
-                    expr('Has(C2, W2)'), expr('Has(C2, E2)'), expr('Inspected(C2)')]
-        for q in required:
-            # print(q)
-            # print(kb.ask(q))
-            if kb.ask(q) is False:
-                return False
-        return True
-
     resources = {'EngineHoists': 1, 'WheelStations': 2, 'Inspectors': 2, 'LugNuts': 500}
 
-    # AddEngine1
-    precond_pos = []
-    precond_neg = [expr("Has(C1,E1)")]
-    effect_add = [expr("Has(C1,E1)")]
-    effect_rem = []
-    add_engine1 = HLA(expr("AddEngine1"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=30, use={'EngineHoists': 1})
+    add_engine1 = HLA('AddEngine1', precond='~Has(C1, E1)', effect='Has(C1, E1)', duration=30, use={'EngineHoists': 1})
+    add_engine2 = HLA('AddEngine2', precond='~Has(C2, E2)', effect='Has(C2, E2)', duration=60, use={'EngineHoists': 1})
+    add_wheels1 = HLA('AddWheels1', precond='~Has(C1, W1)', effect='Has(C1, W1)', duration=30, use={'WheelStations': 1}, consume={'LugNuts': 20})
+    add_wheels2 = HLA('AddWheels2', precond='~Has(C2, W2)', effect='Has(C2, W2)', duration=15, use={'WheelStations': 1}, consume={'LugNuts': 20})
+    inspect1 = HLA('Inspect1', precond='~Inspected(C1)', effect='Inspected(C1)', duration=10, use={'Inspectors': 1})
+    inspect2 = HLA('Inspect2', precond='~Inspected(C2)', effect='Inspected(C2)', duration=10, use={'Inspectors': 1})
 
-    # AddEngine2
-    precond_pos = []
-    precond_neg = [expr("Has(C2,E2)")]
-    effect_add = [expr("Has(C2,E2)")]
-    effect_rem = []
-    add_engine2 = HLA(expr("AddEngine2"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=60, use={'EngineHoists': 1})
-
-    # AddWheels1
-    precond_pos = []
-    precond_neg = [expr("Has(C1,W1)")]
-    effect_add = [expr("Has(C1,W1)")]
-    effect_rem = []
-    add_wheels1 = HLA(expr("AddWheels1"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=30, consume={'LugNuts': 20}, use={'WheelStations': 1})
-
-    # AddWheels2
-    precond_pos = []
-    precond_neg = [expr("Has(C2,W2)")]
-    effect_add = [expr("Has(C2,W2)")]
-    effect_rem = []
-    add_wheels2 = HLA(expr("AddWheels2"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=15, consume={'LugNuts': 20}, use={'WheelStations': 1})
-
-    # Inspect1
-    precond_pos = []
-    precond_neg = [expr("Inspected(C1)")]
-    effect_add = [expr("Inspected(C1)")]
-    effect_rem = []
-    inspect1 = HLA(expr("Inspect1"),
-                   [precond_pos, precond_neg], [effect_add, effect_rem],
-                   duration=10, use={'Inspectors': 1})
-
-    # Inspect2
-    precond_pos = []
-    precond_neg = [expr("Inspected(C2)")]
-    effect_add = [expr("Inspected(C2)")]
-    effect_rem = []
-    inspect2 = HLA(expr("Inspect2"),
-                   [precond_pos, precond_neg], [effect_add, effect_rem],
-                   duration=10, use={'Inspectors': 1})
+    actions = [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2]
 
     job_group1 = [add_engine1, add_wheels1, inspect1]
     job_group2 = [add_engine2, add_wheels2, inspect2]
 
-    return Problem(init, [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2],
-                   goal_test, [job_group1, job_group2], resources)
-
-
+    return Problem(init='Car(C1) & Car(C2) & Wheels(W1) & Wheels(W2) & Engine(E2) & Engine(E2) & ~Has(C1, E1) & ~Has(C2, E2) & ~Has(C1, W1) & ~Has(C2, W2) & ~Inspected(C1) & ~Inspected(C2)',
+                   goals='Has(C1, W1) & Has(C1, E1) & Inspected(C1) & Has(C2, W2) & Has(C2, E2) & Inspected(C2)',
+                   actions=actions,
+                   jobs=[job_group1, job_group2],
+                   resources=resources)

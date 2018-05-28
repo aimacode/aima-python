@@ -109,11 +109,12 @@ class Node:
 
     def child_node(self, problem, action):
         """[Figure 3.10]"""
-        next = problem.result(self.state, action)
-        return Node(next, self, action,
+        next_state = problem.result(self.state, action)
+        next_node = Node(next_state, self, action,
                     problem.path_cost(self.path_cost, self.state,
-                                      action, next))
-
+                                      action, next_state))
+        return next_node
+    
     def solution(self):
         """Return the sequence of actions to go from the root to this node."""
         return [node.action for node in self.path()[1:]]
@@ -163,7 +164,7 @@ class SimpleProblemSolvingAgentProgram:
                 return None
         return self.seq.pop(0)
 
-    def update_state(self, percept):
+    def update_state(self, state, percept):
         raise NotImplementedError
 
     def formulate_goal(self, state):
@@ -177,6 +178,7 @@ class SimpleProblemSolvingAgentProgram:
 
 # ______________________________________________________________________________
 # Uninformed Search algorithms
+
 
 def breadth_first_tree_search(problem):
     """Search the shallowest nodes in the search tree first.
@@ -227,7 +229,6 @@ def depth_first_graph_search(problem):
                         if child.state not in explored and
                         child not in frontier)
     return None
-
 
 
 def breadth_first_graph_search(problem):
@@ -657,10 +658,10 @@ def simulated_annealing(problem, schedule=exp_schedule()):
         neighbors = current.expand(problem)
         if not neighbors:
             return current.state
-        next = random.choice(neighbors)
-        delta_e = problem.value(next.state) - problem.value(current.state)
+        next_choice = random.choice(neighbors)
+        delta_e = problem.value(next_choice.state) - problem.value(current.state)
         if delta_e > 0 or probability(math.exp(delta_e / T)):
-            current = next
+            current = next_choice
 
 def simulated_annealing_full(problem, schedule=exp_schedule()):
     """ This version returns all the states encountered in reaching 
@@ -675,10 +676,10 @@ def simulated_annealing_full(problem, schedule=exp_schedule()):
         neighbors = current.expand(problem)
         if not neighbors:
             return current.state
-        next = random.choice(neighbors)
-        delta_e = problem.value(next.state) - problem.value(current.state)
+        next_choice = random.choice(neighbors)
+        delta_e = problem.value(next_choice.state) - problem.value(current.state)
         if delta_e > 0 or probability(math.exp(delta_e / T)):
-            current = next
+            current = next_choice
 
 def and_or_graph_search(problem):
     """[Figure 4.11]Used when the environment is nondeterministic and completely observable.
@@ -816,10 +817,10 @@ class OnlineSearchProblem(Problem):
         self.graph = graph
 
     def actions(self, state):
-        return self.graph.dict[state].keys()
+        return self.graph.graph_dict[state].keys()
 
     def output(self, state, action):
-        return self.graph.dict[state][action]
+        return self.graph.graph_dict[state][action]
 
     def h(self, state):
         """Returns least possible cost to reach a goal for the given state."""
@@ -1004,16 +1005,16 @@ class Graph:
     length of the link from A to B.  'Lengths' can actually be any object at
     all, and nodes can be any hashable object."""
 
-    def __init__(self, dict=None, directed=True):
-        self.dict = dict or {}
+    def __init__(self, graph_dict=None, directed=True):
+        self.graph_dict = graph_dict or {}
         self.directed = directed
         if not directed:
             self.make_undirected()
 
     def make_undirected(self):
         """Make a digraph into an undirected graph by adding symmetric edges."""
-        for a in list(self.dict.keys()):
-            for (b, dist) in self.dict[a].items():
+        for a in list(self.graph_dict.keys()):
+            for (b, dist) in self.graph_dict[a].items():
                 self.connect1(b, a, dist)
 
     def connect(self, A, B, distance=1):
@@ -1025,13 +1026,13 @@ class Graph:
 
     def connect1(self, A, B, distance):
         """Add a link from A to B of given distance, in one direction only."""
-        self.dict.setdefault(A, {})[B] = distance
+        self.graph_dict.setdefault(A, {})[B] = distance
 
     def get(self, a, b=None):
         """Return a link distance or a dict of {node: distance} entries.
         .get(a,b) returns the distance or None;
         .get(a) returns a dict of {node: distance} entries, possibly {}."""
-        links = self.dict.setdefault(a, {})
+        links = self.graph_dict.setdefault(a, {})
         if b is None:
             return links
         else:
@@ -1039,12 +1040,15 @@ class Graph:
 
     def nodes(self):
         """Return a list of nodes in the graph."""
-        return list(self.dict.keys())
+        s1 = set([k for k in self.graph_dict.keys()])
+        s2 = set([k2 for v in self.graph_dict.values() for k2, v2 in v.items()])
+        nodes = s1.union(s2)
+        return list(nodes)
 
 
-def UndirectedGraph(dict=None):
+def UndirectedGraph(graph_dict=None):
     """Build a Graph where every edge (including future ones) goes both ways."""
-    return Graph(dict=dict, directed=False)
+    return Graph(graph_dict = graph_dict, directed=False)
 
 
 def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
@@ -1181,7 +1185,7 @@ class GraphProblem(Problem):
     def find_min_edge(self):
         """Find minimum value of edges."""
         m = infinity
-        for d in self.graph.dict.values():
+        for d in self.graph.graph_dict.values():
             local_min = min(d.values())
             m = min(m, local_min)
 
