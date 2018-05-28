@@ -1,6 +1,5 @@
-import pytest
 import random
-from probability import *  # noqa
+from probability import *
 from utils import rounder
 
 
@@ -125,11 +124,13 @@ def test_forward_backward():
 
     umbrella_evidence = [T, T, F, T, T]
     assert (rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) ==
-            [[0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]])
+            [[0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925],
+             [0.8204, 0.1796], [0.8673, 0.1327]])
 
     umbrella_evidence = [T, F, T, F, T]
-    assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [[0.5871, 0.4129],
-                 [0.7177, 0.2823], [0.2324, 0.7676], [0.6072, 0.3928], [0.2324, 0.7676], [0.7177, 0.2823]]
+    assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [
+            [0.5871, 0.4129], [0.7177, 0.2823], [0.2324, 0.7676], [0.6072, 0.3928],
+            [0.2324, 0.7676], [0.7177, 0.2823]]
 
 
 def test_fixed_lag_smoothing():
@@ -141,7 +142,8 @@ def test_fixed_lag_smoothing():
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     d = 2
-    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.1111, 0.8889]
+    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d,
+                                       umbrella_evidence, t)) == [0.1111, 0.8889]
     d = 5
     assert fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t) is None
 
@@ -150,13 +152,13 @@ def test_fixed_lag_smoothing():
     e_t = T
 
     d = 1
-    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.9939, 0.0061]
+    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM,
+                                       d, umbrella_evidence, t)) == [0.9939, 0.0061]
 
 
 def test_particle_filtering():
     N = 10
     umbrella_evidence = T
-    umbrella_prior = [0.5, 0.5]
     umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
     umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
@@ -164,6 +166,75 @@ def test_particle_filtering():
     assert len(s) == N
     assert all(state in 'AB' for state in s)
     # XXX 'A' and 'B' are really arbitrary names, but I'm letting it stand for now
+
+
+def test_monte_carlo_localization():
+    ## TODO: Add tests for random motion/inaccurate sensors
+    random.seed('aima-python')
+    m = MCLmap([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+                [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+                [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0]])
+
+    def P_motion_sample(kin_state, v, w):
+        """Sample from possible kinematic states.
+        Returns from a single element distribution (no uncertainity in motion)"""
+        pos = kin_state[:2]
+        orient = kin_state[2]
+
+        # for simplicity the robot first rotates and then moves
+        orient = (orient + w)%4
+        for _ in range(orient):
+            v = (v[1], -v[0])
+        pos = vector_add(pos, v)
+        return pos + (orient,)
+
+    def P_sensor(x, y):
+        """Conditional probability for sensor reading"""
+        # Need not be exact probability. Can use a scaled value.
+        if x == y:
+            return 0.8
+        elif abs(x - y) <= 2:
+            return 0.05
+        else:
+            return 0
+
+    from utils import print_table
+    a = {'v': (0, 0), 'w': 0}
+    z = (2, 4, 1, 6)
+    S = monte_carlo_localization(a, z, 1000, P_motion_sample, P_sensor, m)
+    grid = [[0]*17 for _ in range(11)]
+    for x, y, _ in S:
+        if 0 <= x < 11 and 0 <= y < 17:
+            grid[x][y] += 1
+    print("GRID:")
+    print_table(grid)
+
+    a = {'v': (0, 1), 'w': 0}
+    z = (2, 3, 5, 7)
+    S = monte_carlo_localization(a, z, 1000, P_motion_sample, P_sensor, m, S)
+    grid = [[0]*17 for _ in range(11)]
+    for x, y, _ in S:
+        if 0 <= x < 11 and 0 <= y < 17:
+            grid[x][y] += 1
+    print("GRID:")
+    print_table(grid)
+
+    assert grid[6][7] > 700
+
+
+def test_gibbs_ask():
+    possible_solutions = ['False: 0.16, True: 0.84', 'False: 0.17, True: 0.83',
+                          'False: 0.15, True: 0.85']
+    g_solution = gibbs_ask('Cloudy', dict(Rain=True), sprinkler, 200).show_approx()
+    assert g_solution in possible_solutions
 
 
 # The following should probably go in .ipynb:
@@ -181,7 +252,7 @@ def test_particle_filtering():
 >>> P['rain']               #doctest:+ELLIPSIS
 0.2...
 
-# A Joint Probability Distribution is dealt with like this [Figure 13.3]:  # noqa
+# A Joint Probability Distribution is dealt with like this [Figure 13.3]:
 >>> P = JointProbDist(['Toothache', 'Cavity', 'Catch'])
 >>> T, F = True, False
 >>> P[T, T, T] = 0.108; P[T, T, F] = 0.012; P[F, T, T] = 0.072; P[F, T, F] = 0.008

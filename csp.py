@@ -12,15 +12,15 @@ import random
 
 
 class CSP(search.Problem):
-
     """This class describes finite-domain Constraint Satisfaction Problems.
     A CSP is specified by the following inputs:
-        variables        A list of variables; each is atomic (e.g. int or string).
+        variables   A list of variables; each is atomic (e.g. int or string).
         domains     A dict of {var:[possible_value, ...]} entries.
         neighbors   A dict of {var:[var,...]} that for each variable lists
                     the other variables that participate in constraints.
         constraints A function f(A, a, B, b) that returns true if neighbors
                     A, B satisfy the constraint when they have values A=a, B=b
+
     In the textbook and in most mathematical definitions, the
     constraints are specified as explicit pairs of allowable values,
     but the formulation here is easier to express and more compact for
@@ -30,7 +30,7 @@ class CSP(search.Problem):
     problem, that's all there is.
 
     However, the class also supports data structures and methods that help you
-    solve CSPs by calling a search function on the CSP.  Methods and slots are
+    solve CSPs by calling a search function on the CSP. Methods and slots are
     as follows, where the argument 'a' represents an assignment, which is a
     dict of {var:val} entries:
         assign(var, val, a)     Assign a[var] = val; do other bookkeeping
@@ -49,7 +49,7 @@ class CSP(search.Problem):
     """
 
     def __init__(self, variables, domains, neighbors, constraints):
-        "Construct a CSP problem. If variables is empty, it becomes domains.keys()."
+        """Construct a CSP problem. If variables is empty, it becomes domains.keys()."""
         variables = variables or list(domains.keys())
 
         self.variables = variables
@@ -61,7 +61,7 @@ class CSP(search.Problem):
         self.nassigns = 0
 
     def assign(self, var, val, assignment):
-        "Add {var: val} to assignment; Discard the old value if any."
+        """Add {var: val} to assignment; Discard the old value if any."""
         assignment[var] = val
         self.nassigns += 1
 
@@ -73,7 +73,7 @@ class CSP(search.Problem):
             del assignment[var]
 
     def nconflicts(self, var, val, assignment):
-        "Return the number of conflicts var=val has with other variables."
+        """Return the number of conflicts var=val has with other variables."""
         # Subclasses may implement this more efficiently
         def conflict(var2):
             return (var2 in assignment and
@@ -81,11 +81,11 @@ class CSP(search.Problem):
         return count(conflict(v) for v in self.neighbors[var])
 
     def display(self, assignment):
-        "Show a human-readable representation of the CSP."
+        """Show a human-readable representation of the CSP."""
         # Subclasses can print in a prettier way, or display with a GUI
         print('CSP:', self, 'with assignment:', assignment)
 
-    # These methods are for the tree- and graph-search interface:
+    # These methods are for the tree and graph-search interface:
 
     def actions(self, state):
         """Return a list of applicable actions: nonconflicting
@@ -99,12 +99,12 @@ class CSP(search.Problem):
                     if self.nconflicts(var, val, assignment) == 0]
 
     def result(self, state, action):
-        "Perform an action and return the new state."
+        """Perform an action and return the new state."""
         (var, val) = action
         return state + ((var, val),)
 
     def goal_test(self, state):
-        "The goal is to assign all variables, with all constraints satisfied."
+        """The goal is to assign all variables, with all constraints satisfied."""
         assignment = dict(state)
         return (len(assignment) == len(self.variables)
                 and all(self.nconflicts(variables, assignment[variables], assignment) == 0
@@ -119,37 +119,37 @@ class CSP(search.Problem):
             self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
 
     def suppose(self, var, value):
-        "Start accumulating inferences from assuming var=value."
+        """Start accumulating inferences from assuming var=value."""
         self.support_pruning()
         removals = [(var, a) for a in self.curr_domains[var] if a != value]
         self.curr_domains[var] = [value]
         return removals
 
     def prune(self, var, value, removals):
-        "Rule out var=value."
+        """Rule out var=value."""
         self.curr_domains[var].remove(value)
         if removals is not None:
             removals.append((var, value))
 
     def choices(self, var):
-        "Return all values for var that aren't currently ruled out."
+        """Return all values for var that aren't currently ruled out."""
         return (self.curr_domains or self.domains)[var]
 
     def infer_assignment(self):
-        "Return the partial assignment implied by the current inferences."
+        """Return the partial assignment implied by the current inferences."""
         self.support_pruning()
         return {v: self.curr_domains[v][0]
                 for v in self.variables if 1 == len(self.curr_domains[v])}
 
     def restore(self, removals):
-        "Undo a supposition and all inferences from it."
+        """Undo a supposition and all inferences from it."""
         for B, b in removals:
             self.curr_domains[B].append(b)
 
     # This is for min_conflicts search
 
     def conflicted_vars(self, current):
-        "Return a list of variables in current assignment that are in conflict"
+        """Return a list of variables in current assignment that are in conflict"""
         return [var for var in self.variables
                 if self.nconflicts(var, current[var], current) > 0]
 
@@ -168,13 +168,13 @@ def AC3(csp, queue=None, removals=None):
             if not csp.curr_domains[Xi]:
                 return False
             for Xk in csp.neighbors[Xi]:
-                if Xk != Xi:
+                if Xk != Xj:
                     queue.append((Xk, Xi))
     return True
 
 
 def revise(csp, Xi, Xj, removals):
-    "Return true if we remove a value."
+    """Return true if we remove a value."""
     revised = False
     for x in csp.curr_domains[Xi][:]:
         # If Xi=x conflicts with Xj=y for every possible y, eliminate Xi=x
@@ -190,12 +190,12 @@ def revise(csp, Xi, Xj, removals):
 
 
 def first_unassigned_variable(assignment, csp):
-    "The default variable order."
+    """The default variable order."""
     return first([var for var in csp.variables if var not in assignment])
 
 
 def mrv(assignment, csp):
-    "Minimum-remaining-values heuristic."
+    """Minimum-remaining-values heuristic."""
     return argmin_random_tie(
         [v for v in csp.variables if v not in assignment],
         key=lambda var: num_legal_values(csp, var, assignment))
@@ -212,12 +212,12 @@ def num_legal_values(csp, var, assignment):
 
 
 def unordered_domain_values(var, assignment, csp):
-    "The default value order."
+    """The default value order."""
     return csp.choices(var)
 
 
 def lcv(var, assignment, csp):
-    "Least-constraining-values heuristic."
+    """Least-constraining-values heuristic."""
     return sorted(csp.choices(var),
                   key=lambda val: csp.nconflicts(var, val, assignment))
 
@@ -229,7 +229,7 @@ def no_inference(csp, var, value, assignment, removals):
 
 
 def forward_checking(csp, var, value, assignment, removals):
-    "Prune neighbor values inconsistent with var=value."
+    """Prune neighbor values inconsistent with var=value."""
     for B in csp.neighbors[var]:
         if B not in assignment:
             for b in csp.curr_domains[B][:]:
@@ -241,7 +241,7 @@ def forward_checking(csp, var, value, assignment, removals):
 
 
 def mac(csp, var, value, assignment, removals):
-    "Maintain arc consistency."
+    """Maintain arc consistency."""
     return AC3(csp, [(X, var) for X in csp.neighbors[var]], removals)
 
 # The search, proper
@@ -251,8 +251,7 @@ def backtracking_search(csp,
                         select_unassigned_variable=first_unassigned_variable,
                         order_domain_values=unordered_domain_values,
                         inference=no_inference):
-    """[Figure 6.5]
-    """
+    """[Figure 6.5]"""
 
     def backtrack(assignment):
         if len(assignment) == len(csp.variables):
@@ -306,33 +305,98 @@ def min_conflicts_value(csp, var, current):
 
 
 def tree_csp_solver(csp):
-    "[Figure 6.11]"
+    """[Figure 6.11]"""
     assignment = {}
     root = csp.variables[0]
-    X, parent = topological_sort(csp.variables, root)
-    for Xj in reversed(X):
+    X, parent = topological_sort(csp, root)
+
+    csp.support_pruning()
+    for Xj in reversed(X[1:]):
         if not make_arc_consistent(parent[Xj], Xj, csp):
             return None
-    for Xi in X:
-        if not csp.curr_domains[Xi]:
+
+    assignment[root] = csp.curr_domains[root][0]
+    for Xi in X[1:]:
+        assignment[Xi] = assign_value(parent[Xi], Xi, csp, assignment)
+        if not assignment[Xi]:
             return None
-        assignment[Xi] = csp.curr_domains[Xi][0]
     return assignment
 
 
-def topological_sort(xs, x):
-    raise NotImplementedError
+def topological_sort(X, root):
+    """Returns the topological sort of X starting from the root.
+
+    Input:
+    X is a list with the nodes of the graph
+    N is the dictionary with the neighbors of each node
+    root denotes the root of the graph.
+
+    Output:
+    stack is a list with the nodes topologically sorted
+    parents is a dictionary pointing to each node's parent
+
+    Other:
+    visited shows the state (visited - not visited) of nodes
+
+    """
+    neighbors = X.neighbors
+
+    visited = defaultdict(lambda: False)
+
+    stack = []
+    parents = {}
+
+    build_topological(root, None, neighbors, visited, stack, parents)
+    return stack, parents
+
+
+def build_topological(node, parent, neighbors, visited, stack, parents):
+    """Build the topological sort and the parents of each node in the graph."""
+    visited[node] = True
+
+    for n in neighbors[node]:
+        if(not visited[n]):
+            build_topological(n, node, neighbors, visited, stack, parents)
+
+    parents[node] = parent
+    stack.insert(0, node)
 
 
 def make_arc_consistent(Xj, Xk, csp):
-    raise NotImplementedError
+    """Make arc between parent (Xj) and child (Xk) consistent under the csp's constraints,
+    by removing the possible values of Xj that cause inconsistencies."""
+    #csp.curr_domains[Xj] = []
+    for val1 in csp.domains[Xj]:
+        keep = False # Keep or remove val1
+        for val2 in csp.domains[Xk]:
+            if csp.constraints(Xj, val1, Xk, val2):
+                # Found a consistent assignment for val1, keep it
+                keep = True
+                break
+        
+        if not keep:
+            # Remove val1
+            csp.prune(Xj, val1, None)
+
+    return csp.curr_domains[Xj]
+
+
+def assign_value(Xj, Xk, csp, assignment):
+    """Assign a value to Xk given Xj's (Xk's parent) assignment.
+    Return the first value that satisfies the constraints."""
+    parent_assignment = assignment[Xj]
+    for val in csp.curr_domains[Xk]:
+        if csp.constraints(Xj, parent_assignment, Xk, val):
+            return val
+
+    # No consistent assignment available
+    return None
 
 # ______________________________________________________________________________
 # Map-Coloring Problems
 
 
 class UniversalDict:
-
     """A universal dict maps any key to the same value. We use it here
     as the domains dict for CSPs in which all variables have the same domain.
     >>> d = UniversalDict(42)
@@ -344,18 +408,18 @@ class UniversalDict:
 
     def __getitem__(self, key): return self.value
 
-    def __repr__(self): return '{Any: %r}' % self.value
+    def __repr__(self): return '{{Any: {0!r}}}'.format(self.value)
 
 
 def different_values_constraint(A, a, B, b):
-    "A constraint saying two neighboring variables must differ in value."
+    """A constraint saying two neighboring variables must differ in value."""
     return a != b
 
 
 def MapColoringCSP(colors, neighbors):
     """Make a CSP for the problem of coloring a map with different colors
-    for any two adjacent regions.  Arguments are a list of colors, and a
-    dict of {region: [neighbor,...]} entries.  This dict may also be
+    for any two adjacent regions. Arguments are a list of colors, and a
+    dict of {region: [neighbor,...]} entries. This dict may also be
     specified as a string of the form defined by parse_neighbors."""
     if isinstance(neighbors, str):
         neighbors = parse_neighbors(neighbors)
@@ -363,11 +427,11 @@ def MapColoringCSP(colors, neighbors):
                different_values_constraint)
 
 
-def parse_neighbors(neighbors, variables=[]):
+def parse_neighbors(neighbors, variables=None):
     """Convert a string of the form 'X: Y Z; Y: Z' into a dict mapping
-    regions to neighbors.  The syntax is a region name followed by a ':'
+    regions to neighbors. The syntax is a region name followed by a ':'
     followed by zero or more region names, followed by ';', repeated for
-    each region name.  If you say 'X: Y' you don't need 'Y: X'.
+    each region name. If you say 'X: Y' you don't need 'Y: X'.
     >>> parse_neighbors('X: Y Z; Y: Z') == {'Y': ['X', 'Z'], 'X': ['Y', 'Z'], 'Z': ['X', 'Y']}
     True
     """
@@ -379,6 +443,7 @@ def parse_neighbors(neighbors, variables=[]):
             dic[A].append(B)
             dic[B].append(A)
     return dic
+
 
 australia = MapColoringCSP(list('RGB'),
                            'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
@@ -413,7 +478,6 @@ def queen_constraint(A, a, B, b):
 
 
 class NQueensCSP(CSP):
-
     """Make a CSP for the nQueens problem for search with min_conflicts.
     Suitable for large n, it uses only data structures of size O(n).
     Think of placing queens one per column, from left to right.
@@ -453,7 +517,7 @@ class NQueensCSP(CSP):
         return c
 
     def assign(self, var, val, assignment):
-        "Assign var, and keep track of conflicts."
+        """Assign var, and keep track of conflicts."""
         oldval = assignment.get(var, None)
         if val != oldval:
             if oldval is not None:  # Remove old val if there was one
@@ -462,20 +526,20 @@ class NQueensCSP(CSP):
             CSP.assign(self, var, val, assignment)
 
     def unassign(self, var, assignment):
-        "Remove var from assignment (if it is there) and track conflicts."
+        """Remove var from assignment (if it is there) and track conflicts."""
         if var in assignment:
             self.record_conflict(assignment, var, assignment[var], -1)
         CSP.unassign(self, var, assignment)
 
     def record_conflict(self, assignment, var, val, delta):
-        "Record conflicts caused by addition or deletion of a Queen."
+        """Record conflicts caused by addition or deletion of a Queen."""
         n = len(self.variables)
         self.rows[val] += delta
         self.downs[var + val] += delta
         self.ups[var - val + n - 1] += delta
 
     def display(self, assignment):
-        "Print the queens and the nconflicts values (for debugging)."
+        """Print the queens and the nconflicts values (for debugging)."""
         n = len(self.variables)
         for val in range(n):
             for var in range(n):
@@ -499,10 +563,12 @@ class NQueensCSP(CSP):
 # Sudoku
 
 
-def flatten(seqs): return sum(seqs, [])
+def flatten(seqs):
+    return sum(seqs, [])
 
-easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'  # noqa
-harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'  # noqa
+
+easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'
+harder1 = '4173698.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
 
 _R3 = list(range(3))
 _CELL = itertools.count().__next__
@@ -514,11 +580,10 @@ _COLS = list(zip(*_ROWS))
 _NEIGHBORS = {v: set() for v in flatten(_ROWS)}
 for unit in map(set, _BOXES + _ROWS + _COLS):
     for v in unit:
-        _NEIGHBORS[v].update(unit - set([v]))
+        _NEIGHBORS[v].update(unit - {v})
 
 
 class Sudoku(CSP):
-
     """A Sudoku problem.
     The box grid is a 3x3 array of boxes, each a 3x3 array of cells.
     Each cell holds a digit in 1..9. In each box, all digits are
@@ -552,7 +617,8 @@ class Sudoku(CSP):
     >>> h = Sudoku(harder1)
     >>> backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking) is not None
     True
-    """
+    """  # noqa
+
     R3 = _R3
     Cell = _CELL
     bgrid = _BGRID
@@ -587,7 +653,7 @@ class Sudoku(CSP):
 
 
 def Zebra():
-    "Return an instance of the Zebra Puzzle."
+    """Return an instance of the Zebra Puzzle."""
     Colors = 'Red Yellow Blue Green Ivory'.split()
     Pets = 'Dog Fox Snails Horse Zebra'.split()
     Drinks = 'OJ Tea Coffee Milk Water'.split()

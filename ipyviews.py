@@ -20,14 +20,14 @@ _CONTINUOUS_WORLD_HTML = '''
 var all_polygons = {3};
 {4}
 </script>
-'''
+'''  # noqa
 
 with open('js/continuousworld.js', 'r') as js_file:
     _JS_CONTINUOUS_WORLD = js_file.read()
 
 
 class ContinuousWorldView:
-    ''' View for continuousworld Implementation in agents.py '''
+    """ View for continuousworld Implementation in agents.py """
 
     def __init__(self, world, fill="#AAA"):
         self.time = time.time()
@@ -61,7 +61,9 @@ class ContinuousWorldView:
 
     def show(self):
         clear_output()
-        total_html = _CONTINUOUS_WORLD_HTML.format(self.width, self.height, self.object_name(), str(self.get_polygon_obstacles_coordinates()), _JS_CONTINUOUS_WORLD)
+        total_html = _CONTINUOUS_WORLD_HTML.format(self.width, self.height, self.object_name(),
+                                                   str(self.get_polygon_obstacles_coordinates()),
+                                                   _JS_CONTINUOUS_WORLD)
         display(HTML(total_html))
 
 

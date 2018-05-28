@@ -13,7 +13,7 @@ Be careful: some functions take an Expr as argument, and some take a KB.
 Logical expressions can be created with Expr or expr, imported from utils, TODO
 or with expr, which adds the capability to write a string that uses
 the connectives ==>, <==, <=>, or <=/=>. But be careful: these have the
-opertor precedence of commas; you may need to add parens to make precendence work.
+operator precedence of commas; you may need to add parens to make precedence work.
 See logic.ipynb for examples.
 
 Then we implement various functions for doing logical inference:
@@ -33,9 +33,10 @@ And a few other functions:
 
 from utils import (
     removeall, unique, first, argmax, probability,
-    isnumber, issequence, Symbol, Expr, expr, subexpressions
+    isnumber, issequence, Expr, expr, subexpressions
 )
 import agents
+from search import astar_search, PlanRoute
 
 import itertools
 import random
@@ -60,7 +61,7 @@ class KB:
         raise NotImplementedError
 
     def tell(self, sentence):
-        "Add the sentence to the KB."
+        """Add the sentence to the KB."""
         raise NotImplementedError
 
     def ask(self, query):
@@ -68,17 +69,16 @@ class KB:
         return first(self.ask_generator(query), default=False)
 
     def ask_generator(self, query):
-        "Yield all the substitutions that make query true."
+        """Yield all the substitutions that make query true."""
         raise NotImplementedError
 
     def retract(self, sentence):
-        "Remove sentence from the KB."
+        """Remove sentence from the KB."""
         raise NotImplementedError
 
 
 class PropKB(KB):
-
-    "A KB for propositional logic. Inefficient, with no indexing."
+    """A KB for propositional logic. Inefficient, with no indexing."""
 
     def __init__(self, sentence=None):
         self.clauses = []
@@ -86,22 +86,22 @@ class PropKB(KB):
             self.tell(sentence)
 
     def tell(self, sentence):
-        "Add the sentence's clauses to the KB."
+        """Add the sentence's clauses to the KB."""
         self.clauses.extend(conjuncts(to_cnf(sentence)))
 
     def ask_generator(self, query):
-        "Yield the empty substitution {} if KB entails query; else no results."
+        """Yield the empty substitution {} if KB entails query; else no results."""
         if tt_entails(Expr('&', *self.clauses), query):
             yield {}
 
     def ask_if_true(self, query):
-        "Return True if the KB entails query, else return False."
+        """Return True if the KB entails query, else return False."""
         for _ in self.ask_generator(query):
             return True
         return False
 
     def retract(self, sentence):
-        "Remove the sentence's clauses from the KB."
+        """Remove the sentence's clauses from the KB."""
         for c in conjuncts(to_cnf(sentence)):
             if c in self.clauses:
                 self.clauses.remove(c)
@@ -120,25 +120,25 @@ def KB_AgentProgram(KB):
         KB.tell(make_action_sentence(action, t))
         return action
 
-    def make_percept_sentence(self, percept, t):
+    def make_percept_sentence(percept, t):
         return Expr("Percept")(percept, t)
 
-    def make_action_query(self, t):
+    def make_action_query(t):
         return expr("ShouldDo(action, {})".format(t))
 
-    def make_action_sentence(self, action, t):
+    def make_action_sentence(action, t):
         return Expr("Did")(action[expr('action')], t)
 
     return program
 
 
 def is_symbol(s):
-    "A string s is a symbol if it starts with an alphabetic char."
+    """A string s is a symbol if it starts with an alphabetic char."""
     return isinstance(s, str) and s[:1].isalpha()
 
 
 def is_var_symbol(s):
-    "A logic variable symbol is an initial-lowercase string."
+    """A logic variable symbol is an initial-lowercase string."""
     return is_symbol(s) and s[0].islower()
 
 
@@ -156,7 +156,7 @@ def variables(s):
 
 
 def is_definite_clause(s):
-    """returns True for exprs s of the form A & B & ... & C ==> D,
+    """Returns True for exprs s of the form A & B & ... & C ==> D,
     where all literals are positive.  In clause form, this is
     ~A | ~B | ... | ~C | D, where exactly one clause is positive.
     >>> is_definite_clause(expr('Farmer(Mac)'))
@@ -173,13 +173,14 @@ def is_definite_clause(s):
 
 
 def parse_definite_clause(s):
-    "Return the antecedents and the consequent of a definite clause."
+    """Return the antecedents and the consequent of a definite clause."""
     assert is_definite_clause(s)
     if is_symbol(s.op):
         return [], s
     else:
         antecedent, consequent = s.args
         return conjuncts(antecedent), consequent
+
 
 # Useful constant Exprs used in examples and code:
 A, B, C, D, E, F, G, P, Q, x, y, z = map(Expr, 'ABCDEFGPQxyz')
@@ -196,11 +197,12 @@ def tt_entails(kb, alpha):
     True
     """
     assert not variables(alpha)
-    return tt_check_all(kb, alpha, prop_symbols(kb & alpha), {})
+    symbols = list(prop_symbols(kb & alpha))
+    return tt_check_all(kb, alpha, symbols, {})
 
 
 def tt_check_all(kb, alpha, symbols, model):
-    "Auxiliary routine to implement tt_entails."
+    """Auxiliary routine to implement tt_entails."""
     if not symbols:
         if pl_true(kb, model):
             result = pl_true(alpha, model)
@@ -215,13 +217,33 @@ def tt_check_all(kb, alpha, symbols, model):
 
 
 def prop_symbols(x):
-    "Return a list of all propositional symbols in x."
+    """Return the set of all propositional symbols in x."""
     if not isinstance(x, Expr):
-        return []
+        return set()
     elif is_prop_symbol(x.op):
-        return [x]
+        return {x}
     else:
-        return list(set(symbol for arg in x.args for symbol in prop_symbols(arg)))
+        return {symbol for arg in x.args for symbol in prop_symbols(arg)}
+
+
+def constant_symbols(x):
+    """Return the set of all constant symbols in x."""
+    if not isinstance(x, Expr):
+        return set()
+    elif is_prop_symbol(x.op) and not x.args:
+        return {x}
+    else:
+        return {symbol for arg in x.args for symbol in constant_symbols(arg)}
+
+
+def predicate_symbols(x):
+    """Return a set of (symbol_name, arity) in x.
+    All symbols (even functional) with arity > 0 are considered."""
+    if not isinstance(x, Expr) or not x.args:
+        return set()
+    pred_set = {(x.op, len(x.args))} if is_prop_symbol(x.op) else set()
+    pred_set.update({symbol for arg in x.args for symbol in predicate_symbols(arg)})
+    return pred_set
 
 
 def tt_true(s):
@@ -305,7 +327,7 @@ def to_cnf(s):
 
 
 def eliminate_implications(s):
-    "Change implications into equivalent form with only &, |, and ~ as logical operators."
+    """Change implications into equivalent form with only &, |, and ~ as logical operators."""
     s = expr(s)
     if not s.args or is_symbol(s.op):
         return s  # Atoms are unchanged.
@@ -392,6 +414,7 @@ def associate(op, args):
     else:
         return Expr(op, *args)
 
+
 _op_identity = {'&': True, '|': False, '+': 0, '*': 1}
 
 
@@ -433,7 +456,7 @@ def disjuncts(s):
 
 
 def pl_resolution(KB, alpha):
-    "Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]"
+    """Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]"""
     clauses = KB.clauses + conjuncts(to_cnf(~alpha))
     new = set()
     while True:
@@ -467,16 +490,15 @@ def pl_resolve(ci, cj):
 
 
 class PropDefiniteKB(PropKB):
-
-    "A KB of propositional definite clauses."
+    """A KB of propositional definite clauses."""
 
     def tell(self, sentence):
-        "Add a definite clause to this KB."
+        """Add a definite clause to this KB."""
         assert is_definite_clause(sentence), "Must be definite clause"
         self.clauses.append(sentence)
 
     def ask_generator(self, query):
-        "Yield the empty substitution if KB implies query; else nothing."
+        """Yield the empty substitution if KB implies query; else nothing."""
         if pl_fc_entails(self.clauses, query):
             yield {}
 
@@ -513,6 +535,7 @@ def pl_fc_entails(KB, q):
                     agenda.append(c.args[1])
     return False
 
+
 """ [Figure 7.13]
 Simple inference in a wumpus world example
 """
@@ -537,12 +560,12 @@ def dpll_satisfiable(s):
     function find_pure_symbol is passed a list of unknown clauses, rather
     than a list of all clauses and the model; this is more efficient."""
     clauses = conjuncts(to_cnf(s))
-    symbols = prop_symbols(s)
+    symbols = list(prop_symbols(s))
     return dpll(clauses, symbols, {})
 
 
 def dpll(clauses, symbols, model):
-    "See if the clauses are true in a partial model."
+    """See if the clauses are true in a partial model."""
     unknown_clauses = []  # clauses with an unknown truth value
     for c in clauses:
         val = pl_true(c, model)
@@ -640,7 +663,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
     """Checks for satisfiability of all clauses by randomly flipping values of variables
     """
     # Set of all symbols in all clauses
-    symbols = set(sym for clause in clauses for sym in prop_symbols(clause))
+    symbols = {sym for clause in clauses for sym in prop_symbols(clause)}
     # model is a random assignment of true/false to the symbols in clauses
     model = {s: random.choice([True, False]) for s in symbols}
     for i in range(max_flips):
@@ -651,7 +674,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
             return model
         clause = random.choice(unsatisfied)
         if probability(p):
-            sym = random.choice(prop_symbols(clause))
+            sym = random.choice(list(prop_symbols(clause)))
         else:
             # Flip the symbol in clause that maximizes number of sat. clauses
             def sat_count(sym):
@@ -668,16 +691,450 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 # ______________________________________________________________________________
 
 
-class HybridWumpusAgent(agents.Agent):
+# Expr functions for WumpusKB and HybridWumpusAgent
 
-    "An agent for the wumpus world that does logical inference. [Figure 7.20]"""
+def facing_east (time):
+    return Expr('FacingEast', time)
+
+def facing_west (time):
+    return Expr('FacingWest', time)
+
+def facing_north (time):
+    return Expr('FacingNorth', time)
+
+def facing_south (time):
+    return Expr('FacingSouth', time)
+
+def wumpus (x, y):
+    return Expr('W', x, y)
+
+def pit(x, y):
+    return Expr('P', x, y)
+
+def breeze(x, y):
+    return Expr('B', x, y)
+
+def stench(x, y):
+    return Expr('S', x, y)
+
+def wumpus_alive(time):
+    return Expr('WumpusAlive', time)
+
+def have_arrow(time):
+    return Expr('HaveArrow', time)
+
+def percept_stench(time):
+    return Expr('Stench', time)
+
+def percept_breeze(time):
+    return Expr('Breeze', time)
+
+def percept_glitter(time):
+    return Expr('Glitter', time)
+
+def percept_bump(time):
+    return Expr('Bump', time)
+
+def percept_scream(time):
+    return Expr('Scream', time)
+
+def move_forward(time):
+    return Expr('Forward', time)
+
+def shoot(time):
+    return Expr('Shoot', time)
+
+def turn_left(time):
+    return Expr('TurnLeft', time)
+
+def turn_right(time):
+    return Expr('TurnRight', time)
+
+def ok_to_move(x, y, time):
+    return Expr('OK', x, y, time)
+
+def location(x, y, time = None):
+    if time is None:
+        return Expr('L', x, y)
+    else:
+        return Expr('L', x, y, time)
+
+# Symbols
+
+def implies(lhs, rhs):
+    return Expr('==>', lhs, rhs)
+
+def equiv(lhs, rhs):
+    return Expr('<=>', lhs, rhs)
+
+# Helper Function
+
+def new_disjunction(sentences):
+    t = sentences[0]
+    for i in range(1,len(sentences)):
+        t |= sentences[i]
+    return t
+
+
+# ______________________________________________________________________________
+
+
+class WumpusKB(PropKB):
+    """
+    Create a Knowledge Base that contains the atemporal "Wumpus physics" and temporal rules with time zero.
+    """
+
+    def __init__(self,dimrow):
+        super().__init__()
+        self.dimrow = dimrow
+        self.tell( ~wumpus(1, 1) )
+        self.tell( ~pit(1, 1) )
+
+        for y in range(1, dimrow+1):
+            for x in range(1, dimrow+1):
+
+                pits_in = list()
+                wumpus_in = list()
+
+                if x > 1: # West room exists
+                    pits_in.append(pit(x - 1, y))
+                    wumpus_in.append(wumpus(x - 1, y))
+
+                if y < dimrow: # North room exists
+                    pits_in.append(pit(x, y + 1))
+                    wumpus_in.append(wumpus(x, y + 1))
+
+                if x < dimrow: # East room exists
+                    pits_in.append(pit(x + 1, y))
+                    wumpus_in.append(wumpus(x + 1, y))
+
+                if y > 1: # South room exists
+                    pits_in.append(pit(x, y - 1))
+                    wumpus_in.append(wumpus(x, y - 1))
+
+                self.tell(equiv(breeze(x, y), new_disjunction(pits_in)))
+                self.tell(equiv(stench(x, y), new_disjunction(wumpus_in)))
+
+
+        ## Rule that describes existence of at least one Wumpus
+        wumpus_at_least = list()
+        for x in range(1, dimrow+1):
+            for y in range(1, dimrow + 1):
+                wumps_at_least.append(wumpus(x, y))
+
+        self.tell(new_disjunction(wumpus_at_least))
+
+
+        ## Rule that describes existence of at most one Wumpus
+        for i in range(1, dimrow+1):
+            for j in range(1, dimrow+1):
+                for u in range(1, dimrow+1):
+                    for v in range(1, dimrow+1):
+                        if i!=u or j!=v:
+                            self.tell(~wumpus(i, j) | ~wumpus(u, v))
+
+
+        ## Temporal rules at time zero
+        self.tell(location(1, 1, 0))
+        for i in range(1, dimrow+1):
+            for j in range(1, dimrow + 1):
+                self.tell(implies(location(i, j, 0), equiv(percept_breeze(0), breeze(i, j))))
+                self.tell(implies(location(i, j, 0), equiv(percept_stench(0), stench(i, j))))
+                if i != 1 or j != 1:
+                    self.tell(~location(i, j, 0))
+
+        self.tell(wumpus_alive(0))
+        self.tell(have_arrow(0))
+        self.tell(facing_east(0))
+        self.tell(~facing_north(0))
+        self.tell(~facing_south(0))
+        self.tell(~facing_west(0))
+
+
+    def make_action_sentence(self, action, time):
+        actions = [move_forward(time), shoot(time), turn_left(time), turn_right(time)]
+
+        for a in actions:
+            if action is a:
+                self.tell(action)
+            else:
+                self.tell(~a)
+
+    def make_percept_sentence(self, percept, time):
+        # Glitter, Bump, Stench, Breeze, Scream
+        flags = [0, 0, 0, 0, 0]
+
+        ## Things perceived
+        if isinstance(percept, Glitter):
+            flags[0] = 1
+            self.tell(percept_glitter(time))
+        elif isinstance(percept, Bump):
+            flags[1] = 1
+            self.tell(percept_bump(time))
+        elif isinstance(percept, Stench):
+            flags[2] = 1
+            self.tell(percept_stench(time))
+        elif isinstance(percept, Breeze):
+            flags[3] = 1
+            self.tell(percept_breeze(time))
+        elif isinstance(percept, Scream):
+            flags[4] = 1
+            self.tell(percept_scream(time))
+
+        ## Things not perceived
+        for i in len(range(flags)):
+            if flags[i] == 0:
+                if i == 0:
+                    self.tell(~percept_glitter(time))
+                elif i == 1:
+                    self.tell(~percept_bump(time))
+                elif i == 2:
+                    self.tell(~percept_stench(time))
+                elif i == 3:
+                    self.tell(~percept_breeze(time))
+                elif i == 4:
+                    self.tell(~percept_scream(time))
+
+
+    def add_temporal_sentences(self, time):
+        if time == 0:
+            return
+        t = time - 1
+
+        ## current location rules
+        for i in range(1, self.dimrow+1):
+            for j in range(1, self.dimrow+1):
+                self.tell(implies(location(i, j, time), equiv(percept_breeze(time), breeze(i, j))))
+                self.tell(implies(location(i, j, time), equiv(percept_stench(time), stench(i, j))))
+
+                s = list()
+
+                s.append(
+                    equiv(
+                        location(i, j, time), location(i, j, time) & ~move_forward(time) | percept_bump(time)))
+
+                if i != 1:
+                    s.append(location(i - 1, j, t) & facing_east(t) & move_forward(t))
+
+                if i != self.dimrow:
+                    s.append(location(i + 1, j, t) & facing_west(t) & move_forward(t))
+
+                if j != 1:
+                    s.append(location(i, j - 1, t) & facing_north(t) & move_forward(t))
+
+                if j != self.dimrow:
+                    s.append(location(i, j + 1, t) & facing_south(t) & move_forward(t))
+
+                ## add sentence about location i,j
+                self.tell(new_disjunction(s))
+
+                ## add sentence about safety of location i,j
+                self.tell(
+                    equiv(ok_to_move(i, j, time), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(time))
+                )
+
+        ## Rules about current orientation
+
+        a = facing_north(t) & turn_right(t)
+        b = facing_south(t) & turn_left(t)
+        c = facing_east(t) & ~turn_left(t) & ~turn_right(t)
+        s = equiv(facing_east(time), a | b | c)
+        self.tell(s)
+
+        a = facing_north(t) & turn_left(t)
+        b = facing_south(t) & turn_right(t)
+        c = facing_west(t) & ~turn_left(t) & ~turn_right(t)
+        s = equiv(facing_west(time), a | b | c)
+        self.tell(s)
+
+        a = facing_east(t) & turn_left(t)
+        b = facing_west(t) & turn_right(t)
+        c = facing_north(t) & ~turn_left(t) & ~turn_right(t)
+        s = equiv(facing_north(time), a | b | c)
+        self.tell(s)
+
+        a = facing_west(t) & turn_left(t)
+        b = facing_east(t) & turn_right(t)
+        c = facing_south(t) & ~turn_left(t) & ~turn_right(t)
+        s = equiv(facing_south(time), a | b | c)
+        self.tell(s)
+
+        ## Rules about last action
+        self.tell(equiv(move_forward(t), ~turn_right(t) & ~turn_left(t)))
+
+        ##Rule about the arrow
+        self.tell(equiv(have_arrow(time), have_arrow(t) & ~shoot(t)))
+
+        ##Rule about Wumpus (dead or alive)
+        self.tell(equiv(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
+
+
+    def ask_if_true(self, query):
+        return pl_resolution(self, query)
+
+
+# ______________________________________________________________________________
+
+
+class WumpusPosition():
+    def __init__(self, x, y, orientation):
+        self.X = x
+        self.Y = y
+        self.orientation = orientation
+
+
+    def get_location(self):
+        return self.X, self.Y
+
+    def set_location(self, x, y):
+        self.X = x
+        self.Y = y
+
+    def get_orientation(self):
+        return self.orientation
+
+    def set_orientation(self, orientation):
+        self.orientation = orientation
+
+    def __eq__(self, other):
+        if other.get_location() == self.get_location() and \
+                        other.get_orientation()==self.get_orientation():
+            return True
+        else:
+            return False
+
+# ______________________________________________________________________________
+
+
+class HybridWumpusAgent(agents.Agent):
+    """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
     def __init__(self):
-        raise NotImplementedError
+        super().__init__()
+        self.dimrow = 4
+        self.kb = WumpusKB(self.dimrow)
+        self.t = 0
+        self.plan = list()
+        self.current_position = WumpusPosition(1, 1, 'UP')
 
 
-def plan_route(current, goals, allowed):
-    raise NotImplementedError
+    def execute(self, percept):
+        self.kb.make_percept_sentence(percept, self.t)
+        self.kb.add_temporal_sentences(self.t)
+
+        temp = list()
+
+        for i in range(1, self.dimrow+1):
+            for j in range(1, self.dimrow+1):
+                if self.kb.ask_if_true(location(i, j, self.t)):
+                    temp.append(i)
+                    temp.append(j)
+
+        if self.kb.ask_if_true(facing_north(self.t)):
+            self.current_position = WumpusPosition(temp[0], temp[1], 'UP')
+        elif self.kb.ask_if_true(facing_south(self.t)):
+            self.current_position = WumpusPosition(temp[0], temp[1], 'DOWN')
+        elif self.kb.ask_if_true(facing_west(self.t)):
+            self.current_position = WumpusPosition(temp[0], temp[1], 'LEFT')
+        elif self.kb.ask_if_true(facing_east(self.t)):
+            self.current_position = WumpusPosition(temp[0], temp[1], 'RIGHT')
+
+        safe_points = list()
+        for i in range(1, self.dimrow+1):
+            for j in range(1, self.dimrow+1):
+                if self.kb.ask_if_true(ok_to_move(i, j, self.t)):
+                    safe_points.append([i, j])
+
+        if self.kb.ask_if_true(percept_glitter(self.t)):
+            goals = list()
+            goals.append([1, 1])
+            self.plan.append('Grab')
+            actions = self.plan_route(self.current_position,goals,safe_points)
+            self.plan.extend(actions)
+            self.plan.append('Climb')
+
+        if len(self.plan) == 0:
+            unvisited = list()
+            for i in range(1, self.dimrow+1):
+                for j in range(1, self.dimrow+1):
+                    for k in range(self.t):
+                        if self.kb.ask_if_true(location(i, j, k)):
+                            unvisited.append([i, j])
+            unvisited_and_safe = list()
+            for u in unvisited:
+                for s in safe_points:
+                    if u not in unvisited_and_safe and s == u:
+                        unvisited_and_safe.append(u)
+
+            temp = self.plan_route(self.current_position,unvisited_and_safe,safe_points)
+            self.plan.extend(temp)
+
+        if len(self.plan) == 0 and self.kb.ask_if_true(have_arrow(self.t)):
+            possible_wumpus = list()
+            for i in range(1, self.dimrow+1):
+                for j in range(1, self.dimrow+1):
+                    if not self.kb.ask_if_true(wumpus(i, j)):
+                        possible_wumpus.append([i, j])
+
+            temp = self.plan_shot(self.current_position, possible_wumpus, safe_points)
+            self.plan.extend(temp)
+
+        if len(self.plan) == 0:
+            not_unsafe = list()
+            for i in range(1, self.dimrow+1):
+                for j in range(1, self.dimrow+1):
+                    if not self.kb.ask_if_true(ok_to_move(i, j, self.t)):
+                        not_unsafe.append([i, j])
+            temp = self.plan_route(self.current_position, not_unsafe, safe_points)
+            self.plan.extend(temp)
+
+        if len(self.plan) == 0:
+            start = list()
+            start.append([1, 1])
+            temp = self.plan_route(self.current_position, start, safe_points)
+            self.plan.extend(temp)
+            self.plan.append('Climb')
+
+        action = self.plan[0]
+        self.plan = self.plan[1:]
+        self.kb.make_action_sentence(action, self.t)
+        self.t += 1
+
+        return action
+
+
+    def plan_route(self, current, goals, allowed):
+        problem = PlanRoute(current, goals, allowed, self.dimrow)
+        return astar_search(problem).solution()
+
+
+    def plan_shot(self, current, goals, allowed):
+        shooting_positions = set()
+
+        for loc in goals:
+            x = loc[0]
+            y = loc[1]
+            for i in range(1, self.dimrow+1):
+                if i < x:
+                    shooting_positions.add(WumpusPosition(i, y, 'EAST'))
+                if i > x:
+                    shooting_positions.add(WumpusPosition(i, y, 'WEST'))
+                if i < y:
+                    shooting_positions.add(WumpusPosition(x, i, 'NORTH'))
+                if i > y:
+                    shooting_positions.add(WumpusPosition(x, i, 'SOUTH'))
+
+        # Can't have a shooting position from any of the rooms the Wumpus could reside
+        orientations = ['EAST', 'WEST', 'NORTH', 'SOUTH']
+        for loc in goals:            
+            for orientation in orientations:
+                shooting_positions.remove(WumpusPosition(loc[0], loc[1], orientation))
+
+        actions = list()
+        actions.extend(self.plan_route(current, shooting_positions, allowed))
+        actions.append('Shoot')
+        return actions
+
 
 # ______________________________________________________________________________
 
@@ -710,7 +1167,8 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
                 s_ = transition[s][action]
                 for t in range(time):
                     # Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[s, action, t] = Expr("Transition_{}".format(next(transition_counter)))
+                    action_sym[s, action, t] = Expr(
+                        "Transition_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
                     clauses.append(action_sym[s, action, t] |'==>'| state_sym[s, t])
@@ -735,7 +1193,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
             clauses.append(associate('|', [action_sym[tr] for tr in transitions_t]))
 
             for tr in transitions_t:
-                for tr_ in transitions_t[transitions_t.index(tr) + 1 :]:
+                for tr_ in transitions_t[transitions_t.index(tr) + 1:]:
                     # there cannot be two transitions tr and tr_ at time t
                     clauses.append(~action_sym[tr] | ~action_sym[tr_])
 
@@ -764,7 +1222,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
 # ______________________________________________________________________________
 
 
-def unify(x, y, s):
+def unify(x, y, s={}):
     """Unify expressions x,y with substitution s; return a substitution that
     would make x,y equal, or None if x,y can not unify. x and y can be
     variables (e.g. Expr('x')), constants, lists, or Exprs. [Figure 9.1]"""
@@ -789,13 +1247,15 @@ def unify(x, y, s):
 
 
 def is_variable(x):
-    "A variable is an Expr with no args and a lowercase symbol as the op."
+    """A variable is an Expr with no args and a lowercase symbol as the op."""
     return isinstance(x, Expr) and not x.args and x.op[0].islower()
 
 
 def unify_var(var, x, s):
     if var in s:
         return unify(s[var], x, s)
+    elif x in s:
+        return unify(var, s[x], s)
     elif occur_check(var, x, s):
         return None
     else:
@@ -819,7 +1279,7 @@ def occur_check(var, x, s):
 
 
 def extend(s, var, val):
-    "Copy the substitution s and extend it by setting var to val; return copy."
+    """Copy the substitution s and extend it by setting var to val; return copy."""
     s2 = s.copy()
     s2[var] = val
     return s2
@@ -842,10 +1302,6 @@ def subst(s, x):
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
 
-def fol_fc_ask(KB, alpha):
-    raise NotImplementedError
-
-
 def standardize_variables(sentence, dic=None):
     """Replace all the variables in sentence with new variables."""
     if dic is None:
@@ -863,13 +1319,13 @@ def standardize_variables(sentence, dic=None):
         return Expr(sentence.op,
                     *[standardize_variables(a, dic) for a in sentence.args])
 
+
 standardize_variables.counter = itertools.count()
 
 # ______________________________________________________________________________
 
 
 class FolKB(KB):
-
     """A knowledge base consisting of first-order definite clauses.
     >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Pete)'),
     ...              expr('(Rabbit(r) & Farmer(f)) ==> Hates(f, r)')])
@@ -881,10 +1337,11 @@ class FolKB(KB):
     False
     """
 
-    def __init__(self, initial_clauses=[]):
+    def __init__(self, initial_clauses=None):
         self.clauses = []  # inefficient: no indexing
-        for clause in initial_clauses:
-            self.tell(clause)
+        if initial_clauses:
+            for clause in initial_clauses:
+                self.tell(clause)
 
     def tell(self, sentence):
         if is_definite_clause(sentence):
@@ -902,37 +1359,44 @@ class FolKB(KB):
         return self.clauses
 
 
-test_kb = FolKB(
-    map(expr, ['Farmer(Mac)',
-               'Rabbit(Pete)',
-               'Mother(MrsMac, Mac)',
-               'Mother(MrsRabbit, Pete)',
-               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
-               '(Mother(m, c)) ==> Loves(m, c)',
-               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
-               '(Farmer(f)) ==> Human(f)',
-               # Note that this order of conjuncts
-               # would result in infinite recursion:
-               # '(Human(h) & Mother(m, h)) ==> Human(m)'
-               '(Mother(m, h) & Human(h)) ==> Human(m)'
-               ]))
+def fol_fc_ask(KB, alpha):
+    """A simple forward-chaining algorithm. [Figure 9.3]"""
+    # TODO: Improve efficiency
+    kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
+    def enum_subst(p):
+        query_vars = list({v for clause in p for v in variables(clause)})
+        for assignment_list in itertools.product(kb_consts, repeat=len(query_vars)):
+            theta = {x: y for x, y in zip(query_vars, assignment_list)}
+            yield theta
 
-crime_kb = FolKB(
-    map(expr,
-             ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',  # noqa
-              'Owns(Nono, M1)',
-              'Missile(M1)',
-              '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-              'Missile(x) ==> Weapon(x)',
-              'Enemy(x, America) ==> Hostile(x)',
-              'American(West)',
-              'Enemy(Nono, America)'
-              ]))
+    # check if we can answer without new inferences
+    for q in KB.clauses:
+        phi = unify(q, alpha, {})
+        if phi is not None:
+            yield phi
+
+    while True:
+        new = []
+        for rule in KB.clauses:
+            p, q = parse_definite_clause(rule)
+            for theta in enum_subst(p):
+                if set(subst(theta, p)).issubset(set(KB.clauses)):
+                    q_ = subst(theta, q)
+                    if all([unify(x, q_, {}) is None for x in KB.clauses + new]):
+                        new.append(q_)
+                        phi = unify(q_, alpha, {})
+                        if phi is not None:
+                            yield phi
+        if not new:
+            break
+        for clause in new:
+            KB.tell(clause)
+    return None
 
 
 def fol_bc_ask(KB, query):
     """A simple backward-chaining algorithm for first-order logic. [Figure 9.6]
-    KB should be an instance of FolKB, and query an atomic sentence. """
+    KB should be an instance of FolKB, and query an atomic sentence."""
     return fol_bc_or(KB, query, {})
 
 
@@ -953,6 +1417,44 @@ def fol_bc_and(KB, goals, theta):
         for theta1 in fol_bc_or(KB, subst(theta, first), theta):
             for theta2 in fol_bc_and(KB, rest, theta1):
                 yield theta2
+
+
+# A simple KB that defines the relevant conditions of the Wumpus World as in Fig 7.4.
+# See Sec. 7.4.3
+wumpus_kb = PropKB()
+
+P11, P12, P21, P22, P31, B11, B21 = expr('P11, P12, P21, P22, P31, B11, B21')
+wumpus_kb.tell(~P11)
+wumpus_kb.tell(B11 | '<=>' | ((P12 | P21)))
+wumpus_kb.tell(B21 | '<=>' | ((P11 | P22 | P31)))
+wumpus_kb.tell(~B11)
+wumpus_kb.tell(B21)
+
+test_kb = FolKB(
+    map(expr, ['Farmer(Mac)',
+               'Rabbit(Pete)',
+               'Mother(MrsMac, Mac)',
+               'Mother(MrsRabbit, Pete)',
+               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
+               '(Mother(m, c)) ==> Loves(m, c)',
+               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
+               '(Farmer(f)) ==> Human(f)',
+               # Note that this order of conjuncts
+               # would result in infinite recursion:
+               # '(Human(h) & Mother(m, h)) ==> Human(m)'
+               '(Mother(m, h) & Human(h)) ==> Human(m)'
+               ]))
+
+crime_kb = FolKB(
+    map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+               'Owns(Nono, M1)',
+               'Missile(M1)',
+               '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+               'Missile(x) ==> Weapon(x)',
+               'Enemy(x, America) ==> Hostile(x)',
+               'American(West)',
+               'Enemy(Nono, America)'
+               ]))
 
 # ______________________________________________________________________________
 
@@ -995,7 +1497,7 @@ def diff(y, x):
 
 
 def simp(x):
-    "Simplify the expression x."
+    """Simplify the expression x."""
     if isnumber(x) or not x.args:
         return x
     args = list(map(simp, x.args))
@@ -1058,5 +1560,5 @@ def simp(x):
 
 
 def d(y, x):
-    "Differentiate and then simplify."
+    """Differentiate and then simplify."""
     return simp(diff(y, x))

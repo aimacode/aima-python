@@ -2,17 +2,149 @@ import pytest
 import os
 import random
 
-from text import *  # noqa
-from utils import isclose, DataFile
+from text import *
+from utils import isclose, open_data
 
 
-def test_unigram_text_model():
-    flatland = DataFile("EN-text/flatland.txt").read()
+
+def test_text_models():
+    flatland = open_data("EN-text/flatland.txt").read()
     wordseq = words(flatland)
-    P = UnigramTextModel(wordseq)
+    P1 = UnigramWordModel(wordseq)
+    P2 = NgramWordModel(2, wordseq)
+    P3 = NgramWordModel(3, wordseq)
 
-    s, p = viterbi_segment('itiseasytoreadwordswithoutspaces', P)
+    # Test top
+    assert P1.top(5) == [(2081, 'the'), (1479, 'of'),
+                         (1021, 'and'), (1008, 'to'),
+                         (850, 'a')]
 
+    assert P2.top(5) == [(368, ('of', 'the')), (152, ('to', 'the')),
+                         (152, ('in', 'the')), (86, ('of', 'a')),
+                         (80, ('it', 'is'))]
+
+    assert P3.top(5) == [(30, ('a', 'straight', 'line')),
+                         (19, ('of', 'three', 'dimensions')),
+                         (16, ('the', 'sense', 'of')),
+                         (13, ('by', 'the', 'sense')),
+                         (13, ('as', 'well', 'as'))]
+
+    # Test isclose
+    assert isclose(P1['the'], 0.0611, rel_tol=0.001)
+    assert isclose(P2['of', 'the'], 0.0108, rel_tol=0.01)
+    assert isclose(P3['so', 'as', 'to'], 0.000323, rel_tol=0.001)
+
+    # Test cond_prob.get
+    assert P2.cond_prob.get(('went',)) is None
+    assert P3.cond_prob['in', 'order'].dictionary == {'to': 6}
+
+    # Test dictionary
+    test_string = 'unigram'
+    wordseq = words(test_string)
+    P1 = UnigramWordModel(wordseq)
+    assert P1.dictionary == {('unigram'): 1}
+
+    test_string = 'bigram text'
+    wordseq = words(test_string)
+    P2 = NgramWordModel(2, wordseq)
+    assert P2.dictionary == {('bigram', 'text'): 1}
+
+    test_string = 'test trigram text here'
+    wordseq = words(test_string)
+    P3 = NgramWordModel(3, wordseq)
+    assert ('test', 'trigram', 'text') in P3.dictionary
+    assert ('trigram', 'text', 'here') in P3.dictionary
+
+
+def test_char_models():
+    test_string = 'test unigram'
+    wordseq = words(test_string)
+    P1 = UnigramCharModel(wordseq)
+
+    expected_unigrams = {'n': 1, 's': 1, 'e': 1, 'i': 1, 'm': 1, 'g': 1, 'r': 1, 'a': 1, 't': 2, 'u': 1}
+    assert len(P1.dictionary) == len(expected_unigrams)
+    for char in test_string.replace(' ', ''):
+        assert char in P1.dictionary
+
+    test_string = 'alpha beta'
+    wordseq = words(test_string)
+    P1 = NgramCharModel(1, wordseq)
+
+    assert len(P1.dictionary) == len(set(test_string))
+    for char in set(test_string):
+        assert tuple(char) in P1.dictionary
+
+    test_string = 'bigram'
+    wordseq = words(test_string)
+    P2 = NgramCharModel(2, wordseq)
+
+    expected_bigrams = {(' ', 'b'): 1, ('b', 'i'): 1, ('i', 'g'): 1, ('g', 'r'): 1, ('r', 'a'): 1, ('a', 'm'): 1}
+
+    assert len(P2.dictionary) == len(expected_bigrams)
+    for bigram, count in expected_bigrams.items():
+        assert bigram in P2.dictionary
+        assert P2.dictionary[bigram] == count
+
+    test_string = 'bigram bigram'
+    wordseq = words(test_string)
+    P2 = NgramCharModel(2, wordseq)
+
+    expected_bigrams = {(' ', 'b'): 2, ('b', 'i'): 2, ('i', 'g'): 2, ('g', 'r'): 2, ('r', 'a'): 2, ('a', 'm'): 2}
+
+    assert len(P2.dictionary) == len(expected_bigrams)
+    for bigram, count in expected_bigrams.items():
+        assert bigram in P2.dictionary
+        assert P2.dictionary[bigram] == count
+
+    test_string = 'trigram'
+    wordseq = words(test_string)
+    P3 = NgramCharModel(3, wordseq)
+    expected_trigrams = {(' ', 't', 'r'): 1, ('t', 'r', 'i'): 1,
+                         ('r', 'i', 'g'): 1, ('i', 'g', 'r'): 1,
+                         ('g', 'r', 'a'): 1, ('r', 'a', 'm'): 1}
+
+    assert len(P3.dictionary) == len(expected_trigrams)
+    for bigram, count in expected_trigrams.items():
+        assert bigram in P3.dictionary
+        assert P3.dictionary[bigram] == count
+
+    test_string = 'trigram trigram trigram'
+    wordseq = words(test_string)
+    P3 = NgramCharModel(3, wordseq)
+    expected_trigrams = {(' ', 't', 'r'): 3, ('t', 'r', 'i'): 3,
+                         ('r', 'i', 'g'): 3, ('i', 'g', 'r'): 3,
+                         ('g', 'r', 'a'): 3, ('r', 'a', 'm'): 3}
+
+    assert len(P3.dictionary) == len(expected_trigrams)
+    for bigram, count in expected_trigrams.items():
+        assert bigram in P3.dictionary
+        assert P3.dictionary[bigram] == count
+
+
+def test_samples():
+    story = open_data("EN-text/flatland.txt").read()
+    story += open_data("gutenberg.txt").read()
+    wordseq = words(story)
+    P1 = UnigramWordModel(wordseq)
+    P2 = NgramWordModel(2, wordseq)
+    P3 = NgramWordModel(3, wordseq)
+
+    s1 = P1.samples(10)
+    s2 = P3.samples(10)
+    s3 = P3.samples(10)
+
+    assert len(s1.split(' ')) == 10
+    assert len(s2.split(' ')) == 10
+    assert len(s3.split(' ')) == 10
+
+
+def test_viterbi_segmentation():
+    flatland = open_data("EN-text/flatland.txt").read()
+    wordseq = words(flatland)
+    P = UnigramWordModel(wordseq)
+    text = "itiseasytoreadwordswithoutspaces"
+
+    s, p = viterbi_segment(text, P)
     assert s == [
         'it', 'is', 'easy', 'to', 'read', 'words', 'without', 'spaces']
 
@@ -24,11 +156,22 @@ def test_shift_encoding():
 
 
 def test_shift_decoding():
-    flatland = DataFile("EN-text/flatland.txt").read()
+    flatland = open_data("EN-text/flatland.txt").read()
     ring = ShiftDecoder(flatland)
     msg = ring.decode('Kyzj zj r jvtivk dvjjrxv.')
 
     assert msg == 'This is a secret message.'
+
+
+def test_permutation_decoder():
+    gutenberg = open_data("gutenberg.txt").read()
+    flatland = open_data("EN-text/flatland.txt").read()
+
+    pd = PermutationDecoder(canonicalize(gutenberg))
+    assert pd.decode('aba') in ('ece', 'ete', 'tat', 'tit', 'txt')
+
+    pd = PermutationDecoder(canonicalize(flatland))
+    assert pd.decode('aba') in ('ded', 'did', 'ece', 'ele', 'eme', 'ere', 'eve', 'eye', 'iti', 'mom', 'ses', 'tat', 'tit')
 
 
 def test_rot13_encoding():
@@ -38,7 +181,7 @@ def test_rot13_encoding():
 
 
 def test_rot13_decoding():
-    flatland = DataFile("EN-text/flatland.txt").read()
+    flatland = open_data("EN-text/flatland.txt").read()
     ring = ShiftDecoder(flatland)
     msg = ring.decode(rot13('Hello, world!'))
 
@@ -54,48 +197,6 @@ def test_counting_probability_distribution():
     ps = [D[n] for n in '123456']
 
     assert 1 / 7 <= min(ps) <= max(ps) <= 1 / 5
-
-
-def test_ngram_models():
-    flatland = DataFile("EN-text/flatland.txt").read()
-    wordseq = words(flatland)
-    P1 = UnigramTextModel(wordseq)
-    P2 = NgramTextModel(2, wordseq)
-    P3 = NgramTextModel(3, wordseq)
-
-    # The most frequent entries in each model
-    assert P1.top(10) == [(2081, 'the'), (1479, 'of'), (1021, 'and'),
-                          (1008, 'to'), (850, 'a'), (722, 'i'), (640, 'in'),
-                          (478, 'that'), (399, 'is'), (348, 'you')]
-
-    assert P2.top(10) == [(368, ('of', 'the')), (152, ('to', 'the')),
-                          (152, ('in', 'the')), (86, ('of', 'a')),
-                          (80, ('it', 'is')),
-                          (71, ('by', 'the')), (68, ('for', 'the')),
-                          (68, ('and', 'the')), (62, ('on', 'the')),
-                          (60, ('to', 'be'))]
-
-    assert P3.top(10) == [(30, ('a', 'straight', 'line')),
-                          (19, ('of', 'three', 'dimensions')),
-                          (16, ('the', 'sense', 'of')),
-                          (13, ('by', 'the', 'sense')),
-                          (13, ('as', 'well', 'as')),
-                          (12, ('of', 'the', 'circles')),
-                          (12, ('of', 'sight', 'recognition')),
-                          (11, ('the', 'number', 'of')),
-                          (11, ('that', 'i', 'had')), (11, ('so', 'as', 'to'))]
-
-    assert isclose(P1['the'], 0.0611, rel_tol=0.001)
-
-    assert isclose(P2['of', 'the'], 0.0108, rel_tol=0.01)
-
-    assert isclose(P3['', '', 'but'], 0.0, rel_tol=0.001)
-    assert isclose(P3['', '', 'but'], 0.0, rel_tol=0.001)
-    assert isclose(P3['so', 'as', 'to'], 0.000323, rel_tol=0.001)
-
-    assert P2.cond_prob.get(('went',)) is None
-
-    assert P3.cond_prob['in', 'order'].dictionary == {'to': 6}
 
 
 def test_ir_system():
@@ -190,18 +291,6 @@ def test_bigrams():
     assert bigrams(['this', 'is', 'a', 'test']) == [['this', 'is'], ['is', 'a'], ['a', 'test']]
 
 
-# TODO: for .ipynb
-"""
-
->>> P1.samples(20)
-'you thought known but were insides of see in depend by us dodecahedrons just but i words are instead degrees'
-
->>> P2.samples(20)
-'flatland well then can anything else more into the total destruction and circles teach others confine women must be added'
-
->>> P3.samples(20)
-'flatland by edwin a abbott 1884 to the wake of a certificate from nature herself proving the equal sided triangle'
-"""
 
 if __name__ == '__main__':
     pytest.main()

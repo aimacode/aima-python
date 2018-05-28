@@ -1,5 +1,6 @@
 import pytest
-from utils import *  # noqa
+from utils import *
+import random
 
 
 def test_removeall_list():
@@ -16,6 +17,13 @@ def test_removeall_string():
 def test_unique():
     assert unique([1, 2, 3, 2, 1]) == [1, 2, 3]
     assert unique([1, 5, 6, 7, 6, 5]) == [1, 5, 6, 7]
+
+
+def test_count():
+    assert count([1, 2, 3, 4, 2, 3, 4]) == 7
+    assert count("aldpeofmhngvia") == 14
+    assert count([True, False, True, True, False]) == 3
+    assert count([5 > 1, len("abc") == 3, 3+1 == 5]) == 2
 
 
 def test_product():
@@ -36,6 +44,15 @@ def test_is_in():
     e = []
     assert is_in(e, [1, e, 3]) is True
     assert is_in(e, [1, [], 3]) is False
+
+
+def test_mode():
+    assert mode([12, 32, 2, 1, 2, 3, 2, 3, 2, 3, 44, 3, 12, 4, 9, 0, 3, 45, 3]) == 3
+    assert mode("absndkwoajfkalwpdlsdlfllalsflfdslgflal") == 'l'
+
+
+def test_powerset():
+    assert powerset([1, 2, 3]) == [(1,), (2,), (3,), (1, 2), (1, 3), (2, 3), (1, 2, 3)]
 
 
 def test_argminmax():
@@ -97,7 +114,8 @@ def test_scalar_vector_product():
 
 
 def test_scalar_matrix_product():
-    assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20], [0, -30]]
+    assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20],
+                                                                            [0, -30]]
     assert rounder(scalar_matrix_product(0.2, [[1, 2], [2, 3]])) == [[0.2, 0.4], [0.4, 0.6]]
 
 
@@ -125,6 +143,12 @@ def test_normalize():
     assert normalize([1, 2, 1]) == [0.25, 0.5, 0.25]
 
 
+def test_norm():
+    assert isclose(norm([1, 2, 1], 1), 4)
+    assert isclose(norm([3, 4], 2), 5)
+    assert isclose(norm([-1, 1, 2], 4), 18**0.25)
+
+
 def test_clip():
     assert [clip(x, 0, 1) for x in [-1, 0.5, 10]] == [0, 0.5, 1]
 
@@ -133,6 +157,61 @@ def test_sigmoid():
     assert isclose(0.5, sigmoid(0))
     assert isclose(0.7310585786300049, sigmoid(1))
     assert isclose(0.2689414213699951, sigmoid(-1))
+
+
+def test_gaussian():
+    assert gaussian(1,0.5,0.7) == 0.6664492057835993
+    assert gaussian(5,2,4.5) == 0.19333405840142462
+    assert gaussian(3,1,3) == 0.3989422804014327
+
+
+def test_sigmoid_derivative():
+    value = 1
+    assert sigmoid_derivative(value) == 0
+
+    value = 3
+    assert sigmoid_derivative(value) == -6
+
+
+def test_weighted_choice():
+    choices = [('a', 0.5), ('b', 0.3), ('c', 0.2)]
+    choice = weighted_choice(choices)
+    assert choice in choices
+
+
+def compare_list(x, y):
+    return all([elm_x == y[i] for i, elm_x in enumerate(x)])
+
+
+def test_distance():
+    assert distance((1, 2), (5, 5)) == 5.0
+
+
+def test_distance_squared():
+    assert distance_squared((1, 2), (5, 5)) == 25.0
+
+
+def test_vector_clip():
+    assert vector_clip((-1, 10), (0, 0), (9, 9)) == (0, 9)
+
+
+def test_turn_heading():
+	assert turn_heading((0, 1), 1) == (-1, 0)
+	assert turn_heading((0, 1), -1) == (1, 0)
+	assert turn_heading((1, 0), 1) == (0, 1)
+	assert turn_heading((1, 0), -1) == (0, -1)
+	assert turn_heading((0, -1), 1) == (1, 0)
+	assert turn_heading((0, -1), -1) == (-1, 0)
+	assert turn_heading((-1, 0), 1) == (0, -1)
+	assert turn_heading((-1, 0), -1) == (0, 1)
+
+
+def test_turn_left():
+	assert turn_left((0, 1)) == (-1, 0)
+
+
+def test_turn_right():
+	assert turn_right((0, 1)) == (1, 0)
 
 
 def test_step():
@@ -167,7 +246,7 @@ def test_Expr():
 def test_expr():
     P, Q, x, y, z, GP = symbols('P, Q, x, y, z, GP')
     assert (expr(y + 2 * x)
-            == expr('y + 2 * x') 
+            == expr('y + 2 * x')
             == Expr('+', y, Expr('*', 2, x)))
     assert expr('P & Q ==> P') == Expr('==>', P & Q, P)
     assert expr('P & Q <=> Q & P') == Expr('<=>', (P & Q), (Q & P))
@@ -175,6 +254,7 @@ def test_expr():
     # x is grandparent of z if x is parent of y and y is parent of z:
     assert (expr('GP(x, z) <== P(x, y) & P(y, z)')
             == Expr('<==', GP(x, z), P(x, y) & P(y, z)))
+
 
 if __name__ == '__main__':
     pytest.main()
