@@ -820,7 +820,7 @@ class WumpusKB(PropKB):
         wumpus_at_least = list()
         for x in range(1, dimrow+1):
             for y in range(1, dimrow + 1):
-                wumps_at_least.append(wumpus(x, y))
+                wumpus_at_least.append(wumpus(x, y))
 
         self.tell(new_disjunction(wumpus_at_least))
 
