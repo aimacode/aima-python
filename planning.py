@@ -32,7 +32,14 @@ class PDDL:
             clauses = conjuncts(clauses)
         except AttributeError:
             clauses = clauses
-        return clauses
+
+        new_clauses = []
+        for clause in clauses:
+            if clause.op == '~':
+                new_clauses.append(expr('Not' + str(clause.args[0])))
+            else:
+                new_clauses.append(clause)
+        return new_clauses
 
     def goal_test(self):
         """Checks if the goals have been reached"""
@@ -42,7 +49,7 @@ class PDDL:
         """
         Performs the action given as argument.
         Note that action is an Expr like expr('Remove(Glass, Table)') or expr('Eat(Sandwich)')
-        """
+        """       
         action_name = action.op
         args = action.args
         list_action = first(a for a in self.actions if a.name == action_name)
@@ -112,7 +119,6 @@ class Action:
 
         if isinstance(kb, list):
             kb = FolKB(kb)
-
         for clause in self.precond:
             if self.substitute(clause, args) not in kb.clauses:
                 return False
@@ -220,7 +226,7 @@ class Level:
                 next_state_1 = self.next_action_links[list(pair)[0]]
             if (len(next_state_0) == 1) and (len(next_state_1) == 1):
                 state_mutex.append({next_state_0[0], next_state_1[0]})
-
+        
         self.mutex = self.mutex + state_mutex
 
     def build(self, actions, objects):
@@ -255,7 +261,7 @@ class Level:
                             self.current_state_links[new_clause].append(new_action)
                         else:
                             self.current_state_links[new_clause] = [new_action]
-
+                   
                     self.next_action_links[new_action] = []
                     for clause in a.effect:
                         new_clause = a.substitute(clause, arg)
@@ -328,37 +334,38 @@ class GraphPlan:
     def extract_solution(self, goals, index):
         """Extracts the solution"""
 
-        level = self.graph.levels[index]
+        level = self.graph.levels[index]    
         if not self.graph.non_mutex_goals(goals, index):
             self.nogoods.append((level, goals))
             return
 
-        level = self.graph.levels[index - 1]
+        level = self.graph.levels[index - 1]    
 
-        # Create all combinations of actions that satisfy the goal
+        # Create all combinations of actions that satisfy the goal    
         actions = []
         for goal in goals:
-            actions.append(level.next_state_links[goal])
+            actions.append(level.next_state_links[goal])    
 
-        all_actions = list(itertools.product(*actions))
+        all_actions = list(itertools.product(*actions))    
 
         # Filter out non-mutex actions
-        non_mutex_actions = []
+        non_mutex_actions = []    
         for action_tuple in all_actions:
-            action_pairs = itertools.combinations(list(set(action_tuple)), 2)
-            non_mutex_actions.append(list(set(action_tuple)))
-            for pair in action_pairs:
+            action_pairs = itertools.combinations(list(set(action_tuple)), 2)        
+            non_mutex_actions.append(list(set(action_tuple)))        
+            for pair in action_pairs:            
                 if set(pair) in level.mutex:
                     non_mutex_actions.pop(-1)
                     break
+    
 
         # Recursion
-        for action_list in non_mutex_actions:
+        for action_list in non_mutex_actions:        
             if [action_list, index] not in self.solution:
                 self.solution.append([action_list, index])
 
                 new_goals = []
-                for act in set(action_list):
+                for act in set(action_list):                
                     if act in level.current_action_links:
                         new_goals = new_goals + level.current_action_links[act]
 
@@ -385,97 +392,6 @@ class GraphPlan:
         return solution
 
 
-def spare_tire():
-    """Spare tire problem"""
-
-    return PDDL(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
-                goals='At(Spare, Axle) & At(Flat, Ground)',
-                actions=[Action('Remove(obj, loc)',
-                                precond='At(obj, loc)',
-                                effect='At(obj, Ground) & ~At(obj, loc)'),
-                         Action('PutOn(t, Axle)',
-                                precond='Tire(t) & At(t, Ground) & ~At(Flat, Axle)',
-                                effect='At(t, Axle) & ~At(t, Ground)'),
-                         Action('LeaveOvernight',
-                                precond='',
-                                effect='~At(Spare, Ground) & ~At(Spare, Axle) & ~At(Spare, Trunk) & \
-                                        ~At(Flat, Ground) & ~At(Flat, Axle) & ~At(Flat, Trunk)')])
-
-
-def three_block_tower():
-    """Sussman Anomaly problem"""
-
-    return PDDL(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
-                goals='On(A, B) & On(B, C)',
-                actions=[Action('Move(b, x, y)',
-                                precond='On(b, x) & Clear(b) & Clear(y) & Block(b) & Block(y)',
-                                effect='On(b, y) & Clear(x) & ~On(b, x) & ~Clear(y)'),
-                         Action('MoveToTable(b, x)',
-                                precond='On(b, x) & Clear(b) & Block(b)',
-                                effect='On(b, Table) & Clear(x) & ~On(b, x)')])
-
-
-def have_cake_and_eat_cake_too():
-    """Cake problem"""
-
-    return PDDL(init='Have(Cake)',
-                goals='Have(Cake) & Eaten(Cake)',
-                actions=[Action('Eat(Cake)',
-                                precond='Have(Cake)',
-                                effect='Eaten(Cake) & ~Have(Cake)'),
-                         Action('Bake(Cake)',
-                                precond='~Have(Cake)',
-                                effect='Have(Cake)')])
-
-
-def shopping_problem():
-    """Shopping problem"""
-
-    return PDDL(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
-                goals='Have(Milk) & Have(Banana) & Have(Drill)',
-                actions=[Action('Buy(x, store)',
-                                precond='At(store) & Sells(store, x)',
-                                effect='Have(x)'),
-                         Action('Go(x, y)',
-                                precond='At(x)',
-                                effect='At(y) & ~At(x)')])
-
-
-def socks_and_shoes():
-    """Socks and shoes problem"""
-
-    return PDDL(init='',
-                goals='RightShoeOn & LeftShoeOn',
-                actions=[Action('RightShoe',
-                                precond='RightSockOn',
-                                effect='RightShoeOn'),
-                        Action('RightSock',
-                                precond='',
-                                effect='RightSockOn'),
-                        Action('LeftShoe',
-                                precond='LeftSockOn',
-                                effect='LeftShoeOn'),
-                        Action('LeftSock',
-                                precond='',
-                                effect='LeftSockOn')])
-
-
-def air_cargo():
-    """Air cargo problem"""
-
-    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)',
-                goals='At(C1, JFK) & At(C2, SFO)',
-                actions=[Action('Load(c, p, a)',
-                                precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
-                                effect='In(c, p) & ~At(c, a)'),
-                         Action('Unload(c, p, a)',
-                                precond='In(c, p) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
-                                effect='At(c, a) & ~In(c, p)'),
-                         Action('Fly(p, f, to)',
-                                precond='At(p, f) & Plane(p) & Airport(f) & Airport(to)',
-                                effect='At(p, to) & ~At(p, f)')])
-
-
 def spare_tire_graphplan():
     """Solves the spare tire problem using GraphPlan"""
 
@@ -493,7 +409,7 @@ def spare_tire_graphplan():
             solution = graphplan.extract_solution(goals, -1)
             if solution:
                 return solution
-
+        
         if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
             return None
 
@@ -564,24 +480,18 @@ def air_cargo_graphplan():
             return None
 
 
-def shopping_graphplan():
-    pddl = shopping_problem()
-    graphplan = GraphPlan(pddl)
+    def execute(self):
+        """Executes the GraphPlan algorithm for the given problem"""
 
-    def goal_test(kb, goals):
-        return all(kb.ask(q) is not False for q in goals)
+        while True:
+            self.graph.expand_graph()
+            if (self.goal_test(self.graph.levels[-1].kb) and self.graph.non_mutex_goals(self.graph.pddl.goals, -1)):
+                solution = self.extract_solution(self.graph.pddl.goals, -1)
+                if solution:
+                    return solution
 
-    goals = expr('Have(Milk), Have(Banana), Have(Drill)')
-
-    while True:
-        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
-            solution = graphplan.extract_solution(goals, -1)
-            if solution:
-                return solution
-
-        graphplan.graph.expand_graph()
-        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
-            return None
+            if len(self.graph.levels) >= 2 and self.check_leveloff():
+                return None
 
 
 def socks_and_shoes_graphplan():
@@ -616,6 +526,31 @@ def linearize(solution):
     return linear_solution
 
 
+def spare_tire_graphplan():
+    """Solves the spare tire problem using GraphPlan"""
+    return GraphPlan(spare_tire()).execute()
+
+def three_block_tower_graphplan():
+    """Solves the Sussman Anomaly problem using GraphPlan"""
+    return GraphPlan(three_block_tower()).execute()
+
+def air_cargo_graphplan():
+    """Solves the air cargo problem using GraphPlan"""
+    return GraphPlan(air_cargo()).execute()
+
+def have_cake_and_eat_cake_too_graphplan():
+    """Solves the cake problem using GraphPlan"""
+    return [GraphPlan(have_cake_and_eat_cake_too()).execute()[1]]
+
+def shopping_graphplan():
+    """Solves the shopping problem using GraphPlan"""
+    return GraphPlan(shopping_problem()).execute()
+
+def socks_and_shoes_graphplan():
+    """Solves the socks and shoes problem using GraphpPlan"""
+    return GraphPlan(socks_and_shoes()).execute()
+
+
 class HLA(Action):
     """
     Define Actions for the real-world (that may be refined further), and satisfy resource
@@ -631,8 +566,8 @@ class HLA(Action):
         consumes holds a dictionary representing the resources the task consumes
         uses holds a dictionary representing the resources the task uses
         """
-        precond = precond or [None, None]
-        effect = effect or [None, None]
+        precond = precond or [None]
+        effect = effect or [None]
         super().__init__(action, precond, effect)
         self.duration = duration
         self.consumes = consume or {}
@@ -654,10 +589,11 @@ class HLA(Action):
         if not self.inorder(job_order):
             raise Exception("Can't execute {} - execute prerequisite actions first".
                             format(self.name))
-        super().act(kb, args)  # update knowledge base
+        kb = super().act(kb, args)  # update knowledge base
         for resource in self.consumes:  # remove consumed resources
             available_resources[resource] -= self.consumes[resource]
         self.completed = True  # set the task status to complete
+        return kb
 
     def has_consumable_resource(self, available_resources):
         """
@@ -704,9 +640,8 @@ class Problem(PDDL):
     This class is identical to PDLL, except that it overloads the act function to handle
     resource and ordering conditions imposed by HLA as opposed to Action.
     """
-
-    def __init__(self, initial_state, actions, goal_test, jobs=None, resources=None):
-        super().__init__(initial_state, actions, goal_test)
+    def __init__(self, init, goals, actions, jobs=None, resources=None):
+        super().__init__(init, goals, actions)
         self.jobs = jobs
         self.resources = resources or {}
 
@@ -723,63 +658,38 @@ class Problem(PDDL):
         list_action = first(a for a in self.actions if a.name == action.name)
         if list_action is None:
             raise Exception("Action '{}' not found".format(action.name))
-        list_action.do_action(self.jobs, self.resources, self.kb, args)
+        self.init = list_action.do_action(self.jobs, self.resources, self.init, args).clauses
 
     def refinements(hla, state, library):  # TODO - refinements may be (multiple) HLA themselves ...
         """
         state is a Problem, containing the current state kb
         library is a dictionary containing details for every possible refinement. eg:
         {
-        "HLA": [
-            "Go(Home,SFO)",
-            "Go(Home,SFO)",
-            "Drive(Home, SFOLongTermParking)",
-            "Shuttle(SFOLongTermParking, SFO)",
-            "Taxi(Home, SFO)"
-               ],
-        "steps": [
-            ["Drive(Home, SFOLongTermParking)", "Shuttle(SFOLongTermParking, SFO)"],
-            ["Taxi(Home, SFO)"],
-            [], # empty refinements ie primitive action
-            [],
-            []
-               ],
-        "precond_pos": [
-            ["At(Home), Have(Car)"],
-            ["At(Home)"],
-            ["At(Home)", "Have(Car)"]
-            ["At(SFOLongTermParking)"]
-            ["At(Home)"]
-                       ],
-        "precond_neg": [[],[],[],[],[]],
-        "effect_pos": [
-            ["At(SFO)"],
-            ["At(SFO)"],
-            ["At(SFOLongTermParking)"],
-            ["At(SFO)"],
-            ["At(SFO)"]
-                      ],
-        "effect_neg": [
-            ["At(Home)"],
-            ["At(Home)"],
-            ["At(Home)"],
-            ["At(SFOLongTermParking)"],
-            ["At(Home)"]
-                      ]
+        'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
+        'steps': [['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'], ['Taxi(Home, SFO)'], [], [], []],
+        # empty refinements ie primitive action
+        'precond': [['At(Home), Have(Car)'], ['At(Home)'], ['At(Home)', 'Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
+        'effect': [['At(SFO)'], ['At(SFO)'], ['At(SFOLongTermParking)'], ['At(SFO)'], ['At(SFO)'], ['~At(Home)'], ['~At(Home)'], ['~At(Home)'], ['~At(SFOLongTermParking)'], ['~At(Home)']]
         }
         """
         e = Expr(hla.name, hla.args)
-        indices = [i for i, x in enumerate(library["HLA"]) if expr(x).op == hla.name]
+        indices = [i for i, x in enumerate(library['HLA']) if expr(x).op == hla.name]
         for i in indices:
-            action = HLA(expr(library["steps"][i][0]), [  # TODO multiple refinements
-                [expr(x) for x in library["precond_pos"][i]],
-                [expr(x) for x in library["precond_neg"][i]]
-            ],
-                         [
-                             [expr(x) for x in library["effect_pos"][i]],
-                             [expr(x) for x in library["effect_neg"][i]]
-                         ])
-            if action.check_precond(state.kb, action.args):
+            # TODO multiple refinements
+            precond = []
+            for p in library['precond'][i]:
+                if p[0] == '~':
+                    precond.append(expr('Not' + p[1:]))
+                else:
+                    precond.append(expr(p))
+            effect = []
+            for e in library['effect'][i]:
+                if e[0] == '~':
+                    effect.append(expr('Not' + e[1:]))
+                else:
+                    effect.append(expr(e))
+            action = HLA(library['steps'][i][0], precond, effect)
+            if action.check_precond(state.init, action.args):
                 yield action
 
     def hierarchical_search(problem, hierarchy):
@@ -828,86 +738,41 @@ def job_shop_problem():
     with resource and ordering constraints.
 
     Example:
+    >>> from planning import *
+    >>> p = job_shop_problem()
+    >>> p.goal_test()
+    False
+    >>> p.act(p.jobs[1][0])
+    >>> p.act(p.jobs[1][1])
+    >>> p.act(p.jobs[1][2])
+    >>> p.act(p.jobs[0][0])
+    >>> p.act(p.jobs[0][1])
+    >>> p.goal_test()
+    False
+    >>> p.act(p.jobs[0][2])
+    >>> p.goal_test()
+    True
+    >>>
     """
-    init = [expr('Car(C1)'),
-            expr('Car(C2)'),
-            expr('Wheels(W1)'),
-            expr('Wheels(W2)'),
-            expr('Engine(E2)'),
-            expr('Engine(E2)')]
-
-    def goal_test(kb):
-        # print(kb.clauses)
-        required = [expr('Has(C1, W1)'), expr('Has(C1, E1)'), expr('Inspected(C1)'),
-                    expr('Has(C2, W2)'), expr('Has(C2, E2)'), expr('Inspected(C2)')]
-        for q in required:
-            # print(q)
-            # print(kb.ask(q))
-            if kb.ask(q) is False:
-                return False
-        return True
-
     resources = {'EngineHoists': 1, 'WheelStations': 2, 'Inspectors': 2, 'LugNuts': 500}
 
-    # AddEngine1
-    precond_pos = []
-    precond_neg = [expr("Has(C1,E1)")]
-    effect_add = [expr("Has(C1,E1)")]
-    effect_rem = []
-    add_engine1 = HLA(expr("AddEngine1"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=30, use={'EngineHoists': 1})
+    add_engine1 = HLA('AddEngine1', precond='~Has(C1, E1)', effect='Has(C1, E1)', duration=30, use={'EngineHoists': 1})
+    add_engine2 = HLA('AddEngine2', precond='~Has(C2, E2)', effect='Has(C2, E2)', duration=60, use={'EngineHoists': 1})
+    add_wheels1 = HLA('AddWheels1', precond='~Has(C1, W1)', effect='Has(C1, W1)', duration=30, use={'WheelStations': 1}, consume={'LugNuts': 20})
+    add_wheels2 = HLA('AddWheels2', precond='~Has(C2, W2)', effect='Has(C2, W2)', duration=15, use={'WheelStations': 1}, consume={'LugNuts': 20})
+    inspect1 = HLA('Inspect1', precond='~Inspected(C1)', effect='Inspected(C1)', duration=10, use={'Inspectors': 1})
+    inspect2 = HLA('Inspect2', precond='~Inspected(C2)', effect='Inspected(C2)', duration=10, use={'Inspectors': 1})
 
-    # AddEngine2
-    precond_pos = []
-    precond_neg = [expr("Has(C2,E2)")]
-    effect_add = [expr("Has(C2,E2)")]
-    effect_rem = []
-    add_engine2 = HLA(expr("AddEngine2"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=60, use={'EngineHoists': 1})
-
-    # AddWheels1
-    precond_pos = []
-    precond_neg = [expr("Has(C1,W1)")]
-    effect_add = [expr("Has(C1,W1)")]
-    effect_rem = []
-    add_wheels1 = HLA(expr("AddWheels1"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=30, consume={'LugNuts': 20}, use={'WheelStations': 1})
-
-    # AddWheels2
-    precond_pos = []
-    precond_neg = [expr("Has(C2,W2)")]
-    effect_add = [expr("Has(C2,W2)")]
-    effect_rem = []
-    add_wheels2 = HLA(expr("AddWheels2"),
-                      [precond_pos, precond_neg], [effect_add, effect_rem],
-                      duration=15, consume={'LugNuts': 20}, use={'WheelStations': 1})
-
-    # Inspect1
-    precond_pos = []
-    precond_neg = [expr("Inspected(C1)")]
-    effect_add = [expr("Inspected(C1)")]
-    effect_rem = []
-    inspect1 = HLA(expr("Inspect1"),
-                   [precond_pos, precond_neg], [effect_add, effect_rem],
-                   duration=10, use={'Inspectors': 1})
-
-    # Inspect2
-    precond_pos = []
-    precond_neg = [expr("Inspected(C2)")]
-    effect_add = [expr("Inspected(C2)")]
-    effect_rem = []
-    inspect2 = HLA(expr("Inspect2"),
-                   [precond_pos, precond_neg], [effect_add, effect_rem],
-                   duration=10, use={'Inspectors': 1})
+    actions = [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2]
 
     job_group1 = [add_engine1, add_wheels1, inspect1]
     job_group2 = [add_engine2, add_wheels2, inspect2]
 
-    return Problem(init, [add_engine1, add_engine2, add_wheels1, add_wheels2, inspect1, inspect2],
-                   goal_test, [job_group1, job_group2], resources)
+    return Problem(init='Car(C1) & Car(C2) & Wheels(W1) & Wheels(W2) & Engine(E2) & Engine(E2) & ~Has(C1, E1) & ~Has(C2, E2) & ~Has(C1, W1) & ~Has(C2, W2) & ~Inspected(C1) & ~Inspected(C2)',
+                   goals='Has(C1, W1) & Has(C1, E1) & Inspected(C1) & Has(C2, W2) & Has(C2, E2) & Inspected(C2)',
+                   actions=actions,
+                   jobs=[job_group1, job_group2],
+                   resources=resources)
 
 
 class PlanningKB:
