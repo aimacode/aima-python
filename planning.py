@@ -606,6 +606,55 @@ def socks_and_shoes_graphplan():
         if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
             return None
 
+class TotalOrderPlanner:
+
+    def __init__(self, pddl):
+        self.pddl = pddl
+
+    def filter(self, solution):
+        """Filter out persistence actions from a solution"""
+
+        new_solution = []
+        for section in solution[0]:
+            new_section = []
+            for operation in section:
+                if not (operation.op[0] == 'P' and operation.op[1].isupper()):
+                    new_section.append(operation)
+            new_solution.append(new_section)
+        return new_solution
+
+    def orderlevel(self, level, pddl):
+        """Return valid linear order of actions for a given level"""
+
+        for permutation in itertools.permutations(level):
+            temp = copy.deepcopy(pddl)
+            count = 0
+            for action in permutation:
+                try:
+                    temp.act(action)
+                    count += 1
+                except:
+                    count = 0
+                    temp = copy.deepcopy(pddl)
+                    break
+            if count == len(permutation):
+                return list(permutation), temp
+        return None
+
+    def execute(self):
+        """Finds total-order solution for a planning graph"""
+
+        graphplan_solution = GraphPlan(self.pddl).execute()
+        filtered_solution = self.filter(graphplan_solution)
+        ordered_solution = []
+        pddl = self.pddl
+        for level in filtered_solution:
+            level_solution, pddl = self.orderlevel(level, pddl)
+            for element in level_solution:
+                ordered_solution.append(element)
+
+        return ordered_solution
+
 
 def linearize(solution):
     """Converts a level-ordered solution into a linear solution"""
