@@ -391,6 +391,113 @@ class GraphPlan:
 
         return solution
 
+    def goal_test(self, kb):
+        return all(kb.ask(q) is not False for q in self.graph.pddl.goals)
+
+    def execute(self):
+        """Executes the GraphPlan algorithm for the given problem"""
+
+        while True:
+            self.graph.expand_graph()
+            if (self.goal_test(self.graph.levels[-1].kb) and self.graph.non_mutex_goals(self.graph.pddl.goals, -1)):
+                solution = self.extract_solution(self.graph.pddl.goals, -1)
+                if solution:
+                    return solution
+
+            if len(self.graph.levels) >= 2 and self.check_leveloff():
+                return None
+
+
+def spare_tire():
+    """Spare tire problem"""
+
+    return PDDL(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
+                goals='At(Spare, Axle) & At(Flat, Ground)',
+                actions=[Action('Remove(obj, loc)',
+                                precond='At(obj, loc)',
+                                effect='At(obj, Ground) & ~At(obj, loc)'),
+                         Action('PutOn(t, Axle)',
+                                precond='Tire(t) & At(t, Ground) & ~At(Flat, Axle)',
+                                effect='At(t, Axle) & ~At(t, Ground)'),
+                         Action('LeaveOvernight',
+                                precond='',
+                                effect='~At(Spare, Ground) & ~At(Spare, Axle) & ~At(Spare, Trunk) & \
+                                        ~At(Flat, Ground) & ~At(Flat, Axle) & ~At(Flat, Trunk)')])
+
+
+def three_block_tower():
+    """Sussman Anomaly problem"""
+
+    return PDDL(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
+                goals='On(A, B) & On(B, C)',
+                actions=[Action('Move(b, x, y)',
+                                precond='On(b, x) & Clear(b) & Clear(y) & Block(b) & Block(y)',
+                                effect='On(b, y) & Clear(x) & ~On(b, x) & ~Clear(y)'),
+                         Action('MoveToTable(b, x)',
+                                precond='On(b, x) & Clear(b) & Block(b)',
+                                effect='On(b, Table) & Clear(x) & ~On(b, x)')])
+
+
+def have_cake_and_eat_cake_too():
+    """Cake problem"""
+
+    return PDDL(init='Have(Cake)',
+                goals='Have(Cake) & Eaten(Cake)',
+                actions=[Action('Eat(Cake)',
+                                precond='Have(Cake)',
+                                effect='Eaten(Cake) & ~Have(Cake)'),
+                         Action('Bake(Cake)',
+                                precond='~Have(Cake)',
+                                effect='Have(Cake)')])
+
+
+def shopping_problem():
+    """Shopping problem"""
+
+    return PDDL(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
+                goals='Have(Milk) & Have(Banana) & Have(Drill)',
+                actions=[Action('Buy(x, store)',
+                                precond='At(store) & Sells(store, x)',
+                                effect='Have(x)'),
+                         Action('Go(x, y)',
+                                precond='At(x)',
+                                effect='At(y) & ~At(x)')])
+
+
+def socks_and_shoes():
+    """Socks and shoes problem"""
+
+    return PDDL(init='',
+                goals='RightShoeOn & LeftShoeOn',
+                actions=[Action('RightShoe',
+                                precond='RightSockOn',
+                                effect='RightShoeOn'),
+                        Action('RightSock',
+                                precond='',
+                                effect='RightSockOn'),
+                        Action('LeftShoe',
+                                precond='LeftSockOn',
+                                effect='LeftShoeOn'),
+                        Action('LeftSock',
+                                precond='',
+                                effect='LeftSockOn')])
+
+
+def air_cargo():
+    """Air cargo problem"""
+
+    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)',
+                goals='At(C1, JFK) & At(C2, SFO)',
+                actions=[Action('Load(c, p, a)',
+                                precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
+                                effect='In(c, p) & ~At(c, a)'),
+                         Action('Unload(c, p, a)',
+                                precond='In(c, p) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
+                                effect='At(c, a) & ~In(c, p)'),
+                         Action('Fly(p, f, to)',
+                                precond='At(p, f) & Plane(p) & Airport(f) & Airport(to)',
+                                effect='At(p, to) & ~At(p, f)')])
+
 
 def spare_tire_graphplan():
     """Solves the spare tire problem using GraphPlan"""
@@ -478,20 +585,6 @@ def air_cargo_graphplan():
         graphplan.graph.expand_graph()
         if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
             return None
-
-
-    def execute(self):
-        """Executes the GraphPlan algorithm for the given problem"""
-
-        while True:
-            self.graph.expand_graph()
-            if (self.goal_test(self.graph.levels[-1].kb) and self.graph.non_mutex_goals(self.graph.pddl.goals, -1)):
-                solution = self.extract_solution(self.graph.pddl.goals, -1)
-                if solution:
-                    return solution
-
-            if len(self.graph.levels) >= 2 and self.check_leveloff():
-                return None
 
 
 def socks_and_shoes_graphplan():
