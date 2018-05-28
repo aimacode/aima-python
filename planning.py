@@ -1,6 +1,7 @@
 """Planning (Chapters 10-11)
 """
 import os
+import copy
 import itertools
 from search import Node, astar_search
 from collections import deque
