@@ -437,8 +437,5 @@ def test_tree_csp_solver():
     assert (tcs['NT'] == 'R' and tcs['WA'] == 'B' and tcs['Q'] == 'B' and tcs['NSW'] == 'R' and tcs['V'] == 'B') or \
            (tcs['NT'] == 'B' and tcs['WA'] == 'R' and tcs['Q'] == 'R' and tcs['NSW'] == 'B' and tcs['V'] == 'R')
 
-def test_zebra_problem():
-    zebra_solution = solve_zebra()
-    assert(zebra_solution[0] == 5 and zebra_solution[1] == 1)
 if __name__ == "__main__":
     pytest.main()
