@@ -7,7 +7,7 @@ from search import Node, astar_search
 from collections import deque
 from logic import fol_bc_and, FolKB, conjuncts
 from utils import expr, Expr, partition, first
-from pddl_parse import DomainParser, ProblemParser
+from pddl_parse import DomainParser, ProblemParser, build_expr_string
 
 
 class PDDL:
@@ -607,8 +607,8 @@ def socks_and_shoes_graphplan():
         if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
             return None
 
-class TotalOrderPlanner:
 
+class TotalOrderPlanner:
     def __init__(self, pddl):
         self.pddl = pddl
 
@@ -975,6 +975,14 @@ class PlanningProblem:
         self.initial = initial_kb
         self.possible_actions = actions
 
+    @classmethod
+    def from_PDDL_object(cls, pddl_obj):
+        initial = PlanningKB(pddl_obj.goals, pddl_obj.init)
+        planning_actions = []
+        for act in pddl_obj.actions:
+            planning_actions.append(PlanningAction.from_action(act))
+        return cls(initial, planning_actions)
+
     def __repr__(self):
         return '{}({}, {})'.format(self.__class__.__name__, self.initial, self.possible_actions)
 
@@ -1035,9 +1043,25 @@ class PlanningAction:
         self.effect_add = set(effect_add)
         self.effect_rem = set(e.args[0] for e in effect_rem)  # change the negative Exprs to positive for evaluation
 
+    @classmethod
+    def from_action(cls, action):
+        op = action.name
+        args = action.args
+        preconds = []
+        for p in action.precond:
+            precond_op = p.op.replace('Not', '~')
+            precond_args = [repr(a) for a in p.args]
+            preconds.append(expr(build_expr_string(precond_op, precond_args)))
+        effects = []
+        for e in action.effect:
+            effect_op = e.op.replace('Not', '~')
+            effect_args = [repr(a) for a in e.args]
+            effects.append(expr(build_expr_string(effect_op, effect_args)))
+        return cls(Expr(op, *args), preconds, effects)
+
     def __repr__(self):
-        preconds = list(self.precond_pos.union(set(expr('~' + repr(p) for p in self.precond_neg))))
-        effects = list(self.effect_add.union(set(expr('~' + repr(e) for e in self.effect_rem))))
+        preconds = list(self.precond_pos.union(set((expr('~' + repr(p)) for p in self.precond_neg))))
+        effects = list(self.effect_add.union(set((expr('~' + repr(e)) for e in self.effect_rem))))
         return '{}({}, {}, {})'.format(self.__class__.__name__, Expr(self.name, *self.args),
                                        preconds, effects)
 

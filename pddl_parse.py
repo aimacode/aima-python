@@ -81,9 +81,12 @@ def parse_tokens(match_dict: dict, tokens: deque) -> None:
             break
 
 
-def _build_expr_string(expr_name: str, variables: list) -> str:
+def build_expr_string(expr_name: str, variables: list) -> str:
     # can't have actions with a dash in the name; it confuses the Expr class
-    estr = expr_name.replace('-', '').capitalize() + '('
+    if expr_name.startswith('~'):
+        estr = '~' + expr_name[1:].replace('-', '').capitalize() + '('
+    else:
+        estr = expr_name.replace('-', '').capitalize() + '('
     vlen = len(variables)
     if vlen:
         for i in range(vlen - 1):
@@ -145,7 +148,7 @@ def _parse_single_expr_string(tokens: deque) -> str:
                 if not param[0].isupper():
                     param = param.capitalize()
                 variables.append(param)
-        return _build_expr_string(expr_name, variables)
+        return build_expr_string(expr_name, variables)
 
 
 def _parse_expr_list(tokens) -> list:
@@ -259,7 +262,7 @@ class DomainParser:
                  }
         parse_tokens(match, tokens)
         params = [p for p in self._parameters]
-        action = (_build_expr_string(self._action_name, params), self._preconditions, self._effects)
+        action = (build_expr_string(self._action_name, params), self._preconditions, self._effects)
         self.actions.append(action)
         # reset the temporary storage for this action before processing the next one.
         self._action_name = ''
