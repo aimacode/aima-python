@@ -6,9 +6,11 @@ as a dictionary of {state: action} pairs, and a Utility function as a
 dictionary of {state: number} pairs. We then define the value_iteration
 and policy_iteration algorithms."""
 
-from utils import argmax, vector_add, orientations, turn_right, turn_left
+from utils import argmax, vector_add, orientations, turn_right, turn_left, plot_pomdp_utility
 
 import random
+import numpy as np
+from collections import defaultdict
 
 
 class MDP:
@@ -51,11 +53,13 @@ class MDP:
 
     def R(self, state):
         """Return a numeric reward for this state."""
+
         return self.reward[state]
 
     def T(self, state, action):
         """Transition model. From a state and an action, return a list
         of (probability, result-state) pairs."""
+
         if not self.transitions:
             raise ValueError("Transition model is missing")
         else:
@@ -65,6 +69,7 @@ class MDP:
         """Return a list of actions that can be performed in this state. By default, a
         fixed list of actions, except for terminal states. Override this
         method if you need to specialize by state."""
+
         if state in self.terminals:
             return [None]
         else:
@@ -106,7 +111,10 @@ class MDP:
 
 class MDP2(MDP):
 
-    """Inherits from MDP. Handles terminal states, and transitions to and from terminal states better."""
+    """
+    Inherits from MDP. Handles terminal states, and transitions to and from terminal states better.
+    """
+
     def __init__(self, init, actlist, terminals, transitions, reward=None, gamma=0.9):
         MDP.__init__(self, init, actlist, terminals, transitions, reward, gamma=gamma)
 
@@ -160,11 +168,13 @@ class GridMDP(MDP):
  
     def go(self, state, direction):
         """Return the state that results from going in this direction."""
+
         state1 = vector_add(state, direction)
         return state1 if state1 in self.states else state
 
     def to_grid(self, mapping):
         """Convert a mapping from (x, y) to v into a [[..., v, ...]] grid."""
+
         return list(reversed([[mapping.get((x, y), None)
                                for x in range(self.cols)]
                               for y in range(self.rows)]))
@@ -190,6 +200,7 @@ sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
 
 def value_iteration(mdp, epsilon=0.001):
     """Solving an MDP by value iteration. [Figure 17.4]"""
+
     U1 = {s: 0 for s in mdp.states}
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
     while True:
@@ -206,6 +217,7 @@ def value_iteration(mdp, epsilon=0.001):
 def best_policy(mdp, U):
     """Given an MDP and a utility function U, determine the best policy,
     as a mapping from state to action. (Equation 17.4)"""
+
     pi = {}
     for s in mdp.states:
         pi[s] = argmax(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
@@ -214,6 +226,7 @@ def best_policy(mdp, U):
 
 def expected_utility(a, s, U, mdp):
     """The expected utility of doing a in state s, according to the MDP and U."""
+
     return sum(p*U[s1] for (p, s1) in mdp.T(s, a))
 
 # ______________________________________________________________________________
@@ -221,6 +234,7 @@ def expected_utility(a, s, U, mdp):
 
 def policy_iteration(mdp):
     """Solve an MDP by policy iteration [Figure 17.7]"""
+
     U = {s: 0 for s in mdp.states}
     pi = {s: random.choice(mdp.actions(s)) for s in mdp.states}
     while True:
@@ -238,11 +252,155 @@ def policy_iteration(mdp):
 def policy_evaluation(pi, U, mdp, k=20):
     """Return an updated utility mapping U from each state in the MDP to its
     utility, using an approximation (modified policy iteration)."""
+
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
     for i in range(k):
         for s in mdp.states:
             U[s] = R(s) + gamma*sum(p*U[s1] for (p, s1) in T(s, pi[s]))
     return U
+
+
+class POMDP(MDP):
+
+    """A Partially Observable Markov Decision Process, defined by
+    a transition model P(s'|s,a), actions A(s), a reward function R(s),
+    and a sensor model P(e|s). We also keep track of a gamma value,
+    for use by algorithms. The transition and the sensor models
+    are defined as matrices. We also keep track of the possible states
+    and actions for each state. [page 659]."""
+
+    def __init__(self, actions, transitions=None, evidences=None, rewards=None, states=None, gamma=0.95):
+        """Initialize variables of the pomdp"""
+
+        if not (0 < gamma <= 1):
+            raise ValueError('A POMDP must have 0 < gamma <= 1')
+
+        self.states = states
+        self.actions = actions
+
+        # transition model cannot be undefined
+        self.t_prob = transitions or {}
+        if not self.t_prob:
+            print('Warning: Transition model is undefined')
+        
+        # sensor model cannot be undefined
+        self.e_prob = evidences or {}
+        if not self.e_prob:
+            print('Warning: Sensor model is undefined')
+        
+        self.gamma = gamma
+        self.rewards = rewards
+
+    def remove_dominated_plans(self, input_values):
+        """
+        Remove dominated plans.
+        This method finds all the lines contributing to the
+        upper surface and removes those which don't.
+        """
+
+        values = [val for action in input_values for val in input_values[action]]
+        values.sort(key=lambda x: x[0], reverse=True)
+
+        best = [values[0]]
+        y1_max = max(val[1] for val in values)
+        tgt = values[0]
+        prev_b = 0
+        prev_ix = 0
+        while tgt[1] != y1_max:
+            min_b = 1
+            min_ix = 0
+            for i in range(prev_ix + 1, len(values)):
+                if values[i][0] - tgt[0] + tgt[1] - values[i][1] != 0:
+                    trans_b = (values[i][0] - tgt[0]) / (values[i][0] - tgt[0] + tgt[1] - values[i][1])
+                    if 0 <= trans_b <= 1 and trans_b > prev_b and trans_b < min_b:
+                        min_b = trans_b
+                        min_ix = i
+            prev_b = min_b
+            prev_ix = min_ix
+            tgt = values[min_ix]
+            best.append(tgt)
+
+        return self.generate_mapping(best, input_values)
+
+    def remove_dominated_plans_fast(self, input_values):
+        """
+        Remove dominated plans using approximations.
+        Resamples the upper boundary at intervals of 100 and
+        finds the maximum values at these points.
+        """
+
+        values = [val for action in input_values for val in input_values[action]]
+        values.sort(key=lambda x: x[0], reverse=True)
+
+        best = []
+        sr = 100
+        for i in range(sr + 1):
+            x = i / float(sr)
+            maximum = (values[0][1] - values[0][0]) * x + values[0][0]
+            tgt = values[0]
+            for value in values:
+                val = (value[1] - value[0]) * x + value[0]
+                if val > maximum:
+                    maximum = val
+                    tgt = value
+
+            if all(any(tgt != v) for v in best):
+                best.append(tgt)
+
+        return self.generate_mapping(best, input_values)
+
+    def generate_mapping(self, best, input_values):
+        """Generate mappings after removing dominated plans"""
+
+        mapping = defaultdict(list)
+        for value in best:
+            for action in input_values:
+                if any(all(value == v) for v in input_values[action]):
+                    mapping[action].append(value)
+
+        return mapping
+
+    def max_difference(self, U1, U2):
+        """Find maximum difference between two utility mappings"""
+
+        for k, v in U1.items():
+            sum1 = 0
+            for element in U1[k]:
+                sum1 += sum(element)
+            sum2 = 0
+            for element in U2[k]:
+                sum2 += sum(element)
+        return abs(sum1 - sum2)
+
+
+def pomdp_value_iteration(pomdp, eps=0.1):
+    """Solving a POMDP by value iteration."""
+
+    U = {'':[np.zeros(len(pomdp.states))]}
+    count = 0
+    while True:
+        count += 1
+        prev_U = U
+        values = [val for action in U for val in U[action]]
+        value_matxs = []
+        for i in values:
+            for j in values:
+                value_matxs.append(np.matrix([i, j]))
+
+        U1 = defaultdict(list)
+        for action in pomdp.actions:
+            for u in value_matxs:
+                u1 = pomdp.t_prob[int(action)] * np.multiply(pomdp.e_prob[int(action)], np.transpose(u)) * np.matrix([[1], [1]])
+                u1 = pomdp.gamma * np.transpose(u1) + pomdp.rewards[int(action)]
+                U1[action].append(np.array(u1)[0])
+
+        U = pomdp.remove_dominated_plans_fast(U1)
+        # replace with U = pomdp.remove_dominated_plans(U1) for accurate calculations
+        
+        if count > 10:
+            print(pomdp.max_difference(U, prev_U))
+            if pomdp.max_difference(U, prev_U) < eps * (1 - pomdp.gamma) / pomdp.gamma:
+                return U
 
 
 __doc__ += """
