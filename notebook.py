@@ -1086,3 +1086,24 @@ def gaussian_kernel(l=5, sig=1.0):
     xx, yy = np.meshgrid(ax, ax)
     kernel = np.exp(-(xx**2 + yy**2) / (2. * sig**2))
     return kernel
+
+# Plots utility function for a POMDP
+def plot_pomdp_utility(utility):
+    save = utility['0'][0]
+    delete = utility['1'][0]
+    ask_save = utility['2'][0]
+    ask_delete = utility['2'][-1]
+    left = (save[0] - ask_save[0]) / (save[0] - ask_save[0] + ask_save[1] - save[1])
+    right = (delete[0] - ask_delete[0]) / (delete[0] - ask_delete[0] + ask_delete[1] - delete[1])
+
+    colors = ['g', 'b', 'k']
+    for action in utility:
+        for value in utility[action]:
+            plt.plot(value, color=colors[int(action)])
+    plt.vlines([left, right], -20, 10, linestyles='dashed', colors='r')
+    plt.ylim(-20, 13)
+    plt.xlim(0, 1)
+    plt.text(left/2 - 0.05, 10, r'Save')
+    plt.text((right + left)/2 - 0.02, 10, 'Ask')
+    plt.text((right + 1)/2 - 0.07, 10, 'Delete')
+    plt.show()
