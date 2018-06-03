@@ -6,7 +6,7 @@ as a dictionary of {state: action} pairs, and a Utility function as a
 dictionary of {state: number} pairs. We then define the value_iteration
 and policy_iteration algorithms."""
 
-from utils import argmax, vector_add, orientations, turn_right, turn_left, plot_pomdp_utility
+from utils import argmax, vector_add, orientations, turn_right, turn_left
 
 import random
 import numpy as np
@@ -373,7 +373,7 @@ class POMDP(MDP):
         return abs(sum1 - sum2)
 
 
-def pomdp_value_iteration(pomdp, eps=0.1):
+def pomdp_value_iteration(pomdp, epsilon=0.1):
     """Solving a POMDP by value iteration."""
 
     U = {'':[np.zeros(len(pomdp.states))]}
@@ -399,7 +399,7 @@ def pomdp_value_iteration(pomdp, eps=0.1):
         
         if count > 10:
             print(pomdp.max_difference(U, prev_U))
-            if pomdp.max_difference(U, prev_U) < eps * (1 - pomdp.gamma) / pomdp.gamma:
+            if pomdp.max_difference(U, prev_U) < epsilon * (1 - pomdp.gamma) / pomdp.gamma:
                 return U
 
 
