@@ -162,11 +162,11 @@ def test_graphplan():
     assert expr('Buy(Milk, SM)') in shopping_problem_solution
 
 
-def test_total_order_planner():
+def test_linearize_class():
     st = spare_tire()
     possible_solutions = [[expr('Remove(Spare, Trunk)'), expr('Remove(Flat, Axle)'), expr('PutOn(Spare, Axle)')],
                           [expr('Remove(Flat, Axle)'), expr('Remove(Spare, Trunk)'), expr('PutOn(Spare, Axle)')]]
-    assert TotalOrderPlanner(st).execute() in possible_solutions
+    assert Linearize(st).execute() in possible_solutions
 
     ac = air_cargo()
     possible_solutions = [[expr('Load(C1, P1, SFO)'), expr('Load(C2, P2, JFK)'), expr('Fly(P1, SFO, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
@@ -182,7 +182,7 @@ def test_total_order_planner():
                           [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
                           [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')]
                           ]
-    assert TotalOrderPlanner(ac).execute() in possible_solutions
+    assert Linearize(ac).execute() in possible_solutions
 
     ss = socks_and_shoes()
     possible_solutions = [[expr('LeftSock'), expr('RightSock'), expr('LeftShoe'), expr('RightShoe')],
@@ -192,7 +192,7 @@ def test_total_order_planner():
                           [expr('LeftSock'), expr('LeftShoe'), expr('RightSock'), expr('RightShoe')],
                           [expr('RightSock'), expr('RightShoe'), expr('LeftSock'), expr('LeftShoe')]
                           ]
-    assert TotalOrderPlanner(ss).execute() in possible_solutions
+    assert Linearize(ss).execute() in possible_solutions
 
 
 def test_expand_actions():

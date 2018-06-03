@@ -693,7 +693,7 @@ class GraphPlan:
                 return None
 
 
-class TotalOrderPlanner:
+class Linearize:
 
     def __init__(self, pddl):
         self.pddl = pddl
