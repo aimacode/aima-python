@@ -119,3 +119,34 @@ def test_transition_model():
     assert mdp.T("a","plan3") == [(0.2, 'a'), (0.5, 'b'), (0.3, 'c')]
     assert mdp.T("b","plan2") == [(0.6, 'a'), (0.2, 'b'), (0.1, 'c'), (0.1, 'd')]
     assert mdp.T("c","plan1") == [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')]
+
+
+def test_pomdp_value_iteration():
+    # initialize matrices
+    t_prob = np.zeros(shape=(3, 2, 2))
+    e_prob = np.zeros(shape=(3, 2, 2))
+    # transition function P(s'|s,a)
+    t_prob = [np.matrix([[0.65, 0.35], [0.65, 0.35]]), np.matrix([[0.65, 0.35], [0.65, 0.35]]), np.matrix([[1.0, 0.0], [0.0, 1.0]])]
+    # evidence function P(e|s)
+    e_prob = [np.matrix([[0.5, 0.5], [0.5, 0.5]]), np.matrix([[0.5, 0.5], [0.5, 0.5]]), np.matrix([[0.8, 0.2], [0.3, 0.7]])]
+    # reward function
+    rewards = np.matrix([[5, -10], [-20, 5], [-1, -1]])
+    
+    # discount factor
+    gamma = 0.95
+    # 0, 1 and 2 refer to 'Save', 'Delete' and 'Ask' respectively
+    actions = ('0', '1', '2')
+    # 0 and 1 refer to 'save' and 'delete' respectively
+    states = ('0', '1')
+
+    # define pomdp object
+    pomdp = POMDP(actions, t_prob, e_prob, rewards, states, gamma)
+    # calculate utility
+    utility = pomdp_value_iteration(pomdp, epsilon=5)
+    # sum up all values
+    for k, v in utility.items():
+        sum_ = 0
+        for element in v:
+            sum_ += sum(element)
+    # exact value was found to be -12.7618322131
+    assert -12.79 < sum_ < -12.73
