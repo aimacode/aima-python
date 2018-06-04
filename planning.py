@@ -1097,11 +1097,14 @@ class PlanningAction:
 
     def check_pos_precond(self, kb, precond, subst):
         clause_set = kb.fetch_rules_for_goal(None)
-        for s in fol_bc_and(kb, list(precond), subst):
-            pos_precond = frozenset(self.substitute(s, x) for x in precond)
-            # are all preconds found in the KB?
-            if clause_set.issuperset(pos_precond):
-                yield s
+        if not precond:
+            yield {}
+        else:
+            for s in fol_bc_and(kb, list(precond), subst):
+                pos_precond = frozenset(self.substitute(s, x) for x in precond)
+                # are all preconds found in the KB?
+                if clause_set.issuperset(pos_precond):
+                    yield s
 
     def check_precond(self, kb):
         """Checks if preconditions are satisfied in the current state"""
@@ -1177,3 +1180,7 @@ def test_planning_solutions():
     """ Call this function to run test cases inside PDDL_files directory."""
     for domain, problem in gather_test_pairs():
         construct_solution_from_pddl(domain, problem)
+
+
+if __name__ == '__main__':
+    test_planning_solutions()
