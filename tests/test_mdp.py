@@ -143,6 +143,7 @@ def test_pomdp_value_iteration():
     pomdp = POMDP(actions, t_prob, e_prob, rewards, states, gamma)
     # calculate utility
     utility = pomdp_value_iteration(pomdp, epsilon=5)
+    
     # sum up all values
     for k, v in utility.items():
         sum_ = 0
