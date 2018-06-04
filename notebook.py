@@ -1100,10 +1100,10 @@ def plot_pomdp_utility(utility):
     for action in utility:
         for value in utility[action]:
             plt.plot(value, color=colors[int(action)])
-    plt.vlines([left, right], -20, 10, linestyles='dashed', colors='r')
+    plt.vlines([left, right], -20, 10, linestyles='dashed', colors='c')
     plt.ylim(-20, 13)
     plt.xlim(0, 1)
-    plt.text(left/2 - 0.05, 10, r'Save')
+    plt.text(left/2 - 0.05, 10, 'Save')
     plt.text((right + left)/2 - 0.02, 10, 'Ask')
     plt.text((right + 1)/2 - 0.07, 10, 'Delete')
     plt.show()
