@@ -150,3 +150,4 @@ def test_pomdp_value_iteration():
             sum_ += sum(element)
     # exact value was found to be -12.7618322131
     assert -12.79 < sum_ < -12.73
+
