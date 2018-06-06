@@ -345,7 +345,7 @@ class POMDP(MDP):
                     tgt = value
 
             if all(any(tgt != v) for v in best):
-                best.append(tgt)
+                best.append(np.array(tgt))
 
         return self.generate_mapping(best, input_values)
 
@@ -372,11 +372,49 @@ class POMDP(MDP):
                 sum2 += sum(element)
         return abs(sum1 - sum2)
 
+        
+class Matrix:
+    @staticmethod
+    def add(A, B):
+        res = []
+        for i in range(len(A)):
+            row = []
+            for j in range(len(A[0])):
+                row.append(A[i][j] + B[i][j])
+            res.append(row)
+        return res
+
+    @staticmethod
+    def scalar_multiply(a, B):
+        for i in range(len(B)):
+            for j in range(len(B[0])):
+                B[i][j] = a * B[i][j]
+        return B
+
+    @staticmethod
+    def multiply(A, B):
+        matrix = []
+        for i in range(len(B)):
+            row = []
+            for j in range(len(B[0])):
+                row.append(B[i][j] * A[j][i])
+            matrix.append(row)
+
+        return matrix
+
+    @staticmethod
+    def matmul(A, B):
+        return [[sum(ele_a*ele_b for ele_a, ele_b in zip(row_a, col_b)) for col_b in list(zip(*B))] for row_a in A]
+
+    @staticmethod
+    def transpose(A):
+        return [list(i) for i in zip(*A)]
+
 
 def pomdp_value_iteration(pomdp, epsilon=0.1):
     """Solving a POMDP by value iteration."""
 
-    U = {'':[np.zeros(len(pomdp.states))]}
+    U = {'':[[0]* len(pomdp.states)]}
     count = 0
     while True:
         count += 1
@@ -385,20 +423,19 @@ def pomdp_value_iteration(pomdp, epsilon=0.1):
         value_matxs = []
         for i in values:
             for j in values:
-                value_matxs.append(np.matrix([i, j]))
+                value_matxs.append([i, j])
 
         U1 = defaultdict(list)
         for action in pomdp.actions:
             for u in value_matxs:
-                u1 = pomdp.t_prob[int(action)] * np.multiply(pomdp.e_prob[int(action)], np.transpose(u)) * np.matrix([[1], [1]])
-                u1 = pomdp.gamma * np.transpose(u1) + pomdp.rewards[int(action)]
-                U1[action].append(np.array(u1)[0])
+                u1 = Matrix.matmul(Matrix.matmul(pomdp.t_prob[int(action)], Matrix.multiply(pomdp.e_prob[int(action)], Matrix.transpose(u))), [[1], [1]])
+                u1 = Matrix.add(Matrix.scalar_multiply(pomdp.gamma, Matrix.transpose(u1)), [pomdp.rewards[int(action)]])
+                U1[action].append(u1[0])
 
         U = pomdp.remove_dominated_plans_fast(U1)
         # replace with U = pomdp.remove_dominated_plans(U1) for accurate calculations
         
         if count > 10:
-            print(pomdp.max_difference(U, prev_U))
             if pomdp.max_difference(U, prev_U) < epsilon * (1 - pomdp.gamma) / pomdp.gamma:
                 return U
 

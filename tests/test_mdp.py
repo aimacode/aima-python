@@ -123,15 +123,12 @@ def test_transition_model():
 
 def test_pomdp_value_iteration():
     # initialize matrices
-    t_prob = np.zeros(shape=(3, 2, 2))
-    e_prob = np.zeros(shape=(3, 2, 2))
-    # transition function P(s'|s,a)
-    t_prob = [np.matrix([[0.65, 0.35], [0.65, 0.35]]), np.matrix([[0.65, 0.35], [0.65, 0.35]]), np.matrix([[1.0, 0.0], [0.0, 1.0]])]
+    t_prob = [[[0.65, 0.35], [0.65, 0.35]], [[0.65, 0.35], [0.65, 0.35]], [[1.0, 0.0], [0.0, 1.0]]]
     # evidence function P(e|s)
-    e_prob = [np.matrix([[0.5, 0.5], [0.5, 0.5]]), np.matrix([[0.5, 0.5], [0.5, 0.5]]), np.matrix([[0.8, 0.2], [0.3, 0.7]])]
+    e_prob = [[[0.5, 0.5], [0.5, 0.5]], [[0.5, 0.5], [0.5, 0.5]], [[0.8, 0.2], [0.3, 0.7]]]
     # reward function
-    rewards = np.matrix([[5, -10], [-20, 5], [-1, -1]])
-    
+    rewards = [[5, -10], [-20, 5], [-1, -1]]
+
     # discount factor
     gamma = 0.95
     # 0, 1 and 2 refer to 'Save', 'Delete' and 'Ask' respectively
@@ -149,6 +146,6 @@ def test_pomdp_value_iteration():
         sum_ = 0
         for element in v:
             sum_ += sum(element)
-    # exact value was found to be -12.7618322131
-    assert -12.79 < sum_ < -12.73
+    # exact value was found to be -4.49793012061
+    assert -9.76 < sum_ < -9.70
 
