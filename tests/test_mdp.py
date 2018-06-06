@@ -122,30 +122,21 @@ def test_transition_model():
 
 
 def test_pomdp_value_iteration():
-    # initialize matrices
     t_prob = [[[0.65, 0.35], [0.65, 0.35]], [[0.65, 0.35], [0.65, 0.35]], [[1.0, 0.0], [0.0, 1.0]]]
-    # evidence function P(e|s)
     e_prob = [[[0.5, 0.5], [0.5, 0.5]], [[0.5, 0.5], [0.5, 0.5]], [[0.8, 0.2], [0.3, 0.7]]]
-    # reward function
     rewards = [[5, -10], [-20, 5], [-1, -1]]
 
-    # discount factor
     gamma = 0.95
-    # 0, 1 and 2 refer to 'Save', 'Delete' and 'Ask' respectively
     actions = ('0', '1', '2')
-    # 0 and 1 refer to 'save' and 'delete' respectively
     states = ('0', '1')
 
-    # define pomdp object
     pomdp = POMDP(actions, t_prob, e_prob, rewards, states, gamma)
-    # calculate utility
     utility = pomdp_value_iteration(pomdp, epsilon=5)
     
-    # sum up all values
     for k, v in utility.items():
         sum_ = 0
         for element in v:
             sum_ += sum(element)
-    # exact value was found to be -4.49793012061
+    # exact value was found to be -9.73231
     assert -9.76 < sum_ < -9.70
 
