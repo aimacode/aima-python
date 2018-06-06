@@ -374,8 +374,12 @@ class POMDP(MDP):
 
         
 class Matrix:
+    """Matrix operations class"""
+
     @staticmethod
     def add(A, B):
+        """Add two matrices A and B"""
+
         res = []
         for i in range(len(A)):
             row = []
@@ -386,6 +390,8 @@ class Matrix:
 
     @staticmethod
     def scalar_multiply(a, B):
+        """Multiply scalar a to matrix B"""
+
         for i in range(len(B)):
             for j in range(len(B[0])):
                 B[i][j] = a * B[i][j]
@@ -393,6 +399,8 @@ class Matrix:
 
     @staticmethod
     def multiply(A, B):
+        """Multiply two matrices A and B element-wise"""
+
         matrix = []
         for i in range(len(B)):
             row = []
@@ -404,10 +412,14 @@ class Matrix:
 
     @staticmethod
     def matmul(A, B):
+        """Inner-product of two matrices"""
+
         return [[sum(ele_a*ele_b for ele_a, ele_b in zip(row_a, col_b)) for col_b in list(zip(*B))] for row_a in A]
 
     @staticmethod
     def transpose(A):
+        """Transpose a matrix"""
+        
         return [list(i) for i in zip(*A)]
 
 
