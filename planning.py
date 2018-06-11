@@ -1187,7 +1187,3 @@ def test_planning_solutions():
     """ Call this function to run test cases inside PDDL_files directory."""
     for domain, problem in gather_test_pairs():
         construct_solution_from_pddl(domain, problem)
-
-
-if __name__ == '__main__':
-    test_planning_solutions()
