@@ -6,15 +6,15 @@
   (:requirements :strips)
 
   (:action Eat
-	     :parameters (?x)
-	     :precondition (have ?x)
-	     :effect (and (eaten ?x) (not (have ?x)))
+	     :parameters (Cake)
+	     :precondition (have Cake)
+	     :effect (and (eaten Cake) (not (have Cake)))
   )
 
   (:action Bake
-         :parameters (?x)
-         :precondition (not (have ?x))
-         :effect (have ?x)
+         :parameters (Cake)
+         :precondition (not (have Cake))
+         :effect (have Cake)
   )
 )
 

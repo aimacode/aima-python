@@ -988,10 +988,11 @@ class PlanningProblem:
 
     def actions(self, state):
         for action in self.possible_actions:
-            for subst in action.check_precond(state):
-                new_action = action.copy()
-                new_action.subst = subst
-                yield new_action
+            for valid, subst in action.check_precond(state):
+                if valid:
+                    new_action = action.copy()
+                    new_action.subst = subst
+                    yield new_action
 
     def goal_test(self, state):
         return state.goal_test()
@@ -1083,32 +1084,38 @@ class PlanningAction:
         return Expr(e.op, *new_args)
 
     def check_neg_precond(self, kb, precond, subst):
-        for s in subst:
-            for _ in fol_bc_and(kb, list(precond), s):
-                # if any negative preconditions are satisfied by the substitution, then exit loop.
-                if precond:
-                    break
-            else:
+        if precond:
+            found_subst = False
+            for s in fol_bc_and(kb, list(precond), subst):
                 neg_precond = frozenset(self.substitute(s, x) for x in precond)
                 clause_set = kb.fetch_rules_for_goal(None)
                 # negative preconditions succeed if none of them are found in the KB.
-                if clause_set.isdisjoint(neg_precond):
-                    yield s
+                found_subst = True
+                yield clause_set.isdisjoint(neg_precond), s
+            if not found_subst:
+                yield True, subst
+        else:
+            yield True, subst
 
     def check_pos_precond(self, kb, precond, subst):
-        clause_set = kb.fetch_rules_for_goal(None)
-        if not precond:
-            yield {}
-        else:
+        if precond:
+            found_subst = False
             for s in fol_bc_and(kb, list(precond), subst):
                 pos_precond = frozenset(self.substitute(s, x) for x in precond)
                 # are all preconds found in the KB?
-                if clause_set.issuperset(pos_precond):
-                    yield s
+                clause_set = kb.fetch_rules_for_goal(None)
+                found_subst = True
+                yield clause_set.issuperset(pos_precond), s
+            if not found_subst:
+                yield True, subst
+        else:
+            yield True, subst
 
     def check_precond(self, kb):
         """Checks if preconditions are satisfied in the current state"""
-        yield from self.check_neg_precond(kb, self.precond_neg, self.check_pos_precond(kb, self.precond_pos, {}))
+        for valid, subst in self.check_pos_precond(kb, self.precond_pos, {}):
+            if valid:
+                yield from self.check_neg_precond(kb, self.precond_neg, subst)
 
     def act(self, subst, kb):
         """ Executes the action on a new copy of the PlanningKB """
