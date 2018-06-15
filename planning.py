@@ -925,8 +925,12 @@ class PlanningKB:
     def __init__(self, goals, initial_clauses=None):
         if initial_clauses is None:
             initial_clauses = []
-        self.goal_clauses = frozenset(goals)
+
+        initial_clauses = [expr(c) if not isinstance(c, Expr) else c for c in initial_clauses]
         self.clause_set = frozenset(initial_clauses)
+
+        goals = [expr(g) if not isinstance(g, Expr) else g for g in goals]
+        self.goal_clauses = frozenset(goals)
 
     def __eq__(self, other):
         """search.Node has a __eq__ method for each state, so this method must be implemented too."""
@@ -967,8 +971,8 @@ class PlanningKB:
 
 class PlanningProblem:
     """
-    Used to define a planning problem.
-    It stores states in a knowledge base consisting of first order logic statements.
+    Used to define a planning problem with a non-mutable KB that can be used in a search.
+    The states in the knowledge base consist of first order logic statements.
     The conjunction of these logical statements completely define a state.
     """
     def __init__(self, initial_kb, actions):
@@ -1034,6 +1038,12 @@ class PlanningAction:
     """
 
     def __init__(self, expression, preconds, effects):
+        if isinstance(expression, str):
+            expression = expr(expression)
+
+        preconds = [expr(p) if not isinstance(p, Expr) else p for p in preconds]
+        effects = [expr(e) if not isinstance(e, Expr) else e for e in effects]
+
         self.name = expression.op
         self.args = expression.args
         self.subst = None
@@ -1144,14 +1154,10 @@ def print_solution(node):
 
 
 def construct_solution_from_pddl(pddl_domain, pddl_problem) -> None:
-    initial_kb = PlanningKB([expr(g) for g in pddl_problem.goals],
-                            [expr(s) for s in pddl_problem.initial_state])
-
-    planning_actions = [PlanningAction(expr(name),
-                                       [expr(p) for p in preconds],
-                                       [expr(e) for e in effects])
-                        for name, preconds, effects in pddl_domain.actions]
+    initial_kb = PlanningKB(pddl_problem.goals, pddl_problem.initial_state)
+    planning_actions = [PlanningAction(name, preconds, effects) for name, preconds, effects in pddl_domain.actions]
     p = PlanningProblem(initial_kb, planning_actions)
+
     print('\n{} solution:'.format(pddl_problem.problem_name))
     print_solution(astar_search(p))
 
