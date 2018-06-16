@@ -969,7 +969,7 @@ class PlanningKB:
         return self.clause_set
 
 
-class PlanningProblem:
+class PlanningSearchProblem:
     """
     Used to define a planning problem with a non-mutable KB that can be used in a search.
     The states in the knowledge base consist of first order logic statements.
@@ -984,7 +984,7 @@ class PlanningProblem:
         initial = PlanningKB(pddl_obj.goals, pddl_obj.init)
         planning_actions = []
         for act in pddl_obj.actions:
-            planning_actions.append(PlanningAction.from_action(act))
+            planning_actions.append(STRIPSAction.from_action(act))
         return cls(initial, planning_actions)
 
     def __repr__(self):
@@ -1025,7 +1025,7 @@ def is_negative_clause(e):
     return e.op == '~' and len(e.args) == 1
 
 
-class PlanningAction:
+class STRIPSAction:
     """
     Defines an action schema using preconditions and effects
     Use this to describe actions in PDDL
@@ -1155,8 +1155,8 @@ def print_solution(node):
 
 def construct_solution_from_pddl(pddl_domain, pddl_problem) -> None:
     initial_kb = PlanningKB(pddl_problem.goals, pddl_problem.initial_state)
-    planning_actions = [PlanningAction(name, preconds, effects) for name, preconds, effects in pddl_domain.actions]
-    p = PlanningProblem(initial_kb, planning_actions)
+    planning_actions = [STRIPSAction(name, preconds, effects) for name, preconds, effects in pddl_domain.actions]
+    p = PlanningSearchProblem(initial_kb, planning_actions)
 
     print('\n{} solution:'.format(pddl_problem.problem_name))
     print_solution(astar_search(p))
