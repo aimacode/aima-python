@@ -1117,7 +1117,7 @@ class STRIPSAction:
                 found_subst = True
                 yield clause_set.issuperset(pos_precond), s
             if not found_subst:
-                yield True, subst
+                yield False, subst
         else:
             yield True, subst
 
