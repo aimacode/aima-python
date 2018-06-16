@@ -1,5 +1,5 @@
 from collections.abc import MutableSequence
-from planning import PlanningAction
+from planning import STRIPSAction
 from utils import expr
 
 
@@ -180,7 +180,7 @@ class PDDLDomainParser:
         parse_tokens(match, tokens)
         params = [p[0] for p in self.parameters]
         action_str = build_expr_string(self.action_name, params)
-        action = PlanningAction(expr(action_str), self.preconditions, self.effects)
+        action = STRIPSAction(action_str, self.preconditions, self.effects)
         self.actions.append(action)
         return True
 
@@ -337,7 +337,7 @@ class PDDLProblemParser:
         parse_tokens(match, tokens)
         params = [p[0] for p in self.parameters]
         action_str = build_expr_string(self.action_name, params)
-        action = PlanningAction(expr(action_str), self.preconditions, self.effects)
+        action = STRIPSAction(action_str, self.preconditions, self.effects)
         self.actions.append(action)
         return True
 
