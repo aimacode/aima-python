@@ -117,8 +117,8 @@ def test_shopping_problem():
 
 
 def test_graph_call():
-    pddl = spare_tire()
-    graph = Graph(pddl)
+    planningproblem = spare_tire()
+    graph = Graph(planningproblem)
 
     levels_size = len(graph.levels)
     graph()

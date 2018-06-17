@@ -10,9 +10,9 @@ from collections import deque
 from functools import reduce as _reduce
 
 
-class PDDL:
+class PlanningProblem:
     """
-    Planning Domain Definition Language (PDDL) used to define a search problem.
+    Planning Domain Definition Language (PlanningProblem) used to define a search problem.
     It stores states in a knowledge base consisting of first order logic statements.
     The conjunction of these logical statements completely defines a state.
     """
@@ -64,7 +64,7 @@ class PDDL:
 class Action:
     """
     Defines an action schema using preconditions and effects.
-    Use this to describe actions in PDDL.
+    Use this to describe actions in PlanningProblem.
     action is an Expr where variables are given as arguments(args).
     Precondition and effect are both lists with positive and negative literals.
     Negative preconditions and effects are defined by adding a 'Not' before the name of the clause
@@ -187,7 +187,7 @@ def air_cargo():
     >>>
     """
 
-    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)', 
+    return PlanningProblem(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)', 
                 goals='At(C1, JFK) & At(C2, SFO)',
                 actions=[Action('Load(c, p, a)', 
                                 precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
@@ -221,7 +221,7 @@ def spare_tire():
     >>>
     """
 
-    return PDDL(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
+    return PlanningProblem(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
                 goals='At(Spare, Axle) & At(Flat, Ground)',
                 actions=[Action('Remove(obj, loc)',
                                 precond='At(obj, loc)',
@@ -257,7 +257,7 @@ def three_block_tower():
     >>>
     """
 
-    return PDDL(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
+    return PlanningProblem(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
                 goals='On(A, B) & On(B, C)',
                 actions=[Action('Move(b, x, y)',
                                 precond='On(b, x) & Clear(b) & Clear(y) & Block(b) & Block(y)',
@@ -288,7 +288,7 @@ def simple_blocks_world():
     >>>
     """
 
-    return PDDL(init='On(A, B) & Clear(A) & OnTable(B) & OnTable(C) & Clear(C)',
+    return PlanningProblem(init='On(A, B) & Clear(A) & OnTable(B) & OnTable(C) & Clear(C)',
                 goals='On(B, A) & On(C, B)',
                 actions=[Action('ToTable(x, y)',
                                 precond='On(x, y) & Clear(x)',
@@ -320,7 +320,7 @@ def have_cake_and_eat_cake_too():
     >>>
     """
 
-    return PDDL(init='Have(Cake)',
+    return PlanningProblem(init='Have(Cake)',
                 goals='Have(Cake) & Eaten(Cake)',
                 actions=[Action('Eat(Cake)',
                                 precond='Have(Cake)',
@@ -353,7 +353,7 @@ def shopping_problem():
     >>>
     """
 
-    return PDDL(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
+    return PlanningProblem(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
                 goals='Have(Milk) & Have(Banana) & Have(Drill)', 
                 actions=[Action('Buy(x, store)',
                                 precond='At(store) & Sells(store, x)',
@@ -385,7 +385,7 @@ def socks_and_shoes():
     >>>
     """
 
-    return PDDL(init='',
+    return PlanningProblem(init='',
                 goals='RightShoeOn & LeftShoeOn',
                 actions=[Action('RightShoe',
                                 precond='RightSockOn',
@@ -423,7 +423,7 @@ def double_tennis_problem():
     >>>
     """
 
-    return PDDL(init='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
+    return PlanningProblem(init='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
                              goals='Returned(Ball) & At(a, LeftNet) & At(a, RightNet)',
                              actions=[Action('Hit(actor, Ball, loc)',
                                              precond='Approaching(Ball, loc) & At(actor, loc)',
@@ -570,9 +570,9 @@ class Graph:
     Used in graph planning algorithm to extract a solution
     """
 
-    def __init__(self, pddl):
-        self.pddl = pddl
-        self.kb = FolKB(pddl.init)
+    def __init__(self, planningproblem):
+        self.planningproblem = planningproblem
+        self.kb = FolKB(planningproblem.init)
         self.levels = [Level(self.kb)]
         self.objects = set(arg for clause in self.kb.clauses for arg in clause.args)
 
@@ -583,7 +583,7 @@ class Graph:
         """Expands the graph by a level"""
 
         last_level = self.levels[-1]
-        last_level(self.pddl.actions, self.objects)
+        last_level(self.planningproblem.actions, self.objects)
         self.levels.append(last_level.perform_actions())
 
     def non_mutex_goals(self, goals, index):
@@ -603,8 +603,8 @@ class GraphPlan:
     Returns solution for the planning problem
     """
 
-    def __init__(self, pddl):
-        self.graph = Graph(pddl)
+    def __init__(self, planningproblem):
+        self.graph = Graph(planningproblem)
         self.nogoods = []
         self.solution = []
 
@@ -677,15 +677,15 @@ class GraphPlan:
         return solution
 
     def goal_test(self, kb):
-        return all(kb.ask(q) is not False for q in self.graph.pddl.goals)
+        return all(kb.ask(q) is not False for q in self.graph.planningproblem.goals)
 
     def execute(self):
         """Executes the GraphPlan algorithm for the given problem"""
 
         while True:
             self.graph.expand_graph()
-            if (self.goal_test(self.graph.levels[-1].kb) and self.graph.non_mutex_goals(self.graph.pddl.goals, -1)):
-                solution = self.extract_solution(self.graph.pddl.goals, -1)
+            if (self.goal_test(self.graph.levels[-1].kb) and self.graph.non_mutex_goals(self.graph.planningproblem.goals, -1)):
+                solution = self.extract_solution(self.graph.planningproblem.goals, -1)
                 if solution:
                     return solution
             
@@ -695,8 +695,8 @@ class GraphPlan:
 
 class Linearize:
 
-    def __init__(self, pddl):
-        self.pddl = pddl
+    def __init__(self, planningproblem):
+        self.planningproblem = planningproblem
 
     def filter(self, solution):
         """Filter out persistence actions from a solution"""
@@ -710,11 +710,11 @@ class Linearize:
             new_solution.append(new_section)
         return new_solution
 
-    def orderlevel(self, level, pddl):
+    def orderlevel(self, level, planningproblem):
         """Return valid linear order of actions for a given level"""
 
         for permutation in itertools.permutations(level):
-            temp = copy.deepcopy(pddl)
+            temp = copy.deepcopy(planningproblem)
             count = 0
             for action in permutation:
                 try:
@@ -722,7 +722,7 @@ class Linearize:
                     count += 1
                 except:
                     count = 0
-                    temp = copy.deepcopy(pddl)
+                    temp = copy.deepcopy(planningproblem)
                     break
             if count == len(permutation):
                 return list(permutation), temp
@@ -731,12 +731,12 @@ class Linearize:
     def execute(self):
         """Finds total-order solution for a planning graph"""
 
-        graphplan_solution = GraphPlan(self.pddl).execute()
+        graphplan_solution = GraphPlan(self.planningproblem).execute()
         filtered_solution = self.filter(graphplan_solution)
         ordered_solution = []
-        pddl = self.pddl
+        planningproblem = self.planningproblem
         for level in filtered_solution:
-            level_solution, pddl = self.orderlevel(level, pddl)
+            level_solution, planningproblem = self.orderlevel(level, planningproblem)
             for element in level_solution:
                 ordered_solution.append(element)
 
@@ -779,15 +779,15 @@ To summarize the working of a partial order planner,
 
 class PartialOrderPlanner:
 
-    def __init__(self, pddl):
-        self.pddl = pddl
+    def __init__(self, planningproblem):
+        self.planningproblem = planningproblem
         self.initialize()
 
     def initialize(self):
         """Initialize all variables"""
         self.causal_links = []
-        self.start = Action('Start', [], self.pddl.init)
-        self.finish = Action('Finish', self.pddl.goals, [])
+        self.start = Action('Start', [], self.planningproblem.init)
+        self.finish = Action('Finish', self.planningproblem.goals, [])
         self.actions = set()
         self.actions.add(self.start)
         self.actions.add(self.finish)
@@ -801,15 +801,15 @@ class PartialOrderPlanner:
     def expand_actions(self, name=None):
         """Generate all possible actions with variable bindings for precondition selection heuristic"""
 
-        objects = set(arg for clause in self.pddl.init for arg in clause.args)
+        objects = set(arg for clause in self.planningproblem.init for arg in clause.args)
         expansions = []
         action_list = []
         if name is not None:
-            for action in self.pddl.actions:
+            for action in self.planningproblem.actions:
                 if str(action.name) == name:
                     action_list.append(action)
         else:
-            action_list = self.pddl.actions
+            action_list = self.planningproblem.actions
 
         for action in action_list:
             for permutation in itertools.permutations(objects, len(action.args)):
@@ -893,7 +893,7 @@ class PartialOrderPlanner:
 
         # or
         #   choose act0 E Actions such that act0 achieves G
-        for action in self.pddl.actions:
+        for action in self.planningproblem.actions:
             for effect in action.effect:
                 if effect.op == oprec.op:
                     bindings = unify(effect, oprec)
@@ -1225,7 +1225,7 @@ class HLA(Action):
         return True
 
 
-class Problem(PDDL):
+class Problem(PlanningProblem):
     """
     Define real-world problems by aggregating resources as numerical quantities instead of
     named entities.
