@@ -242,3 +242,47 @@ def test_refinements():
     assert(len(result) == 1)
     assert(result[0].name == 'Taxi')
     assert(result[0].args == (expr('Home'), expr('SFO')))
+
+
+def pddl_test_case(domain_file, problem_file, expected_solution):
+    domain = DomainParser()
+    domain.read(domain_file)
+
+    problem = ProblemParser()
+    problem.read(problem_file)
+
+    initial_kb = PlanningKB(problem.goals, problem.initial_state)
+    planning_actions = [STRIPSAction(name, preconds, effects) for name, preconds, effects in domain.actions]
+    prob = PlanningSearchProblem(initial_kb, planning_actions)
+    found_solution = astar_search(prob).solution()
+
+    for action, expected_action in zip(found_solution, expected_solution):
+        assert(action == expected_action)
+
+
+def test_pddl_have_cake_and_eat_it_too():
+    """ Negative precondition test for total-order planner. """
+    pddl_dir = os.path.join(os.getcwd(), '..', 'pddl_files')
+    domain_file = pddl_dir + os.sep + 'cake-domain.pddl'
+    problem_file = pddl_dir + os.sep + 'cake-problem.pddl'
+    expected_solution = [expr('Eat(Cake)'), expr('Bake(Cake)')]
+    pddl_test_case(domain_file, problem_file, expected_solution)
+
+
+def test_pddl_change_flat_tire():
+    """ Positive precondition test for total-order planner. """
+    pddl_dir = os.path.join(os.getcwd(), '..', 'pddl_files')
+    domain_file = pddl_dir + os.sep + 'spare-tire-domain.pddl'
+    problem_file = pddl_dir + os.sep + 'spare-tire-problem.pddl'
+    expected_solution = [expr('Remove(Spare, Trunk)'), expr('Remove(Flat, Axle)'), expr('Put_on(Spare, Axle)')]
+    pddl_test_case(domain_file, problem_file, expected_solution)
+
+
+def test_pddl_sussman_anomaly():
+    """ Verifying correct action substitution for total-order planner. """
+    pddl_dir = os.path.join(os.getcwd(), '..', 'pddl_files')
+    domain_file = pddl_dir + os.sep + 'blocks-domain.pddl'
+    problem_file = pddl_dir + os.sep + 'sussman-anomaly-problem.pddl'
+    expected_solution = [expr('Move_to_table(C, A)'), expr('Move(B, Table, C)'), expr('Move(A, Table, B)')]
+    pddl_test_case(domain_file, problem_file, expected_solution)
+

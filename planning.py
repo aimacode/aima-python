@@ -996,6 +996,7 @@ class PlanningSearchProblem:
                 if valid:
                     new_action = action.copy()
                     new_action.subst = subst
+                    new_action.args = [subst.get(x, x) for x in new_action.args]
                     yield new_action
 
     def goal_test(self, state):
@@ -1076,6 +1077,17 @@ class STRIPSAction:
         return '{}({}, {}, {})'.format(self.__class__.__name__, Expr(self.name, *self.args),
                                        preconds, effects)
 
+    def __eq__(self, other):
+        if isinstance(other, Expr):
+            return Expr(self.name, *self.args) == other
+        elif isinstance(other, STRIPSAction):
+            return self.name == other.name and all(x == y for x, y in zip(self.args, other.args)) and \
+                    self.subst == other.subst and self.precond_pos == other.precond_pos and \
+                    self.precond_neg == other.precond_neg and self.effect_add == other.effect_add and \
+                    self.effect_rem == other.effect_rem
+        else:
+            raise TypeError("Cannot compare STRIPSAction object with {} object.".format(other.__class__.__name__))
+
     def copy(self):
         """ Returns a copy of this object. """
         act = self.__new__(self.__class__)
@@ -1145,9 +1157,9 @@ def print_solution(node):
     for action in node.solution():
         print(action.name, end='(')
         for a in action.args[:-1]:
-            print('{},'.format(action.subst.get(a, a)), end=' ')
+            print('{},'.format(a), end=' ')
         if action.args:
-            print('{})'.format(action.subst.get(action.args[-1], action.args[-1])))
+            print('{})'.format(action.args[-1]))
         else:
             print(')')
     print()
@@ -1189,7 +1201,7 @@ def gather_test_pairs() -> list:
         raise IOError('No matching PDDL domain and problem files found.')
 
 
-def test_planning_solutions():
+def run_planning_solutions():
     """ Call this function to run test cases inside PDDL_files directory."""
     for domain, problem in gather_test_pairs():
         construct_solution_from_pddl(domain, problem)
