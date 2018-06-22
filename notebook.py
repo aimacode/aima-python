@@ -888,6 +888,7 @@ class Canvas_fol_bc_ask(Canvas):
         self.text_n(self.table[self.context[0]][self.context[1]] if self.context else "Click for text", 0.025, 0.975)
         self.update()
 
+
 ############################################################################################################
 
 #####################           Functions to assist plotting in search.ipynb            ####################
