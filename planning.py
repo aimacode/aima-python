@@ -1,12 +1,13 @@
 """Planning (Chapters 10-11)
 """
-
+import os
 import copy
 import itertools
-from search import Node
-from utils import Expr, expr, first
-from logic import FolKB, conjuncts
+from search import Node, astar_search
 from collections import deque
+from logic import fol_bc_and, FolKB, conjuncts
+from utils import expr, Expr, partition, first
+from pddl_parse import DomainParser, ProblemParser, build_expr_string
 
 
 class PDDL:
@@ -142,113 +143,10 @@ class Action:
             else:
                 new_clause = Expr('Not' + clause.op, *clause.args)
 
-                if kb.ask(self.substitute(new_clause, args)) is not False:    
+                if kb.ask(self.substitute(new_clause, args)) is not False:
                     kb.retract(self.substitute(new_clause, args))
 
         return kb
-
-
-def air_cargo():
-    """Air cargo problem"""
-
-    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)', 
-                goals='At(C1, JFK) & At(C2, SFO)', 
-                actions=[Action('Load(c, p, a)', 
-                                precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
-                                effect='In(c, p) & ~At(c, a)'),
-                         Action('Unload(c, p, a)',
-                                precond='In(c, p) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
-                                effect='At(c, a) & ~In(c, p)'),
-                         Action('Fly(p, f, to)',
-                                precond='At(p, f) & Plane(p) & Airport(f) & Airport(to)',
-                                effect='At(p, to) & ~At(p, f)')])
-
-
-def spare_tire():
-    """Spare tire problem"""
-
-    return PDDL(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
-                goals='At(Spare, Axle) & At(Flat, Ground)',
-                actions=[Action('Remove(obj, loc)',
-                                precond='At(obj, loc)',
-                                effect='At(obj, Ground) & ~At(obj, loc)'),
-                         Action('PutOn(t, Axle)',
-                                precond='Tire(t) & At(t, Ground) & ~At(Flat, Axle)',
-                                effect='At(t, Axle) & ~At(t, Ground)'),
-                         Action('LeaveOvernight',
-                                precond='',
-                                effect='~At(Spare, Ground) & ~At(Spare, Axle) & ~At(Spare, Trunk) & \
-                                        ~At(Flat, Ground) & ~At(Flat, Axle) & ~At(Flat, Trunk)')])
-
-
-def three_block_tower():
-    """Sussman Anomaly problem"""
-
-    return PDDL(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
-                goals='On(A, B) & On(B, C)',
-                actions=[Action('Move(b, x, y)',
-                                precond='On(b, x) & Clear(b) & Clear(y) & Block(b) & Block(y)',
-                                effect='On(b, y) & Clear(x) & ~On(b, x) & ~Clear(y)'),
-                         Action('MoveToTable(b, x)',
-                                precond='On(b, x) & Clear(b) & Block(b)',
-                                effect='On(b, Table) & Clear(x) & ~On(b, x)')])
-
-
-def have_cake_and_eat_cake_too():
-    """Cake problem"""
-
-    return PDDL(init='Have(Cake)',
-                goals='Have(Cake) & Eaten(Cake)',
-                actions=[Action('Eat(Cake)',
-                                precond='Have(Cake)',
-                                effect='Eaten(Cake) & ~Have(Cake)'),
-                         Action('Bake(Cake)',
-                                precond='~Have(Cake)',
-                                effect='Have(Cake)')])
-
-
-def shopping_problem():
-    """Shopping problem"""
-
-    return PDDL(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
-                goals='Have(Milk) & Have(Banana) & Have(Drill)', 
-                actions=[Action('Buy(x, store)',
-                                precond='At(store) & Sells(store, x)',
-                                effect='Have(x)'),
-                         Action('Go(x, y)',
-                                precond='At(x)',
-                                effect='At(y) & ~At(x)')])
-
-
-def socks_and_shoes():
-    """Socks and shoes problem"""
-
-    return PDDL(init='',
-                goals='RightShoeOn & LeftShoeOn',
-                actions=[Action('RightShoe',
-                                precond='RightSockOn',
-                                effect='RightShoeOn'),
-                        Action('RightSock',
-                                precond='',
-                                effect='RightSockOn'),
-                        Action('LeftShoe',
-                                precond='LeftSockOn',
-                                effect='LeftShoeOn'),
-                        Action('LeftSock',
-                                precond='',
-                                effect='LeftSockOn')])
-
-
-# Doubles tennis problem
-def double_tennis_problem():
-    return PDDL(init='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
-                             goals='Returned(Ball) & At(a, LeftNet) & At(a, RightNet)',
-                             actions=[Action('Hit(actor, Ball, loc)',
-                                             precond='Approaching(Ball,loc) & At(actor,loc)',
-                                             effect='Returned(Ball)'),
-                                      Action('Go(actor, to, loc)', 
-                                             precond='At(actor, loc)',
-                                             effect='At(actor, to) & ~At(actor, loc)')])
 
 
 class Level:
@@ -506,13 +404,211 @@ class GraphPlan:
                 solution = self.extract_solution(self.graph.pddl.goals, -1)
                 if solution:
                     return solution
-            
+
             if len(self.graph.levels) >= 2 and self.check_leveloff():
                 return None
 
 
-class TotalOrderPlanner:
+def spare_tire():
+    """Spare tire problem"""
 
+    return PDDL(init='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
+                goals='At(Spare, Axle) & At(Flat, Ground)',
+                actions=[Action('Remove(obj, loc)',
+                                precond='At(obj, loc)',
+                                effect='At(obj, Ground) & ~At(obj, loc)'),
+                         Action('PutOn(t, Axle)',
+                                precond='Tire(t) & At(t, Ground) & ~At(Flat, Axle)',
+                                effect='At(t, Axle) & ~At(t, Ground)'),
+                         Action('LeaveOvernight',
+                                precond='',
+                                effect='~At(Spare, Ground) & ~At(Spare, Axle) & ~At(Spare, Trunk) & \
+                                        ~At(Flat, Ground) & ~At(Flat, Axle) & ~At(Flat, Trunk)')])
+
+
+def three_block_tower():
+    """Sussman Anomaly problem"""
+
+    return PDDL(init='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
+                goals='On(A, B) & On(B, C)',
+                actions=[Action('Move(b, x, y)',
+                                precond='On(b, x) & Clear(b) & Clear(y) & Block(b) & Block(y)',
+                                effect='On(b, y) & Clear(x) & ~On(b, x) & ~Clear(y)'),
+                         Action('MoveToTable(b, x)',
+                                precond='On(b, x) & Clear(b) & Block(b)',
+                                effect='On(b, Table) & Clear(x) & ~On(b, x)')])
+
+
+def have_cake_and_eat_cake_too():
+    """Cake problem"""
+
+    return PDDL(init='Have(Cake)',
+                goals='Have(Cake) & Eaten(Cake)',
+                actions=[Action('Eat(Cake)',
+                                precond='Have(Cake)',
+                                effect='Eaten(Cake) & ~Have(Cake)'),
+                         Action('Bake(Cake)',
+                                precond='~Have(Cake)',
+                                effect='Have(Cake)')])
+
+
+def shopping_problem():
+    """Shopping problem"""
+
+    return PDDL(init='At(Home) & Sells(SM, Milk) & Sells(SM, Banana) & Sells(HW, Drill)',
+                goals='Have(Milk) & Have(Banana) & Have(Drill)',
+                actions=[Action('Buy(x, store)',
+                                precond='At(store) & Sells(store, x)',
+                                effect='Have(x)'),
+                         Action('Go(x, y)',
+                                precond='At(x)',
+                                effect='At(y) & ~At(x)')])
+
+
+def socks_and_shoes():
+    """Socks and shoes problem"""
+
+    return PDDL(init='',
+                goals='RightShoeOn & LeftShoeOn',
+                actions=[Action('RightShoe',
+                                precond='RightSockOn',
+                                effect='RightShoeOn'),
+                        Action('RightSock',
+                                precond='',
+                                effect='RightSockOn'),
+                        Action('LeftShoe',
+                                precond='LeftSockOn',
+                                effect='LeftShoeOn'),
+                        Action('LeftSock',
+                                precond='',
+                                effect='LeftSockOn')])
+
+
+def air_cargo():
+    """Air cargo problem"""
+
+    return PDDL(init='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)',
+                goals='At(C1, JFK) & At(C2, SFO)',
+                actions=[Action('Load(c, p, a)',
+                                precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
+                                effect='In(c, p) & ~At(c, a)'),
+                         Action('Unload(c, p, a)',
+                                precond='In(c, p) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
+                                effect='At(c, a) & ~In(c, p)'),
+                         Action('Fly(p, f, to)',
+                                precond='At(p, f) & Plane(p) & Airport(f) & Airport(to)',
+                                effect='At(p, to) & ~At(p, f)')])
+
+
+def spare_tire_graphplan():
+    """Solves the spare tire problem using GraphPlan"""
+
+    pddl = spare_tire()
+    graphplan = GraphPlan(pddl)
+
+    def goal_test(kb, goals):
+        return all(kb.ask(q) is not False for q in goals)
+
+    goals = expr('At(Spare, Axle), At(Flat, Ground)')
+
+    while True:
+        graphplan.graph.expand_graph()
+        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
+            solution = graphplan.extract_solution(goals, -1)
+            if solution:
+                return solution
+        
+        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
+            return None
+
+
+def have_cake_and_eat_cake_too_graphplan():
+    """Solves the cake problem using GraphPlan"""
+
+    pddl = have_cake_and_eat_cake_too()
+    graphplan = GraphPlan(pddl)
+
+    def goal_test(kb, goals):
+        return all(kb.ask(q) is not False for q in goals)
+
+    goals = expr('Have(Cake), Eaten(Cake)')
+
+    while True:
+        graphplan.graph.expand_graph()
+        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
+            solution = graphplan.extract_solution(goals, -1)
+            if solution:
+                return [solution[1]]
+
+        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
+            return None
+
+
+def three_block_tower_graphplan():
+    """Solves the Sussman Anomaly problem using GraphPlan"""
+
+    pddl = three_block_tower()
+    graphplan = GraphPlan(pddl)
+
+    def goal_test(kb, goals):
+        return all(kb.ask(q) is not False for q in goals)
+
+    goals = expr('On(A, B), On(B, C)')
+
+    while True:
+        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
+            solution = graphplan.extract_solution(goals, -1)
+            if solution:
+                return solution
+
+        graphplan.graph.expand_graph()
+        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
+            return None
+
+
+def air_cargo_graphplan():
+    """Solves the air cargo problem using GraphPlan"""
+
+    pddl = air_cargo()
+    graphplan = GraphPlan(pddl)
+
+    def goal_test(kb, goals):
+        return all(kb.ask(q) is not False for q in goals)
+
+    goals = expr('At(C1, JFK), At(C2, SFO)')
+
+    while True:
+        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
+            solution = graphplan.extract_solution(goals, -1)
+            if solution:
+                return solution
+
+        graphplan.graph.expand_graph()
+        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
+            return None
+
+
+def socks_and_shoes_graphplan():
+    pddl = socks_and_shoes()
+    graphplan = GraphPlan(pddl)
+
+    def goal_test(kb, goals):
+        return all(kb.ask(q) is not False for q in goals)
+
+    goals = expr('RightShoeOn, LeftShoeOn')
+
+    while True:
+        if (goal_test(graphplan.graph.levels[-1].kb, goals) and graphplan.graph.non_mutex_goals(goals, -1)):
+            solution = graphplan.extract_solution(goals, -1)
+            if solution:
+                return solution
+
+        graphplan.graph.expand_graph()
+        if len(graphplan.graph.levels) >= 2 and graphplan.check_leveloff():
+            return None
+
+
+class TotalOrderPlanner:
     def __init__(self, pddl):
         self.pddl = pddl
 
@@ -820,3 +916,292 @@ def job_shop_problem():
                    actions=actions,
                    jobs=[job_group1, job_group2],
                    resources=resources)
+
+
+class PlanningKB:
+    """ A PlanningKB contains a set of Expr objects that are immutable and hashable.
+     With its goal clauses and its accompanying h function, the KB
+     can be used by the A* algorithm in its search Nodes. (search.py) """
+    def __init__(self, goals, initial_clauses=None):
+        if initial_clauses is None:
+            initial_clauses = []
+
+        initial_clauses = [expr(c) if not isinstance(c, Expr) else c for c in initial_clauses]
+        self.clause_set = frozenset(initial_clauses)
+
+        goals = [expr(g) if not isinstance(g, Expr) else g for g in goals]
+        self.goal_clauses = frozenset(goals)
+
+    def __eq__(self, other):
+        """search.Node has a __eq__ method for each state, so this method must be implemented too."""
+        if not isinstance(other, self.__class__):
+            raise NotImplementedError
+        return self.clause_set == other.clause_set
+
+    def __lt__(self, other):
+        """Goals must be part of each PlanningKB because search.Node has a __lt__ method that compares state to state
+        (used for ordering the priority queue). As a result, states must be compared by how close they are to the goal
+        using a heuristic."""
+        if not isinstance(other, self.__class__):
+            return NotImplementedError
+
+        # ordering is whether there are fewer unresolved goals in the current KB than the other KB.
+        return len(self.goal_clauses - self.clause_set) < len(self.goal_clauses - other.clause_set)
+
+    def __hash__(self):
+        """search.Node has a __hash__ method for each state, so this method must be implemented too.
+        Remember that __hash__ requires immutability."""
+        return hash(self.clause_set)
+
+    def __repr__(self):
+        return '{}({}, {})'.format(self.__class__.__name__, list(self.goal_clauses), list(self.clause_set))
+
+    def goal_test(self):
+        """ Goal is satisfied when KB at least contains all goal clauses. """
+        return self.clause_set >= self.goal_clauses
+
+    def h(self):
+        """ Basic heuristic to return number of remaining goal clauses to be satisfied. Override this with a more
+        accurate heuristic, if available."""
+        return len(self.goal_clauses - self.clause_set)
+
+    def fetch_rules_for_goal(self, goal):
+        return self.clause_set
+
+
+class PlanningSearchProblem:
+    """
+    Used to define a planning problem with a non-mutable KB that can be used in a search.
+    The states in the knowledge base consist of first order logic statements.
+    The conjunction of these logical statements completely define a state.
+    """
+    def __init__(self, initial_kb, actions):
+        self.initial = initial_kb
+        self.possible_actions = actions
+
+    @classmethod
+    def from_PDDL_object(cls, pddl_obj):
+        initial = PlanningKB(pddl_obj.goals, pddl_obj.init)
+        planning_actions = []
+        for act in pddl_obj.actions:
+            planning_actions.append(STRIPSAction.from_action(act))
+        return cls(initial, planning_actions)
+
+    def __repr__(self):
+        return '{}({}, {})'.format(self.__class__.__name__, self.initial, self.possible_actions)
+
+    def actions(self, state):
+        for action in self.possible_actions:
+            for valid, subst in action.check_precond(state):
+                if valid:
+                    new_action = action.copy()
+                    new_action.subst = subst
+                    new_action.args = [subst.get(x, x) for x in new_action.args]
+                    yield new_action
+
+    def goal_test(self, state):
+        return state.goal_test()
+
+    def result(self, state, action):
+        return action.act(action.subst, state)
+
+    def h(self, node):
+        return node.state.h()
+
+    def path_cost(self, c, state1, action, state2):
+        """Return the cost of a solution path that arrives at state2 from
+        state1 via action, assuming cost c to get up to state1. If the problem
+        is such that the path doesn't matter, this function will only look at
+        state2.  If the path does matter, it will consider c and maybe state1
+        and action. The default method costs 1 for every step in the path."""
+        return c + 1
+
+    def value(self, state):
+        """For optimization problems, each state has a value.  Hill-climbing
+        and related algorithms try to maximize this value."""
+        raise NotImplementedError
+
+
+def is_negative_clause(e):
+    return e.op == '~' and len(e.args) == 1
+
+
+class STRIPSAction:
+    """
+    Defines an action schema using preconditions and effects
+    Use this to describe actions in PDDL
+    action is an Expr where variables are given as arguments(args)
+    Precondition and effect are both lists with positive and negated literals
+    Example:
+    precond = [expr("Human(person)"), expr("Hungry(Person)"), expr("~Eaten(food)")]
+    effect = [expr("Eaten(food)"), expr("~Hungry(person)")]
+    eat = Action(expr("Eat(person, food)"), precond, effect)
+    """
+
+    def __init__(self, expression, preconds, effects):
+        if isinstance(expression, str):
+            expression = expr(expression)
+
+        preconds = [expr(p) if not isinstance(p, Expr) else p for p in preconds]
+        effects = [expr(e) if not isinstance(e, Expr) else e for e in effects]
+
+        self.name = expression.op
+        self.args = expression.args
+        self.subst = None
+        precond_neg, precond_pos = partition(preconds, is_negative_clause)
+        self.precond_pos = set(precond_pos)
+        self.precond_neg = set(e.args[0] for e in precond_neg)  # change the negative Exprs to positive for evaluation
+        effect_rem, effect_add = partition(effects, is_negative_clause)
+        self.effect_add = set(effect_add)
+        self.effect_rem = set(e.args[0] for e in effect_rem)  # change the negative Exprs to positive for evaluation
+
+    @classmethod
+    def from_action(cls, action):
+        op = action.name
+        args = action.args
+        preconds = []
+        for p in action.precond:
+            precond_op = p.op.replace('Not', '~')
+            precond_args = [repr(a) for a in p.args]
+            preconds.append(expr(build_expr_string(precond_op, precond_args)))
+        effects = []
+        for e in action.effect:
+            effect_op = e.op.replace('Not', '~')
+            effect_args = [repr(a) for a in e.args]
+            effects.append(expr(build_expr_string(effect_op, effect_args)))
+        return cls(Expr(op, *args), preconds, effects)
+
+    def __repr__(self):
+        preconds = list(self.precond_pos.union(set((expr('~' + repr(p)) for p in self.precond_neg))))
+        effects = list(self.effect_add.union(set((expr('~' + repr(e)) for e in self.effect_rem))))
+        return '{}({}, {}, {})'.format(self.__class__.__name__, Expr(self.name, *self.args),
+                                       preconds, effects)
+
+    def __eq__(self, other):
+        if isinstance(other, Expr):
+            return Expr(self.name, *self.args) == other
+        elif isinstance(other, STRIPSAction):
+            return self.name == other.name and all(x == y for x, y in zip(self.args, other.args)) and \
+                    self.subst == other.subst and self.precond_pos == other.precond_pos and \
+                    self.precond_neg == other.precond_neg and self.effect_add == other.effect_add and \
+                    self.effect_rem == other.effect_rem
+        else:
+            raise TypeError("Cannot compare STRIPSAction object with {} object.".format(other.__class__.__name__))
+
+    def copy(self):
+        """ Returns a copy of this object. """
+        act = self.__new__(self.__class__)
+        act.name = self.name
+        act.args = self.args[:]
+        act.subst = self.subst
+        act.precond_pos = self.precond_pos.copy()
+        act.precond_neg = self.precond_neg.copy()
+        act.effect_add = self.effect_add.copy()
+        act.effect_rem = self.effect_rem.copy()
+        return act
+
+    def substitute(self, subst, e):
+        """Replaces variables in expression with the same substitution used for the precondition. """
+        new_args = [subst.get(x, x) for x in e.args]
+        return Expr(e.op, *new_args)
+
+    def check_neg_precond(self, kb, precond, subst):
+        if precond:
+            found_subst = False
+            for s in fol_bc_and(kb, list(precond), subst):
+                neg_precond = frozenset(self.substitute(s, x) for x in precond)
+                clause_set = kb.fetch_rules_for_goal(None)
+                # negative preconditions succeed if none of them are found in the KB.
+                found_subst = True
+                yield clause_set.isdisjoint(neg_precond), s
+            if not found_subst:
+                yield True, subst
+        else:
+            yield True, subst
+
+    def check_pos_precond(self, kb, precond, subst):
+        if precond:
+            found_subst = False
+            for s in fol_bc_and(kb, list(precond), subst):
+                pos_precond = frozenset(self.substitute(s, x) for x in precond)
+                # are all preconds found in the KB?
+                clause_set = kb.fetch_rules_for_goal(None)
+                found_subst = True
+                yield clause_set.issuperset(pos_precond), s
+            if not found_subst:
+                yield False, subst
+        else:
+            yield True, subst
+
+    def check_precond(self, kb):
+        """Checks if preconditions are satisfied in the current state"""
+        for valid, subst in self.check_pos_precond(kb, self.precond_pos, {}):
+            if valid:
+                yield from self.check_neg_precond(kb, self.precond_neg, subst)
+
+    def act(self, subst, kb):
+        """ Executes the action on a new copy of the PlanningKB """
+        new_kb = PlanningKB(kb.goal_clauses, kb.clause_set)
+        clause_set = set(new_kb.clause_set)
+        neg_literals = set(self.substitute(subst, clause) for clause in self.effect_rem)
+        pos_literals = set(self.substitute(subst, clause) for clause in self.effect_add)
+        new_kb.clause_set = frozenset(clause_set - neg_literals | pos_literals)
+        return new_kb
+
+
+def print_solution(node):
+    if not node or not node.solution():
+        print('No solution found.\n')
+        return
+
+    for action in node.solution():
+        print(action.name, end='(')
+        for a in action.args[:-1]:
+            print('{},'.format(a), end=' ')
+        if action.args:
+            print('{})'.format(action.args[-1]))
+        else:
+            print(')')
+    print()
+
+
+def construct_solution_from_pddl(pddl_domain, pddl_problem) -> None:
+    initial_kb = PlanningKB(pddl_problem.goals, pddl_problem.initial_state)
+    planning_actions = [STRIPSAction(name, preconds, effects) for name, preconds, effects in pddl_domain.actions]
+    p = PlanningSearchProblem(initial_kb, planning_actions)
+
+    print('\n{} solution:'.format(pddl_problem.problem_name))
+    print_solution(astar_search(p))
+
+
+def gather_test_pairs() -> list:
+    pddl_dir = os.getcwd() + os.sep + 'pddl_files'
+    domain_files = [pddl_dir + os.sep + x for x in os.listdir(pddl_dir) if x.endswith('domain.pddl')]
+    problem_files = [pddl_dir + os.sep + x for x in os.listdir(pddl_dir) if x.endswith('problem.pddl')]
+    domain_objects = []
+    problem_objects = []
+    for f in domain_files:
+        domain_parser = DomainParser()
+        domain_parser.read(f)
+        domain_objects.append(domain_parser)
+
+    for f in problem_files:
+        problem_parser = ProblemParser()
+        problem_parser.read(f)
+        problem_objects.append(problem_parser)
+
+    object_pairs = []
+    for p in problem_objects:
+        for d in domain_objects:
+            if p.domain_name == d.domain_name:
+                object_pairs.append((d, p))
+    if object_pairs:
+        return object_pairs
+    else:
+        raise IOError('No matching PDDL domain and problem files found.')
+
+
+def run_planning_solutions():
+    """ Call this function to run test cases inside PDDL_files directory."""
+    for domain, problem in gather_test_pairs():
+        construct_solution_from_pddl(domain, problem)

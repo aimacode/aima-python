@@ -16,6 +16,18 @@ from itertools import chain, combinations
 # Functions on Sequences and Iterables
 
 
+def partition(seq, fn):
+    """Partitions one sequence into two sequences, by testing whether each element
+    satisfies fn or not. """
+    pos, neg = [], []
+    for elt in seq:
+        if fn(elt):
+            pos.append(elt)
+        else:
+            neg.append(elt)
+    return pos, neg
+
+
 def sequence(iterable):
     """Coerce iterable to sequence, if it is not already one."""
     return (iterable if isinstance(iterable, collections.abc.Sequence)
