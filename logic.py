@@ -592,6 +592,13 @@ horn_clauses_KB = PropDefiniteKB()
 for s in "P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B".split(';'):
     horn_clauses_KB.tell(expr(s))
 
+"""
+Definite clauses KB example
+"""
+definite_clauses_KB = PropDefiniteKB()
+for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B', 'C']:
+    definite_clauses_KB.tell(expr(clause))
+
 # ______________________________________________________________________________
 # DPLL-Satisfiable [Figure 7.17]
 
