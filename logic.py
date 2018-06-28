@@ -1628,6 +1628,6 @@ def simp(x):
 def d(y, x):
     """Differentiate and then simplify.
     >>> d(x * x - x, x)
-    2 * x - 1
+    ((2 * x) - 1)
     """
     return simp(diff(y, x))
