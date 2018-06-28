@@ -602,8 +602,8 @@ def dpll_satisfiable(s):
     rather than True when it succeeds; this is more useful. (2) The
     function find_pure_symbol is passed a list of unknown clauses, rather
     than a list of all clauses and the model; this is more efficient.
-    >>> dpll_satisfiable(A |'<=>'| B)
-    {A: True, B: True}
+    >>> dpll_satisfiable(A |'<=>'| B) == {A: True, B: True}
+    True
     >>> dpll_satisfiable(P & ~P)
     False
     """
