@@ -493,7 +493,7 @@ def pl_resolution(KB, alpha):
     """Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]
     >>> pl_resolution(horn_clauses_KB, A)
     True
-    pl_resolution(definite_clauses_KB, P)
+    >>> pl_resolution(definite_clauses_KB, P)
     False
     """
     clauses = KB.clauses + conjuncts(to_cnf(~alpha))
