@@ -453,7 +453,7 @@ def dissociate(op, args):
     >>> dissociate('&', [A & B])
     [A, B]
     >>> dissociate('&', [A, B, C & D, P | Q])
-    [A, B, C, D, P | Q]
+    [A, B, C, D, (P | Q)]
     """
     result = []
 
