@@ -70,8 +70,8 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 3      | Queue                             | `Queue`                       | [`utils.py`][utils]             | Done | No Need  |
 | 3.1    | Simple-Problem-Solving-Agent      | `SimpleProblemSolvingAgent`   | [`search.py`][search]           | Done | Included |
 | 3.2    | Romania                           | `romania`                     | [`search.py`][search]           | Done | Included |
-| 3.7    | Tree-Search                       | `tree_search`                 | [`search.py`][search]           | Done |          |
-| 3.7    | Graph-Search                      | `graph_search`                | [`search.py`][search]           | Done |          |
+| 3.7    | Tree-Search                       | `depth/breadth_first_tree_search`                 | [`search.py`][search]           | Done | Included |
+| 3.7    | Graph-Search                      | `depth/breadth_first_graph_search`                | [`search.py`][search]           | Done | Included |
 | 3.11   | Breadth-First-Search              | `breadth_first_graph_search`  | [`search.py`][search]           | Done | Included |
 | 3.14   | Uniform-Cost-Search               | `uniform_cost_search`         | [`search.py`][search]           | Done | Included |
 | 3.17   | Depth-Limited-Search              | `depth_limited_search`        | [`search.py`][search]           | Done | Included |
@@ -93,7 +93,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done | Included |
 | 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`][csp]                 | Done | Included |
 | 7      | KB                                | `KB`                          | [`logic.py`][logic]             | Done | Included |
-| 7.1    | KB-Agent                          | `KB_AgentProgram`             | [`logic.py`][logic]             | Done |          |
+| 7.1    | KB-Agent                          | `KB_AgentProgram`             | [`logic.py`][logic]             | Done | Included |
 | 7.7    | Propositional Logic Sentence      | `Expr`                        | [`utils.py`][utils]             | Done | Included |
 | 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`][logic]             | Done | Included |
 | 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`][logic]             | Done | Included |
@@ -103,7 +103,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done | Included |
 | 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |
 | 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done | Included |
-| 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done |          |
+| 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done | Included |
 | 9.1    | Unify                             | `unify`                       | [`logic.py`][logic]             | Done | Included |
 | 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`][logic]             | Done | Included |
 | 9.6    | FOL-BC-Ask                        | `fol_bc_ask`                  | [`logic.py`][logic]             | Done | Included |
