@@ -1350,8 +1350,8 @@ def occur_check(var, x, s):
 
 def extend(s, var, val):
     """Copy the substitution s and extend it by setting var to val; return copy.
-    >>> extend({x: 1}, y, 2)
-    {x: 1, y: 2}
+    >>> extend({x: 1}, y, 2) == {x: 1, y: 2}
+    True
     """
     s2 = s.copy()
     s2[var] = val
