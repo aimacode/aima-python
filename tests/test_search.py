@@ -234,8 +234,8 @@ def test_and_or_graph_search():
 def test_online_dfs_agent():
     odfs_agent = OnlineDFSAgent(LRTA_problem)
     keys = [key for key in odfs_agent('State_3')]
-    assert keys[0] == 'Right'
-    assert keys[1] == 'Left'
+    assert keys[0] in ['Right', 'Left']
+    assert keys[1] in ['Right', 'Left']
     assert odfs_agent('State_5') is None
 
 
