@@ -991,8 +991,13 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
                                                        "Depth First Tree Search", 
                                                        "Breadth First Search", 
                                                        "Depth First Graph Search", 
+                                                       "Best First Graph Search",
                                                        "Uniform Cost Search", 
-                                                       "A-star Search"})
+                                                       "Depth Limited Search",
+                                                       "Iterative Deepening Search",
+                                                       "Greedy Best First Search",
+                                                       "A-star Search",
+                                                       "Recursive Best First Search"})
 
             algo_dropdown = widgets.Dropdown(description="Search algorithm: ",
                                              options=sorted(list(algorithm.keys())),
