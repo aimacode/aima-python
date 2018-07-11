@@ -121,14 +121,14 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 13.1   | DT-Agent                          | `DTAgent`                     | [`probability.py`][probability] |      |          |
 | 14.9   | Enumeration-Ask                   | `enumeration_ask`             | [`probability.py`][probability] | Done | Included |
 | 14.11  | Elimination-Ask                   | `elimination_ask`             | [`probability.py`][probability] | Done | Included |
-| 14.13  | Prior-Sample                      | `prior_sample`                | [`probability.py`][probability] |      | Included |
+| 14.13  | Prior-Sample                      | `prior_sample`                | [`probability.py`][probability] | Done | Included |
 | 14.14  | Rejection-Sampling                | `rejection_sampling`          | [`probability.py`][probability] | Done | Included |
 | 14.15  | Likelihood-Weighting              | `likelihood_weighting`        | [`probability.py`][probability] | Done | Included |
 | 14.16  | Gibbs-Ask                         | `gibbs_ask`                   | [`probability.py`][probability] | Done | Included |
-| 15.4   | Forward-Backward                  | `forward_backward`            | [`probability.py`][probability] | Done |          |
-| 15.6   | Fixed-Lag-Smoothing               | `fixed_lag_smoothing`         | [`probability.py`][probability] | Done |          |
-| 15.17  | Particle-Filtering                | `particle_filtering`          | [`probability.py`][probability] | Done |          |
-| 16.9   | Information-Gathering-Agent       |                               |                                 |      |          |
+| 15.4   | Forward-Backward                  | `forward_backward`            | [`probability.py`][probability] | Done | Included |
+| 15.6   | Fixed-Lag-Smoothing               | `fixed_lag_smoothing`         | [`probability.py`][probability] | Done | Included |
+| 15.17  | Particle-Filtering                | `particle_filtering`          | [`probability.py`][probability] | Done | Included |
+| 16.9   | Information-Gathering-Agent       | `InformationGatheringAgent`   | [`probability.py`][probability] | Done | Included |
 | 17.4   | Value-Iteration                   | `value_iteration`             | [`mdp.py`][mdp]                 | Done | Included |
 | 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`][mdp]                 | Done | Included |
 | 17.9   | POMDP-Value-Iteration             | `pomdp_value_iteration`       | [`mdp.py`][mdp]                 | Done | Included |
@@ -147,7 +147,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 22.1   | HITS                              | `HITS`                        | [`nlp.py`][nlp]                 | Done | Included |
 | 23     | Chart-Parse                       | `Chart`                       | [`nlp.py`][nlp]                 | Done | Included |
 | 23.5   | CYK-Parse                         | `CYK_parse`                   | [`nlp.py`][nlp]                 | Done | Included |
-| 25.9   | Monte-Carlo-Localization          | `monte_carlo_localization`    | [`probability.py`][probability] | Done |          |
+| 25.9   | Monte-Carlo-Localization          | `monte_carlo_localization`    | [`probability.py`][probability] | Done | Included |
 
 
 # Index of data structures

@@ -7,6 +7,7 @@ from utils import (
     weighted_sample_with_replacement, isclose, probability, normalize
 )
 from logic import extend
+from agents import Agent
 
 import random
 from collections import defaultdict
@@ -199,6 +200,96 @@ class BayesNet:
 
     def __repr__(self):
         return 'BayesNet({0!r})'.format(self.nodes)
+
+
+class DecisionNetwork(BayesNet):
+    """An abstract class for a decision network as a wrapper for a BayesNet.
+    Represents an agent's current state, its possible actions, reachable states
+    and utilities of those states."""
+
+    def __init__(self, action, infer):
+        """action: a single action node
+        infer: the preferred method to carry out inference on the given BayesNet"""
+        super(DecisionNetwork, self).__init__()
+        self.action = action
+        self.infer = infer
+
+    def best_action(self):
+        """Return the best action in the network"""
+        return self.action
+
+    def get_utility(self, action, state):
+        """Return the utility for a particular action and state in the network"""
+        raise NotImplementedError
+
+    def get_expected_utility(self, action, evidence):
+        """Compute the expected utility given an action and evidence"""
+        u = 0.0
+        prob_dist = self.infer(action, evidence, self).prob
+        for item, _ in prob_dist.items():
+            u += prob_dist[item] * self.get_utility(action, item)
+
+        return u
+
+
+class InformationGatheringAgent(Agent):
+    """A simple information gathering agent. The agent works by repeatedly selecting
+    the observation with the highest information value, until the cost of the next
+    observation is greater than its expected benefit. [Figure 16.9]"""
+
+    def __init__(self, decnet, infer, initial_evidence=None):
+        """decnet: a decision network
+        infer: the preferred method to carry out inference on the given decision network
+        initial_evidence: initial evidence"""
+        self.decnet = decnet
+        self.infer = infer
+        self.observation = initial_evidence or []
+        self.variables = self.decnet.nodes
+
+    def integrate_percept(self, percept):
+        """Integrate the given percept into the decision network"""
+        raise NotImplementedError
+
+    def execute(self, percept):
+        """Execute the information gathering algorithm"""
+        self.observation = self.integrate_percept(percept)
+        vpis = self.vpi_cost_ratio(self.variables)
+        j = argmax(vpis)
+        variable = self.variables[j]
+
+        if self.vpi(variable) > self.cost(variable):
+            return self.request(variable)
+
+        return self.decnet.best_action()
+
+    def request(self, variable):
+        """Return the value of the given random variable as the next percept"""
+        raise NotImplementedError
+
+    def cost(self, var):
+        """Return the cost of obtaining evidence through tests, consultants or questions"""
+        raise NotImplementedError
+
+    def vpi_cost_ratio(self, variables):
+        """Return the VPI to cost ratio for the given variables"""
+        v_by_c = []
+        for var in variables:
+            v_by_c.append(self.vpi(var) / self.cost(var))
+        return v_by_c
+
+    def vpi(self, variable):
+        """Return VPI for a given variable"""
+        vpi = 0.0
+        prob_dist = self.infer(variable, self.observation, self.decnet).prob
+        for item, _ in prob_dist.items():
+            post_prob = prob_dist[item]
+            new_observation = list(self.observation)
+            new_observation.append(item)
+            expected_utility = self.decnet.get_expected_utility(variable, new_observation)
+            vpi += post_prob * expected_utility
+
+        vpi -= self.decnet.get_expected_utility(variable, self.observation)
+        return vpi
 
 
 class BayesNode:
@@ -433,7 +524,7 @@ def prior_sample(bn):
 # _________________________________________________________________________
 
 
-def rejection_sampling(X, e, bn, N):
+def rejection_sampling(X, e, bn, N=10000):
     """Estimate the probability distribution of variable X given
     evidence e in BayesNet bn, using N samples.  [Figure 14.14]
     Raises a ZeroDivisionError if all the N samples are rejected,
@@ -459,7 +550,7 @@ def consistent_with(event, evidence):
 # _________________________________________________________________________
 
 
-def likelihood_weighting(X, e, bn, N):
+def likelihood_weighting(X, e, bn, N=10000):
     """Estimate the probability distribution of variable X given
     evidence e in BayesNet bn.  [Figure 14.15]
     >>> random.seed(1017)
@@ -491,7 +582,7 @@ def weighted_sample(bn, e):
 # _________________________________________________________________________
 
 
-def gibbs_ask(X, e, bn, N):
+def gibbs_ask(X, e, bn, N=1000):
     """[Figure 14.16]"""
     assert X not in e, "Query variable must be distinct from evidence"
     counts = {x: 0 for x in bn.variable_values(X)}  # bold N in [Figure 14.16]
