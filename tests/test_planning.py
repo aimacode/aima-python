@@ -117,8 +117,8 @@ def test_shopping_problem():
 
 
 def test_graph_call():
-    pddl = spare_tire()
-    graph = Graph(pddl)
+    planningproblem = spare_tire()
+    graph = Graph(planningproblem)
 
     levels_size = len(graph.levels)
     graph()
@@ -162,11 +162,11 @@ def test_graphplan():
     assert expr('Buy(Milk, SM)') in shopping_problem_solution
 
 
-def test_total_order_planner():
+def test_linearize_class():
     st = spare_tire()
     possible_solutions = [[expr('Remove(Spare, Trunk)'), expr('Remove(Flat, Axle)'), expr('PutOn(Spare, Axle)')],
                           [expr('Remove(Flat, Axle)'), expr('Remove(Spare, Trunk)'), expr('PutOn(Spare, Axle)')]]
-    assert TotalOrderPlanner(st).execute() in possible_solutions
+    assert Linearize(st).execute() in possible_solutions
 
     ac = air_cargo()
     possible_solutions = [[expr('Load(C1, P1, SFO)'), expr('Load(C2, P2, JFK)'), expr('Fly(P1, SFO, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
@@ -182,7 +182,7 @@ def test_total_order_planner():
                           [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
                           [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')]
                           ]
-    assert TotalOrderPlanner(ac).execute() in possible_solutions
+    assert Linearize(ac).execute() in possible_solutions
 
     ss = socks_and_shoes()
     possible_solutions = [[expr('LeftSock'), expr('RightSock'), expr('LeftShoe'), expr('RightShoe')],
@@ -192,21 +192,76 @@ def test_total_order_planner():
                           [expr('LeftSock'), expr('LeftShoe'), expr('RightSock'), expr('RightShoe')],
                           [expr('RightSock'), expr('RightShoe'), expr('LeftSock'), expr('LeftShoe')]
                           ]
-    assert TotalOrderPlanner(ss).execute() in possible_solutions
+    assert Linearize(ss).execute() in possible_solutions
 
 
-# def test_double_tennis():
-#     p = double_tennis_problem
-#     assert p.goal_test() is False
+def test_expand_actions():
+    assert len(PartialOrderPlanner(spare_tire()).expand_actions()) == 16
+    assert len(PartialOrderPlanner(air_cargo()).expand_actions()) == 360
+    assert len(PartialOrderPlanner(have_cake_and_eat_cake_too()).expand_actions()) == 2
+    assert len(PartialOrderPlanner(socks_and_shoes()).expand_actions()) == 4
+    assert len(PartialOrderPlanner(simple_blocks_world()).expand_actions()) == 12
+    assert len(PartialOrderPlanner(three_block_tower()).expand_actions()) == 36
 
-#     solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
-#                 expr("Hit(A, Ball, RightBaseLine)"),
-#                 expr("Go(A, LeftNet, RightBaseLine)")]
 
-#     for action in solution:
-#         p.act(action)
+def test_find_open_precondition():
+    st = spare_tire()
+    pop = PartialOrderPlanner(st)
+    assert pop.find_open_precondition()[0] == expr('At(Spare, Axle)')
+    assert pop.find_open_precondition()[1] == pop.finish
+    assert pop.find_open_precondition()[2][0].name == 'PutOn'
 
-#     assert p.goal_test()
+    ss = socks_and_shoes()
+    pop = PartialOrderPlanner(ss)
+    assert (pop.find_open_precondition()[0] == expr('LeftShoeOn') and pop.find_open_precondition()[2][0].name == 'LeftShoe') or (pop.find_open_precondition()[0] == expr('RightShoeOn') and pop.find_open_precondition()[2][0].name == 'RightShoe')
+    assert pop.find_open_precondition()[1] == pop.finish
+
+    cp = have_cake_and_eat_cake_too()
+    pop = PartialOrderPlanner(cp)
+    assert pop.find_open_precondition()[0] == expr('Eaten(Cake)')
+    assert pop.find_open_precondition()[1] == pop.finish
+    assert pop.find_open_precondition()[2][0].name == 'Eat'
+
+
+def test_cyclic():
+    st = spare_tire()
+    pop = PartialOrderPlanner(st)
+    graph = [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c')]
+    assert not pop.cyclic(graph)
+
+    graph =  [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c'), ('e', 'b')]
+    assert pop.cyclic(graph)
+
+    graph = [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c'), ('b', 'e'), ('a', 'e')]
+    assert not pop.cyclic(graph)
+
+    graph = [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c'), ('e', 'b'), ('b', 'e'), ('a', 'e')]
+    assert pop.cyclic(graph)
+
+
+def test_partial_order_planner():
+    ss = socks_and_shoes()
+    pop = PartialOrderPlanner(ss)
+    constraints, causal_links = pop.execute(display=False)
+    plan = list(reversed(list(pop.toposort(pop.convert(pop.constraints)))))
+    assert list(plan[0])[0].name == 'Start'
+    assert (list(plan[1])[0].name == 'LeftSock' and list(plan[1])[1].name == 'RightSock') or (list(plan[1])[0].name == 'RightSock' and list(plan[1])[1].name == 'LeftSock')
+    assert (list(plan[2])[0].name == 'LeftShoe' and list(plan[2])[1].name == 'RightShoe') or (list(plan[2])[0].name == 'RightShoe' and list(plan[2])[1].name == 'LeftShoe')
+    assert list(plan[3])[0].name == 'Finish'
+
+
+def test_double_tennis():
+    p = double_tennis_problem()
+    assert not goal_test(p.goals, p.init)
+
+    solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
+                expr("Hit(A, Ball, RightBaseLine)"),
+                expr("Go(A, LeftNet, RightBaseLine)")]
+
+    for action in solution:
+        p.act(action)
+
+    assert goal_test(p.goals, p.init)
 
 
 def test_job_shop_problem():
