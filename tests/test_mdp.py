@@ -119,3 +119,43 @@ def test_transition_model():
     assert mdp.T("a","plan3") == [(0.2, 'a'), (0.5, 'b'), (0.3, 'c')]
     assert mdp.T("b","plan2") == [(0.6, 'a'), (0.2, 'b'), (0.1, 'c'), (0.1, 'd')]
     assert mdp.T("c","plan1") == [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')]
+
+
+def test_pomdp_value_iteration():
+    t_prob = [[[0.65, 0.35], [0.65, 0.35]], [[0.65, 0.35], [0.65, 0.35]], [[1.0, 0.0], [0.0, 1.0]]]
+    e_prob = [[[0.5, 0.5], [0.5, 0.5]], [[0.5, 0.5], [0.5, 0.5]], [[0.8, 0.2], [0.3, 0.7]]]
+    rewards = [[5, -10], [-20, 5], [-1, -1]]
+
+    gamma = 0.95
+    actions = ('0', '1', '2')
+    states = ('0', '1')
+
+    pomdp = POMDP(actions, t_prob, e_prob, rewards, states, gamma)
+    utility = pomdp_value_iteration(pomdp, epsilon=5)
+    
+    for _, v in utility.items():
+        sum_ = 0
+        for element in v:
+            sum_ += sum(element)
+    # exact value was found to be -9.73231
+    assert -9.76 < sum_ < -9.70
+
+
+def test_pomdp_value_iteration2():
+    t_prob = [[[0.5, 0.5], [0.5, 0.5]], [[0.5, 0.5], [0.5, 0.5]], [[1.0, 0.0], [0.0, 1.0]]]
+    e_prob = [[[0.5, 0.5], [0.5, 0.5]], [[0.5, 0.5], [0.5, 0.5]], [[0.85, 0.15], [0.15, 0.85]]]
+    rewards = [[-100, 10], [10, -100], [-1, -1]]
+
+    gamma = 0.95
+    actions = ('0', '1', '2')
+    states = ('0', '1')
+
+    pomdp = POMDP(actions, t_prob, e_prob, rewards, states, gamma)
+    utility = pomdp_value_iteration(pomdp, epsilon=100)
+
+    for _, v in utility.items():
+        sum_ = 0
+        for element in v:
+            sum_ += sum(element)
+    # exact value was found to be -77.28259
+    assert -77.31 < sum_ < -77.25
