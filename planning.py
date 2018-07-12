@@ -1363,8 +1363,7 @@ class Problem(PlanningProblem):
         $$: possibly add or remove
 	"""
         frontier = deque(initialPlan)
-        n=0
-        while n<4: 
+        while True: 
             if not frontier:
                 return None
             plan = frontier.popleft() # sequence of Nodes? (HLA/Angelic HLA as actions)
@@ -1482,7 +1481,7 @@ class Problem(PlanningProblem):
             for x in Problem.angelic_search(problem, hierarchy, [Angelic_Node(s_i, Node(None), [action],[action])]):
                 solution.insert(j,x)
                 j+=1
-            s_f = deepcopy(s_i)
+            s_f = s_i
         return solution
 
 
@@ -1491,7 +1490,7 @@ class Problem(PlanningProblem):
         Given a final state s_f and an action finds a state s_i in reachable_set 
         such that when action is applied to state s_i returns s_f.  
         """
-        s_i = deepcopy(reachable_set[i-1][0])
+        s_i = reachable_set[i-1][0]
         for state in reachable_set[i-1]:
             if s_f in [x for x in Problem.reach_pes(state, Angelic_Node(state, None, [action],[action]))[1]]:
                 s_i =state
