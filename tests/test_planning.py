@@ -280,7 +280,8 @@ def test_job_shop_problem():
 
     assert p.goal_test()
 
-    def test_refinements():
+    
+def test_refinements():
     
     library = {
         'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
