@@ -1292,7 +1292,6 @@ class Problem(PlanningProblem):
         e = Expr(hla.name, hla.args)
         indices = [i for i, x in enumerate(library['HLA']) if expr(x).op == hla.name]
         for i in indices:
-            # TODO multiple refinements
             precond = []
             for p in library['precond'][i]:
                 if p[0] == '~':
@@ -1305,9 +1304,9 @@ class Problem(PlanningProblem):
                     effect.append(expr('Not' + e[1:]))
                 else:
                     effect.append(expr(e))
-            action = HLA(library['steps'][i][0], precond, effect)
-            if action.check_precond(state.init, action.args):
-                yield action
+            action = [HLA(library['steps'][i][j], precond, effect) for j in range(len(library['steps'][i]))]
+            yield [h for h in action if h.check_precond(state.init, h.args)]
+
 
     def hierarchical_search(problem, hierarchy):
         """
@@ -1346,6 +1345,156 @@ class Problem(PlanningProblem):
         else:
             return problem
 
+    def angelic_search(problem, hierarchy, initialPlan):
+        """
+	[Figure 11.8] A hierarchical planning algorithm that uses angelic semantics to identify and
+	commit to high-level plans that work while avoiding high-level plans that don’t. 
+	The predicate MAKING-PROGRESS checks to make sure that we aren’t stuck in an infinite regression
+	of refinements. 
+	At top level, call ANGELIC -SEARCH with [Act ] as the initialPlan .
+
+        initialPlan contains a sequence of HLA's with angelic semantics 
+
+        The possible effects of an angelic HLA in initialPlan are : 
+        ~ : effect remove
+        $+: effect possibly add
+        $-: effect possibly remove
+        $$: possibly add or remove
+	"""
+        frontier = deque(initialPlan)
+        n=0
+        while n<4: 
+            if not frontier:
+                return None
+            plan = frontier.popleft() # sequence of Nodes? (HLA/Angelic HLA as actions)
+            opt_reachable_set = Problem.reach_opt(problem.init, plan)
+            pes_reachable_set = Problem.reach_pes(problem.init, plan)
+            if problem.intersects_goal(opt_reachable_set): # all reachable states
+                if Problem.is_primitive( plan, hierarchy ): 
+                    return ([x for x in plan.action])
+                guaranteed = problem.intersects_goal(pes_reachable_set) 
+                if guaranteed and Problem.making_progress(plan, plan):
+                    final_state = guaranteed[0] # any element of guaranteed 
+                    #print('decompose')
+                    return Problem.decompose(hierarchy, problem, plan, final_state, pes_reachable_set)
+                hla = None # there should be at least one HLA/Angelic_HLA, otherwise plan would be primitive.
+                j=-1
+                for i in range(len(plan.action)):
+                    if type(plan.action[i]) is HLA or type(plan.action[i]) is Angelic_HLA:
+                        hla = plan.action[i] 
+                        j=i
+                        break
+
+                if j>0:
+                    prefix = plan.action[:j-1]
+                    outcome = Problem.result(problem, prefix[-1])
+                else: 
+                    prefix = []
+                    outcome = copy.deepcopy(problem)
+                if j < len(plan.action)-1:
+                    suffix = plan.action[j+1:]
+                else: 
+                    suffix = []
+                for sequence in Problem.refinements(hla, outcome, hierarchy): # find refinements
+                    frontier.append(Angelic_Node(outcome.init, plan, prefix + sequence+ suffix, prefix+sequence+suffix))
+
+
+            n+=1
+
+    def intersects_goal(problem, reachable_set):
+        """
+        Find the intersection of the reachable states and the goal
+        """
+        return [y for x in list(reachable_set.keys()) for y in reachable_set[x] if all(goal in y for goal in problem.goals)] 
+
+
+    def is_primitive(plan,  library):
+        """
+        checks if the hla is primitive action 
+        """
+        for hla in plan.action: 
+            indices = [i for i, x in enumerate(library['HLA']) if expr(x).op == hla.name]
+            for i in indices:
+                if library["steps"][i]: 
+                    return False
+        return True
+             
+
+
+    def reach_opt(init, plan): 
+        """
+        Finds the optimistic reachable set of the sequence of actions in plan 
+        """
+        reachable_set = {0: [init]}
+        optimistic_description = plan.action #list of angelic actions with optimistic description
+        return Problem.find_reachable_set(reachable_set, optimistic_description)
+ 
+
+    def reach_pes(init, plan): 
+        """ 
+        Finds the pessimistic reachable set of the sequence of actions in plan
+        """
+        reachable_set = {0: [init]}
+        pessimistic_description = plan.action_pes # list of angelic actions with pessimistic description
+        return Problem.find_reachable_set(reachable_set, pessimistic_description)
+
+    def find_reachable_set(reachable_set, action_description):
+        """
+	Finds the reachable states of the action_description when applied in each state of reachable set.
+	"""
+        for i in range(len(action_description)):
+            reachable_set[i+1]=[]
+            if type(action_description[i]) is Angelic_HLA:
+                possible_actions = action_description[i].angelic_action()
+            else: 
+                possible_actions = action_description
+            for action in possible_actions:
+                for state in reachable_set[i]:
+                    if action.check_precond(state , action.args) :
+                        if action.effect[0] :
+                            new_state = action(state, action.args).clauses
+                            reachable_set[i+1].append(new_state)
+                        else: 
+                            reachable_set[i+1].append(state)
+        return reachable_set
+	
+    def making_progress(plan, initialPlan):
+        """ 
+        Not implemented yet
+        """
+        if (len(plan.action)==1):
+            return False
+        return True 
+
+    def decompose(hierarchy, s_0, plan, s_f, reachable_set):
+        solution = [] 
+        while plan.action_pes: 
+            action = plan.action_pes.pop()
+            i = max(reachable_set.keys())
+            if (i==0): 
+                return solution
+            s_i = Problem.find_previous_state(s_f, reachable_set,i, action) 
+            problem = Problem(s_i, s_f , plan.action)
+            j=0
+            for x in Problem.angelic_search(problem, hierarchy, [Angelic_Node(s_i, Node(None), [action],[action])]):
+                solution.insert(j,x)
+                j+=1
+            s_f = s_i
+        return solution
+
+
+    def find_previous_state(s_f, reachable_set, i, action):
+        """
+        Given a final state s_f and an action finds a state s_i in reachable_set 
+        such that when action is applied to state s_i returns s_f.  
+        """
+        s_i = reachable_set[i-1][0]
+        for state in reachable_set[i-1]:
+            if s_f in [x for x in Problem.reach_pes(state, Angelic_Node(state, None, [action],[action]))[1]]:
+                s_i =state
+                break
+        return s_i
+        
 
 def job_shop_problem():
     """
@@ -1435,3 +1584,102 @@ def go_to_sfo():
     }
 
     return Problem(init='At(Home)', goals='At(SFO)', actions=actions), library
+
+class Angelic_HLA(HLA):
+    """
+    Define Actions for the real-world (that may be refined further), under angelic semantics
+    """
+    
+    def __init__(self, action, precond , effect, duration =0, consume = None, use = None):
+        super().__init__(action, precond, effect, duration, consume, use)
+
+
+    def convert(self, clauses):
+        """Converts strings into Exprs""" 
+        lib = {'~': 'Not', 
+                '$+': 'PosYes',
+               '$-': 'PosNot',
+               '$$' : 'PosYesNot'}
+
+        if isinstance(clauses, Expr):
+            clauses = conjuncts(clauses)
+            for i in range(len(clauses)):
+                for ch in lib.keys():
+                    if clauses[i].op == ch:
+                        clauses[i] = expr( lib[ch] + str(clauses[i].args[0]))
+
+        elif isinstance(clauses, str):
+            for ch in lib.keys():
+                clauses = clauses.replace(ch, lib[ch])
+            if len(clauses) > 0:
+                clauses = expr(clauses)
+
+            try:
+                clauses = conjuncts(clauses)
+            except AttributeError:
+                pass
+
+        return clauses
+
+        
+        
+
+    def angelic_action(self):
+        """
+        example: 
+        """
+        #print(self.effect)
+
+        effects=[[]]
+        for clause in self.effect:
+            if clause.op[:9] == 'PosYesNot':
+                effects = effects*3
+                n=3
+                w=9
+            elif clause.op[:6] == 'PosYes':
+                effects =effects* 2
+                n=2
+                w=6
+            elif clause.op[:6] == 'PosNot':
+                effects = effects* 2
+                n=2
+                w=3
+            else:
+                n=1
+                w=0
+            it=range(1)
+            if len(effects)!=0:
+                it = range(len(effects)//n)
+            for i in it:
+                if effects[i]:
+                    if clause.args: 
+                        effects[i] = expr(str(effects[i]) + '&' + str(Expr(clause.op[w:],clause.args[0])))
+                        if n==3:
+                            effects[i+len(effects)//3]= expr(str(effects[i+len(effects)//3]) + '&' + str(Expr(clause.op[6:],clause.args[0])))
+                    else: 
+                        effects[i] = expr(str(effects[i]) + '&' + str(expr(clause.op[w:])))
+                        if n==3: effects[i+len(effects)//3] = expr(str(effects[i+len(effects)//3]) + '&' + str(expr(clause.op[6:])))
+
+                else: 
+                    if clause.args: 
+                        effects[i] = Expr(clause.op[w:], clause.args[0])
+                        if n==3: effects[i+len(effects)//3] = Expr(clause.op[6:], clause.args[0])
+
+                    else: 
+                        effects[i] = expr(clause.op[w:])
+                        if n==3: effects[i+len(effects)//3] = expr(clause.op[6:])
+            #print('effects',  effects)
+        
+        return [ HLA(Expr(self.name, self.args), self.precond, effects[i] ) for i in range(len(effects)) ]
+
+
+class Angelic_Node(Node):
+    """ 
+    Extends the class Node. 
+    self.action:     contains the optimistic description of an angelic HLA
+    self.action_pes: contains the pessimistic description of an angelic HLA
+    """
+
+    def __init__(self, state, parent=None, action_opt=None, action_pes=None, path_cost=0):
+        super().__init__(state, parent, action_opt, path_cost)
+        self.action_pes = action_pes 
