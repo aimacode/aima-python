@@ -117,8 +117,8 @@ def test_shopping_problem():
 
 
 def test_graph_call():
-    pddl = spare_tire()
-    graph = Graph(pddl)
+    planningproblem = spare_tire()
+    graph = Graph(planningproblem)
 
     levels_size = len(graph.levels)
     graph()
@@ -162,11 +162,11 @@ def test_graphplan():
     assert expr('Buy(Milk, SM)') in shopping_problem_solution
 
 
-def test_total_order_planner():
+def test_linearize_class():
     st = spare_tire()
     possible_solutions = [[expr('Remove(Spare, Trunk)'), expr('Remove(Flat, Axle)'), expr('PutOn(Spare, Axle)')],
                           [expr('Remove(Flat, Axle)'), expr('Remove(Spare, Trunk)'), expr('PutOn(Spare, Axle)')]]
-    assert TotalOrderPlanner(st).execute() in possible_solutions
+    assert Linearize(st).execute() in possible_solutions
 
     ac = air_cargo()
     possible_solutions = [[expr('Load(C1, P1, SFO)'), expr('Load(C2, P2, JFK)'), expr('Fly(P1, SFO, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
@@ -182,7 +182,7 @@ def test_total_order_planner():
                           [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
                           [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'), expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')]
                           ]
-    assert TotalOrderPlanner(ac).execute() in possible_solutions
+    assert Linearize(ac).execute() in possible_solutions
 
     ss = socks_and_shoes()
     possible_solutions = [[expr('LeftSock'), expr('RightSock'), expr('LeftShoe'), expr('RightShoe')],
@@ -192,21 +192,76 @@ def test_total_order_planner():
                           [expr('LeftSock'), expr('LeftShoe'), expr('RightSock'), expr('RightShoe')],
                           [expr('RightSock'), expr('RightShoe'), expr('LeftSock'), expr('LeftShoe')]
                           ]
-    assert TotalOrderPlanner(ss).execute() in possible_solutions
+    assert Linearize(ss).execute() in possible_solutions
 
 
-# def test_double_tennis():
-#     p = double_tennis_problem
-#     assert p.goal_test() is False
+def test_expand_actions():
+    assert len(PartialOrderPlanner(spare_tire()).expand_actions()) == 16
+    assert len(PartialOrderPlanner(air_cargo()).expand_actions()) == 360
+    assert len(PartialOrderPlanner(have_cake_and_eat_cake_too()).expand_actions()) == 2
+    assert len(PartialOrderPlanner(socks_and_shoes()).expand_actions()) == 4
+    assert len(PartialOrderPlanner(simple_blocks_world()).expand_actions()) == 12
+    assert len(PartialOrderPlanner(three_block_tower()).expand_actions()) == 36
 
-#     solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
-#                 expr("Hit(A, Ball, RightBaseLine)"),
-#                 expr("Go(A, LeftNet, RightBaseLine)")]
 
-#     for action in solution:
-#         p.act(action)
+def test_find_open_precondition():
+    st = spare_tire()
+    pop = PartialOrderPlanner(st)
+    assert pop.find_open_precondition()[0] == expr('At(Spare, Axle)')
+    assert pop.find_open_precondition()[1] == pop.finish
+    assert pop.find_open_precondition()[2][0].name == 'PutOn'
 
-#     assert p.goal_test()
+    ss = socks_and_shoes()
+    pop = PartialOrderPlanner(ss)
+    assert (pop.find_open_precondition()[0] == expr('LeftShoeOn') and pop.find_open_precondition()[2][0].name == 'LeftShoe') or (pop.find_open_precondition()[0] == expr('RightShoeOn') and pop.find_open_precondition()[2][0].name == 'RightShoe')
+    assert pop.find_open_precondition()[1] == pop.finish
+
+    cp = have_cake_and_eat_cake_too()
+    pop = PartialOrderPlanner(cp)
+    assert pop.find_open_precondition()[0] == expr('Eaten(Cake)')
+    assert pop.find_open_precondition()[1] == pop.finish
+    assert pop.find_open_precondition()[2][0].name == 'Eat'
+
+
+def test_cyclic():
+    st = spare_tire()
+    pop = PartialOrderPlanner(st)
+    graph = [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c')]
+    assert not pop.cyclic(graph)
+
+    graph =  [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c'), ('e', 'b')]
+    assert pop.cyclic(graph)
+
+    graph = [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c'), ('b', 'e'), ('a', 'e')]
+    assert not pop.cyclic(graph)
+
+    graph = [('a', 'b'), ('a', 'c'), ('b', 'c'), ('b', 'd'), ('d', 'e'), ('e', 'c'), ('e', 'b'), ('b', 'e'), ('a', 'e')]
+    assert pop.cyclic(graph)
+
+
+def test_partial_order_planner():
+    ss = socks_and_shoes()
+    pop = PartialOrderPlanner(ss)
+    constraints, causal_links = pop.execute(display=False)
+    plan = list(reversed(list(pop.toposort(pop.convert(pop.constraints)))))
+    assert list(plan[0])[0].name == 'Start'
+    assert (list(plan[1])[0].name == 'LeftSock' and list(plan[1])[1].name == 'RightSock') or (list(plan[1])[0].name == 'RightSock' and list(plan[1])[1].name == 'LeftSock')
+    assert (list(plan[2])[0].name == 'LeftShoe' and list(plan[2])[1].name == 'RightShoe') or (list(plan[2])[0].name == 'RightShoe' and list(plan[2])[1].name == 'LeftShoe')
+    assert list(plan[3])[0].name == 'Finish'
+
+
+def test_double_tennis():
+    p = double_tennis_problem()
+    assert not goal_test(p.goals, p.init)
+
+    solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
+                expr("Hit(A, Ball, RightBaseLine)"),
+                expr("Go(A, LeftNet, RightBaseLine)")]
+
+    for action in solution:
+        p.act(action)
+
+    assert goal_test(p.goals, p.init)
 
 
 def test_job_shop_problem():
@@ -228,174 +283,17 @@ def test_job_shop_problem():
 
 def test_refinements():
     
-    library = {
-        'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
-        'steps': [['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'], ['Taxi(Home, SFO)'], [], [], []],
-        'precond': [['At(Home)', 'Have(Car)'], ['At(Home)'], ['At(Home)', 'Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
-        'effect': [['At(SFO)'], ['At(SFO)'], ['At(SFOLongTermParking)'], ['At(SFO)'], ['At(SFO)'], ['~At(Home)'], ['~At(Home)'], ['~At(Home)'], ['~At(SFOLongTermParking)'], ['~At(Home)']] }
-        
+    library = {'HLA': ['Go(Home,SFO)','Taxi(Home, SFO)'],
+    'steps': [['Taxi(Home, SFO)'],[]],
+    'precond': [['At(Home)'],['At(Home)']],
+    'effect': [['At(SFO)'],['At(SFO)'],['~At(Home)'],['~At(Home)']]}
 
     go_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
-    taxi_SFO = HLA('Taxi(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
+    taxi_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
 
-    prob = Problem('At(Home) & Have(Car)', 'At(SFO)', [go_SFO, taxi_SFO])
+    prob = Problem('At(Home)', 'At(SFO)', [go_SFO, taxi_SFO])
 
     result = [i for i in Problem.refinements(go_SFO, prob, library)]
-
-    for sequence in Problem.refinements(go_SFO, prob, library):
-        print ('ref',[(s.name, s.args) for s in sequence])
-
-    assert(len(result) == 2)
-    assert(result[0][0].name == 'Drive')
-    assert(result[0][0].args == (expr('Home'), expr('SFOLongTermParking')))
-    assert(result[0][1].name == 'Shuttle')
-    assert(result[0][1].args == (expr('SFOLongTermParking'), expr('SFO')))
-    assert(result[1][0].name == 'Taxi')
-    assert(result[1][0].args == expr('Home'), expr('SFO'))
-
-
-def test_convert_angelic_HLA():
-    """ 
-    Converts angelic HLA's into expressions that correspond to their actions
-    ~ : Delete (Not)
-    $+ : Possibly add (PosYes)
-    $-: Possibly delete (PosNo)
-    $$: Possibly add / delete (PosYesNo)
-    """
-    ang1 = Angelic_HLA('Test', precond = None, effect = '~A')
-    ang2 = Angelic_HLA('Test', precond = None, effect = '$+A')
-    ang3 = Angelic_HLA('Test', precond = None, effect = '$-A')
-    ang4 = Angelic_HLA('Test', precond = None, effect = '$$A')
-
-    assert(ang1.convert(ang1.effect) == [expr('NotA')])
-    assert(ang2.convert(ang2.effect) == [expr('PosYesA')])
-    assert(ang3.convert(ang3.effect) == [expr('PosNotA')])
-    assert(ang4.convert(ang4.effect) == [expr('PosYesNotA')])
-
-
-def test_is_primitive():
-    """
-    Tests if a plan is consisted out of primitive HLA's (angelic HLA's)
-    """
-    library = {
-        'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
-        'steps': [['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'], ['Taxi(Home, SFO)'], [], [], []],
-        'precond': [['At(Home)', 'Have(Car)'], ['At(Home)'], ['At(Home)', 'Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
-        'effect': [['At(SFO)'], ['At(SFO)'], ['At(SFOLongTermParking)'], ['At(SFO)'], ['At(SFO)'], ['~At(Home)'], ['~At(Home)'], ['~At(Home)'], ['~At(SFOLongTermParking)'], ['~At(Home)']] }
-    
-    angelic_opt_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & $-At(Home)' ) 
-    angelic_pes_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & ~At(Home)' ) 
-    taxi_SFO = HLA('Taxi(Home, SFO)', precond = 'At(Home)', effect = 'At(SFO)')
-    drive_SFOLongTermParking = HLA('Drive(Home,SFOLongTermParking)', precond='At(Home) & Car', effect='At(SFOLongTermParking) & ~At(Home)')
-    shuttle_SFO = HLA('Shuttle(SFOLongTermParking,SFO)', precond = 'At(SFOLongTermParking)', effect = 'At(SFO) & ~At(SFOLongTermParking)')
-
-    plan1 = Angelic_Node('At(Home)', None, [angelic_opt_description], [angelic_pes_description]) 
-    plan2 = Angelic_Node('At(Home)', None, [taxi_SFO])
-    plan3 = Angelic_Node('At(Home)', None, [drive_SFOLongTermParking, shuttle_SFO])
-
-    assert(not Problem.is_primitive(plan1, library))
-    assert(Problem.is_primitive(plan2, library))
-
-    assert(Problem.is_primitive(plan3, library))
-    
-
-def test_angelic_action():
-    """ 
-    Finds the HLA actions that correspond to the HLA actions with angelic semantics 
-
-    h1 : precondition positive: B                                  _______  (add A) or (add A and remove B)
-         effect: add A and possibly remove B
-
-    h2 : precondition positive: A                                  _______ (add A and add C) or (delete A and add C) or (add C) or (add A and delete C) or 
-         effect: possibly add/remove A and possibly add/remove  C          (delete A and delete C) or (delete C) or (add A) or (delete A) or [] 
-
-    """
-    h_1 = Angelic_HLA( expr('h1'), 'B' , 'A & $-B')
-    h_2 = Angelic_HLA( expr('h2'), 'A', '$$A & $$C')
-    action_1 = Angelic_HLA.angelic_action(h_1)
-    action_2 = Angelic_HLA.angelic_action(h_2)
-    
-    assert ([a.effect for a in action_1] == [ [expr('A'),expr('NotB')], [expr('A')]] )
-    assert ([a.effect for a in action_2] == [[expr('A') , expr('C')], [expr('NotA'),  expr('C')], [expr('C')], [expr('A'), expr('NotC')], [expr('NotA'), expr('NotC')], [expr('NotC')], [expr('A')], [expr('NotA')], [None] ] )
-
-
-def test_optimistic_reachable_set():
-
-    h_1 = Angelic_HLA( 'h1', 'B' , '$+A & $-B ')
-    h_2 = Angelic_HLA( 'h2', 'A', '$$A & $$C')
-    f_1 = HLA('h1', 'B', 'A & ~B')
-    f_2 = HLA('h2', 'A', 'A & C')
-    problem = Problem('B', 'A', [f_1,f_2] )
-    plan = Angelic_Node(problem.init, None, [h_1,h_2], [h_1,h_2])
-    opt_reachable_set = Problem.reach_opt(problem.init, plan )
-    assert(opt_reachable_set[1] == [[expr('A'), expr('NotB')], [expr('NotB')],[expr('B'), expr('A')], [expr('B')]])
-    assert( problem.intersects_goal(opt_reachable_set) )
-
-
-def test_pesssimistic_reachable_set():
-    """
-    Given a problem initial state and a plan 
-    """
-    h_1 = Angelic_HLA( 'h1', 'B' , '$+A & $-B ') 
-    h_2 = Angelic_HLA( 'h2', 'A', '$$A & $$C')
-    f_1 = HLA('h1', 'B', 'A & ~B')
-    f_2 = HLA('h2', 'A', 'A & C')
-    problem = Problem('B', 'A', [f_1,f_2] )
-    plan = Angelic_Node(problem.init, None, [h_1,h_2], [h_1,h_2])
-    pes_reachable_set = Problem.reach_pes(problem.init, plan )
-    assert(pes_reachable_set[1] == [[expr('A'), expr('NotB')], [expr('NotB')],[expr('B'), expr('A')], [expr('B')]])
-    assert(problem.intersects_goal(pes_reachable_set))
-
-
-def test_find_reachable_set():
-    h_1 = Angelic_HLA( 'h1', 'B' , '$+A & $-B ') 
-    f_1 = HLA('h1', 'B', 'A & ~B')
-    problem = Problem('B', 'A', [f_1] )
-    plan = Angelic_Node(problem.init, None, [h_1], [h_1])
-    reachable_set = {0: [problem.init]}
-    action_description = [h_1]
-
-    reachable_set = Problem.find_reachable_set(reachable_set, action_description)
-    assert(reachable_set[1] == [[expr('A'), expr('NotB')], [expr('NotB')],[expr('B'), expr('A')], [expr('B')]])
-
-
-
-def test_intersects_goal():    
-    problem_1 = Problem('At(SFO)', 'At(SFO)', [])
-    problem_2 =  Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [])   
-    reachable_set_1 = {0: [problem_1.init]}
-    reachable_set_2 = {0: [problem_2.init]}
-
-    assert(Problem.intersects_goal(problem_1, reachable_set_1))
-    assert(not Problem.intersects_goal(problem_2, reachable_set_2))
-
-
-def test_making_progress():
-    """
-    function not yet implemented
-    """
-    assert(True)
-
-def test_angelic_search(): 
-
-    library = {
-        'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
-        'steps': [['Drive(Home, SFOLongTermParking)' , 'Shuttle(SFOLongTermParking, SFO)'], ['Taxi(Home, SFO)'], [], [], []],
-        'precond': [['At(Home)', 'Have(Car)'], ['At(Home)'], ['At(Home)', 'Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
-        'effect': [['At(SFO)'], ['At(SFO)'], ['At(SFOLongTermParking)'], ['At(SFO)'], ['At(SFO)'], ['~At(Home)'], ['~At(Home)'], ['~At(Home)'], ['~At(SFOLongTermParking)'], ['~At(Home)']]
-        }
-
-    go_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
-    taxi_SFO = HLA('Taxi(Home,SFO)', precond='At(Home) & Cash', effect='At(SFO) & ~At(Home)')
-    drive_SFOLongTermParking = HLA('Drive(Home,SFOLongTermParking)', precond='At(Home) & Car', effect='At(SFOLongTermParking) & ~At(Home)')
-    shuttle_SFO = HLA('Shuttle(SFOLongTermParking,SFO)', precond = 'At(SFOLongTermParking)', effect = 'At(SFO) & ~At(SFOLongTermParking)')
-
-    prob = Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [go_SFO, taxi_SFO, drive_SFOLongTermParking,shuttle_SFO])
-
-    angelic_opt_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & $-At(Home)' ) 
-    angelic_pes_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & ~At(Home)' ) 
-
-
-    initialPlan = [Angelic_Node(prob.init, None, [angelic_opt_description], [angelic_pes_description])] 
-    assert( Problem.angelic_search(prob, library, initialPlan) )
-
+    assert(len(result) == 1)
+    assert(result[0].name == 'Taxi')
+    assert(result[0].args == (expr('Home'), expr('SFO')))
