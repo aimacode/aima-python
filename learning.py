@@ -21,6 +21,7 @@ from collections import defaultdict
 def euclidean_distance(X, Y):
     return math.sqrt(sum((x - y)**2 for x, y in zip(X, Y)))
 
+
 def cross_entropy_loss(X,Y):
     n=len(X)
     return (-1.0/n)*sum(x*math.log(y)+(1-x)*math.log(1-y) for x,y in zip(X,Y) )
