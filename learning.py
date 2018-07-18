@@ -24,7 +24,7 @@ def euclidean_distance(X, Y):
 
 def cross_entropy_loss(X,Y):
     n=len(X)
-    return (-1.0/n)*sum(x*math.log(y)+(1-x)*math.log(1-y) for x,y in zip(X,Y) )
+    return (-1.0/n)*sum(x*math.log(y) + (1-x)*math.log(1-y) for x, y in zip(X, Y))
 
 
 def rms_error(X, Y):
@@ -643,6 +643,7 @@ def DecisionListLearner(dataset):
         for test, outcome in predict.decision_list:
             if passes(example, test):
                 return outcome
+    
     predict.decision_list = decision_list_learning(set(dataset.examples))
 
     return predict
@@ -668,7 +669,6 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None,
                                          learning_rate, epochs)
 
     def predict(example):
-
         # Input nodes
         i_nodes = learned_net[0]
 
@@ -696,7 +696,7 @@ def random_weights(min_value, max_value, num_weights):
 
 
 def BackPropagationLearner(dataset, net, learning_rate, epochs):
-    """[Figure 18.23] The back-propagation algorithm for multilayer network"""
+    """[Figure 18.23] The back-propagation algorithm for multilayer networks"""
     # Initialise weights
     for layer in net:
         for node in layer:
