@@ -281,32 +281,50 @@ def test_job_shop_problem():
     assert p.goal_test()
 
 
-def test_refinements():
-    
-    library = {
+# hierarchies
+library_1 = {
         'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
         'steps': [['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'], ['Taxi(Home, SFO)'], [], [], []],
-        'precond': [['At(Home)', 'Have(Car)'], ['At(Home)'], ['At(Home)', 'Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
-        'effect': [['At(SFO)'], ['At(SFO)'], ['At(SFOLongTermParking)'], ['At(SFO)'], ['At(SFO)'], ['~At(Home)'], ['~At(Home)'], ['~At(Home)'], ['~At(SFOLongTermParking)'], ['~At(Home)']] }
-        
+        'precond': [['At(Home) & Have(Car)'], ['At(Home)'], ['At(Home) & Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
+        'effect': [['At(SFO) & ~At(Home)'], ['At(SFO) & ~At(Home) & ~Have(Cash)'], ['At(SFOLongTermParking) & ~At(Home)'], ['At(SFO) & ~At(LongTermParking)'], ['At(SFO) & ~At(Home) & ~Have(Cash)']] }
 
-    go_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
-    taxi_SFO = HLA('Taxi(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
 
-    prob = Problem('At(Home) & Have(Car)', 'At(SFO)', [go_SFO, taxi_SFO])
+# HLA's
+go_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
+taxi_SFO = HLA('Taxi(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home) & ~Have(Cash)')
+drive_SFOLongTermParking = HLA('Drive(Home, SFOLongTermParking)', 'At(Home) & Have(Car)','At(SFOLongTermParking) & ~At(Home)' )
+shuttle_SFO = HLA('Shuttle(SFOLongTermParking, SFO)', 'At(SFOLongTermParking)', 'At(SFO) & ~At(LongTermParking)')
 
-    result = [i for i in Problem.refinements(go_SFO, prob, library)]
+# Angelic HLA's
+angelic_opt_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & $-At(Home)' ) 
+angelic_pes_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & ~At(Home)' )
 
-    for sequence in Problem.refinements(go_SFO, prob, library):
-        print ('ref',[(s.name, s.args) for s in sequence])
+# Angelic Nodes
+plan1 = Angelic_Node('At(Home)', None, [angelic_opt_description], [angelic_pes_description]) 
+plan2 = Angelic_Node('At(Home)', None, [taxi_SFO])
+plan3 = Angelic_Node('At(Home)', None, [drive_SFOLongTermParking, shuttle_SFO])
 
-    assert(len(result) == 2)
-    assert(result[0][0].name == 'Drive')
-    assert(result[0][0].args == (expr('Home'), expr('SFOLongTermParking')))
-    assert(result[0][1].name == 'Shuttle')
-    assert(result[0][1].args == (expr('SFOLongTermParking'), expr('SFO')))
-    assert(result[1][0].name == 'Taxi')
-    assert(result[1][0].args == expr('Home'), expr('SFO'))
+
+def test_refinements():
+    
+    prob = Problem('At(Home) & Have(Car)', 'At(SFO)', [go_SFO])
+    result = [i for i in Problem.refinements(go_SFO, prob, library_1)]
+            
+    assert(result[0][0].name == drive_SFOLongTermParking.name)
+    assert(result[0][0].args == drive_SFOLongTermParking.args)
+    assert(result[0][0].precond == drive_SFOLongTermParking.precond)
+    assert(result[0][0].effect == drive_SFOLongTermParking.effect)
+
+    assert(result[0][1].name == shuttle_SFO.name)
+    assert(result[0][1].args == shuttle_SFO.args)
+    assert(result[0][1].precond == shuttle_SFO.precond)
+    assert(result[0][1].effect == shuttle_SFO.effect)
+
+
+    assert(result[1][0].name == taxi_SFO.name)
+    assert(result[1][0].args == taxi_SFO.args)
+    assert(result[1][0].precond == taxi_SFO.precond)
+    assert(result[1][0].effect == taxi_SFO.effect)
 
 
 def test_convert_angelic_HLA():
@@ -332,26 +350,9 @@ def test_is_primitive():
     """
     Tests if a plan is consisted out of primitive HLA's (angelic HLA's)
     """
-    library = {
-        'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
-        'steps': [['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'], ['Taxi(Home, SFO)'], [], [], []],
-        'precond': [['At(Home)', 'Have(Car)'], ['At(Home)'], ['At(Home)', 'Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
-        'effect': [['At(SFO)'], ['At(SFO)'], ['At(SFOLongTermParking)'], ['At(SFO)'], ['At(SFO)'], ['~At(Home)'], ['~At(Home)'], ['~At(Home)'], ['~At(SFOLongTermParking)'], ['~At(Home)']] }
-    
-    angelic_opt_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & $-At(Home)' ) 
-    angelic_pes_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & ~At(Home)' ) 
-    taxi_SFO = HLA('Taxi(Home, SFO)', precond = 'At(Home)', effect = 'At(SFO)')
-    drive_SFOLongTermParking = HLA('Drive(Home,SFOLongTermParking)', precond='At(Home) & Car', effect='At(SFOLongTermParking) & ~At(Home)')
-    shuttle_SFO = HLA('Shuttle(SFOLongTermParking,SFO)', precond = 'At(SFOLongTermParking)', effect = 'At(SFO) & ~At(SFOLongTermParking)')
-
-    plan1 = Angelic_Node('At(Home)', None, [angelic_opt_description], [angelic_pes_description]) 
-    plan2 = Angelic_Node('At(Home)', None, [taxi_SFO])
-    plan3 = Angelic_Node('At(Home)', None, [drive_SFOLongTermParking, shuttle_SFO])
-
-    assert(not Problem.is_primitive(plan1, library))
-    assert(Problem.is_primitive(plan2, library))
-
-    assert(Problem.is_primitive(plan3, library))
+    assert(not Problem.is_primitive(plan1, library_1))
+    assert(Problem.is_primitive(plan2, library_1))
+    assert(Problem.is_primitive(plan3, library_1))
     
 
 def test_angelic_action():
@@ -375,7 +376,9 @@ def test_angelic_action():
 
 
 def test_optimistic_reachable_set():
-
+    """
+    Find optimistic reachable set given a problem initial state and a plan
+    """
     h_1 = Angelic_HLA( 'h1', 'B' , '$+A & $-B ')
     h_2 = Angelic_HLA( 'h2', 'A', '$$A & $$C')
     f_1 = HLA('h1', 'B', 'A & ~B')
@@ -389,7 +392,7 @@ def test_optimistic_reachable_set():
 
 def test_pesssimistic_reachable_set():
     """
-    Given a problem initial state and a plan 
+    Find pessimistic reachable set given a problem initial state and a plan
     """
     h_1 = Angelic_HLA( 'h1', 'B' , '$+A & $-B ') 
     h_2 = Angelic_HLA( 'h2', 'A', '$$A & $$C')
@@ -432,19 +435,10 @@ def test_making_progress():
     assert(True)
 
 def test_angelic_search(): 
-
-    library = {
-        'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)', 'Taxi(Home, SFO)'],
-        'steps': [['Drive(Home, SFOLongTermParking)' , 'Shuttle(SFOLongTermParking, SFO)'], ['Taxi(Home, SFO)'], [], [], []],
-        'precond': [['At(Home)', 'Have(Car)'], ['At(Home)'], ['At(Home)', 'Have(Car)'], ['At(SFOLongTermParking)'], ['At(Home)']],
-        'effect': [['At(SFO)'], ['At(SFO)'], ['At(SFOLongTermParking)'], ['At(SFO)'], ['At(SFO)'], ['~At(Home)'], ['~At(Home)'], ['~At(Home)'], ['~At(SFOLongTermParking)'], ['~At(Home)']]
-        }
-
-    go_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
-    taxi_SFO = HLA('Taxi(Home,SFO)', precond='At(Home) & Cash', effect='At(SFO) & ~At(Home)')
-    drive_SFOLongTermParking = HLA('Drive(Home,SFOLongTermParking)', precond='At(Home) & Car', effect='At(SFOLongTermParking) & ~At(Home)')
-    shuttle_SFO = HLA('Shuttle(SFOLongTermParking,SFO)', precond = 'At(SFOLongTermParking)', effect = 'At(SFO) & ~At(SFOLongTermParking)')
-
+    """
+    Test angelic search for problem, hierarchy, initialPlan
+    """
+    
     prob = Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [go_SFO, taxi_SFO, drive_SFOLongTermParking,shuttle_SFO])
 
     angelic_opt_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & $-At(Home)' ) 

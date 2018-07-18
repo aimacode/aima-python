@@ -1274,38 +1274,32 @@ class Problem(PlanningProblem):
             ],
         # empty refinements indicate a primitive action
         'precond': [
-            ['At(Home)', 'Have(Car)'],
+            ['At(Home) & Have(Car)'],
             ['At(Home)'],
-            ['At(Home)', 'Have(Car)'],
+            ['At(Home) & Have(Car)'],
             ['At(SFOLongTermParking)'],
             ['At(Home)']
             ],
         'effect': [
-            ['At(SFO)', '~At(Home)'],
-            ['At(SFO)', '~At(Home)'],
-            ['At(SFOLongTermParking)', '~At(Home)'],
-            ['At(SFO)', '~At(SFOLongTermParking)'],
-            ['At(SFO)', '~At(Home)']
+            ['At(SFO) & ~At(Home)'],
+            ['At(SFO) & ~At(Home)'],
+            ['At(SFOLongTermParking) & ~At(Home)'],
+            ['At(SFO) & ~At(SFOLongTermParking)'],
+            ['At(SFO) & ~At(Home)']
             ]
         }
         """
         e = Expr(hla.name, hla.args)
         indices = [i for i, x in enumerate(library['HLA']) if expr(x).op == hla.name]
         for i in indices:
-            precond = []
-            for p in library['precond'][i]:
-                if p[0] == '~':
-                    precond.append(expr('Not' + p[1:]))
-                else:
-                    precond.append(expr(p))
-            effect = []
-            for e in library['effect'][i]:
-                if e[0] == '~':
-                    effect.append(expr('Not' + e[1:]))
-                else:
-                    effect.append(expr(e))
-            action = [HLA(library['steps'][i][j], precond, effect) for j in range(len(library['steps'][i]))]
-            yield [h for h in action if h.check_precond(state.init, h.args)]
+            actions = []
+            for j in range(len(library['steps'][i])):
+                # find the index of the step [j]  of the HLA 
+                index_step = [k for k,x in enumerate(library['HLA']) if x == library['steps'][i][j]][0]
+                precond = library['precond'][index_step][0] # preconditions of step [j]
+                effect = library['effect'][index_step][0] # effect of step [j]
+                actions.append(HLA(library['steps'][i][j], precond, effect))
+            yield actions
 
     def hierarchical_search(problem, hierarchy):
         """
@@ -1336,14 +1330,12 @@ class Problem(PlanningProblem):
                     print("...")
                     frontier.append(Node(plan.state, plan.parent, sequence))
 
-    def result(problem, action):
+    def result(state, actions):
         """The outcome of applying an action to the current problem"""
-        if action is not None:
-            problem.act(action)
-            return problem
-        else:
-            return problem
-
+        for a in actions: 
+            if a.check_precond(state, a.args):
+                state = a(state, a.args).clauses
+        return state
     
 
     def angelic_search(problem, hierarchy, initialPlan):
@@ -1363,14 +1355,13 @@ class Problem(PlanningProblem):
         $$: possibly add or remove
 	"""
         frontier = deque(initialPlan)
-        n=0
-        while n<4: 
+        while True: 
             if not frontier:
                 return None
-            plan = frontier.popleft() # sequence of Nodes? (HLA/Angelic HLA as actions)
+            plan = frontier.popleft() # sequence of HLA/Angelic HLA's 
             opt_reachable_set = Problem.reach_opt(problem.init, plan)
             pes_reachable_set = Problem.reach_pes(problem.init, plan)
-            if problem.intersects_goal(opt_reachable_set): # all reachable states
+            if problem.intersects_goal(opt_reachable_set): 
                 if Problem.is_primitive( plan, hierarchy ): 
                     return ([x for x in plan.action])
                 guaranteed = problem.intersects_goal(pes_reachable_set) 
@@ -1378,29 +1369,13 @@ class Problem(PlanningProblem):
                     final_state = guaranteed[0] # any element of guaranteed 
                     #print('decompose')
                     return Problem.decompose(hierarchy, problem, plan, final_state, pes_reachable_set)
-                hla = None # there should be at least one HLA/Angelic_HLA, otherwise plan would be primitive.
-                j=-1
-                for i in range(len(plan.action)):
-                    if type(plan.action[i]) is HLA or type(plan.action[i]) is Angelic_HLA:
-                        hla = plan.action[i] 
-                        j=i
-                        break
-
-                if j>0:
-                    prefix = plan.action[:j-1]
-                    outcome = Problem.result(problem, prefix[-1])
-                else: 
-                    prefix = []
-                    outcome = copy.deepcopy(problem)
-                if j < len(plan.action)-1:
-                    suffix = plan.action[j+1:]
-                else: 
-                    suffix = []
+                (hla, index) = Problem.find_hla(plan, hierarchy) # there should be at least one HLA/Angelic_HLA, otherwise plan would be primitive.
+                prefix = plan.action[:index-1]
+                suffix = plan.action[index+1:]
+                outcome = Problem(Problem.result(problem.init, prefix), problem.goals , problem.actions )
                 for sequence in Problem.refinements(hla, outcome, hierarchy): # find refinements
                     frontier.append(Angelic_Node(outcome.init, plan, prefix + sequence+ suffix, prefix+sequence+suffix))
 
-
-            n+=1
 
     def intersects_goal(problem, reachable_set):
         """
@@ -1459,7 +1434,19 @@ class Problem(PlanningProblem):
                             reachable_set[i+1].append(state)
         return reachable_set
 
-
+    def find_hla(plan, hierarchy):
+        """
+        Finds the the first HLA action in plan.action, which is not primitive
+        and its corresponding index in plan.action
+        """
+        hla = None
+        index = len(plan.action)
+        for i in range(len(plan.action)): # find the first HLA in plan, that is not primitive
+            if not Problem.is_primitive(Node(plan.state, plan.parent, [plan.action[i]]), hierarchy):
+                hla = plan.action[i] 
+                index = i
+                break
+        return (hla, index)
 	
     def making_progress(plan, initialPlan):
         """ 
