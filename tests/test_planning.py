@@ -289,6 +289,14 @@ library_1 = {
         'effect': [['At(SFO) & ~At(Home)'], ['At(SFO) & ~At(Home) & ~Have(Cash)'], ['At(SFOLongTermParking) & ~At(Home)'], ['At(SFO) & ~At(LongTermParking)'], ['At(SFO) & ~At(Home) & ~Have(Cash)']] }
 
 
+library_2 = {
+        'HLA': ['Go(Home,SFO)', 'Go(Home,SFO)', 'Bus(Home, MetroStop)', 'Metro(MetroStop, SFO)' , 'Metro(MetroStop, SFO)', 'Metro1(MetroStop, SFO)', 'Metro2(MetroStop, SFO)'  ,'Taxi(Home, SFO)'],
+        'steps': [['Bus(Home, MetroStop)', 'Metro(MetroStop, SFO)'], ['Taxi(Home, SFO)'], [], ['Metro1(MetroStop, SFO)'], ['Metro2(MetroStop, SFO)'],[],[],[]],
+        'precond': [['At(Home)'], ['At(Home)'], ['At(Home)'], ['At(MetroStop)'], ['At(MetroStop)'],['At(MetroStop)'], ['At(MetroStop)'] ,['At(Home) & Have(Cash)']],
+        'effect': [['At(SFO) & ~At(Home)'], ['At(SFO) & ~At(Home) & ~Have(Cash)'], ['At(MetroStop) & ~At(Home)'], ['At(SFO) & ~At(MetroStop)'], ['At(SFO) & ~At(MetroStop)'], ['At(SFO) & ~At(MetroStop)'] , ['At(SFO) & ~At(MetroStop)'] ,['At(SFO) & ~At(Home) & ~Have(Cash)']] 
+        }
+
+
 # HLA's
 go_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')
 taxi_SFO = HLA('Taxi(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home) & ~Have(Cash)')
@@ -438,15 +446,34 @@ def test_angelic_search():
     """
     Test angelic search for problem, hierarchy, initialPlan
     """
-    
-    prob = Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [go_SFO, taxi_SFO, drive_SFOLongTermParking,shuttle_SFO])
+    #test_1
+    prob_1 = Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [go_SFO, taxi_SFO, drive_SFOLongTermParking,shuttle_SFO])
 
     angelic_opt_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & $-At(Home)' ) 
     angelic_pes_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & ~At(Home)' ) 
 
+    initialPlan = [Angelic_Node(prob_1.init, None, [angelic_opt_description], [angelic_pes_description])] 
+    solution = Problem.angelic_search(prob_1, library_1, initialPlan)
 
-    initialPlan = [Angelic_Node(prob.init, None, [angelic_opt_description], [angelic_pes_description])] 
-    assert( Problem.angelic_search(prob, library, initialPlan) )
+    assert( len(solution) == 2 )
+
+    assert(solution[0].name == drive_SFOLongTermParking.name)
+    assert(solution[0].args == drive_SFOLongTermParking.args) 
+
+    assert(solution[1].name == shuttle_SFO.name)
+    assert(solution[1].args == shuttle_SFO.args)
+    
+    #test_2
+    solution_2 = Problem.angelic_search(prob_1, library_2, initialPlan)
+
+    assert( len(solution_2) == 2 )
+
+    assert(solution_2[0].name == 'Bus')
+    assert(solution_2[0].args == (expr('Home'), expr('MetroStop'))) 
+
+    assert(solution_2[1].name == 'Metro1')
+    assert(solution_2[1].args == (expr('MetroStop'), expr('SFO')))
+    
 
 
 
