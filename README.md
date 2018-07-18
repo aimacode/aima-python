@@ -118,7 +118,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 11.8   | Angelic-Search                    |                               |                                 |      |          |
 | 11.10  | Doubles-tennis                    | `double_tennis_problem`       | [`planning.py`][planning]       | Done | Included |
 | 13     | Discrete Probability Distribution | `ProbDist`                    | [`probability.py`][probability] | Done | Included |
-| 13.1   | DT-Agent                          | `DTAgent`                     | [`probability.py`][probability] |      |          |
+| 13.1   | DT-Agent                          | `DTAgent`                     | [`probability.py`][probability] | Done | Included |
 | 14.9   | Enumeration-Ask                   | `enumeration_ask`             | [`probability.py`][probability] | Done | Included |
 | 14.11  | Elimination-Ask                   | `elimination_ask`             | [`probability.py`][probability] | Done | Included |
 | 14.13  | Prior-Sample                      | `prior_sample`                | [`probability.py`][probability] | Done | Included |
