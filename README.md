@@ -133,7 +133,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`][mdp]                 | Done | Included |
 | 17.9   | POMDP-Value-Iteration             | `pomdp_value_iteration`       | [`mdp.py`][mdp]                 | Done | Included |
 | 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`][learning]       | Done | Included |
-| 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]       |      |          |
+| 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]\*     |      |          |
 | 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]\*     |      |          |
 | 18.24  | Back-Prop-Learning                | `BackPropagationLearner`      | [`learning.py`][learning]       | Done | Included |
 | 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`][learning]       | Done | Included |
