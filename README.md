@@ -88,7 +88,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 5.3    | Minimax-Decision                  | `minimax_decision`            | [`games.py`][games]             | Done | Included |
 | 5.7    | Alpha-Beta-Search                 | `alphabeta_search`            | [`games.py`][games]             | Done | Included |
 | 6      | CSP                               | `CSP`                         | [`csp.py`][csp]                 | Done | Included |
-| 6.3    | AC-3                              | `AC3`                         | [`csp.py`][csp]                 | Done |          |
+| 6.3    | AC-3                              | `AC3`                         | [`csp.py`][csp]                 | Done | Included |
 | 6.5    | Backtracking-Search               | `backtracking_search`         | [`csp.py`][csp]                 | Done | Included |
 | 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done | Included |
 | 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`][csp]                 | Done | Included |
