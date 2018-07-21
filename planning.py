@@ -1731,8 +1731,8 @@ class Angelic_Node(Node):
     self.action_pes: contains the pessimistic description of an angelic HLA
     """
 
-    def __init__(self, state, parent=None, action_opt=None, action_pes=None, path_cost=0):
-        super().__init__(state, parent, action_opt, path_cost)
+    def __init__(self, state, parent=None, action_opt=None, action_pes=None,  path_cost=0):
+        super().__init__(state, parent, action_opt , path_cost)
         self.action_pes = action_pes 
 
 
