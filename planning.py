@@ -1450,7 +1450,11 @@ class Problem(PlanningProblem):
 	
     def making_progress(plan, initialPlan):
         """ 
-        Not correct 
+        Not correct
+
+        Normally should from infinite regression of refinements 
+        
+        Only case covered: when plan contains one action (then there is no regression to be done)  
         """
         if (len(plan.action)==1):
             return False
@@ -1558,18 +1562,18 @@ def go_to_sfo():
             []
         ],
         'precond': [
-            ['At(Home)', 'Have(Car)'],
+            ['At(Home) & Have(Car)'],
             ['At(Home)'],
-            ['At(Home)', 'Have(Car)'],
+            ['At(Home) & Have(Car)'],
             ['At(SFOLongTermParking)'],
             ['At(Home)']
         ],
         'effect': [
-            ['At(SFO)', '~At(Home)'],
-            ['At(SFO)', '~At(Home)'],
-            ['At(SFOLongTermParking)', '~At(Home)'],
-            ['At(SFO)', '~At(SFOLongTermParking)'],
-            ['At(SFO)', '~At(Home)']
+            ['At(SFO) & ~At(Home)'],
+            ['At(SFO) & ~At(Home)'],
+            ['At(SFOLongTermParking) & ~At(Home)'],
+            ['At(SFO) & ~At(SFOLongTermParking)'],
+            ['At(SFO) & ~At(Home)']
         ]
     }
 
@@ -1586,7 +1590,16 @@ class Angelic_HLA(HLA):
 
 
     def convert(self, clauses):
-        """Converts strings into Exprs""" 
+        """
+        Converts strings into Exprs
+        An HLA with angelic semantics can achieve the effects of simple HLA's (add / remove a variable ) 
+        and furthermore can have following effects on the variables: 
+            Possibly add variable    ( $+ )
+            Possibly remove variable ( $- )
+            Possibly add or remove a variable ( $$ )
+
+        Overrides HLA.convert function
+        """ 
         lib = {'~': 'Not', 
                 '$+': 'PosYes',
                '$-': 'PosNot',
@@ -1617,51 +1630,98 @@ class Angelic_HLA(HLA):
 
     def angelic_action(self):
         """
-        example: 
+        Converts a high level action (HLA) with angelic semantics into all of its corresponding high level actions (HLA). 
+        An HLA with angelic semantics can achieve the effects of simple HLA's (add / remove a variable) 
+        and furthermore can have following effects for each variable: 
+
+            Possibly add variable ( $+: 'PosYes' )        --> corresponds to two HLAs: 
+                                                                HLA_1: add variable  
+                                                                HLA_2: leave variable unchanged
+
+            Possibly remove variable ( $-: 'PosNot' )     --> corresponds to two HLAs:
+                                                                HLA_1: remove variable
+                                                                HLA_2: leave variable unchanged
+
+            Possibly add / remove a variable ( $$: 'PosYesNot' )  --> corresponds to three HLAs: 
+                                                                        HLA_1: add variable
+                                                                        HLA_2: remove variable
+                                                                        HLA_3: leave variable unchanged 
+
+
+            example: the angelic action with effects possibly add A and possibly add or remove B corresponds to the following 6 effects of HLAs:
+            
+            
+            '$+A & $$B':    HLA_1: 'A & B'   (add A and add B)
+                            HLA_2: 'A & ~B'  (add A and remove B)
+                            HLA_3: 'A'       (add A)
+                            HLA_4: 'B'       (add B)
+                            HLA_5: '~B'      (remove B)
+                            HLA_6: ' '       (no effect)  
+
         """
-        #print(self.effect)
 
         effects=[[]]
         for clause in self.effect:
-            if clause.op[:9] == 'PosYesNot':
-                effects = effects*3
-                n=3
-                w=9
-            elif clause.op[:6] == 'PosYes':
-                effects =effects* 2
-                n=2
-                w=6
-            elif clause.op[:6] == 'PosNot':
-                effects = effects* 2
-                n=2
-                w=3
-            else:
-                n=1
-                w=0
+            (n,w) = Angelic_HLA.compute_parameters(clause, effects)
+            effects = effects*n # create n copies of effects 
             it=range(1)
             if len(effects)!=0:
+                # split effects into n sublists (seperate n copies created in compute_parameters)
                 it = range(len(effects)//n)
             for i in it:
                 if effects[i]:
                     if clause.args: 
-                        effects[i] = expr(str(effects[i]) + '&' + str(Expr(clause.op[w:],clause.args[0])))
+                        effects[i] = expr(str(effects[i]) + '&' + str(Expr(clause.op[w:],clause.args[0]))) # make changes in the ith part of effects
                         if n==3:
                             effects[i+len(effects)//3]= expr(str(effects[i+len(effects)//3]) + '&' + str(Expr(clause.op[6:],clause.args[0])))
                     else: 
-                        effects[i] = expr(str(effects[i]) + '&' + str(expr(clause.op[w:])))
-                        if n==3: effects[i+len(effects)//3] = expr(str(effects[i+len(effects)//3]) + '&' + str(expr(clause.op[6:])))
+                        effects[i] = expr(str(effects[i]) + '&' + str(expr(clause.op[w:]))) # make changes in the ith part of effects
+                        if n==3: 
+                            effects[i+len(effects)//3] = expr(str(effects[i+len(effects)//3]) + '&' + str(expr(clause.op[6:])))
 
                 else: 
                     if clause.args: 
-                        effects[i] = Expr(clause.op[w:], clause.args[0])
-                        if n==3: effects[i+len(effects)//3] = Expr(clause.op[6:], clause.args[0])
+                        effects[i] = Expr(clause.op[w:], clause.args[0]) # make changes in the ith part of effects
+                        if n==3: 
+                            effects[i+len(effects)//3] = Expr(clause.op[6:], clause.args[0])
 
                     else: 
-                        effects[i] = expr(clause.op[w:])
-                        if n==3: effects[i+len(effects)//3] = expr(clause.op[6:])
+                        effects[i] = expr(clause.op[w:])  # make changes in the ith part of effects
+                        if n==3: 
+                            effects[i+len(effects)//3] = expr(clause.op[6:])
             #print('effects',  effects)
-        
+
         return [ HLA(Expr(self.name, self.args), self.precond, effects[i] ) for i in range(len(effects)) ]
+
+
+    def compute_parameters(clause, effects):
+        """ 
+        computes n,w 
+        
+        n = number of HLA effects that the anelic HLA corresponds to
+        w = length of representation of angelic HLA effect 
+
+                    n = 1, if effect is add
+                    n = 1, if effect is remove
+                    n = 2, if effect is possibly add
+                    n = 2, if effect is possibly remove
+                    n = 3, if effect is possibly add or remove
+
+        """
+        if clause.op[:9] == 'PosYesNot':
+            # possibly add/remove variable: three possible effects for the variable 
+            n=3
+            w=9
+        elif clause.op[:6] == 'PosYes': # possibly add variable: two possible effects for the variable
+            n=2
+            w=6
+        elif clause.op[:6] == 'PosNot': # possibly remove variable: two possible effects for the variable
+            n=2
+            w=3 # We want to keep 'Not' from 'PosNot' when adding action
+        else:   # variable or ~variable 
+            n=1
+            w=0
+        return (n,w)
 
 
 class Angelic_Node(Node):
