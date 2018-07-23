@@ -1308,27 +1308,23 @@ class Problem(PlanningProblem):
         The problem is a real-world problem defined by the problem class, and the hierarchy is
         a dictionary of HLA - refinements (see refinements generator for details)
         """
-        act = Node(problem.actions[0])
+        act = Node(problem.init, None, [problem.actions[0]])
         frontier = deque()
         frontier.append(act)
         while True:
             if not frontier:
                 return None
             plan = frontier.popleft()
-            print(plan.state.name)
-            hla = plan.state  # first_or_null(plan)
-            prefix = None
-            if plan.parent:
-                prefix = plan.parent.state.action  # prefix, suffix = subseq(plan.state, hla)
-            outcome = Problem.result(problem, prefix)
-            if hla is None:
+            (hla, index) = Problem.find_hla(plan, hierarchy) # finds the first non primitive hla in plan actions
+            prefix = plan.action[:index]
+            outcome = Problem(Problem.result(problem.init, prefix), problem.goals , problem.actions )
+            suffix = plan.action[index+1:]
+            if not hla: # hla is None and plan is primitive
                 if outcome.goal_test():
-                    return plan.path()
+                    return plan.action
             else:
-                print("else")
-                for sequence in Problem.refinements(hla, outcome, hierarchy):
-                    print("...")
-                    frontier.append(Node(plan.state, plan.parent, sequence))
+                for sequence in Problem.refinements(hla, outcome, hierarchy): # find refinements
+                    frontier.append(Node(outcome.init, plan, prefix + sequence+ suffix))
 
     def result(state, actions):
         """The outcome of applying an action to the current problem"""

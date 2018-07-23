@@ -335,6 +335,33 @@ def test_refinements():
     assert(result[1][0].effect == taxi_SFO.effect)
 
 
+def test_hierarchical_search(): 
+
+    #test_1
+    prob_1 = Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [go_SFO, taxi_SFO, drive_SFOLongTermParking,shuttle_SFO])
+
+    solution = Problem.hierarchical_search(prob_1, library_1)
+
+    assert( len(solution) == 2 )
+
+    assert(solution[0].name == drive_SFOLongTermParking.name)
+    assert(solution[0].args == drive_SFOLongTermParking.args) 
+
+    assert(solution[1].name == shuttle_SFO.name)
+    assert(solution[1].args == shuttle_SFO.args)
+    
+    #test_2
+    solution_2 = Problem.hierarchical_search(prob_1, library_2)
+
+    assert( len(solution_2) == 2 )
+
+    assert(solution_2[0].name == 'Bus')
+    assert(solution_2[0].args == (expr('Home'), expr('MetroStop'))) 
+
+    assert(solution_2[1].name == 'Metro1')
+    assert(solution_2[1].args == (expr('MetroStop'), expr('SFO')))
+
+
 def test_convert_angelic_HLA():
     """ 
     Converts angelic HLA's into expressions that correspond to their actions
