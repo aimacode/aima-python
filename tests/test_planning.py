@@ -338,7 +338,7 @@ def test_refinements():
 def test_hierarchical_search(): 
 
     #test_1
-    prob_1 = Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [go_SFO, taxi_SFO, drive_SFOLongTermParking,shuttle_SFO])
+    prob_1 = Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [go_SFO])
 
     solution = Problem.hierarchical_search(prob_1, library_1)
 
