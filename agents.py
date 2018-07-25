@@ -131,7 +131,16 @@ def TableDrivenAgentProgram(table):
 
 
 def RandomAgentProgram(actions):
-    """An agent that chooses an action at random, ignoring all percepts."""
+    """An agent that chooses an action at random, ignoring all percepts.
+    >>> list = ['Right', 'Left', 'Suck', 'NoOp']
+    >>> program = RandomAgentProgram(list)
+    >>> agent = Agent(program)
+    >>> environment = TrivialVacuumEnvironment()
+    >>> environment.add_thing(agent)
+    >>> environment.run()
+    >>> environment.status == {(1, 0): 'Clean' , (0, 0): 'Clean'}
+    True
+    """
     return lambda percept: random.choice(actions)
 
 # ______________________________________________________________________________
@@ -171,7 +180,14 @@ loc_A, loc_B = (0, 0), (1, 0)  # The two locations for the Vacuum world
 
 
 def RandomVacuumAgent():
-    """Randomly choose one of the actions from the vacuum environment."""
+    """Randomly choose one of the actions from the vacuum environment.
+    >>> agent = RandomVacuumAgent()
+    >>> environment = TrivialVacuumEnvironment()
+    >>> environment.add_thing(agent)
+    >>> environment.run()
+    >>> environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+    True
+    """
     return Agent(RandomAgentProgram(['Right', 'Left', 'Suck', 'NoOp']))
 
 
@@ -192,7 +208,14 @@ def TableDrivenVacuumAgent():
 
 
 def ReflexVacuumAgent():
-    """A reflex agent for the two-state vacuum environment. [Figure 2.8]"""
+    """A reflex agent for the two-state vacuum environment. [Figure 2.8]
+    >>> agent = ReflexVacuumAgent()
+    >>> environment = TrivialVacuumEnvironment()
+    >>> environment.add_thing(agent)
+    >>> environment.run()
+    >>> environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+    True
+    """
     def program(percept):
         location, status = percept
         if status == 'Dirty':
@@ -205,7 +228,14 @@ def ReflexVacuumAgent():
 
 
 def ModelBasedVacuumAgent():
-    """An agent that keeps track of what locations are clean or dirty."""
+    """An agent that keeps track of what locations are clean or dirty.
+    >>> agent = ModelBasedVacuumAgent()
+    >>> environment = TrivialVacuumEnvironment()
+    >>> environment.add_thing(agent)
+    >>> environment.run()
+    >>> environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+    True
+    """
     model = {loc_A: None, loc_B: None}
 
     def program(percept):
@@ -342,6 +372,22 @@ class Direction:
         self.direction = direction
 
     def __add__(self, heading):
+        """
+        >>> d = Direction('right')
+        >>> l1 = d.__add__(Direction.L)
+        >>> l2 = d.__add__(Direction.R)
+        >>> l1.direction
+        'up'
+        >>> l2.direction
+        'down'
+        >>> d = Direction('down')
+        >>> l1 = d.__add__('right')
+        >>> l2 = d.__add__('left')
+        >>> l1.direction == Direction.L
+        True
+        >>> l2.direction == Direction.R
+        True
+        """
         if self.direction == self.R:
             return{
                 self.R: Direction(self.D),
@@ -364,6 +410,16 @@ class Direction:
             }.get(heading, None)
 
     def move_forward(self, from_location):
+        """
+        >>> d = Direction('up')
+        >>> l1 = d.move_forward((0, 0))
+        >>> l1
+        (0, -1)
+        >>> d = Direction(Direction.R)
+        >>> l1 = d.move_forward((0, 0))
+        >>> l1
+        (1, 0)
+        """
         x, y = from_location
         if self.direction == self.R:
             return (x + 1, y)
@@ -940,14 +996,29 @@ def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
     """See how well each of several agents do in n instances of an environment.
     Pass in a factory (constructor) for environments, and several for agents.
     Create n instances of the environment, and run each agent in copies of
-    each one for steps. Return a list of (agent, average-score) tuples."""
+    each one for steps. Return a list of (agent, average-score) tuples.
+    >>> environment = TrivialVacuumEnvironment
+    >>> agents = [ModelBasedVacuumAgent, ReflexVacuumAgent]
+    >>> result = compare_agents(environment, agents)
+    >>> performance_ModelBasedVacummAgent = result[0][1]
+    >>> performance_ReflexVacummAgent = result[1][1]
+    >>> performance_ReflexVacummAgent <= performance_ModelBasedVacummAgent
+    True
+    """
     envs = [EnvFactory() for i in range(n)]
     return [(A, test_agent(A, steps, copy.deepcopy(envs)))
             for A in AgentFactories]
 
 
 def test_agent(AgentFactory, steps, envs):
-    """Return the mean score of running an agent in each of the envs, for steps"""
+    """Return the mean score of running an agent in each of the envs, for steps
+    >>> def constant_prog(percept):
+    >>>     return percept
+    >>> agent = Agent(constant_prog)
+    >>> result = agent.program(5)
+    >>> result == 5
+    True
+    """
     def score(env):
         agent = AgentFactory()
         env.add_thing(agent)
