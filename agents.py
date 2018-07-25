@@ -1013,7 +1013,8 @@ def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
 def test_agent(AgentFactory, steps, envs):
     """Return the mean score of running an agent in each of the envs, for steps
     >>> def constant_prog(percept):
-    >>>     return percept
+    ...     return percept
+    ...
     >>> agent = Agent(constant_prog)
     >>> result = agent.program(5)
     >>> result == 5
