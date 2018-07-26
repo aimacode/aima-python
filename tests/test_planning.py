@@ -312,6 +312,11 @@ plan1 = Angelic_Node('At(Home)', None, [angelic_opt_description], [angelic_pes_d
 plan2 = Angelic_Node('At(Home)', None, [taxi_SFO])
 plan3 = Angelic_Node('At(Home)', None, [drive_SFOLongTermParking, shuttle_SFO])
 
+# Problems
+prob_1 = Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [go_SFO, taxi_SFO, drive_SFOLongTermParking,shuttle_SFO])
+
+initialPlan = [Angelic_Node(prob_1.init, None, [angelic_opt_description], [angelic_pes_description])] 
+
 
 def test_refinements():
     
@@ -467,19 +472,19 @@ def test_making_progress():
     """
     function not yet implemented
     """
-    assert(True)
+    
+    intialPlan_1 = [Angelic_Node(prob_1.init, None, [angelic_opt_description], [angelic_pes_description]), 
+            Angelic_Node(prob_1.init, None, [angelic_pes_description], [angelic_pes_description]) ]
+
+    plan_1 = Angelic_Node(prob_1.init, None, [angelic_opt_description], [angelic_pes_description])
+
+    assert(not Problem.making_progress(plan_1, initialPlan))
 
 def test_angelic_search(): 
     """
     Test angelic search for problem, hierarchy, initialPlan
     """
     #test_1
-    prob_1 = Problem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)', [go_SFO, taxi_SFO, drive_SFOLongTermParking,shuttle_SFO])
-
-    angelic_opt_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & $-At(Home)' ) 
-    angelic_pes_description = Angelic_HLA('Go(Home, SFO)', precond = 'At(Home)', effect ='$+At(SFO) & ~At(Home)' ) 
-
-    initialPlan = [Angelic_Node(prob_1.init, None, [angelic_opt_description], [angelic_pes_description])] 
     solution = Problem.angelic_search(prob_1, library_1, initialPlan)
 
     assert( len(solution) == 2 )
@@ -490,6 +495,7 @@ def test_angelic_search():
     assert(solution[1].name == shuttle_SFO.name)
     assert(solution[1].args == shuttle_SFO.args)
     
+
     #test_2
     solution_2 = Problem.angelic_search(prob_1, library_2, initialPlan)
 
