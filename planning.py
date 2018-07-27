@@ -1308,27 +1308,23 @@ class Problem(PlanningProblem):
         The problem is a real-world problem defined by the problem class, and the hierarchy is
         a dictionary of HLA - refinements (see refinements generator for details)
         """
-        act = Node(problem.actions[0])
+        act = Node(problem.init, None, [problem.actions[0]])
         frontier = deque()
         frontier.append(act)
         while True:
             if not frontier:
                 return None
             plan = frontier.popleft()
-            print(plan.state.name)
-            hla = plan.state  # first_or_null(plan)
-            prefix = None
-            if plan.parent:
-                prefix = plan.parent.state.action  # prefix, suffix = subseq(plan.state, hla)
-            outcome = Problem.result(problem, prefix)
-            if hla is None:
+            (hla, index) = Problem.find_hla(plan, hierarchy) # finds the first non primitive hla in plan actions
+            prefix = plan.action[:index]
+            outcome = Problem(Problem.result(problem.init, prefix), problem.goals , problem.actions )
+            suffix = plan.action[index+1:]
+            if not hla: # hla is None and plan is primitive
                 if outcome.goal_test():
-                    return plan.path()
+                    return plan.action
             else:
-                print("else")
-                for sequence in Problem.refinements(hla, outcome, hierarchy):
-                    print("...")
-                    frontier.append(Node(plan.state, plan.parent, sequence))
+                for sequence in Problem.refinements(hla, outcome, hierarchy): # find refinements
+                    frontier.append(Node(outcome.init, plan, prefix + sequence+ suffix))
 
     def result(state, actions):
         """The outcome of applying an action to the current problem"""
@@ -1365,12 +1361,12 @@ class Problem(PlanningProblem):
                 if Problem.is_primitive( plan, hierarchy ): 
                     return ([x for x in plan.action])
                 guaranteed = problem.intersects_goal(pes_reachable_set) 
-                if guaranteed and Problem.making_progress(plan, plan):
+                if guaranteed and Problem.making_progress(plan, initialPlan):
                     final_state = guaranteed[0] # any element of guaranteed 
                     #print('decompose')
                     return Problem.decompose(hierarchy, problem, plan, final_state, pes_reachable_set)
                 (hla, index) = Problem.find_hla(plan, hierarchy) # there should be at least one HLA/Angelic_HLA, otherwise plan would be primitive.
-                prefix = plan.action[:index-1]
+                prefix = plan.action[:index]
                 suffix = plan.action[index+1:]
                 outcome = Problem(Problem.result(problem.init, prefix), problem.goals , problem.actions )
                 for sequence in Problem.refinements(hla, outcome, hierarchy): # find refinements
@@ -1450,30 +1446,33 @@ class Problem(PlanningProblem):
 	
     def making_progress(plan, initialPlan):
         """ 
-        Not correct
+        Prevents from infinite regression of refinements  
 
-        Normally should from infinite regression of refinements 
-        
-        Only case covered: when plan contains one action (then there is no regression to be done)  
+        (infinite regression of refinements happens when the algorithm finds a plan that 
+        its pessimistic reachable set intersects the goal inside a call to decompose on the same plan, in the same circumstances)  
         """
-        if (len(plan.action)==1):
-            return False
+        for i in range(len(initialPlan)):
+            if (plan == initialPlan[i]):
+                return False
         return True 
 
     def decompose(hierarchy, s_0, plan, s_f, reachable_set):
         solution = [] 
+        i = max(reachable_set.keys())
         while plan.action_pes: 
             action = plan.action_pes.pop()
-            i = max(reachable_set.keys())
             if (i==0): 
                 return solution
             s_i = Problem.find_previous_state(s_f, reachable_set,i, action) 
             problem = Problem(s_i, s_f , plan.action)
-            j=0
-            for x in Problem.angelic_search(problem, hierarchy, [Angelic_Node(s_i, Node(None), [action],[action])]):
-                solution.insert(j,x)
-                j+=1
+            angelic_call = Problem.angelic_search(problem, hierarchy, [Angelic_Node(s_i, Node(None), [action],[action])])
+            if angelic_call:
+                for x in angelic_call: 
+                    solution.insert(0,x)
+            else: 
+                return None
             s_f = s_i
+            i-=1
         return solution
 
 
