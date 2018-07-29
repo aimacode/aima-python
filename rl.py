@@ -17,13 +17,13 @@ class PassiveDUEAgent:
     >>> west = (-1, 0)
     >>> east = (1, 0)
     >>> policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
-    >>> agent = PassiveDUEAgent(policy, sequential_decision_environment) # doctest:+ELLIPSIS
-    ...
-    >>> for i in range(200):
+    >>> sys.stdout.write('skip'); agent = PassiveDUEAgent(policy, sequential_decision_environment) # doctest:+ELLIPSIS
+    skip ...
+    >>> sys.stdout.write('skip'); for i in range(200):
     ...     run_single_trial(agent,sequential_decision_environment)
     ...     agent.estimate_U() # doctest:+ELLIPSIS
     ...
-    ...
+    skip ...
     >>> agent.U[(0, 0)] > 0.2
     True
     >>> agent.U[(0, 1)] > 0.2
@@ -90,12 +90,12 @@ class PassiveADPAgent:
     >>> west = (-1, 0)
     >>> east = (1, 0)
     >>> policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
-    >>> agent = PassiveADPAgent(policy, sequential_decision_environment) # doctest:+ELLIPSIS
-    ...
-    >>> for i in range(100):
+    >>> sys.stdout.write('skip'); agent = PassiveADPAgent(policy, sequential_decision_environment) # doctest:+ELLIPSIS
+    skip ...
+    >>> sys.stdout.write('skip'); for i in range(100):
     ...     run_single_trial(agent,sequential_decision_environment) # doctest:+ELLIPSIS
     ... 
-    ...
+    skip ...
     >>> agent.U[(0, 0)] > 0.2
     True
     >>> agent.U[(0, 1)] > 0.2
@@ -171,12 +171,12 @@ class PassiveTDAgent:
     >>> west = (-1, 0)
     >>> east = (1, 0)
     >>> policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
-    >>> agent = PassiveTDAgent(policy, sequential_decision_environment, alpha=lambda n: 60./(59+n)) # doctest:+ELLIPSIS
-    ...
-    >>> for i in range(200):
+    >>> sys.stdout.write('skip'); agent = PassiveTDAgent(policy, sequential_decision_environment, alpha=lambda n: 60./(59+n)) # doctest:+ELLIPSIS
+    skip ...
+    >>> sys.stdout.write('skip'); for i in range(200):
     ...     run_single_trial(agent,sequential_decision_environment) # doctest:+ELLIPSIS
     ... 
-    ...
+    skip ...
     >>> agent.U[(0, 0)] > 0.2
     True
     >>> agent.U[(0, 1)] > 0.2
@@ -230,12 +230,12 @@ class QLearningAgent:
     >>> west = (-1, 0)
     >>> east = (1, 0)
     >>> policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
-    >>> q_agent = QLearningAgent(sequential_decision_environment, Ne=5, Rplus=2, alpha=lambda n: 60./(59+n)) # doctest:+ELLIPSIS
-    ...
-    >>> for i in range(200):
+    >>> sys.stdout.write('skip'); q_agent = QLearningAgent(sequential_decision_environment, Ne=5, Rplus=2, alpha=lambda n: 60./(59+n)) # doctest:+ELLIPSIS
+    skip ...
+    >>> sys.stdout.write('skip'); for i in range(200):
     ...     run_single_trial(q_agent,sequential_decision_environment) # doctest:+ELLIPSIS
     ... 
-    ...
+    skip ...
     >>> q_agent.Q[((0, 1), (0, 1))] >= -0.5
     True
     >>> q_agent.Q[((1, 0), (0, -1))] <= 0.5
