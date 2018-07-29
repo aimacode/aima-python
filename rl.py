@@ -11,6 +11,11 @@ class PassiveDUEAgent:
     
     """Passive (non-learning) agent that uses direct utility estimation
     on a given MDP and policy.
+    >>> north = (0, 1)
+    >>> south = (0,-1)
+    >>> west = (-1, 0)
+    >>> east = (1, 0)
+    >>> policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     >>> agent = PassiveDUEAgent(policy, sequential_decision_environment)
     >>> for i in range(200):
     ...     run_single_trial(agent,sequential_decision_environment)
@@ -76,6 +81,11 @@ class PassiveADPAgent:
 
     """Passive (non-learning) agent that uses adaptive dynamic programming
     on a given MDP and policy. [Figure 21.2]
+    >>> north = (0, 1)
+    >>> south = (0,-1)
+    >>> west = (-1, 0)
+    >>> east = (1, 0)
+    >>> policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     >>> agent = PassiveADPAgent(policy, sequential_decision_environment)
     >>> for i in range(100):
     ...     run_single_trial(agent,sequential_decision_environment)
@@ -149,6 +159,11 @@ class PassiveTDAgent:
     temporal differences to learn utility estimates. Override update_state
     method to convert percept to state and reward. The mdp being provided
     should be an instance of a subclass of the MDP Class. [Figure 21.4]
+    >>> north = (0, 1)
+    >>> south = (0,-1)
+    >>> west = (-1, 0)
+    >>> east = (1, 0)
+    >>> policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     >>> agent = PassiveTDAgent(policy, sequential_decision_environment, alpha=lambda n: 60./(59+n))
     >>> for i in range(200):
     ...     run_single_trial(agent,sequential_decision_environment)
@@ -200,6 +215,11 @@ class QLearningAgent:
     """ An exploratory Q-learning agent. It avoids having to learn the transition
         model because the Q-value of a state can be related directly to those of
         its neighbors. [Figure 21.8]
+    >>> north = (0, 1)
+    >>> south = (0,-1)
+    >>> west = (-1, 0)
+    >>> east = (1, 0)
+    >>> policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     >>> q_agent = QLearningAgent(sequential_decision_environment, Ne=5, Rplus=2, alpha=lambda n: 60./(59+n))
     >>> for i in range(200):
     ...     run_single_trial(q_agent,sequential_decision_environment)
