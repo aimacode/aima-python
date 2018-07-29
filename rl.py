@@ -11,6 +11,7 @@ class PassiveDUEAgent:
     
     """Passive (non-learning) agent that uses direct utility estimation
     on a given MDP and policy.
+    >>> import sys
     >>> from mdp import sequential_decision_environment
     >>> north = (0, 1)
     >>> south = (0,-1)
@@ -84,6 +85,7 @@ class PassiveADPAgent:
 
     """Passive (non-learning) agent that uses adaptive dynamic programming
     on a given MDP and policy. [Figure 21.2]
+    >>> import sys
     >>> from mdp import sequential_decision_environment
     >>> north = (0, 1)
     >>> south = (0,-1)
@@ -165,6 +167,7 @@ class PassiveTDAgent:
     temporal differences to learn utility estimates. Override update_state
     method to convert percept to state and reward. The mdp being provided
     should be an instance of a subclass of the MDP Class. [Figure 21.4]
+    >>> import sys
     >>> from mdp import sequential_decision_environment
     >>> north = (0, 1)
     >>> south = (0,-1)
@@ -224,6 +227,7 @@ class QLearningAgent:
     """ An exploratory Q-learning agent. It avoids having to learn the transition
         model because the Q-value of a state can be related directly to those of
         its neighbors. [Figure 21.8]
+    >>> import sys
     >>> from mdp import sequential_decision_environment
     >>> north = (0, 1)
     >>> south = (0,-1)
