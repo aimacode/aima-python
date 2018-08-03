@@ -136,8 +136,6 @@ def is_symbol(s):
     """A string s is a symbol if it starts with an alphabetic char.
     >>> is_symbol('R2D2')
     True
-    >>> is_symbol('42D')
-    False
     """
     return isinstance(s, str) and s[:1].isalpha()
 
@@ -146,8 +144,6 @@ def is_var_symbol(s):
     """A logic variable symbol is an initial-lowercase string.
     >>> is_var_symbol('EXE')
     False
-    >>> is_var_symbol('eXE')
-    True
     """
     return is_symbol(s) and s[0].islower()
 
@@ -156,16 +152,12 @@ def is_prop_symbol(s):
     """A proposition logic symbol is an initial-uppercase string.
     >>> is_prop_symbol('exe')
     False
-    >>> is_prop_symbol('EXE')
-    True
     """
     return is_symbol(s) and s[0].isupper()
 
 
 def variables(s):
     """Return a set of the variables in expression s.
-    >>> variables(expr('F(x, x) & G(x, y) & H(y, z) & R(A, z, 2)')) == {x, y, z}
-    True
     >>> variables(expr('(p <=> q) & R(p, q) & 42'))
     {p, q}
     """
@@ -267,8 +259,6 @@ def tt_true(s):
     """Is a propositional sentence a tautology?
     >>> tt_true('P | ~P')
     True
-    >>> tt_true('~(A & B) <=> (~A | ~B)')
-    True
     """
     s = expr(s)
     return tt_entails(True, s)
@@ -280,8 +270,6 @@ def pl_true(exp, model={}):
     every proposition, this may return None to indicate 'not obvious';
     this may happen even when the expression is tautological.
     >>> pl_true(P, {}) is None
-    True
-    >>> pl_true(P | Q, {P: True})
     True
     """
     if exp in (True, False):
@@ -341,8 +329,6 @@ def to_cnf(s):
     That is, to the form ((A | ~B | ...) & (B | C | ...) & ...) [p. 253]
     >>> to_cnf('~(B | C)')
     (~B & ~C)
-    >>> to_cnf('A <=> B')
-    ((A | ~B) & (B | ~A))
     """
     s = expr(s)
     if isinstance(s, str):
@@ -377,8 +363,6 @@ def move_not_inwards(s):
     """Rewrite sentence s by moving negation sign inward.
     >>> move_not_inwards(~(A | B))
     (~A & ~B)
-    >>> move_not_inwards(~(~(A | ~B) | ~~C))
-    ((A | ~B) & ~C)
     """
     s = expr(s)
     if s.op == '~':
@@ -452,8 +436,6 @@ def dissociate(op, args):
     that Expr(op, *result) means the same as Expr(op, *args).
     >>> dissociate('&', [A & B])
     [A, B]
-    >>> dissociate('&', [A, B, C & D, P | Q])
-    [A, B, C, D, (P | Q)]
     """
     result = []
 
@@ -554,10 +536,6 @@ def pl_fc_entails(KB, q):
     [Figure 7.15]
     >>> pl_fc_entails(horn_clauses_KB, expr('Q'))
     True
-    >>> pl_fc_entails(definite_clauses_KB, expr('G'))
-    True
-    >>> pl_fc_entails(definite_clauses_KB, expr('I'))
-    False
     """
     count = {c: len(conjuncts(c.args[0]))
              for c in KB.clauses
@@ -609,8 +587,6 @@ def dpll_satisfiable(s):
     than a list of all clauses and the model; this is more efficient.
     >>> dpll_satisfiable(A |'<=>'| B) == {A: True, B: True}
     True
-    >>> dpll_satisfiable(P & ~P)
-    False
     """
     clauses = conjuncts(to_cnf(s))
     symbols = list(prop_symbols(s))
@@ -715,8 +691,6 @@ def inspect_literal(literal):
 def WalkSAT(clauses, p=0.5, max_flips=10000):
     """Checks for satisfiability of all clauses by randomly flipping values of variables
     >>> WalkSAT([A & ~A], 0.5, 100) is None
-    True
-    >>> WalkSAT([A | B, B & C, C | D, D & A, P, ~P], 0.5, 100) is None
     True
     """
     # Set of all symbols in all clauses
@@ -1202,8 +1176,6 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     >>> transition = {'A': {'Left': 'A', 'Right': 'B'}, 'B': {'Left': 'A', 'Right': 'C'}, 'C': {'Left': 'B', 'Right': 'C'}}
     >>> SAT_plan('A', transition, 'C', 2) is None
     True
-    >>> SAT_plan('A', transition, 'B', 3)
-    ['Right']
     """
 
     # Functions used by SAT_plan
@@ -1291,8 +1263,6 @@ def unify(x, y, s={}):
     variables (e.g. Expr('x')), constants, lists, or Exprs. [Figure 9.1]
     >>> unify(x, 3, {})
     {x: 3}
-    >>> unify(expr('A(x)'), expr('A(B)'))
-    {x: B}
     """
     if s is None:
         return None
