@@ -188,7 +188,7 @@ def test_ModelBasedReflexAgentProgram():
     def update_state(state, action, percept, model):
         return percept
 
-    # create a program and then an object of the ModelBasedReflexAgentProgram
+    # create a program and then an object of the ModelBasedReflexAgentProgram class
     program = ModelBasedReflexAgentProgram(rules, update_state, None)
     agent = Agent(program)
     # create an object of TrivialVacuumEnvironment
