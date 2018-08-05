@@ -158,8 +158,8 @@ def is_prop_symbol(s):
 
 def variables(s):
     """Return a set of the variables in expression s.
-    >>> variables(expr('(p <=> q) & R(p, q) & 42'))
-    {p, q}
+    >>> variables(expr('F(x, x) & G(x, y) & H(y, z) & R(A, z, 2)')) == {x, y, z}
+    True
     """
     return {x for x in subexpressions(s) if is_variable(x)}
 
