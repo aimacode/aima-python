@@ -7,6 +7,7 @@ from collections import defaultdict
 from itertools import combinations, product
 from logic import (FolKB, constant_symbols, predicate_symbols, standardize_variables,
                    variables, is_definite_clause, subst, expr, Expr)
+from functools import partial
 
 # ______________________________________________________________________________
 
@@ -297,44 +298,60 @@ class FOIL_container(FolKB):
         share_vars = variables(clause[0])
         for l in clause[1]:
             share_vars.update(variables(l))
-
+        # creates literals with different order every time  
         for pred, arity in self.pred_syms:
             new_vars = {standardize_variables(expr('x')) for _ in range(arity - 1)}
             for args in product(share_vars.union(new_vars), repeat=arity):
                 if any(var in share_vars for var in args):
-                    yield Expr(pred, *[var for var in args])
+                    # make sure we don't return an existing rule
+                    if not Expr(pred, args) in clause[1]:
+                        yield Expr(pred, *[var for var in args])
 
-    def choose_literal(self, literals, examples):
+
+    def choose_literal(self, literals, examples): 
         """Choose the best literal based on the information gain."""
-        def gain(l):
-            pre_pos = len(examples[0])
-            pre_neg = len(examples[1])
-            extended_examples = [sum([list(self.extend_example(example, l)) for example in
-                                      examples[i]], []) for i in range(2)]
-            post_pos = len(extended_examples[0])
-            post_neg = len(extended_examples[1])
-            if pre_pos + pre_neg == 0 or post_pos + post_neg == 0:
-                return -1
 
-            # number of positive example that are represented in extended_examples
-            T = 0
-            for example in examples[0]:
-                def represents(d):
-                    return all(d[x] == example[x] for x in example)
-                if any(represents(l_) for l_ in extended_examples[0]):
-                    T += 1
+        return max(literals, key = partial(self.gain , examples = examples))
 
-            return T * log((post_pos*(pre_pos + pre_neg) + 1e-4) / ((post_pos + post_neg)*pre_pos))
 
-        return max(literals, key=gain)
+    def gain(self, l ,examples):
+        """
+        Find the utility of each literal when added to the body of the clause. 
+        Utility function is: 
+            gain(R, l) = T * (log_2 (post_pos / (post_pos + post_neg)) - log_2 (pre_pos / (pre_pos + pre_neg)))
+
+        where: 
+        
+            pre_pos = number of possitive bindings of rule R (=current set of rules)
+            pre_neg = number of negative bindings of rule R 
+            post_pos = number of possitive bindings of rule R' (= R U {l} )
+            post_neg = number of negative bindings of rule R' 
+            T = number of possitive bindings of rule R that are still covered 
+                after adding literal l 
+
+        """
+        pre_pos = len(examples[0])
+        pre_neg = len(examples[1])
+        post_pos = sum([list(self.extend_example(example, l)) for example in examples[0]], [])           
+        post_neg = sum([list(self.extend_example(example, l)) for example in examples[1]], []) 
+        if pre_pos + pre_neg ==0 or len(post_pos) + len(post_neg)==0:
+            return -1
+        # number of positive example that are represented in extended_examples
+        T = 0
+        for example in examples[0]:
+            represents = lambda d: all(d[x] == example[x] for x in example)
+            if any(represents(l_) for l_ in post_pos):
+                T += 1
+        value = T * (log(len(post_pos) / (len(post_pos) + len(post_neg)) + 1e-12,2) - log(pre_pos / (pre_pos + pre_neg),2))
+        return value
+
 
     def update_examples(self, target, examples, extended_examples):
         """Add to the kb those examples what are represented in extended_examples
         List of omitted examples is returned."""
         uncovered = []
         for example in examples:
-            def represents(d):
-                return all(d[x] == example[x] for x in example)
+            represents = lambda d: all(d[x] == example[x] for x in example)
             if any(represents(l) for l in extended_examples):
                 self.tell(subst(example, target))
             else:
@@ -400,3 +417,8 @@ def false_positive(e, h):
 
 def false_negative(e, h):
     return e["GOAL"] and not guess_value(e, h)
+
+
+    
+
+
