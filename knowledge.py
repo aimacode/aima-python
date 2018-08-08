@@ -298,7 +298,6 @@ class FOIL_container(FolKB):
         share_vars = variables(clause[0])
         for l in clause[1]:
             share_vars.update(variables(l))
-        # creates literals with different order every time  
         for pred, arity in self.pred_syms:
             new_vars = {standardize_variables(expr('x')) for _ in range(arity - 1)}
             for args in product(share_vars.union(new_vars), repeat=arity):
