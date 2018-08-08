@@ -34,7 +34,7 @@ To download the repository:
 You also need to fetch the datasets from the [`aima-data`](https://github.com/aimacode/aima-data) repository:
 
 ```
-cd aima-python
+cd aima-data
 git submodule init
 git submodule update
 ```
