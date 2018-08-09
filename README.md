@@ -140,7 +140,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 19.12  | FOIL                              | `FOIL_container`              | [`knowledge.py`](knowledge.py)  | Done |          |
+| 19.12  | FOIL                              | `FOIL_container`              | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`][rl]                   | Done | Included |
 | 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`][rl]                   | Done | Included |
 | 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`rl.py`][rl]                   | Done | Included |
