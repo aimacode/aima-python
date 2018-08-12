@@ -1144,7 +1144,7 @@ def simple_blocks_world_graphplan():
     return GraphPlan(simple_blocks_world()).execute()
 
 
-<br>
+
 class HLA(Action):
     """
     Define Actions for the real-world (that may be refined further), and satisfy resource
