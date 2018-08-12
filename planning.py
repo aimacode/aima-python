@@ -1144,6 +1144,7 @@ def simple_blocks_world_graphplan():
     return GraphPlan(simple_blocks_world()).execute()
 
 
+<br>
 class HLA(Action):
     """
     Define Actions for the real-world (that may be refined further), and satisfy resource
@@ -1363,9 +1364,8 @@ class Problem(PlanningProblem):
                 guaranteed = problem.intersects_goal(pes_reachable_set) 
                 if guaranteed and Problem.making_progress(plan, initialPlan):
                     final_state = guaranteed[0] # any element of guaranteed 
-                    #print('decompose')
                     return Problem.decompose(hierarchy, problem, plan, final_state, pes_reachable_set)
-                (hla, index) = Problem.find_hla(plan, hierarchy) # there should be at least one HLA/Angelic_HLA, otherwise plan would be primitive.
+                hla, index = Problem.find_hla(plan, hierarchy) # there should be at least one HLA/Angelic_HLA, otherwise plan would be primitive.
                 prefix = plan.action[:index]
                 suffix = plan.action[index+1:]
                 outcome = Problem(Problem.result(problem.init, prefix), problem.goals , problem.actions )
@@ -1442,8 +1442,8 @@ class Problem(PlanningProblem):
                 hla = plan.action[i] 
                 index = i
                 break
-        return (hla, index)
-	
+        return hla, index
+
     def making_progress(plan, initialPlan):
         """ 
         Prevents from infinite regression of refinements  
