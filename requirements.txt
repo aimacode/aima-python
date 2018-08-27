@@ -1,2 +1,3 @@
 networkx==1.11
 jupyter
+matplotlib==2.0.2
