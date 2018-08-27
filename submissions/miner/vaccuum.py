@@ -60,7 +60,7 @@ def ModelBasedVacuumAgent() -> object:
         elif location == loc_B:
             return 'Left'
     return ag.Agent(program)
-
+    
 # ______________________________________________________________________________
 # Vacuum environment
 
