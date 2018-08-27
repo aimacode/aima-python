@@ -1,5 +1,4 @@
 networkx==1.11
 jupyter
 pandas
-PIL
 matplotlib==2.0.2
