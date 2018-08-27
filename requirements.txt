@@ -1,4 +1,6 @@
 networkx==1.11
 jupyter
 pandas
-matplotlib==2.0.2
+matplotlib
+pillow
+Image
