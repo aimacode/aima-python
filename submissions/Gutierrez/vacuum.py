@@ -12,7 +12,7 @@ def RandomVacuumAgent():
     p = ag.RandomAgentProgram(['Right', 'Left', 'Up', 'Down', 'Suck', 'NoOp'])
     return ag.Agent(p)
 
-
+#needed comment
 def TableDrivenVacuumAgent():
     "[Figure 2.3]"
     table = {((loc_A, 'Clean'),): 'Right',
