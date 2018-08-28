@@ -1,6 +1,7 @@
 import agents as ag
 import envgui as gui
 import random
+
 # ______________________________________________________________________________
 
 loc_A, loc_B = (1, 1), (2, 1)  # The two locations for the Vacuum world
