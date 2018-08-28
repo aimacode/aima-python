@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/oluwatitoebiwonjumi/Documents/aima-python/venv"
+VIRTUAL_ENV="/Users/Justin/aima-python/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
