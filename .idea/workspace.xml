@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3d67f96f-2a7a-4cd2-bfd8-c4b9ffac1c4c" name="Default" comment="Updated settings">
+    <list default="true" id="3d67f96f-2a7a-4cd2-bfd8-c4b9ffac1c4c" name="Default" comment="First Homework Final">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <ignored path="aima-python.iws" />
@@ -20,6 +20,20 @@
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="1297369794">
@@ -55,12 +69,14 @@
     <session id="523953694">
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="53" />
+          <entry key="py" value="54" />
+          <entry key="txt" value="21" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="53" />
+          <entry key="PLAIN_TEXT" value="21" />
+          <entry key="Python" value="54" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -71,6 +87,11 @@
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Python" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="1" />
         </counts>
       </usages-collector>
     </session>
@@ -95,8 +116,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/submissions/Carei/vacuum.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2930">
-              <caret line="200" column="26" selection-start-line="200" selection-start-column="26" selection-end-line="200" selection-end-column="26" />
+            <state relative-caret-position="574">
+              <caret line="200" column="36" selection-start-line="200" selection-start-column="36" selection-end-line="200" selection-end-column="36" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -194,6 +215,17 @@
             <path>
               <item name="aima-python" type="b2602c69:ProjectViewProjectNode" />
               <item name="aima-python" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="aima-python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="aima-python" type="462c0819:PsiDirectoryNode" />
+              <item name="submissions" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="aima-python" type="b2602c69:ProjectViewProjectNode" />
+              <item name="aima-python" type="462c0819:PsiDirectoryNode" />
+              <item name="submissions" type="462c0819:PsiDirectoryNode" />
+              <item name="Carei" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -491,7 +523,21 @@
       <option name="project" value="LOCAL" />
       <updated>1535489056575</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Updated settings">
+      <created>1535495179167</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1535495179167</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Updated settings">
+      <created>1535495208373</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1535495208373</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -525,26 +571,27 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="108" y="23" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.26323318" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25555557" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32920793" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32673267" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49928468" weight="0.31845596" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39975247" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32920793" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32673267" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.3279703" />
-      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5007153" side_tool="true" weight="0.32673267" />
+      <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49928468" weight="0.32920793" />
       <window_info anchor="bottom" id="Inspection Results" order="11" weight="0.32894737" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Database" order="3" />
+      <window_info anchor="right" id="Database" order="3" weight="0.3298611" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -565,7 +612,8 @@
     <MESSAGE value="Finished Lego Project in ev3" />
     <MESSAGE value="Removed stale submissions" />
     <MESSAGE value="Updated settings" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated settings" />
+    <MESSAGE value="First Homework Final" />
+    <option name="LAST_COMMIT_MESSAGE" value="First Homework Final" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -700,8 +748,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/submissions/Carei/vacuum.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2930">
-          <caret line="200" column="26" selection-start-line="200" selection-start-column="26" selection-end-line="200" selection-end-column="26" />
+        <state relative-caret-position="574">
+          <caret line="200" column="36" selection-start-line="200" selection-start-column="36" selection-end-line="200" selection-end-column="36" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
