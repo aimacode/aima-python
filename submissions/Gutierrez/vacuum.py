@@ -1,5 +1,5 @@
 import agents as ag
-import envgui as gui
+import envgui as gui 
 import random
 
 # ______________________________________________________________________________
