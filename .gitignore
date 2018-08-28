@@ -73,6 +73,10 @@ target/
 
 # pycharm
 .idea/
+
+# DS_STORE
+.DS_STORE
+
 <<<<<<< HEAD
 =======
 submissions/zzzsolutions/
