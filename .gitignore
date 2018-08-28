@@ -73,6 +73,13 @@ target/
 
 # pycharm
 .idea/
+
+# DS_STORE
+.DS_STORE
+
+# venv
+venv/
+
 <<<<<<< HEAD
 =======
 submissions/zzzsolutions/
