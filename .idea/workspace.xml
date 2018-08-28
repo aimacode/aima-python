@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3d67f96f-2a7a-4cd2-bfd8-c4b9ffac1c4c" name="Default" comment="Updated settings">
-      <change beforePath="$PROJECT_DIR$/.idea/aima-python.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/aima-python.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/submissions/Carei/vaccuum.py" beforeDir="false" afterPath="$PROJECT_DIR$/submissions/Carei/vacuum.py" afterDir="false" />
     </list>
     <ignored path="aima-python.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -198,23 +194,6 @@
             <path>
               <item name="aima-python" type="b2602c69:ProjectViewProjectNode" />
               <item name="aima-python" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="aima-python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="aima-python" type="462c0819:PsiDirectoryNode" />
-              <item name="submissions" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="aima-python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="aima-python" type="462c0819:PsiDirectoryNode" />
-              <item name="submissions" type="462c0819:PsiDirectoryNode" />
-              <item name="aardvark" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="aima-python" type="b2602c69:ProjectViewProjectNode" />
-              <item name="aima-python" type="462c0819:PsiDirectoryNode" />
-              <item name="submissions" type="462c0819:PsiDirectoryNode" />
-              <item name="Carei" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -505,7 +484,14 @@
       <option name="project" value="LOCAL" />
       <updated>1481564974126</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Updated settings">
+      <created>1535489056575</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1535489056575</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TestHistory">
