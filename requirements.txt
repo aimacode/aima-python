@@ -1,1 +1,2 @@
+PIL
 networkx==1.11
