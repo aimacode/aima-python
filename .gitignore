@@ -20,6 +20,8 @@ lib64/
 parts/
 sdist/
 var/
+venv/
+.idea/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -73,6 +75,13 @@ target/
 
 # pycharm
 .idea/
+
+# DS_STORE
+.DS_STORE
+
+# venv
+venv/
+
 <<<<<<< HEAD
 =======
 submissions/zzzsolutions/
