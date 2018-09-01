@@ -133,17 +133,26 @@ def KB_AgentProgram(KB):
 
 
 def is_symbol(s):
-    """A string s is a symbol if it starts with an alphabetic char."""
+    """A string s is a symbol if it starts with an alphabetic char.
+    >>> is_symbol('R2D2')
+    True
+    """
     return isinstance(s, str) and s[:1].isalpha()
 
 
 def is_var_symbol(s):
-    """A logic variable symbol is an initial-lowercase string."""
+    """A logic variable symbol is an initial-lowercase string.
+    >>> is_var_symbol('EXE')
+    False
+    """
     return is_symbol(s) and s[0].islower()
 
 
 def is_prop_symbol(s):
-    """A proposition logic symbol is an initial-uppercase string."""
+    """A proposition logic symbol is an initial-uppercase string.
+    >>> is_prop_symbol('exe')
+    False
+    """
     return is_symbol(s) and s[0].isupper()
 
 
@@ -259,7 +268,10 @@ def pl_true(exp, model={}):
     """Return True if the propositional logic expression is true in the model,
     and False if it is false. If the model does not specify the value for
     every proposition, this may return None to indicate 'not obvious';
-    this may happen even when the expression is tautological."""
+    this may happen even when the expression is tautological.
+    >>> pl_true(P, {}) is None
+    True
+    """
     if exp in (True, False):
         return exp
     op, args = exp.op, exp.args
@@ -350,7 +362,8 @@ def eliminate_implications(s):
 def move_not_inwards(s):
     """Rewrite sentence s by moving negation sign inward.
     >>> move_not_inwards(~(A | B))
-    (~A & ~B)"""
+    (~A & ~B)
+    """
     s = expr(s)
     if s.op == '~':
         def NOT(b):
@@ -420,7 +433,10 @@ _op_identity = {'&': True, '|': False, '+': 0, '*': 1}
 
 def dissociate(op, args):
     """Given an associative op, return a flattened list result such
-    that Expr(op, *result) means the same as Expr(op, *args)."""
+    that Expr(op, *result) means the same as Expr(op, *args).
+    >>> dissociate('&', [A & B])
+    [A, B]
+    """
     result = []
 
     def collect(subargs):
@@ -456,7 +472,10 @@ def disjuncts(s):
 
 
 def pl_resolution(KB, alpha):
-    """Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]"""
+    """Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]
+    >>> pl_resolution(horn_clauses_KB, A)
+    True
+    """
     clauses = KB.clauses + conjuncts(to_cnf(~alpha))
     new = set()
     while True:
@@ -549,6 +568,13 @@ horn_clauses_KB = PropDefiniteKB()
 for s in "P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B".split(';'):
     horn_clauses_KB.tell(expr(s))
 
+"""
+Definite clauses KB example
+"""
+definite_clauses_KB = PropDefiniteKB()
+for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B', 'C']:
+    definite_clauses_KB.tell(expr(clause))
+
 # ______________________________________________________________________________
 # DPLL-Satisfiable [Figure 7.17]
 
@@ -558,7 +584,10 @@ def dpll_satisfiable(s):
     This differs from the book code in two ways: (1) it returns a model
     rather than True when it succeeds; this is more useful. (2) The
     function find_pure_symbol is passed a list of unknown clauses, rather
-    than a list of all clauses and the model; this is more efficient."""
+    than a list of all clauses and the model; this is more efficient.
+    >>> dpll_satisfiable(A |'<=>'| B) == {A: True, B: True}
+    True
+    """
     clauses = conjuncts(to_cnf(s))
     symbols = list(prop_symbols(s))
     return dpll(clauses, symbols, {})
@@ -661,6 +690,8 @@ def inspect_literal(literal):
 
 def WalkSAT(clauses, p=0.5, max_flips=10000):
     """Checks for satisfiability of all clauses by randomly flipping values of variables
+    >>> WalkSAT([A & ~A], 0.5, 100) is None
+    True
     """
     # Set of all symbols in all clauses
     symbols = {sym for clause in clauses for sym in prop_symbols(clause)}
@@ -1141,7 +1172,11 @@ class HybridWumpusAgent(agents.Agent):
 
 def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
-    [Figure 7.22]"""
+    [Figure 7.22]
+    >>> transition = {'A': {'Left': 'A', 'Right': 'B'}, 'B': {'Left': 'A', 'Right': 'C'}, 'C': {'Left': 'B', 'Right': 'C'}}
+    >>> SAT_plan('A', transition, 'C', 2) is None
+    True
+    """
 
     # Functions used by SAT_plan
     def translate_to_SAT(init, transition, goal, time):
@@ -1225,7 +1260,10 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
 def unify(x, y, s={}):
     """Unify expressions x,y with substitution s; return a substitution that
     would make x,y equal, or None if x,y can not unify. x and y can be
-    variables (e.g. Expr('x')), constants, lists, or Exprs. [Figure 9.1]"""
+    variables (e.g. Expr('x')), constants, lists, or Exprs. [Figure 9.1]
+    >>> unify(x, 3, {})
+    {x: 3}
+    """
     if s is None:
         return None
     elif x == y:
@@ -1279,7 +1317,10 @@ def occur_check(var, x, s):
 
 
 def extend(s, var, val):
-    """Copy the substitution s and extend it by setting var to val; return copy."""
+    """Copy the substitution s and extend it by setting var to val; return copy.
+    >>> extend({x: 1}, y, 2) == {x: 1, y: 2}
+    True
+    """
     s2 = s.copy()
     s2[var] = val
     return s2
@@ -1560,5 +1601,8 @@ def simp(x):
 
 
 def d(y, x):
-    """Differentiate and then simplify."""
+    """Differentiate and then simplify.
+    >>> d(x * x - x, x)
+    ((2 * x) - 1)
+    """
     return simp(diff(y, x))
