@@ -24,8 +24,7 @@ When complete, this project will have Python implementations for all the pseudoc
 This code requires Python 3.4 or later, and does not run in Python 2. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
 You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions. 
 <br>
-All notebooks are available in a binder environment. Click this button to visit the virtual environment and interact with the notebooks.
-[![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
+All notebooks are available in a [binder environment](http://mybinder.org/repo/aimacode/aima-python)
 <br>
 Alternatively, visit [jupyter.org](http://jupyter.org/) for instructions on setting up your own Jupyter notebook environment.
 
