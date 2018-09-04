@@ -14,6 +14,7 @@ roster = [
     'aardvark',
     'aartiste',
     'zzzsolutions',
+    'Chouard'
 ]
 
 def print_table(table, header=[], leftColumn=[], topLeft=[],
