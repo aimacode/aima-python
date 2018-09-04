@@ -1,6 +1,7 @@
 import agents as ag
 import envgui as gui
 import random
+from submissions.devries import vacuum2
 
 # ______________________________________________________________________________
 
@@ -190,7 +191,8 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # Launch GUI of more complex environment
 v = VacuumEnvironment(5, 4)
 #a = ModelBasedVacuumAgent()
-a = RandomVacuumAgent()
+#a = RandomVacuumAgent()
+a = vacuum2.HW2Agent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
