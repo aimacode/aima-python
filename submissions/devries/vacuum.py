@@ -1,7 +1,7 @@
 import agents as ag
 import envgui as gui
 import random
-from submissions.devries import vacuum2
+from submissions.Devries import vacuum2
 
 # ______________________________________________________________________________
 

@@ -3,6 +3,7 @@ import agents as ag
 def HW2Agent() -> object:
 
     def program(percept):
+        testVariable = 1
         bump, status = percept
         if status == 'Dirty':
             action = 'Suck'
