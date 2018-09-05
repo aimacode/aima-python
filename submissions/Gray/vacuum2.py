@@ -6,12 +6,11 @@ def HW2Agent() -> object:
         bump, status = percept
         if status == 'Dirty':
             action = 'Suck'
-            direction = 'Right'
         else:
             lastBump, lastStatus,  = program.oldPercepts[-1]
             lastAction = program.oldActions[-1]
-            # oldDirection = program.oldDirection[-1]
-            if bump == 'None':
+            lastAction2 = program.oldActions[-2]
+            if bump == 'None': #and program.nextLevel != True:
                 action = 'Left'
                 if lastAction == 'Left':
                     action = 'Left'
@@ -21,17 +20,25 @@ def HW2Agent() -> object:
                     action = "Up"
                 if lastAction == 'Down':
                     action = "Down"
-            if bump != 'None':
+            if bump != 'None': #and program.nextLevel != True:
                 action = 'Up'
                 if lastAction == 'Up':
-                    action = 'Up'
-                if bump != 'None' and lastBump != 'None':
                     action = 'Right'
-                    if lastAction == 'Right':
-                        action = 'Down'
-                        goingRight = True
-                    #if lastAction == 'Right' and goingRight:
-                        action = 'Down'
+                if lastAction == 'Right':
+                    action = 'Down'
+                if lastAction == 'Down':
+                    action = 'Left'
+                    #program.nextLevel = True
+                #if program.nextLevel and lastAction == 'Left':
+                    #action = 'Up'
+            #if bump == 'None': #and program.nextLevel:
+            #    if lastAction == 'Up':
+            #        action = 'Right'
+            #    if lastAction == 'Right':
+            #        action = 'Right'
+
+            if lastAction == 'Suck':
+                action = lastAction2
 
 
 
@@ -43,8 +50,10 @@ def HW2Agent() -> object:
 
     # assign static variables here
     program.oldPercepts = [('None', 'Clean')]
-    program.oldActions = ['NoOp']
-    goingRight = False
+    program.oldActions = ['NoOp', 'Left', 'Left']
+    program.nextLevel = False
+    program.goingRight = False
+
 
 
     agt = ag.Agent(program)
