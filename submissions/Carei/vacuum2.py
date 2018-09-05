@@ -17,12 +17,16 @@ def HW2Agent() -> object:
 
             if lastAction == 'NoOp':
                 action = program.horizontal
-            elif lastStatus == 'Dirty':
+            elif lastStatus == 'Dirty' and program.oldActions[-2]==program.vertical:
                 if program.vertCount ==1:
                     if program.horizontal == 'Right':
                         program.horizontal = 'Left'
                     else:
                         program.horizontal = 'Right'
+                action = program.horizontal
+            elif lastStatus == 'Dirty' and program.oldActions[-2] == program.horizontal:
+                action = program.horizontal
+            elif lastStatus == 'Dirty':
                 action = program.horizontal
             elif bump == 'None':
                 if lastAction == 'Down':
@@ -33,7 +37,7 @@ def HW2Agent() -> object:
                         program.horizontal = 'Right'
                     action = program.horizontal
 
-                elif lastAction == 'Up' and program.downCount <= 0:
+                elif lastAction == 'Up' and program.downCount == 0:
                     if program.horizontal == 'Right':
                         program.horizontal = 'Left'
                     else:
@@ -51,12 +55,17 @@ def HW2Agent() -> object:
             else:
                 if lastBump:
                     # we've bumped multiple times, so we're in a corner
-                    if lastAction == 'Down':
+                    if lastAction == 'Down' and program.horizontal == 'Right':
                         program.vertical = 'Up'
                         if program.horizontal == 'Right' :
                             program.horizontal = "Left"
                         else:
                             program.horizontal = "Right"
+
+                        action = program.vertical
+                        program.vertCount = 3
+                    if lastAction == 'Down' and program.horizontal == 'Left':
+                        program.vertical = 'Up'
 
                         action = program.vertical
                         program.vertCount = 3
