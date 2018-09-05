@@ -44,7 +44,7 @@ def HW2Agent() -> object:
 
     agt = ag.Agent(program)
     # assign class attributes here:
-    #agt.direction = ag.Direction('left')
+
 
 
     return agt
