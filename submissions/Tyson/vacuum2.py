@@ -4,26 +4,31 @@ def HW2Agent() -> object:
 
     def program(percept):
         bump, status, = percept
+        hitTop = program.Counter
 
         if status == 'Dirty':
             action = 'Suck'
         else:
-            lastBump, lastStatus, = program.oldPercepts[-1]
-            lastAction = program.oldActions[-1]
-
-            if bump == 'None' and lastAction != 'Left':
-                action = 'Right'
-
+            if bump == 'None' and hitTop ==0:
+                action = 'Up'
             else:
+                program.Counter = 1
+                lastBump, lastStatus, = program.oldPercepts[-1]
+                lastAction = program.oldActions[-1]
 
-                if bump != 'None':
-                    action = 'Left'
+                if lastAction == 'Up' or lastAction == 'Down' or lastAction == 'Right' and bump == 'None' :
+                    action = 'Right'
 
                 else:
-                    if lastAction == 'Left':
+
+                    if bump != 'None' and lastAction != 'Left':
                         action = 'Left'
+
                     else:
-                        action = 'Down'
+                        if bump == 'None' and lastAction == 'Left' or lastAction == 'Suck':
+                            action = 'Left'
+                        else:
+                            action = 'Down'
 
 
 
@@ -36,6 +41,7 @@ def HW2Agent() -> object:
     # assign static variables here
     program.oldPercepts = [('None', 'Clean',)]
     program.oldActions = ['NoOp']
+    program.Counter = 0
 
 
     agt = ag.Agent(program)
