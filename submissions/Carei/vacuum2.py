@@ -91,7 +91,6 @@ def HW2Agent() -> object:
     program.oldActions = ['NoOp']
     program.downCount = -1
     program.vertCount = 0
-    program.var = 0
     program.horizontal = 'Right'
     program.vertical = 'Down'
 
