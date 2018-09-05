@@ -9,15 +9,36 @@ def HW2Agent() -> object:
         else:
             lastBump, lastStatus,  = program.oldPercepts[-1]
             if bump == 'None':
-                action = 'Right'
+                if program.bumpcount == 0:
+                    action = 'Right'
+                elif program.bumpcount == 1:
+                    action = 'Down'
+                elif program.bumpcount == 2:
+                    action = 'Left'
+                else:
+                    action = 'Up'
             else:
-                action = 'Left'
+                if bump == 'Bump' and program.oldActions[-1] == 'Right':
+                    program.bumpcount += 1
+                    action = 'Down'
+                elif bump == 'Bump' and program.oldActions[-1] == 'Down':
+                    program.bumpcount += 1
+                    action = 'Left'
+                elif bump == 'Bump' and program.oldActions[-1] == 'Left':
+                    program.bumpcount += 1
+                    action = 'Up'
+                else:
+                    program.bumpcount -= 3
+                    action = 'Down'
+
+
 
         program.oldPercepts.append(percept)
         program.oldActions.append(action)
         return action
 
     # assign static variables here
+    program.bumpcount = 0
     program.oldPercepts = [('None', 'Clean')]
     program.oldActions = ['NoOp']
 
