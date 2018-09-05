@@ -12,24 +12,24 @@ def HW2Agent() -> object:
                 if program.bumpcount == 0:
                     action = 'Right'
                 elif program.bumpcount == 1:
-                    action = 'Down'
-                elif program.bumpcount == 2:
                     action = 'Left'
+                elif program.bumpcount == 2:
+                    action = 'Down'
                 else:
                     action = 'Up'
             else:
                 if bump == 'Bump' and program.oldActions[-1] == 'Right':
                     program.bumpcount += 1
+                    action = 'Up'
+                elif bump == 'Bump' and program.oldActions[-1] == 'Up':
+                    program.bumpcount = 2
                     action = 'Down'
-                elif bump == 'Bump' and program.oldActions[-1] == 'Down':
-                    program.bumpcount += 1
-                    action = 'Left'
                 elif bump == 'Bump' and program.oldActions[-1] == 'Left':
-                    program.bumpcount += 1
+                    program.bumpcount -= 1
                     action = 'Up'
                 else:
-                    program.bumpcount -= 3
-                    action = 'Down'
+                    program.bumpcount -= 1
+                    action = 'Left'
 
 
 
