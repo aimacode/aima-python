@@ -6,7 +6,7 @@ from math import(cos, pi)
 # the minutes it takes to drive between them
 def travelTime(lat, long):
     latFudge = 43 # convert degrees of latitude into travel minutes
-    longFudge = latFudge * cos(long * pi / 180)
+    longFudge = latFudge * cos(36.5 * pi / 180) # on my map, most points are ~ 36.5 degrees latitude
     return lat*latFudge, long*longFudge
 
 sumner_map = search.UndirectedGraph(dict(
@@ -31,8 +31,8 @@ sumner_map.locations = dict(
     S=travelTime(36.58745365,-86.553487975),
 )
 
-sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
-sumner_puzzle.label = 'Sumner Map'
+sumner = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
+sumner.label = 'Sumner'
 
 # The sliding tile problem beloved of AI teachers,
 # because it has a decent heuristic.
@@ -173,10 +173,25 @@ class SlidingTile(search.Problem):
             rowSeparator = '\n'
         return output
 
-tile_puzzle = SlidingTile('1,2,4|5,_,3', '5,4,3|2,1,_')
+#tile_puzzle = SlidingTile('1,2,4|5,_,3', '5,4,3|2,1,_')
+tile_puzzle = SlidingTile('1,2,4|5,_,3', '1,2,3|4,5,_')
 tile_puzzle.label = '3x2 Tiles'
 
-myPuzzles = [
-    sumner_puzzle,
+mySearches = [
+    sumner,
     tile_puzzle
+]
+
+import random
+
+def flounder(problem, giveup=10000):
+    'The worst way to solve a problem'
+    node = search.Node(problem.initial)
+    while not problem.goal_test(node.state):
+        children = node.expand(problem)
+        node = random.choice(children)
+    return node
+
+mySearchMethods = [
+    flounder
 ]

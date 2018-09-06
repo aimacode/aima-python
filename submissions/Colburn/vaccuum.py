@@ -180,9 +180,9 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # c = g.getCanvas()
 # c.mapImageNames({
 #     Dirt: 'images/dirt.png',
-#     ag.Wall: 'submissions/Martinez/housewall.jpg',
+#     ag.Wall: 'images/wall.jpg',
 #     # Floor: 'images/floor.png',
-#     ag.Agent: 'submissions/Martinez/cleaner.jpg',
+#     ag.Agent: 'images/vacuum.png',
 # })
 # c.update()
 # g.mainloop()
@@ -198,10 +198,10 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'submissions/Martinez/housewall.jpg',
+    ag.Wall: './submissions/Colburn/Myface.jpg',
     # Floor: 'images/floor.png',
     Dirt: 'images/dirt.png',
-    ag.Agent: 'submissions/Martinez/cleaner.jpg',
+    ag.Agent: 'images/vacuum.png',
 })
 c.update()
 g.mainloop()

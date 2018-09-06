@@ -2,15 +2,13 @@
 from utils import isnumber
 
 roster = [
-    'Anderson','Ban','Becker',
-    'Blue','Capps','Conklin',
-    'Dickenson','Fritz','Haller',
-    'Hawley','Hess','Johnson',
-    'Karman',
-    'Kinley',
-    'LaMartina',
-    'McLean','Miles','Ottenlips',
-    'Porter','Sery','VanderKallen',
+    'Bertrand', 'Brock', 'Carei',
+    'Chouard', 'Colburn', 'Coomber',
+    'Deas', 'Devries', 'Ebiwonjumi',
+    'Everett', 'Flanagin', 'Gray',
+    'Gutierrez', 'Huang', 'Marszalkowski',
+    'Martinez', 'Miner', 'Parkinson',
+    'Poff', 'Tyson', 'Zemgulys',
     'aardvark',
     'aartiste',
     'zzzsolutions',
