@@ -6,7 +6,7 @@ def HW2Agent() -> object:
         lastBump, lastStatus, = program.oldPercepts[-1]
         oldStatus = program.oldPercepts[0]
         lastAction = program.oldActions[-1]
-        # print(lastBump, '= last bump ||', lastStatus, '= lastStatus ||', lastAction, '= lastActions')
+
         try:
             lastLastAction = program.oldActions[-2]
         except IndexError:
@@ -20,64 +20,64 @@ def HW2Agent() -> object:
             if bump == 'Bump':
                 # 1
                 if lastAction == 'Down' and program.direction == 'Down':
-                    print('#1')
+                    # print('#1')
                     action = 'Left'
                     program.direction = 'Left'
                 # 2
                 elif lastAction == 'Up' and lastLastAction == 'Left':
-                    print('#2')
+                    # print('#2')
                     program.direction = 'Left'
                     action = 'Left'
                 # 3
                 elif lastAction == 'Left':
-                    print('#3')
+                    # print('#3')
                     program.left = True
                     action = 'Right'
                 # 4
                 elif lastAction == 'Right':
-                    print('#4')
+                    # print('#4')
                     program.right = True
                     action = 'Down'
                 # 5
                 elif lastAction == 'Down':
-                    print('#5')
+                    # print('#5')
                     action = 'Up'
                 # 6
                 elif lastAction == 'Up':
-                    print('#6')
+                    # print('#6')
                     program.direction = 'Left'
                     action = 'Left'
             else:
                 # 7
                 if program.left and lastAction == 'Left' and program.direction == '':
-                    print('#7')
+                    # print('#7')
                     action = 'Down'
                     program.direction = 'Down'
                 # 8
                 elif program.direction == 'Left' and lastAction == 'Left' and lastLastAction == 'Up':
-                    print('#8')
+                    # print('#8')
                     action = 'Down'
                     program.direction = 'Down'
                 # 9
                 elif program.direction == 'Left' and lastAction == 'Left' and lastLastAction == 'Down':
-                    print('#9')
+                    # print('#9')
                     program.direction = 'Up'
                     action = 'Up'
                 # 10
                 elif lastAction == 'Down':
-                    print('#10')
+                    # print('#10')
                     action = 'Down'
                 # 11
                 elif lastAction == 'Up':
-                    print('#11')
+                    # print('#11')
                     action = 'Up'
                 # 12
                 elif lastAction == 'Right':
-                    print('#12')
+                    # print('#12')
                     action = 'Right'
                 # 13
                 elif lastAction == 'Left':
-                    print('#13')
+                    # print('#13')
                     action = 'Left'
                 else:
                     action = 'Left'
