@@ -46,8 +46,8 @@ def HW2Agent() -> object:
                     if bump == 'None' and prevAction == 'Right':
                         action = 'Left'
                     else:
-                        if bump == 'None' and prevAction == 'left':
-                            action = 'Left'
+                        if bump == 'None' and prevAction == 'Left':
+                            action = 'Right'
                         else:
                             action = 'Down'
                 if lastAction == 'Left':
