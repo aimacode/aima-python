@@ -2,7 +2,9 @@ import agents as ag
 import envgui as gui
 import random
 
+
 # ______________________________________________________________________________
+from submissions.Ebiwonjumi import vacuum2
 
 loc_A, loc_B = (1, 1), (2, 1)  # The two locations for the Vacuum world
 
@@ -190,7 +192,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # Launch GUI of more complex environment
 v = VacuumEnvironment(5, 4)
 #a = ModelBasedVacuumAgent()
-a = RandomVacuumAgent()
+a = vacuum2.HW2Agent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
