@@ -3,28 +3,21 @@ from math import(cos, pi)
 
 # A sample map problem
 sumner_map = search.UndirectedGraph(dict(
- #   Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
- #   Cottontown=dict(Portland=18),
- #   Fairfield=dict(Mitchellville=21, Portland=17),
- #   Mitchellville=dict(Portland=7, Fairfield=21),
+   Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
+   Cottontown=dict(Portland=18),
+   Fairfield=dict(Mitchellville=21, Portland=17),
+   Mitchellville=dict(Portland=7, Fairfield=21),
+))
 
+sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
 
- #   A=dict(D=70, C=80, B=140),
- #   D=dict(A=70,C=100,Z=200),
- #   C=dict(A=80,D=100,E=80,B=70),
- #   B=dict(A=140,C=70,E=90,Z=130),
- #   E=dict(C=80,B=90,Z=60),
- #   Z=dict(D=200,E=60,B=130),
+sumner_puzzle.label = 'Sumner'
+sumner_puzzle.description = '''
+An abbreviated map of Sumner County, TN.
+This map is unique, to the best of my knowledge.
+'''
 
-
-#    A=dict(B=70,C=80,E=100),
-#    B=dict(A=70),
-#    C=dict(A=80,E=100,D=60),
-#    E=dict(A=100,C=100,Z=150),
-#    D=dict(C=60,Z=90),
-#    Z=dict(D=90,E=150),
-
-
+romania_map = search.UndirectedGraph(dict(
     A=dict(Z=75,S=140,T=118),
     Z=dict(O=71,A=75),
     S=dict(O=151,R=80,F=99),
@@ -40,13 +33,12 @@ sumner_map = search.UndirectedGraph(dict(
     B=dict(G=90,P=101,F=211),
 ))
 
-#sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
-sumner_puzzle = search.GraphProblem('A', 'B', sumner_map)
+romania_puzzle = search.GraphProblem('A', 'B', romania_map)
 
-sumner_puzzle.label = 'Sumner Map'
-sumner_puzzle.description = '''
-An abbreviated map of Sumner County, TN.
-This map is unique, to the best of my knowledge.
+romania_puzzle.label = 'Romania'
+romania_puzzle.description = '''
+The simplified map of Romania, per
+Russall & Norvig, 3rd Ed., p. 68.
 '''
 
 # A trivial Problem definition
@@ -74,8 +66,9 @@ class LightSwitch(search.Problem):
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
-myPuzzles = [
+mySearches = [
  #   swiss_puzzle,
     sumner_puzzle,
+    romania_puzzle,
     switch_puzzle,
 ]

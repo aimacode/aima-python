@@ -45,22 +45,35 @@ def compare_searchers(problems, header, searchers=[]):
         print('----------------------------------------')
 
 
-submissions = {}
+searches = {}
+searchMethods = {}
 scores = {}
 
-message1 = 'Submissions that compile:'
+messages = ['      Searches that compile:',
+            'Search methods that compile:' ]
 for student in roster:
     try:
         # http://stackoverflow.com/a/17136796/2619926
-        mod = importlib.import_module('submissions.' + student + '.puzzles')
-        submissions[student] = mod.myPuzzles
-        message1 += ' ' + student
+        mod = importlib.import_module('submissions.' + student + '.mySearches')
+        searches[student] = mod.mySearches
+        messages[0] += ' ' + student
+    except ImportError:
+        pass
+    except:
+        traceback.print_exc()
+    try:
+        # http://stackoverflow.com/a/17136796/2619926
+        #searchMethods[student] = submissions.aartiste.mySearchMethods
+        mod = importlib.import_module('submissions.' + student + '.mySearches')
+        searchMethods[student] = mod.mySearchMethods
+        messages[1] += ' ' + student
     except ImportError:
         pass
     except:
         traceback.print_exc()
 
-print(message1)
+for m in messages:
+    print(m)
 print('----------------------------------------')
 
 def bestFS(problem, h=None):
@@ -68,11 +81,22 @@ def bestFS(problem, h=None):
     return search.best_first_graph_search(problem, lambda n: h(n))
 
 for student in roster:
-    if not student in submissions.keys():
+    if not student in searches.keys():
         continue
     scores[student] = []
+    slist=[
+        search.depth_first_graph_search,
+        bestFS,
+        search.breadth_first_search,
+        search.iterative_deepening_search,
+        search.uniform_cost_search,
+        search.astar_search,
+    ]
+    if student in searchMethods:
+        for s in searchMethods[student]:
+            slist.append(s)
     try:
-        plist = submissions[student]
+        plist = searches[student]
         hlist = [[student],['']]
         i = 0
         for problem in plist:
@@ -83,18 +107,11 @@ for student in roster:
                 hlist[0].append(problem.label)
             i += 1
             hlist[1].append('(<succ/goal/stat/fina>, cost)')
-        compare_searchers(
-            problems=plist,
-            header=hlist,
-            searchers=[
-                search.depth_first_graph_search,
-                bestFS,
-                search.breadth_first_search,
-                search.iterative_deepening_search,
-                search.uniform_cost_search,
-                search.astar_search,
-            ]
-        )
+            compare_searchers(
+                problems=plist,
+                header=hlist,
+                searchers=slist
+            )
     except:
         traceback.print_exc()
 
