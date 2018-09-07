@@ -20,6 +20,8 @@ lib64/
 parts/
 sdist/
 var/
+venv/
+.idea/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -73,7 +75,12 @@ target/
 
 # pycharm
 .idea/
-<<<<<<< HEAD
-=======
+
+# DS_STORE
+.DS_Store
+
+# venv
+venv/
+
 submissions/zzzsolutions/
->>>>>>> 695883039228bbc91221b75eae76328446d27ccf
+submissions/bbbetter/

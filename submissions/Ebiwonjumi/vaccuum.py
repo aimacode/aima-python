@@ -1,8 +1,10 @@
 import agents as ag
-import envgui as gui 
+import envgui as gui
 import random
 
+
 # ______________________________________________________________________________
+from submissions.Ebiwonjumi import vacuum2
 
 loc_A, loc_B = (1, 1), (2, 1)  # The two locations for the Vacuum world
 
@@ -12,7 +14,7 @@ def RandomVacuumAgent():
     p = ag.RandomAgentProgram(['Right', 'Left', 'Up', 'Down', 'Suck', 'NoOp'])
     return ag.Agent(p)
 
-#needed comment
+
 def TableDrivenVacuumAgent():
     "[Figure 2.3]"
     table = {((loc_A, 'Clean'),): 'Right',
@@ -190,7 +192,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # Launch GUI of more complex environment
 v = VacuumEnvironment(5, 4)
 #a = ModelBasedVacuumAgent()
-a = RandomVacuumAgent()
+a = vacuum2.HW2Agent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
@@ -198,10 +200,10 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'submissions/Gutierrez/grass.jpg',
+    ag.Wall: 'submissions/Ebiwonjumi/calvin.jpg',
     # Floor: 'images/floor.png',
-    Dirt: 'submissions/Gutierrez/dirt.png',
-    ag.Agent: 'submissions/Gutierrez/shovel.jpg',
+    Dirt: 'images/dirt.png',
+    ag.Agent: 'images/vacuum.png',
 })
 c.update()
 g.mainloop()
