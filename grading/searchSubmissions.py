@@ -63,7 +63,7 @@ for student in roster:
         traceback.print_exc()
     try:
         # http://stackoverflow.com/a/17136796/2619926
-        #searchMethods[student] = submissions.aartiste.mySearchMethods
+        #searchMethods[student] = submissions.bbbetter.mySearchMethods
         mod = importlib.import_module('submissions.' + student + '.mySearches')
         searchMethods[student] = mod.mySearchMethods
         messages[1] += ' ' + student
