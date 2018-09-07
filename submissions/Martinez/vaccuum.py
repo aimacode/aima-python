@@ -180,9 +180,9 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # c = g.getCanvas()
 # c.mapImageNames({
 #     Dirt: 'images/dirt.png',
-#     ag.Wall: 'images/wall.jpg',
+#     ag.Wall: 'submissions/Martinez/housewall.jpg',
 #     # Floor: 'images/floor.png',
-#     ag.Agent: 'images/vacuum.png',
+#     ag.Agent: 'submissions/Martinez/cleaner.jpg',
 # })
 # c.update()
 # g.mainloop()
@@ -190,7 +190,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # Launch GUI of more complex environment
 v = VacuumEnvironment(5, 4)
 #a = ModelBasedVacuumAgent()
-a = vacuum2.HW2Agent()
+a = RandomVacuumAgent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
@@ -198,10 +198,10 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'submissions/Deas/luxo_ball_1x.jpg',
+    ag.Wall: 'submissions/Martinez/housewall.jpg',
     # Floor: 'images/floor.png',
     Dirt: 'images/dirt.png',
-    ag.Agent: 'images/vacuum.png',
+    ag.Agent: 'submissions/Martinez/cleaner.jpg',
 })
 c.update()
 g.mainloop()
