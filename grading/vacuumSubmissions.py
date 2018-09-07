@@ -143,6 +143,7 @@ for student in roster:
         submissions[student] = mod.HW2Agent
         print('    ' + student)
     except:
+        print('  x ' + student)
         pass
 
 for student in submissions:

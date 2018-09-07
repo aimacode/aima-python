@@ -1,6 +1,6 @@
 import agents as ag
- def HW2Agent() -> object:
-     def program(percept):
+def HW2Agent() -> object:
+    def program(percept):
         bump, status = percept
         if status == 'Dirty':
             action = 'Suck'
@@ -92,12 +92,14 @@ import agents as ag
         program.oldPercepts.append(percept)
         program.oldActions.append(action)
         return action
-     # assign static variables here
+
+    # assign static variables here
     program.oldPercepts = [('None', 'Clean')]
     program.oldActions = ['Left', 'Right']
     program.count = 0
     # program.lastWall = ['None', 'Down']
-     agt = ag.Agent(program)
+
+    agt = ag.Agent(program)
     # assign class attributes here:
     # agt.direction = ag.Direction('left')
-     return agt
+    return agt

@@ -1,9 +1,9 @@
 import agents as ag
- def HW2Agent() -> object:
-     # This agent will snake through the room to clean it.
+def HW2Agent() -> object:
+    # This agent will snake through the room to clean it.
     # It starts by heading for the top of the room. Then it snakes down
     # Once it reaches the bottom corner, it will go to the top as fast as possible and snake again.
-     def program(percept):
+    def program(percept):
         bump, status = percept
         if status == 'Dirty':
             action = 'Suck'
@@ -11,7 +11,7 @@ import agents as ag
             lastBump, lastStatus, = program.oldPercepts[-1]
             lastAction = program.oldActions[-1]
             upOrDown, leftOrRight = program.snakeDirection
-             if lastAction == 'NoOp':
+            if lastAction == 'NoOp':
                 action = upOrDown
             elif lastStatus == 'Dirty':
                 action = leftOrRight
@@ -41,14 +41,15 @@ import agents as ag
                 else:
                     action = upOrDown
                     program.snakeDirection = (action, leftOrRight)
-         program.oldPercepts.append(percept)
+        program.oldPercepts.append(percept)
         program.oldActions.append(action)
         return action
-     # assign static variables here
+    # assign static variables here
     program.oldPercepts = [('None', 'Clean')]
     program.oldActions = ['NoOp']
     program.snakeDirection = ('Up', 'Right')
-     agt = ag.Agent(program)
+
+    agt = ag.Agent(program)
     # assign class attributes here:
     # agt.direction = ag.Direction('left')
-     return agt
+    return agt
