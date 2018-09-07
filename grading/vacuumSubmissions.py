@@ -4,6 +4,12 @@ import importlib
 import traceback
 from grading.util import roster
 
+# try:
+#     interactive
+# except NameError:
+#     interactive = True
+interactive = False
+
 # ______________________________________________________________________________
 # Vacuum environment
 
@@ -118,7 +124,10 @@ def testVacuum(student, label, w=4, h=3,
     print(student + ' scores ' + str(newPoints))
 
     # Check to continue
-    if input('Continue testing ' + student + ' [Y/n]? ') == 'n':
+    if interactive == False:
+        print('----------------------------------------')
+        return True
+    elif input('Continue testing ' + student + ' [Y/n]? ') == 'n':
         print('----------------------------------------')
         raise MyException
         return False
@@ -175,7 +184,8 @@ for student in submissions:
     except:
         pass
 
-    print(student + ' scores ' + str(scores[student]) + ' = ' + str(sum(scores[student])))
+    print(student + ' scores ' + "\n"
+          + str(scores[student]) + ' = ' + str(sum(scores[student])))
     print('----------------------------------------')
 
 # v = VacuumEnvironment(6, 3)
