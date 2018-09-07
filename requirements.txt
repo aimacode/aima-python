@@ -1,1 +1,2 @@
 networkx==1.11
+pillow==5.2.0
