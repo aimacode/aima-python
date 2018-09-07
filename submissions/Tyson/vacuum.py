@@ -1,5 +1,5 @@
 import agents as ag
-import envgui as gui 
+import envgui as gui
 import random
 
 # ______________________________________________________________________________
@@ -12,7 +12,7 @@ def RandomVacuumAgent():
     p = ag.RandomAgentProgram(['Right', 'Left', 'Up', 'Down', 'Suck', 'NoOp'])
     return ag.Agent(p)
 
-#needed comment
+
 def TableDrivenVacuumAgent():
     "[Figure 2.3]"
     table = {((loc_A, 'Clean'),): 'Right',
@@ -128,7 +128,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
         status = ('Dirty' if self.some_things_at(
             agent.location, Dirt) else 'Clean')
         return (agent.location, status)
-    #
+    # #
     # def execute_action(self, agent, action):
     #     """Change agent's location and/or location's status; track performance.
     #     Score 10 for each dirt cleaned; -1 for each move."""
@@ -142,7 +142,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
     #         if self.status[agent.location] == 'Dirty':
     #             agent.performance += 10
     #         self.status[agent.location] = 'Clean'
-    #
+
     def add_agent(self, a):
         "Agents start in either location at random."
         super().add_thing(a, random.choice([loc_A, loc_B]))
@@ -198,10 +198,11 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'submissions/Gutierrez/grass.jpg',
+    #ag.Wall: 'images/wall.jpg',
+    Dirt: 'images/dirt.png',
     # Floor: 'images/floor.png',
-    Dirt: 'submissions/Gutierrez/dirt.png',
-    ag.Agent: 'submissions/Gutierrez/shovel.jpg',
+    ag.Wall: 'images/Corgi.JPG',
+    ag.Agent: 'images/vacuum.png',
 })
 c.update()
 g.mainloop()
