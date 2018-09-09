@@ -83,4 +83,10 @@ mySearches = [
     romania_puzzle,
     switch_puzzle,
     madison_puzzle1,
+
+
+
+
+
 ]
+mySearchMethods = []

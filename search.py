@@ -301,6 +301,10 @@ def iterative_deepening_search(problem):
         if result != 'cutoff':
             return result
 
+
+#def random_search(problem, h=None):
+ #   for depth in range(sys.maxsize):
+
 # ______________________________________________________________________________
 # Informed (Heuristic) Search
 
@@ -317,6 +321,7 @@ def astar_search(problem, h=None):
 
 # ______________________________________________________________________________
 # Other search algorithms
+
 
 
 def recursive_best_first_search(problem, h=None):
