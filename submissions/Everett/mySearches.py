@@ -2,7 +2,7 @@ import search
 from math import(cos, pi)
 
 # A sample map problem
-sumner_map = search.UndirectedGraph(dict(
+madison_map = search.UndirectedGraph(dict(
  # Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
   # Cottontown=dict(Portland=18),
    #Fairfield=dict(Mitchellville=21, Portland=17),
@@ -14,16 +14,16 @@ sumner_map = search.UndirectedGraph(dict(
   SpringCreek=dict(ThreeWay=18,Medon=34,Humboldt=29)
 ))
 
-sumner_puzzle = search.GraphProblem('Jackson', 'ThreeWay', sumner_map)
-sumner_puzzle1 = search.GraphProblem('SpringCreek', 'Jackson', sumner_map)
+madison_puzzle = search.GraphProblem('Jackson', 'ThreeWay', madison_map)
+madison_puzzle1 = search.GraphProblem('SpringCreek', 'Jackson', madison_map)
 
-sumner_puzzle.label = 'Madison'
-sumner_puzzle.description = '''
+madison_puzzle.label = 'Madison'
+madison_puzzle.description = '''
 An abbreviated map of Madison County, TN.
 This map is unique, to the best of my knowledge.
 '''
-sumner_puzzle1.label = 'Madison1'
-sumner_puzzle1.description = '''
+madison_puzzle1.label = 'Madison1'
+madison_puzzle1.description = '''
 An abbreviated map of Madison County, TN.
 This map is unique, to the best of my knowledge.
 '''
@@ -79,8 +79,8 @@ switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
-    sumner_puzzle,
+    madison_puzzle,
     romania_puzzle,
     switch_puzzle,
-    sumner_puzzle1,
+    madison_puzzle1,
 ]
