@@ -11,12 +11,19 @@ sumner_map = search.UndirectedGraph(dict(
   Humboldt=dict(Jackson=27, ThreeWay=8),
   ThreeWay=dict(Humboldt=8, Medon=34),
   Medon=dict(Jackson=17, Humboldt=43,ThreeWay=34),
+  SpringCreek=dict(ThreeWay=18,Medon=34,Humboldt=29)
 ))
 
 sumner_puzzle = search.GraphProblem('Jackson', 'ThreeWay', sumner_map)
+sumner_puzzle1 = search.GraphProblem('SpringCreek', 'Jackson', sumner_map)
 
 sumner_puzzle.label = 'Madison'
 sumner_puzzle.description = '''
+An abbreviated map of Madison County, TN.
+This map is unique, to the best of my knowledge.
+'''
+sumner_puzzle1.label = 'Madison1'
+sumner_puzzle1.description = '''
 An abbreviated map of Madison County, TN.
 This map is unique, to the best of my knowledge.
 '''
@@ -75,4 +82,5 @@ mySearches = [
     sumner_puzzle,
     romania_puzzle,
     switch_puzzle,
+    sumner_puzzle1,
 ]
