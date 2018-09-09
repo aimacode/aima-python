@@ -12,27 +12,41 @@ from math import(cos, pi)
 
 #My map problem
 potter_map = search.UndirectedGraph(dict(
-    Amarillo=dict(Bushland=10, Canyon=19, Masterson=30, BoysRanch= 43),
-    #BishopHills=dict(Amarillo=13, BoysRanch=32),
-    BoysRanch=dict(Amarillo=43, Vega=25, Channing=12 ),
-    Vega=dict(BoysRanch=25, Wildorado=13),
-    Bushland=dict(Amarillo=8, Wildorado=10),
-    Masterson=dict(Amarillo=30, Channing=26),
-    Canyon=dict(Amarillo=19),
-    Wildorado=dict(Bushland=8, Vega=13)
+    Amarillo=dict( Canyon=20, Washburn=15),
+    Canyon=dict(Amarillo=20, Umbarger=10, Washburn=40, Happy=22),
+    Washburn=dict(Amarillo=15, Canyon=40, Tulia=65),
+    Umbarger=dict(Canyon=10, Arney=15),
+    Arney=dict(Umbarger=15, Nazareth=15),
+    Nazareth=dict(Arney=15, Happy=20, Tulia=22),
+    Happy=dict(Nazareth=20, Canyon=22),
+    Tulia=dict(Nazareth=22, Washburn=65)
+
+
 
     ))
 
 
 #sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
-potter_puzzle = search.GraphProblem('Bushland', 'BoysRanch', potter_map)
+
 #sumner_puzzle.label = 'Sumner'
 # sumner_puzzle.description = '''
 # An abbreviated map of Sumner County, TN.
 # This map is unique, to the best of my knowledge.
 # '''
-potter_puzzle.label = 'Potter'
-potter_puzzle.description = '''A map of some towns in and around Potter County, Texas. '''
+potter_puzzle = search.GraphProblem('Canyon', 'Nazareth', potter_map)
+potter_puzzle.label = 'Potter County - Canyon to Nazareth'
+potter_puzzle.description = '''First Instance '''
+
+potter_puzzle2 = search.GraphProblem('Amarillo', 'Tulia', potter_map)
+potter_puzzle2.label = 'Potter County - Amarillo to Tulia'
+potter_puzzle2.description = '''Instance where BFS does better than DFS '''
+
+potter_puzzle3 = search.GraphProblem('Nazareth', 'Washburn', potter_map)
+potter_puzzle3.label = 'Potter County-Nazareth to Washburn'
+potter_puzzle3.description = '''Instance where UniformCost does better than DFS and BFS '''
+
+
+
 
 romania_map = search.UndirectedGraph(dict(
     A=dict(Z=75,S=140,T=118),
@@ -79,13 +93,15 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
-#swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
+#switch_puzzle = search.GraphProblem('Off', 'On', potter_map)
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
     potter_puzzle,
-    romania_puzzle,
-    switch_puzzle,
+    potter_puzzle2,
+    potter_puzzle3
+   # romania_puzzle,
+    #switch_puzzle,
 ]
