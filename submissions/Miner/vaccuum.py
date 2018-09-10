@@ -1,6 +1,7 @@
 import agents as ag
 import envgui as gui
 import random
+
 # ______________________________________________________________________________
 
 loc_A, loc_B = (1, 1), (2, 1)  # The two locations for the Vacuum world
@@ -59,7 +60,7 @@ def ModelBasedVacuumAgent() -> object:
         elif location == loc_B:
             return 'Left'
     return ag.Agent(program)
-
+    
 # ______________________________________________________________________________
 # Vacuum environment
 
@@ -197,7 +198,7 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'submissions/Gray/GrayFace.jpg',
+    ag.Wall: 'submissions/Miner/alien.png',
     # Floor: 'images/floor.png',
     Dirt: 'images/dirt.png',
     ag.Agent: 'images/vacuum.png',
