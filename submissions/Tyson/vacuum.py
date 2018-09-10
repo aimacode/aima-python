@@ -128,7 +128,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
         status = ('Dirty' if self.some_things_at(
             agent.location, Dirt) else 'Clean')
         return (agent.location, status)
-    #
+    # #
     # def execute_action(self, agent, action):
     #     """Change agent's location and/or location's status; track performance.
     #     Score 10 for each dirt cleaned; -1 for each move."""
@@ -142,7 +142,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
     #         if self.status[agent.location] == 'Dirty':
     #             agent.performance += 10
     #         self.status[agent.location] = 'Clean'
-    #
+
     def add_agent(self, a):
         "Agents start in either location at random."
         super().add_thing(a, random.choice([loc_A, loc_B]))
@@ -190,7 +190,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # Launch GUI of more complex environment
 v = VacuumEnvironment(5, 4)
 #a = ModelBasedVacuumAgent()
-a = vacuum2.HW2Agent()
+a = RandomVacuumAgent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
@@ -198,9 +198,10 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'submissions/Deas/luxo_ball_1x.jpg',
-    # Floor: 'images/floor.png',
+    #ag.Wall: 'images/wall.jpg',
     Dirt: 'images/dirt.png',
+    # Floor: 'images/floor.png',
+    ag.Wall: 'images/Corgi.JPG',
     ag.Agent: 'images/vacuum.png',
 })
 c.update()
