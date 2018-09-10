@@ -48,7 +48,7 @@ def ModelBasedVacuumAgent() -> object:
     model = {loc_A: None, loc_B: None}
 
     def program(percept):
-        "Same as ReflexVacuumAgent, except if everything is clean, do NoOp."
+        "Same as reflex_vacuum_agent, except if everything is clean, do NoOp."
         location, status = percept
         model[location] = status  # Update the model here
         if model[loc_A] == model[loc_B] == 'Clean':
@@ -150,7 +150,7 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 
 # _________________________________________________________________________
 
-# >>> a = ReflexVacuumAgent()
+# >>> a = reflex_vacuum_agent()
 # >>> a.program((loc_A, 'Clean'))
 # 'Right'
 # >>> a.program((loc_B, 'Clean'))
@@ -161,19 +161,19 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 # 'Suck'
 #
 # >>> e = TrivialVacuumEnvironment()
-# >>> e.add_thing(ModelBasedVacuumAgent())
+# >>> e.add_thing(model_based_vacuum_agent())
 # >>> e.run(5)
 
 # Produces text-based status output
 # v = TrivialVacuumEnvironment()
-# a = ModelBasedVacuumAgent()
+# a = model_based_vacuum_agent()
 # a = ag.TraceAgent(a)
 # v.add_agent(a)
 # v.run(10)
 
 # Launch GUI of Trivial Environment
 # v = TrivialVacuumEnvironment()
-# a = RandomVacuumAgent()
+# a = random_vacuum_agent()
 # a = ag.TraceAgent(a)
 # v.add_agent(a)
 # g = gui.EnvGUI(v, 'Vaccuum')
@@ -189,8 +189,8 @@ class TrivialVacuumEnvironment(VacuumEnvironment):
 
 # Launch GUI of more complex environment
 v = VacuumEnvironment(5, 4)
-#a = ModelBasedVacuumAgent()
-a = vacuum2.HW2Agent()
+#a = model_based_vacuum_agent()
+a = RandomVacuumAgent()
 a = ag.TraceAgent(a)
 loc = v.random_location_inbounds()
 v.add_thing(a, location=loc)
@@ -198,7 +198,7 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'submissions/Deas/luxo_ball_1x.jpg',
+    ag.Wall: 'submissions/Poff/LittleFoot.jpg',
     # Floor: 'images/floor.png',
     Dirt: 'images/dirt.png',
     ag.Agent: 'images/vacuum.png',
