@@ -4,6 +4,12 @@ import importlib
 import traceback
 from grading.util import roster
 
+# try:
+#     interactive
+# except NameError:
+#     interactive = True
+interactive = False
+
 # ______________________________________________________________________________
 # Vacuum environment
 
@@ -118,7 +124,10 @@ def testVacuum(student, label, w=4, h=3,
     print(student + ' scores ' + str(newPoints))
 
     # Check to continue
-    if input('Continue testing ' + student + ' [Y/n]? ') == 'n':
+    if interactive == False:
+        print('----------------------------------------')
+        return True
+    elif input('Continue testing ' + student + ' [Y/n]? ') == 'n':
         print('----------------------------------------')
         raise MyException
         return False
@@ -134,6 +143,7 @@ for student in roster:
         submissions[student] = mod.HW2Agent
         print('    ' + student)
     except:
+        print('  x ' + student)
         pass
 
 for student in submissions:
@@ -164,18 +174,27 @@ for student in submissions:
         testVacuum(student, '5x4 Grid, Agent near Bottom Right:',
                           w=7, h=6, dloc=[(1,3), (2,2), (3, 4), (4,1), (5,2)],
                           vloc=(4, 3), limit=34, points=2.5)
-        testVacuum(student, '8x10 Grid, Agent near Top Right:',
+        testVacuum(student, '8x10 Grid, Agent in Top Left:',
                           w=10, h=12, dloc=[(4, 1), (7, 2), (2, 3), (5, 4), (8, 5),
                                             (3, 6), (6, 7), (1, 8), (4, 9), (7, 10)],
                           vloc=(1,1), limit=108, points=2.5)
-        testVacuum(student, '8x10 Grid, Agent in Bottom Left:',
+        testVacuum(student, '8x10 Grid, Agent near Top Center:',
                           w=10, h=12, dloc=[(4, 1), (7, 2), (2, 3), (5, 4), (8, 5),
                                             (3, 6), (6, 7), (1, 8), (4, 9), (7, 10)],
                           vloc=(4, 3), limit=108, points=2.5)
+        testVacuum(student, '9x7 Grid, Agent near Bottom Center:',
+                          w=11, h=9, dloc=[(6, 2), (5, 5), (1, 5), (7, 2),
+                                           (2, 1), (8, 2), (3, 6), (7, 5)],
+                          vloc=(4,6), limit=108, points=2.5)
+        testVacuum(student, '9x7 Grid, Agent near Bottom Right:',
+                          w=11, h=9, dloc=[(6, 2), (5, 5), (1, 5), (7, 2),
+                                           (2, 1), (8, 2), (3, 6), (7, 5)],
+                          vloc=(8, 7), limit=108, points=2.5)
     except:
         pass
 
-    print(student + ' scores ' + str(scores[student]) + ' = ' + str(sum(scores[student])))
+    print(student + ' scores ' + "\n"
+          + str(scores[student]) + ' = ' + str(sum(scores[student])))
     print('----------------------------------------')
 
 # v = VacuumEnvironment(6, 3)
