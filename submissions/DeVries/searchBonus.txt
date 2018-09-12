@@ -1,0 +1,10 @@
+Michael DeVries
+Homework 5
+2.9.2 (BFS better than DFS) - To make breadth-first search better than depth-first search, I had to make it so the longest path from A to B has 
+			a higher cost than the shortest path from A to B ("long" here referring to number of cities visited). BFS will find
+			the shortest path (by number of cities visited), so the cost of that path simply must be lower than the cost of the path
+			found by DFS (and since depth-first search tries to explore the depth of the tree first, then this path found by DFS
+			should be long, meaning that it should have a high number of cities visited).
+2.9.3 (UCS better than BFS) - To make uniform-cost search better than breadth-first search is actually quite simple. I did this by making a path
+			which gets from A to B in the shortest number of cities visited, but not the lowest cost. This way, breadth-first finds
+			a path which does not have the lowest cost, and uniform-cost can find a lower cost path.
