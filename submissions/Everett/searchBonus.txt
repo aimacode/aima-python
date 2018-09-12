@@ -1,0 +1,7 @@
+
+Homework for Thursday, September 13th
+
+65 - Created unique map reference that complies (Map of Madison County, TN)
++10 - An instance that yields a better solution with BFS than DFS (Madison1)
++10 - An instance that yields a better solution with UCS than BFS (Madison)
+
