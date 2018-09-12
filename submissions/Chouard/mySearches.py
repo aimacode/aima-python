@@ -49,14 +49,14 @@ cotes_dazure_map = search.UndirectedGraph(dict(
     Magnosque=dict(Marseille=65, Gap=74),
     SaintTropez=dict(Toulon=71, Frejus=49),
     Frejus=dict(SaintTropez=49, Brignoles=46, Cannes=37),
-    Draguignan=dict(Brignoles=56, Cannes=56),
+    Draguignan=dict(Brignoles=56, Digne=113, Cannes=56),
     Gap=dict(Manosque=74, Digne=93),
     Cannes=dict(Frejus=37, Draguignan=56, Digne=148, Nice=36),
-    Digne=dict(Cannes=148, Gap=93, Nice=146),
+    Digne=dict(Cannes=148, Draguignan=113, Gap=93, Nice=146),
     Nice=dict(Cannes=36, Digne=146)
 ))
 
-cotes_dazure_puzzle = search.GraphProblem('Marseille', 'Nice', cotes_dazure_map)
+cotes_dazure_puzzle = search.GraphProblem('Marseille', 'Digne', cotes_dazure_map)
 
 cotes_dazure_puzzle.label = "Cotes d'Azur"
 
