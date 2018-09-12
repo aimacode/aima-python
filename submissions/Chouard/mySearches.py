@@ -43,10 +43,11 @@ from math import (cos, pi)
 # '''
 
 cotes_dazure_map = search.UndirectedGraph(dict(
-    Marseille=dict(Manosque=65, Brignoles=60, Toulon=52),
-    Toulon=dict(Marseille=52, SaintTropez=71, Brignoles=41),
-    Brignoles=dict(Marseille=60, Toulon=41, Frejus=46, Draguignan=56),
-    Magnosque=dict(Marseille=65, Gap=74),
+    Marseille=dict(Manosque=65, Aubagne=25),
+    Aubagne=dict(Marseille=25, Toulon=34, Brignoles=46),
+    Toulon=dict(SaintTropez=71, Brignoles=41, Aubagne=34),
+    Brignoles=dict(Aubagne=34, Toulon=41, Frejus=46, Draguignan=56),
+    Manosque=dict(Marseille=65, Gap=74),
     SaintTropez=dict(Toulon=71, Frejus=49),
     Frejus=dict(SaintTropez=49, Brignoles=46, Cannes=37),
     Draguignan=dict(Brignoles=56, Digne=113, Cannes=56),
@@ -56,7 +57,7 @@ cotes_dazure_map = search.UndirectedGraph(dict(
     Nice=dict(Cannes=36, Digne=146)
 ))
 
-cotes_dazure_puzzle = search.GraphProblem('Marseille', 'Digne', cotes_dazure_map)
+cotes_dazure_puzzle = search.GraphProblem('Marseille', 'Nice', cotes_dazure_map)
 
 cotes_dazure_puzzle.label = "Cotes d'Azur"
 
