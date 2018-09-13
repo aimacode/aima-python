@@ -1,0 +1,33 @@
+1) Instance: Addison --> OakBrook
+depth_first_graph_search     (<   2/   3/   6/OakB>, 28)
+bestFS                       (<   5/   7/  12/OakB>, 28)
+breadth_first_search         (<   2/   5/   7/OakB>, 20)
+iterative_deepening_search   (<   3/   8/  10/OakB>, 20)
+uniform_cost_search          (<   5/   7/  15/OakB>, 20)
+astar_search                 (<   5/   7/  12/OakB>, 28)
+
+Yields better solution with BFS than DFS (+10)
+
+2) Instance: GE --> Wheaton
+depth_first_graph_search     (<  11/  12/  28/Whea>, 138)
+bestFS                       (<  13/  15/  34/Whea>, 138)
+breadth_first_search         (<  13/  15/  34/Whea>, 102)
+iterative_deepening_search   (< 485/1440/1441/Whea>, 102)
+uniform_cost_search          (<  14/  16/  36/Whea>, 83)
+astar_search                 (<  13/  15/  34/Whea>, 138)
+
+UCS > BFS > DFS
+Yields better solution with BFS than DFS (+10)
+Yields better solution with UCS than BFS (+10)
+
+3) Instance: WD --> WC
+depth_first_graph_search     (<  11/  12/  30/WC>, 122)
+bestFS                       (<  17/  19/  44/WC>, 122)
+breadth_first_search         (<  17/  18/  44/WC>, 114)
+iterative_deepening_search   (<3114/9796/9798/WC>, 114)
+uniform_cost_search          (<  17/  19/  44/WC>, 95)
+astar_search                 (<  17/  19/  44/WC>, 122)
+
+UCS > BFS > DFS
+Yields better solution with BFS than DFS (+10)
+Yields better solution with UCS than BFS (+10)
