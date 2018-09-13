@@ -8,11 +8,11 @@ sumner_map = search.UndirectedGraph(dict(
    Fairfield=dict(Mitchellville=21, Portland=17),
    Mitchellville=dict(Portland=7, Fairfield=21),
 ))
-
+'''
 sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
 
 sumner_puzzle.label = 'Sumner'
-sumner_puzzle.description = '''
+sumner_puzzle.description = 
 An abbreviated map of Sumner County, TN.
 This map is unique, to the best of my knowledge.
 '''
@@ -32,22 +32,39 @@ romania_map = search.UndirectedGraph(dict(
     P=dict(R=97,C=138,B=101),
     B=dict(G=90,P=101,F=211),
 ))
-romania_map.locations = dict(
-    A=( 91, 492), B=(400, 327), C=(253, 288),
-    D=(165, 299), E=(562, 293), F=(305, 449),
-    G=(375, 270), H=(534, 350), I=(473, 506),
-    L=(165, 379), M=(168, 339), N=(406, 537),
-    O=(131, 571), P=(320, 368), R=(233, 410),
-    S=(207, 457), T=( 94, 410), U=(456, 350),
-    V=(509, 444), Z=(108, 531))
-
+'''
 romania_puzzle = search.GraphProblem('A', 'B', romania_map)
 
 romania_puzzle.label = 'Romania'
-romania_puzzle.description = '''
+romania_puzzle.description = 
 The simplified map of Romania, per
 Russall & Norvig, 3rd Ed., p. 68.
 '''
+nomich_map = search.UndirectedGraph(dict(
+    TraverseCity = dict(Interlochen=20, Leland=38, GlenArbor=37, OldMission=27,Copemish=43,ElkRapids=30),
+    Interlochen = dict(TraverseCity=23, Copemish=20, Leland=42,BearLake=62),
+    Leland=dict(TraverseCity=38, GlenArbor=24, Copemish=62, OldMission=61),
+    GlenArbor=dict(TraverseCity=37, ElkRapids=76),
+    OldMission=dict(TraverseCity=27),
+    Copmish = dict(TraverseCity=43, Interlochen=23, BearLake=21),
+    ElkRapids= dict(TraverseCity=30, GlenArbor=76)
+))
+#
+nomich_puzzle1= search.GraphProblem('TraverseCity', 'Copemish', nomich_map)
+nomich_puzzle1.label='TraverseCity to Copemish'
+nomich_puzzle1.description='''
+A puzzle where uniform-cost works best.
+'''
+
+nomich_puzzle2= search.GraphProblem('Interlochen', 'ElkRapids', nomich_map)
+nomich_puzzle2.label='Interlochen to Elkrapids'
+nomich_puzzle2.description='''
+A puzzle where Breadth-First is better than Depth-First
+'''
+
+
+
+
 
 # A trivial Problem definition
 class LightSwitch(search.Problem):
@@ -76,25 +93,10 @@ switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
-    sumner_puzzle,
-    romania_puzzle,
-    switch_puzzle,
+ #   sumner_puzzle,
+ #  romania_puzzle,
+    #switch_puzzle,
+    nomich_puzzle1,
+    nomich_puzzle2
 ]
-
-import random
-
-def flounder(problem, giveup=10000):
-    'The worst way to solve a problem'
-    node = search.Node(problem.initial)
-    count = 0
-    while not problem.goal_test(node.state):
-        count += 1
-        if count >= giveup:
-            return null
-        children = node.expand(problem)
-        node = random.choice(children)
-    return node
-
-mySearchMethods = [
-    flounder
-]
+mySearchMethods= []
