@@ -66,7 +66,8 @@ for student in roster:
         #searchMethods[student] = submissions.bbbetter.mySearchMethods
         mod = importlib.import_module('submissions.' + student + '.mySearches')
         searchMethods[student] = mod.mySearchMethods
-        messages[1] += ' ' + student
+        if len(searchMethods[student]) > 0:
+            messages[1] += ' ' + student
     except ImportError:
         pass
     except:
@@ -107,11 +108,11 @@ for student in roster:
                 hlist[0].append(problem.label)
             i += 1
             hlist[1].append('(<succ/goal/stat/fina>, cost)')
-            compare_searchers(
-                problems=plist,
-                header=hlist,
-                searchers=slist
-            )
+        compare_searchers(
+            problems=plist,
+            header=hlist,
+            searchers=slist
+        )
     except:
         traceback.print_exc()
 
