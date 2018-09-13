@@ -1,0 +1,2 @@
+Started with BFS better than DFS
+Then I added a connection between Ikotun and Lagos with path cost of 63
