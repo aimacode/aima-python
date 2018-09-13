@@ -319,7 +319,6 @@ def astar_search(problem, h=None):
 # Other search algorithms
 
 
-
 def recursive_best_first_search(problem, h=None):
     "[Figure 3.26]"
     h = memoize(h or problem.h, 'h')
