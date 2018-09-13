@@ -18,7 +18,7 @@ wayne_map = search.UndirectedGraph(dict(
     Garden_City=dict(Livonia=10, Westland=6, Dearborn=16),
     Detroit=dict(Hamtramck=12, Livonia=23, Dearborn=13, Lincoln_Park=21),
     Wayne=dict(Westland=10, Dearborn=20, Romulus=12),
-    Dearborn=dict(Garden_City=16, Detroit=13, Lincoln_Park=21, Wayne=20),
+    Dearborn=dict(Garden_City=16, Detroit=13, Lincoln_Park=21, Wayne=20, Taylor=15),
     Lincoln_Park=dict(Detroit=21, Dearborn=11, Wyandotte=8),
     Belleville=dict(Romulus=11),
     Romulus=dict(Belleville=11, Wayne=12, Taylor=13),
@@ -30,7 +30,7 @@ wayne_map = search.UndirectedGraph(dict(
 ))
 
 # sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
-myPuzzle = search.GraphProblem('Livonia', 'Taylor', wayne_map)
+myPuzzle = search.GraphProblem('Livonia', 'Belleville', wayne_map)
 
 wayne_map.label = 'Sumner'
 wayne_map.description = '''
