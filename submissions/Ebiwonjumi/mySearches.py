@@ -81,7 +81,7 @@ lagos_puzzle = search.GraphProblem('Epe', 'Ikotun', lagos_map)
 
 lagos_puzzle.label = 'Lagos'
 lagos_puzzle.description = '''
-This is a very simple map of Muscat Oman
+This is a very simple map of Lagos Nigeria
 '''
 
 mySearches = [
