@@ -1,0 +1,6 @@
+For my mySearches.py map, I chose to create a simplified map of Erie County, New York,
+which contains my hometown of Buffalo.
+The way that the goal route is currently structured:
+(1) The instances run without exception and produce valid outputs.
+(2) BFS finds a much less costly route than DFS and
+(3) UCS finds a better route than BFS
