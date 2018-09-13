@@ -30,7 +30,7 @@ wayne_map = search.UndirectedGraph(dict(
 ))
 
 # sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
-myPuzzle = search.GraphProblem('Detroit', 'Romulus', wayne_map)
+myPuzzle = search.GraphProblem('Livonia', 'Taylor', wayne_map)
 
 wayne_map.label = 'Sumner'
 wayne_map.description = '''
