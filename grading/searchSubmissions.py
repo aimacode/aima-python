@@ -6,7 +6,7 @@ import search
 
 from utils import isnumber, memoize
 from grading.util import roster, print_table
-import inf
+from math import inf
 
 class MyException(Exception):
     pass
