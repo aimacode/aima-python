@@ -1,1 +1,2 @@
-Applying for Bonus 1 and 2
++10: An instance that yields a better solution with BFS than DFS
++10: An instance that yields a better solution with UCS than BFS
