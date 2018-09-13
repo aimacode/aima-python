@@ -301,10 +301,6 @@ def iterative_deepening_search(problem):
         if result != 'cutoff':
             return result
 
-
-#def random_search(problem, h=None):
- #   for depth in range(sys.maxsize):
-
 # ______________________________________________________________________________
 # Informed (Heuristic) Search
 
