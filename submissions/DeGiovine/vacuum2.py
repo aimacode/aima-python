@@ -11,31 +11,32 @@ def HW2Agent() -> object:
             lastBump, lastStatus,  = program.oldPercepts[-1]
             lastBump, lastStatus,  = program.oldPercepts[-1]
             lastAction = program.oldActions[-1]
-            if program.state == 0:
-                if bump == 'Bump':
-                    program.state = 1
-                    action = 'Right'
-                else:
-                    action = 'Up'
-            elif program.state == 1:
-                if bump == 'Bump':
-                    program.state = 2
-                    action = 'Left'
-                else:
-                    action = 'Down'
 
-            elif program.state == 2:
+            if bump == 'None' and lastAction == 'NoOp':
+                action = 'Up'
+
+            elif lastAction == 'Up':
                 if bump == 'Bump':
-                    program.state = 3
-                    action = 'Up'
-                else:
-                    action = 'Left'
-            elif program.state == 3:
-                if bump == 'Bump':
-                    program.state = 2
                     action = 'Up'
                 else:
                     action = 'Right'
+            elif lastAction == 'Right':
+                if bump == 'Bump':
+                    action = 'Down'
+                else:
+                    action = 'Right'
+            elif lastAction == 'Down':
+                if bump == 'Bump':
+                    action = 'Up'
+                else:
+                    action = 'Left'
+            elif lastAction == 'Down':
+                if bump == 'Bump':
+                    action = 'Up'
+                else:
+                    action = 'Left'
+
+
 
         program.oldPercepts.append(percept)
         program.oldActions.append(action)
