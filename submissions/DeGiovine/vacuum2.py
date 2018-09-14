@@ -3,6 +3,9 @@ import agents as ag
 def HW2Agent() -> object:
 
     def program(percept):
+        lastBump, lastStatus,  = program.oldPercepts[-1]
+        lastAction = program.oldActions[-1]
+
         bump, status = percept
         if status == 'Dirty':
             action = 'Suck'
