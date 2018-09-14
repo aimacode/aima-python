@@ -9,9 +9,18 @@ erie_map = search.UndirectedGraph(dict(
    GrandIsland=dict(Amherst=15, Buffalo=13),
    Cheektowaga=dict(Lancaster=4, Buffalo=10),
    WestSeneca=dict(OrchardPark=4, Buffalo=10),
-   OrchardPark=dict(WestSeneca=4, Buffalo=15),
-   Buffalo=dict(GrandIsland=13, Amherst=19, Cheektowaga=10, WestSeneca=10, OrchardPark=15)
+   OrchardPark=dict(WestSeneca=4, Buffalo=18),
+   Buffalo=dict(GrandIsland=13, Amherst=19, Cheektowaga=10, WestSeneca=10, OrchardPark=18),
+   Hamburg=dict(Buffalo=12),
+   Fredonia=dict(Hamburg=10),
+   SBuffalo=dict(Buffalo=3)
 ))
+
+erie_map.locations = dict(
+    Clarence=(27,41), Amherst=(19,41), Lancaster=(27,30), GrandIsland=(4,40),
+    Cheektowaga=(23,31), WestSeneca=(24,22), OrchardPark=(26,17), Buffalo=(9,28),
+    Hamburg=(20,17), Fredonia=(10,10), SBuffalo=(12,25)
+)
 
 erie_puzzle = search.GraphProblem('GrandIsland', 'OrchardPark', erie_map)
 
