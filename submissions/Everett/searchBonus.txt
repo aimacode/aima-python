@@ -7,9 +7,16 @@ Homework for Thursday, September 13th
 
 Homework for Thursday, September 20th
 35 - The problem runs without exceptions*, and generates valid output for, all four searches.
+
+
+
 +10: Show that the state space of the problem contains at least 50 states
 +10: An instance that yields a better solution with BFS than DFS
 +10: An instance that yields a better solution with UCS than BFS
+
+
+
+
 +10: UCS finds a solution at least 1 move deep.
 +10: UCS finds a solution at least 2 moves deep.
 +10: UCS finds a solution at least 4 moves deep.
