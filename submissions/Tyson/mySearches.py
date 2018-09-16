@@ -12,18 +12,37 @@ from math import(cos, pi)
 
 #My map problem
 potter_map = search.UndirectedGraph(dict(
-    Amarillo=dict( Canyon=20, Washburn=15),
-    Canyon=dict(Amarillo=20, Umbarger=10, Washburn=40, Happy=22),
-    Washburn=dict(Amarillo=15, Canyon=40, Tulia=65),
+    Amarillo=dict( Washburn=15),
+    Canyon=dict( Umbarger=10, Happy=22, VigoPark=35),
+    Washburn=dict(Amarillo=15, Claude=14),
     Umbarger=dict(Canyon=10, Arney=15),
     Arney=dict(Umbarger=15, Nazareth=15),
-    Nazareth=dict(Arney=15, Happy=20, Tulia=22),
-    Happy=dict(Nazareth=20, Canyon=22),
-    Tulia=dict(Nazareth=22, Washburn=65)
+    Nazareth=dict(Arney=15, Happy=20, Tulia=22, Dimmit=12),
+    Happy=dict(Nazareth=20, Canyon=22, Tulia=18),
+    Tulia=dict(Nazareth=22, Happy=18, Silverton=30, VigoPark=20),
+    Panhandle=dict( Claude=20, Fritch=25),
+    Claude=dict(Washburn=14, Panhandle=20),
+    Silverton=dict(Tulia=30, VigoPark=20),
+    Dimmit=dict(Nazareth=12),
+    VigoPark=dict(Tulia=20, Silverton=30, Happy=28, Claude=35),
+    Masterson=dict(Amarillo=31, BoysRanch=30),
+    Fritch=dict(Masterson=15, Panhandle=25),
+    Groom=dict(Claude=10, Panhandle=10),
+    Love=dict(Fritch=29, Groom=7),
+
+
 
 
 
     ))
+
+potter_map.locations = dict(
+    Amarillo=(20, 16), Canyon=(10, 35), Washburn=(35, 65), Umbarger=(0, 30), Arney=(0, 15),
+    Nazareth=(1, 0), Happy=(7, 12), Tulia=(22, 0), Panhandle=(50, 80), Claude=(52, 60), Silverton=(52, 0),
+    Dimmit=(-12, 0), VigoPark=(40, 18), BoysRanch=(0,100), Masterson=(30, 100),
+    Fritch=(32, 75), Groom=(51, 70), Love=(42, 75),
+
+)
 
 
 #sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
@@ -33,17 +52,17 @@ potter_map = search.UndirectedGraph(dict(
 # An abbreviated map of Sumner County, TN.
 # This map is unique, to the best of my knowledge.
 # '''
-potter_puzzle = search.GraphProblem('Canyon', 'Nazareth', potter_map)
-potter_puzzle.label = 'Potter County - Canyon to Nazareth'
-potter_puzzle.description = '''First Instance '''
+# potter_puzzle = search.GraphProblem('Canyon', 'Nazareth', potter_map)
+# potter_puzzle.label = 'Potter County - Canyon to Nazareth'
+# potter_puzzle.description = '''First Instance '''
 
-potter_puzzle2 = search.GraphProblem('Amarillo', 'Tulia', potter_map)
-potter_puzzle2.label = 'Potter County - Amarillo to Tulia'
+potter_puzzle2 = search.GraphProblem('Arney', 'BoysRanch', potter_map)
+potter_puzzle2.label = 'Potter County - Claude to Silverton'
 potter_puzzle2.description = '''Instance where BFS does better than DFS '''
 
-potter_puzzle3 = search.GraphProblem('Nazareth', 'Washburn', potter_map)
-potter_puzzle3.label = 'Potter County-Nazareth to Washburn'
-potter_puzzle3.description = '''Instance where UniformCost does better than DFS and BFS '''
+# potter_puzzle3 = search.GraphProblem('Nazareth', 'Amarillo', potter_map)
+# potter_puzzle3.label = 'Potter County-Nazareth to Washburn'
+# potter_puzzle3.description = '''Instance where UniformCost does better than DFS and BFS '''
 
 
 
@@ -93,15 +112,31 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
+
+# ColorPuzzle_Grid = search.UndirectedGraph(dict(
+#
+#
+# ))
+
+# class ColorPuzzle(search.Problem):
+#
+#     def actions(self,state):
+#         return['up','down','left','right']
+#
+#     def result(self, state, action):
+
+
 #switch_puzzle = search.GraphProblem('Off', 'On', potter_map)
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
-    potter_puzzle,
+ #    potter_puzzle,
     potter_puzzle2,
-    potter_puzzle3
-   # romania_puzzle,
+    # potter_puzzle3
+    #romania_puzzle,
     #switch_puzzle,
 ]
+
+mySearchMethods = []
