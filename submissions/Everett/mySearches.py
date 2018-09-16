@@ -11,7 +11,7 @@ madison_map = search.UndirectedGraph(dict(
   Humboldt=dict(Jackson=27, ThreeWay=8),
   ThreeWay=dict(Humboldt=8, Medon=34),
   Medon=dict(Jackson=17, Humboldt=43,ThreeWay=34),
-  SpringCreek=dict(ThreeWay=18,Medon=34,Humboldt=29)
+  SpringCreek=dict(ThreeWay=18 , Medon=34 , Humboldt=29)
 ))
 
 madison_puzzle = search.GraphProblem('Jackson', 'ThreeWay', madison_map)
@@ -27,6 +27,9 @@ madison_puzzle1.description = '''
 An abbreviated map of Madison County, TN.
 This map is unique, to the best of my knowledge.
 '''
+
+madison_map.locations = dict(
+    Jackson=(482, 512), Humboldt=(482, 482), ThreeWay=(474, 474), Medon=(495, 501), SpringCreek=(474, 464))
 
 romania_map = search.UndirectedGraph(dict(
     A=dict(Z=75,S=140,T=118),
@@ -73,18 +76,48 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
+class Maze(search.Problem):
+
+    def actions(self, state):
+        return['up', 'down', 'left', 'right']
+
+    def result(self, state, action):
+        if action == 'up':
+            return 'left'
+        if action == 'down':
+            return 'right'
+        if action == 'right':
+            return 'up'
+        if action == 'left':
+            return 'down'
+
+    def goal_test(self, state):
+            return state == 'left'
+
+    def h(self , node):
+        state = node.state
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
+
+
+maze_puzzle = Maze('down')
+maze_puzzle.label = 'Maze'
+
+
+
 #swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
+
 mySearches = [
- #   swiss_puzzle,
     madison_puzzle,
-    romania_puzzle,
-    switch_puzzle,
+   # romania_puzzle,
+  #  switch_puzzle,
     madison_puzzle1,
-
-
+    maze_puzzle,
 
 
 
