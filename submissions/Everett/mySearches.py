@@ -148,7 +148,7 @@ class Maze2(search.Problem):
         if action == 'down':
             c = c+10
 
-        return c 
+        return c
 
     #def value(self, state):
 

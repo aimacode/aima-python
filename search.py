@@ -301,9 +301,7 @@ def iterative_deepening_search(problem):
         if result != 'cutoff':
             return result
 
-#def random_search(problem):
-
-#_______________________________________________
+# ______________________________________________________________________________
 # Informed (Heuristic) Search
 
 greedy_best_first_graph_search = best_first_graph_search
@@ -517,7 +515,6 @@ class LRTAStarAgent:
     """ [Figure 4.24]
     Abstract class for LRTA*-Agent. A problem needs to be
     provided which is an instanace of a subclass of Problem Class.
-
     Takes a OnlineSearchProblem [Figure 4.23] as a problem
     """
 
@@ -823,7 +820,6 @@ class GraphProblemStochastic(GraphProblem):
     """
     A version of GraphProblem where an action can lead to
     nondeterministic output i.e. multiple possible states
-
     Define the graph as dict(A = dict(Action = [[<Result 1>, <Result 2>, ...], <cost>], ...), ...)
     A the dictionary format is different, make sure the graph is created as a directed graph
     """
@@ -1162,4 +1158,4 @@ def compare_graph_searchers():
                                 GraphProblem('Oradea', 'Neamt', romania_map),
                                 GraphProblem('Q', 'WA', australia_map)],
                       header=['Searcher', 'romania_map(Arad, Bucharest)',
-                              'romania_map(Oradea, Neamt)', 'australia_map'])
+'romania_map(Oradea, Neamt)', 'australia_map'])
