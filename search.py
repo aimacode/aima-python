@@ -301,7 +301,9 @@ def iterative_deepening_search(problem):
         if result != 'cutoff':
             return result
 
-# ______________________________________________________________________________
+#def random_search(problem):
+
+#_______________________________________________
 # Informed (Heuristic) Search
 
 greedy_best_first_graph_search = best_first_graph_search

@@ -2,6 +2,8 @@ import search
 from math import(cos, pi)
 
 # A sample map problem
+from utils import is_in
+
 madison_map = search.UndirectedGraph(dict(
  # Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
   # Cottontown=dict(Portland=18),
@@ -79,12 +81,17 @@ class LightSwitch(search.Problem):
 class Maze(search.Problem):
 
     def actions(self, state):
+
         return['up', 'down', 'left', 'right']
 
     def result(self, state, action):
+        laststate = state
+
+        if action == 'down':
+            return 'right'
         if action == 'up':
             return 'left'
-        if action == 'down':
+        if action == 'up':
             return 'right'
         if action == 'right':
             return 'up'
@@ -92,9 +99,60 @@ class Maze(search.Problem):
             return 'down'
 
     def goal_test(self, state):
-            return state == 'left'
+            return state == 'up'
 
-    def h(self , node):
+    def h(self, node):
+        state = node.state
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
+
+class Maze2(search.Problem):
+
+    def __init__(self, initial='Start', goal='Done'):
+
+        self.initial = initial
+        self.goal = goal
+
+    def actions(self, state):
+     return ['up', 'down', 'left', 'right']
+
+    def result(self, state, action):
+
+        if action == 'down':
+            return 'right'
+        if action == 'up':
+            return 'left'
+        if action == 'up':
+            return 'right'
+        if action == 'right':
+            return 'up'
+        if action == 'left':
+            return 'Done'
+
+    def goal_test(self, state):
+
+        if isinstance(self.goal, list):
+            return is_in(state, self.goal)
+        else:
+            return state == self.goal
+
+    def path_cost(self, c, state1, action, state2):
+        if action == 'left':
+            c = c + 12
+        if action == 'right':
+            c = c + 1
+        if action == 'up':
+            c = c + 7
+        if action == 'down':
+            c = c+10
+
+        return c 
+
+    #def value(self, state):
+
+    def h(self, node):
         state = node.state
         if self.goal_test(state):
             return 0
@@ -102,7 +160,10 @@ class Maze(search.Problem):
             return 1
 
 
-maze_puzzle = Maze('down')
+
+
+maze_puzzle = Maze2('Start')
+
 maze_puzzle.label = 'Maze'
 
 
