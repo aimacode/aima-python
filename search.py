@@ -1160,4 +1160,4 @@ def compare_graph_searchers():
                                 GraphProblem('Oradea', 'Neamt', romania_map),
                                 GraphProblem('Q', 'WA', australia_map)],
                       header=['Searcher', 'romania_map(Arad, Bucharest)',
-                              'romania_map(Oradea, Neamt)', 'australia_map'])
+                              'romania_map(Oradea, Neamt)', 'australia_map']) 
