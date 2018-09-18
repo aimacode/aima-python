@@ -1,7 +1,7 @@
 import agents as ag
 import envgui as gui
 import random
-from submissions.Devries import vacuum2
+from submissions.DeVries import vacuum2
 
 # ______________________________________________________________________________
 
@@ -200,7 +200,7 @@ v.scatter_things(Dirt)
 g = gui.EnvGUI(v, 'Vaccuum')
 c = g.getCanvas()
 c.mapImageNames({
-    ag.Wall: 'images/michaelDeVriesFace.jpg',
+    ag.Wall: 'submissions/DeVries/michaelDeVriesFace.jpg',
     # Floor: 'images/floor.png',
     Dirt: 'images/dirt.png',
     ag.Agent: 'images/vacuum.png',
