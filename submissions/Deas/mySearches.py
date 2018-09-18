@@ -21,6 +21,20 @@ An abbreviated map of Franklin County, OH.
 This map is unique, to the best of my knowledge.
 '''
 
+ohio_map = search.UndirectedGraph(dict(
+    Kenton=dict(Ottawa=55, Troy=77,Mansfield=70, Urbana=53),
+    Troy=dict(Dayton=28, Lima=54, Kenton= 75),
+    London=dict(Dayton=60, Chillicothe=66, Urbana=35),
+    Chillicothe=dict(Lebanon=77, Hillsboro=52),
+    Columbus=dict(Athens=81, Mansfield=66, Urbana=51),
+    Akron=dict(Mansfield=63, Cleveland=53, NewPhil=54),
+    NewPhil=dict(Newark=79, Woodsfield=92),
+    Lebanon=dict(Dayton=35, London=60, Hillsboro=56),
+))
+ohio_puzzle = search.GraphProblem('Cleveland', 'Troy', ohio_map)
+ohio_puzzle.label = 'Ohio'
+
+
 romania_map = search.UndirectedGraph(dict(
     A=dict(Z=75,S=140,T=118),
     Z=dict(O=71,A=75),
@@ -72,6 +86,7 @@ switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
+    ohio_puzzle,
     franklin_puzzle,
     romania_puzzle,
     switch_puzzle,
