@@ -2,18 +2,22 @@ import search
 from math import(cos, pi)
 
 # A sample map problem
-sumner_map = search.UndirectedGraph(dict(
-   Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
-   Cottontown=dict(Portland=18),
-   Fairfield=dict(Mitchellville=21, Portland=17),
-   Mitchellville=dict(Portland=7, Fairfield=21),
+orange_map = search.UndirectedGraph(dict(
+   PortJervis=dict(Middletown=28, Warwick=37, Monticello=30),
+   Monticello=dict(PortJervis=30),
+   Middletown=dict(PortJervis=28, Warwick=29, Newburgh=32, Wallkill=33, Washingtonville=12),
+   Warwick=dict(PortJervis=37, GreenwoodLake=11, Newburgh=44),
+   Newburgh=dict(Warwick=44, Middletown=32, Poughkeepsie=30, Wallkill=32, Washingtonville=10),
+   Poughkeepsie=dict(Newburgh=30),
+   Wallkill=dict(Middletown=33, Newburgh=32),
+   Washingtonville=dict(Warwick=25, Newburgh=10, Middletown=12),
 ))
 
-sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
+orange_puzzle = search.GraphProblem('PortJervis', 'Newburgh', orange_map)
 
-sumner_puzzle.label = 'Sumner'
-sumner_puzzle.description = '''
-An abbreviated map of Sumner County, TN.
+orange_puzzle.label = 'Orange'
+orange_puzzle.description = '''
+An abbreviated map of Orange County, NY.
 This map is unique, to the best of my knowledge.
 '''
 
@@ -32,14 +36,6 @@ romania_map = search.UndirectedGraph(dict(
     P=dict(R=97,C=138,B=101),
     B=dict(G=90,P=101,F=211),
 ))
-romania_map.locations = dict(
-    A=( 91, 492), B=(400, 327), C=(253, 288),
-    D=(165, 299), E=(562, 293), F=(305, 449),
-    G=(375, 270), H=(534, 350), I=(473, 506),
-    L=(165, 379), M=(168, 339), N=(406, 537),
-    O=(131, 571), P=(320, 368), R=(233, 410),
-    S=(207, 457), T=( 94, 410), U=(456, 350),
-    V=(509, 444), Z=(108, 531))
 
 romania_puzzle = search.GraphProblem('A', 'B', romania_map)
 
@@ -76,25 +72,7 @@ switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
-    sumner_puzzle,
+    orange_puzzle,
     romania_puzzle,
     switch_puzzle,
-]
-
-import random
-
-def flounder(problem, giveup=10000):
-    'The worst way to solve a problem'
-    node = search.Node(problem.initial)
-    count = 0
-    while not problem.goal_test(node.state):
-        count += 1
-        if count >= giveup:
-            return null
-        children = node.expand(problem)
-        node = random.choice(children)
-    return node
-
-mySearchMethods = [
-    flounder
 ]

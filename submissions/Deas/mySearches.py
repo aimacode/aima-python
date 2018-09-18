@@ -1,21 +1,39 @@
 import search
 from math import(cos, pi)
 
-# A sample map problem
-sumner_map = search.UndirectedGraph(dict(
-   Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
-   Cottontown=dict(Portland=18),
-   Fairfield=dict(Mitchellville=21, Portland=17),
-   Mitchellville=dict(Portland=7, Fairfield=21),
+franklin_map = search.UndirectedGraph(dict(
+    Hilliard=dict(UpperArlington=18, Valleyview=11, Dublin=15),
+    GroveCity=dict(CanalWinchester=33, Valleyview=21, Obetz=18),
+    UpperArlington=dict(Columbus=14, Worthington=17),
+    Columbus=dict(Valleyview=11, CanalWinchester=27),
+    Worthington=dict(NewAlbany=21, Gahanna=22),
+    NewAlbany=dict(CanalWinchester=35, Gahanna=15),
+    Gahanna=dict(Bexley=20, Reynoldsburg=13),
+    Bexley=dict(Columbus=14, Renyoldsburg=28),
+    CanalWinchester=dict(Reynoldsburg=27, Obetz=17),
+    Valleyview=dict(Obetz=23)
 ))
+franklin_puzzle = search.GraphProblem('Hilliard', 'CanalWinchester', franklin_map)
 
-sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
-
-sumner_puzzle.label = 'Sumner'
-sumner_puzzle.description = '''
-An abbreviated map of Sumner County, TN.
+franklin_puzzle.label = 'Franklin'
+franklin_puzzle.description = '''
+An abbreviated map of Franklin County, OH.
 This map is unique, to the best of my knowledge.
 '''
+
+ohio_map = search.UndirectedGraph(dict(
+    Kenton=dict(Ottawa=55, Troy=77,Mansfield=70, Urbana=53),
+    Troy=dict(Dayton=28, Lima=54, Kenton= 75),
+    London=dict(Dayton=60, Chillicothe=66, Urbana=35),
+    Chillicothe=dict(Lebanon=77, Hillsboro=52),
+    Columbus=dict(Athens=81, Mansfield=66, Urbana=51),
+    Akron=dict(Mansfield=63, Cleveland=53, NewPhil=54),
+    NewPhil=dict(Newark=79, Woodsfield=92),
+    Lebanon=dict(Dayton=35, London=60, Hillsboro=56),
+))
+ohio_puzzle = search.GraphProblem('Cleveland', 'Troy', ohio_map)
+ohio_puzzle.label = 'Ohio'
+
 
 romania_map = search.UndirectedGraph(dict(
     A=dict(Z=75,S=140,T=118),
@@ -32,14 +50,6 @@ romania_map = search.UndirectedGraph(dict(
     P=dict(R=97,C=138,B=101),
     B=dict(G=90,P=101,F=211),
 ))
-romania_map.locations = dict(
-    A=( 91, 492), B=(400, 327), C=(253, 288),
-    D=(165, 299), E=(562, 293), F=(305, 449),
-    G=(375, 270), H=(534, 350), I=(473, 506),
-    L=(165, 379), M=(168, 339), N=(406, 537),
-    O=(131, 571), P=(320, 368), R=(233, 410),
-    S=(207, 457), T=( 94, 410), U=(456, 350),
-    V=(509, 444), Z=(108, 531))
 
 romania_puzzle = search.GraphProblem('A', 'B', romania_map)
 
@@ -76,25 +86,8 @@ switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
-    sumner_puzzle,
+    ohio_puzzle,
+    franklin_puzzle,
     romania_puzzle,
     switch_puzzle,
-]
-
-import random
-
-def flounder(problem, giveup=10000):
-    'The worst way to solve a problem'
-    node = search.Node(problem.initial)
-    count = 0
-    while not problem.goal_test(node.state):
-        count += 1
-        if count >= giveup:
-            return null
-        children = node.expand(problem)
-        node = random.choice(children)
-    return node
-
-mySearchMethods = [
-    flounder
 ]
