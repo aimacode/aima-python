@@ -3,13 +3,26 @@ from math import(cos, pi)
 
 # A sample map problem
 sumner_map = search.UndirectedGraph(dict(
-   Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
-   Cottontown=dict(Portland=18),
-   Fairfield=dict(Mitchellville=21, Portland=17),
-   Mitchellville=dict(Portland=7, Fairfield=21),
+   # Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
+   # Cottontown=dict(Portland=18),
+   # Fairfield=dict(Mitchellville=21, Portland=17),
+   # Mitchellville=dict(Portland=7, Fairfield=21),
+    Sioux_Falls=dict(Tea=19,Hartford=21),
+    Hartford=dict(Sioux_Falls=21,Humboldt=10),
+    Humboldt=dict(Hartford=10,Montrose=8),
+    Montrose=dict(Humboldt=8,Alexandria=31),
+    Alexandria=dict(Montrose=31,Mt_Vernon=27),
+    Mt_Vernon=dict(Alexandria=27,Plankinton=16),
+    Plankinton=dict(Mt_Vernon=16,Corsica=26),
+    Corsica=dict(Plankinton=26,Armour=14),
+    Tea=dict(Sioux_Falls=19,Kaylor=73,Menno=56),
+    Menno=dict(Tea=56,Tripp=22),
+    Tripp=dict(Menno=22,Armour=28),
+    Kaylor=dict(Tea=73,Armour=38),
+    Armour=dict(Kaylor=38,Tripp=28,Corsica=14)
 ))
 
-sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
+sumner_puzzle = search.GraphProblem('Sioux_Falls', 'Armour', sumner_map)
 
 sumner_puzzle.label = 'Sumner'
 sumner_puzzle.description = '''
@@ -32,14 +45,6 @@ romania_map = search.UndirectedGraph(dict(
     P=dict(R=97,C=138,B=101),
     B=dict(G=90,P=101,F=211),
 ))
-romania_map.locations = dict(
-    A=( 91, 492), B=(400, 327), C=(253, 288),
-    D=(165, 299), E=(562, 293), F=(305, 449),
-    G=(375, 270), H=(534, 350), I=(473, 506),
-    L=(165, 379), M=(168, 339), N=(406, 537),
-    O=(131, 571), P=(320, 368), R=(233, 410),
-    S=(207, 457), T=( 94, 410), U=(456, 350),
-    V=(509, 444), Z=(108, 531))
 
 romania_puzzle = search.GraphProblem('A', 'B', romania_map)
 
@@ -80,21 +85,4 @@ mySearches = [
     romania_puzzle,
     switch_puzzle,
 ]
-
-import random
-
-def flounder(problem, giveup=10000):
-    'The worst way to solve a problem'
-    node = search.Node(problem.initial)
-    count = 0
-    while not problem.goal_test(node.state):
-        count += 1
-        if count >= giveup:
-            return null
-        children = node.expand(problem)
-        node = random.choice(children)
-    return node
-
-mySearchMethods = [
-    flounder
-]
+mySearchMethods = []

@@ -1,6 +1,7 @@
 import search
 from math import(cos, pi)
 
+
 # A sample map problem
 sumner_map = search.UndirectedGraph(dict(
    Portland=dict(Mitchellville=7, Fairfield=17, Cottontown=18),
@@ -8,6 +9,8 @@ sumner_map = search.UndirectedGraph(dict(
    Fairfield=dict(Mitchellville=21, Portland=17),
    Mitchellville=dict(Portland=7, Fairfield=21),
 ))
+
+# Nashville, Atlanta, College Station, Baltimore, Raleigh, St. Louis, Gainsville,
 
 sumner_puzzle = search.GraphProblem('Cottontown', 'Mitchellville', sumner_map)
 
@@ -32,14 +35,6 @@ romania_map = search.UndirectedGraph(dict(
     P=dict(R=97,C=138,B=101),
     B=dict(G=90,P=101,F=211),
 ))
-romania_map.locations = dict(
-    A=( 91, 492), B=(400, 327), C=(253, 288),
-    D=(165, 299), E=(562, 293), F=(305, 449),
-    G=(375, 270), H=(534, 350), I=(473, 506),
-    L=(165, 379), M=(168, 339), N=(406, 537),
-    O=(131, 571), P=(320, 368), R=(233, 410),
-    S=(207, 457), T=( 94, 410), U=(456, 350),
-    V=(509, 444), Z=(108, 531))
 
 romania_puzzle = search.GraphProblem('A', 'B', romania_map)
 
@@ -48,6 +43,23 @@ romania_puzzle.description = '''
 The simplified map of Romania, per
 Russall & Norvig, 3rd Ed., p. 68.
 '''
+
+
+la_map = search.UndirectedGraph({
+    'Beverly Hills': {'Hollywood': 15, 'Santa Monica': 15},
+    'Calabasas': {'Westlake Village': 15, 'Woodland Hills': 11},
+    'Disneyland': {'Downtown': 28, 'Venice Beach': 51},
+    'Downtown': {'Disneyland': 28, 'Hollywood': 16, 'Santa Monica': 20},
+    'Hollywood': {'Beverly Hills': 15, 'Downtown': 16, 'Woodland Hills': 24},
+    'Malibu': {'Santa Monica': 33, 'Westlake Village': 26},
+    'Santa Monica': {'Beverly Hills': 15, 'Downtown': 20, 'Malibu': 33, 'Venice Beach': 8},
+    'Venice Beach': {'Disneyland': 51, 'Santa Monica': 8, 'Woodland Hills': 32},
+    'Westlake Village': {'Calabasas': 15, 'Malibu': 26},
+    'Woodland Hills': {'Calabasas': 11, 'Hollywood': 24, 'Venice Beach': 32}
+})
+
+la_puzzle = search.GraphProblem('Woodland Hills', 'Disneyland', la_map)
+la_puzzle.label = 'Los Angeles'
 
 # A trivial Problem definition
 class LightSwitch(search.Problem):
@@ -76,25 +88,10 @@ switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
-    sumner_puzzle,
-    romania_puzzle,
-    switch_puzzle,
+ #   sumner_puzzle,
+ #  romania_puzzle,
+ #   switch_puzzle,
+    la_puzzle
 ]
 
-import random
-
-def flounder(problem, giveup=10000):
-    'The worst way to solve a problem'
-    node = search.Node(problem.initial)
-    count = 0
-    while not problem.goal_test(node.state):
-        count += 1
-        if count >= giveup:
-            return null
-        children = node.expand(problem)
-        node = random.choice(children)
-    return node
-
-mySearchMethods = [
-    flounder
-]
+mySearchMethods = []
