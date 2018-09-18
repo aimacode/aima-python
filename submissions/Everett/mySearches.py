@@ -1,4 +1,6 @@
+
 import search
+import numpy as np
 from math import(cos, pi)
 
 # A sample map problem
@@ -56,6 +58,58 @@ romania_puzzle.description = '''
 The simplified map of Romania, per
 Russall & Norvig, 3rd Ed., p. 68.
 '''
+#0s Represent Walls
+#1s Represent Path
+maze2 = np.array([[9, 1, 1, 1, 1, 1],
+                  [0, 1, 0, 1, 1, 1],
+                  [0, 1, 0, 1, 1, 0],
+                  [0, 1, 1, 1, 1, 1],
+                  [4, 6, 2, 0, 0, 1],
+                  [6, 3, 2, 1, 1, 0],
+                  [8, 5, 3, 1, 1, 1]])
+
+maze2_path = search.UndirectedGraph(dict(
+    Start=dict(B=2),
+    B=dict(C=2, Start=2),
+    C=dict(D=5, Q=5, B=5),
+    D=dict(E=8, C=9),
+    E=dict(F=10, D=12),
+    F=dict(G=13, E=14),
+    G=dict(H=24, F=12),
+    H=dict(I=34, G=56),
+    I=dict(J=34, H=67),
+    J=dict(AW=54, I=78),
+    AW=dict(K=56, AC=21, J=34),
+    K=dict(L=78, AW=89),
+    L=dict(AX=56, M=76, K=87),
+    AX=dict(L=43),
+    M=dict(N=75, L=86),
+    N=dict(O=64, M=43),
+    O=dict(W=42, P=71, N=90),
+    P=dict(Q=12, O=52),
+    Q=dict(C=98, U=20, R=45, P=31),
+    R=dict(T=51, S=51, Q=96),
+    S=dict(R=85),
+    T=dict(U=5, AJ=54, R=62),
+    U=dict(V=52, T=31, Q=52),
+    V=dict(W=85, AF=20, U=96),
+    AF=dict(AE=85, V=12),
+    AE=dict(AD=51, AF=51),
+    AD=dict(AG=12, N=95, AE=46),
+    AG=dict(AH=73, AM=46, AD=20),
+    AH=dict(AI=21, AG=52),
+    AI=dict(AJ=51, AH=21),
+    AJ=dict(T=32, AI=21, AK=75),
+    AK=dict(AL=46, AJ=85),
+    AL=dict(AK=26),
+    AM=dict(Finish=65, AG=75),
+    W=dict(V=52, X=23, O=12),
+    X=dict(Y=56, W=45),
+    Y=dict(Z=12, X=91),
+    Z=dict(AB=21, Y=51),
+    AB=dict(AC=12, Z=82),
+    Finish=dict(AM=96),
+))
 
 # A trivial Problem definition
 class LightSwitch(search.Problem):
@@ -78,77 +132,30 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
-class Maze(search.Problem):
-
-    def actions(self, state):
-
-        return['up', 'down', 'left', 'right']
-
-    def result(self, state, action):
-        laststate = state
-
-        if action == 'down':
-            return 'right'
-        if action == 'up':
-            return 'left'
-        if action == 'up':
-            return 'right'
-        if action == 'right':
-            return 'up'
-        if action == 'left':
-            return 'down'
-
-    def goal_test(self, state):
-            return state == 'up'
-
-    def h(self, node):
-        state = node.state
-        if self.goal_test(state):
-            return 0
-        else:
-            return 1
 
 class Maze2(search.Problem):
 
-    def __init__(self, initial='Start', goal='Done'):
-
+    def __init__(self, initial, goal, maze):
         self.initial = initial
         self.goal = goal
+        self.maze = maze
 
     def actions(self, state):
-     return ['up', 'down', 'left', 'right']
+        bob = self.maze[state]
+        key = bob.keys()
+        return key
 
     def result(self, state, action):
-
-        if action == 'down':
-            return 'right'
-        if action == 'up':
-            return 'left'
-        if action == 'up':
-            return 'right'
-        if action == 'right':
-            return 'up'
-        if action == 'left':
-            return 'Done'
+        return action
 
     def goal_test(self, state):
-
         if isinstance(self.goal, list):
             return is_in(state, self.goal)
         else:
             return state == self.goal
 
-    def path_cost(self, c, state1, action, state2):
-        if action == 'left':
-            c = c + 12
-        if action == 'right':
-            c = c + 1
-        if action == 'up':
-            c = c + 7
-        if action == 'down':
-            c = c+10
+   #def path_cost(self, c, state1, action, state2):
 
-        return c
 
     #def value(self, state):
 
@@ -162,9 +169,9 @@ class Maze2(search.Problem):
 
 
 
-maze_puzzle = Maze2('Start')
+maze_puzzle2 = Maze2('Start', 'Finish', maze2_path)
 
-maze_puzzle.label = 'Maze'
+maze_puzzle2.label = 'Maze'
 
 
 
@@ -178,7 +185,7 @@ mySearches = [
    # romania_puzzle,
   #  switch_puzzle,
     madison_puzzle1,
-    maze_puzzle,
+    maze_puzzle2,
 
 
 
