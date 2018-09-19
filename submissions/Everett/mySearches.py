@@ -15,11 +15,20 @@ madison_map = search.UndirectedGraph(dict(
   Humboldt=dict(Jackson=27, ThreeWay=8),
   ThreeWay=dict(Humboldt=8, Medon=34),
   Medon=dict(Jackson=17, Humboldt=43,ThreeWay=34),
-  SpringCreek=dict(ThreeWay=18 , Medon=34 , Humboldt=29)
+  SpringCreek=dict(ThreeWay=18, Medon=34, Humboldt=29)
 ))
+
+#madison_map.locations = (dict(
+  #  Jackson=(482, 512),
+   # Humboldt=(482, 482),
+    #ThreeWay=(474, 474),
+    #Medon=(495, 501),
+    #SpringCreek=(474, 464)
+#))
 
 madison_puzzle = search.GraphProblem('Jackson', 'ThreeWay', madison_map)
 madison_puzzle1 = search.GraphProblem('SpringCreek', 'Jackson', madison_map)
+#madison_puzzle4 = search.GraphProblem('Jackson','ThreeWay', madison_map.locations)
 
 madison_puzzle.label = 'Madison'
 madison_puzzle.description = '''
@@ -32,8 +41,12 @@ An abbreviated map of Madison County, TN.
 This map is unique, to the best of my knowledge.
 '''
 
-madison_map.locations = dict(
-    Jackson=(482, 512), Humboldt=(482, 482), ThreeWay=(474, 474), Medon=(495, 501), SpringCreek=(474, 464))
+#madison_puzzle4.label = 'Madison w/ Points'
+#madison_puzzle4.description = '''
+#An coordinate map of Madison County, TN.
+#This map is unique, to the best of my knowledge.
+#'''
+
 
 romania_map = search.UndirectedGraph(dict(
     A=dict(Z=75,S=140,T=118),
@@ -175,7 +188,6 @@ class Maze2(search.Problem):
         self.map = map
         self.initial = initial
         self.goal = goal
-        self.maze = map
 
     def actions(self, state):
         bob = self.map[state]
@@ -193,14 +205,21 @@ class Maze2(search.Problem):
         cost = bob[state2]
         return c + cost
 
-    #def value(self, state):
-
     def h(self, node):
         state = node.state
         if self.goal_test(state):
             return 0
         else:
             return 1
+
+
+
+   # def h(self, node):
+      #  state = node.action
+       # state1 = self.initial
+        #state2 = self.map
+
+
 
 maze_puzzle2 = Maze2('Start', 'Finish', maze_path)
 
@@ -211,6 +230,7 @@ Labyrinth_puzzle = Maze2('Start','Finish', Labyrinth_path)
 Labyrinth_puzzle.label = 'Labyrinth'
 
 #swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
+
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
@@ -220,28 +240,28 @@ mySearches = [
    # romania_puzzle,
    #  switch_puzzle,
     madison_puzzle1,
+   # madison_puzzle4,
     maze_puzzle2,
-    #Labyrinth_puzzle
+    Labyrinth_puzzle
 ]
 
-import array
 
+from utils import Stack
+from utils import Queue
 
-def The_Shining(problem, Getcaught = 9000):
-    footsteps = []
-    node = search.Node(problem.initial)
-    count =0
-    while not problem.goal_test(node):
-        count+=1
-        footsteps.append(node.action)
-        node.expand(problem.initial)
-        if problem.goal_test(node):
-            node.solution()
-
-
-
-    print(footsteps)
+#def The_Shining(problem):
+ #   node = search.Node(problem.initial)
+  #  count = 0
+   # while not problem.goal_test(node.state):
+    #  for child in node.expand(problem):
+     #     count += 1
+      #    bob8=child
+       #   currentnode = child.expand(problem)
+        #  if count == 50:
+         #    return currentnode.state
+          #if problem.goal_test(child.state):
+           #   return child
 
 mySearchMethods = [
-   The_Shining(maze_puzzle2)
+   #The_Shining(maze_puzzle2)
 ]
