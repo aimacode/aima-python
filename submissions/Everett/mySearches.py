@@ -58,17 +58,23 @@ romania_puzzle.description = '''
 The simplified map of Romania, per
 Russall & Norvig, 3rd Ed., p. 68.
 '''
-#0s Represent Walls
-#1s Represent Path
-maze2 = np.array([[9, 1, 1, 1, 1, 1],
-                  [0, 1, 0, 1, 1, 1],
-                  [0, 1, 0, 1, 1, 0],
-                  [0, 1, 1, 1, 1, 1],
-                  [4, 6, 2, 0, 0, 1],
-                  [6, 3, 2, 1, 1, 0],
-                  [8, 5, 3, 1, 1, 1]])
+# 0s Represent Walls
+# 1s Represent Path
+# 9 Represents Start
+# 8 Represents Exit
 
-Labryrinth_path = (dict(
+Labyrinth2 = np.array([[9, 1, 1, 1, 1, 1],
+                       [0, 1, 0, 1, 1, 1],
+                       [0, 1, 0, 1, 1, 1],
+                       [0, 1, 1, 1, 1, 1],
+                       [0, 0, 0, 1, 0, 1],
+                       [0, 0, 0, 1, 1, 1],
+                       [8, 1, 1, 1, 1, 1]])
+
+# Above is the visual representation of the below labyrinth. It has multiple paths to traverse but only
+# one entrance and one exit.
+
+Labyrinth_path = (dict(
     Start=dict(B=2),
     B=dict(C=2, Start=2),
     C=dict(D=5, Q=20, B=2),
@@ -84,7 +90,7 @@ Labryrinth_path = (dict(
     L=dict(M=6, K=87),
     M=dict(N=75, L=86),
     N=dict(O=64, M=43),
-    O=dict(W=42, P=71, N=90),
+    O=dict(W=42, P=52, N=64),
     P=dict(Q=12, O=52),
     Q=dict(C=20, U=20, R=45, P=31),
     R=dict(T=51, Q=96),
@@ -99,26 +105,35 @@ Labryrinth_path = (dict(
     AI=dict(AJ=51, AH=21),
     AJ=dict(T=32, AI=21),
     AM=dict(Finish=65, AG=75),
-    W=dict(V=52, X=23, O=12),
-    X=dict(Y=56, W=45),
-    Y=dict(Z=12, X=91),
-    Z=dict(AB=21, Y=51),
-    AB=dict(AC=12, Z=82),
-    AC=dict(AB=12, AC=21),
-    Finish=dict(AM=96),
+    W=dict(V=52, X=23, O=42),
+    X=dict(Y=56, W=23),
+    Y=dict(Z=12, X=56),
+    Z=dict(AB=21, Y=12),
+    AB=dict(AC=12, Z=21),
+    AC=dict(AB=12, AW=21),
+    Finish=dict(AM=65),
 ))
 
 
+Maze = np.array([[0,0,9,0,0],
+                 [1,1,1,1,1],
+                 [1,0,1,0,1],
+                 [1,0,0,0,1],
+                 [1,1,8,0,0]])
+
+# Above is a visual representation of the below maze. Unlike the labyrinth, it has only one solution
+# to get from the start to finish.
+
 maze_path = (dict(
     Start=dict(A=0),
-    A=dict(Start=0,C=0,B=0,F=0),
+    A=dict(Start=0, C=0, B=0, F=0),
     B=dict(A=0, G=0),
     C=dict(A=0, D=0),
     D=dict(M=0, C=0),
     M=dict(L=0, D=0),
     L=dict(K=0, M=0),
     K=dict(L=0, Finish=0),
-    Finish=dict(k=0),
+    Finish=dict(K=0),
     G=dict(B=0, H=0),
     H=dict(G=0, J=0),
     J=dict(I=0, H=0),
@@ -151,6 +166,8 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
+# This problem definition solves any size maze and labyrinth if given enough memory space.
+# However, labyrinths take longer to solve due to the amount of paths.
 
 class Maze2(search.Problem):
 
@@ -176,7 +193,6 @@ class Maze2(search.Problem):
         cost = bob[state2]
         return c + cost
 
-
     #def value(self, state):
 
     def h(self, node):
@@ -190,9 +206,9 @@ maze_puzzle2 = Maze2('Start', 'Finish', maze_path)
 
 maze_puzzle2.label = 'Maze'
 
-Labryrinth_puzzle = Maze2('Start','Finish', Labryrinth_path)
+Labyrinth_puzzle = Maze2('Start','Finish', Labyrinth_path)
 
-Labryrinth_puzzle.label = 'Labryrinth'
+Labyrinth_puzzle.label = 'Labyrinth'
 
 #swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
 switch_puzzle = LightSwitch('off')
@@ -202,11 +218,30 @@ switch_puzzle.label = 'Light Switch'
 mySearches = [
     madison_puzzle,
    # romania_puzzle,
-  #  switch_puzzle,
+   #  switch_puzzle,
     madison_puzzle1,
     maze_puzzle2,
-    Labryrinth_puzzle
-
-
+    #Labyrinth_puzzle
 ]
-mySearchMethods = []
+
+import array
+
+
+def The_Shining(problem, Getcaught = 9000):
+    footsteps = []
+    node = search.Node(problem.initial)
+    count =0
+    while not problem.goal_test(node):
+        count+=1
+        footsteps.append(node.action)
+        node.expand(problem.initial)
+        if problem.goal_test(node):
+            node.solution()
+
+
+
+    print(footsteps)
+
+mySearchMethods = [
+   The_Shining(maze_puzzle2)
+]

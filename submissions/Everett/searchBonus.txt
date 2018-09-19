@@ -7,13 +7,25 @@ Homework for Thursday, September 13th
 
 Homework for Thursday, September 20th
 35 - The problem runs without exceptions*, and generates valid output for, all four searches.
-+10: Show that the state space of the problem contains at least 50 states
-+10: An instance that yields a better solution with BFS than DFS
-+10: An instance that yields a better solution with UCS than BFS
 
++10: Show that the state space of the problem contains at least 50 states (Labyrinth)
 
+The maze instance is just shy of the 50 states; however, the due to the size of the Labyrinth, it exceeds
+50 states within the problem.
 
++10: An instance that yields a better solution with BFS than DFS (maze instance)
+******
+Since there is only one solution for the maze, every search algorithm would have the exact same cost.
+Because of this, I based the search solution's success off of how many moves did it take
+for the search algorithm to reach the goal. In this case, BFS finds the goal in 18 moves, compared to
+DFS finding it in 18 moves.
+
++10: An instance that yields a better solution with UCS than BFS (maze instance)
+
+For the maze, UCS reaches the goal in 15 moves compared to BFS, which reached the goal in 18 moves.
 
 +10: UCS finds a solution at least 1 move deep.
 +10: UCS finds a solution at least 2 moves deep.
 +10: UCS finds a solution at least 4 moves deep.
+
+For both of my maze and labyrinth, the results of UCS exceeds 4 moves due to the complexity of the problems.
