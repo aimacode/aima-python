@@ -65,6 +65,7 @@ An abbreviated map of Provence-Alpes-Côte d’Azur, France.
 This map is unique, to the best of my knowledge.
 '''
 
+
 # A trivial Problem definition
 class LightSwitch(search.Problem):
     def actions(self, state):
@@ -87,9 +88,62 @@ class LightSwitch(search.Problem):
             return 1
 
 
+class OneTwoThree(search.Problem):
+    def __init__(self, initial, goal):
+        # have to convert list to tuple in order to place in explored set
+        initial = tuple(tuple(li) for li in initial)
+        goal = tuple(tuple(li) for li in goal)
+        search.Problem.__init__(self, initial, goal)
+        self.size = len(initial)
+
+    def actions(self, state):
+        return [1, 2, 3]
+
+    def result(self, state, action):
+        # Only change squares that don't already have numbers in them.
+        position = (0, 0)
+        while state[position[0]][position[1]] != 0:
+            if position[0] == self.size - 1 and position[1] == self.size - 1:
+                return state
+            position = self.inc_position(position[0], position[1])
+        # convert back to list to mutate
+        nextState = list(list(li) for li in state)
+        nextState[position[0]][position[1]] = action
+        # convert back to tuple to place in explored set
+        return tuple(tuple(li) for li in nextState)
+
+    def inc_position(self, row, col):
+        if col == self.size - 1:
+            col = 0
+            row = row + 1
+        else:
+            col += 1
+        return row, col
+
+    def goal_test(self, state):
+        for m in range(0, self.size):
+            for n in range(0, self.size):
+                if state[m][n] == self.goal[m][n]:
+                    continue
+                return False
+        return True
+
+    def h(self, node):
+        state = node.state
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
+
+
 # swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
+
+ott_initial = [[1, 0, 0], [0, 0, 0], [0, 0, 1]]
+ott_goal = [[1, 3, 2], [3, 3, 2], [2, 2, 1]]
+ott_puzzle = OneTwoThree(initial=ott_initial, goal=ott_goal)
+ott_puzzle.label = 'One Two Three'
 
 mySearches = [
     #   swiss_puzzle,
@@ -97,5 +151,25 @@ mySearches = [
     # romania_puzzle,
     cotes_dazure_puzzle,
     switch_puzzle,
+    ott_puzzle
+]
 
+import random
+
+
+def flounder(problem, giveup=10000):
+    'The worst way to solve a problem'
+    node = search.Node(problem.initial)
+    count = 0
+    while not problem.goal_test(node.state):
+        count += 1
+        if count >= giveup:
+            return None
+        children = node.expand(problem)
+        node = random.choice(children)
+    return node
+
+
+mySearchMethods = [
+    # flounder
 ]
