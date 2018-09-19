@@ -68,28 +68,26 @@ maze2 = np.array([[9, 1, 1, 1, 1, 1],
                   [6, 3, 2, 1, 1, 0],
                   [8, 5, 3, 1, 1, 1]])
 
-maze2_path = search.UndirectedGraph(dict(
+maze2_path = (dict(
     Start=dict(B=2),
     B=dict(C=2, Start=2),
-    C=dict(D=5, Q=5, B=5),
-    D=dict(E=8, C=9),
-    E=dict(F=10, D=12),
+    C=dict(D=5, Q=20, B=2),
+    D=dict(E=8, C=5),
+    E=dict(F=14, D=8),
     F=dict(G=13, E=14),
-    G=dict(H=24, F=12),
-    H=dict(I=34, G=56),
-    I=dict(J=34, H=67),
+    G=dict(H=24, F=13),
+    H=dict(I=34, G=24),
+    I=dict(J=78, H=34),
     J=dict(AW=54, I=78),
-    AW=dict(K=56, AC=21, J=34),
-    K=dict(L=78, AW=89),
-    L=dict(AX=56, M=76, K=87),
-    AX=dict(L=43),
+    AW=dict(K=56, AC=21, J=54),
+    K=dict(L=87, AW=56),
+    L=dict(M=6, K=87),
     M=dict(N=75, L=86),
     N=dict(O=64, M=43),
     O=dict(W=42, P=71, N=90),
     P=dict(Q=12, O=52),
-    Q=dict(C=98, U=20, R=45, P=31),
-    R=dict(T=51, S=51, Q=96),
-    S=dict(R=85),
+    Q=dict(C=20, U=20, R=45, P=31),
+    R=dict(T=51, Q=96),
     T=dict(U=5, AJ=54, R=62),
     U=dict(V=52, T=31, Q=52),
     V=dict(W=85, AF=20, U=96),
@@ -99,16 +97,37 @@ maze2_path = search.UndirectedGraph(dict(
     AG=dict(AH=73, AM=46, AD=20),
     AH=dict(AI=21, AG=52),
     AI=dict(AJ=51, AH=21),
-    AJ=dict(T=32, AI=21, AK=75),
-    AK=dict(AL=46, AJ=85),
-    AL=dict(AK=26),
+    AJ=dict(T=32, AI=21),
     AM=dict(Finish=65, AG=75),
     W=dict(V=52, X=23, O=12),
     X=dict(Y=56, W=45),
     Y=dict(Z=12, X=91),
     Z=dict(AB=21, Y=51),
     AB=dict(AC=12, Z=82),
+    AC=dict(AB=12, AC=21),
     Finish=dict(AM=96),
+))
+
+
+maze_path = (dict(
+    Start=dict(A=5),
+    A=dict(Start=5,C=7,B=6,F=4),
+    B=dict(A=6, G=8),
+    C=dict(A=7, D=9),
+    D=dict(M=10, C=9),
+    M=dict(L=5, D=10),
+    L=dict(K=7, M=5),
+    K=dict(L=7, Finish=8),
+    Finish=dict(k=8),
+    G=dict(B=8, H=10),
+    H=dict(G=10, J=2),
+    J=dict(I=3, H=2),
+    I=dict(J=3),
+    F=dict(A=4, O=3),
+    O=dict(F=3, N=5),
+    N=dict(O=5, Q=8),
+    Q=dict(N=8,P=9),
+    P=dict(Q=9),
 ))
 
 # A trivial Problem definition
@@ -135,26 +154,27 @@ class LightSwitch(search.Problem):
 
 class Maze2(search.Problem):
 
-    def __init__(self, initial, goal, maze):
+    def __init__(self, initial, goal, map):
+        self.map = map
         self.initial = initial
         self.goal = goal
-        self.maze = maze
+        self.maze = map
 
     def actions(self, state):
-        bob = self.maze[state]
-        key = bob.keys()
-        return key
+        bob = self.map[state]
+        keys = bob.keys()
+        return keys
 
     def result(self, state, action):
         return action
 
     def goal_test(self, state):
-        if isinstance(self.goal, list):
-            return is_in(state, self.goal)
-        else:
-            return state == self.goal
+        return state == self.goal
 
-   #def path_cost(self, c, state1, action, state2):
+    def path_cost(self, c, state1, action, state2):
+        bob = self.map[state1]
+        cost = bob[state2]
+        return c + cost
 
 
     #def value(self, state):
@@ -165,9 +185,6 @@ class Maze2(search.Problem):
             return 0
         else:
             return 1
-
-
-
 
 maze_puzzle2 = Maze2('Start', 'Finish', maze2_path)
 
