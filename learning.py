@@ -807,14 +807,14 @@ class NNUnit:
     weights: Weights to incoming connections
     """
 
-    def __init__(self, activation, weights=None, inputs=None):
+    def __init__(self, activation=sigmoid, weights=None, inputs=None):
         self.weights = weights or []
         self.inputs = inputs or []
         self.value = None
         self.activation = activation
 
 
-def network(input_units, hidden_layer_sizes, output_units, activation):
+def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
     """Create Directed Acyclic Network of given number layers.
     hidden_layers_sizes : List number of neuron units in each hidden layer
     excluding input and output layers
