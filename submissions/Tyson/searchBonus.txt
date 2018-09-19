@@ -1,0 +1,1 @@
+I attempted to make a house puzzle in which you had to find a path from one house to the goal house.

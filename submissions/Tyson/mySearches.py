@@ -11,6 +11,8 @@ from math import(cos, pi)
 #))
 
 #My map problem
+from utils import is_in
+
 potter_map = search.UndirectedGraph(dict(
     Amarillo=dict(Washburn=15, Panhandle=34),
     Canyon=dict(Umbarger=10, Happy=22, VigoPark=35),
@@ -113,28 +115,97 @@ Russall & Norvig, 3rd Ed., p. 68.
 #             return 1
 
 
-ColorPuzzle_3x3Grid = search.UndirectedGraph(dict(
-    One=dict(Two='Right', Four="Down"),
-    Two=dict(One='Left', Three="Right", Five="Down"),
-    Three=dict(Two="Left", Six="Down"),
-    Four=dict(Five="Right", Seven="Down", One="Up"),
-    Five=dict(Four='Left', Six="Right", Two="Up", Eight="Down"),
-    Six=dict(Nine="Finish"),
-    Seven=dict(Four="Up", Eight="Right"),
-    Eight=dict(Nine="Finish")
+# ColorPuzzle_3x3Grid = search.UndirectedGraph(dict(
+#     One=dict(Two='Right', Four="Down"),
+#     Two=dict(One='Left', Three="Right", Five="Down"),
+#     Three=dict(Two="Left", Six="Down"),
+#     Four=dict(Five="Right", Seven="Down", One="Up"),
+#     Five=dict(Four='Left', Six="Right", Two="Up", Eight="Down"),
+#     Six=dict(Nine="Finish"),
+#     Seven=dict(Four="Up", Eight="Right"),
+#     Eight=dict(Nine="Finish")
+#
+# ))
 
-))
+HousePuzzle_Map = dict(
+    a1=dict(a2=1, b1=1),
+    a2=dict(a1=1, b2=1, a3='tree'),
+    a3=dict(a3='tree'),
+    a4=dict(b4=1),
+    b1=dict(c1=1, b2=1),
+    b2=dict(b1=1, b3='mud', a2=1, c2='tree'),
+    b3=dict(b3='mud', a3='tree', b4=1, c3='tree'),
+    b4=dict(a4=1, c4=1),
+    c1=dict(d1=1, c2='tree', b1=1),
+    c2=dict(c2='tree'),
+    c3=dict(c3='tree'),
+    c4=dict(c3='tree', b4=1, d4=1),
+    d1=dict(c1=1, d2=1),
+    d2=dict(c2='tree', d3=1),
+    d3=dict(d4=1, d2=1),
+    d4=dict(d3=1, c4=1),
 
-class ColorPuzzle(search.Problem):
+
+)
+
+HousePuzzle_MapGridLocations = dict(
+    a1=(1, 1), a2=(1, 2), a3=(1, 3), a4=(1, 4),
+    b1=(2, 1), b2=(2, 2), b3=(2, 3), b4=(2, 4),
+    c1=(3, 1), c2=(3, 2), c3=(3, 3), c4=(3, 4),
+    d1=(4, 1), d2=(4, 2), d3=(4, 3), d4=(4, 4),
+)
+
+HousePuzzle_MapHouseLocations = dict(
+    a1="house1",
+    d4="house2"
+)
+
+
+
+
+
+#HousePuzzle_Map.= dict()
+
+
+class HousePuzzle(search.Problem):
+
+    def __init__(self, map, locations, houseLocations, start, finish):
+        """The constructor specifies the initial state, and possibly a goal
+        state, if there is a unique goal.  Your subclass's constructor can add
+        other arguments."""
+        self.initial = start
+        self.finish = finish
+        self.map = map
+        self.locations = locations
+        self.houseLocations = houseLocations
+
 
     def actions(self, state):
-        return['up', 'down', 'left', 'right']
+        neighbors = self.map[state]
+        openSpaces = []
+        for x in neighbors:
+            if neighbors.get(x) != 'tree' and neighbors.get(x) != 'mud':
+                openSpaces.append(x)
 
-    #def result(self, state, action):
-        # if state == "Finish":
-        #     return state == ''
+            elif neighbors.get(x) == 'mud':
+                neighbors.update({x: 3})
+                openSpaces.append(x)
+
+            else:
+                continue
+
+        return openSpaces
+
+    def result(self, state, action):
+        return action
+
     def goal_test(self, state):
-        return state == "Finish"
+        return state == self.finish
+
+    def path_cost(self, c, state1, action, state2):
+        neighbors = self.map[state1]
+        cost = neighbors[state2]
+        return c + cost
 
     def h(self, node):
         state = node.state
@@ -148,13 +219,14 @@ class ColorPuzzle(search.Problem):
 # switch_puzzle = LightSwitch('off')
 # switch_puzzle.label = 'Light Switch'
 
-color_puzzle = ColorPuzzle("Start")
-color_puzzle.label = 'Color Maze'
+house_puzzle = HousePuzzle(HousePuzzle_Map, HousePuzzle_MapGridLocations, HousePuzzle_MapHouseLocations, "a1", "d4")
+house_puzzle.label = 'House Maze'
 
 
 mySearches = [
  #   swiss_puzzle,
  #    potter_puzzle,
+    house_puzzle,
     potter_puzzle2,
     # potter_puzzle3
     #romania_puzzle,
