@@ -46,7 +46,6 @@ def HW2Agent() -> object:
                     program.direction = 'Up'
                     action = 'Up'
                     program.bottomLeftCorner = True
-                    print('Reached corner')
                 else:
                     action = program.direction
             else:

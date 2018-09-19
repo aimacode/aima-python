@@ -1,5 +1,8 @@
 import agents as ag
+
+
 def HW2Agent() -> object:
+
     # This agent will snake through the room to clean it.
     # It starts by heading for the top of the room. Then it snakes down
     # Once it reaches the bottom corner, it will go to the top as fast as possible and snake again.
