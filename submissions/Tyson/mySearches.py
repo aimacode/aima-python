@@ -12,15 +12,15 @@ from math import(cos, pi)
 
 #My map problem
 potter_map = search.UndirectedGraph(dict(
-    Amarillo=dict( Washburn=15),
-    Canyon=dict( Umbarger=10, Happy=22, VigoPark=35),
+    Amarillo=dict(Washburn=15, Panhandle=34),
+    Canyon=dict(Umbarger=10, Happy=22, VigoPark=35),
     Washburn=dict(Amarillo=15, Claude=14),
     Umbarger=dict(Canyon=10, Arney=15),
     Arney=dict(Umbarger=15, Nazareth=15),
     Nazareth=dict(Arney=15, Happy=20, Tulia=22, Dimmit=12),
     Happy=dict(Nazareth=20, Canyon=22, Tulia=18),
     Tulia=dict(Nazareth=22, Happy=18, Silverton=30, VigoPark=20),
-    Panhandle=dict( Claude=20, Fritch=25),
+    Panhandle=dict(Claude=20, Fritch=25, Amarillo=34),
     Claude=dict(Washburn=14, Panhandle=20),
     Silverton=dict(Tulia=30, VigoPark=20),
     Dimmit=dict(Nazareth=12),
@@ -39,7 +39,7 @@ potter_map = search.UndirectedGraph(dict(
 potter_map.locations = dict(
     Amarillo=(20, 16), Canyon=(10, 35), Washburn=(35, 65), Umbarger=(0, 30), Arney=(0, 15),
     Nazareth=(1, 0), Happy=(7, 12), Tulia=(22, 0), Panhandle=(50, 80), Claude=(52, 60), Silverton=(52, 0),
-    Dimmit=(-12, 0), VigoPark=(40, 18), BoysRanch=(0,100), Masterson=(30, 100),
+    Dimmit=(-12, 0), VigoPark=(40, 18), BoysRanch=(0, 100), Masterson=(30, 100),
     Fritch=(32, 75), Groom=(51, 70), Love=(42, 75),
 
 )
@@ -57,7 +57,7 @@ potter_map.locations = dict(
 # potter_puzzle.description = '''First Instance '''
 
 potter_puzzle2 = search.GraphProblem('Arney', 'BoysRanch', potter_map)
-potter_puzzle2.label = 'Potter County - Claude to Silverton'
+potter_puzzle2.label = 'Potter County - Arney to BoysRanch'
 potter_puzzle2.description = '''Instance where BFS does better than DFS '''
 
 # potter_puzzle3 = search.GraphProblem('Nazareth', 'Amarillo', potter_map)
@@ -92,18 +92,49 @@ Russall & Norvig, 3rd Ed., p. 68.
 '''
 
 # A trivial Problem definition
-class LightSwitch(search.Problem):
+# class LightSwitch(search.Problem):
+#     def actions(self, state):
+#         return ['up', 'down']
+#
+#     def result(self, state, action):
+#         if action == 'up':
+#             return 'on'
+#         else:
+#             return 'off'
+#
+#     def goal_test(self, state):
+#         return state == 'on'
+#
+#     def h(self, node):
+#         state = node.state
+#         if self.goal_test(state):
+#             return 0
+#         else:
+#             return 1
+
+
+ColorPuzzle_3x3Grid = search.UndirectedGraph(dict(
+    One=dict(Two='Right', Four="Down"),
+    Two=dict(One='Left', Three="Right", Five="Down"),
+    Three=dict(Two="Left", Six="Down"),
+    Four=dict(Five="Right", Seven="Down", One="Up"),
+    Five=dict(Four='Left', Six="Right", Two="Up", Eight="Down"),
+    Six=dict(Nine="Finish"),
+    Seven=dict(Four="Up", Eight="Right"),
+    Eight=dict(Nine="Finish")
+
+))
+
+class ColorPuzzle(search.Problem):
+
     def actions(self, state):
-        return ['up', 'down']
+        return['up', 'down', 'left', 'right']
 
-    def result(self, state, action):
-        if action == 'up':
-            return 'on'
-        else:
-            return 'off'
-
+    #def result(self, state, action):
+        # if state == "Finish":
+        #     return state == ''
     def goal_test(self, state):
-        return state == 'on'
+        return state == "Finish"
 
     def h(self, node):
         state = node.state
@@ -113,22 +144,13 @@ class LightSwitch(search.Problem):
             return 1
 
 
-# ColorPuzzle_Grid = search.UndirectedGraph(dict(
-#
-#
-# ))
-
-# class ColorPuzzle(search.Problem):
-#
-#     def actions(self,state):
-#         return['up','down','left','right']
-#
-#     def result(self, state, action):
-
-
 #switch_puzzle = search.GraphProblem('Off', 'On', potter_map)
-switch_puzzle = LightSwitch('off')
-switch_puzzle.label = 'Light Switch'
+# switch_puzzle = LightSwitch('off')
+# switch_puzzle.label = 'Light Switch'
+
+color_puzzle = ColorPuzzle("Start")
+color_puzzle.label = 'Color Maze'
+
 
 mySearches = [
  #   swiss_puzzle,
