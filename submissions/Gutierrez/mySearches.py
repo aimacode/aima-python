@@ -2,30 +2,21 @@ import search
 from math import(cos, pi)
 
 # A sample map problem
-erie_map = search.UndirectedGraph(dict(
-   Clarence=dict(Lancaster=11, Amherst=8),
-   Amherst=dict(GrandIsland=15, Clarence=8, Buffalo=19),
-   Lancaster=dict(Cheektowaga=4, Clarence=17, WestSeneca=10),
-   GrandIsland=dict(Amherst=15, Buffalo=13),
-   Cheektowaga=dict(Lancaster=4, Buffalo=10),
-   WestSeneca=dict(OrchardPark=4, Buffalo=10),
-   OrchardPark=dict(WestSeneca=4, Buffalo=18),
-   Buffalo=dict(GrandIsland=13, Amherst=19, Cheektowaga=10, WestSeneca=10, OrchardPark=18),
-   Hamburg=dict(Buffalo=12),
-   Fredonia=dict(Hamburg=10),
-   SBuffalo=dict(Buffalo=3)
+uk_map = search.UndirectedGraph(dict(
+   Birmingham=dict(Oxford=68, London=117, Wolverhampton=23,Cheltenham=67),
+   Oxford=dict(London=84, Birmingham=68),
+   London=dict(Birmingham=117, Oxford=84, Luton=104),
+   Coventry=dict(Birmingham = 43, Luton= 204),
+   Luton=dict(Coventry=204, london=104),
+   Wolverhampton=dict(Birmingham=28),
+   Cheltenham=dict(Birmingham=67)
+
 ))
 
-erie_map.locations = dict(
-    Clarence=(27,41), Amherst=(19,41), Lancaster=(27,30), GrandIsland=(4,40),
-    Cheektowaga=(23,31), WestSeneca=(24,22), OrchardPark=(26,17), Buffalo=(9,28),
-    Hamburg=(20,17), Fredonia=(10,10), SBuffalo=(12,25)
-)
+uk_puzzle = search.GraphProblem('Birmingham', 'London', uk_map)
 
-erie_puzzle = search.GraphProblem('GrandIsland', 'OrchardPark', erie_map)
-
-erie_puzzle.label = 'Erie'
-erie_puzzle.description = '''
+uk_puzzle.label = 'UK'
+uk_puzzle.description = '''
 An abbreviated map of Sumner County, TN.
 This map is unique, to the best of my knowledge.
 '''
@@ -41,8 +32,8 @@ romania_map = search.UndirectedGraph(dict(
     D=dict(M=75,C=120),
     R=dict(S=80,C=146,P=97),
     C=dict(R=146,P=138,D=120),
-    P=dict(R=97,C=138,B=101),
     F=dict(S=99,B=211),
+    P=dict(R=97,C=138,B=101),
     B=dict(G=90,P=101,F=211),
 ))
 
@@ -81,9 +72,8 @@ switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
-    erie_puzzle,
+    uk_puzzle,
     romania_puzzle,
     switch_puzzle,
 ]
-
 mySearchMethods = []
