@@ -68,7 +68,7 @@ maze2 = np.array([[9, 1, 1, 1, 1, 1],
                   [6, 3, 2, 1, 1, 0],
                   [8, 5, 3, 1, 1, 1]])
 
-maze2_path = (dict(
+Labryrinth_path = (dict(
     Start=dict(B=2),
     B=dict(C=2, Start=2),
     C=dict(D=5, Q=20, B=2),
@@ -110,24 +110,24 @@ maze2_path = (dict(
 
 
 maze_path = (dict(
-    Start=dict(A=5),
-    A=dict(Start=5,C=7,B=6,F=4),
-    B=dict(A=6, G=8),
-    C=dict(A=7, D=9),
-    D=dict(M=10, C=9),
-    M=dict(L=5, D=10),
-    L=dict(K=7, M=5),
-    K=dict(L=7, Finish=8),
-    Finish=dict(k=8),
-    G=dict(B=8, H=10),
-    H=dict(G=10, J=2),
-    J=dict(I=3, H=2),
-    I=dict(J=3),
-    F=dict(A=4, O=3),
-    O=dict(F=3, N=5),
-    N=dict(O=5, Q=8),
-    Q=dict(N=8,P=9),
-    P=dict(Q=9),
+    Start=dict(A=0),
+    A=dict(Start=0,C=0,B=0,F=0),
+    B=dict(A=0, G=0),
+    C=dict(A=0, D=0),
+    D=dict(M=0, C=0),
+    M=dict(L=0, D=0),
+    L=dict(K=0, M=0),
+    K=dict(L=0, Finish=0),
+    Finish=dict(k=0),
+    G=dict(B=0, H=0),
+    H=dict(G=0, J=0),
+    J=dict(I=0, H=0),
+    I=dict(J=0),
+    F=dict(A=0, O=0),
+    O=dict(F=0, N=0),
+    N=dict(O=0, Q=0),
+    Q=dict(N=0,P=0),
+    P=dict(Q=0),
 ))
 
 # A trivial Problem definition
@@ -186,11 +186,13 @@ class Maze2(search.Problem):
         else:
             return 1
 
-maze_puzzle2 = Maze2('Start', 'Finish', maze2_path)
+maze_puzzle2 = Maze2('Start', 'Finish', maze_path)
 
 maze_puzzle2.label = 'Maze'
 
+Labryrinth_puzzle = Maze2('Start','Finish', Labryrinth_path)
 
+Labryrinth_puzzle.label = 'Labryrinth'
 
 #swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
 switch_puzzle = LightSwitch('off')
@@ -203,7 +205,7 @@ mySearches = [
   #  switch_puzzle,
     madison_puzzle1,
     maze_puzzle2,
-
+    Labryrinth_puzzle
 
 
 ]
