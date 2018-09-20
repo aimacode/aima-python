@@ -1,0 +1,2 @@
++10 for having breadth-first have a better solution, in terms of cost, than depth-first.
++10 for having uniform-cost have a better solution, in terms of cost, than breadth-first.
