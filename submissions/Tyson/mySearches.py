@@ -54,17 +54,13 @@ potter_map.locations = dict(
 # An abbreviated map of Sumner County, TN.
 # This map is unique, to the best of my knowledge.
 # '''
-# potter_puzzle = search.GraphProblem('Canyon', 'Nazareth', potter_map)
-# potter_puzzle.label = 'Potter County - Canyon to Nazareth'
-# potter_puzzle.description = '''First Instance '''
+
 
 potter_puzzle2 = search.GraphProblem('Arney', 'BoysRanch', potter_map)
 potter_puzzle2.label = 'Potter County - Arney to BoysRanch'
 potter_puzzle2.description = '''Instance where BFS does better than DFS '''
 
-# potter_puzzle3 = search.GraphProblem('Nazareth', 'Amarillo', potter_map)
-# potter_puzzle3.label = 'Potter County-Nazareth to Washburn'
-# potter_puzzle3.description = '''Instance where UniformCost does better than DFS and BFS '''
+
 
 
 
@@ -115,17 +111,7 @@ Russall & Norvig, 3rd Ed., p. 68.
 #             return 1
 
 
-# ColorPuzzle_3x3Grid = search.UndirectedGraph(dict(
-#     One=dict(Two='Right', Four="Down"),
-#     Two=dict(One='Left', Three="Right", Five="Down"),
-#     Three=dict(Two="Left", Six="Down"),
-#     Four=dict(Five="Right", Seven="Down", One="Up"),
-#     Five=dict(Four='Left', Six="Right", Two="Up", Eight="Down"),
-#     Six=dict(Nine="Finish"),
-#     Seven=dict(Four="Up", Eight="Right"),
-#     Eight=dict(Nine="Finish")
-#
-# ))
+
 
 HousePuzzle_Map = dict(
     a1=dict(a2='Sally', b1=1),
@@ -172,7 +158,7 @@ HousePuzzle_MapGridLocations = dict(
 
 
 
-#HousePuzzle_Map.= dict()
+
 
 
 class HousePuzzle(search.Problem):
@@ -233,15 +219,15 @@ class HousePuzzle(search.Problem):
 # switch_puzzle.label = 'Light Switch'
 
 house_puzzle = HousePuzzle(HousePuzzle_Map, HousePuzzle_MapGridLocations, "a1", "e5")
-house_puzzle.label = 'House Puzzle'
+house_puzzle.label = 'House Puzzle- a1 to e5'
 
 
 mySearches = [
  #   swiss_puzzle,
- #    potter_puzzle,
+
     house_puzzle,
     potter_puzzle2,
-    # potter_puzzle3
+
     #romania_puzzle,
     #switch_puzzle,
 ]
