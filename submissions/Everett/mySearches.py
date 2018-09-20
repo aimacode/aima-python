@@ -18,17 +18,17 @@ madison_map = search.UndirectedGraph(dict(
   SpringCreek=dict(ThreeWay=18, Medon=34, Humboldt=29)
 ))
 
-#madison_map.locations = (dict(
-  #  Jackson=(482, 512),
-   # Humboldt=(482, 482),
-    #ThreeWay=(474, 474),
-    #Medon=(495, 501),
-    #SpringCreek=(474, 464)
-#))
+# Coordinates for map. May not be entirely accurate but as close as possible
+madison_map.locations = (dict(
+   Jackson=(485, 512),
+   Humboldt=(482, 482),
+   ThreeWay=(474, 474),
+   Medon=(495, 501),
+   SpringCreek=(474, 464)))
 
 madison_puzzle = search.GraphProblem('Jackson', 'ThreeWay', madison_map)
 madison_puzzle1 = search.GraphProblem('SpringCreek', 'Jackson', madison_map)
-#madison_puzzle4 = search.GraphProblem('Jackson','ThreeWay', madison_map.locations)
+
 
 madison_puzzle.label = 'Madison'
 madison_puzzle.description = '''
@@ -40,13 +40,6 @@ madison_puzzle1.description = '''
 An abbreviated map of Madison County, TN.
 This map is unique, to the best of my knowledge.
 '''
-
-#madison_puzzle4.label = 'Madison w/ Points'
-#madison_puzzle4.description = '''
-#An coordinate map of Madison County, TN.
-#This map is unique, to the best of my knowledge.
-#'''
-
 
 romania_map = search.UndirectedGraph(dict(
     A=dict(Z=75,S=140,T=118),
@@ -85,7 +78,8 @@ Labyrinth2 = np.array([[9, 1, 1, 1, 1, 1],
                        [8, 1, 1, 1, 1, 1]])
 
 # Above is the visual representation of the below labyrinth. It has multiple paths to traverse but only
-# one entrance and one exit.
+# one entrance and one exit. The costs right now may seem a bit random due to time constraint
+# but, if I return back to this project for SURS, I'll try to make it more reasonable.
 
 Labyrinth_path = (dict(
     Start=dict(B=2),
@@ -101,24 +95,24 @@ Labyrinth_path = (dict(
     AW=dict(K=56, AC=21, J=54),
     K=dict(L=87, AW=56),
     L=dict(M=6, K=87),
-    M=dict(N=75, L=86),
+    M=dict(N=43, L=6),
     N=dict(O=64, M=43),
-    O=dict(W=42, P=52, N=64),
-    P=dict(Q=12, O=52),
-    Q=dict(C=20, U=20, R=45, P=31),
-    R=dict(T=51, Q=96),
-    T=dict(U=5, AJ=54, R=62),
-    U=dict(V=52, T=31, Q=52),
-    V=dict(W=85, AF=20, U=96),
-    AF=dict(AE=85, V=12),
-    AE=dict(AD=51, AF=51),
-    AD=dict(AG=12, N=95, AE=46),
-    AG=dict(AH=73, AM=46, AD=20),
+    O=dict(W=80, P=12, N=64),
+    P=dict(Q=12, O=20),
+    Q=dict(C=20, U=20, R=45, P=12),
+    R=dict(T=62, Q=45),
+    T=dict(AJ=32, R=62),
+    U=dict(V=96, Q=20),
+    V=dict(W=52, AF=20, U=96),
+    AF=dict(AE=51, V=20),
+    AE=dict(AD=46, AF=51),
+    AD=dict(AG=12, AE=46),
+    AG=dict(AH=52, AM=46, AD=12),
     AH=dict(AI=21, AG=52),
-    AI=dict(AJ=51, AH=21),
+    AI=dict(AJ=21, AH=21),
     AJ=dict(T=32, AI=21),
-    AM=dict(Finish=65, AG=75),
-    W=dict(V=52, X=23, O=42),
+    AM=dict(Finish=65, AG=46),
+    W=dict(V=52, X=23, O=80),
     X=dict(Y=56, W=23),
     Y=dict(Z=12, X=56),
     Z=dict(AB=21, Y=12),
@@ -180,17 +174,17 @@ class LightSwitch(search.Problem):
             return 1
 
 # This problem definition solves any size maze and labyrinth if given enough memory space.
-# However, labyrinths take longer to solve due to the amount of paths.
+# However, labyrinths may take longer to solve and give more interesting outputs due to the amount of paths.
 
 class Maze2(search.Problem):
 
-    def __init__(self, initial, goal, map):
-        self.map = map
+    def __init__(self, initial, goal, maze):
+        self.maze = maze
         self.initial = initial
         self.goal = goal
 
     def actions(self, state):
-        bob = self.map[state]
+        bob = self.maze[state]
         keys = bob.keys()
         return keys
 
@@ -201,7 +195,7 @@ class Maze2(search.Problem):
         return state == self.goal
 
     def path_cost(self, c, state1, action, state2):
-        bob = self.map[state1]
+        bob = self.maze[state1]
         cost = bob[state2]
         return c + cost
 
@@ -213,12 +207,44 @@ class Maze2(search.Problem):
             return 1
 
 
+# Problem defintion for the Map coordinates. I could have combined it with the one above, but there were plenty of errors
+# because of the added location attribute.
+from grid import distance
+
+class Map4(search.Problem):
+
+    def __init__(self, initial, goal, map2, location):
+        self.map2 = map2
+        self.location = location
+        self.initial = initial
+        self.goal = goal
+
+    def actions(self, state):
+        bob = self.map2[state]
+        keys = bob.keys()
+        return keys
+
+    def result(self, state, action):
+        return action
+
+    def goal_test(self, state):
+        return state == self.goal
+
+    def path_cost(self, c, state1, action, state2):
+        bob = self.map2[state1]
+        cost = bob[state2]
+        return c + cost
+
+    def h(self, node):
+        state = node.state
+        coor1 = self.location[state]
+        coor2 = self.location[self.goal]
+        return distance(coor1,coor2)
 
    # def h(self, node):
       #  state = node.action
        # state1 = self.initial
         #state2 = self.map
-
 
 
 maze_puzzle2 = Maze2('Start', 'Finish', maze_path)
@@ -234,20 +260,22 @@ Labyrinth_puzzle.label = 'Labyrinth'
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
+# Puzzle using coordinates
+madison_puzzle4 = Map4('SpringCreek','Jackson', madison_map.dict, madison_map.locations)
+
+madison_puzzle4.label = 'Madison1 w/ Coordinates'
+madison_puzzle4.description = 'Coordinates'
 
 mySearches = [
     madison_puzzle,
    # romania_puzzle,
    #  switch_puzzle,
     madison_puzzle1,
-   # madison_puzzle4,
+    madison_puzzle4,
     maze_puzzle2,
     Labyrinth_puzzle
 ]
 
-
-from utils import Stack
-from utils import Queue
 
 #def The_Shining(problem):
  #   node = search.Node(problem.initial)
