@@ -1,1 +1,2 @@
-I attempted to make a house puzzle in which you had to find a path from one house to the goal house.
+I attempted to make a house puzzle in which you had to find a path from one house to the goal house with various obstacles in the way,
+such as mud, Sally and Chatty Cathy each of which cause a different amount of cost penalty.

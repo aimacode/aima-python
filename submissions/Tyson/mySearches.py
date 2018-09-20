@@ -128,37 +128,45 @@ Russall & Norvig, 3rd Ed., p. 68.
 # ))
 
 HousePuzzle_Map = dict(
-    a1=dict(a2=1, b1=1),
+    a1=dict(a2='Sally', b1=1),
     a2=dict(a1=1, b2=1, a3='tree'),
     a3=dict(a3='tree'),
-    a4=dict(b4=1),
+    a4=dict(a5=1, b4=1),
+    a5=dict(b5=1, a4=1),
     b1=dict(c1=1, b2=1),
-    b2=dict(b1=1, b3='mud', a2=1, c2='tree'),
+    b2=dict(b1=1, b3='mud', a2=1, c2='Chatty Kathy'),
     b3=dict(b3='mud', a3='tree', b4=1, c3='tree'),
-    b4=dict(a4=1, c4=1),
-    c1=dict(d1=1, c2='tree', b1=1),
-    c2=dict(c2='tree'),
+    b4=dict(a4=1, c4='tree', b5=1),
+    b5=dict(b4=1, c5=1, a5=1),
+    c1=dict(d1=1, c2='Chatty Kathy', b1=1),
+    c2=dict(c1=1, b2=1, d2=1),
     c3=dict(c3='tree'),
-    c4=dict(c3='tree', b4=1, d4=1),
-    d1=dict(c1=1, d2=1),
-    d2=dict(c2='tree', d3=1),
-    d3=dict(d4=1, d2=1),
-    d4=dict(d3=1, c4=1),
+    c4=dict(c4='tree'),
+    c5=dict(d5=1, b5=1),
+    d1=dict(c1=1, d2=1, e1=1),
+    d2=dict(c2='Chatty Kathy', d3=1, e2='mud', d1=1),
+    d3=dict(d4=1, d2=1, e3=1),
+    d4=dict(d3=1, d5=1, e4='mud'),
+    d5=dict(e5=1, c5=1, d4=1),
+    e1=dict(d1=1, e2=1),
+    e2=dict(e1=1, d2=1, e3=1),
+    e3=dict(e2='mud', d3=1, e4='mud'),
+    e4=dict(d3=1, d4=1, d5=1),
+    e5=dict(e4='mud', e5=1),
+
 
 
 )
 
 HousePuzzle_MapGridLocations = dict(
-    a1=(1, 1), a2=(1, 2), a3=(1, 3), a4=(1, 4),
-    b1=(2, 1), b2=(2, 2), b3=(2, 3), b4=(2, 4),
-    c1=(3, 1), c2=(3, 2), c3=(3, 3), c4=(3, 4),
-    d1=(4, 1), d2=(4, 2), d3=(4, 3), d4=(4, 4),
+    a1=(1, 1), a2=(1, 2), a3=(1, 3), a4=(1, 4), a5=(1, 5),
+    b1=(2, 1), b2=(2, 2), b3=(2, 3), b4=(2, 4), b5=(2, 5),
+    c1=(3, 1), c2=(3, 2), c3=(3, 3), c4=(3, 4), c5=(3, 5),
+    d1=(4, 1), d2=(4, 2), d3=(4, 3), d4=(4, 4), d5=(4, 5),
+    e1=(5, 1), e2=(5, 2), e3=(5, 3), e4=(5, 4), e5=(5, 5)
 )
 
-HousePuzzle_MapHouseLocations = dict(
-    a1="house1",
-    d4="house2"
-)
+
 
 
 
@@ -169,7 +177,7 @@ HousePuzzle_MapHouseLocations = dict(
 
 class HousePuzzle(search.Problem):
 
-    def __init__(self, map, locations, houseLocations, start, finish):
+    def __init__(self, map, locations, start, finish):
         """The constructor specifies the initial state, and possibly a goal
         state, if there is a unique goal.  Your subclass's constructor can add
         other arguments."""
@@ -177,20 +185,25 @@ class HousePuzzle(search.Problem):
         self.finish = finish
         self.map = map
         self.locations = locations
-        self.houseLocations = houseLocations
+
 
 
     def actions(self, state):
         neighbors = self.map[state]
         openSpaces = []
         for x in neighbors:
-            if neighbors.get(x) != 'tree' and neighbors.get(x) != 'mud':
+            if neighbors.get(x) != 'tree' and neighbors.get(x) != 'mud' and neighbors.get(x) != 'Sally' and neighbors.get(x) != 'Chatty Kathy':
                 openSpaces.append(x)
 
             elif neighbors.get(x) == 'mud':
                 neighbors.update({x: 3})
                 openSpaces.append(x)
-
+            elif neighbors.get(x) == 'Sally':
+                neighbors.update({x: 4})
+                openSpaces.append(x)
+            elif neighbors.get(x) == 'Chatty Kathy':
+                neighbors.update({x: 6})
+                openSpaces.append(x)
             else:
                 continue
 
@@ -219,8 +232,8 @@ class HousePuzzle(search.Problem):
 # switch_puzzle = LightSwitch('off')
 # switch_puzzle.label = 'Light Switch'
 
-house_puzzle = HousePuzzle(HousePuzzle_Map, HousePuzzle_MapGridLocations, HousePuzzle_MapHouseLocations, "a1", "d4")
-house_puzzle.label = 'House Maze'
+house_puzzle = HousePuzzle(HousePuzzle_Map, HousePuzzle_MapGridLocations, "a1", "e5")
+house_puzzle.label = 'House Puzzle'
 
 
 mySearches = [
