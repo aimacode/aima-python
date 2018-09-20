@@ -78,6 +78,7 @@ wayne2Locations = dict(
     Trenton=(42.140655, 83.180054)
 )
 
+
 class Wayne2(search.Problem):
     # map = rmap
 
@@ -140,6 +141,7 @@ romania_puzzle.description = '''
 The simplified map of Romania, per
 Russall & Norvig, 3rd Ed., p. 68.
 '''
+
 
 # A trivial Problem definition
 class LightSwitch(search.Problem):
