@@ -14,12 +14,16 @@ dallas_map = search.UndirectedGraph (dict(
     Frisco=dict (Azle = 33, Fortworth =45),
     Lakewood= dict( Reno = 45, Coppell=8),
     Garland= dict (Fortworth = 33, Reno = 19),
-    Fubu= dict(Azle = 41, Nike = 51),
-    Nike= dict(Fubu = 51)
+    Fubu= dict(Azle = 41, Nike = 51, Pfflyers = 38, Atoka =128),
+    Pfflyers= dict(Fubu = 38),
+    Nike= dict(Fubu = 51),
+    Atoka= dict(Fubu = 128, Ada=18),
+    Ada= dict(Atoka = 18),
+
 
 ))
 
-Dallas_puzzle = search.GraphProblem('Azle', 'Garland', dallas_map)
+Dallas_puzzle = search.GraphProblem('Frisco', 'Richardson', dallas_map)
 
 Dallas_puzzle.label = 'Dallas'
 Dallas_puzzle.description = '''
