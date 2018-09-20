@@ -1,0 +1,2 @@
+1. An instance that yields a better solution with BFS than DFS
+2. An instance that yields a better solution with UCS than BFS

@@ -1,0 +1,14 @@
++10: An instance that yields a better solution with BFS than DFS
++10: An instance that yields a better solution with UCS than BFS
+
+Both are satisfied by: fayette_puzzle = search.GraphProblem('Markleysburg', 'Connellsville', fayette_map)
+
+Added Coordinates
+
++10: All instances run without exceptions, and generate valid output for, BestFS and A*
+
++10: An instance yields a better solution with BestFS than with arbitrary DFS
+Also satisfied by: fayette_puzzle = search.GraphProblem('Markleysburg', 'Connellsville', fayette_map)
+
++10: An instance yields a better solution with BFS than BestFS
+Satisfied by: fayette_puzzle = search.GraphProblem('Perryopolis', 'Markleysburg', fayette_map)

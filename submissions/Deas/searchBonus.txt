@@ -1,0 +1,12 @@
+HW3
+BFS is better than DFS
+UCF is better than BFS
+Map included
+
+HW4
+2.
+    1. Added new Ohio map with more cities and runs without exception
+        (not many more cities to choose from on my franklin map)
+    2. Yes
+    3. No
+    4. Yes
