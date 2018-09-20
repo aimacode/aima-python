@@ -178,10 +178,52 @@ lost = GameState(
     label = 'lost'
 )
 
+# class StateA:
+#     def __init__(self, junk):
+#         self.to_move = junk
+#
+# class Empty(Game):
+#     """A flagrant copy of TicTacToe, from game.py
+#     It's simplified, so that moves and utility are calculated as needed
+#     Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
+#     A state has the player to move and a board, in the form of
+#     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
+#
+#     def __init__(self, initial):
+#         self.initial = initial
+#
+#     def actions(self, state):
+#         return [ '!' ]
+#
+#     # defines the order of play
+#     def opponent(self, player):
+#         return None
+#
+#     def result(self, state, move):
+#         return None
+#
+#     def terminal_test(self, state):
+#         return True
+#
+#     def utility(self, state, player):
+#         return 0
+#
+#     def display(self, state):
+#         print('?')
+#
+# Empty1 = StateA('A')
+#
+# eg = Empty(Empty1)
+# tm = eg.to_move(Empty1)
+
 myGames = {
     myGame: [
         won,
         winin1, losein1, winin3, losein3, winin5,
         lost,
-    ]
+    ],
+
+    # Empty: [
+    #     Empty1,
+    # ]
 }

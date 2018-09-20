@@ -1,0 +1,41 @@
+
+Homework for Thursday, September 13th
+
+65 - Created unique map reference that complies (Map of Madison County, TN)
++10 - An instance that yields a better solution with BFS than DFS (Madison1)
++10 - An instance that yields a better solution with UCS than BFS (Madison)
+
+****Homework for Thursday, September 20th****
+
++35 - The problem runs without exceptions*, and generates valid output for, all four searches.
+
++10: Show that the state space of the problem contains at least 50 states (Labyrinth)
+
+The maze instance is just shy of the 50 states; however, the due to the size of the Labyrinth, it exceeds
+50 states within the problem.
+
++10: An instance that yields a better solution with BFS than DFS (Maze and Labyrinth)
+
+Since there is only one solution for the maze, every search algorithm would have the exact same cost.
+Because of this, I based the search solution's success off of how many moves it took
+for the search algorithm to reach the goal. In this case, BFS and DFS find the goal in 18 moves. However,
+in the case of the labyrinth, since there are different ways of getting to the solution, I added a cost to each
+path to in order to ensure that the actual best route is found. And in this case, BFS does drastically better than
+DFS.
+
++10: An instance that yields a better solution with UCS than BFS (Maze and Labyrinth)
+
+For the maze, UCS reaches the goal in 15 moves compared to BFS, which reached the goal in 18 moves. And for the
+labyrinth, the cost of UCS is much lower than BFS.
+
++10: UCS finds a solution at least 1 move deep.
++10: UCS finds a solution at least 2 moves deep.
++10: UCS finds a solution at least 4 moves deep.
+
+For both of my maze and labyrinth, the results of UCS exceeds 4 moves due to the complexity of the problems.
+
+Part 2: Coordinates!!!
++10: All instances run without exceptions, and generate valid output for, BestFS and A* (Madison w/ coordinates)
++10: An instance yields a better solution with BestFS than with arbitrary DFS   (Madison w/ coordinates)
++10: An instance yields the same solution with UCS and A*, but expands fewer nodes with A* (Madison w/ coordinates)
+

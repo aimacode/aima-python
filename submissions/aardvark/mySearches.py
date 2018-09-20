@@ -32,6 +32,14 @@ romania_map = search.UndirectedGraph(dict(
     P=dict(R=97,C=138,B=101),
     B=dict(G=90,P=101,F=211),
 ))
+romania_map.locations = dict(
+    A=( 91, 492), B=(400, 327), C=(253, 288),
+    D=(165, 299), E=(562, 293), F=(305, 449),
+    G=(375, 270), H=(534, 350), I=(473, 506),
+    L=(165, 379), M=(168, 339), N=(406, 537),
+    O=(131, 571), P=(320, 368), R=(233, 410),
+    S=(207, 457), T=( 94, 410), U=(456, 350),
+    V=(509, 444), Z=(108, 531))
 
 romania_puzzle = search.GraphProblem('A', 'B', romania_map)
 
@@ -41,8 +49,76 @@ The simplified map of Romania, per
 Russall & Norvig, 3rd Ed., p. 68.
 '''
 
+from grid import distance
+
+rmap = dict(
+    A=dict(Z=75,S=140,T=118),
+    Z=dict(O=71,A=75),
+    S=dict(O=151,R=80,F=99),
+    T=dict(A=118,L=111),
+    O=dict(Z=71,S=151),
+    L=dict(T=111,M=70),
+    M=dict(L=70,D=75),
+    D=dict(M=75,C=120),
+    R=dict(S=80,C=146,P=97),
+    C=dict(R=146,P=138,D=120),
+    F=dict(S=99,B=211),
+    P=dict(R=97,C=138,B=101),
+    B=dict(G=90,P=101,F=211))
+
+rlocations = dict(
+    A=( 91, 492), B=(400, 327), C=(253, 288),
+    D=(165, 299), E=(562, 293), F=(305, 449),
+    G=(375, 270), H=(534, 350), I=(473, 506),
+    L=(165, 379), M=(168, 339), N=(406, 537),
+    O=(131, 571), P=(320, 368), R=(233, 410),
+    S=(207, 457), T=( 94, 410), U=(456, 350),
+    V=(509, 444), Z=(108, 531))
+
+class Romania2(search.Problem):
+    # map = rmap
+
+    def __init__(self, map, locations, start, finish):
+        self.map = map
+        self.locations = locations
+        self.initial = start
+        self.finish = finish
+
+    def actions(self, state):
+        neighbors = self.map[state]
+        keys = neighbors.keys()
+        return keys
+        # return list(keys)
+
+    def result(self, state, action):
+        return action
+
+    def goal_test(self, state):
+        return state == self.finish
+
+    def path_cost(self, c, state1, action, state2):
+        neighbors = self.map[state1]
+        cost = neighbors[state2]
+        return c + cost
+
+    def h(self, node):
+        state = node.state
+        loc1 = self.locations[state]
+        loc2 = self.locations[self.finish]
+        return distance(loc1, loc2)
+
+romania_puzzle2 = Romania2(rmap, rlocations, 'A', 'B')
+
+romania_puzzle2.label = 'Romania2'
+romania_puzzle2.description = '''
+The simplified map of Romania, per
+Russall & Norvig, 3rd Ed., p. 68.
+Recoded to use fewer black boxes.
+'''
+
 # A trivial Problem definition
 class LightSwitch(search.Problem):
+
     def actions(self, state):
         return ['up', 'down']
 
@@ -70,5 +146,24 @@ mySearches = [
  #   swiss_puzzle,
     sumner_puzzle,
     romania_puzzle,
+    romania_puzzle2,
     switch_puzzle,
+]
+
+import random
+
+def flounder(problem, giveup=10000):
+    'The worst way to solve a problem'
+    node = search.Node(problem.initial)
+    count = 0
+    while not problem.goal_test(node.state):
+        count += 1
+        if count >= giveup:
+            return null
+        children = node.expand(problem)
+        node = random.choice(children)
+    return node
+
+mySearchMethods = [
+    flounder
 ]
