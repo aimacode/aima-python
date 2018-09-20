@@ -82,16 +82,118 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
-#swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
+
+# https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/slant.html#5x5:b0a10a2f112b21a2b2b30a01c
+class Slant(search.Problem):
+    # s1 = slant((slashes, constraints), empty)
+
+    # don't think about how to solve the problem
+    # think about how to represent arbitrary states
+
+    def __init__(self, board_height, board_width, constraints):
+        board = []
+        for i in range(0, board_height):
+            row = []
+            for j in range(0, board_width):
+                row.append('_')
+            board.append(row)
+        num_constraints = 0
+        for m in range(len(constraints)):
+            for n in range(len(constraints[0])):
+                if constraints[m][n] != '.':
+                    num_constraints = num_constraints + 1
+        self.constraints = constraints
+        self.num_constraints = num_constraints
+        self.state = board
+        self.initial = board
+
+    def actions(self, state):
+        return ['\\', '/', '_']
+
+    def result(self, state, action):
+        if state == '_':
+            return '\\'
+        elif state == '\\':
+            return '/'
+        else:
+            return '\\'
+
+    def goal_test(self, state):
+        # needs to check that all corner constraints are met
+        done = False
+        board = self.state
+        constraints = self.constraints
+        constraints_passed = 0
+        for i in range(len(constraints)):
+            for j in range(len(constraints[0])):
+                if constraints[i][j] != '.':
+                    count = 0
+                    try:
+                        if board[i-2][j-1] == '\\':
+                            count = count + 1
+                    except:
+                        pass
+                    try:
+                        if board[i-2][j] == '/':
+                            count = count + 1
+                    except:
+                        pass
+                    try:
+                        if board[i][j-1] == '/':
+                            count = count + 1
+                    except:
+                        pass
+                    try:
+                        if board[i][j] == '\\':
+                            count = count + 1
+                    except:
+                        pass
+                    count_string = str(count)
+                    if count_string == constraints[i][j]:
+                        constraints_passed = constraints_passed + 1
+        if constraints_passed == self.num_constraints:
+            done = True
+        # needs to check that there are no cycles
+        else:
+            done = False
+        return done
+
+    def h(self, node):
+        state = node.state
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
+
+
+# trivial
+slant_constraints1 = [['1', '.'], ['.', '.']]
+slant_puzzle1 = Slant(1, 1, slant_constraints1)
+slant_puzzle1.label = 'Slant 1'
+
+'''
+# https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/slant.html#5x5:b0a10a2f112b21a2b2b30a01c
+slant_constraints2 = [['.', '.', '0', '.', '1', '0'],
+               ['.', '2', '.', '.', '.', '.'],
+               ['.', '.', '1', '1', '2', '.'],
+               ['.', '2', '1', '.', '2', '.'],
+               ['.', '2', '.', '.', '3', '0'],
+               ['.', '0', '1', '.', '.', '.']]
+slant_puzzle2 = Slant(5, 5, slant_constraints2)
+slant_puzzle2.label = 'Slant 2' '''
+
+# swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
+
 
 mySearches = [
  #   swiss_puzzle,
  #   sumner_puzzle,
  #  romania_puzzle,
- #   switch_puzzle,
-    la_puzzle
+    switch_puzzle,
+    la_puzzle,
+    slant_puzzle1
 ]
 
 mySearchMethods = []

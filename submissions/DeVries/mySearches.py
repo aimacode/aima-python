@@ -54,19 +54,105 @@ The simplified map of Romania, per
 Russall & Norvig, 3rd Ed., p. 68.
 '''
 
-# A trivial Problem definition
+# A trivial Problem definition - Copy of the original
+# class LightSwitch(search.Problem):
+#     def actions(self, state):
+#         return ['up', 'down']
+#
+#     def result(self, state, action):
+#         if action == 'up':
+#             return 'on'
+#         else:
+#             return 'off'
+#
+#     def goal_test(self, state):
+#         return state == 'on'
+#
+#     def h(self, node):
+#         state = node.state
+#         if self.goal_test(state):
+#             return 0
+#         else:
+#             return 1
+
+# state = [[[booleans for row 1],[booleans for row 2]...], [coords for cube - ex (0,0) = upper left corner], [l,r,f,b,u,d]]
 class LightSwitch(search.Problem):
     def actions(self, state):
-        return ['up', 'down']
+        action_list = ['up', 'down', 'left', 'right']
+        # Need to know if we're at an edge/corner
+        if (state[1][0] == 0):
+            action_list.remove('up')
+        if (state[1][0] == len(state[0])-1):
+            action_list.remove('down')
+        if (state[1][1] == 0):
+            action_list.remove('left')
+        if (state[1][1] == len(state[0][0])-1):
+            action_list.remove('right')
+        return action_list
 
     def result(self, state, action):
+        temp_state = state
         if action == 'up':
-            return 'on'
+            temp_state[1][0] = state[1][0] - 1
+            new_row = temp_state[1][0]
+            new_col = temp_state[1][1]
+            temp_state[0][new_row][new_col] = state[2][2]
+            temp_state[2][5] = state[0][new_row][new_col]
+
+            temp_state[2][2] = state[2][4]
+            temp_state[2][3] = state[2][5]
+            temp_state[2][4] = state[2][3]
+            # temp_state[2][5] = state[2][2]
+
+            return temp_state
+        elif action == 'down':
+            temp_state[1][0] = state[1][0] + 1
+            new_row = temp_state[1][0]
+            new_col = temp_state[1][1]
+            temp_state[0][new_row][new_col] = state[2][3]
+            temp_state[2][5] = state[0][new_row][new_col]
+
+            temp_state[2][2] = state[2][5]
+            temp_state[2][3] = state[2][4]
+            temp_state[2][4] = state[2][2]
+            # temp_state[2][5] = state[2][3]
+
+            return temp_state
+        elif action == 'left':
+            temp_state[1][0] = state[1][1] - 1
+            new_row = temp_state[1][0]
+            new_col = temp_state[1][1]
+            temp_state[0][new_row][new_col] = state[2][0]
+            temp_state[2][5] = state[0][new_row][new_col]
+
+            temp_state[2][0] = state[2][4]
+            temp_state[2][1] = state[2][5]
+            temp_state[2][4] = state[2][1]
+            # temp_state[2][5] = state[2][2]
+
+            return temp_state
+        elif action == 'right':
+            temp_state[1][0] = state[1][1] + 1
+            new_row = temp_state[1][0]
+            new_col = temp_state[1][1]
+            temp_state[0][new_row][new_col] = state[2][1]
+            temp_state[2][5] = state[0][new_row][new_col]
+
+            temp_state[2][0] = state[2][5]
+            temp_state[2][1] = state[2][4]
+            temp_state[2][4] = state[2][0]
+            # temp_state[2][5] = state[2][2]
+
+            return temp_state
         else:
-            return 'off'
+            return state
 
     def goal_test(self, state):
-        return state == 'on'
+        for row in state[0]:
+            for col in row:
+                if col == False:
+                    return False
+        return True
 
     def h(self, node):
         state = node.state
@@ -76,7 +162,7 @@ class LightSwitch(search.Problem):
             return 1
 
 #swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
-switch_puzzle = LightSwitch('off')
+switch_puzzle = LightSwitch([[[True, False],[False,True]], [0,1], [False,False,False,False,False,False]])
 switch_puzzle.label = 'Light Switch'
 
 mySearches = [
