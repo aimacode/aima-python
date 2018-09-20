@@ -1,2 +1,10 @@
-1. An instance that yields a better solution with BFS than DFS
-2. An instance that yields a better solution with UCS than BFS
+1. An instance that yields a better solution with BFS than DFS 10
+2. An instance that yields a better solution with UCS than BFS 10
+3. A sliding puzzle problem.
+	-UCS finds a solution one move deep 10
+	-contains at least 50 states 35
+	
+4. Added coordinates to my map
+	- All instances ran and generate output for BestFS and A* 10
+	-An instance where BFS is better than BestFs10
+	-A* expands less nodes then UFC.10
