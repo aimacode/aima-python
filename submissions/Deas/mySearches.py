@@ -205,7 +205,7 @@ switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
-     tents_puzzle,
+ #    tents_puzzle,
      ohio_puzzle,
      franklin_puzzle,
      romania_puzzle,
