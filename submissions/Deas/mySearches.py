@@ -1,4 +1,6 @@
 import search
+import array
+import random
 from math import(cos, pi)
 
 franklin_map = search.UndirectedGraph(dict(
@@ -80,14 +82,120 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
+
+def grid_initial(grid_dimensions):
+    grid = {}
+    for x in range(grid_dimensions):
+        for y in range(grid_dimensions):
+            if y == 0:
+                if x == 2:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+            elif y == 1:
+                if x == 3:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+            elif y == 2:
+                grid[x, y] = '.'
+            elif y == 3:
+                if x == 0:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+        print(grid)
+        return grid
+
+
+def solved_grid(grid_dimensions):
+    grid = {}
+    for x in range(grid_dimensions):
+        for y in range(grid_dimensions):
+            if y == 0:
+                if x == 1:
+                    grid[x, y] = 't'
+                elif x == 2:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+            elif y == 1:
+                if x == 3:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+            elif y == 2:
+                if x == 3:
+                    grid[x, y] = 't'
+                else:
+                    grid[x, y] = '.'
+            elif y == 3:
+                if x == 0:
+                    grid[x, y] = 'T'
+                elif x == 1:
+                    grid[x, y] = 't'
+                else:
+                    grid[x, y] = '.'
+        print(grid)
+        return grid
+
+
+class Tents(search.Problem):
+    def __init__(self, initial_state, goal_state, start_x, start_y):
+        self.initial_state = initial_state
+        self.goal_state = goal_state
+        self.current_state = initial_state
+        self.start_x = start_x
+        self.start_y = start_y
+
+    def actions(self, state):
+        return ['t', '.']
+
+    def result(self, state, action):
+        updated_state = self.current_state
+        # t = tent, T = tree, . = blank
+        for x in range(4):
+            for y in range(4):
+                if action == 't':
+                    if self.current_state[x, y] == '.':
+                        self.current_state[x, y] ='t'
+                elif self.current_state[x, y] == 'T':
+                    return state
+                elif action == '.':
+                    if self.current_state[x, y] == 't':
+                        self.current_state[x, y] = '.'
+                elif self.current_state[x, y] == 'T':
+                    return state
+        self.current_state = updated_state
+        return state
+
+    def goal_test(self, state):
+        for x in range(4):
+            for y in range(4):
+                #if they are the same, do nothing
+                if self.current_state[x, y] == self.goal_sate[x, y]:
+                    return state
+                else: #if it is not the same, try again
+                    self.current_state[x, y] = '.'
+            return state
+
+    def path_cost(self, c, state1, action, state2):
+        return c + 1
+
+    def value(self, state):
+        raise NotImplementedError
+
+
 #swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
+tents_puzzle = Tents(grid_initial, solved_grid, 0, 0)
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
+    tents_puzzle,
     ohio_puzzle,
     franklin_puzzle,
     romania_puzzle,
-    switch_puzzle,
+ #   switch_puzzle,
 ]
