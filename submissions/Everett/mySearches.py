@@ -81,6 +81,9 @@ Labyrinth2 = np.array([[9, 1, 1, 1, 1, 1],
 # one entrance and one exit. The costs right now may seem a bit random due to time constraint
 # but, if I return back to this project for SURS, I'll try to make it more reasonable.
 
+# Also, instead of using a 2D array to create a 2D maze. I decided to use a dictionary of dictionaries to make
+# maze/labyrinth of points that connect to each other. So really its more of a path maze rather than a traditional maze.
+
 Labyrinth_path = (dict(
     Start=dict(B=2),
     B=dict(C=2, Start=2),
