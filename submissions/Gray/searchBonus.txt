@@ -1,0 +1,5 @@
+65: Created a map of the Boston area and compiled it.
++10: At fist BFS was higher than DFS so I added a few more nodes and
+     paths so that BFS score better.
++10: Created a node with more connections so that UCS beat BFS.
+e
