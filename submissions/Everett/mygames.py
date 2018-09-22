@@ -56,7 +56,7 @@ class Ghost(Game):
         #if state.to_move == 'L':
          #   moves = lowerletters
           #  return moves
-       return upperletters
+        return upperletters
 
     def opponent(self, player):
         if player == 'U':
@@ -70,14 +70,13 @@ class Ghost(Game):
         currMover = state.to_move
         nextMover = self.opponent(currMover)
         newState = deepcopy(state)
-        newState.to_move = nextMover
         return newState
 
 
     def utility(self, state, player):
        opponent = self.opponent(player)
 
-       return 0
+       return 1
 
 
     def cheating(bob, turn):
