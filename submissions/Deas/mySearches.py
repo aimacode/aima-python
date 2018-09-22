@@ -1,4 +1,6 @@
 import search
+import array
+import random
 from math import(cos, pi)
 
 franklin_map = search.UndirectedGraph(dict(
@@ -80,14 +82,132 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
-#swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
+
+def grid_initial(grid_dimensions):
+    grid = {}
+    for x in range(grid_dimensions):
+        for y in range(grid_dimensions):
+            if y == 0:
+                if x == 2:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+            elif y == 1:
+                if x == 3:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+            elif y == 2:
+                grid[x, y] = '.'
+            elif y == 3:
+                if x == 0:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+        print(grid)
+        return grid
+
+
+def grid_solved(grid_dimensions):
+    grid = {}
+    for x in range(grid_dimensions):
+        for y in range(grid_dimensions):
+            if y == 0:
+                if x == 1:
+                    grid[x, y] = 't'
+                elif x == 2:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+            elif y == 1:
+                if x == 3:
+                    grid[x, y] = 'T'
+                else:
+                    grid[x, y] = '.'
+            elif y == 2:
+                if x == 3:
+                    grid[x, y] = 't'
+                else:
+                    grid[x, y] = '.'
+            elif y == 3:
+                if x == 0:
+                    grid[x, y] = 'T'
+                elif x == 1:
+                    grid[x, y] = 't'
+                else:
+                    grid[x, y] = '.'
+        print(grid)
+        return grid
+
+
+class Tents(search.Problem):
+    def __init__(self, initial, goal):
+        self.initial = initial
+        self.goal = goal
+        self.current_state = initial
+
+    def actions(self, state):
+        return ['t', '.']
+
+    def result(self, state, action):
+        updated_state = state
+        # t = tent, T = tree, . = blank
+        for x in range(4):
+            for y in range(4):
+                if action == 't':
+                    if self.current_state[x, y] == '.':
+                        self.current_state[x, y] = 't'
+                elif self.current_state[x, y] == 'T':
+                    return state
+                elif action == '.':
+                    if self.current_state[x, y] == 't':
+                        self.current_state[x, y] = '.'
+                elif self.current_state[x, y] == 'T':
+                    return state
+        state = updated_state
+        return state
+
+    def goal_test(self, state):
+        for x in range(4):
+            for y in range(4):
+                # if they are the same, do nothing
+                if state == self.goal[x, y]:
+                    return state
+                else:
+                    # if it is not the same, try again
+                    state[x, y] = '.'
+            return state
+
+    def path_cost(self, c, state1, action, state2):
+        return c + 1
+
+    def value(self, state):
+        raise NotImplementedError
+
+    def h(self, node):
+        state = node.state
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
+
+    def list_to_string(self, state):
+        my_separator = " "
+        for x in range(4):
+            for y in range(4):
+                string_state = my_separator.join(state[x, y])
+        return string_state
+
+# swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
+tents_puzzle = Tents(grid_initial(4), grid_solved(4))
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
 mySearches = [
  #   swiss_puzzle,
-    ohio_puzzle,
-    franklin_puzzle,
-    romania_puzzle,
-    switch_puzzle,
+ #    tents_puzzle,
+     ohio_puzzle,
+     franklin_puzzle,
+     romania_puzzle,
+ #   switch_puzzle,
 ]

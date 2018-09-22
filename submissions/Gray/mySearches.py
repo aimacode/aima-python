@@ -55,6 +55,42 @@ The simplified map of Romania, per
 Russall & Norvig, 3rd Ed., p. 68.
 '''
 
+
+# class FloodPuzzle(search.Problem):
+#
+#     def __init__(self, initial, goal, board):
+#
+#         self.initial = initial
+#         self.goal = goal
+#         self.board = board
+#         self.state = initial
+#
+#     def actions(self, state):
+#         return ['left', 'right', 'up', 'down']
+#
+#     def result(self, state, action):
+#         return
+#
+#     def goal_test(self, state):
+#         return self.state == self.goal
+#
+#
+# flood_game_board = dict(
+#     A1=dict(right=2, down=2), A2=dict(left=1, right=3, down=1),
+#     A3=dict(left=2, down=3), B1=dict(right=1, down=1, up=1),
+#     B2=dict(left=2, right=3, down=3, up=2), B3=dict(left=1, down=2, up=3),
+#     C1=dict(up=2, right=3), C2=dict(up=1, left=1, right=2), C3=dict(left=3, up=3))
+#
+# initial_board = [['A1', 1], ['A2', 2], ['A3', 3],
+#                  ['B1', 2], ['B2', 1], ['B3', 3],
+#                  ['C1', 1], ['C2', 3], ['C3', 2]]
+# goal_board = [['A1', 1], ['A2', 1], ['A3', 1],
+#               ['B1', 1], ['B2', 1], ['B3', 1],
+#               ['C1', 1], ['C2', 1], ['C3', 1]]
+# flood_puzzle = FloodPuzzle(initial_board, goal_board, flood_game_board)
+# flood_puzzle.label = 'Flood Puzzle'
+
+
 # A trivial Problem definition
 class LightSwitch(search.Problem):
     def actions(self, state):
@@ -85,6 +121,7 @@ mySearches = [
     gray_puzzle,
     romania_puzzle,
     switch_puzzle,
+    #flood_puzzle,
 ]
 
 mySearchMethods = []
