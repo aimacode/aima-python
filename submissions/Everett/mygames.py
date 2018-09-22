@@ -1,5 +1,11 @@
 from collections import namedtuple
 from games import (Game)
+from copy import deepcopy
+from utils import isnumber
+from math import nan, isnan
+from queue import PriorityQueue
+from utils import isnumber
+from grading.util import print_table
 
 # Make an list of words
 # print at the beginning
@@ -25,20 +31,54 @@ lowerletters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
 upperletters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 #
 class GhostState:
-    def __init__(self, to_move, label, word):
+    def __init__(self, to_move, board, Uletters, Lletters, label):
         self.to_move = to_move
         self.label = label
-        self.word = word
+        self.board = []
+        self.Uletters = Uletters
+        self.Lletters = Lletters
 
     def __str__(self):
         if self.label == None:
             return super(GhostState, self).__str__()
         return self.label
 
+
 class Ghost(Game):
     """A word game that avoids the inevitable."""
-    def __init__(self, initial):
-        self.initial = GhostState(to_move= 'Capital', word = " ", label= 'ghost')
+    def __init__(self, state):
+        self.initial = state
+
+    def actions(self, state):
+        #if state.to_move == 'U':
+           # moves = upperletters
+         #   return moves
+        #if state.to_move == 'L':
+         #   moves = lowerletters
+          #  return moves
+       return upperletters
+
+    def opponent(self, player):
+        if player == 'U':
+            return 'L'
+        if player == 'U':
+            return 'L'
+
+    def result(self, state, move):
+        if move not in self.actions(state):
+           return state
+        currMover = state.to_move
+        nextMover = self.opponent(currMover)
+        newState = deepcopy(state)
+        newState.to_move = nextMover
+        return newState
+
+
+    def utility(self, state, player):
+       opponent = self.opponent(player)
+
+       return 0
+
 
     def cheating(bob, turn):
         Ghostwords = ['chair', 'house', 'lamp']
@@ -65,64 +105,50 @@ class Ghost(Game):
                     return False
         pass
 
-    def checkcase(self, player):
-        if player.isupper():
-            return 1
-        if player.islower():
-            return 0
-        pass
+    def changeboard(thing, board):
+       return board.append(thing.islower())
 
-    def actions(self, state):
-        return upperletters
-
-    def opponent(self, player):
-        for x in upperletters:
-          if player == x:
-            return lowerletters
-        else:
-         return upperletters
-
-    def result(self, state, move):
-        if move not in self.actions(state):
-          return state
-        player = state.to_move
-        next_mover = self.opponent(player)
-        return GhostState(to_move=next_mover, label='Ghost', word=" ")
-
-    def terminal_test(self, state):
-    #    return self.utility(state, player) != 0 or len(self.actions(state)) == 0
+    def terminal_test(self, board):
+     # return self.checkifword(board) == True
        return None
-
-    def utility(self, state, player):
-   #     word = state.word
-    #    util = self.checkifword(word, player)
-     #   if util == 3:
-      #      util = -self.checkifword(word, player)
-       #     state.utility = util
-        #return util
-        return 0
 
     def display(self, state):
         print("Hello and welcome to a game called Ghost. Ghost is a game where the point is to not finish a word." + '\n'
         "The rules are: No made up words, Proper nouns, or Names." + '\n' 
         "Here is the wordlist for this round:" + '\n')
-        printlist(Ghostwords)
+        Ghostwords = ['chair', 'house', 'lamp']
+        for x in Ghostwords:
+            bob = x
+            print(bob)
+        print(state)
+
+        print('Letters: ' + str(state.letter))
+
+lose = GhostState(
+    to_move = 'U',
+    board = ['c','h','a','i','r'],
+    label = 'Lose',
+    Uletters=['c','a','r'],
+    Lletters=['h','i']
+)
 
 
-def printlist(list):
-    for x in list:
-        bob = x
-        print(bob)
+win = GhostState(
+    to_move = 'L',
+    board = ['l','a','m','p'],
+    label = 'Win',
+    Uletters=['l', 'm'],
+    Lletters=['a', 'p']
+)
 
-eg = Ghost(GhostState('A', 'Game', 'chair'))
-Ghostwords = ['chair', 'house', 'lamp']
 
+
+ghost1 = Ghost(lose)
 
 myGames = {
 
+    ghost1: [
 
-    eg: [
-
-        Ghost('B'),
+        lose,
     ]
 }
