@@ -717,7 +717,7 @@ class PriorityQueue:
     def extend(self, items):
         """Insert each item in items at its correct position."""
         for item in items:
-            self.heap.append(item)
+            self.append(item)
 
     def pop(self):
         """Pop and return the item (with min or max f(x) value
