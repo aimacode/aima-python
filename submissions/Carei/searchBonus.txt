@@ -12,3 +12,9 @@ Also satisfied by: fayette_puzzle = search.GraphProblem('Markleysburg', 'Connell
 
 +10: An instance yields a better solution with BFS than BestFS
 Satisfied by: fayette_puzzle = search.GraphProblem('Perryopolis', 'Markleysburg', fayette_map)
+
++10: UCS finds a solution at least 1 move deep.
+
++10: UCS finds a solution at least 2 moves deep.
+
++10: UCS finds a solution at least 4 moves deep.
