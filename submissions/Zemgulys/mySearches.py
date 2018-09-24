@@ -1,47 +1,53 @@
 import search
 
-dupage_map = search.UndirectedGraph(dict(
-    Elmhurst=dict(VillaPark=10, OakBrook=17, Addison=11),
-    VillaPark=dict(Elmhurst=10, OakBrook=13, Addison=7, Lombard=4),
-    OakBrook=dict(VillaPark=13, Elmhurst=17, Westmont=11, Hinsdale=12),
-    Addison=dict(Elmhurst=11, VillaPark=7, GH=12, WD=5),
-    Lombard=dict(VillaPark=4, GH=13, GE=10),
-    Westmont=dict(OakBrook=11, Hinsdale=7, DG=5),
-    GH=dict(Addison=12, Lombard=13, CS=14),
-    Hinsdale=dict(Westmont=7, OakBrook=12),
-    GE=dict(Lombard=10),
-    Lisle=dict(OT=27, Warrenville=12, DG=6),
-    Warrenville=dict(Lisle=12, Winfield=13),
-    Winfield=dict(Warrenville=13, Wheaton=9),
-    Wheaton=dict(OT=26, Winfield=9, BD=34, WC=14),
-    DG=dict(Westmont=5, Lisle=6),
-    OT=dict(Wheaton=26, Lisle=27),
-    CS=dict(GH=14),
-    WC=dict(Wheaton=14, BD=10),
-    WD=dict(Addison=5),
-    BD=dict(WC=10, Wheaton=34)
+maze = (dict(
+    A=dict(B=0, C=0),
+    B=dict(A=0, D=0, F=0),
+    C=dict(A=0, E=0, G=0),
+    D=dict(B=0, E=0),
+    E=dict(D=0, C=0, H=0),
+    F=dict(B=0, G=0, H=0),
+    G=dict(C=0, F=0),
+    H=dict(E=0, F=0)
 ))
 
-# dupage_puzzle = search.GraphProblem('Addison', 'OakBrook', dupage_map)
-# dupage_puzzle = search.GraphProblem('GE', 'Wheaton', dupage_map)
-dupage_puzzle = search.GraphProblem('WD', 'WC', dupage_map)
 
-dupage_puzzle.label = 'Dupage'
+class hamiltonMaze(search.Problem):
 
+    def __init__(self, initial, goal, map):
+        self.initial = initial
+        self.goal = goal
+        self.map = map
 
-# A trivial Problem definition
-class LightSwitch(search.Problem):
+        self.expandedNodes = []
+        self.invalidMoves = []
+        self.validMoves = []
+
     def actions(self, state):
-        return ['up', 'down']
+        curr = self.map[state]
+
+        if len(self.expandedNodes) < len(maze):
+            self.expandedNodes.append(curr)
+        keys = curr.keys()
+        if keys in self.expandedNodes:
+            self.invalidMoves.append(keys)
+        else:
+            self.validMoves.append(keys)
+        return keys
 
     def result(self, state, action):
-        if action == 'up':
-            return 'on'
+        if action in self.expandedNodes:
+            self.invalidMoves.append(action)
         else:
-            return 'off'
+            return action
 
     def goal_test(self, state):
-        return state == 'on'
+        return state == self.goal
+
+    def path_cost(self, c, state1, action, state2):
+        curr = self.map[state1]
+        cost = curr[state2]
+        return c + cost
 
     def h(self, node):
         state = node.state
@@ -50,12 +56,12 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
-switch_puzzle = LightSwitch('off')
-switch_puzzle.label = 'Light Switch'
 
+hamilton_maze = hamiltonMaze('A', 'H', maze)
+hamilton_maze.label = 'Hamilton Maze'
 mySearches = [
-    dupage_puzzle,
-    # switch_puzzle,
+
+    hamilton_maze
 ]
 
 mySearchMethods = []

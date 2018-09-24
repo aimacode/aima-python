@@ -4,3 +4,13 @@ The way that the goal route is currently structured:
 (1) The instances run without exception and produce valid outputs.
 (2) BFS finds a much less costly route than DFS and
 (3) UCS finds a better route than BFS
+
+The puzzle I have created:
+(1) runs without exceptions, and generates valid output for all searches
+(2) UCS finds a solution at least one move deep
+(3) UCS finds a solution at least two moves deep
+
+I chose option 2, to add coordinates to my map. Currently this program:
+(1) Runs without exception, and generates valid output for bestFS and A*
+(2) Has an instance in which bestFS finds a better solution than DFS
+(4) Has an instance in which UCS and A* yield the same solution, with A* expanding fewer nodes

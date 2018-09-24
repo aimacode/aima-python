@@ -1,5 +1,73 @@
 import search
-from math import(cos, pi)
+import numpy as np
+
+initial_grid = []
+
+for i in range(4):
+    initial_grid.append([])
+
+for i in range(len(initial_grid)):
+    for x in range(4):
+        if i == 0 and x == 3:
+            initial_grid[i].append('Tree')
+        elif i == 1 and x == 1:
+            initial_grid[i].append('Tree')
+        elif i == 2:
+            initial_grid[i].append('Empty')
+        elif i == 3 and (x == 0 or x == 3):
+            initial_grid[i].append('Tree')
+        else:
+            initial_grid[i].append('Empty')
+
+goal_grid = []
+
+for i in range(4):
+    goal_grid.append([])
+
+for i in range(len(goal_grid)):
+    for x in range(4):
+        if i == 0:
+            if x == 3:
+                goal_grid[i].append('Tree')
+            if x == 0 or x == 2:
+                goal_grid[i].append('Tent')
+            elif x == 1:
+                goal_grid[i].append('.')
+        elif i == 1:
+            if x == 1:
+                goal_grid[i].append('Tree')
+            elif x == 3:
+                goal_grid[i].append('Tent')
+            elif x == 0 or x == 2:
+                goal_grid[i].append('.')
+        elif i == 2:
+            if x == 0:
+                goal_grid[i].append('Tent')
+            elif x > 0:
+                goal_grid[i].append('.')
+        elif i == 3:
+            if x == 0 or x == 3:
+                goal_grid[i].append('Tree')
+            elif x == 2:
+                goal_grid[i].append('Tent')
+            elif x == 1:
+                goal_grid[i].append('.')
+
+
+def convertToString(grid, grid_dimensions):
+    stringified = ''
+    for x in range(grid_dimensions):
+        for y in range(grid_dimensions):
+            stringified += '{}_'.format(grid[x][y])
+    return stringified
+
+
+def stringToList(grid):
+    gridSplit = grid.split('_')
+    gridSplit.pop(len(gridSplit) - 1)
+    every4 = [gridSplit[i: i + 4] for i in range(0, len(gridSplit), 4)]
+    return every4
+
 
 # A sample map problem
 auckland_map = search.UndirectedGraph(dict(
@@ -47,35 +115,100 @@ The simplified map of Romania, per
 Russall & Norvig, 3rd Ed., p. 68.
 '''
 
-# A trivial Problem definition
-class LightSwitch(search.Problem):
+
+class Tents(search.Problem):
+    def __init__(self, initial_state, goal_state, startingX, startingY):
+        self.initial = initial_state
+        self.goal = goal_state
+        self.x_coord = startingX
+        self.y_coord = startingY
+
     def actions(self, state):
-        return ['up', 'down']
+        currX = self.x_coord
+        currY = self.y_coord
+
+        listState = stringToList(state)
+        if listState[currY][currX] == 'Empty':
+                # (listState[currY][currX + 1] == 'Tree' or listState[currY + 1][currX] == 'Tree') and \
+                # (listState[currY + 1][currX + 1] != 'Tent'):
+            return ['Tent']
+        elif listState[currY][currX] == 'Tent' or listState[currY][currX] == 'Tree':
+            if currX == 3 and currY < 3:
+                currX = 0
+                currY += 1
+                self.x_coord = currX
+                self.y_coord = currY
+            elif currX < 4:
+                self.x_coord = currX + 1
+            return ['Tent']
 
     def result(self, state, action):
-        if action == 'up':
-            return 'on'
-        else:
-            return 'off'
+        currX = self.x_coord
+        currY = self.y_coord
+
+        self.x_coord = currX
+        self.y_coord = currY
+
+        newState = stringToList(state)
+        goalState = stringToList(self.goal)
+
+        if action == 'Tent':
+            if currX == 3 and currY < 3:
+                self.x_coord = 0
+                self.y_coord = currY + 1
+            elif currX < 4:
+                self.x_coord = currX + 1
+            newState[currY][currX] = 'Tent'
+            if newState[currY][currX] == goalState[currY][currX]:
+                return convertToString(newState, 4)
+            else:
+                newState[currY][currX] = '.'
+                return convertToString(newState, 4)
+        #     # return convertToString(newState, 4)
+        # elif action == 'Next':
+        #     return state
 
     def goal_test(self, state):
-        return state == 'on'
+        print('goal test', state == self.goal)
+        return state == self.goal
 
-    def h(self, node):
-        state = node.state
-        if self.goal_test(state):
-            return 0
-        else:
-            return 1
 
-#swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
-switch_puzzle = LightSwitch('off')
-switch_puzzle.label = 'Light Switch'
+# A trivial Problem definition
+# class LightSwitch(search.Problem):
+#     def actions(self, state):
+#         return ['up', 'down']
+#
+#     def result(self, state, action):
+#         if action == 'up':
+#             return 'on'
+#         else:
+#             return 'off'
+#
+#     def goal_test(self, state):
+#         return state == 'on'
+#
+#     def h(self, node):
+#         state = node.state
+#         if self.goal_test(state):
+#             return 0
+#         else:
+#             return 1
+
+
+
+# #swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
+# switch_puzzle = LightSwitch('off')
+# switch_puzzle.label = 'Light Switch'
+
+
+tents_puzzle = Tents(convertToString(initial_grid, 4), convertToString(goal_grid, 4), 0, 0)
+tents_puzzle.label = 'Tents'
 
 mySearches = [
  #   swiss_puzzle,
     romania_puzzle,
-    switch_puzzle,
+    tents_puzzle,
+    # switch_puzzle,
     auckland_puzzle
 ]
 
