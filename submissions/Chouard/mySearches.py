@@ -65,52 +65,25 @@ An abbreviated map of Provence-Alpes-Côte d’Azur, France.
 This map is unique, to the best of my knowledge.
 '''
 
-
-# A trivial Problem definition
-class LightSwitch(search.Problem):
-    def actions(self, state):
-        return ['up', 'down']
-
-    def result(self, state, action):
-        if action == 'up':
-            return 'on'
-        else:
-            return 'off'
-
-    def goal_test(self, state):
-        return state == 'on'
-
-    def h(self, node):
-        state = node.state
-        if self.goal_test(state):
-            return 0
-        else:
-            return 1
-
-
 class OneTwoThree(search.Problem):
     def __init__(self, initial, goal):
-        # have to convert list to tuple in order to place in explored set
-        initial = tuple(tuple(li) for li in initial)
-        goal = tuple(tuple(li) for li in goal)
-        search.Problem.__init__(self, initial, goal)
+        initial_string = self.state_to_string(initial)
+        search.Problem.__init__(self, initial_string, goal)
         self.size = len(initial)
 
     def actions(self, state):
         return [1, 2, 3]
 
     def result(self, state, action):
-        # Only change squares that don't already have numbers in them.
+        state = self.string_to_state(state)
         position = (0, 0)
         while state[position[0]][position[1]] != 0:
             if position[0] == self.size - 1 and position[1] == self.size - 1:
-                return state
+                return self.state_to_string(state)
             position = self.inc_position(position[0], position[1])
-        # convert back to list to mutate
         nextState = list(list(li) for li in state)
         nextState[position[0]][position[1]] = action
-        # convert back to tuple to place in explored set
-        return tuple(tuple(li) for li in nextState)
+        return self.state_to_string(nextState)
 
     def inc_position(self, row, col):
         if col == self.size - 1:
@@ -121,6 +94,7 @@ class OneTwoThree(search.Problem):
         return row, col
 
     def goal_test(self, state):
+        state = self.string_to_state(state)
         for m in range(0, self.size):
             for n in range(0, self.size):
                 if state[m][n] == self.goal[m][n]:
@@ -129,29 +103,88 @@ class OneTwoThree(search.Problem):
         return True
 
     def h(self, node):
-        state = node.state
-        if self.goal_test(state):
+        state = self.string_to_state(node.state)
+        score = 0
+        for m in range(0, self.size):
+            for n in range(0, self.size):
+                score += self.count_similar_around(state, m, n)
+        # divide the sum of the scores for the squares by the total number of squares for a number less than 1.
+        total_score = score / self.size ** 2
+        return 1 - total_score
+
+    def count_similar_around(self, state, row, col):
+        count = 0
+        if state[row][col] == 0:
             return 0
-        else:
-            return 1
+        # check right
+        if not (col + 1 == self.size):
+            if state[row][col + 1] == state[row][col]:
+                count += 1
+        # check left
+        if not (col - 1 < 0):
+            if state[row][col - 1] == state[row][col]:
+                count += 1
+        # check top
+        if not (row - 1 < 0):
+            if state[row - 1][col] == state[row][col]:
+                count += 1
+        # check bottom
+        if not (row + 1 == self.size):
+            if state[row + 1][col] == state[row][col]:
+                count += 1
+        # score based on the number of identical numbers touching the square.
+        # 2 should have 1 two next to it, etc.
+        score = (count + 1) / state[row][col]
+        if score > 1:
+            return 0
+        return score
+
+    def state_to_string(self, state):
+        rows = []
+        for row in state:
+            row = map(lambda x: str(x), row)
+            rows.append(''.join(row))
+        return '|'.join(rows)
+
+    def string_to_state(self, state_string):
+        rows = state_string.split('|')
+        state = []
+        for row in rows:
+            row_split = list(row)
+            row = [int(i) for i in row_split]
+            state.append(row)
+        return state
 
 
-# swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
-switch_puzzle = LightSwitch('off')
-switch_puzzle.label = 'Light Switch'
+ott_initial = [[1, 3, 2], [3, 0, 2], [2, 2, 1]]
+ott_goal = [[1, 3, 2], [3, 3, 2], [2, 2, 1]]
+ott_puzzle_1 = OneTwoThree(initial=ott_initial, goal=ott_goal)
+ott_puzzle_1.label = 'One Two Three 1 Step'
+
+ott_initial = [[1, 3, 0], [3, 0, 2], [2, 2, 1]]
+ott_goal = [[1, 3, 2], [3, 3, 2], [2, 2, 1]]
+ott_puzzle_2 = OneTwoThree(initial=ott_initial, goal=ott_goal)
+ott_puzzle_2.label = 'One Two Three 2 Steps'
+
+ott_initial = [[0, 0, 0], [3, 0, 2], [2, 2, 1]]
+ott_goal = [[1, 3, 2], [3, 3, 2], [2, 2, 1]]
+ott_puzzle_4 = OneTwoThree(initial=ott_initial, goal=ott_goal)
+ott_puzzle_4.label = 'One Two Three 4 Steps'
 
 ott_initial = [[1, 0, 0], [0, 0, 0], [0, 0, 1]]
 ott_goal = [[1, 3, 2], [3, 3, 2], [2, 2, 1]]
-ott_puzzle = OneTwoThree(initial=ott_initial, goal=ott_goal)
-ott_puzzle.label = 'One Two Three'
+ott_puzzle_b = OneTwoThree(initial=ott_initial, goal=ott_goal)
+ott_puzzle_b.label = 'One Two Three Big'
 
 mySearches = [
     #   swiss_puzzle,
     # sumner_puzzle,
     # romania_puzzle,
     cotes_dazure_puzzle,
-    switch_puzzle,
-    ott_puzzle
+    ott_puzzle_1,
+    ott_puzzle_2,
+    ott_puzzle_4,
+    ott_puzzle_b,
 ]
 
 import random
