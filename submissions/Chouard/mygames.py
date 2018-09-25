@@ -254,6 +254,50 @@ def countScore(board):
     return scores
 
 
+board = '''
+***
+***
+***
+'''
+
+
+def printDotsBoard(board):
+    board_string = ''
+    for row in range(0, len(board)):
+        for col in range(0, len(board[row])):
+            board_string += '*'
+            if 'T' in board[row][col]['lines']:
+                board_string += '---'
+            else:
+                board_string += '   '
+            if col == len(board[row]) - 1:
+                board_string += '*\n'
+                for space in range(0, len(board[row])):
+                    if 'L' in board[row][space]['lines']:
+                        board_string += '| '
+                    else:
+                        board_string += '  '
+                    if '' != board[row][space]['winner']:
+                        board_string += board[row][space]['winner']
+                    else:
+                        board_string += '  '
+                    if space == len(board[row]) - 1 and 'R' in board[row][space]['lines']:
+                        board_string += ' |'
+                    else:
+                        board_string += ' '
+                board_string += '\n'
+        if row == len(board) - 1:
+            for col in range(0, len(board[row])):
+                board_string += '*'
+                if 'B' in board[row][col]['lines']:
+                    board_string += '---'
+                else:
+                    board_string += '   '
+            board_string += '*'
+
+    print(board_string)
+
+
 class DotLineState:
     def __init__(self, to_move, board, label=None, scores={'A': 0, 'B': 0}):
         self.to_move = to_move
@@ -311,7 +355,7 @@ class DotsAndLines(Game):
 
     def display(self, state):
         # print_table(state.board, njust='center', sep=',')
-
+        printDotsBoard(state.board)
         print('Score: ' + str(state.scores))
 
 
@@ -319,38 +363,39 @@ class DotsAndLines(Game):
 Board represents the squares, whether the top, bottom, left, and 
 right have been filled, and which player owns the square.
 '''
+dotLineBoard = [[{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}],
+                [{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': 'B', 'lines': ['T', 'B', 'L', 'R']}]]
+
+won = DotLineState(board=dotLineBoard, to_move='A', label='Won', scores={'A': 3, 'B': 1})
+
+dotLineBoard = [[{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': 'B', 'lines': ['T', 'B', 'L', 'R']}],
+                [{'winner': 'B', 'lines': ['T', 'B', 'L', 'R']}, {'winner': 'B', 'lines': ['T', 'B', 'L', 'R']}]]
+
+lost = DotLineState(board=dotLineBoard, to_move='A', label='Lost', scores={'A': 1, 'B': 3})
+
 dotLineBoard = [[{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': 'B', 'lines': ['T', 'B', 'L', 'R']}],
                 [{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': 'B', 'lines': ['T', 'B', 'L', 'R']}]]
 
 tied = DotLineState(board=dotLineBoard, to_move='A', label='Tied', scores={'A': 2, 'B': 2})
 
-dotLineBoard = [[{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': 'B', 'lines': ['T', 'B', 'L', 'R']}],
-                [{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': '', 'lines': ['T', 'L', 'R']}]]
+dotLineBoard = [[{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}],
+                [{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': '', 'lines': ['T', 'L']}]]
 
 winin1Dots = DotLineState(board=dotLineBoard, to_move='A', label='Win in 1', scores={'A': 2, 'B': 1})
 
-playDotLine = DotLineState(
+play = DotLineState(
     board=[[{'winner': '', 'lines': []}, {'winner': '', 'lines': []}],
            [{'winner': '', 'lines': []}, {'winner': '', 'lines': []}]],
     to_move='A', label='Start')
 
-dotLine = DotsAndLines(playDotLine)
+dotLine = DotsAndLines(play)
 
 myGames = {
-    thinkA: [
+    dotLine: [
         won,
         lost,
-        winin1,
-        losein1,
-        winin2,
-        losein2,
-        stolen,
-        choose1,
-        winby10
-    ],
-    dotLine: [
         tied,
         winin1Dots,
-        # playDotLine
+        # play
     ]
 }
