@@ -396,6 +396,6 @@ myGames = {
         lost,
         tied,
         winin1Dots,
-        # play
+        play
     ]
 }

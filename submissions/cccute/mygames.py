@@ -67,7 +67,6 @@ class ThinkAhead(Game):
     def actions(self, state):
         "Legal moves are any square not yet taken."
         r, c = state.position
-
         if state.to_move == 'H':
             moves = movesInRow(state.board, r)
             return moves
