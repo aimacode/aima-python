@@ -26,9 +26,13 @@ roster = [
     'Tyson',
     'Zemgulys',
     'aardvark',
+<<<<<<< HEAD
+    'aartiste',
+    'zzzsolutions'
+=======
     'bbbetter',
-    'cccute',
     'zzzsolutions',
+>>>>>>> cc439da4ebd6f3a4237a43a986eb4f69e6f6c5ec
 ]
 
 def print_table(table, header=[], leftColumn=[], topLeft=[],
