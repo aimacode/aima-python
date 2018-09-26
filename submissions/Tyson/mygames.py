@@ -80,10 +80,10 @@ class Connect4(Game):
         return acts
 
     def opponent(self, player):
-        if player == 'Red':
-            return 'Blue'
-        if player == 'Blue':
-            return 'Red'
+        if player == 'R':
+            return 'B'
+        if player == 'B':
+            return 'R'
         return None
 
     def result(self, state, move):   # use this exact signature.
@@ -111,15 +111,15 @@ class Connect4(Game):
          0 if the state is a tie.
         '''
         try:
-            return state.utility if player == 'Red' else -state.utility
+            return state.utility if player == 'R' else -state.utility
         except:
             pass
         board = state.board
-        util = self.check_for_win(board, 'Red', state)
+        util = self.check_for_win(board, 'R', state)
         if util == 0:
-            util = -self.check_for_win(board, 'Blue', state)
+            util = -self.check_for_win(board, 'B', state)
         state.utility = util
-        return util if player == 'Red' else -util
+        return util if player == 'R' else -util
 
 
 
@@ -154,43 +154,58 @@ class Connect4(Game):
 
     def terminal_test(self, state):   # use this exact signature.
         # return True only when the state of the game is over.
-        return self.utility(state, 'Red') != 0 or len(self.actions(state)) == 0
+        return self.utility(state, 'R') != 0 or len(self.actions(state)) == 0
 
 
 
     def display(self, state):   # use this exact signature.
         # pretty-print the game state, using ASCII art,
         # to help a human player understand his options.
-        print(state)
+        board = state.board
+        for y in range(state.boardHeight, 0, -1):
+            for x in range(1, state.boardWidth+1):
+                if (x, y) in board:
+                    playerToPrint = board[x,y] #board.get(x, y)
+                    print(playerToPrint, end=' ')
+
+                else:
+                    if(y<1):
+                        continue
+                    else:
+                        print('.', end=' ')
+            print()
+        print()
 
 
 
 
-# won = myState(player = 'Red',
-#               board = {
-#                   # (1,2): 'Red',
-#                   (1,1): 'Red', (2,1): 'Red'
-#               },
-#               boardHeight = 2,
-#               boardWidth = 3,
-#               inARowToWin = 2,
-#               label= 'won'
 
-              # )  # where the game is already won
-winIn1 = myState(
-              player = 'Red',
+won = myState(player = 'B',
               board = {
-                  (1,2): 'Red', (2,2): 'Blue',
-                  (1,1): 'Red', (2,1): 'Blue',
+                  # (1,2): 'Red',
+                  (1,2): 'B',
+                  (1,1): 'R', (2,1): 'R',
+              },
+              boardHeight = 2,
+              boardWidth = 3,
+              inARowToWin = 2,
+              label= 'won'
+
+              )  # where the game is already won
+winIn1 = myState(
+              player = 'R',
+              board = {
+                  (1,2): 'B', (2,2): 'B',
+                  (1,1): 'R', (2,1): 'R',
               },
               boardHeight = 4,
               boardWidth = 5,
               inARowToWin= 3,
-              label= 'won1'
+              label= 'winIn1'
 
- ) # one move from a win
+  ) # one move from a win
 
-play = myState(player = 'Red',
+play = myState(player = 'R',
               board = {},
               boardHeight = 6,
               boardWidth = 7,
@@ -208,8 +223,8 @@ playableGame = Connect4(play)
 
 myGames = {
     playableGame: [
-        # won,
-        winIn1,
-        #play
+         won,
+         winIn1,
+         play
     ]
 }
