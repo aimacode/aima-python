@@ -118,7 +118,7 @@ class FlagrantCopy(Game):
             print()
 
 
-myGame = FlagrantCopy()
+#myGame = FlagrantCopy()
 
 won = GameState(
     to_move = 'O',
@@ -243,11 +243,12 @@ class TemplateGame(Game):
 
 class NimState:    # one way to define the state of a minimal game.
 
-    def __init__(self, to_move,newboard,depth=8): # add parameters as needed.
+    def __init__(self, to_move,newboard,depth=8,scoreA=0,scoreB=0): # add parameters as needed.
         self.label = str(newboard) # change this to something easier to read
         self.board = newboard
         self.to_move= to_move
         self.Maxdepth= depth
+        self.score={'A':scoreA,'B':scoreB}
 
     def __str__(self):  # use this exact signature
         return self.label
@@ -258,7 +259,7 @@ class Nim(Game):
     the shortest implementation I could run without errors.
     '''
 
-    def __init__(self, initial):    # add parameters if needed.
+    def __init__(self,initial):    # add parameters if needed.
         self.initial = initial
         # add code and self.variables if needed.
 
@@ -275,7 +276,6 @@ class Nim(Game):
 
     def result(self, state, move):
         #print('resultIn: '+ str(state.board))
-
         newState = deepcopy(state)
         newState.board[move[0]] = newState.board[move[0]]-move[1]
         newBoard = newState.board
@@ -289,10 +289,10 @@ class Nim(Game):
         # use the move to modify the newState
         return retState
     def opponent(self, to_move):
-        if to_move == 'Player 1':
-            return "Computer"
-        if to_move == 'Computer':
-            return "Player 1"
+        if to_move == 'A':
+            return "B"
+        if to_move == 'B':
+            return "A"
         return None
 
     def terminal_test(self, state):   # use this exact signature.
@@ -302,9 +302,16 @@ class Nim(Game):
 
         return all(v == 0 for v in state.board)
 
-    def utility(self, state, player):   # use this exact signature.
-        zeros = sum(1 if x==0 else 0 for x in state.board)
-        if len(state.board)-zeros == 1:
+    def utility(self, state,player):# use this exact signature.
+
+        util = self.checkWin(state.board,state.to_move)
+        #self.display(state)
+        #print(util)
+        return util if player == "B" else -util
+
+
+    def checkWin(self,board,player):
+        if sum(x==0 for x in board)-len(board) == 0:
             return 1
         else:
             return 0
@@ -320,11 +327,12 @@ class Nim(Game):
         print(string)
 
 
-tg = TemplateGame(TemplateState('A'))   # this is the game we play interactively.
-TrivialState=NimState("Player 1",[5,6,8])
-NimGame = Nim(NimState("Player 1",[0,0,1]))
-Nim = Nim(NimState("Player 1",[0,2,3]))
-
+#tg = TemplateGame(TemplateState('A'))   # this is the game we play interactively.
+NimGame = Nim(NimState("A", [5, 4, 3]))
+Win1=NimState("A", [0, 0, 3])
+Lose1=NimState("A", [0, 0, 3])
+Win2=NimState("A", [1, 0, 2])
+Lose2=NimState("A", [1, 0, 2])
 myGames = {
     # myGame: [
     #     won,
@@ -337,7 +345,10 @@ myGames = {
     #     TemplateState('B'),
     #     TemplateState('C'),
     # ],
-    Nim:[
-        TrivialState
+    NimGame:[
+        Win1,
+        Lose1,
+        Win2,
+        Lose2
     ]
 }
