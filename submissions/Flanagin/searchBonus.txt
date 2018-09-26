@@ -1,1 +1,14 @@
 Homework 6 -- due 9/20/18
+Puzzle bonuses:
++10: Slant 4 contains 2^6 = 64 states
+    -(Slant 5 contains 2^9, but it takes too long to run)
++10: Slant 1 has a solution 1 move deep
++10: Slant 2 has a solution 2 moves deep
++10: slant 3 has a solution 4 moves deep
+
+Map bonuses:
++10: Added coordinates to the map
++10: Los Angeles 1 has a better solution with BestFS than DFS
++10: Los Angeles 2 has a better solution with BFS than BestFS
++10: Los Angeles 3 has the same solution for both UCS and A*, but
+     A* expands fewer nodes.
