@@ -51,11 +51,12 @@ class Connect4(Game):
         rowsState = []
         rowsAlreadyUsed = []
         for y in state.board.keys():
+
             rowsState.append(y)
         for a in rowsState:
             rowsAlreadyUsed.append(a[0])
 
-        for d in range(1, state.boardWidth):  #trying to get rowsState to have all empty and used rows
+        for d in range(1, state.boardWidth+1):  #trying to get rowsState to have all empty and used rows
             if rowsAlreadyUsed.__contains__(d):
                 continue
             else:
@@ -64,15 +65,24 @@ class Connect4(Game):
 
 
         for z in rowsState:  #appends all legal actions
-            if z[1] < state.boardHeight:
+            if z[1] == 0: # add actions for empty columns
+
                  validMove = (z[0], z[1]+1)
                  acts.append(validMove)
-
-                    # validMove = (x,1)
-                    # acts.append(validMove)
+            #if z[1] < state.boardHeight   #add actions for non-empty columns
 
 
 
+
+
+        numberOfActions = acts.__len__()
+
+        if numberOfActions < state.boardWidth:
+            for x in rowsState:
+                if x[1] > 0:
+
+                        validNonEmptyMove = (x[0], x[1] + 1)
+                        acts.append(validNonEmptyMove)
 
 
         # append all moves, which are legal in this state,
@@ -90,6 +100,7 @@ class Connect4(Game):
 
         newState = deepcopy(state)
         newState.board.update({ move: newState.player})
+
         # use the move to modify the newState
         newState.player = self.opponent(newState.player)
         newState.to_move = newState.player
@@ -101,7 +112,9 @@ class Connect4(Game):
 
 
 
-
+    def terminal_test(self, state):   # use this exact signature.
+        # return True only when the state of the game is over.
+        return self.utility(state, 'R') != 0 or len(self.actions(state)) == 0
 
 
     def utility(self, state, player):   # use this exact signature.
@@ -126,11 +139,11 @@ class Connect4(Game):
     def check_for_win(self, board, player, state): #only checks for horizontal and vertical wins right now
         # check rows
         for y in range(1, state.boardHeight + 1):
-            if self.k_in_row(board, (1,y), player, (1,0), state):
+            if self.k_in_row(board, (1, y), player, (1, 0), state):
                 return 1
         # check columns
         for x in range(1, state.boardWidth + 1):
-            if self.k_in_row(board, (x,1), player, (0,1), state):
+            if self.k_in_row(board, (x, 1), player, (0, 1), state):
                 return 1
 
         return 0
@@ -152,9 +165,7 @@ class Connect4(Game):
         n -= 1  # Because we counted start itself twice
         return n >= state.inARowToWin
 
-    def terminal_test(self, state):   # use this exact signature.
-        # return True only when the state of the game is over.
-        return self.utility(state, 'R') != 0 or len(self.actions(state)) == 0
+
 
 
 
@@ -195,13 +206,26 @@ won = myState(player = 'B',
 winIn1 = myState(
               player = 'R',
               board = {
-                  (1,2): 'B', (2,2): 'B',
-                  (1,1): 'R', (2,1): 'R',
+                  (1,2): 'B', (2,2): 'B', (2,3): 'B',
+                  (1,1): 'R', (2,1): 'R', (3,1): 'R',
               },
-              boardHeight = 4,
-              boardWidth = 5,
-              inARowToWin= 3,
+              boardHeight = 6,
+              boardWidth = 7,
+              inARowToWin= 4,
               label= 'winIn1'
+
+  ) # one move from a win
+
+lost = myState(
+              player = 'R',
+              board = {
+                  (1,2): 'R', (2,2): 'R',
+                  (1,1): 'B', (2,1): 'B', (3,1): 'B'
+              },
+              boardHeight = 6,
+              boardWidth = 7,
+              inARowToWin= 4,
+              label= 'lost'
 
   ) # one move from a win
 
@@ -225,6 +249,7 @@ myGames = {
     playableGame: [
          won,
          winIn1,
+         lost,
          play
     ]
 }
