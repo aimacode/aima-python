@@ -1,5 +1,7 @@
 from collections import namedtuple
 from games import (Game)
+from queue import PriorityQueue
+from copy import deepcopy
 
 class GameState:
     def __init__(self, to_move, board, label=None, depth=8):
@@ -15,7 +17,7 @@ class GameState:
 
 class ConnectFour(Game):
     """A flagrant copy of Connect Four, from game.py
-    It's simplified, so that gravity is not a factor and victories can not be achieved horizontally
+    It's simplified, so that gravity is not a factor and victories can not be achieved diagonally
     Play Connect Four on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
