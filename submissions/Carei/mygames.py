@@ -1,6 +1,6 @@
 from collections import namedtuple
 from games import (Game)
-
+from copy import deepcopy
 
 class TemplateState:    # one way to define the state of a minimal game.
 
@@ -34,28 +34,24 @@ class TemplateGame(Game):
         "Legal moves are any square not yet taken."
         moves = []
         board = state.board
-        if state.to_move == '1':
-            for x in range(0,6):
-                if board[0][x] > 0:
-                    moves.append(x+1)
-            return moves
-        if state.to_move == '2':
-            for x in range(0,6):
-                if board[1][x] > 0:
-                    moves.append(x+7)
-            return moves
-        return []
+        for x in range(0,6):
+            if board[0][x] > 0:
+                moves.append(x+1)
+            if board[1][x] > 0:
+                moves.append(x + 7)
+        return moves
+
 
 
     def result(self, state, move):   # use this exact signature.
-        #newState = deepcopy(state)
+        newState = deepcopy(state)
         # if move not in self.actions(state):
         #     return state  # Illegal move has no effect
         board = state.board.copy()
         firstMove = move
-        player = state.to_move
+        player = newState.to_move
         lastMove = 0
-        if player == '1':
+        if player == '1' and move < 7:
             count1 = board[0][move-1]
             game = 7 - move
             board[0][move-1] = 0
@@ -63,8 +59,10 @@ class TemplateGame(Game):
                 board[0][firstMove] = board[0][firstMove] + 1
                 count1 -= 1
                 game -= 1
-                firstMove += 1
                 lastMove = firstMove
+                firstMove += 1
+
+
             while count1 > 0:
                 for y in range(0, 6):
                     board[1][y] = board[1][y] + 1
@@ -75,16 +73,17 @@ class TemplateGame(Game):
                         board[0][z] = board[0][z] + 1
                         count1 -= 1
                         lastMove = z
-        if player == '2':
+        if player == '2' and move > 6:
             count1 = board[1][move - 7]
             game = 6 - (move - 7)
             board[1][move - 7] = 0
             while count1 > 0 and game != 0:
-                board[1][firstMove - 6] = board[1][firstMove - 6] + 1
+                board[1][firstMove - 7] = board[1][firstMove - 7] + 1
                 count1 -= 1
                 game -= 1
-                firstMove += 1
                 lastMove = firstMove - 7
+                firstMove += 1
+
             while count1 > 0:
                 for y in range(0, 7):
                     board[0][y] = board[0][y] + 1
@@ -95,13 +94,13 @@ class TemplateGame(Game):
                         board[1][z] = board[1][z] + 1
                         count1 -= 1
                         lastMove = z
-        if lastMove == 6 or lastMove == 7:
-            next_mover = state.to_move
+        if lastMove == 7:
+            newState.to_move = newState.to_move
         else:
-            next_mover = self.opponent(player)
-            state.to_move = self.opponent(player)
-
-        return TemplateState(next_mover, board)
+          #  state.to_move = self.opponent(player)
+            newState.to_move = self.opponent(player)
+        newState.board = board
+        return newState
 
     # defines the order of play
     def opponent(self, player):
