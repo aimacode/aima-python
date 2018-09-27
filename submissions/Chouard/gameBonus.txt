@@ -5,5 +5,6 @@
 +5: A game that plays at least 3 moves interactively, Ask vs. AB(3)
 +5: A game that plays at least 3 moves interactively, AB(3) vs. Ask
 +5: A game that plays at least 12 'interesting' moves.
++5: Show that the state space of the game contains at least 50 states. In the 2x2 grid, there are 12 spaces to put lines, so there are 2^12 states, or 4,096 states.
 +10: A display method that displays the game board clearly.
-Total: 91
+Total: 96

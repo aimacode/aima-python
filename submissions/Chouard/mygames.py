@@ -280,7 +280,7 @@ def printDotsBoard(board):
                     if '' != board[row][space]['winner']:
                         board_string += board[row][space]['winner']
                     else:
-                        board_string += '  '
+                        board_string += ' '
                     if space == len(board[row]) - 1 and 'R' in board[row][space]['lines']:
                         board_string += ' |'
                     else:
@@ -383,6 +383,13 @@ dotLineBoard = [[{'winner': 'A', 'lines': ['T', 'B', 'L', 'R']}, {'winner': 'A',
 
 winin1Dots = DotLineState(board=dotLineBoard, to_move='A', label='Win in 1', scores={'A': 2, 'B': 1})
 
+dotLineBoard = [[{'winner': '', 'lines': ['L', 'R']}, {'winner': '', 'lines': ['T', 'L']}, {'winner': '', 'lines': ['R']}],
+                [{'winner': '', 'lines': ['L', 'R']}, {'winner': '', 'lines': ['L', 'R']}, {'winner': '', 'lines': ['L', 'R']}],
+                [{'winner': '', 'lines': ['B', 'L', 'R']}, {'winner': '', 'lines': ['L', 'B']}, {'winner': '', 'lines': ['B', 'R']}],
+                ]
+
+winIn5_3x3 = DotLineState(board=dotLineBoard, to_move='A', label='Win in 5', scores={'A': 0, 'B': 0})
+
 play = DotLineState(
     board=[[{'winner': '', 'lines': []}, {'winner': '', 'lines': []}],
            [{'winner': '', 'lines': []}, {'winner': '', 'lines': []}]],
@@ -396,6 +403,7 @@ myGames = {
         lost,
         tied,
         winin1Dots,
+        winIn5_3x3,
         play
     ]
 }
