@@ -17,7 +17,7 @@ class GameState:
 
 class ConnectFour(Game):
     """A flagrant copy of Connect Four, from game.py
-    It's simplified, so that gravity is not a factor and victories can not be achieved diagonally
+    It's simplified, so that gravity is not a factor
     Play Connect Four on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
@@ -122,7 +122,7 @@ myGame = ConnectFour()
 
 won = GameState(
     to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
+    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X', (1,4): 'X',
              (2,1): 'O', (2,2): 'O',
             },
     label = 'won'
@@ -130,7 +130,7 @@ won = GameState(
 
 winin1 = GameState(
     to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
+    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
              (2,1): 'O', (2,2): 'O',
             },
     label = 'winin1'
@@ -139,7 +139,7 @@ winin1 = GameState(
 losein1 = GameState(
     to_move = 'O',
     board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
+             (2,1): 'O', (2,2): 'O', (2,3): 'O',
              (3,1): 'X',
             },
     label = 'losein1'
