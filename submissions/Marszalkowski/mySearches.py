@@ -22,6 +22,7 @@ erie_map.locations = dict(
     Hamburg=(20,17), Fredonia=(10,10), SBuffalo=(12,25)
 )
 
+
 erie_puzzle = search.GraphProblem('GrandIsland', 'OrchardPark', erie_map)
 
 erie_puzzle.label = 'Erie'
@@ -75,15 +76,100 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
+class loopy(search.Problem):
+    def actions(self, state):
+        return ['up', 'down', 'left', 'right']
+
+    def result(self, state, action):
+        if action == 'up':
+            if state == 'A':
+                return 'A'
+            if state == 'B':
+                return 'B'
+            if state == 'C':
+                return 'A'
+            if state == 'D':
+                return 'B'
+        if action == 'down':
+            if state == 'A':
+                return 'C'
+            if state == 'B':
+                return 'D'
+            if state == 'C':
+                return 'C'
+            if state == 'D':
+                return 'D'
+        if action == 'left':
+            if state == 'A':
+                return 'A'
+            if state == 'B':
+                return 'A'
+            if state == 'C':
+                return 'C'
+            if state == 'D':
+                return 'C'
+        if action == 'right':
+            if state == 'A':
+                return 'B'
+            if state == 'B':
+                return 'B'
+            if state == 'C':
+                return 'D'
+            if state == 'D':
+                return 'D'
+
+    def goal_test(self, state):
+            return state == 'D'
+
+    def h(self, node):
+        state = node.state
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
+
+
+
+loopy_map = search.UndirectedGraph(dict(
+    A=dict(B=1, D=1), B=dict(A=1, C=1, E=1), C=dict(B=1, F=1), D=dict(A=1, E=1)
+))
+loopy_map.locations = dict(
+    A=(0,1), B=(1,1), C=(0,0), D=(1,0)
+)
+
+loopy_puzzle = loopy('A', loopy_map)
+
+
+
+
+'''
+loopy_map = search.UndirectedGraph(dict(
+    A=dict(B=1, C=1), B=dict(A=1, D=1), C=dict(A=1, D=1), D=dict(B=1, C=1)
+))
+
+
+loopy_map = dict(
+    A=(0, 1), B=(1, 1), C=(0, 0), D=(1, 0)
+ )
+
+
+loopy_puzzle = loopy('A', loopy_map)
+'''
+loopy_puzzle.label = 'Loopy'
+loopy_puzzle.description = '''
+An abbreviated map of the loopy puzzle
+'''
+
 #swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
 mySearches = [
- #   swiss_puzzle,
+#   swiss_puzzle,
     erie_puzzle,
     romania_puzzle,
     switch_puzzle,
+    loopy_puzzle
 ]
 
 mySearchMethods = []

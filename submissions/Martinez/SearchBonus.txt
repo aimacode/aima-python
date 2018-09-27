@@ -1,6 +1,13 @@
-65 points= I made a complex Germany map many interconnected cities.
-+10= with Bremen to munich I managed to make BFS better than DFS but not UCS better than BFS
-+10 = I decided to change the starting and goal points and successfully made, not only BFS much better than DFS, but also
-UCS better than BFS with a 10 points difference
-
+#65 points= I made a complex Germany map many interconnected cities.
+# +10= with Bremen to munich I managed to make BFS better than DFS but not UCS better than BFS
+##+10 = I decided to change the starting and goal points and successfully made, not only BFS much better than DFS, but also
+#UCS better than BFS with a 10 points difference
 total 85 points.
+
+
+september 20
+Added coordinates to map +10
+bestfs better than DFS +10
+BFS better than bestFS +10
+UCS equal to a* +10
+Attempted a working puzzle +? :_(

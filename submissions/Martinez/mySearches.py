@@ -36,6 +36,13 @@ Germany_map = search.UndirectedGraph(dict(
     Munich=dict(Stuttgart=136, Nuremberg=101)
 
 ))
+Germany_map.locations = dict(
+    Bremen=(53.07, 8.8), Hamburg=(53.55, 9.99), Hanover=(52.37, 9.73), Berlin=(52.52, 13.45), Leipzig=(51.33, 12.37),
+    Dresden=(51.05, 13.73), Dortmund=(51.51, 7.46), Essen=(51.45, 7.01), Dusseldorf=(51.22, 6.77), Cologne=(50.93, 6.96)
+    , Frankfurt=(50.11, 8.68), Nuremberg=(49.45, 11.07), Stuttgart=(48.77, 9.18), Munich=(48.13, 11.58)
+)
+
+
 Germany_puzzle = search.GraphProblem('Bremen', 'Munich', Germany_map)
 Germany_puzzle.label = 'Bremen to Munich'
 Germany_puzzle.description = 'go from Bremen to Munich...if you can'
@@ -89,6 +96,58 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
+#my puzzle
+# Dungeonpuzzle_map = dict(
+#         E1=dict(E2='room'),
+#         E2=dict(D2=0, F2=0),
+#         F2=dict(E2=0),
+#         D2=dict(C2='intersection'),
+#         C2=dict(B2='nada', C3=1),
+#         B2=dict(A2='Dead end'),
+#         A2=dict(B2='nada'),
+#         C3=dict(C4='intersection 2'),
+#         C4=dict(B4='exit', D4='dead end 2'),
+#         B4=dict(C4='intersection 2'),
+#         D4=dict(C4='intersection 2'))
+# #start at B
+# #exit is at D
+# DungeonGrid = [['E'], ['H'], ['E'], ['E'],
+#                ['E'], ['H'], ['E'], ['D'],
+#                ['E'], ['H'], ['H'], ['H'],
+#                ['E'], ['H'], ['E'], ['H'],
+#                ['B'], ['H'], ['E'], ['E'],
+#                ['E'], ['H'], ['E'], ['E']]
+#
+# class Dungeonpuzzle(search.Problem):
+#     def __init__(self,start, end):
+#         self.map = map
+#         self.initial = start
+#         self.goal = end
+#
+#     def actions(self , state):
+#
+#             nearCells = self.map[state]
+#             keys = nearCells.keys()
+#             return keys
+#
+#     def result(self, state, action):
+#
+#         return action
+#
+#     def goal_test(self, state):
+#         return state == self.goal
+#
+#     def path_cost(self, c, state1, action, state2):
+#         nearCells = self.map[state1]
+#         cost = nearCells[state2]
+#         return c + cost
+#
+#
+# dungeon1 = Dungeonpuzzle('room', 'exit', Dungeonpuzzle_map)
+# dungeon1.label = 'dungeon'
+
+
+
 #swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
@@ -99,6 +158,7 @@ mySearches = [
     romania_puzzle,
     switch_puzzle,
     Germany_puzzle,
-    Germany_puzzle2
+    Germany_puzzle2,
+    #dungeon1
 ]
 mySearchMethods = []

@@ -1,2 +1,13 @@
+Map:
 +10 for having breadth-first have a better solution, in terms of cost, than depth-first.
 +10 for having uniform-cost have a better solution, in terms of cost, than breadth-first.
+
+My Problem Instance:
++10 for a state space with at least 50 states. The big puzzle has 7 empty squares, with 3 possible states each. 3^7 = 2187 possible problem states.
++10: An instance that yields a better solution with BFS than DFS. In the 4 steps instance of One Two Three, BFS runs better than DFS.
++10: UCS finds a solution at least 1 move deep. The 1 step instance finds the goal using UCS in 1 step.
++10: UCS finds a solution at least 2 moves deep. The 2 steps instance finds the goal using UCS in 2 steps.
++10: UCS finds a solution at least 4 moves deep. The 4 steps instance finds the goal in 4 steps.
++10: The heuristic runs without exceptions, and generates interesting output for, BestFS and A*.
+The output is interesting in that it actually is generating more nodes for A* and BestFS than with the simplest heuristic applied, like in light switch.
+This is probably due to the fact that the heuristic is imperfect, and it needs to check for groupings of numbers rather than just what is next to the square.
