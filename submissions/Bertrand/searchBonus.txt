@@ -1,0 +1,16 @@
+From homework due Sept 13:
+    65: All instances run without exceptions, and generate valid output for, all four searches.
+    +10: An instance that yields a better solution with BFS than DFS
+    +10: An instance that yields a better solution with UCS than BFS
+
+All above criteria completed with "Wayne County" search
+
+
+
+
+From homework due Sept 20:
+    Adding coordinates to map:
+        +10: All instances run without exceptions, and generate valid output for, BestFS and A*
+        +10: An instance yields a better solution with BestFS than with arbitrary DFS --> "Wayne3"
+        +10: An instance yields a better solution with BFS than BestFS --> "Wayne2" and "Wayne3"
+        +10: An instance yields the same solution with UCS and A*, but expands fewer nodes with A* --> "Wayne2"
