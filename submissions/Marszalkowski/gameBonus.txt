@@ -1,0 +1,9 @@
+For my game, Reverse Nim:
+(1) +60 the game compiles and runs without exceptions, and the interactive mode can be played with valid output
+(2) +5 There are three piles at the start, with quantities 3, 4, and 5 respectively. They can all be iterated down to zero.
+    Knowing this, we know that there are 120 possible states in the game.
+(3) +2 The state loss returns 0 actions without crashing
+(10) +5 The game can play at least three moves interactively, Ask vs. AB(3)
+(11) +5 The game can play at least three moves interactively, AB(3) vs. Ask
+(12) +5 Though not incredibly interesting, a game can be completed in 12 moves
+(13) +10 The game returns a list of the numbers remaining in each pile, that updates after each turn
