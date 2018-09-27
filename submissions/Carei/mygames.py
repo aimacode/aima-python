@@ -23,8 +23,9 @@ class TemplateGame(Game):
     def __init__(self, initial):    # add parameters if needed.
         self.initial = initial
         # add code and self.variables if needed.
+        self.oldBoard = []
 
-        self.initial = TemplateState('1', [[4, 4, 4, 4, 4, 4, 0], [4, 4, 4, 4, 4, 4, 0]])
+
 
     def actions(self, state):   # use this exact signature.
         try:
@@ -34,27 +35,31 @@ class TemplateGame(Game):
         "Legal moves are any square not yet taken."
         moves = []
         board = state.board
-        for x in range(0,6):
-            if board[0][x] > 0:
-                moves.append(x+1)
-            if board[1][x] > 0:
-                moves.append(x + 7)
+        if state.to_move == '1':
+            for x in range(0,6):
+                if board[0][x] > 0:
+                   moves.append(x)
+        if state.to_move == '2':
+            for x in range(0,6):
+                 if board[1][x] > 0:
+                  moves.append(x+6)
         return moves
 
 
 
     def result(self, state, move):   # use this exact signature.
         newState = deepcopy(state)
+        self.oldBoard = state.board.copy()
         # if move not in self.actions(state):
         #     return state  # Illegal move has no effect
         board = state.board.copy()
-        firstMove = move
+        firstMove = move + 1
         player = newState.to_move
         lastMove = 0
         if player == '1' and move < 7:
-            count1 = board[0][move-1]
-            game = 7 - move
-            board[0][move-1] = 0
+            count1 = board[0][move]
+            game = 6 - move
+            board[0][move] = 0
             while count1 > 0 and game != 0:
                 board[0][firstMove] = board[0][firstMove] + 1
                 count1 -= 1
@@ -74,9 +79,9 @@ class TemplateGame(Game):
                         count1 -= 1
                         lastMove = z
         if player == '2' and move > 6:
-            count1 = board[1][move - 7]
-            game = 6 - (move - 7)
-            board[1][move - 7] = 0
+            count1 = board[1][move - 6]
+            game = 6 - (move - 8)
+            board[1][move - 6] = 0
             while count1 > 0 and game != 0:
                 board[1][firstMove - 7] = board[1][firstMove - 7] + 1
                 count1 -= 1
@@ -94,10 +99,10 @@ class TemplateGame(Game):
                         board[1][z] = board[1][z] + 1
                         count1 -= 1
                         lastMove = z
-        if lastMove == 7:
+        if lastMove == 6:
             newState.to_move = newState.to_move
         else:
-          #  state.to_move = self.opponent(player)
+            state.to_move = self.opponent(player)
             newState.to_move = self.opponent(player)
         newState.board = board
         return newState
@@ -131,23 +136,16 @@ class TemplateGame(Game):
 
     def utility(self, state, player):   # use this exact signature.
         board = state.board
-        player = self.opponent(state.to_move)
-        countOne = 0
-        countTwo = 0
-        for x in range(0, 6):
-            countOne += board[0][x]
-        for x in range(0, 6):
-            countTwo += board[1][x]
-        if player == '1' and countOne == 0 and board[0][6] > board[1][6]:
+        if board[0][6] > board[1][6]:
             return 1
-        if player == '1' and countTwo == 0 and board[0][6] > board[1][6]:
+        if board[1][6] > board[0][6]:
+            return -1
+        if board[0][6] > self.oldBoard[0][6]:
             return 1
-        if player == '2' and countOne == 0 and board[1][6] > board[0][6]:
-            return 2
-        if player == '2' and countTwo == 0 and board[1][6] > board[0][6]:
-            return 2
-        return False
-        return 0
+        if board[1][6] > self.oldBoard[1][6]:
+            return -1
+        else:
+            return 0
 
     def display(self, state):   # use this exact signature.
         # pretty-print the game state, using ASCII art,
@@ -183,49 +181,29 @@ winin3 = TemplateState(
 )
 
 
-real = TemplateState(
+
+losein3 = TemplateState(
     '1',
-    [[4, 4, 4, 4, 4, 4, 0], [4, 4, 4, 4, 4, 4, 0]]
+    [[0, 0, 0, 2, 0, 0, 14],[0, 0, 0, 0, 2, 0, 30]]
 )
 
+winin5 = TemplateState(
+    '2',
+    [[0, 0, 0, 0, 2, 1, 30],[0, 0, 0, 2, 0, 0, 14]]
+)
 
-#
-# losein3 = TemplateState(
-#     to_move = 'O',
-#     board = {(1,1): 'X',
-#              (2,1): 'X',
-#              (3,1): 'O', (1,2): 'X', (1,2): 'O',
-#             },
-#     label = 'losein3'
-# )
-#
-# winin5 = TemplateState(
-#     to_move = 'X',
-#     board = {(1,1): 'X', (1,2): 'O',
-#              (2,1): 'X',
-#             },
-#     label = 'winin5'
-# )
-#
-# lost = TemplateState(
-#     to_move = 'X',
-#     board = {(1,1): 'X', (1,2): 'X',
-#              (2,1): 'O', (2,2): 'O', (2,3): 'O',
-#              (3,1): 'X'
-#             },
-#     label = 'lost'
-# )
 
 myGame = TemplateGame(won)
 
 myGames = {
     myGame: [
-        #won,
-        #winin1,
-        #losein1,
-        #winin3, #losein3, winin5,
-        real
-        #lost,
+        won,
+        winin1,
+        losein1,
+        winin3,
+        losein3,
+        #winin5,
+
     ],
 
     # tg: [
