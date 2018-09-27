@@ -102,7 +102,7 @@ class TemplateGame(Game):
         if lastMove == 6:
             newState.to_move = newState.to_move
         else:
-            state.to_move = self.opponent(player)
+            # state.to_move = self.opponent(player)
             newState.to_move = self.opponent(player)
         newState.board = board
         return newState
