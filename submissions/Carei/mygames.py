@@ -48,13 +48,13 @@ class TemplateGame(Game):
 
 
     def result(self, state, move):   # use this exact signature.
-        newState = deepcopy(state)
+
         self.oldBoard = state.board.copy()
         # if move not in self.actions(state):
         #     return state  # Illegal move has no effect
-        board = state.board.copy()
+        board = state.board
         firstMove = move + 1
-        player = newState.to_move
+        player = state.to_move
         lastMove = 0
         if player == '1' and move < 7:
             count1 = board[0][move]
@@ -99,6 +99,7 @@ class TemplateGame(Game):
                         board[1][z] = board[1][z] + 1
                         count1 -= 1
                         lastMove = z
+        newState = deepcopy(state)
         if lastMove == 6:
             newState.to_move = newState.to_move
         else:
