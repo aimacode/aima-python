@@ -172,6 +172,32 @@ oneToLose = GameState(
     bag3 =[],
     label = 'oneToWin'
 )
+winin2 = GameState(
+    to_move = 'Alpha',
+
+    bag1 =[1],
+    bag2 = [1],
+    bag3 =[1],
+    label = 'winin2'
+)
+losein2 = GameState(
+    to_move = 'Beta',
+
+    bag1 =[1],
+    bag2 = [1],
+    bag3 =[1],
+    label = 'losein2'
+)
+choose1 = GameState(
+    to_move = 'Alpha',
+
+    bag1 =[1],
+    bag2 = [1,1],
+    bag3 =[1],
+    label = 'choose1'
+)
+
+
 # tg = TemplateGame(TemplateState('A'))   # this is the game we play interactively.
 myGame = TemplateGame(stolen)
 myGames = {
@@ -180,5 +206,10 @@ myGames = {
         won,
         lost,
         oneToWin,
+        winin2,
+        losein2,
+        choose1,
+
+
     ]
 }
