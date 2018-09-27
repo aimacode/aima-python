@@ -58,8 +58,27 @@ la_map = search.UndirectedGraph({
     'Woodland Hills': {'Calabasas': 11, 'Hollywood': 24, 'Venice Beach': 32}
 })
 
+la_map.locations = {
+    'Beverly Hills': (20, 8),
+    'Calabasas': (9, 21),
+    'Disneyland': (40, 4),
+    'Downtown': (26, 16),
+    'Hollywood': (23, 19),
+    'Malibu': (3, 15),
+    'Santa Monica': (16, 14),
+    'Venice Beach': (16, 15),
+    'Westlake Village': (2, 22),
+    'Woodland Hills': (11, 23)
+}
+
 la_puzzle = search.GraphProblem('Woodland Hills', 'Disneyland', la_map)
-la_puzzle.label = 'Los Angeles'
+la_puzzle.label = 'Los Angeles 1'
+
+la_puzzle2 = search.GraphProblem('Hollywood', 'Malibu', la_map)
+la_puzzle2.label = 'Los Angeles 2'
+
+la_puzzle3 = search.GraphProblem('Calabasas', 'Venice Beach', la_map)
+la_puzzle3.label = 'Los Angeles 3'
 
 # A trivial Problem definition
 class LightSwitch(search.Problem):
@@ -90,7 +109,9 @@ class Slant(search.Problem):
     # don't think about how to solve the problem
     # think about how to represent arbitrary states
 
-    def __init__(self, board_height, board_width, constraints):
+    def __init__(self, constraints):
+        board_height = len(constraints)-1
+        board_width = len(constraints[0])-1
         board = []
         for i in range(0, board_height):
             row = []
@@ -104,55 +125,84 @@ class Slant(search.Problem):
                     num_constraints = num_constraints + 1
         self.constraints = constraints
         self.num_constraints = num_constraints
-        self.state = board
-        self.initial = board
+        # self.state = state2string(board)
+        self.initial = state2string(board)
 
     def actions(self, state):
-        return ['\\', '/', '_']
+        board = string2state(state)
+        actions = []
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                if board[i][j] == '_':
+                    actions.append('\\' + ',' + str(i) + ',' + str(j))
+                    actions.append('/' + ',' + str(i) + ',' + str(j))
+        return actions
 
     def result(self, state, action):
-        if state == '_':
-            return '\\'
-        elif state == '\\':
-            return '/'
-        else:
-            return '\\'
+        board = string2state(state)
+        a, b, c = action.split(',')
+        i = int(b)
+        j = int(c)
+        board[i][j] = a
+        return state2string(board)
 
     def goal_test(self, state):
-        # needs to check that all corner constraints are met
+        board = string2state(state)
         done = False
-        board = self.state
+        # check that every square is not '_'
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                if board[i][j] == '_':
+                    return False
+        # needs to check that all corner constraints are met
         constraints = self.constraints
         constraints_passed = 0
         for i in range(len(constraints)):
             for j in range(len(constraints[0])):
+                count = 0
                 if constraints[i][j] != '.':
-                    count = 0
+                    a = i - 1
+                    b = j - 1
+
+                    if a >= 0 and b >= 0:
+                        try:
+                            if board[a][b] == '\\':   # upper left box
+                                count = count + 1
+                        except:
+                            pass
+                    if a >= 0:
+                        try:
+                            if board[a][j] == '/':    # upper right box
+                                count = count + 1
+                        except:
+                            pass
+                    if b >= 0:
+                        try:
+                            if board[i][b] == '/':    # lower left box
+                                count = count + 1
+                        except:
+                            pass
                     try:
-                        if board[i-2][j-1] == '\\':
+                        if board[i][j] == '\\':       # lower right box
                             count = count + 1
                     except:
                         pass
-                    try:
-                        if board[i-2][j] == '/':
+                    '''
+                    if a >= 0 and b >= 0:
+                        if board[a][b] == '\\':
                             count = count + 1
-                    except:
-                        pass
-                    try:
-                        if board[i][j-1] == '/':
+                        if board[a][j] == '/':
                             count = count + 1
-                    except:
-                        pass
-                    try:
-                        if board[i][j] == '\\':
+                        if board[i][b] == '/':
                             count = count + 1
-                    except:
-                        pass
+                    if board[i][j] == '\\':
+                        count = count + 1'''
+
                     count_string = str(count)
                     if count_string == constraints[i][j]:
                         constraints_passed = constraints_passed + 1
         if constraints_passed == self.num_constraints:
-            done = True
+            return True
         # needs to check that there are no cycles
         else:
             done = False
@@ -166,10 +216,59 @@ class Slant(search.Problem):
             return 1
 
 
+def state2string(state):
+    state_string = ''
+    for i in range(len(state)):
+        for j in range(len(state[0])):
+            state_string = state_string + state[i][j] + ','
+        state_string = state_string[:-1] + '|'
+    state_string = state_string[:-1]
+    return state_string
+
+
+def string2state(state_string):
+    state = []
+    rows = state_string.split('|')
+    for row in rows:
+        states = row.split(',')
+        state.append(states)
+    return state
+
+
 # trivial
 slant_constraints1 = [['1', '.'], ['.', '.']]
-slant_puzzle1 = Slant(1, 1, slant_constraints1)
+slant_puzzle1 = Slant(slant_constraints1)
 slant_puzzle1.label = 'Slant 1'
+
+# 2x1
+slant_constraints2 = [['.', '2', '.'], ['.', '.', '.']]
+slant_puzzle2 = Slant(slant_constraints2)
+slant_puzzle2.label = 'Slant 2'
+
+# 2x2
+# https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/slant.html#2x2:a2e0a
+slant_constraints3 = [['.', '2', '.'],
+                      ['.', '.', '.'],
+                      ['.', '0', '.']]
+slant_puzzle3 = Slant(slant_constraints3)
+slant_puzzle3.label = 'Slant 3'
+
+# 3x2
+# https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/slant.html#3x2:a2e1a01a
+slant_constraints4 = [['.', '2', '.', '.'],
+                      ['.', '.', '.', '1'],
+                      ['.', '0', '1', '.']]
+slant_puzzle4 = Slant(slant_constraints4)
+slant_puzzle4.label = 'Slant 4'
+
+# 3x3
+# https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/slant.html#3x3:0b011c31d1
+slant_constraints5 = [['0', '.', '.', '0'],
+                      ['1', '1', '.', '.'],
+                      ['.', '3', '1', '.'],
+                      ['.', '.', '.', '1']]
+slant_puzzle5 = Slant(slant_constraints5)
+slant_puzzle5.label = 'Slant 5'
 
 '''
 # https://www.chiark.greenend.org.uk/~sgtatham/puzzles/js/slant.html#5x5:b0a10a2f112b21a2b2b30a01c
@@ -191,9 +290,15 @@ mySearches = [
  #   swiss_puzzle,
  #   sumner_puzzle,
  #  romania_puzzle,
-    switch_puzzle,
+    #switch_puzzle,
     la_puzzle,
-    slant_puzzle1
+    la_puzzle2,
+    la_puzzle3,
+    slant_puzzle1,    # 1x1
+    slant_puzzle2,    # 2x1
+    slant_puzzle3,    # 2x2
+    slant_puzzle4,    # 3x2
+    #slant_puzzle5     # 3x3
 ]
 
 mySearchMethods = []
