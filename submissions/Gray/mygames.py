@@ -74,7 +74,7 @@ class Nim(Game):
 
     def check_win(self, board, player):
         # check to see if the board is empty
-        if len(board) == 0:
+        if board == [0,0,0]:
             return 1
         return 0
 
@@ -90,8 +90,19 @@ class Nim(Game):
 
 
 # tg = TemplateGame(TemplateState('A'))  # this is the game we play interactively.
-FirstState = GameState("Player 1", [1, 2, 3])
+FirstState = GameState("Player 1", [6, 7, 8])
 NimGame = Nim(FirstState)
+
+won = GameState(
+    player= "Player 1",
+    board= [0,0,1],
+
+)
+
+no_moves = GameState(
+    player= "Player 1",
+    board= [0,0,0],
+)
 
 
 myGames = {
@@ -107,6 +118,8 @@ myGames = {
     #     TemplateState('C'),
     # ],
     NimGame: [
-        FirstState
+        FirstState,
+        won,
+        no_moves
     ]
 }
