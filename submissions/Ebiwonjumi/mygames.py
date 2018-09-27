@@ -1,5 +1,7 @@
 from collections import namedtuple
 from games import (Game)
+from queue import PriorityQueue
+from copy import deepcopy
 
 class GameState:
     def __init__(self, to_move, board, label=None, depth=8):
@@ -13,18 +15,20 @@ class GameState:
             return super(GameState, self).__str__()
         return self.label
 
-class FlagrantCopy(Game):
+class DucksinRow(Game):
     """A flagrant copy of TicTacToe, from game.py
     It's simplified, so that moves and utility are calculated as needed
     Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
-    def __init__(self, h=3, v=3, k=3):
+    def __init__(self, h=5, v=5, k=4):
         self.h = h
         self.v = v
         self.k = k
-        self.initial = GameState(to_move='X', board={})
+        self.initial = GameState(to_move='X', board={(1,1): 'X', (1,2): 'O', (1,3): 'X', (1,4): 'O', (1,5): 'X',
+            (3,1): 'X', (3,5): 'O',
+            (5,1): 'O', (5,2): 'X', (5,3): 'O', (5,4): 'X', (5,5): 'O'})
 
     def actions(self, state):
         try:
@@ -73,18 +77,31 @@ class FlagrantCopy(Game):
     # Did I win?
     def check_win(self, board, player):
         # check rows
-        for y in range(1, self.v + 1):
-            if self.k_in_row(board, (1,y), player, (1,0)):
-                return 1
+        for x in range(1, self.h):
+            for y in range(1, self.v):
+                if self.k_in_row(board, (x,y), player, (1,0)):
+                    return 1
+
         # check columns
-        for x in range(1, self.h + 1):
-            if self.k_in_row(board, (x,1), player, (0,1)):
-                return 1
+        for y in range(1, self.v):
+            for x in range(1, self.h):
+                if self.k_in_row(board, (x,y), player, (0,1)):
+                    return 1
+
         # check \ diagonal
         if self.k_in_row(board, (1,1), player, (1,1)):
             return 1
+        elif self.k_in_row(board, (2,1), player, (1,1)):
+            return 1
+        elif self.k_in_row(board, (1,2), player, (1,1)):
+            return 1
+
         # check / diagonal
-        if self.k_in_row(board, (3,1), player, (-1,1)):
+        if self.k_in_row(board, (1,5), player, (-1,1)):
+            return 1
+        elif self.k_in_row(board, (2,5), player, (-1,1)):
+            return 1
+        elif self.k_in_row(board, (1,4), player, (-1,1)):
             return 1
         return 0
 
@@ -116,72 +133,70 @@ class FlagrantCopy(Game):
             print()
 
 
-myGame = FlagrantCopy()
+myGame = DucksinRow()
+
+
+#
+# start = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'O', (1,3): 'X', (1,4): 'O', (1,5): 'X',
+#             (3,1): 'X', (3,5): 'O',
+#             (5,1): 'O', (5,2): 'X', (5,3): 'O', (5,4): 'X', (5,5): 'O'
+#             },
+#     label = 'start'
+# )
 
 won = GameState(
     to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
-             (2,1): 'O', (2,2): 'O',
+    board = {(1,1): 'X', (1,2): 'O', (1,3): 'X', (1,4): 'O', (1,5): 'X',
+             (2,4): 'X', (2,5): 'O',
+             (3,1): 'X', (3,3): 'X', (3,4): 'O',  (3,5): 'O',
+             (4,2): 'X',
+             (5,1): 'O', (5,2): 'X', (5,3): 'O', (5,4): 'X', (5,5): 'O'
             },
     label = 'won'
 )
 
+
 winin1 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
+    to_move='X',
+    board={
+           (3, 3): 'X',
+           (4, 1): 'O', (4, 2): 'X', (4, 3): 'O',
+           (5, 1): 'X', (5, 3): 'O',
+           },
     label = 'winin1'
 )
 
 losein1 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-             (3,1): 'X',
-            },
+    to_move='X',
+    board={
+           (2, 2): 'O', (2,3): 'O', (2,4): 'O', (2,5): 'X',
+           (4, 3): 'X', (4, 4): 'X',
+           (5, 3): 'X', (5, 4): 'O',
+           },
     label = 'losein1'
-)
-
-winin3 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-             (3,1): 'O',
-            },
-    label = 'winin3'
-)
-
-losein3 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X',
-             (2,1): 'X',
-             (3,1): 'O', (1,2): 'X', (1,2): 'O',
-            },
-    label = 'losein3'
-)
-
-winin5 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-            },
-    label = 'winin5'
 )
 
 lost = GameState(
     to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
-             (3,1): 'X'
+    board = {(1,1): 'X', (1,2): 'O', (1,3): 'X', (1,4): 'O', (1,5): 'X',
+             (2,1): 'O', (2,2): 'O', (2,3): 'O', (2,4): 'X', (2,5): 'X',
+             (3,1): 'X', (3,2): 'X', (3,3): 'O', (3,4): 'X', (3,5): 'O',
+             (4,1):'X', (4,2): 'X', (4,3): 'O', (4,4): 'O',
+             (5,1): 'O', (5,2):'X', (5,3): 'O', (5,4): 'X', (5,5): 'O',
             },
     label = 'lost'
 )
 
+
+
 myGames = {
     myGame: [
         won,
-        winin1, losein1, winin3, losein3, winin5,
+        # winin1,
+        # losein1,
         lost,
-    ]
+    ],
+
 }
