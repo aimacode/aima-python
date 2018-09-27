@@ -248,7 +248,7 @@ class NimState:    # one way to define the state of a minimal game.
         self.board = newboard
         self.to_move= to_move
         self.Maxdepth= depth
-        self.score={'A':scoreA,'B':scoreB}
+        self.scores={'A':scoreA,'B':scoreB}
 
     def __str__(self):  # use this exact signature
         return self.label
@@ -259,8 +259,11 @@ class Nim(Game):
     the shortest implementation I could run without errors.
     '''
 
-    def __init__(self,initial):    # add parameters if needed.
+    def __init__(self,initial,):    # add parameters if needed.
         self.initial = initial
+        self.moveCount=0
+        self.Player=initial.to_move
+
         # add code and self.variables if needed.
 
     def actions(self, state):
@@ -287,12 +290,13 @@ class Nim(Game):
 
 
         # use the move to modify the newState
+        self.moveCount+=1
         return retState
-    def opponent(self, to_move):
+    def opponent(self,to_move):
         if to_move == 'A':
-            return "B"
+            return 'B'
         if to_move == 'B':
-            return "A"
+            return 'A'
         return None
 
     def terminal_test(self, state):   # use this exact signature.
@@ -302,16 +306,30 @@ class Nim(Game):
 
         return all(v == 0 for v in state.board)
 
-    def utility(self, state,player):# use this exact signature.
+    def utility(self, state, player):# use this exact signature.
 
-        util = self.checkWin(state.board,state.to_move)
+
         #self.display(state)
         #print(util)
-        return util if player == "B" else -util
+        if self.terminal_test(state):
+            #print(player)
+            return 100+self.moveCount
+        return 0
+            # print(player)
+            # if player =="A":
+            #      return 100 + self.moveCount
+            # if player =="B":
+            #      return -100 - self.moveCount
+
+
+
+
+
 
 
     def checkWin(self,board,player):
-        if sum(x==0 for x in board)-len(board) == 0:
+        #if sum(x==0 for x in board)-len(board) == 0:
+        if all(v == 0 for v in board):
             return 1
         else:
             return 0
@@ -331,8 +349,8 @@ class Nim(Game):
 NimGame = Nim(NimState("A", [5, 4, 3]))
 Win1=NimState("A", [0, 0, 3])
 Lose1=NimState("A", [0, 0, 3])
-Win2=NimState("A", [1, 0, 2])
-Lose2=NimState("A", [1, 0, 2])
+Win2=NimState("A", [1,4,5])
+Lose2=NimState("A", [5, 4, 1])
 myGames = {
     # myGame: [
     #     won,
