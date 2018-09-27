@@ -67,7 +67,7 @@ class Gomoku(Game):
         state.utility = util
         return util if player == 'B' else -util
 
-    # Did I win?
+    # Win?
     def check_win(self, board, player):
         # check rows
         for y in range(1, self.w + 1):
@@ -78,14 +78,14 @@ class Gomoku(Game):
             if self.r_in_row(board, (x,1), player, (0,1)):
                 return 1
         # check \ diagonal
-        if self.r_in_row(board, (1,1), player, (1,1)):
+        if self.r_in_row(board, (5,1), player, (1,1)):
             return 1
         # check / diagonal
         if self.r_in_row(board, (5,1), player, (-1,1)):
             return 1
         return 0
 
-    # does player have K in a row? return 1 if so, 0 if not
+    # player has a winning solution?
     def r_in_row(self, board, start, player, direction):
         "Return true if there is a line through start on board for player."
         (delta_x, delta_y) = direction

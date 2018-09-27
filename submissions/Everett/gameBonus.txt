@@ -21,6 +21,9 @@ The Gomoku game does play interactively when Ask plays first.
 +5: A game that plays at least 3 moves interactively, AB(3) vs. Ask
 The Gomoku game does play interactively when AB(3) goes first.
 
++2: A state correctly returns zero actions, without crashing.
+The Gomoku game has win and lose states run.
+
 +2: A state that yields a better solution with AB(2) than AB(0) (I thought about this interactively)
 In AB(0), it does not even think to block my pieces, however, the AB(2) does begin to block my pieces.
 
@@ -28,7 +31,8 @@ In AB(0), it does not even think to block my pieces, however, the AB(2) does beg
 In AB(2), it attempts to block my pieces but I can still win. In AB(4), it becomes alot harder to win due to AB blocking the piece when I am close to winning.
 
 +2  A state that yields a better solution with AB(6) than AB(4) (I thought about this interactively)
-In AB(4), it blocks more of my pieces when you get to four in the row. But in AB(6), it blocks your pieces when I am three in a row or even two in a row.
+In AB(4), it blocks more of my pieces when you get to four in the row. But in AB(6), it blocks your pieces when I am three in a row or even two in a row. 
+
 It becomes a lot more aggressive.
 
 +5: A game that plays at least 12 'interesting' moves
