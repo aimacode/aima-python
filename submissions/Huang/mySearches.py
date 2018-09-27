@@ -94,16 +94,98 @@ class LightSwitch(search.Problem):
         else:
             return 1
 
-#swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
+# swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
 switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
+#initial = 'S'
+board = [['B', 'E', 'B', 'E', 'B', 'F'],
+        ['B', 'E', 'E', 'E', 'E', 'B'],
+        ['R', 'E', 'E', 'E', 'E', 'R'],
+        ['B', 'E', 'E', 'R', 'R', 'E'],
+        ['E', 'E', 'B', 'E', 'E', 'E'],
+        ['S', 'R', 'R', 'E', 'E', 'R']]
+
+
+class LeftRightMazePuzzle(search.Problem):
+
+    def actions(self, state):
+        return ['Up', 'Down', 'Left', 'Right']
+
+    def result(self, state, action, x, y):
+        if state == 'E' and action == 'Up':
+            return self.result(board[x][y+1], 'Up', x, y+1)
+        elif state == 'B' and action == 'Up':
+            try:
+               return self.result(board[x-1][y], 'Left', x-1, y)
+            except:
+               return self.result(board[x][y + 1], 'Up', x, y + 1)
+        elif state == 'R' and action == 'Up':
+            try:
+               return self.result(board[x+1][y], 'Right', x+1, y)
+            except:
+               return self.result(board[x][y + 1], 'Up', x, y + 1)
+        elif state == 'E' and action == 'Right':
+            return self.result(board[x+1][y], 'Right', x+1, y)
+        elif state == 'B' and action == 'Right':
+            try:
+                return self.result(board[x][y+1], 'Up', x, y+1)
+            except:
+                return self.result(board[x + 1][y], 'Right', x + 1, y)
+        elif state == 'R' and action == 'Right':
+            try:
+                return self.result(board[x][y-1], 'Down', x, y-1)
+            except:
+                return self.result(board[x + 1][y], 'Right', x + 1, y)
+        elif state == 'E' and action == 'Left':
+            return self.result(board[x-1][y], 'Left', x-1, y)
+        elif state == 'B' and action == 'Left':
+            try:
+                return self.result(board[x][y-1], 'Down', x, y-1)
+            except:
+                return self.result(board[x - 1][y], 'Left', x - 1, y)
+        elif state == 'R' and action == 'Left':
+            try:
+                return self.result(board[x][y+1], 'Up', x, y+1)
+            except:
+                return self.result(board[x - 1][y], 'Left', x - 1, y)
+        elif state == 'E' and action == 'Down':
+            return self.result(board[x][y-1], 'Down', x, y-1)
+        elif state == 'B' and action == 'Down':
+            try:
+                return self.result(board[x+1][y], 'Right', x+1, y)
+            except:
+                return self.result(board[x][y - 1], 'Down', x, y - 1)
+        elif state == 'R' and action == 'Down':
+            try:
+                return self.result(board[x-1][y], 'Left', x-1, y)
+            except:
+                return self.result(board[x][y - 1], 'Down', x, y - 1)
+
+
+    def goal_test(self, state):
+        return state == 'F'
+
+
+    def h(self, node):
+        state = node.state
+        if self.goal_test(state):
+            return 0
+        else:
+            return 1
+
+
+LRM_puzzle = LeftRightMazePuzzle('S')
+LRM_puzzle.label = 'Left Right Maze Puzzle'
+
+
 mySearches = [
  #   swiss_puzzle,
-    sumner_puzzle,
-    romania_puzzle,
-    switch_puzzle,
-    solarSystem_puzzle,
+ #   sumner_puzzle,
+ #   romania_puzzle,
+ #   switch_puzzle,
+ #   solarSystem_puzzle,
+    LRM_puzzle,
 ]
 
 import random
@@ -124,4 +206,7 @@ mySearchMethods = [
     flounder
 ]
 
-mySearchMethods = []
+mySearchMethods = [
+    LRM_puzzle,
+    switch_puzzle,
+]
