@@ -1,0 +1,12 @@
++5: Show that the state space of the game contains at least 50 states
++2: A state correctly returns zero actions, without crashing.
++2: A state correctly returns the maximum number of actions, without crashing.
++2: A state correctly returns an intermediate number of actions, without crashing.
++2: A state that yields a better solution with AB(2) than AB(0)
++2: A state that yields a better solution with AB(4) than AB(2)
++2: A state that yields a better solution with AB(6) than AB(4)
++2: A state that yields a better solution with AB(8) than AB(6)
++5: A game that plays at least 3 moves interactively, Ask vs. AB(3)
++5: A game that plays at least 3 moves interactively, AB(3) vs. Ask
++5: A game that plays at least 12 'interesting' moves
++10: A display method displays game boards clearly.
