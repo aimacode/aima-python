@@ -78,6 +78,10 @@ class MDP:
     def get_states_from_transitions(self, transitions):
         if isinstance(transitions, dict):
             s1 = set(transitions.keys())
+            #s2 = set(tr[1] for actions in transitions.values()
+                     #for effects in actions.values()
+                     #for tr in effects)
+            #return s1.union(s2)
             return s1
         else:
             print('Could not retrieve states from transitions')
