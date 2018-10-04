@@ -26,3 +26,27 @@ Homework 6 Bonuses
 2.2.4 (An instance yields the same solution with UCS and A*, but expands fewer nodes with A*) - In South_Dakota, UCS and A* both
             yield solutions of the same cost: 1697.90999..., but fewer nodes are expanded with A*.
 Bonuses Completed: 8; +80 points.
+
+Homework 8 Bonuses
+6.2 (+5) (Show that the state space of the game contains at least 50 states) - There are 42 spaces on a connect 4 board. It is possible
+            for the game to reach a tie, meaning there are 43 states to get there, including the initial, empty state. There are also
+            well over 7 possible states of the board where the game is won by one or the other player, so there are well over 50
+            possible states in this game's state space.
+6.4 (+2) (A state correctly returns the maximum number of actions, without crashing.) - The one test state that I have returns 7
+            possible actions, which is the maximum number of actions since there are only 7 columns.
+6.6 (+2) (A state that yields a better solution with AB(2) than AB(0)) - AB(0) allows X to win the next turn, AB(2) blocks it.
+6.10 (+5) (A game that plays at least 3 moves interactively, Ask vs. AB(3)) - I played a full game of Ask vs. AB(3), which
+            necessarily involves at least 3 moves since at least 4 moves are required for there to be a winner.
+6.11 (+5) (A game that plays at least 3 moves interactively, AB(3) vs. Ask) - I also played a full game of AB(3) vs. Ask, which
+            necessarily involves at least 3 moves since at least 4 moves are required for there to be a winner.
+6.12 (+5) (A game that plays at least 12 'interesting' moves) - Any move you can make in standard Connect 4, you can make here.
+            There are more than 12 winning board states, so I think it's fair to assume that there would be at least 12
+            'interesting' moves as well.
+6.13 (+10) (A display method displays game boards clearly.) - I reused the format from the TicTacToe game due to the similarity
+            in the games (two players, each with their own pieces; each slot in the board can either be empty or equivalent to
+            one of the two players' pieces; game won by getting multiple of your pieces in a row), but I think this is
+            a fairly simple and elegant solution which communicates the board state effectively but also minimally.
+6.14 (+5) (Pushed a 70-point solution by Sunday, Sep. 23 before 6:00 am) - This is a 94-point solution without this bonus.
+6.15 (+5) (Pushed an 80-point solution by Tuesday, Sep. 25 before 6:00 am) - Again, this is a 94-point solution without this bonus
+            or the previous pull-time-based bonus.
+Total bonus points: +40.
