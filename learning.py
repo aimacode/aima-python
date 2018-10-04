@@ -4,7 +4,8 @@ from utils import (
     removeall, unique, product, mode, argmax, argmax_random_tie, isclose, gaussian,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table,
-    open_data, sigmoid_derivative, probability, norm, matrix_multiplication, relu, relu_derivative
+    open_data, sigmoid_derivative, probability, norm, matrix_multiplication, relu, relu_derivative,
+    tanh, tanh_derivative, leaky_relu, leaky_relu_derivative, elu, elu_derivative
 )
 
 import copy
@@ -746,8 +747,15 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
             # The activation function used is relu or sigmoid function
             if node.activation == sigmoid:
                 delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
-            else:
+            elif node.activation == relu:
                 delta[-1] = [relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            elif node.activation == tanh:
+                delta[-1] = [tanh_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            elif node.activation == elu:
+                delta[-1] = [elu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            else:
+                delta[-1] = [leaky_relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+
 
             # Backward pass
             h_layers = n_layers - 2
@@ -762,8 +770,17 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 if activation == sigmoid:
                     delta[i] = [sigmoid_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
                             for j in range(h_units)]
-                else:
+                elif activation == relu:
                     delta[i] = [relu_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+                elif activation == tanh:
+                    delta[i] = [tanh_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+                elif activation == elu:
+                    delta[i] = [elu_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+                else:
+                    delta[i] = [leaky_relu_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
                             for j in range(h_units)]
 
             #  Update weights

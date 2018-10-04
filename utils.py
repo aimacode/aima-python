@@ -9,6 +9,7 @@ import os.path
 import random
 import math
 import functools
+import numpy as np
 from itertools import chain, combinations
 
 
@@ -273,9 +274,47 @@ def sigmoid(x):
     """Return activation value of x with sigmoid function"""
     return 1 / (1 + math.exp(-x))
 
+
+
+def relu_derivative(value):
+	if value > 0:
+		return 1
+	else:
+		return 0
+
+def elu(x, alpha=0.01):
+	if x > 0:
+		return x
+	else:
+		return alpha * (math.exp(x) - 1)
+		
+def elu_derivative(value, alpha = 0.01):
+	if value > 0:
+		return 1
+	else:
+		return alpha * math.exp(value)
+
+def tanh(x):
+	return np.tanh(x)
+
+def tanh_derivative(value):
+	return (1 - (value ** 2))
+
+def leaky_relu(x, alpha = 0.01):
+	if x > 0:
+		return x
+	else:
+		return alpha * x
+
+def leaky_relu_derivative(value, alpha=0.01):
+	if value > 0:
+		return 1
+	else:
+		return alpha
+
 def relu(x):
 	return max(0, x)
-
+	
 def relu_derivative(value):
 	if value > 0:
 		return 1
