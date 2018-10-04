@@ -4,7 +4,8 @@ from utils import (
     removeall, unique, product, mode, argmax, argmax_random_tie, isclose, gaussian,
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table,
-    open_data, sigmoid_derivative, probability, norm, matrix_multiplication
+    open_data, sigmoid_derivative, probability, norm, matrix_multiplication, relu, relu_derivative,
+    tanh, tanh_derivative, leaky_relu, leaky_relu_derivative, elu, elu_derivative
 )
 
 import copy
@@ -652,7 +653,7 @@ def DecisionListLearner(dataset):
 
 
 def NeuralNetLearner(dataset, hidden_layer_sizes=None,
-                     learning_rate=0.01, epochs=100):
+                     learning_rate=0.01, epochs=100, activation = sigmoid):
     """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
     learning_rate: Learning rate of gradient descent
@@ -664,9 +665,9 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None,
     o_units = len(dataset.values[dataset.target])
 
     # construct a network
-    raw_net = network(i_units, hidden_layer_sizes, o_units)
+    raw_net = network(i_units, hidden_layer_sizes, o_units, activation)
     learned_net = BackPropagationLearner(dataset, raw_net,
-                                         learning_rate, epochs)
+                                         learning_rate, epochs, activation)
 
     def predict(example):
         # Input nodes
@@ -695,7 +696,7 @@ def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
-def BackPropagationLearner(dataset, net, learning_rate, epochs):
+def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmoid):
     """[Figure 18.23] The back-propagation algorithm for multilayer networks"""
     # Initialise weights
     for layer in net:
@@ -743,8 +744,18 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs):
             # Error for the MSE cost function
             err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
 
-            # The activation function used is the sigmoid function
-            delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            # The activation function used is relu or sigmoid function
+            if node.activation == sigmoid:
+                delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            elif node.activation == relu:
+                delta[-1] = [relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            elif node.activation == tanh:
+                delta[-1] = [tanh_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            elif node.activation == elu:
+                delta[-1] = [elu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            else:
+                delta[-1] = [leaky_relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+
 
             # Backward pass
             h_layers = n_layers - 2
@@ -756,7 +767,20 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs):
                 # weights from each ith layer node to each i + 1th layer node
                 w = [[node.weights[k] for node in nx_layer] for k in range(h_units)]
 
-                delta[i] = [sigmoid_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
+                if activation == sigmoid:
+                    delta[i] = [sigmoid_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+                elif activation == relu:
+                    delta[i] = [relu_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+                elif activation == tanh:
+                    delta[i] = [tanh_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+                elif activation == elu:
+                    delta[i] = [elu_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
+                            for j in range(h_units)]
+                else:
+                    delta[i] = [leaky_relu_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
                             for j in range(h_units)]
 
             #  Update weights
@@ -800,14 +824,14 @@ class NNUnit:
     weights: Weights to incoming connections
     """
 
-    def __init__(self, weights=None, inputs=None):
+    def __init__(self, activation=sigmoid, weights=None, inputs=None):
         self.weights = weights or []
         self.inputs = inputs or []
         self.value = None
-        self.activation = sigmoid
+        self.activation = activation
 
 
-def network(input_units, hidden_layer_sizes, output_units):
+def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
     """Create Directed Acyclic Network of given number layers.
     hidden_layers_sizes : List number of neuron units in each hidden layer
     excluding input and output layers
@@ -818,7 +842,7 @@ def network(input_units, hidden_layer_sizes, output_units):
     else:
         layers_sizes = [input_units] + [output_units]
 
-    net = [[NNUnit() for n in range(size)]
+    net = [[NNUnit(activation) for n in range(size)]
            for size in layers_sizes]
     n_layers = len(net)
 
