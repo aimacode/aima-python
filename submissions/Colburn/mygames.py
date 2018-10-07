@@ -118,7 +118,7 @@ class FlagrantCopy(Game):
             print()
 
 
-myGame = FlagrantCopy()
+#myGame = FlagrantCopy()
 
 won = GameState(
     to_move = 'O',
@@ -183,9 +183,9 @@ lost = GameState(
 class TemplateState:    # one way to define the state of a minimal game.
 
     def __init__(self, player): # add parameters as needed.
-        self.to_move = player
-        self.label = str(id(self))   # change this to something easier to read
-        # add code and self.variables as needed.
+        self.player = player
+        self.label = str(id(self)) # change this to something easier to read
+
 
     def __str__(self):  # use this exact signature
         return self.label
@@ -241,18 +241,132 @@ class TemplateGame(Game):
         # to help a human player understand his options.
         print(state)
 
-tg = TemplateGame(TemplateState('A'))   # this is the game we play interactively.
+class NimState:    # one way to define the state of a minimal game.
 
+    def __init__(self, to_move,newboard,depth=8,scoreA=0,scoreB=0): # add parameters as needed.
+        self.label = str(newboard) # change this to something easier to read
+        self.board = newboard
+        self.to_move= to_move
+        self.Maxdepth= depth
+        self.scores={'A':scoreA,'B':scoreB}
+
+    def __str__(self):  # use this exact signature
+        return self.label
+
+class Nim(Game):
+    '''
+    This is a minimal Game definition,
+    the shortest implementation I could run without errors.
+    '''
+
+    def __init__(self,initial,):    # add parameters if needed.
+        self.initial = initial
+        self.moveCount=0
+        self.Player=initial.to_move
+
+        # add code and self.variables if needed.
+
+    def actions(self, state):
+        #print("Nim")
+        acts = []
+        board = deepcopy(state.board)
+        #print("Rows: " + str(len(board)))
+        for i in range(len(board)):
+            for j in range(board[i]):
+                acts.append((i, j + 1))
+
+        return acts
+
+    def result(self, state, move):
+        #print('resultIn: '+ str(state.board))
+        newState = deepcopy(state)
+        newState.board[move[0]] = newState.board[move[0]]-move[1]
+        newBoard = newState.board
+        opponent= self.opponent(state.to_move)
+        retState = NimState(opponent,newBoard)
+        #print('resultOut: '+str(newBoard))
+        #print('Move: '+ str(move))
+
+
+
+        # use the move to modify the newState
+        self.moveCount+=1
+        return retState
+    def opponent(self,to_move):
+        if to_move == 'A':
+            return 'B'
+        if to_move == 'B':
+            return 'A'
+        return None
+
+    def terminal_test(self, state):   # use this exact signature.
+        # return True only when the state of the game is over.
+        #print('Tested: '+str(state.board))
+        #self.display(state)
+
+        return all(v == 0 for v in state.board)
+
+    def utility(self, state, player):# use this exact signature.
+
+
+        #self.display(state)
+        #print(util)
+        if self.terminal_test(state):
+            #print(player)
+            return 100+self.moveCount
+        return 0
+            # print(player)
+            # if player =="A":
+            #      return 100 + self.moveCount
+            # if player =="B":
+            #      return -100 - self.moveCount
+
+
+
+
+
+
+
+    def checkWin(self,board,player):
+        #if sum(x==0 for x in board)-len(board) == 0:
+        if all(v == 0 for v in board):
+            return 1
+        else:
+            return 0
+
+    def display(self, state):   # use this exact signature.
+        board = deepcopy(state.board)
+        string=''
+        for i in range(len(board)):
+            for j in range(board[i]):
+                string = string +" ."
+            string = string +'\n'
+
+        print(string)
+
+
+#tg = TemplateGame(TemplateState('A'))   # this is the game we play interactively.
+NimGame = Nim(NimState("A", [5, 4, 3]))
+Win1=NimState("A", [0, 0, 3])
+Lose1=NimState("A", [0, 0, 3])
+Win2=NimState("A", [1,4,5])
+Lose2=NimState("A", [5, 4, 1])
 myGames = {
-    myGame: [
-        won,
-        winin1, losein1, winin3, losein3, winin5,
-        lost,
-    ],
-
-    tg: [
-        # these are the states we tabulate when we test AB(1), AB(2), etc.
-        TemplateState('B'),
-        TemplateState('C'),
+    # myGame: [
+    #     won,
+    #     winin1, losein1, winin3, losein3, winin5,
+    #     lost,
+    # ],
+    #
+    # tg: [
+    #     # these are the states we tabulate when we test AB(1), AB(2), etc.
+    #     TemplateState('B'),
+    #     TemplateState('C'),
+    # ],
+    NimGame:[
+        Win1,
+        Lose1,
+        Win2,
+        Lose2
     ]
 }

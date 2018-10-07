@@ -2,6 +2,8 @@ from collections import namedtuple
 from games import (Game)
 from queue import PriorityQueue
 from copy import deepcopy
+import random
+
 
 class GameState:
     def __init__(self, to_move, board, label=None, depth=8):
@@ -180,7 +182,7 @@ lost = GameState(
     label = 'lost'
 )
 
-class TemplateState:    # one way to define the state of a minimal game.
+class DiceState:    # one way to define the state of a minimal game.
 
     def __init__(self, player): # add parameters as needed.
         self.to_move = player
@@ -202,8 +204,106 @@ class TemplateState:    # one way to define the state of a minimal game.
 #     def __lt__(self, other):    # use this exact signature
 #         # return True when self is a better move than other.
 #         return False
+# Rules: Pitcher will roll the dice. The algorithm easily explains the rules.
+# Instead of 4 bases there are 3, First, Second, and Home. Players will pick roll
+# at start. The Pitcher wins if he gets 5 outs and the Batter wins if he scores 5 points.
+# (may have to tweak these numbers so that it's fair.)
 
-class TemplateGame(Game):
+class DiceBall(Game):
+
+    def dice():
+        return (random.randint(1,6))
+    def batter():
+        return (random.randint(1,6))
+
+    print('Let\'s play a Game of Diceball!')
+    print('The rules are as follows:\n')
+    print('There is a pitcher and a hitter. The pitcher will roll and it will be decided whether\n'
+          'it is a strike, ball, or if the batter gets to swing. If the batter gets to swing then\n'
+          'the batter will roll and the roll will determine whether they strike or if they\n'
+          'hit the ball. The first to 5 points wins!\n')
+
+    player1 = 'Pitcher'
+    player2 = 'Batter'
+    player1Score = 0
+    player2Score = 0
+    strike = 0
+    ball = 0
+    foul = 0
+
+    while player1Score != 5 and player2Score != 5:
+        roll = dice()
+
+        print('Pitcher throws ' + str(roll))
+        if roll == 1 or roll == 2:
+            print('Pitcher throws a strike!')
+            strike += 1
+            print("Strikes: " + str(strike))
+            print("Balls: " + str(ball))
+            print("Pitcher Score: " + str(player1Score))
+            print("Batter Score: " + str(player2Score))
+            if strike == 3:
+                print('\nPitcher struck a batter out!')
+                player1Score += 1
+                print("Strikes: " + str(strike))
+                print("Balls: " + str(ball))
+                print("Pitcher Score: " + str(player1Score))
+                print("Batter Score: " + str(player2Score))
+        elif roll == 4 or roll == 3:
+            print('Pitcher throws a ball!')
+            ball += 1
+            print("Strikes: " + str(strike))
+            print("Balls: " + str(ball))
+            print("Pitcher Score: " + str(player1Score))
+            print("Batter Score: " + str(player2Score))
+            if ball == 4:
+                print('\nPitcher walks the Batter')
+                player2Score += 1
+                print("Strikes: " + str(strike))
+                print("Balls: " + str(ball))
+                print("Pitcher Score: " + str(player1Score))
+                print("Batter Score: " + str(player2Score))
+        elif roll == 5 or roll == 6:
+            print('The Batter gets to swing!')
+            swing = batter()
+            if swing == 1 or swing == 2:
+                print('The batter hits the ball and scores!')
+                player2Score += 1
+                print("Pitcher Score: " + str(player1Score))
+                print("Batter Score: " + str(player2Score))
+                strike = 0
+                ball = 0
+            elif swing == 3 or swing == 4:
+                print('The batter hit a foul ball!')
+                if strike != 3:
+                    strike += 1
+                    print("Strikes: " + str(strike))
+                    print("Balls: " + str(ball))
+                    print("Pitcher Score: " + str(player1Score))
+                    print("Batter Score: " + str(player2Score))
+                elif strike == 3:
+                    strike -= 1
+                    print("Strikes: " + str(strike))
+                    print("Balls: " + str(ball))
+                    print("Pitcher Score: " + str(player1Score))
+                    print("Batter Score: " + str(player2Score))
+            elif swing == 5 or swing == 6:
+                print('The batter struck out!')
+                player1Score +=1
+                print("Strikes: " + str(strike))
+                print("Balls: " + str(ball))
+                print("Pitcher Score: " + str(player1Score))
+                print("Batter Score: " + str(player2Score))
+        print('\n')
+        if player1Score == 5:
+            print('The Pitcher Wins!!!!')
+        elif player2Score == 5:
+            print('The Batter wins!!!!')
+
+#Commit
+
+
+
     '''
     This is a minimal Game definition,
     the shortest implementation I could run without errors.
@@ -211,10 +311,12 @@ class TemplateGame(Game):
 
     def __init__(self, initial):    # add parameters if needed.
         self.initial = initial
+
         # add code and self.variables if needed.
 
     def actions(self, state):   # use this exact signature.
         acts = []
+
         # append all moves, which are legal in this state,
         # to the list of acts.
         return acts
@@ -241,18 +343,43 @@ class TemplateGame(Game):
         # to help a human player understand his options.
         print(state)
 
-tg = TemplateGame(TemplateState('A'))   # this is the game we play interactively.
+tg = DiceBall(DiceState('A'))   # this is the game we play interactively.
 
 myGames = {
-    myGame: [
-        won,
-        winin1, losein1, winin3, losein3, winin5,
-        lost,
-    ],
+    DiceBall:[
 
-    tg: [
-        # these are the states we tabulate when we test AB(1), AB(2), etc.
-        TemplateState('B'),
-        TemplateState('C'),
     ]
+    # myGame: [
+    #     won,
+    #     winin1, losein1, winin3, losein3, winin5,
+    #     lost,
+    # ],
+    #
+    # tg: [
+    #     # these are the states we tabulate when we test AB(1), AB(2), etc.
+    #     TemplateState('B'),
+    #     TemplateState('C'),
+    # ]
 }
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~Algorithm~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Rules: Pitcher will roll the dice. The algorithm easily explains the rules.
+# Instead of 4 bases there are 3, First, Second, and Home. Players will pick roll
+# at start. The Pitcher wins if he gets 5 outs and the Batter wins if he scores 5 points.
+# (may have to tweak these numbers so that it's fair.)
+#
+# pitcher rolls
+# if(die=1 || die=2)
+#     strike();
+#     elif(die=4 || die=3)
+#     ball();
+#     else
+#     batterswing();
+# batter rolls
+# if(die=1||die=2)
+#     strike();
+#     elif(die=4)
+#     firstBase();
+#     elif(die=5)
+#     secondBase();
+#     else
+#     homeRun();

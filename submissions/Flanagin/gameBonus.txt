@@ -1,0 +1,9 @@
+Homework -- Due September 27, 2018
+
++10: Display method
++2 : all states correctly return the maximum number of actions, which is 2
+
+
+Note: I gave Star29 an initial state, based off of FlagrentCopy.
+    However, when I try to run the interactive version,
+    I get the error: AttributeError: 'Star29' object has no attribute 'initial'

@@ -241,18 +241,127 @@ class TemplateGame(Game):
         # to help a human player understand his options.
         print(state)
 
+
 tg = TemplateGame(TemplateState('A'))   # this is the game we play interactively.
 
+
+class StarGameState:
+    def __init__(self, score, to_move, currentPos, label=None):
+        self.score = score
+        self.to_move = to_move
+        self.currentPos = currentPos
+        self.label = label
+
+    def __str__(self):
+        if self.label == None:
+            return super(StarGameState, self).__str__()
+        return self.label
+
+class StarGame(Game):
+    """ This is the definition for the star29 game, adjustable based on input board and max score parameter"""
+    def __init__(self, start, board, maxScore):
+        self.initial = StarGameState(score=0, to_move='MAX', currentPos=start)
+        self.board = board
+        self.maxScore = maxScore
+
+    def actions(self, state):
+        moves = []
+        for x in self.board[state.currentPos]:
+            moves.append(x)
+        state.moves = moves
+        return moves
+
+    def opponent(self, player):
+        if player == 'MAX':
+            return 'MIN'
+        if player == 'MIN':
+            return 'MAX'
+        return None
+
+    def result(self, state, move):
+        # newState = deepcopy(state)
+        # if move not in self.actions(newState):
+        #     return newState  # Illegal move has no effect
+        player = state.to_move
+        current = self.board[state.currentPos]
+        lastScore = state.score
+        moveScore = current[move]
+        score = lastScore + moveScore
+        next_mover = self.opponent(player)
+        newState = StarGameState(to_move=next_mover, currentPos=move, score=score)
+        return newState
+
+    def terminal_test(self, state):
+        if state.score >= self.maxScore:
+            return True
+        else:
+            return False
+
+    def utility(self, state, player):
+        try:
+            return state.utility if player == 'MAX' else -state.utility
+        except:
+            pass
+        score = state.score
+        if player == 'MAX':
+            if score < self.maxScore:
+                return 1
+            else:
+                return -1
+        else:
+            if score < self.maxScore:
+                return -1
+            else:
+                return 1
+
+
+
+    def display(self, state):
+        """ Draw out the star board to help follow this output"""
+        print('Max score: ' + str(self.maxScore))
+        print('Player\'s turn: ' + state.to_move)
+        print('Last to add to score: ' + self.opponent(state.to_move))
+        print('Current position: ' + state.currentPos)
+        print('Current score: ' + str(state.score))
+        print()
+
+
+starmap = {
+    '1': {'3': 3, '4': 4},
+    '2': {'4': 4, '5': 5},
+    '3': {'1': 1, '5': 5},
+    '4': {'1': 1, '2': 2},
+    '5': {'2': 2, '3': 3}
+}
+
+myStarGame = StarGame(start='1', board=starmap, maxScore=29)
+
+myWon = StarGameState(score=31, to_move='MAX', currentPos='5', label='won')
+myWinin1 = StarGameState(score=25, to_move='MIN', currentPos='1', label='winin1')
+myLosein1 = StarGameState(score=27, to_move='MAX', currentPos='2', label='losein1')
+myWinin3 = StarGameState(score=19, to_move='MIN', currentPos='3', label='winin3')
+myLosein3 = StarGameState(score=22, to_move='MAX', currentPos='2', label='losein3')
+myWinin5 = StarGameState(score=16, to_move='MIN', currentPos='3', label='winin5')
+myLost = StarGameState(score=29, to_move='MIN', currentPos='3', label='lost')
+
+
 myGames = {
-    myGame: [
-        won,
-        winin1, losein1, winin3, losein3, winin5,
-        lost,
+    # myGame: [
+    #     won,
+    #     winin1, losein1, winin3, losein3, winin5,
+    #     lost,
+    # ],
+
+    myStarGame: [
+        myWon, myWinin1, myLosein1,
+        # myWinin3,
+        myLosein3, myWinin5,
+        myLost,
     ],
 
-    tg: [
-        # these are the states we tabulate when we test AB(1), AB(2), etc.
-        TemplateState('B'),
-        TemplateState('C'),
-    ]
+    # tg: [
+    #     # these are the states we tabulate when we test AB(1), AB(2), etc.
+    #     TemplateState('B'),
+    #     TemplateState('C'),
+    # ]
 }

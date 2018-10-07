@@ -15,18 +15,20 @@ class GameState:
             return super(GameState, self).__str__()
         return self.label
 
-class FlagrantCopy(Game):
+class DucksinRow(Game):
     """A flagrant copy of TicTacToe, from game.py
     It's simplified, so that moves and utility are calculated as needed
     Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
-    def __init__(self, h=3, v=3, k=3):
+    def __init__(self, h=5, v=5, k=4):
         self.h = h
         self.v = v
         self.k = k
-        self.initial = GameState(to_move='X', board={})
+        self.initial = GameState(to_move='X', board={(1,1): 'X', (1,2): 'O', (1,3): 'X', (1,4): 'O', (1,5): 'X',
+            (3,1): 'X', (3,5): 'O',
+            (5,1): 'O', (5,2): 'X', (5,3): 'O', (5,4): 'X', (5,5): 'O'})
 
     def actions(self, state):
         try:
@@ -75,18 +77,31 @@ class FlagrantCopy(Game):
     # Did I win?
     def check_win(self, board, player):
         # check rows
-        for y in range(1, self.v + 1):
-            if self.k_in_row(board, (1,y), player, (1,0)):
-                return 1
+        for x in range(1, self.h):
+            for y in range(1, self.v):
+                if self.k_in_row(board, (x,y), player, (1,0)):
+                    return 1
+
         # check columns
-        for x in range(1, self.h + 1):
-            if self.k_in_row(board, (x,1), player, (0,1)):
-                return 1
+        for y in range(1, self.v):
+            for x in range(1, self.h):
+                if self.k_in_row(board, (x,y), player, (0,1)):
+                    return 1
+
         # check \ diagonal
         if self.k_in_row(board, (1,1), player, (1,1)):
             return 1
+        elif self.k_in_row(board, (2,1), player, (1,1)):
+            return 1
+        elif self.k_in_row(board, (1,2), player, (1,1)):
+            return 1
+
         # check / diagonal
-        if self.k_in_row(board, (3,1), player, (-1,1)):
+        if self.k_in_row(board, (1,5), player, (-1,1)):
+            return 1
+        elif self.k_in_row(board, (2,5), player, (-1,1)):
+            return 1
+        elif self.k_in_row(board, (1,4), player, (-1,1)):
             return 1
         return 0
 
@@ -118,141 +133,70 @@ class FlagrantCopy(Game):
             print()
 
 
-myGame = FlagrantCopy()
+myGame = DucksinRow()
+
+
+#
+# start = GameState(
+#     to_move = 'X',
+#     board = {(1,1): 'X', (1,2): 'O', (1,3): 'X', (1,4): 'O', (1,5): 'X',
+#             (3,1): 'X', (3,5): 'O',
+#             (5,1): 'O', (5,2): 'X', (5,3): 'O', (5,4): 'X', (5,5): 'O'
+#             },
+#     label = 'start'
+# )
 
 won = GameState(
     to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
-             (2,1): 'O', (2,2): 'O',
+    board = {(1,1): 'X', (1,2): 'O', (1,3): 'X', (1,4): 'O', (1,5): 'X',
+             (2,4): 'X', (2,5): 'O',
+             (3,1): 'X', (3,3): 'X', (3,4): 'O',  (3,5): 'O',
+             (4,2): 'X',
+             (5,1): 'O', (5,2): 'X', (5,3): 'O', (5,4): 'X', (5,5): 'O'
             },
     label = 'won'
 )
 
+
 winin1 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
+    to_move='X',
+    board={
+           (3, 3): 'X',
+           (4, 1): 'O', (4, 2): 'X', (4, 3): 'O',
+           (5, 1): 'X', (5, 3): 'O',
+           },
     label = 'winin1'
 )
 
 losein1 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O',
-             (3,1): 'X',
-            },
+    to_move='X',
+    board={
+           (2, 2): 'O', (2,3): 'O', (2,4): 'O', (2,5): 'X',
+           (4, 3): 'X', (4, 4): 'X',
+           (5, 3): 'X', (5, 4): 'O',
+           },
     label = 'losein1'
-)
-
-winin3 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-             (3,1): 'O',
-            },
-    label = 'winin3'
-)
-
-losein3 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X',
-             (2,1): 'X',
-             (3,1): 'O', (1,2): 'X', (1,2): 'O',
-            },
-    label = 'losein3'
-)
-
-winin5 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-            },
-    label = 'winin5'
 )
 
 lost = GameState(
     to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
-             (3,1): 'X'
+    board = {(1,1): 'X', (1,2): 'O', (1,3): 'X', (1,4): 'O', (1,5): 'X',
+             (2,1): 'O', (2,2): 'O', (2,3): 'O', (2,4): 'X', (2,5): 'X',
+             (3,1): 'X', (3,2): 'X', (3,3): 'O', (3,4): 'X', (3,5): 'O',
+             (4,1):'X', (4,2): 'X', (4,3): 'O', (4,4): 'O',
+             (5,1): 'O', (5,2):'X', (5,3): 'O', (5,4): 'X', (5,5): 'O',
             },
     label = 'lost'
 )
 
-class TemplateState:    # one way to define the state of a minimal game.
 
-    def __init__(self, player): # add parameters as needed.
-        self.to_move = player
-        self.label = str(id(self))   # change this to something easier to read
-        # add code and self.variables as needed.
-
-    def __str__(self):  # use this exact signature
-        return self.label
-
-# class TemplateAction:
-#     '''
-#     It is not necessary to define an action.
-#     Start with actions as simple as a label (e.g., 'Down')
-#     or a pair of coordinates (e.g., (1,2)).
-#
-#     Don't un-comment this until you already have a working game,
-#     and want to play smarter.
-#     '''
-#     def __lt__(self, other):    # use this exact signature
-#         # return True when self is a better move than other.
-#         return False
-
-class TemplateGame(Game):
-    '''
-    This is a minimal Game definition,
-    the shortest implementation I could run without errors.
-    '''
-
-    def __init__(self, initial):    # add parameters if needed.
-        self.initial = initial
-        # add code and self.variables if needed.
-
-    def actions(self, state):   # use this exact signature.
-        acts = []
-        # append all moves, which are legal in this state,
-        # to the list of acts.
-        return acts
-
-    def result(self, state, move):   # use this exact signature.
-        newState = deepcopy(state)
-        # use the move to modify the newState
-        return newState
-
-    def terminal_test(self, state):   # use this exact signature.
-        # return True only when the state of the game is over.
-        return True
-
-    def utility(self, state, player):   # use this exact signature.
-        ''' return:
-        >0 if the player is winning,
-        <0 if the player is losing,
-         0 if the state is a tie.
-        '''
-        return 0
-
-    def display(self, state):   # use this exact signature.
-        # pretty-print the game state, using ASCII art,
-        # to help a human player understand his options.
-        print(state)
-
-tg = TemplateGame(TemplateState('A'))   # this is the game we play interactively.
 
 myGames = {
     myGame: [
         won,
-        winin1, losein1, winin3, losein3, winin5,
+        # winin1,
+        # losein1,
         lost,
     ],
 
-    tg: [
-        # these are the states we tabulate when we test AB(1), AB(2), etc.
-        TemplateState('B'),
-        TemplateState('C'),
-    ]
 }
