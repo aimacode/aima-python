@@ -279,16 +279,17 @@ class StarGame(Game):
         return None
 
     def result(self, state, move):
-        newState = deepcopy(state)
-        if move not in self.actions(newState):
-            return newState  # Illegal move has no effect
-        player = newState.to_move
+        # newState = deepcopy(state)
+        # if move not in self.actions(newState):
+        #     return newState  # Illegal move has no effect
+        player = state.to_move
         current = self.board[state.currentPos]
-        lastScore = newState.score
+        lastScore = state.score
         moveScore = current[move]
         score = lastScore + moveScore
         next_mover = self.opponent(player)
-        return StarGameState(to_move=next_mover, currentPos=move, score=score)
+        newState = StarGameState(to_move=next_mover, currentPos=move, score=score)
+        return newState
 
     def terminal_test(self, state):
         if state.score >= self.maxScore:
