@@ -154,7 +154,8 @@ def try_games(games):
         print()
         makeDisplayTable(g, games[g])
         print()
-        try_to_play(g)
+        if not ('noplay' in sys.argv):
+            try_to_play(g)
 
 submissions = {}
 scores = {}
