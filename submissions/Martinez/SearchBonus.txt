@@ -11,3 +11,6 @@ bestfs better than DFS +10
 BFS better than bestFS +10
 UCS equal to a* +10
 Attempted a working puzzle +? :_(
+
+september 27
+made a working game of battleship but i was unable to figure out Ai vs Ai ...its player vs Ai..
