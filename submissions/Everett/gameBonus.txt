@@ -1,0 +1,43 @@
+
+***Homework for Thursday, September 27th***
+
++60: The game runs without exceptions*, and generates valid output for at least one state.
+Okay, at first I was going to be ambitious and attempt to write a ghost game. I'm sure it would have worked if I had more time
+but in my case, I realized that my ambition may make me fail this assignment. So I switched gears and found a new game to create
+called Gomoku and this is a Japanese game played with Go pieces where it is basically the love-child of tic-tac-toe and connect four.
+As you can see, this game worked out alot better than the ghost game would have. However, although this game can be played interactively,
+as the difficulty increases, it takes hours for AB to pick a move. The highest AB can go without getting stuck is 6. After that, it takes a really long time.
+This may be because of the board size though.
+
++5: Show that the state space of the game contains at least 50 states
+This Gomoku game does produce more than 50 states due to the amount of places the pieces can be placed.
+
++10: A display method displays game boards clearly.
+The Gomoku game is displayed.
+
++5: A game that plays at least 3 moves interactively, Ask vs. AB(3)
+The Gomoku game does play interactively when Ask plays first.
+
++5: A game that plays at least 3 moves interactively, AB(3) vs. Ask
+The Gomoku game does play interactively when AB(3) goes first.
+
++2: A state correctly returns zero actions, without crashing.
+The Gomoku game has win and lose states run.
+
++2: A state that yields a better solution with AB(2) than AB(0) (I thought about this interactively)
+In AB(0), it does not even think to block my pieces, however, the AB(2) does begin to block my pieces.
+
++2: A state that yields a better solution with AB(4) than AB(2) (I thought about this interactively)
+In AB(2), it attempts to block my pieces but I can still win. In AB(4), it becomes alot harder to win due to AB blocking the piece when I am close to winning.
+
++2  A state that yields a better solution with AB(6) than AB(4) (I thought about this interactively)
+In AB(4), it blocks more of my pieces when you get to four in the row. But in AB(6), it blocks your pieces when I am three in a row or even two in a row. 
+
+It becomes a lot more aggressive.
+
++5: A game that plays at least 12 'interesting' moves
+I think the moves are somewhat interesting especially on higher difficulties since it take longer for AB to think and it tries alot harder to win.
+
++5: Pushed an 80-point solution by Tuesday, Sep. 25 before 6:00 am
+I hope I hit 80-points this time.
+
