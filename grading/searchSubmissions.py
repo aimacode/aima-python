@@ -116,5 +116,6 @@ for student in roster:
     except:
         traceback.print_exc()
 
-    print(student + ' scores ' + str(scores[student]) + ' = ' + str(sum(scores[student])))
+    print(student + ' scores ' + str(scores[student])
+          + ' = ' + str(sum(scores[student])))
     print('----------------------------------------')

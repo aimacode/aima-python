@@ -1,15 +1,19 @@
 import csp
 
-rgb = ['R', 'G', 'B']
+rgby = ['R', 'G', 'B', 'Y']
 
-d2 = { 'A' : rgb, 'B' : rgb, 'C' : ['R'], 'D' : rgb,}
+d2 = { 'N' : rgby, 'NP' : rgby, 'B' : rgby, 'C' : rgby, 'SP' : rgby, 'G' : rgby, 'S' : rgby}
 
 v2 = d2.keys()
 
-n2 = {'A' : ['B', 'C', 'D'],
-      'B' : ['A', 'C', 'D'],
-      'C' : ['A', 'B'],
-      'D' : ['A', 'B'],}
+# This map cannot be colored using less than four colors.
+n2 = {'N' : ['NP', 'B', 'G'],
+      'NP' : ['B', 'N'],
+      'B' : ['NP', 'N', 'SP', 'C', 'G'],
+      'C' : ['B', 'G', 'SP'],
+      'SP' : ['B', 'C', 'G'],
+      'G' : ['N', 'B', 'C', 'SP', 'S'],
+      'S' : ['G']}
 
 def constraints(A, a, B, b):
     if A == B:      # e.g. NSW == NSW
