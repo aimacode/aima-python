@@ -1,10 +1,10 @@
 import csp
 
-rgb = ['R', 'G', 'B']
+rgb = ['R', 'G', 'B', 'P']
 
 # d2 = { 'A' : rgb, 'B' : rgb, 'C' : ['R'], 'D' : rgb,}
 
-nigeria2d = { "Lagos" : rgb, "Ogun" : rgb, "Oyo" : rgb, "Osun" : rgb, "Ekiti" : rgb, "Ondo" : rgb, "Kwara" : rgb, "Edo" : rgb,}
+nigeria2d = { 'L' :['P'], 'O' : rgb, 'Y' : rgb, 'S' : rgb, 'I' : rgb, 'N' : rgb, 'K' : rgb, 'E' : rgb,}
 
 # v2 = d2.keys()
 
@@ -15,14 +15,14 @@ nigeria2v = nigeria2d.keys()
 #       'C' : ['A', 'B'],
 #       'D' : ['A', 'B'],}
 
-nigeria2 = {"Lagos" :["Ogun"],
-            "Ogun" : ["Lagos", "Oyo", "Osun", "Ondo"],
-            "Oyo" :  ["Ogun", "Osun", "Kwara"],
-            "Osun" : ["Ogun", "Oyo", "Ekiti", "Kwara", "Ondo"],
-            "Ekiti": ["Osun", "Kwara", "Ondo"],
-            "Ondo":  ["Ogun", "Osun", "Ekiti", "Edo"],
-            "Kwara": ["Oyo", "Osun", "Ekiti"],
-            "Edo":   ["Ondo"],}
+nigeria2 = {'L' :['O'],
+            'O' : ['L', 'Y', 'S', 'N'],
+            'Y' :  ['O', 'S', 'K'],
+            'S' : ['O', 'Y', 'I', 'K', 'N'],
+            'I': ['S', 'K', 'N'],
+            'N':  ['O', 'S', 'I', 'E'],
+            'K': ['Y', 'S', 'I'],
+            'E':   ['N'],}
 def constraints(A, a, B, b):
     if A == B:      # e.g. NSW == NSW
         return True
