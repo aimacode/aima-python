@@ -29,7 +29,7 @@ neighbors = {
      'W': ['SW','WM','NW'],
     'WM': ['SW','SE','W','EM','NW'],
     'EM': ['WM','NW','YH','SE','EE'],
-    'NW': ['W','WM','S','NE','YH'],
+    'NW': ['W','WM','S','NE','YH','EM'],
     'YH': ['NW','EM','NE'],
     'NE': ['S','NW','YH'],
     'S':  ['NE','NW'],
@@ -60,7 +60,7 @@ UK.label = "Map of the Uk"
 
 myCSPs = [
     {
-        'csp': c2,
+        'csp': UK,
         # 'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
@@ -97,9 +97,9 @@ myCSPs = [
     },
     {
         'csp' : UK,
-        'select_unassigned_variable': csp.mrv,
-        'order_domain_values': csp.lcv,
-        'inference': csp.mac,
+        #'select_unassigned_variable': csp.mrv,
+        #'order_domain_values': csp.lcv,
+        #'inference': csp.mac,
         # 'inference': csp.forward_checking,
     }
 
