@@ -395,7 +395,9 @@ play = DotLineState(
            [{'winner': '', 'lines': []}, {'winner': '', 'lines': []}]],
     to_move='A', label='Start')
 
+#amended by whh
 dotLine = DotsAndLines(play)
+#dotLine = DotsAndLines(winIn5_3x3)
 
 myGames = {
     dotLine: [

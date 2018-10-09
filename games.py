@@ -116,8 +116,10 @@ def alphabeta_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
     # Body of alphabeta_search starts here:
     # The default test cuts off at depth d or at a terminal state
+    evL = lambda state, depth: depth > d
     cutoff_test = (cutoff_test or
-                   (lambda state, depth: depth > d or
+                   # (lambda state, depth: depth > d or
+                   (evL or
                     game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
     best_score = -infinity

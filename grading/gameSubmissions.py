@@ -153,8 +153,9 @@ def try_games(games):
         makeMoveTable(g, games[g])
         print()
         makeDisplayTable(g, games[g])
-        # print()
-        # try_to_play(g)
+        print()
+        if not ('noplay' in sys.argv):
+            try_to_play(g)
 
 submissions = {}
 scores = {}
