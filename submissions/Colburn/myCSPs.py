@@ -1,37 +1,38 @@
 import csp
 
-rgb = ['R', 'G', 'B','O']
+rgb = ['R', 'G', 'B','O']#,'White','Gray','Y','Purple','Brown','seafoam','T','Kale']
 
 d2 = { 'A' : rgb, 'B' : rgb, 'C' : ['R'], 'D' : rgb,}
 
 domains = {
-    'AM': 'G',
-    'ES': rgb,
-    'LK': rgb,
-    'RB': rgb,
-    'FL': rgb,
-    'G': rgb,
+    'SW': ['G'],
+    'SE': rgb,
+     'L': rgb,
+    'EE': rgb,
+     'W': rgb,
+    'WM': rgb,
+    'EM': rgb,
+    'NW': rgb,
+    'YH': rgb,
+    'NE': rgb,
     'S': rgb,
-    'M': rgb,
-    'BL': rgb,
-    'C': rgb,
-    'H': rgb
+
 }
 
 variables = domains.keys()
 
 neighbors = {
-    'AM': ['LK', 'ES'],
-    'ES': ['BL', 'M'],
-    'LK': ['RB', 'FL', 'AM'],
-    'RB': ['LK', 'FL', 'H'],
-    'FL': ['G', 'LK', 'RB'],
-    'G': ['FL', 'S'],
-    'S': ['G', 'M'],
-    'M': ['ES', 'BL', 'S'],
-    'BL': ['ES', 'C', 'M'],
-    'C': ['BL', 'H'],
-    'H': ['C', 'RB']
+    'SW': ['SE','WM','W'],
+    'SE': ['SW','L','EE','EM','WM'],
+     'L': ['SE','EE'],
+    'EE': ['SE','EM','L'],
+     'W': ['SW','WM','NW'],
+    'WM': ['SW','SE','W','EM','NW'],
+    'EM': ['WM','NW','YH','SE','EE'],
+    'NW': ['W','WM','S','NE','YH'],
+    'YH': ['NW','EM','NE'],
+    'NE': ['S','NW','YH'],
+    'S':  ['NE','NW'],
 }
 
 
@@ -52,14 +53,14 @@ def constraints(A, a, B, b):
     return True
 
 c2 = csp.CSP(v2, d2, n2, constraints)
-c2.label = 'Map of UK'
+c2.label = 'Really Lame'
 
 UK=csp.CSP(variables,domains,neighbors,constraints)
-UK.label = "Map of the UK"
+UK.label = "Map of the Uk"
 
 myCSPs = [
     {
-        'csp': UK,
+        'csp': c2,
         # 'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
