@@ -8,7 +8,7 @@ d2 = {
        'Tabuk': rgb, 'NorthernBorder': rgb,
        'Hail': rgb, 'Madinah': rgb, 'Qasim': rgb, 'Makkah': rgb,
        'Riyadh': rgb, 'EasternProvince': rgb, 'Baha': rgb, 'Asir': rgb,
-       'Jizan': rgb, 'Najran': rgb,
+       'Jizan': rgb, 'Najran': rgb, 'Yemen': rgb, 'Oman': rgb, 'UAE': rgb
 
 
        }
@@ -24,13 +24,17 @@ n2 = {
        'Hail' : ['Jouf', 'Tabuk', 'Madinah', 'Qasim', ],
        'Madinah': ['Tabuk', 'Hail', 'Qasim', 'Makkah','Riyadh' ],
        'Qasim': ['Hail','Madinah','Riyadh'],
-       'Makkah': ['Madinah', 'Riyadh', 'Baha', 'Asir'],
+       'Makkah': ['Madinah', 'Riyadh', 'Baha', 'Asir', 'Jizan'],
        'Riyadh': ['Qasim', 'Madinah', 'Makkah', 'NorthernBorder', 'EasternProvince', 'Asir', 'Najran'],
-       'EasternProvince': ['Riyadh','NorthernBorder', 'Najran'],
+       'EasternProvince': ['Riyadh','NorthernBorder', 'Najran', 'Yemen', 'Oman', 'UAE'],
        'Baha': [ 'Makkah','Asir'],
-       'Asir': ['Baha', 'Riyadh', 'Makkah', 'Jizan', 'Najran'],
-       'Jizan': ['Asir'],
-       'Najran': ['EasternProvince', 'Riyadh', 'Asir'],
+       'Asir': ['Baha', 'Riyadh', 'Makkah', 'Jizan', 'Najran', 'Yemen'],
+       'Jizan': ['Asir','Yemen', 'Makkah'],
+       'Najran': ['EasternProvince', 'Riyadh', 'Asir','Yemen'],
+       'Yemen': ['Jizan','Asir','Najran', 'EasternProvince', 'Oman'],
+       'Oman': ['EasternProvince', 'Yemen', 'UAE'],
+       'UAE': ['EasternProvince', 'Oman'],
+
 
 
 
