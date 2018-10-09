@@ -2,7 +2,7 @@ import csp
 
 rgb = ['R', 'G', 'B', 'P']
 
-# The 22 wards of Tokyo
+# The 23 wards of Tokyo
 
 d2 = {'ADACHI' : rgb, 'KATSU' : rgb, 'EDOG' : rgb, 'KOTO' : rgb, 'CHUO': rgb, 'SUMI': rgb, 'TAITO':  rgb,    'ARAK':   rgb, 'KITA':   rgb, 'BUNK':   rgb, 'CHIY':   rgb, 'MINA':   rgb, 'SHIN':   rgb,
     'SHINA':  rgb,
@@ -61,6 +61,34 @@ myCSPs = [
         # 'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
+        # 'inference': csp.forward_checking,
+    },
+{
+        'csp' : c2,
+        'select_unassigned_variable': csp.mrv,
+        # 'order_domain_values': csp.lcv,
+        # 'inference': csp.mac,
+        # 'inference': csp.forward_checking,
+    },
+{
+        'csp' : c2,
+        'select_unassigned_variable': csp.mrv,
+        # 'order_domain_values': csp.lcv,
+        # 'inference': csp.mac,
+        # 'inference': csp.forward_checking,
+    },
+{
+        'csp' : c2,
+        # 'select_unassigned_variable': csp.mrv,
+        'order_domain_values': csp.lcv,
+        # 'inference': csp.mac,
+        # 'inference': csp.forward_checking,
+    },
+{
+        'csp' : c2,
+        # 'select_unassigned_variable': csp.mrv,
+        #'order_domain_values': csp.lcv,
+         'inference': csp.mac,
         # 'inference': csp.forward_checking,
     },
 
