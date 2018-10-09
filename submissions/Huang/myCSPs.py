@@ -2,11 +2,18 @@ import csp
 
 rgb = ['R', 'G', 'B']
 
-d2 = { 'A' : rgb, 'B' : rgb, 'C' : ['R'], 'D' : rgb,}
+d2 = { 'ZB' : rgb, 'HK' : rgb, 'JA' : ['R'], 'FX' : rgb, 'XH' : rgb, 'HP' : rgb, 'CN' : rgb,
+       'PT': rgb, 'YP' : rgb, 'SJ' : rgb, 'QP' : rgb, 'JD' : rgb, 'JS' : rgb, 'PD' : rgb, 'MH' : rgb,
+       'BS': rgb,}
 
 v2 = d2.keys()
 
-n2 = {       'ZB': ['HK', 'HP', 'JA', 'BS', 'PT'],
+n2 = {'A' : ['B', 'C', 'D'],
+       'B' : ['A', 'C', 'D'],
+       'C' : ['A', 'B'],
+       'D' : ['A', 'B'],}
+
+sh = {       'ZB': ['HK', 'HP', 'JA', 'BS', 'PT'],
              'HK': ['YP', 'PD', 'ZB', 'BS'],
              'JA': ['ZB', 'HP', 'PT', 'CN', 'XH'],
              'FX': ['JS', 'SJ', 'PD', 'MH'],
@@ -33,7 +40,7 @@ def constraints(A, a, B, b):
 
     return True
 
-c2 = csp.CSP(v2, d2, n2, constraints)
+c2 = csp.CSP(v2, d2, sh, constraints)
 c2.label = 'Really Lame'
 
 myCSPs = [
