@@ -14,7 +14,10 @@ def printKB(label, kb):
     print(indent(), label + ' example:')
     print(indent(2), 'knowledge base:')
     for clause in kb.clauses:
-        print(indent(3), str(clause))
+        s = str(clause)
+        if s[0:6] == 'Differ':
+            continue
+        print(indent(3), s)
 
 def printResults(query, gen, limit=3):
     for count in range(limit):
@@ -31,8 +34,33 @@ def printResults(query, gen, limit=3):
     print('...')
 
 def tryKB(label, base):
-    kbString = base['kb']
     kb = FolKB([])
+
+    # define the Differ predicate,
+    # e.g., Differ(A, B), Differ(B, C), ...
+    if 'Differ' in base:
+        objString = base['Differ']
+        objects = []
+        for obj in objString.split(','):
+            obj = obj.strip(' \t\n\r')
+            if obj == '':
+                continue
+            if obj[0] == '#':
+                continue
+            objects.append(obj)
+        for ob1 in objects:
+            for ob2 in objects:
+                if ob1 == ob2:
+                    continue
+                s = 'Differ(' + ob1 + ', ' + ob2 + ')'
+                try:
+                    sentence = expr(s)
+                    kb.tell(sentence)
+                except:
+                    traceback.print_exc()
+
+    # read facts and rules
+    kbString = base['kb']
     for kbLine in kbString.split('\n'):
         s = kbLine.strip()
         if len(s) == 0:
@@ -45,6 +73,8 @@ def tryKB(label, base):
         except:
             traceback.print_exc()
     printKB(label, kb)
+
+    # now, ask some questions
     print(indent(2), 'queries:')
     queryString = base['queries']
     for qLine in queryString.split('\n'):
