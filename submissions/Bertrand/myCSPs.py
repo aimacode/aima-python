@@ -1,15 +1,45 @@
 import csp
 
-rgb = ['R', 'G', 'B']
+colors = ['R', 'G', 'B']
 
-d2 = { 'A' : rgb, 'B' : rgb, 'C' : ['R'], 'D' : rgb,}
+domains = {
+    'Galicia': colors,
+    'Asturias': colors,
+    'C': colors,
+    'PV': colors,
+    'R': colors,
+    'N': colors,
+    'Aragon': colors,
+    'Catalonia': colors,
+    'Castile_Leon': colors,
+    'Extremadura': colors,
+    'Castile_la_Mancha': colors,
+    'CV': colors,
+    'Andalucia': colors,
+    'MU': colors,
+    'M': colors
+}
 
-v2 = d2.keys()
+neighbors = {
+    'Galicia': ['Asturias', 'Castile_Leon'],
+    'Asturias': ['C', 'Castile_Leon', 'Galicia'],
+    'C': ['Asturias', 'Castile_Leon', 'PV'],
+    'PV': ['C', 'Castile_Leon', 'N', 'R'],
+    'R': ['Aragon', 'Castile_Leon', 'N', 'PV'],
+    'N': ['Aragon', 'PV', 'R'],
+    'Aragon': ['Castile_Leon', 'Castile_la_Mancha', 'Catalonia', 'CV', 'N', 'R'],
+    'Catalonia': ['Aragon', 'CV'],
+    'Castile_Leon': ['Aragon', 'Asturias', 'C', 'Castile_la_Mancha', 'Galicia', 'M', 'PV', 'R'],
+    'Extremadura': ['Andalucia', 'Castile_Leon', 'Castile_la_Mancha'],
+    'Castile_la_Mancha': ['Andalucia', 'Aragon', 'Castile_Leon', 'CV', 'Extremadura', 'M', 'MU'],
+    'CV': ['Aragon', 'Castile_la_Mancha', 'Catalonia', 'MU'],
+    'Andalucia': ['Castile_la_Mancha', 'Extremadura', 'MU'],
+    'MU': ['Andalucia', 'Castile_la_Mancha', 'CV'],
+    'M': ['Castile_Leon', 'Castile_la_Mancha']
+}
 
-n2 = {'A' : ['B', 'C', 'D'],
-      'B' : ['A', 'C', 'D'],
-      'C' : ['A', 'B'],
-      'D' : ['A', 'B'],}
+regions = neighbors.keys()
+
 
 def constraints(A, a, B, b):
     if A == B:      # e.g. NSW == NSW
@@ -20,8 +50,8 @@ def constraints(A, a, B, b):
 
     return True
 
-c2 = csp.CSP(v2, d2, n2, constraints)
-c2.label = 'Really Lame'
+c2 = csp.CSP(regions, domains, neighbors, constraints)
+c2.label = 'Regions of Spain'
 
 myCSPs = [
     {
