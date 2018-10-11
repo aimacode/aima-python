@@ -1,14 +1,9 @@
-from games import Game
-from math import nan, isnan
-from queue import PriorityQueue
-from copy import deepcopy
-from utils import isnumber
-from grading.util import print_table
+from collections import namedtuple
+from games import (Game)
 
 class GameState:
-    def __init__(self, to_move, board, position, label=None, depth=15):
+    def __init__(self, to_move, board, label=None, depth=8):
         self.to_move = to_move
-        self.position = position
         self.board = board
         self.label = label
         self.maxDepth = depth
@@ -18,14 +13,14 @@ class GameState:
             return super(GameState, self).__str__()
         return self.label
 
-class ConnectFour(Game):
-    """A flagrant copy of Connect Four, from game.py
-    It's simplified, so that gravity is not a factor
-    Play Connect Four on an h x v board, with Max (first player) playing 'X'.
+class FlagrantCopy(Game):
+    """A flagrant copy of TicTacToe, from game.py
+    It's simplified, so that moves and utility are calculated as needed
+    Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
     A state has the player to move and a board, in the form of
     a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
-    def __init__(self, h=4, v=4, k=4):
+    def __init__(self, h=6, v=7, k=4):
         self.h = h
         self.v = v
         self.k = k
@@ -36,12 +31,13 @@ class ConnectFour(Game):
             return state.moves
         except:
             pass
-        "Legal moves are any square not yet taken."
+        "Legal moves are any square not yet taken, at the lowest available spot in each column."
         moves = []
-        for x in range(1, self.h + 1):
-            for y in range(1, self.v + 1):
+        for y in range(1, self.v + 1):
+            for x in range(self.h , 0, -1):
                 if (x,y) not in state.board.keys():
                     moves.append((x,y))
+                    break
         state.moves = moves
         return moves
 
@@ -78,19 +74,25 @@ class ConnectFour(Game):
     # Did I win?
     def check_win(self, board, player):
         # check rows
-        for y in range(1, self.v + 1):
-            if self.k_in_row(board, (1,y), player, (1,0)):
-                return 1
+        for x in range(1, self.h - 2):
+            for y in range(1, self.v + 1):
+                if self.k_in_row(board, (x,y), player, (1,0)):
+                    return 1
         # check columns
-        for x in range(1, self.h + 1):
-            if self.k_in_row(board, (x,1), player, (0,1)):
-                return 1
+        for y in range(1, self.v - 2):
+            for x in range(1, self.h + 1):
+                if self.k_in_row(board, (x,y), player, (0,1)):
+                    return 1
         # check \ diagonal
-        if self.k_in_row(board, (1,1), player, (1,1)):
-            return 1
+        for x in range(1, self.h - 2):
+            for y in range(1, self.v - 2):
+                if self.k_in_row(board, (x,y), player, (1,1)):
+                    return 1
         # check / diagonal
-        if self.k_in_row(board, (3,1), player, (-1,1)):
-            return 1
+        for x in range(self.h , 3, -1):
+            for y in range(1, self.v - 2):
+                if self.k_in_row(board, (x,y), player, (-1,1)):
+                    return 1
         return 0
 
     # does player have K in a row? return 1 if so, 0 if not
@@ -121,19 +123,21 @@ class ConnectFour(Game):
             print()
 
 
-myGame = ConnectFour()
+myGame = FlagrantCopy()
 
-won = GameState(
+testState = GameState(
     to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X', (1,4): 'X',
-             (2,1): 'O', (2,2): 'O',
+    board = {
+             (4,1): 'O', (4,2): 'O', (4,3): 'X', (4,4): 'O', (4,5): 'O', (4,6): 'O', (4,7): 'X',
+             (5,1): 'O', (5,2): 'X', (5,3): 'O', (5,4): 'X', (5,5): 'X', (5,6): 'X', (5,7): 'O',
+             (6,1): 'X', (6,2): 'X', (6,3): 'O', (6,4): 'X', (6,5): 'O', (6,6): 'X', (6,7): 'X',
             },
-    label = 'won'
+    label = 'AB(2)>AB(0)'
 )
 
 winin1 = GameState(
     to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
+    board = {(1,1): 'X', (1,2): 'X',
              (2,1): 'O', (2,2): 'O',
             },
     label = 'winin1'
@@ -142,7 +146,7 @@ winin1 = GameState(
 losein1 = GameState(
     to_move = 'O',
     board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
+             (2,1): 'O', (2,2): 'O',
              (3,1): 'X',
             },
     label = 'losein1'
@@ -185,8 +189,8 @@ lost = GameState(
 
 myGames = {
     myGame: [
-        won,
-        winin1, losein1, winin3, losein3, winin5,
-        lost,
+        testState
+        # winin1, losein1, winin3, losein3, winin5,
+        # lost,
     ]
 }

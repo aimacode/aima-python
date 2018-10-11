@@ -1,14 +1,11 @@
-from games import Game
+from games import (Game)
 from math import nan, isnan
 from queue import PriorityQueue
 from copy import deepcopy
-from utils import isnumber
-from grading.util import print_table
 
 class GameState:
-    def __init__(self, to_move, board, position, label=None, depth=15):
+    def __init__(self, to_move, board, label=None, depth=8):
         self.to_move = to_move
-        self.position = position
         self.board = board
         self.label = label
         self.maxDepth = depth
@@ -18,14 +15,13 @@ class GameState:
             return super(GameState, self).__str__()
         return self.label
 
-class ConnectFour(Game):
-    """A flagrant copy of Connect Four, from game.py
-    It's simplified, so that gravity is not a factor
-    Play Connect Four on an h x v board, with Max (first player) playing 'X'.
-    A state has the player to move and a board, in the form of
-    a dict of {(x, y): Player} entries, where Player is 'X' or 'O'."""
 
-    def __init__(self, h=4, v=4, k=4):
+
+class ConnectFour(Game):
+    """
+    An Alpha Beta implementation of Connect Four.
+    """
+    def __init__(self, h=6, v=7, k=4):
         self.h = h
         self.v = v
         self.k = k
@@ -36,12 +32,12 @@ class ConnectFour(Game):
             return state.moves
         except:
             pass
-        "Legal moves are any square not yet taken."
         moves = []
-        for x in range(1, self.h + 1):
-            for y in range(1, self.v + 1):
-                if (x,y) not in state.board.keys():
-                    moves.append((x,y))
+        for x in range(1, self.v + 1):
+            for y in range(self.h, 0, -1):
+                if (y, x) not in state.board.keys():
+                    moves.append((y, x))
+                    break
         state.moves = moves
         return moves
 
@@ -75,25 +71,32 @@ class ConnectFour(Game):
         state.utility = util
         return util if player == 'X' else -util
 
-    # Did I win?
     def check_win(self, board, player):
-        # check rows
-        for y in range(1, self.v + 1):
-            if self.k_in_row(board, (1,y), player, (1,0)):
-                return 1
+        # self.v = 7, self.h = 6
         # check columns
-        for x in range(1, self.h + 1):
-            if self.k_in_row(board, (x,1), player, (0,1)):
-                return 1
-        # check \ diagonal
-        if self.k_in_row(board, (1,1), player, (1,1)):
-            return 1
-        # check / diagonal
-        if self.k_in_row(board, (3,1), player, (-1,1)):
-            return 1
+        for y in range(1, self.h + 1):
+            for x in range(self.v - 1, 3, -1):
+                if self.k_in_row(board, (x, y), player, (-1, 0)):
+                    return 1
+        # check rows
+        for x in range(self.h, 0, -1):
+            for y in range(1, self.v - 1):
+                if self.k_in_row(board, (x, y), player, (0, 1)):
+                    return 1
+
+        # \ Win Check
+        for y in range(self.v, 3, -1):
+            for x in range(self.h, 2, -1):
+                if self.k_in_row(board, (x, y), player, (-1, -1)):
+                    return 1
+
+        # / Win Check
+        for y in range(1, self.h - 1):
+            for x in range(self.v - 1, 2, -1):
+                if self.k_in_row(board, (x, y), player, (-1, 1)):
+                    return 1
         return 0
 
-    # does player have K in a row? return 1 if so, 0 if not
     def k_in_row(self, board, start, player, direction):
         "Return true if there is a line through start on board for player."
         (delta_x, delta_y) = direction
@@ -123,70 +126,24 @@ class ConnectFour(Game):
 
 myGame = ConnectFour()
 
-won = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X', (1,4): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
-    label = 'won'
+empty = GameState(
+    to_move='0',
+    board={},
+    label='empty'
 )
 
-winin1 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X', (1,3): 'X',
-             (2,1): 'O', (2,2): 'O',
-            },
-    label = 'winin1'
+default = GameState(
+    to_move='O',
+    board={(6, 1): 'X', (6, 4): 'O'},
+    label='default'
 )
 
-losein1 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
-             (3,1): 'X',
-            },
-    label = 'losein1'
-)
-
-winin3 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-             (3,1): 'O',
-            },
-    label = 'winin3'
-)
-
-losein3 = GameState(
-    to_move = 'O',
-    board = {(1,1): 'X',
-             (2,1): 'X',
-             (3,1): 'O', (1,2): 'X', (1,2): 'O',
-            },
-    label = 'losein3'
-)
-
-winin5 = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'O',
-             (2,1): 'X',
-            },
-    label = 'winin5'
-)
-
-lost = GameState(
-    to_move = 'X',
-    board = {(1,1): 'X', (1,2): 'X',
-             (2,1): 'O', (2,2): 'O', (2,3): 'O',
-             (3,1): 'X'
-            },
-    label = 'lost'
+oneToWin = GameState(
+    to_move='X',
+    board={(6, 4): 'X', (6, 5): 'X', (6, 6): 'X', (6, 3): 'O', (6, 2): 'O', (6, 1): 'O'},
+    label='one to win X'
 )
 
 myGames = {
-    myGame: [
-        won,
-        winin1, losein1, winin3, losein3, winin5,
-        lost,
-    ]
+    myGame: [default, oneToWin]
 }
