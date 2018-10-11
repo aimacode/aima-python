@@ -1,0 +1,8 @@
+60: The game runs without exceptions*, and generates valid output for at least one state.
++10: A display method displays game boards clearly.
++5: A game that plays at least 3 moves interactively, Ask vs. AB(3)
++5: A game that plays at least 3 moves interactively, AB(3) vs. Ask
++5: Show that the state space of the game contains at least 50 states
++2: A state correctly returns zero actions, without crashing.
++2: A state correctly returns the maximum number of actions, without crashing.
++2: A state correctly returns an intermediate number of actions, without crashing.
