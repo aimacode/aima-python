@@ -1,0 +1,52 @@
+Michael DeVries
+Homework 5
+2.9.2 (BFS better than DFS) - To make breadth-first search better than depth-first search, I had to make it so the longest path from A to B has 
+			a higher cost than the shortest path from A to B ("long" here referring to number of cities visited). BFS will find
+			the shortest path (by number of cities visited), so the cost of that path simply must be lower than the cost of the path
+			found by DFS (and since depth-first search tries to explore the depth of the tree first, then this path found by DFS
+			should be long, meaning that it should have a high number of cities visited).
+2.9.3 (UCS better than BFS) - To make uniform-cost search better than breadth-first search is actually quite simple. I did this by making a path
+			which gets from A to B in the shortest number of cities visited, but not the lowest cost. This way, breadth-first finds
+			a path which does not have the lowest cost, and uniform-cost can find a lower cost path.
+
+Homework 6 Bonuses
+1.3.2 (Show that the state space of the problem contains at least 50 states) - In a 3 by 2 grid, as in Cube3, there are 6 squares. Each
+            square can either be True or False (blue or not blue), meaning that for the grid alone there are 2^6, or 64 possible states.
+            The cube itself can be located on any one of these 6 squares, so the state space for this problem contains well over
+            50 states.
+1.3.3 (An instance that yields a better solution with BFS than DFS) - In Cube, BFS clearly yields a better solution than DFS (6 is a
+            lower cost than 10).
+1.3.5 (UCS finds a solution at least 1 move deep.) - In Cube2, UCS yields a solution exactly 1 move deep.
+1.3.6 (UCS finds a solution at least 2 moves deep.) - In Cube3, UCS yields a solution exactly 2 moves deep.
+1.3.7 (UCS finds a solution at least 4 moves deep.) - In Cube, UCS yields a solution 6 moves deep, which qualifies as "at least 4".
+2.2.1 (All instances run without exceptions, and generate valid output for, BestFS and A*) - In South_Dakota, clearly valid output is
+            generated for BestFS and A*, as well as all of the other algorithms.
+2.2.3 (An instance yields a better solution with BFS than BestFS) - In South_Dakota, BFS yields a solution of cost 1707.159, while
+            BestFS yields a solution of cost 2212.636; clearly BFS yields a better solution than BestFS.
+2.2.4 (An instance yields the same solution with UCS and A*, but expands fewer nodes with A*) - In South_Dakota, UCS and A* both
+            yield solutions of the same cost: 1697.90999..., but fewer nodes are expanded with A*.
+Bonuses Completed: 8; +80 points.
+
+Homework 8 Bonuses
+6.2 (+5) (Show that the state space of the game contains at least 50 states) - There are 42 spaces on a connect 4 board. It is possible
+            for the game to reach a tie, meaning there are 43 states to get there, including the initial, empty state. There are also
+            well over 7 possible states of the board where the game is won by one or the other player, so there are well over 50
+            possible states in this game's state space.
+6.4 (+2) (A state correctly returns the maximum number of actions, without crashing.) - The one test state that I have returns 7
+            possible actions, which is the maximum number of actions since there are only 7 columns.
+6.6 (+2) (A state that yields a better solution with AB(2) than AB(0)) - AB(0) allows X to win the next turn, AB(2) blocks it.
+6.10 (+5) (A game that plays at least 3 moves interactively, Ask vs. AB(3)) - I played a full game of Ask vs. AB(3), which
+            necessarily involves at least 3 moves since at least 4 moves are required for there to be a winner.
+6.11 (+5) (A game that plays at least 3 moves interactively, AB(3) vs. Ask) - I also played a full game of AB(3) vs. Ask, which
+            necessarily involves at least 3 moves since at least 4 moves are required for there to be a winner.
+6.12 (+5) (A game that plays at least 12 'interesting' moves) - Any move you can make in standard Connect 4, you can make here.
+            There are more than 12 winning board states, so I think it's fair to assume that there would be at least 12
+            'interesting' moves as well.
+6.13 (+10) (A display method displays game boards clearly.) - I reused the format from the TicTacToe game due to the similarity
+            in the games (two players, each with their own pieces; each slot in the board can either be empty or equivalent to
+            one of the two players' pieces; game won by getting multiple of your pieces in a row), but I think this is
+            a fairly simple and elegant solution which communicates the board state effectively but also minimally.
+6.14 (+5) (Pushed a 70-point solution by Sunday, Sep. 23 before 6:00 am) - This is a 94-point solution without this bonus.
+6.15 (+5) (Pushed an 80-point solution by Tuesday, Sep. 25 before 6:00 am) - Again, this is a 94-point solution without this bonus
+            or the previous pull-time-based bonus.
+Total bonus points: +40.

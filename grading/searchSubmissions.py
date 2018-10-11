@@ -6,7 +6,7 @@ import search
 
 from utils import isnumber, memoize
 from grading.util import roster, print_table
-import inf
+from math import inf
 
 class MyException(Exception):
     pass
@@ -63,10 +63,11 @@ for student in roster:
         traceback.print_exc()
     try:
         # http://stackoverflow.com/a/17136796/2619926
-        #searchMethods[student] = submissions.aartiste.mySearchMethods
+        #searchMethods[student] = submissions.bbbetter.mySearchMethods
         mod = importlib.import_module('submissions.' + student + '.mySearches')
         searchMethods[student] = mod.mySearchMethods
-        messages[1] += ' ' + student
+        if len(searchMethods[student]) > 0:
+            messages[1] += ' ' + student
     except ImportError:
         pass
     except:
@@ -107,13 +108,14 @@ for student in roster:
                 hlist[0].append(problem.label)
             i += 1
             hlist[1].append('(<succ/goal/stat/fina>, cost)')
-            compare_searchers(
-                problems=plist,
-                header=hlist,
-                searchers=slist
-            )
+        compare_searchers(
+            problems=plist,
+            header=hlist,
+            searchers=slist
+        )
     except:
         traceback.print_exc()
 
-    print(student + ' scores ' + str(scores[student]) + ' = ' + str(sum(scores[student])))
+    print(student + ' scores ' + str(scores[student])
+          + ' = ' + str(sum(scores[student])))
     print('----------------------------------------')

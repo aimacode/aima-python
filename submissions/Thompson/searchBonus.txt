@@ -1,0 +1,7 @@
+65 Points: Completed map of Norfolk, VA area.
+10 Points: From Suffolk to Virginia beach I was able to get BFS better than DFS.
+10 Points: After adding some towns I was able to get Sunbury to VirginiaBeach to yield a better solution for UCS over
+           BFS
+
+-10 Points: Adding more cities ruined my BFS being better than DFS search :(
+10 Points Back: Jamestown to Yorktown offered a better BFS than DFS search.
