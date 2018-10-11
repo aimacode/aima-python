@@ -1,0 +1,5 @@
++60 Map runs and generates colors that coordinate with the map.
++10 Map is in 4 colors.
++10 There are fewer assignments with mrv.
++10 There are fewer assignments with lcv.
++10 There are fewer assignments with mac.
