@@ -1,6 +1,7 @@
 import csp
 
-rgb = ['R', 'G', 'B', 'Y']
+rgb = ['R', 'G', 'B']
+colors = ['R', 'G', 'B', 'Y']
 
 d2 = { 'A' : rgb, 'B' : rgb, 'C' : ['R'], 'D' : rgb,}
 
@@ -24,19 +25,19 @@ c2 = csp.CSP(v2, d2, n2, constraints)
 c2.label = 'Really Lame'
 
 possible_colors = {
-    '805': rgb,
-    '661': rgb,
-    '760': rgb,
-    '909': rgb,
-    '951': rgb,
-    '949': rgb,
-    '714': rgb,
-    '562': rgb,
-    '626': rgb,
-    '323': rgb,
-    '213': rgb,
-    '310': rgb,
-    '818': rgb
+    '805': colors,
+    '661': colors,
+    '760': colors,
+    '909': colors,
+    '951': colors,
+    '949': colors,
+    '714': colors,
+    '562': colors,
+    '626': colors,
+    '323': colors,
+    '213': colors,
+    '310': colors,
+    '818': colors
 }
 
 regions = possible_colors.keys()
