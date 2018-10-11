@@ -1,0 +1,11 @@
+The game runs without exceptions 60
+Pushed 70 point solution by Sunday 5
+Game plays at least 3 moves interactively both (Ask vs AB(3) and visa versa) 10
+Returns zero actions without crashing 2
+returns max number of actions 2
+returns an intermediate number of actions 2
+Display method displays board clearly 10
+game plays at least 12 interesting moves 5
+state that yields a better solution with AB(4) than AB(2) 2
+
+
