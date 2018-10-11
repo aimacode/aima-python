@@ -1,0 +1,11 @@
+
+***Homework for Thursday, October 11th**
+
++60 The CSP runs without exceptions*, and generates valid coloring.
+
++10: The map cannot be colored in less than 4 colors.
+-This map needs Red,Blue,Purple,and Green to be colored properly.
+
++10: Push a 60-point solution by Tuesday, Oct. 9 before 6:00 am
+-I did it.
+
