@@ -27,7 +27,6 @@ roster = [
     'Zemgulys',
     'aardvark',
     'bbbetter',
-    'cccute',
     'zzzsolutions',
 ]
 
