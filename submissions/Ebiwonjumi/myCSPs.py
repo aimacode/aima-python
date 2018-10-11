@@ -4,7 +4,7 @@ rgb = ['R', 'G', 'B', 'P']
 
 # d2 = { 'A' : rgb, 'B' : rgb, 'C' : ['R'], 'D' : rgb,}
 
-nigeria2d = { 'L' :['P'], 'O' : rgb, 'Y' : rgb, 'S' : rgb, 'I' : rgb, 'N' : rgb, 'K' : rgb, 'E' : rgb,}
+nigeria2d = { 'L' :rgb, 'O' : rgb, 'Y' : rgb, 'S' : rgb, 'I' : rgb, 'N' : rgb, 'K' : rgb, 'E' : rgb, 'D' : rgb, 'G' : rgb, 'B' : rgb, 'Ri' : rgb, 'M' : rgb, 'An' : rgb, 'En' : rgb,'Eb' : rgb,'Ab' : rgb, 'Ak' : rgb, 'C' : rgb, 'Be' : rgb,}
 
 # v2 = d2.keys()
 
@@ -15,14 +15,27 @@ nigeria2v = nigeria2d.keys()
 #       'C' : ['A', 'B'],
 #       'D' : ['A', 'B'],}
 
-nigeria2 = {'L' :['O'],
-            'O' : ['L', 'Y', 'S', 'N'],
-            'Y' :  ['O', 'S', 'K'],
-            'S' : ['O', 'Y', 'I', 'K', 'N'],
-            'I': ['S', 'K', 'N'],
-            'N':  ['O', 'S', 'I', 'E'],
-            'K': ['Y', 'S', 'I'],
-            'E':   ['N'],}
+nigeria2 = {'L':['O'],
+            'O': ['L', 'Y', 'S', 'N'],
+            'Y': ['O', 'S', 'K'],
+            'S': ['O', 'Y', 'I', 'K', 'N'],
+            'I': ['S', 'K', 'N', 'G'],
+            'N': ['O', 'S', 'I', 'E', 'G'],
+            'K': ['Y', 'S', 'I', 'G'],
+            'E': ['N', 'G', 'D', 'An'],
+            'D': ['E', 'An', 'B', 'Ri'],
+            'G': ['E', 'D', 'An', 'En', 'Be', 'I', 'N', 'K'],
+            'B': ['D', 'Ri'],
+            'Ri': ['B', 'M', 'Ab', 'Ak', 'An', 'D'],
+            'M': ['Ri', 'An', 'Ab', 'En'],
+            'An': ['G', 'E', 'D', 'Ri', 'M', 'En'],
+            'En': ['G', 'An', 'M', 'Ab', 'Eb', 'Be'],
+            'Eb': ['En', 'Be', 'Ab', 'C'],
+            'Ab': ['C', 'Eb', 'En', 'M', 'Ri', 'Ak'],
+            'Ak': ['Ab', 'C', 'Ri'],
+            'C': ['Be', 'Eb', 'Ab', 'Ak'],
+            'Be': ['G', 'En', 'Eb', 'C'],}
+
 def constraints(A, a, B, b):
     if A == B:      # e.g. NSW == NSW
         return True
