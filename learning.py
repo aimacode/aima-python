@@ -97,11 +97,13 @@ class DataSet:
         # Initialize .examples from string or list or data directory
         if isinstance(examples, str):
             self.examples = parse_csv(examples)
+        elif examples is None:
+            self.examples = parse_csv(open_data(name + '.csv').read())
         else:
-            self.examples = examples or parse_csv(open_data(name + '.csv').read())
+            self.examples = examples
 
-        # Attrs are the indices of examples, unless otherwise stated.
-        if self.examples and not attrs:
+        # Attrs are the indices of examples, unless otherwise stated.   
+        if self.examples is not None and attrs is None:
             attrs = list(range(len(self.examples[0])))
 
         self.attrs = attrs
