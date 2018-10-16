@@ -230,6 +230,7 @@ def no_inference(csp, var, value, assignment, removals):
 
 def forward_checking(csp, var, value, assignment, removals):
     """Prune neighbor values inconsistent with var=value."""
+    csp.support_pruning()
     for B in csp.neighbors[var]:
         if B not in assignment:
             for b in csp.curr_domains[B][:]:
