@@ -17,10 +17,10 @@ class GameState:
 
 class Chopsticks(Game):
 
-    def __init__(self, initial):
+    def __init__(self):
         self.p1_hand = [1, 1]
         self.p2_hand = [1, 1]
-        self.initial = initial
+        self.initial = GameState(to_move = 'P1', p1_hand = [0, 0], p2_hand = [0,0])
 
     def actions(self, state):
         try:
@@ -105,11 +105,13 @@ myGame = Chopsticks()
 won = GameState(
     to_move = 'P1',
     p1_hand = [0, 0],
+    p2_hand = [1, 1],
     label = 'won'
 )
 
 lost = GameState(
     to_move = 'P2',
+    p1_hand = [1, 1],
     p2_hand = [0, 0],
     label = 'lost'
 )

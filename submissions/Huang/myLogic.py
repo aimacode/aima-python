@@ -43,9 +43,9 @@ Carry(Dead, RNA)
 ZombieVirus(RNA) 
 (WalkingDead(p) & Carry(Dead, z)) ==> Attack(Earth, z, Dead)
 ZombieVirus(z) ==> Virus(z)
-Inflate(p, BAD) ==> People(p)
+Influen(p, BAD) ==> People(p)
 Zombie(Earth)
-Inflate(Dead, BAD)
+Influen(Dead, BAD)
 ''',
     'queries':'''
 People(p)
