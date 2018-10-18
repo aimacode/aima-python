@@ -249,7 +249,7 @@ class OthelloGame(Game):
             return newState
         # use the move to modify the newState
         player = state.acts
-        if(self.opponent(self, player)):
+        if(self.opponent(self, player))
             
         return OthelloState(player='X', label='result')
 
