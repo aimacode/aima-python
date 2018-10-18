@@ -1,6 +1,6 @@
 import csp
 
-rgb = ['R', 'G', 'B']
+rgb = ['R', 'G', 'B',]
 
 d2 = { 'ZB' : rgb, 'HK' : rgb, 'JA' : ['R'], 'FX' : rgb, 'XH' : rgb, 'HP' : rgb, 'CN' : rgb,
        'PT': rgb, 'YP' : rgb, 'SJ' : rgb, 'QP' : rgb, 'JD' : rgb, 'JS' : rgb, 'PD' : rgb, 'MH' : rgb,
