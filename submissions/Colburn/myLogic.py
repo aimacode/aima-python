@@ -61,7 +61,7 @@ College(Vandy)
 (Professor(x,c,y) & Student(a,d,c)) ==> Teaches(x,a)
 (Teaches(a,b) & Teaches(c,b) & Differ(a,c)) ==> Friends(a,c)
 (Teaches(x,a) & Employed(x,y)) ==> Attends(a,y)
-
+(Attends(a,y) & Attends(b,y) & Differ(a,b)) ==> Peers(a,b)
 ''',
     'queries':''' 
 Human(x)
@@ -69,6 +69,7 @@ Teaches(x,a)
 Friends(l,m) 
 Employed(x,b)
 Attends(x,y)
+Peers(a,b)
 ''',
     'limit': 15
 }

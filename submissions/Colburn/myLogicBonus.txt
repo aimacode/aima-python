@@ -1,0 +1,9 @@
+1.Runs without exceptions uses at least one rule to answer query. 60
+2. Push a 60-point Solution by Tuesday 10
+3. Query uses two rules 10
+4. Query uses three rules 5
+5. Query uses four rules 5
+
+Current Total: 90 
+
+
