@@ -1,16 +1,32 @@
-'Differ': (optional) a comma-separated string of unique object Names.  For each pair of symbols A, B, the assertion Differ(A,B) will be entered into the knowledge base.
-'kb': a newline-separated string facts and rules.  Each line will be entered as a separate logical sentence into the database.
-'queries': a newline-separated string of predicates, with at least one variable in each.  The inference engine will attempt to satisfy your query with a substitution of objects in your knowledge base for the variables.
-        'limit': an integer representing the number of matches to print.
-    Push changes early and often, and make corresponding Pull requests of your new code.  If I end up accepting multiple pull requests from you at the same time, GitHub will still show me when you made them and what files you changed, and your commit comments will tell me the points you think you have earned.
-    score:
-        60: The inference engine runs without exceptions*, and uses at least one rule to answer a query.
-        +10: Includes at least one query that uses exactly two rules to satisfy.
-        +5: Includes another query that uses a different sequence of two rules to satisfy.
-        +5: Includes at least one query that uses exactly three rules to satisfy.
+
+***Homework for October 25th***
+
+60: The inference engine runs without exceptions*, and uses at least one rule to answer a query.
+
+ It runs!!
+
++10: Includes at least one query that uses exactly two rules to satisfy.
+
+        For the girl(x) query, it must first check what a girl is and then check what a sister is.
+
++10: Push a 60-point solution by Tuesday, Oct. 23 before 6:00 am
+
+       Did it!
+
+
+
+
+
+
++5: Includes another query that uses a different sequence of two rules to satisfy.
+
+
++5: Includes at least one query that uses exactly three rules to satisfy.
+
+
+
         +5: Includes another query that uses a different sequence of three rules to satisfy.
         +5: Includes at least one query that uses exactly four rules to satisfy.
         +5: Includes one query that returns 5-10 valid substitutions.
         +5: Includes one query that returns more than 20 valid substitutions.
-        +10: Push a 60-point solution by Tuesday, Oct. 23 before 6:00 am
-    Add a file to your submissions folder named logicBonus.txt .  In that file, list and briefly justify the points you think you have earned for this assignment.
+
