@@ -1,0 +1,21 @@
+Homework 14 Bonuses:
+
+7.2 +10: Includes at least one query that uses exactly two rules to satisfy.
+Query "Insect(x)" uses rules "Beetle(Jerry)" and "Beetle(x) ==> Insect(x)"
+
+7.3 +5: Includes another query that uses a different sequence of two rules to satisfy.
+Query "TwoLegs(x)" uses rules "Wings(Ben)" and "Wings(x) ==> TwoLegs(x)"
+
+7.4 +5: Includes at least one query that uses exactly three rules to satisfy.
+Query "Mammal(x)" uses rules "WarmBlooded(Ben)" and "Vertebrate(Ben)" and "(WarmBlooded(x) & Vertebrate(x)) ==> Mammal(x)"
+
+7.5 +5: Includes another query that uses a different sequence of three rules to satisfy.
+Query "Animal(x)" uses rules "Beetle(Jerry)" and "Beetle(x) ==> Insect(x)" and "Insect(x) ==> Animal(x)"
+
+7.6 +5: Includes at least one query that uses exactly four rules to satisfy.
+Query "Prey(x)" uses rules "Beetle(Jerry)" and "Beetle(x) ==> Insect(x)" and "Eats(Ben, Jerry)"
+    and "(Insect(x) & Eats(y,x)) ==> Prey(x)"
+
+7.9 +10: Push a 60-point solution by Tuesday, Oct. 23 before 6:00 am
+
+Total: +40 = 100 points.
