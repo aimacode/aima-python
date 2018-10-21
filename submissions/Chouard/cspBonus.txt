@@ -1,0 +1,7 @@
+60 - map runs without exceptions and generates valid output.
++10 - The map cannot be colored in less than 4 colors. This is evident in the image of the map.
++10 - The map requires fewer assignments when select_unassigned_variable=csp.mrv. Requires 36 assignments rather than 79.
++10 - The map requires fewer assignments when order_domain_values=csp.lcv. Requires 36 assignments rather than 79.
++10 - The map requires fewer assignments when inference=csp.mac or csp.forward_checking. Requires 36 assignments rather than 79.
+
+Total: 100

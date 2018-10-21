@@ -1,0 +1,17 @@
+Homework 10 bonuses:
+
+7.2 - The map cannot be colored in fewer than four colors (see The Bajio (B), Central Mexico (C), The Gulf (G),
+        and The South Pacific Coast (SP)).
+
+7.3 - The map requires fewer assignments when select_unassigned_variable=csp.mrv - 14 when using the default
+        algorithm, 7 when using mrv.
+
+7.4 - The map requires fewer assignments when order_domain_values=csp.lcv - 14 when using the default
+        algorithm, 7 when using lcv.
+
+7.5 - The map requires fewer assignments when inference=csp.mac or csp.forward_checking - 14 when using the default
+        algorithm, 7 when using mac or forward_checking.
+
+7.6 - Push a 60-point solution by Tuesday, Oct. 9 before 6:00 am - Had an 80 point solution pushed by Sunday, Oct. 7.
+
+Total bonuses: 5, +50 points = 110.
