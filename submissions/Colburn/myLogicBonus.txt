@@ -3,7 +3,10 @@
 3. Query uses two rules 10
 4. Query uses three rules 5
 5. Query uses four rules 5
+6. Query provides 5-10 valid substitutions 5
+7. Query provides at least 20 substitutions 5
+8. Query uses three rules exactly 5
 
-Current Total: 90 
+Current Total: 105
 
 

@@ -38,30 +38,43 @@ Criminal(x)
 
 College={
     'Differ':''' 
-    Ben,Max,Corey,Mary,What,Hawley,Hooper,Who,AI,Physics,Bio,Belmont,Vandy
+    Ben,Max,Corey,Mary,Nico,Rico,John,Dan,Jamie,Liza,Justin,What,Hawley,Hooper,Who,AI,Physics,Bio,Chem,Calc,ML,Belmont,Vandy
     ''',
     'kb':'''
 Student(Ben,AI,Physics)
 Student(Max,AI,Bio)
 Student(Corey,ML,Bio)
 Student(Mary,Chem,Calc)
+Student(Nick,Chem,Calc)
+Student(Rico,Chem,Calc)
+Student(John,Chem,Calc)
+Student(Dan,Chem,Calc)
+Student(Jamie,Chem,Calc)
+Student(Liza,Chem,Calc)
+Student(Justin,Chem,Calc)
 Class(AI)
 Class(Physics)
 Class(Bio)
+Class(Chem)
+Class(Calc)
+Class(ML)
 Professor(Hooper,AI,Belmont)
 Professor(Hawley,Physics,Belmont)
 Professor(Who,Bio,Belmont)
-Professor(What,Calc,Vandy)    
-College(Belmont)
+Professor(What,Calc,Vandy) 
+Professor(Guy,Chem,Vandy)   
+College(Belmont)    
 College(Vandy)
 (Professor(x,c,a) & College(a)) ==> Employed(x,a)
 (Professor(x,c,a)) ==> Human(x)
-(Student(x,c,b)) ==> Human(x)
 (Professor(x,c,y) & Student(a,c,d)) ==> Teaches(x,a)
 (Professor(x,c,y) & Student(a,d,c)) ==> Teaches(x,a)
 (Teaches(a,b) & Teaches(c,b) & Differ(a,c)) ==> Friends(a,c)
 (Teaches(x,a) & Employed(x,y)) ==> Attends(a,y)
 (Attends(a,y) & Attends(b,y) & Differ(a,b)) ==> Peers(a,b)
+(Student(a,c,d) & Class(c)) ==> Inclasshour1(a,c)
+(Student(a,c,d) & Class(d)) ==> Inclasshour2(a,d)
+(Attends(a,y) & Attends(b,x)& Differ(a,b)& Differ(y,x)) ==> Rivals(a,b)
 ''',
     'queries':''' 
 Human(x)
@@ -70,8 +83,11 @@ Friends(l,m)
 Employed(x,b)
 Attends(x,y)
 Peers(a,b)
+Inclasshour1(a,c)
+Inclasshour2(a,d)
+Rivals(a,b)
 ''',
-    'limit': 15
+    'limit': 25
 }
 
 Examples = {
