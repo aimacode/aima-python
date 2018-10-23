@@ -1,0 +1,9 @@
+60: The CSP runs without exceptions*, and generates valid coloring.
+
++10: The map cannot be colored in less than 4 colors.
+
+If the next +30 are evaluate based on the comparison to the csp that just calls the map, then these are valid.
+
++10: The map requires fewer assignments when select_unassigned_variable=csp.mrv
++10: The map requires fewer assignments when order_domain_values=csp.lcv
++10: The map requires fewer assignments when inference=csp.mac or csp.forward_checking

@@ -1,21 +1,21 @@
 import csp
 
-rgb = ['R', 'G', 'B', 'P']
+rgbp = ['R', 'G', 'B', 'P']
 
-# The 22 wards of Tokyo
+# The 23 wards of Tokyo
 
-d2 = {'ADACHI' : rgb, 'KATSU' : rgb, 'EDOG' : rgb, 'KOTO' : rgb, 'CHUO': rgb, 'SUMI': rgb, 'TAITO':  rgb,    'ARAK':   rgb, 'KITA':   rgb, 'BUNK':   rgb, 'CHIY':   rgb, 'MINA':   rgb, 'SHIN':   rgb,
-    'SHINA':  rgb,
-    'OTA':    rgb,
-    'MEGU':   rgb,
-    'SETA':   rgb,
-    'SUGI':   rgb,
-    'NAKA':   rgb,
-    'NERI':   rgb,
-    'ITA':    rgb,
-    'TOSHI':  rgb,
-    'SHIB' :  rgb,
- }
+d2 = {'ADACHI' : rgbp, 'KATSU' : rgbp, 'EDOG' : rgbp, 'KOTO' : rgbp, 'CHUO': rgbp, 'SUMI': rgbp, 'TAITO':  rgbp, 'ARAK':   rgbp, 'KITA':   rgbp, 'BUNK':   rgbp, 'CHIY':   rgbp, 'MINA':   rgbp, 'SHIN':   rgbp,
+    'SHINA':  rgbp,
+    'OTA':    rgbp,
+    'MEGU':   rgbp,
+    'SETA':   rgbp,
+    'SUGI':   rgbp,
+    'NAKA':   rgbp,
+    'NERI':   rgbp,
+    'ITA':    rgbp,
+    'TOSHI':  rgbp,
+    'SHIB' :  rgbp,
+      }
 
 v2 = d2.keys()
 
@@ -62,6 +62,34 @@ myCSPs = [
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
         # 'inference': csp.forward_checking,
+    },
+{
+        'csp' : c2,
+        'select_unassigned_variable': csp.mrv,
+        # 'order_domain_values': csp.lcv,
+        # 'inference': csp.mac,
+        # 'inference': csp.forward_checking,
+    },
+{
+        'csp' : c2,
+        'select_unassigned_variable': csp.mrv,
+        # 'order_domain_values': csp.lcv,
+        # 'inference': csp.mac,
+        # 'inference': csp.forward_checking,
+    },
+{
+        'csp' : c2,
+        # 'select_unassigned_variable': csp.mrv,
+        'order_domain_values': csp.lcv,
+        # 'inference': csp.mac,
+        # 'inference': csp.forward_checking,
+    },
+{
+        'csp' : c2,
+        # 'select_unassigned_variable': csp.mrv,
+        #'order_domain_values': csp.lcv,
+        'inference': csp.mac,
+        #'inference': csp.forward_checking,
     },
 
 

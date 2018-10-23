@@ -25,7 +25,7 @@ def constraints(A, a, B, b):
     return True
 
 c2 = csp.CSP(v2, d2, n2, constraints)
-c2.label = 'Really Lame'
+c2.label = 'Mexico Culinary Map'
 
 myCSPs = [
     {
