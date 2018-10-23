@@ -1,0 +1,3 @@
+60: The inference engine runs without exceptions*, and uses at least one rule to answer a query.
+
++10: Push a 60-point solution by Tuesday, Oct. 23 before 6:00 am
