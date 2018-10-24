@@ -1,36 +1,27 @@
 import csp
 
-rgby = ['R', 'G', 'B', 'Y']
+rgb = ['R', 'G', 'B', 'P']
 
-domains = {
-    'GF': rgby,
-    'BW': rgby,
-    'BB': rgby,
-    'RB': rgby,
-    'MD': rgby,
-    'H': rgby,
-    'BF': rgby,
-    'T': rgby,
-    'GHC': rgby,
-    'M': rgby,
-    'TH': rgby
-}
+d2 = { 'BC' : rgb, 'Alberta' : rgb, 'Saska' : ['R'],
+           'Manitoba' : rgb, 'Ontario' : rgb, 'Quebec' : rgb,
+           'NewBrunswick' : rgb, 'NovaScotia' : rgb,
+           'Newfoundland' : rgb, 'Yukon' : rgb, 'NW' : rgb,
+           'Nunavut' : rgb }
 
-variables = domains.keys()
+v2 = d2.keys()
 
-neighbors = {
-    'TH': ['BW', 'BB', 'RB', 'H'],
-    'GF': ['BW', 'BB'],
-    'BW': ['GF', 'BB', 'RB', 'H', 'TH'],
-    'BB': ['GF', 'BW', 'H', 'BF', 'TH'],
-    'RB': ['BW', 'H', 'T', 'MD', 'TH'],
-    'MD': ['RB', 'T', 'GHC'],
-    'H': ['RB', 'BW', 'BB', 'BF', 'GHC', 'T', 'TH'],
-    'BF': ['BB', 'H', 'GHC', 'M'],
-    'T': ['MD', 'RB', 'H', 'GHC'],
-    'GHC': ['T', 'H', 'BF', 'M', 'MD'],
-    'M': ['GHC', 'BF'],
-}
+n2 = {'BC' : ['Yukon', 'NW', 'Alberta'],
+      'Alberta' : ['BC', 'Saska', 'NW'],
+      'Saska' : ['Alberta', 'NW', 'Nunavut', 'Manitoba'],
+      'Manitoba' : ['Saska', 'Nunavut', 'Ontario', 'NW'],
+      'Ontario' : ['Manitoba', 'Quebec'],
+      'Quebec' : ['Ontario', 'Newfoundland', 'NewBrunswick'],
+      'NewBrunswick' : ['Quebec', 'NovaScotia', 'Newfoundland'],
+      'NovaScotia' : ['NewBrunswick', 'Newfoundland'],
+      'Newfoundland' : ['Quebec', 'NovaScotia', 'NewBrunswick'],
+      'Yukon' : ['BC', 'NW'],
+      'NW' : ['Yukon', 'BC', 'Alberta', 'Nunavut', 'Saska', 'Manitoba'],
+      'Nunavut' : ['NW', 'Manitoba', 'Saska']}
 
 def constraints(A, a, B, b):
     if A == B:      # e.g. NSW == NSW
@@ -41,48 +32,47 @@ def constraints(A, a, B, b):
 
     return True
 
-
-shireCSP = csp.CSP(variables, domains, neighbors, constraints)
-shireCSP.label = 'Shire Map'
+c2 = csp.CSP(v2, d2, n2, constraints)
+c2.label = 'Canada Map'
 
 myCSPs = [
     {
-        'csp': shireCSP,
+        'csp' : c2,
         # 'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
         # 'inference': csp.forward_checking,
     },
     {
-        'csp': shireCSP,
+        'csp' : c2,
         'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
         # 'inference': csp.forward_checking,
     },
     {
-        'csp': shireCSP,
+        'csp' : c2,
         # 'select_unassigned_variable': csp.mrv,
         'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
         # 'inference': csp.forward_checking,
     },
     {
-        'csp': shireCSP,
+        'csp' : c2,
         # 'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         'inference': csp.mac,
         # 'inference': csp.forward_checking,
     },
     {
-        'csp': shireCSP,
+        'csp' : c2,
         # 'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
         'inference': csp.forward_checking,
     },
     {
-        'csp': shireCSP,
+        'csp' : c2,
         'select_unassigned_variable': csp.mrv,
         'order_domain_values': csp.lcv,
         'inference': csp.mac,

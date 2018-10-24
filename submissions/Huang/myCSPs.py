@@ -1,19 +1,35 @@
 import csp
 
-rgby = ['R', 'G', 'B', 'Y']
+rgb = ['R', 'G', 'B']
 
-d2 = { 'N' : rgby, 'NP' : rgby, 'B' : rgby, 'C' : rgby, 'SP' : rgby, 'G' : rgby, 'S' : rgby}
+d2 = { 'ZB' : rgb, 'HK' : rgb, 'JA' : ['R'], 'FX' : rgb, 'XH' : rgb, 'HP' : rgb, 'CN' : rgb,
+       'PT': rgb, 'YP' : rgb, 'SJ' : rgb, 'QP' : rgb, 'JD' : rgb, 'JS' : rgb, 'PD' : rgb, 'MH' : rgb,
+       'BS': rgb,}
 
 v2 = d2.keys()
 
-# This map cannot be colored using less than four colors.
-n2 = {'N' : ['NP', 'B', 'G'],
-      'NP' : ['B', 'N'],
-      'B' : ['NP', 'N', 'SP', 'C', 'G'],
-      'C' : ['B', 'G', 'SP'],
-      'SP' : ['B', 'C', 'G'],
-      'G' : ['N', 'B', 'C', 'SP', 'S'],
-      'S' : ['G']}
+n2 = {'A' : ['B', 'C', 'D'],
+       'B' : ['A', 'C', 'D'],
+       'C' : ['A', 'B'],
+       'D' : ['A', 'B'],}
+
+sh = {       'ZB': ['HK', 'HP', 'JA', 'BS', 'PT'],
+             'HK': ['YP', 'PD', 'ZB', 'BS'],
+             'JA': ['ZB', 'HP', 'PT', 'CN', 'XH'],
+             'FX': ['JS', 'SJ', 'PD', 'MH'],
+             'XH': ['HP', 'JA', 'CN', 'PD', 'MH'],
+             'HP': ['ZB', 'HK', 'PD', 'JA', 'XH'],
+             'CN': ['JA', 'PT', 'JD', 'MH', 'XH'],
+             'PT': ['ZB', 'JA', 'CN', 'BS', 'JD'],
+             'YP': ['HK', 'BS', 'PD'],
+             'SJ': ['MH', 'QP', 'JD', 'FX'],
+             'QP': ['JD', 'MH', 'SJ'],
+             'JD': ['BS', 'PT', 'CN', 'MH', 'QP'],
+             'JS': ['SJ', 'QP', 'FX'],
+             'PD': ['FX', 'MH', 'XH', 'HP', 'HK', 'YP'],
+             'MH': ['XH', 'CN', 'FX', 'JD', 'QP', 'SJ'],
+             'BS': ['YP', 'PT', 'JD', 'ZB', 'HK'],
+             }
 
 def constraints(A, a, B, b):
     if A == B:      # e.g. NSW == NSW
@@ -24,8 +40,8 @@ def constraints(A, a, B, b):
 
     return True
 
-c2 = csp.CSP(v2, d2, n2, constraints)
-c2.label = 'Mexico Culinary Map'
+c2 = csp.CSP(v2, d2, sh, constraints)
+c2.label = 'Really Lame'
 
 myCSPs = [
     {
