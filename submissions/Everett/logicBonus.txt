@@ -5,7 +5,7 @@
         It runs!!
 
 +10: Push a 60-point solution by Tuesday, Oct. 23 before 6:00 am
-        Did it!
+         Did it!
 
 +10: Includes at least one query that uses exactly two rules to satisfy.
         For the SmartPerson(x) query, it requires the Cal1(x) rule and the Cal2(x) rule.
