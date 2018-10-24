@@ -1,21 +1,47 @@
-family = {
+Belmont = {
     'kb': '''
-Daughter(Sandy)
-Daughter(Dale)
-Cousin(Jasmine)
-Daughter(Madison)
-Daughter(Megan)
-Daughter(Morgan)
-Mother(Mattie, Sandy)
-Mother(Mattie,Dale)
-Mother(Dale,Jasmine)
-Mother(Sandy,Madison)
-Mother(Sandy,Morgan)
-Mother(Sandy,Megan)
-(Mother(x,y) & Daughter(y)) ==> Sister(y)
-(Sister(y) & Daughter(y)) ==> Girl(y)
-(Mother(y,z)) ==> Girl(y)
-(Mother(y,z) & Sister(y) & Girl(y)) ==> Aunt(y)
+Algebra(Madison)
+Graphing(Madison)
+Integrals(Madison)
+Lists(Madison)
+Java(Madison)
+Recursion(Madison)
+History(Madison)
+
+Algebra(Jacob)
+Graphing(Jacob)
+Integrals(Jacob)
+Zplane(Jacob)
+
+Algebra(Hooper)
+Graphing(Hooper)
+Integrals(Hooper)
+Lists(Hooper)
+Java(Hooper)
+Recursion(Hooper)
+History(Hooper)
+Zplane(Hooper)
+
+Graphing(Levi)
+Graphing(Omar)
+
+
+(Algebra(x) & Graphing(x)) ==> Cal1(x)
+(Cal1(x) & Integrals(x)) ==> Cal2(x)
+(Cal2(x) &  Zplane(x)) ==> Cal3(x)
+(Lists(x) & Java(x)) ==> Pro1(x)
+(Pro1(x) & Recursion(x)) ==> Pro2(x)
+(Pro2(x) & History(x)) ==> Prola(x)
+(Cal1(x) & Cal2(x)) ==> SmartPerson(x)
+(Pro1(x) & Pro2(x))==> JavaExpert(x)
+(Prola(x) & Pro2(x) & Pro1(x)) ==> Compmajor(x)
+(Cal1(x) & Cal2(x) & Cal3(x)) ==> Mathmajor(x)
+(SmartPerson(x) & JavaExpert(x) & Cal3(x) & Prola(x)) ==> KingofSmartness(x)
+(Graphing(x)) ==> BUStudent(x)
+
+
+
+
 
 
 
@@ -23,25 +49,22 @@ Mother(Sandy,Megan)
 
 'queries':'''
 
-Sister(y)
-Girl(x)
-Daughter(x)
-Aunt(x)
+Mathmajor(x)
+SmartPerson(x)
+JavaExpert(x)
+Compmajor(x)
+KingofSmartness(x)
+BUStudent(x)
 
 ''',
      'Differ': '''
-"Sandy", "Dale"
+
 
    ''',
-
-
-
-'limit': 4,
-
-
+'limit': 5,
 }
 
 Examples = {
-    'Family': family,
+    'Belmont': Belmont,
 
 }
