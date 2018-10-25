@@ -1,0 +1,11 @@
+This CSP project is based off of the image shireMap.jpg, a much abstracted version of the map from
+Tolkien's 'The Lord of the Rings'. The names of the towns have been shortened down to their initials (full names
+can be found here: http://lotr.wikia.com/wiki/File:Map_-_Shire.jpg)
+
+shireCSP fulfills the following requirements:
+1.) the CSP runs without exceptions and generates valid coloring - +60
+2.) the map cannot be colored in less than 4 colors - +10
+3.) the map requires fewer assignments when select_unassigned_variable=csp.mrv - +10
+4.) the map requires fewer assignments when order_domain_values=csp.lcv - +10
+5.) the map requires fewer assignments when inference=csp.mac or csp.forward_checking - +10
+6.) I pushed a 60-point solution by Tuesday, Oct. 9 before 6:00 am - +10
