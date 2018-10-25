@@ -63,9 +63,11 @@ Industry(Car, Volkswagen)
 (Company(c, h)) ==> Make(c)
 (Company(c, h)) ==> Headquarters(c, h)
 (Car(a)) ==> Vehicle(v)   
+(Car(a)) ==> Cars(s) 
 (Bike(b)) ==> Vehicle(v) 
-(Company(c, h) & Industry(a, c)) ==> Product(c, a)
-(Company(c, h) & Industry(a, c)) ==> Export(h, a)
+(Bike(b)) ==> Bikes(m)
+(Company(c, h) & Industry(f, c)) ==> Product(c, f)
+(Company(c, h) & Industry(f, c)) ==> Export(h, f)
 
 
 ''',
@@ -76,11 +78,14 @@ ParentCompanies(x)
 Parent(p, c)
 Headquarters(c, h)
 Product(c, a)
-Export(n, a)
+
 
 ''',
-#(Company(c, h) & Industry(a, c) & Prod(c, a, h)) ==> Result(c)
-#Result(c)
+#((Company(c, h) & Industry(a, c) & Industry(f, c)) ==> Result(c)
+#Result(c)              attempt to find specifc company that exports a specific product in a specific country
+
+#(Export(n, a) & Bikes(m))    attempt to include more than just one
+
 }
 
 
