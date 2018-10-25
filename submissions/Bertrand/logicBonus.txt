@@ -1,0 +1,20 @@
+60: The inference engine runs without exceptions*, and uses at least one rule to answer a query.
+--> Bertrand compiles without error in logicSubmissions
+
++10: Includes at least one query that uses exactly two rules to satisfy.
+--> Hates(SirCapulet, Romeo) uses the Hates(x,y) implication and the Child(Romeo, LadyMontague) rule
+
++5: Includes another query that uses a different sequence of two rules to satisfy.
+--> Loves(Juliet, SirCapulet) uses Capulet(Juliet) and the parent - capulet implication to satisfy
+
++5: Includes at least one query that uses exactly three rules to satisfy.
+--> Hates(SirCapulet, Romeo) uses 3 rules
+
++5: Includes another query that uses a different sequence of three rules to satisfy.
+--> Loves(Juliet, LadyCapulet) uses Capulet(Juliet), the Parent implication, and the married implication to satisfy.
+
++5: Includes at least one query that uses exactly four rules to satisfy.
+--> Hates(LadyCapulet, Romeo) uses 4 rules
+
++5: Includes one query that returns 5-10 valid substitutions.
+--> Hates(x, y) returns 6 substitutions
