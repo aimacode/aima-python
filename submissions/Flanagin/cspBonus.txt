@@ -1,0 +1,12 @@
+Constraint Satisfaction HW: Due 10/11/18
+
+Score:
+
+ 60: CSP runs without exceptions and generates a valid coloring
++10: map requires 4 colors
++10: mrv requires fewer assignments
++10: lcv requires fewer assignments
++10: mac/forward checking requires fewer assignments
++10: pushed a 60 point solution by 10/9/18
+
+Total points: 110

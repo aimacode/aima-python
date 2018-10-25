@@ -1,0 +1,9 @@
+1. CSP runs without exceptions and generates valid coloring
+2. Needs 4 Colors
+3. map requires fewer assignments with mrv
+4. map requires fewer assignments with lcv
+5. map requires fewer assignments with forward_checking
+6. push 60 point solution by Tuesday
+
+
+
