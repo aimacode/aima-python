@@ -82,13 +82,3 @@ Examples = {
     'vehicles': vehicles,
 }
 
-
-
-
-
-
-
-# weights2d = np.array([
-#    [1, 0, 0],
-#    [0, 1, 0],
-#    [0, 0, 1],
