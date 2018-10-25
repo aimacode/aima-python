@@ -38,7 +38,7 @@ Criminal(x)
 
 animals = {
 'Differ': '''
-Ben,Jerry
+Ben,Jerry,Steve,Theo,Andrew
 ''',
     'kb': '''
 (TwoLegs(x) & Wings(x) & Mammal(x) & Eats(x,y) & Insect(y)) ==> Bat(x)
@@ -53,13 +53,26 @@ Vertebrate(Ben)
 (WarmBlooded(x) & Vertebrate(x)) ==> Mammal(x)
 Wings(Ben)
 
+Hawk(Steve)
+Parrot(Theo)
+Egg(Andrew)
+
+(Hawk(x)) ==> Bird(x)
+(Parrot(x)) ==> Bird(x)
+Parent(Steve, Andrew)
+
+(Parent(x, y) & Bird(x) & Egg(y)) ==> Nesting(x)
+(Nesting(x) & Parent(x, y)) ==> Protected(y)
+
+Parrot(x) ==> CanTalk(x)
+(CanTalk(x) & Bird(x)) ==> ZooAnimal(x)
+
 ''',
     'queries':'''
-Insect(x)
-TwoLegs(x)
-Mammal(x)
 Animal(x)
 Prey(x)
+Protected(x)
+ZooAnimal(x)
 Bat(x)
 ''',
     'limit': 5
