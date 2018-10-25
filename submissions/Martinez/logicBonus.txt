@@ -1,21 +1,22 @@
 +60 executes with no errors and uses one rule to answer a query
 +10 one query that uses two rules to answer a query 
-Despises(x,y), Despises(Falchion,y)
+Nocturnal(x)
 +5 one query that uses a different sequence of two rules to satisfy
-Siblings(f,s)
+Siblings(f,s) , Nimble(x)
 +5 Query that uses three rules to satisfy
-Rodents(x,y,z)
+Despises(x,y)
 +5 sequence that uses three rules in a didfferent sequence to satisfy
-Fears(x,y)
-Fears(Carrot, y)
-Apex(n)
+Despises(Falchion,y)
+
 +5 query that uses  four rules to satisfy
-Hunts(x,y,z,q), TerrorizesAtNight(x,y)
+Hunts(x,y,z,q), TerrorizesAtNight(x,y), Rodents(x,d,t)
 +5 query that returns 5-10 valid substitutions
 Fears(x,y)
 Fears(Carrot, y)
 Despises(x,y)
 +5 one query that returns more than 20 valid substitutions
 DoesntEat(x,y) it just repeats the same names 12 times...then iterates to the next 
+
+I might have miscounted some...
 
 

@@ -84,6 +84,7 @@ Plants(Grass)
 Plants(Carrot)
 Poisonous(Guppy)
 (Owl(x)) ==> Nocturnal(x)
+(Fox(x)) ==> Nimble(x)
 (Mammal(f)) & Poisonous(o) ==> Despises(f,o)
 (Bird(b)) & Poisonous(o) ==> Despises(b,o)
 (Mouse(x)) & Rabbit(d) & Hare(t) ==> Rodents(x,d,t)
@@ -105,7 +106,8 @@ Poisonous(Guppy)
     
     Despises(Falchion,y)
     Despises(x,y)
-
+    Fox(x)
+    Nimble(x)
     Apex(x)
     Eats(x,y)
     Siblings(f,s)
@@ -117,6 +119,7 @@ Poisonous(Guppy)
     Devours(x,y,z,r)
     DoesntEat(x,y)
     Carnivores(b,f)
+    Nocturnal(x)
     ''',
 'limit': 20,
 }
