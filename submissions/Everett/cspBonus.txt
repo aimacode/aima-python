@@ -1,0 +1,19 @@
+
+***Homework for Thursday, October 11th**
+
++60 The CSP runs without exceptions*, and generates valid coloring.
+
++10: The map cannot be colored in less than 4 colors.
+-This map needs Red,Blue,Purple,and Green to be colored properly.
+
++10: Push a 60-point solution by Tuesday, Oct. 9 before 6:00 am
+-I did it.
+
++10: The map requires fewer assignments when select_unassigned_variable=csp.mrv
+-The map only returns 24 recursive calls, and 23 assignments for this heuristic.
+
++10: The map requires fewer assignments when order_domain_values=csp.lcv
+-The map only returns 24 recursive calls, and 23 assignments for this heuristic.
+
++10: The map requires fewer assignments when inference=csp.mac or csp.forward_checking
+-The map only returns 24 recursive calls, and 23 assignments for this heuristic.
