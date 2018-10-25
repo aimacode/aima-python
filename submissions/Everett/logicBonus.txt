@@ -23,7 +23,6 @@
       For the KingofSmartness(x) query, it requires the JavaExpert(x), SmartPerson(x), Cal3(x), Prola(x) rules.
 
 +5: Includes one query that returns 5-10 valid substitutions.
-      For the BUStudent(x) query, it returns the Belmont students, which are five students.
+      For the BUStudent(x) query, it returns the Belmont people, which are five people.
 
-+5: Includes one query that returns more than 20 valid substitutions.
 

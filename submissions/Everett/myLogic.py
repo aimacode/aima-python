@@ -37,13 +37,7 @@ Graphing(Omar)
 (Prola(x) & Pro2(x) & Pro1(x)) ==> Compmajor(x)
 (Cal1(x) & Cal2(x) & Cal3(x)) ==> Mathmajor(x)
 (SmartPerson(x) & JavaExpert(x) & Cal3(x) & Prola(x)) ==> KingofSmartness(x)
-(Graphing(x)) ==> BUStudent(x)
-
-
-
-
-
-
+(Graphing(x)) ==> BUPerson(x)
 
 ''',
 
@@ -54,7 +48,7 @@ SmartPerson(x)
 JavaExpert(x)
 Compmajor(x)
 KingofSmartness(x)
-BUStudent(x)
+BUPerson(x)
 
 ''',
      'Differ': '''
