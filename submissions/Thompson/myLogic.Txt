@@ -1,2 +1,2 @@
-#60: The inference engine runs without exceptions*, and uses at least one rule to answer a query.
-#+10: Includes at least one query that uses exactly two rules to satisfy.
+60: The inference engine runs without exceptions*, and uses at least one rule to answer a query.
++10: Includes at least one query that uses exactly two rules to satisfy.
