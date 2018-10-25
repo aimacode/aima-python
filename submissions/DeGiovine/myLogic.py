@@ -51,28 +51,36 @@ Parent(GM, Chevy)
 Parent(Lamborghini, Ducati)
 Parent(Volkswagen, Lamborghini)
 
-Product(Car, Lexus)
-Product(Car, Chevy)
-Product(Bike, Ducati)
-Product(Car, Lamborghini)
-Product(Car, Volkswagen)
+Industry(Car, Lexus)
+Industry(Car, Chevy)
+Industry(Bike, Ducati)
+Industry(Car, Lamborghini)
+Industry(Car, Volkswagen)
 
 (Company(c, h) & Product(p,c)) ==> Sells(c, p)
 (Parent(p, c) & Company(c, h)) ==> ParentCompanies(p)
+(Company(c, h)) ==> CountriesOfOrigin(h)
+(Company(c, h)) ==> Make(c)
 (Company(c, h)) ==> Headquarters(c, h)
-(Company(c, h)) ==> Companies(c)
 (Car(a)) ==> Vehicle(v)   
 (Bike(b)) ==> Vehicle(v) 
+(Company(c, h) & Industry(a, c)) ==> Product(c, a)
+(Company(c, h) & Industry(a, c)) ==> Export(h, a)
+
 
 ''',
 
     'queries': '''
-Companies(x)
+Make(x)
 ParentCompanies(x)
 Parent(p, c)
-Sells(c, p)
 Headquarters(c, h)
+Product(c, a)
+Export(n, a)
+
 ''',
+#(Company(c, h) & Industry(a, c) & Prod(c, a, h)) ==> Result(c)
+#Result(c)
 }
 
 
