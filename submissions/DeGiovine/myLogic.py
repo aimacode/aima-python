@@ -1,38 +1,3 @@
-vehicles = {
-    'kb': '''
-Company(Lexus)
-Company(Chevy)
-Company(Ducati)
-Company(Lamborghini)
-Company(Volkswagen)
-
-Parent(Toyota, Lexus)
-Parent(GM, Chevy)
-Parent(Lamborghini, Ducati)
-Parent(Volkswagen, Lamborghini)
-
-Product(Car, Lexus)
-Product(Car, Chevy)
-Product(Bike, Ducati)
-Product(Car, Lamborghini)
-Product(Car, Volkswagen)
-
-(Company(c) & Product(p)) ==> Sells(p, c)
-(Parent(p,s) ==> ParentCompany(p,s)
-(Car(a)) ==> Vehicle(v)   
- 
-    ''',
-    'queries':'''
-Company(y)
-ParentCompany(x, y)
-''',
-}
-
-# weights2d = np.array([
-#    [1, 0, 0],
-#    [0, 1, 0],
-#    [0, 0, 1],
-
 
 farmer = {
     'kb': '''
@@ -72,8 +37,58 @@ Criminal(x)
 ''',
 }
 
+
+vehicles = {
+    'kb': '''
+Company(Lexus, Japan)
+Company(Chevy, America)
+Company(Ducati, Italy)
+Company(Lamborghini, Italy)
+Company(Volkswagen, Germany)
+
+Parent(Toyota, Lexus)
+Parent(GM, Chevy)
+Parent(Lamborghini, Ducati)
+Parent(Volkswagen, Lamborghini)
+
+Product(Car, Lexus)
+Product(Car, Chevy)
+Product(Bike, Ducati)
+Product(Car, Lamborghini)
+Product(Car, Volkswagen)
+
+(Company(c, h) & Product(p,c)) ==> Sells(c, p)
+(Parent(p, c) & Company(c, h)) ==> ParentCompanies(p)
+(Company(c, h)) ==> Headquarters(c, h)
+(Company(c, h)) ==> Companies(c)
+(Car(a)) ==> Vehicle(v)   
+(Bike(b)) ==> Vehicle(v) 
+
+''',
+
+    'queries': '''
+Companies(x)
+ParentCompanies(x)
+Parent(p, c)
+Sells(c, p)
+Headquarters(c, h)
+''',
+}
+
+
 Examples = {
     'farmer': farmer,
     'weapons': weapons,
     'vehicles': vehicles,
 }
+
+
+
+
+
+
+
+# weights2d = np.array([
+#    [1, 0, 0],
+#    [0, 1, 0],
+#    [0, 0, 1],
