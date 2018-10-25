@@ -1,0 +1,5 @@
+60: The inference engine runs without exceptions*, and uses at least one rule to answer a query.
++10: Includes at least one query that uses exactly two rules to satisfy. - Dying(x)
++5: Includes at least one query that uses exactly three rules to satisfy. - AllergicTo(x)
++5: Includes at least one query that uses exactly four rules to satisfy. Friends(x, y) requires four rules to satisfy.
++5: Includes one query that returns 5-10 valid substitutions. AllergicTo(x) returns over 5 different substitutions.
