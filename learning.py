@@ -839,11 +839,7 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
     excluding input and output layers
     """
     # Check for PerceptronLearner
-    if hidden_layer_sizes:
-        layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
-    else:
-        layers_sizes = [input_units] + [output_units]
-
+    layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
     net = [[NNUnit(activation) for n in range(size)]
            for size in layers_sizes]
     n_layers = len(net)
