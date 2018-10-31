@@ -444,7 +444,7 @@ def truncated_svd(X, num_val=2, max_iter=1000):
     eivals = []
 
     for _ in range(num_val):
-        X = [random.random() for _ in range(m+n)]
+        X = list(random.random(m+n))        
         X = remove_component(X)
         X = normalize_vec(X)
 
