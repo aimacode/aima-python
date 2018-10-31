@@ -1112,11 +1112,14 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
                     min_val = err_val[i]
                     best_size = i
                 i += 1
+        if(errV>err_val[-1])
+           return learner(size , dataset.examples) # if error in validation increases then return the learner
+        
         err_val.append(errV)
         err_train.append(errT)
         print(err_val)
         size += 1
-
+        
 
 
 def leave_one_out(learner, dataset, size=None):
