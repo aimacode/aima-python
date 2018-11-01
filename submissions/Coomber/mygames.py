@@ -249,8 +249,9 @@ class OthelloGame(Game):
             return newState
         # use the move to modify the newState
         player = state.acts
-        if(self.opponent(self, player)):
-            return OthelloState(player='X', label='result')
+        if(self.opponent(self, player))
+            
+        return OthelloState(player='X', label='result')
 
     def terminal_test(self, state):   # use this exact signature.
         # this will test if there any any moves left
