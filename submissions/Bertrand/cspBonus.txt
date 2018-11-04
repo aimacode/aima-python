@@ -1,0 +1,15 @@
+ALL BONUSES APPLIED FOR
+
+
+60: The CSP runs without exceptions*, and generates valid coloring.
+    --> Both the original and modified maps succeed in this.
++10: The map cannot be colored in less than 4 colors.
+    --> The modified map, instantiated as "modC2", cannot be colored in less than 4.
++10: The map requires fewer assignments when select_unassigned_variable=csp.mrv
+    --> The original reduces the number of recursive calls, and both reduce the number of assignments tested.
++10: The map requires fewer assignments when order_domain_values=csp.lcv
+    --> The original reduces the number of recursive calls, and both reduce the number of assignments tested.
++10: The map requires fewer assignments when inference=csp.mac or csp.forward_checking
+    --> The original reduces the number of recursive calls, and both reduce the number of assignments tested.
++10: Push a 60-point solution by Tuesday, Oct. 9 before 6:00 am
+    --> Did original submission Monday night
