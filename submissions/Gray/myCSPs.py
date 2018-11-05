@@ -1,47 +1,27 @@
 import csp
 
-rgb = ['R', 'G', 'B','O']#,'White','Gray','Y','Purple','Brown','seafoam','T','Kale']
+rgb = ['R', 'G', 'B', 'P']
 
-d2 = { 'A' : rgb, 'B' : rgb, 'C' : ['R'], 'D' : rgb,}
-
-domains = {
-    'SW': ['G'],
-    'SE': rgb,
-     'L': rgb,
-    'EE': rgb,
-     'W': rgb,
-    'WM': rgb,
-    'EM': rgb,
-    'NW': rgb,
-    'YH': rgb,
-    'NE': rgb,
-    'S': rgb,
-
-}
-
-variables = domains.keys()
-
-neighbors = {
-    'SW': ['SE','WM','W'],
-    'SE': ['SW','L','EE','EM','WM'],
-     'L': ['SE','EE'],
-    'EE': ['SE','EM','L'],
-     'W': ['SW','WM','NW'],
-    'WM': ['SW','SE','W','EM','NW'],
-    'EM': ['WM','NW','YH','SE','EE'],
-    'NW': ['W','WM','S','NE','YH','EM'],
-    'YH': ['NW','EM','NE'],
-    'NE': ['S','NW','YH'],
-    'S':  ['NE','NW'],
-}
-
+d2 = { 'BC' : rgb, 'Alberta' : rgb, 'Saska' : ['R'],
+           'Manitoba' : rgb, 'Ontario' : rgb, 'Quebec' : rgb,
+           'NewBrunswick' : rgb, 'NovaScotia' : rgb,
+           'Newfoundland' : rgb, 'Yukon' : rgb, 'NW' : rgb,
+           'Nunavut' : rgb }
 
 v2 = d2.keys()
 
-n2 = {'A' : ['B', 'C', 'D'],
-      'B' : ['A', 'C', 'D'],
-      'C' : ['A', 'B'],
-      'D' : ['A', 'B'],}
+n2 = {'BC' : ['Yukon', 'NW', 'Alberta'],
+      'Alberta' : ['BC', 'Saska', 'NW'],
+      'Saska' : ['Alberta', 'NW', 'Nunavut', 'Manitoba'],
+      'Manitoba' : ['Saska', 'Nunavut', 'Ontario', 'NW'],
+      'Ontario' : ['Manitoba', 'Quebec'],
+      'Quebec' : ['Ontario', 'Newfoundland', 'NewBrunswick'],
+      'NewBrunswick' : ['Quebec', 'NovaScotia', 'Newfoundland'],
+      'NovaScotia' : ['NewBrunswick', 'Newfoundland'],
+      'Newfoundland' : ['Quebec', 'NovaScotia', 'NewBrunswick'],
+      'Yukon' : ['BC', 'NW'],
+      'NW' : ['Yukon', 'BC', 'Alberta', 'Nunavut', 'Saska', 'Manitoba'],
+      'Nunavut' : ['NW', 'Manitoba', 'Saska']}
 
 def constraints(A, a, B, b):
     if A == B:      # e.g. NSW == NSW
@@ -53,54 +33,49 @@ def constraints(A, a, B, b):
     return True
 
 c2 = csp.CSP(v2, d2, n2, constraints)
-c2.label = 'Really Lame'
-
-UK=csp.CSP(variables,domains,neighbors,constraints)
-UK.label = "Map of the Uk"
+c2.label = 'Canada Map'
 
 myCSPs = [
     {
-        'csp': UK,
+        'csp' : c2,
         # 'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
         # 'inference': csp.forward_checking,
-    }
-    ,
+    },
     {
-        'csp' : UK,
+        'csp' : c2,
         'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
         # 'inference': csp.forward_checking,
     },
     {
-        'csp' : UK,
+        'csp' : c2,
         # 'select_unassigned_variable': csp.mrv,
         'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
         # 'inference': csp.forward_checking,
     },
     {
-        'csp' : UK,
+        'csp' : c2,
         # 'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         'inference': csp.mac,
         # 'inference': csp.forward_checking,
     },
     {
-        'csp' : UK,
+        'csp' : c2,
         # 'select_unassigned_variable': csp.mrv,
         # 'order_domain_values': csp.lcv,
         # 'inference': csp.mac,
         'inference': csp.forward_checking,
     },
     {
-        'csp' : UK,
-        #'select_unassigned_variable': csp.mrv,
-        #'order_domain_values': csp.lcv,
-        #'inference': csp.mac,
+        'csp' : c2,
+        'select_unassigned_variable': csp.mrv,
+        'order_domain_values': csp.lcv,
+        'inference': csp.mac,
         # 'inference': csp.forward_checking,
-    }
-
+    },
 ]
