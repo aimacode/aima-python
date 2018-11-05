@@ -193,9 +193,9 @@ for student in submissions:
     except:
         pass
 
-    print(student + ' scores ' + "\n"
-          + str(scores[student]) + ' = ' + str(sum(scores[student])))
-    print('----------------------------------------')
+    print(student, 'summary:', str(scores[student]), '\n' +
+          student, '  total:', str(sum(scores[student])), '\n' +
+          '----------------------------------------')
 
 # v = VacuumEnvironment(6, 3)
 # a = v2.HW2Agent()
