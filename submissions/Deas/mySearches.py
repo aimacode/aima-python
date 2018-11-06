@@ -104,7 +104,7 @@ def grid_initial(grid_dimensions):
                     grid[x, y] = 'T'
                 else:
                     grid[x, y] = '.'
-        print(grid)
+        # print(grid)
         return grid
 
 
@@ -136,7 +136,7 @@ def grid_solved(grid_dimensions):
                     grid[x, y] = 't'
                 else:
                     grid[x, y] = '.'
-        print(grid)
+        # print(grid)
         return grid
 
 

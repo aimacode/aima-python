@@ -117,12 +117,15 @@ class numberFormation(search.Problem):
         else:
             return 1
 
-number_puzzle = numberFormation([15])
-number_puzzle.label = 'Number Formation'
+#commented out by whh, 2018-10-29
+#number_puzzle = numberFormation([15])
+#number_puzzle.label = 'Number Formation'
 
 mySearches = [
  # lagos_puzzle,
  #   swiss_puzzle,
  #    romania_puzzle,
-    number_puzzle,
+
+ #commented out by whh, 2018-10-29
+ #   number_puzzle,
 ]
