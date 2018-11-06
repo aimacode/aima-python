@@ -93,18 +93,33 @@ class Singles(search.Problem):
     def actions(self, state):
         return [[0,0, 0], [0,1,1],[1,0,2], [1,1,3]]
 
-    def searchAction(self, x, y):
-        
-        return 0
+    # def state2String(self, myState):
+    #     answer = ''
+    #     for x in myState:
+    #         for y in x:
+    #             answer += y + ','
+    #         answer = answer[:-1]
+    #         answer += '|'
+    #     return answer[:-1]
+    # def string2State(self, myString):
+    #     state = myString.split('|')
+    #     count = 0
+    #     for x in state:
+    #         state[count] = x.split(',')
+    #         count += count
+    #     return state
+
+    # def searchAction(self, x, y):
+    #     return
 
     def result(self, state, action):
-        if action[0]-1 != -1 and state[searchAction(action[0]-1,action[1])][2] != 0:
+        if action[0]-1 != -1 and state[action[2]-1][2] != 0:
             return state
-        if action[0]+1 != self.width and state[searchAction(action[0]+1,action[1])][2] != 0:
+        if action[0]+1 != self.width and state[action[2]+1][2] != 0:
             return state
-        if action[1]-1 != -1 and state[searchAction(action[0],action[1]-1)][2] != 0:
+        if action[1]-1 != -1 and state[action[2]-self.width][2] != 0:
             return state
-        if action[1]+1 != self.height and state[searchAction(action[0],action[1]+1)][2] != 0:
+        if action[1]+1 != self.height and state[action[2]+self.width][2] != 0:
             return state
         state[action[2]][2] = 0
         return state
