@@ -1,0 +1,46 @@
+
+***Homework for Thursday, October 8th***
+
+I completed this project in GoogleCollab because I couldn't get Tensorflow so it should work in pycharm. I'm sorry in advance if it doesn't.
+
++75 The neural network(voting) runs with a 50% accuracy
+The first model is a dataset of the 1984 Congressional Voting Records. The data set was orignally a series of boolean(True and false)
+values but I converted it to 0s and 1s. This data set starts out low but it gradually get past 50% as the epochs increase
+
++5  Submit a project at C level by Monday night.
+ I did it!
+
+(10) a second model, based on different data and targets entirely.
+This second model is the chessboard model that is based on the the win and lose states of
+a chess game between a king-rook vs. king-pawn. The data set was orginally a series of boolean(True and false values) but I
+converted it to 0s and 1s. This dataset also reaches 50% accuracy. However, there is a weird glitch where the model.fit will run with the
+setweight() commented out and visa-versa.
+
+For instance, this will produce the epochs
+
+model1.fit(chessboard, chessboardtarget, epochs=9)
+# model1.set_weights(myWeights1)
+# predict3 = model1.predict(chessboardtarget)
+# np.set_printoptions(suppress=True)
+# np.set_printoptions(precision=9)
+# print('prediction =', predict3)
+
+And this below: will produce the prediction values
+
+#model1.fit(chessboard, chessboardtarget, epochs=9)
+ model1.set_weights(myWeights1)
+ predict3 = model1.predict(chessboardtarget)
+ np.set_printoptions(suppress=True)
+ np.set_printoptions(precision=9)
+ print('prediction =', predict3)
+
+But, if they are both uncommented like below, it will produce (ValueError: Shapes (33, 33) and (6, 7) are incompatible)
+
+ model1.fit(chessboard, chessboardtarget, epochs=9)
+ model1.set_weights(myWeights1)
+ predict3 = model1.predict(chessboardtarget)
+ np.set_printoptions(suppress=True)
+ np.set_printoptions(precision=9)
+ print('prediction =', predict3)
+
+I don't know why this actually happens but I've tried everything.
