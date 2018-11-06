@@ -44,12 +44,15 @@ fayette_map.locations = dict(
 #'''
 
 fayette_puzzle = search.GraphProblem('Perryopolis', 'Markleysburg', fayette_map)
-fayette_puzzle.label = 'Fayette County'
+fayette_puzzle.label = 'Fayette P2M'
 fayette_puzzle.description = '''
 An abbreviated map of Fayette County, PA.
 This map is unique, to the best of my knowledge.
 '''
 
+# added by whh
+fp2 = search.GraphProblem('Markleysburg', 'Connellsville', fayette_map)
+fp2.label = 'Fayette M2C'
 
 romania_map = search.UndirectedGraph(dict(
     A=dict(Z=75,S=140,T=118),
@@ -543,11 +546,13 @@ switch_puzzle = LightSwitch('off')
 switch_puzzle.label = 'Light Switch'
 
 mySearches = [
- #   swiss_puzzle,
-   # sumner_puzzle,
+    #   swiss_puzzle,
+    # sumner_puzzle,
     #romania_puzzle,
-  #  switch_puzzle,
-  #  fayette_puzzle,
+    #  switch_puzzle,
+
+    fayette_puzzle,
+    fp2,
     rush1_puzzle,
     #rush_puzzle
 ]
