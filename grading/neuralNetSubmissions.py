@@ -1,10 +1,6 @@
 import importlib
 import traceback
 from grading.util import roster, print_table
-# from logic import FolKB
-# from utils import expr
-import os
-from sklearn.neural_network import MLPClassifier
 
 def indent(howMuch = 1):
     space = ' '
@@ -12,16 +8,28 @@ def indent(howMuch = 1):
         space += '  '
     return space
 
-def tryOne(label, fAndP):
-    frame = fAndP['frame']
-    if 'mlpc' in fAndP.keys():
-        clf = fAndP['mlpc']
-    else:
-        clf = MLPClassifier()
+def tryOne(label, example):
     try:
-        fit = clf.fit(frame.data, frame.target)
+        data, target, model, weights = example
     except:
-        traceback.print_exc()
+        print('Error:', example, 'should have 4 elements.')
+        return null
+    try:
+        model.fit(data, target, epochs=1)
+    except:
+        print('Error: model.fit(data, target, epochs=1) fails.')
+        return null
+    try:
+        model.set_weights(weights)
+    except:
+        print('Error: model.set_weights(weights) fails.')
+        return null
+    try:
+        raw = model.predict(data)
+    except:
+        print('Error: model.predict(data) fails.')
+        return null
+    prediction = raw.round()
     print(label + ':')
     # print_table(fit.theta_,
     #             header=[frame.feature_names],
@@ -31,9 +39,8 @@ def tryOne(label, fAndP):
     #             njust='center',
     #             tjust='rjust',
     #             )
-    y_pred = fit.predict(frame.data)
-    tot = len(frame.data)
-    mis = (frame.target != y_pred).sum()
+    tot = prediction.size
+    mis = (target != prediction).sum()
     cor = 1 - mis / tot
     print(
         "  Number of mislabeled points out of a total {0} points : {1} ({2:.0%} correct)"
@@ -54,10 +61,10 @@ scores = {}
 
 message1 = 'Submissions that compile:'
 
-root = os.getcwd()
+# root = os.getcwd()
 for student in roster:
     try:
-        os.chdir(root + '/submissions/' + student)
+        # os.chdir(root + '/submissions/' + student)
         # http://stackoverflow.com/a/17136796/2619926
         mod = importlib.import_module('submissions.' + student + '.myNN')
         submissions[student] = mod.Examples
@@ -67,7 +74,7 @@ for student in roster:
     except:
         traceback.print_exc()
 
-os.chdir(root)
+# os.chdir(root)
 
 print(message1)
 print('----------------------------------------')
