@@ -2,18 +2,30 @@ import csp
 
 rgby = ['R', 'G', 'B', 'Y']
 
-d2 = { 'N' : rgby, 'NP' : rgby, 'B' : rgby, 'C' : rgby, 'SP' : rgby, 'G' : rgby, 'S' : rgby}
+d2 = {'U': rgby,
+      'P': rgby,
+      'V': rgby,
+      'A': rgby,
+      'K': rgby,
+      'S': rgby,
+      'T': rgby,
+      'M': rgby,
+      'TG': rgby,
+      'KL': rgby}
 
 v2 = d2.keys()
 
-# This map cannot be colored using less than four colors.
-n2 = {'N' : ['NP', 'B', 'G'],
-      'NP' : ['B', 'N'],
-      'B' : ['NP', 'N', 'SP', 'C', 'G'],
-      'C' : ['B', 'G', 'SP'],
-      'SP' : ['B', 'C', 'G'],
-      'G' : ['N', 'B', 'C', 'SP', 'S'],
-      'S' : ['G']}
+Lithuania = {'U': ['V', 'P'],
+             'P': ['U', 'V', 'K', 'S'],
+             'V': ['U', 'P', 'K', 'A'],
+             'A': ['V', 'K', 'M'],
+             'K': ['A', 'M', 'TG', 'S', 'P', 'V'],
+             'S': ['P', 'K', 'TG', 'T'],
+             'T': ['S', 'TG', 'KL'],
+             'M': ['A', 'K', 'TG'],
+             'TG': ['M', 'K', 'S', 'T', 'KL'],
+             'KL': ['TG', 'T']}
+
 
 def constraints(A, a, B, b):
     if A == B:      # e.g. NSW == NSW
@@ -24,8 +36,8 @@ def constraints(A, a, B, b):
 
     return True
 
-c2 = csp.CSP(v2, d2, n2, constraints)
-c2.label = 'Mexico Culinary Map'
+c2 = csp.CSP(v2, d2, Lithuania, constraints)
+c2.label = 'Lithuania Map'
 
 myCSPs = [
     {

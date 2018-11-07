@@ -1,19 +1,22 @@
 import csp
 
-rgby = ['R', 'G', 'B', 'Y']
+rgb = ['R', 'G', 'B','O']
 
-d2 = { 'N' : rgby, 'NP' : rgby, 'B' : rgby, 'C' : rgby, 'SP' : rgby, 'G' : rgby, 'S' : rgby}
+d2 = { 'Racine' : ['R'], 'Kenosha' : rgb, 'Walworth' : rgb, 'Waukesha' : rgb,'Washington' : rgb, 'Ozaukee': rgb,
+       'Rock': rgb, 'Jefferson': rgb, 'Dodge':rgb ,'Milwaukee' : rgb}
 
 v2 = d2.keys()
 
-# This map cannot be colored using less than four colors.
-n2 = {'N' : ['NP', 'B', 'G'],
-      'NP' : ['B', 'N'],
-      'B' : ['NP', 'N', 'SP', 'C', 'G'],
-      'C' : ['B', 'G', 'SP'],
-      'SP' : ['B', 'C', 'G'],
-      'G' : ['N', 'B', 'C', 'SP', 'S'],
-      'S' : ['G']}
+wisconsin2d = {'Milwaukee': ['Racine', 'Waukesha', 'Ozaukee'],
+      'Racine' : ['Milwaukee', 'Waukesha', 'Kenosha','Walworth'],
+      'Kenosha' : ['Racine', 'Walworth'],
+      'Walworth' : ['Kenosha', 'Racine','Waukesha','Jefferson','Rock'],
+      'Waukesha':['Walworth','Jefferson','Dodge','Washington','Milwaukee','Racine'],
+      'Washington':['Waukesha','Dodge','Ozaukee'],
+      'Ozaukee': ['Washington','Milwaukee'],
+      'Rock':['Walworth','Jefferson'],
+      'Jefferson':['Rock','Walworth','Waukesha','Dodge',],
+      'Dodge':['Washington','Waukesha','Jefferson'],}
 
 def constraints(A, a, B, b):
     if A == B:      # e.g. NSW == NSW
@@ -24,8 +27,8 @@ def constraints(A, a, B, b):
 
     return True
 
-c2 = csp.CSP(v2, d2, n2, constraints)
-c2.label = 'Mexico Culinary Map'
+c2 = csp.CSP(v2, d2, wisconsin2d, constraints)
+c2.label = 'Really Lame'
 
 myCSPs = [
     {
