@@ -379,6 +379,7 @@ model.add(keras.layers.Dropout(.5))
 #model.add(keras.layers.Dense(1000,activation='tanh'))
 model.add(keras.layers.Dense(10))
 model.add(Activation('softmax'))
+model.summary()
 '''
 Basic starting Model
 MODEL 4
@@ -413,9 +414,9 @@ model.fit(x_train, y_train,
 '''
 #model.save('Convolutional image classifier_Model4Reg.h5')
 
-model.compile(loss=keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(lr=.001),metrics=['accuracy'])
+model.compile(loss=keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(lr=.001),metrics=['categorical_accuracy'])
 
-model.load_weights('Convolutional image classifier_Model4Reg.h5')
+#model.load_weights('Convolutional image classifier_Model4Reg.h5')
 
 
 
@@ -424,8 +425,8 @@ model.load_weights('Convolutional image classifier_Model4Reg.h5')
 
 '''Prints out loss and accuracy on a test batch'''
 
-K=keras.models.Model.test_on_batch(model,x=x_test,y=y_test)
-print('Validation Loss: '+str(K[0])+ '\n'+'Validation Accuracy: '+str(K[1]))
+#K=keras.models.Model.test_on_batch(model,x=x_test,y=y_test)
+#print('Validation Loss: '+str(K[0])+ '\n'+'Validation Accuracy: '+str(K[1]))
 
 
 
@@ -441,4 +442,5 @@ print('Validation Loss: '+str(K[0])+ '\n'+'Validation Accuracy: '+str(K[1]))
 
 Examples = {
     'count3' : [ bin7, count3, model, myWeights ],
+    'cifar10': [x_test,y_test,model,model.get_weights()]
 }
