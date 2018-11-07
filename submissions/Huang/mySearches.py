@@ -180,11 +180,11 @@ LRM_puzzle.label = 'Left Right Maze Puzzle'
 
 
 mySearches = [
- #   swiss_puzzle,
- #   sumner_puzzle,
- #   romania_puzzle,
- #   switch_puzzle,
- #   solarSystem_puzzle,
+    #   swiss_puzzle,
+    #   sumner_puzzle,
+    #   romania_puzzle,
+    #   switch_puzzle,
+    solarSystem_puzzle,
     LRM_puzzle,
 ]
 
@@ -206,7 +206,8 @@ mySearchMethods = [
     flounder
 ]
 
-mySearchMethods = [
-    LRM_puzzle,
-    switch_puzzle,
-]
+# commented out by whh 2018-10-30
+# mySearchMethods = [
+#     LRM_puzzle,
+#     switch_puzzle,
+# ]
