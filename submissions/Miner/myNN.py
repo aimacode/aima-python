@@ -32,7 +32,7 @@ z = x_train.shape[3]
 # 1st and 2nd try sgd, seems to work pretty well
 sgd = tf.keras.optimizers.SGD(lr=0.01, momentum=0.9, decay=0.01/epochs, nesterov=False)
 
-# 3rd try sgd, increasing learning rate
+# 3rd try sgd, decreasing learning rate
 # sgd = tf.keras.optimizers.SGD(lr=0.0001, momentum=0.9, decay=0.01/epochs, nesterov=False)
 
 model = tf.keras.models.Sequential()
