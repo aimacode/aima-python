@@ -23,8 +23,9 @@ I kinda solved it by running the code like this:
  np.set_printoptions(precision=9)
  print('prediction =', predict3)
 
-This issue seems to be associated with the weights that were produced, but I copied and pasted the exact weights that it output,
-so there shouldn't be a problem. So I have no idea where this has gone wrong. But I managed to run it and get the results I needed and that's okay...
+This issue seems to be associated with the weights that were produced, but I copied and pasted the exact weights that tensorflow produced,
+so there shouldn't be a problem. So I have no idea where this has gone wrong. But I managed to run it and get the results I needed using this method on
+Google Collab.
 
 +5 - Submit a project at C level by Monday night.
  I did it!
