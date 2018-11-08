@@ -12,20 +12,7 @@ pulled from a 3000 sample dataset recording the win and lose states of
 a chess game between a king-rook vs. king-pawn. This dataset is training the network to predict the
 chances of winning given certain inputs. The input is 36 by 100 and the output is 36 by 100.
 The data set was originally a series of categorical and  boolean(True and false values) but I
-converted it to 0s and 1s. This dataset reaches 50% accuracy. Also, I ran into a weird error with this dataset.
-When I try to fit and set the weights of the models, it gives an error that says "ValueError: Shapes (33, 33) and (6, 7) are incompatible."
-I kinda solved it by running the code like this:
-
- bettermodel1.fit(chessboard, chessboardtarget, epochs=10)
-# model1.set_weights(myWeights1)
- predict3 = bettermodel1.predict(chessboardtarget)
- np.set_printoptions(suppress=True)
- np.set_printoptions(precision=9)
- print('prediction =', predict3)
-
-This issue seems to be associated with the weights that were produced, but I copied and pasted the exact weights that tensorflow produced,
-so there shouldn't be a problem. So I have no idea where this has gone wrong. But I managed to run it and get the results I needed using this method on
-Google Collab.
+converted it to 0s and 1s. This dataset reaches 50% accuracy.
 
 +5 - Submit a project at C level by Monday night.
  I did it!
@@ -52,7 +39,20 @@ The chessboard model has a 3-layer submission called bettermodel1 that reduces e
 Example: model1 had a binary accuracy of 83%, which means that it had an error rate of 17%. 17% * 80% is 13.6%, which means that the better layer must
 have at least a 86% accuracy. The new 3-layer submission, bettermodel1 has a 88% accuracy therefore, it has reduced errors by 20%.
 
+Also, I ran into a weird error with this model.
+When I try to fit and set the weights of the models, it gives an error that says "ValueError: Shapes (33, 33) and (6, 7) are incompatible."
+I kinda solved it by running the code like this:
 
+ bettermodel1.fit(chessboard, chessboardtarget, epochs=10)
+ model1.set_weights(myWeights1)
+ predict3 = bettermodel1.predict(chessboardtarget)
+ np.set_printoptions(suppress=True)
+ np.set_printoptions(precision=9)
+ print('prediction =', predict3)
+
+This issue seems to be associated with the weights that were produced, but I copied and pasted the exact weights that tensorflow produced,
+so there shouldn't be a problem and I even tried reshaping the model but to no avail. So this may cause an error in your grading algorithm and I have
+no idea why. But I managed to run it and get results through using the method above in Google Collab so I tried.
 
 
 
