@@ -1,10 +1,10 @@
 import numpy as np
 from numpy import array
-# a complete input set on 17 bits
-# useful for training various sorts of data
+'''
+Congressional Voting Records Data Set - 1984
+Credit to: http://archive.ics.uci.edu/ml/datasets/Congressional+Voting+Records
+'''
 
-#Congressional Voting Records Data Set - 1984
-# Credit to: http://archive.ics.uci.edu/ml/datasets/Congressional+Voting+Records
 
 votingrecords = array([
     [0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1],
@@ -110,12 +110,6 @@ votingrecords = array([
 
 ], dtype='float32')
 
-'''
-Train the network to count to 3
-column 0: less than 3
-column 1: exactly 3
-column 2: more than 3
-'''
 votingtarget = array([
     [1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1],
     [1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1],
@@ -219,9 +213,12 @@ votingtarget = array([
     [1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
 
 ], dtype='float32')
+'''
+Chess (King-Rook vs. King-Pawn) Data Set
+Credit to: http://archive.ics.uci.edu/ml/datasets/Chess+%28King-Rook+vs.+King-Pawn%29
 
-# Chess (King-Rook vs. King-Pawn) Data Set
-# Credit to: http://archive.ics.uci.edu/ml/datasets/Chess+%28King-Rook+vs.+King-Pawn%29
+'''
+
 chessboard = array([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
@@ -437,16 +434,13 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation
 
 model = Sequential()
+
 model.add(Dense(8,
                 activation=keras.activations.sigmoid,
                 ))
 model.add(Dense(17,
                 activation=keras.activations.sigmoid,
                 ))
-model.add(Dense(17,
-                activation=keras.activations.sigmoid,
-                ))
-
 model.compile(
     optimizer=tf.train.AdamOptimizer(0.001),
     loss=keras.losses.categorical_crossentropy,
@@ -461,7 +455,7 @@ model.compile(
 # np.set_printoptions(precision=2)
 # print('myWeights =', myWeights)
 
-# These are the weights I got, pretty-printed
+# These are the weights I got, pretty-printed - for the voting records
 myWeights = [array([[0.28, -0.6, -0.37, 0.24, 0.2, 0.39, -0.45, 0.16],
                     [-0.72, -0.08, 0.22, -1.07, 0.07, 0.38, 0.38, -0.04],
                     [1.46, -0.99, 1.11, -1.23, 0.56, -0.23, 1.35, -1.23],
@@ -539,16 +533,31 @@ myWeights = [array([[0.28, -0.6, -0.37, 0.24, 0.2, 0.39, -0.45, 0.16],
                                            dtype='float32')]
 
 # test the model and your weights
-# model.fit(votingrecords, votingtarget, epochs=7)
+# model.fit(votingrecords, votingtarget, epochs=10)
 # model.set_weights(myWeights)
 # predict3 = model.predict(votingrecords)
 # np.set_printoptions(suppress=True)
-# np.set_printoptions(precision=9)
+# np.set_printoptions(precision=7)
 # print('prediction =', predict3)
 
 
-# Chessboard
+# Chessboard model with 2 layers
+firstmodel1 = Sequential()
+firstmodel1.add(Dense(10,
+                      activation=keras.activations.sigmoid,
+                      ))
+firstmodel1.add(Dense(33,
+                      activation=keras.activations.sigmoid,
+                      ))
 
+firstmodel1.compile(
+    optimizer=tf.train.AdamOptimizer(0.001),
+    loss=keras.losses.categorical_crossentropy,
+    # loss=keras.losses.mse,
+    metrics=[keras.metrics.binary_accuracy]
+)
+
+# Chessboard model with 2 layers - better
 model1 = Sequential()
 model1.add(Dense(10,
                  activation=keras.activations.sigmoid,
@@ -556,12 +565,28 @@ model1.add(Dense(10,
 model1.add(Dense(33,
                  activation=keras.activations.sigmoid,
                  ))
-model1.add(Dense(33,
-                 activation=keras.activations.sigmoid,
-                 ))
 
 model1.compile(
-    optimizer=tf.train.AdamOptimizer(0.001),
+    optimizer=tf.train.AdamOptimizer(0.005),
+    loss=keras.losses.categorical_crossentropy,
+    # loss=keras.losses.mse,
+    metrics=[keras.metrics.binary_accuracy]
+)
+
+# Chessboard model with 3 layers -even better
+bettermodel1 = Sequential()
+bettermodel1.add(Dense(10,
+                       activation=keras.activations.sigmoid,
+                       ))
+bettermodel1.add(Dense(33,
+                       activation=keras.activations.sigmoid,
+                       ))
+bettermodel1.add(Dense(33,
+                       activation=keras.activations.sigmoid,
+                       ))
+
+bettermodel1.compile(
+    optimizer=tf.train.AdamOptimizer(0.011),
     loss=keras.losses.categorical_crossentropy,
     # loss=keras.losses.mse,
     metrics=[keras.metrics.binary_accuracy]
@@ -699,15 +724,34 @@ myWeights1 = [array([[-2.13, 3.72, 4., 1.92, 1.48, -3.1, -4.35, -2.26, -4.21,
                      -0.42, -0.23, -0.42, -0.09, -0.15, 0.12], dtype='float32')]
 
 # test the model and your weights
-model1.fit(chessboard, chessboardtarget, epochs=9)
+
+# firstmodel1.fit(chessboard, chessboardtarget, epochs=10)
+# model1.set_weights(myWeights1)
+# predict3 = firstmodel1.predict(chessboardtarget)
+# np.set_printoptions(suppress=True)
+# np.set_printoptions(precision=9)
+# print('prediction =', predict3)
+
+
+# model1.fit(chessboard, chessboardtarget, epochs=10)
 # model1.set_weights(myWeights1)
 # predict3 = model1.predict(chessboardtarget)
 # np.set_printoptions(suppress=True)
 # np.set_printoptions(precision=9)
 # print('prediction =', predict3)
 
+# bettermodel1.fit(chessboard, chessboardtarget, epochs=10)
+# model1.set_weights(myWeights1)
+# predict3 = bettermodel1.predict(chessboardtarget)
+# np.set_printoptions(suppress=True)
+# np.set_printoptions(precision=9)
+# print('prediction =', predict3)
+
+
 Examples = {
-    'Votingrecords': [votingrecords, votingtarget, model, myWeights],
-    'Chessboard': [chessboard, chessboardtarget, model1, myWeights1],
+    '2 layer Votingrecords': [votingrecords, votingtarget, model, myWeights],
+    '2 layer Chessboard': [chessboard, chessboardtarget, firstmodel1, myWeights1],
+    'Better 2 layer Chessboard': [chessboard, chessboardtarget, model1, myWeights1],
+    '3 layer Chessboard': [chessboard, chessboardtarget, bettermodel1, myWeights1],
 
 }

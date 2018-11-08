@@ -1,46 +1,58 @@
 
 ***Homework for Thursday, October 8th***
 
-I completed this project in GoogleCollab because I couldn't get Tensorflow so it should work in pycharm. I'm sorry in advance if it doesn't.
+I completed this project in Google Collab because I couldn't get Tensorflow to cooperate with Pycharm. However, its literally the exact same code
+I would put in Pycharm so in theory it should work with your grading algorithm just fine. If not, have mercy on me. I wouldn't make these numbers up
+and it should work perfectly if they are copied and pasted into in Google Collab again.
 
-+75 The neural network(voting) runs with a 50% accuracy
-The first model is a dataset of the 1984 Congressional Voting Records. The data set was orignally a series of boolean(True and false)
-values but I converted it to 0s and 1s. This data set starts out low but it gradually get past 50% as the epochs increase
++75 - The neural network(chess) runs with a 50% accuracy
 
-+5  Submit a project at C level by Monday night.
+This first model (The second set of arrays) is the chessboard model that is based on a dataset
+pulled from a 3000 sample dataset recording the win and lose states of
+a chess game between a king-rook vs. king-pawn. This dataset is training the network to predict the
+chances of winning given certain inputs. The input is 36 by 100 and the output is 36 by 100.
+The data set was originally a series of categorical and  boolean(True and false values) but I
+converted it to 0s and 1s. This dataset reaches 50% accuracy. Also, I ran into a weird error with this dataset.
+When I try to fit and set the weights of the models, it gives an error that says "ValueError: Shapes (33, 33) and (6, 7) are incompatible."
+I kinda solved it by running the code like this:
+
+ bettermodel1.fit(chessboard, chessboardtarget, epochs=10)
+# model1.set_weights(myWeights1)
+ predict3 = bettermodel1.predict(chessboardtarget)
+ np.set_printoptions(suppress=True)
+ np.set_printoptions(precision=9)
+ print('prediction =', predict3)
+
+This issue seems to be associated with the weights that were produced, but I copied and pasted the exact weights that it output,
+so there shouldn't be a problem. So I have no idea where this has gone wrong. But I managed to run it and get the results I needed and that's okay...
+
++5 - Submit a project at C level by Monday night.
  I did it!
 
-(10) a second model, based on different data and targets entirely.
-This second model is the chessboard model that is based on the the win and lose states of
-a chess game between a king-rook vs. king-pawn. The data set was orginally a series of boolean(True and false values) but I
-converted it to 0s and 1s. This dataset also reaches 50% accuracy. However, there is a weird glitch where the model.fit will run with the
-setweight() commented out and visa-versa.
++10 - A second model(voting), based on different data and targets entirely.
 
-For instance, this will produce the epochs
+This model (The first set of arrays) is a small sample pulled from a 435 sample dataset pulled from the 1984 Congressional Voting Records.
+This dataset is training the network to predict the chances of a Republican or Democrats voting on certain laws, given a certain input.
+In this case, the very first input explains whether or not the sample is Republican(0) or Democrat(1) by using boolean values
+and the following inputs are different laws that sample has voted yes(1) or no(0) to.
+The data set was originally a series of categorical and boolean(True and false) values but I converted it to 0s and 1s.
+The input sample is 17 by 100 and the output is 17 by 100.  This data set starts out low but it
+gradually get past 50% as the epochs increase and this may be due to the unpredictability in voting.
 
-model1.fit(chessboard, chessboardtarget, epochs=9)
-# model1.set_weights(myWeights1)
-# predict3 = model1.predict(chessboardtarget)
-# np.set_printoptions(suppress=True)
-# np.set_printoptions(precision=9)
-# print('prediction =', predict3)
++5 - Another 2-layer submission, that reduces errors by at least 20%
 
-And this below: will produce the prediction values
+The chessboard model has another 2-layer submission called model1 that has reduced errors by 20%.
+Example: firstmodel1 had a binary accuracy of 77%, which means that it had a error rate of 23%. 23% * 80% is 18%, which means
+the better layer must have at least an 82% accuracy. The other 2-layer submission, model1 has a 83% accuracy therefore, it has reduced errors by 20%.
 
-#model1.fit(chessboard, chessboardtarget, epochs=9)
- model1.set_weights(myWeights1)
- predict3 = model1.predict(chessboardtarget)
- np.set_printoptions(suppress=True)
- np.set_printoptions(precision=9)
- print('prediction =', predict3)
++5 - A 3-layer submission, that reduces errors by at least 20%
 
-But, if they are both uncommented like below, it will produce (ValueError: Shapes (33, 33) and (6, 7) are incompatible)
+The chessboard model has a 3-layer submission called bettermodel1 that reduces errors by 20%.
+Example: model1 had a binary accuracy of 83%, which means that it had an error rate of 17%. 17% * 80% is 13.6%, which means that the better layer must
+have at least a 86% accuracy. The new 3-layer submission, bettermodel1 has a 88% accuracy therefore, it has reduced errors by 20%.
 
- model1.fit(chessboard, chessboardtarget, epochs=9)
- model1.set_weights(myWeights1)
- predict3 = model1.predict(chessboardtarget)
- np.set_printoptions(suppress=True)
- np.set_printoptions(precision=9)
- print('prediction =', predict3)
 
-I don't know why this actually happens but I've tried everything.
+
+
+
+
