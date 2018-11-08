@@ -52,7 +52,7 @@ model.add(tf.keras.layers.Flatten())
 model.add(tf.keras.layers.Dropout(0.5))
 model.add(tf.keras.layers.Dense(10, activation='softmax'))
 
-# 3rd try, removing Conv2d layer and dropouts....still 98%???
+# 3rd try, removing some layers....still 98%???
 # model.add(tf.keras.layers.Conv2D(32, (3, 3), input_shape=(x, y, z), padding='same', activation='relu'))
 # model.add(tf.keras.layers.Dense(10, activation='softmax', input_shape=(x, y, z)))
 # model.add(tf.keras.layers.Flatten())
