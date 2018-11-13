@@ -1,0 +1,8 @@
+(5) 1000+ samples
+    • 10,000 Samples
+(5) 64+ input variables
+    • 32 * 32 * 3 Input Variables
+(10) a second model, based on different data and targets entirely.  Notice that you can earn the bonuses 5-7 on either or both submissions.
+    • includes binary categorical NN based on IMDB data
+
+Total = 75 + 5 + 5 + 10 = 95

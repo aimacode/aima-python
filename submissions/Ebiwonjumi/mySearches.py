@@ -65,24 +65,24 @@ from math import(cos, pi)
 # swiss_puzzle = search.GraphProblem('A', 'Z', sumner_map)
 # switch_puzzle = LightSwitch('off')
 # switch_puzzle.label = 'Light Switch'
-# lagos_map = search.UndirectedGraph(dict(
-#     Lagos=dict(Lekki=41, Ikeja=25, Ikorodu=45, Ikotun=63),
-#     Lekki=dict(Lagos=41, Epe=58),
-#     Ikeja=dict(Lagos=25, Ikotun=30, Ijoko=56),
-#     Ikorodu=dict(Lagos=45, IjebuOde=74, Ijoko=85),
-#     Epe=dict(Lekki=41, IjebuOde=58),
-#     Ikotun=dict(Ikeja=30, Lagos=63),
-#     Ijoko=dict(Ikeja=56, Ikorodu=85),
-#     IjebuOde=dict(Ikorodu=74, Epe=58),
-#
-# ))
-#
-# lagos_puzzle = search.GraphProblem('Epe', 'Ikotun', lagos_map)
-#
-# lagos_puzzle.label = 'Lagos'
-# lagos_puzzle.description = '''
-# This is a very simple map of Lagos Nigeria
-# '''
+lagos_map = search.UndirectedGraph(dict(
+    Lagos=dict(Lekki=41, Ikeja=25, Ikorodu=45, Ikotun=63),
+    Lekki=dict(Lagos=41, Epe=58),
+    Ikeja=dict(Lagos=25, Ikotun=30, Ijoko=56),
+    Ikorodu=dict(Lagos=45, IjebuOde=74, Ijoko=85),
+    Epe=dict(Lekki=41, IjebuOde=58),
+    Ikotun=dict(Ikeja=30, Lagos=63),
+    Ijoko=dict(Ikeja=56, Ikorodu=85),
+    IjebuOde=dict(Ikorodu=74, Epe=58),
+
+))
+
+lagos_puzzle = search.GraphProblem('Epe', 'Ikotun', lagos_map)
+
+lagos_puzzle.label = 'Lagos'
+lagos_puzzle.description = '''
+This is a very simple map of Lagos Nigeria
+'''
 
 
 # Number formation problem
@@ -122,7 +122,7 @@ class numberFormation(search.Problem):
 #number_puzzle.label = 'Number Formation'
 
 mySearches = [
- # lagos_puzzle,
+ lagos_puzzle,
  #   swiss_puzzle,
  #    romania_puzzle,
 
