@@ -2,7 +2,7 @@
 from utils import isnumber
 
 roster = [
-    #'aardvark',
+    'aardvark',
     'Bertrand',
     'Brock',
     'Carei',
