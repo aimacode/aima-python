@@ -30,7 +30,11 @@ examples = {
          },
         {'variable': 'Pollution',
          'evidence': {'LungCancer':T, 'Xray':T},
-
+        },
+         {'variable': 'Smoker',
+         'evidence': {'LungCancer':F, 'Dyspnoea':T, 'XRay':T},
         }
+
     ],
+
 }
