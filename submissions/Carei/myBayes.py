@@ -20,13 +20,16 @@ burglary.label = 'Lung Cancer Probability'
 examples = {
     burglary: [
         {'variable': 'Cancer',
-         'evidence': {'Dyspnoea':T},
+         'evidence': {'Dyspnoea':T,'Smoker':T},
          },
-        {'variable': 'Cancer',
-         'evidence': {'Xray':T, 'Dyspnoea':F},
+        {'variable': 'Smoker',
+         'evidence': {'Xray':T, 'Cancer':F},
          },
-        {'variable': 'Cancer',
-         'evidence': {'Smoker':T, 'XRay':T},
+        {'variable': 'Pollution',
+         'evidence': {'Dyspnoea':T, 'XRay':T},
+         },
+        {'variable': 'XRay',
+         'evidence': {'Dyspnoea':T, 'Smoker':T},
          },
     ],
 }
