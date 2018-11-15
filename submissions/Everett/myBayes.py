@@ -4,28 +4,33 @@ from probability import BayesNet
 T, F = True, False
 
 cancer = BayesNet([
-    ('Cancer', '', 0.001),
-    ('Hereditary', '', 0.002),
-    ('GeneMutations', 'Cancer Hereditary',
-     {(T, T): 0.95,
-      (T, F): 0.94,
-      (F, T): 0.29,
-      (F, F): 0.001}),
-    ('Smoking', 'GeneMutations', {T: 0.90, F: 0.05}),
-    ('Carcinogens', 'GeneMutations', {T: 0.70, F: 0.01})
+    ('Pollution', '', 0.10),
+    ('Smoker','', 0.90),
+    ('LungCancer', 'Pollution Smoker',
+     {(T, T): 0.987,
+      (T, F): 0.10,
+      (F, T): 0.87,
+      (F, F): 0.09}),
+    ('XRay', 'LungCancer', {T: 0.90, F: 0.10}),
+    ('Dyspnoea', 'LungCancer', {T: 0.70, F: 0.30}),
+    ('Death', 'LungCancer', {T: 0.87, F: 0.13}),
 ])
-cancer.label = 'Cancer Example'
+cancer.label = 'Lung Cancer Example'
 
 examples = {
     cancer: [
-        {'variable': 'Cancer',
-         'evidence': {'Smoking':T, 'Carcinogens':T},
+        {'variable': 'LungCancer',
+         'evidence': {'Death':T, 'Pollution':T},
          },
-        {'variable': 'Cancer',
-         'evidence': {'Smoking':F, 'Carcinogens':T},
+        {'variable': 'Death',
+         'evidence': {'LungCancer':F, 'Smoker':T},
          },
-        {'variable': 'Hereditary',
-         'evidence': {'Smoking':T, 'Carcinogens':T},
+        {'variable': 'Smoker',
+         'evidence': {'LungCancer':T, 'Pollution':T},
          },
+        {'variable': 'Pollution',
+         'evidence': {'LungCancer':T, 'Xray':T},
+
+        }
     ],
 }
