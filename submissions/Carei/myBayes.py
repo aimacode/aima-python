@@ -1,5 +1,5 @@
 # The probability a patient has cancer
-
+# Bayesian Network
 from probability import BayesNet
 
 T, F = True, False

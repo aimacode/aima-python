@@ -1,4 +1,4 @@
-Bonuses.
+Bonuses for Bayes
 
 +75 B level
 + 5 Unique queries
