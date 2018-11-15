@@ -14445,7 +14445,7 @@ print('myWeights =', weights)
 #        array([-0.05, -0.11, -0.02, -0.06,  0.06,  0.01, -0.02, -0.07,  0.18, -0],
 #        dtype=float32)
 #
-# 
+#
 
 Examples = {
  'mnist_data': [x_train, y_train, model, weights],
