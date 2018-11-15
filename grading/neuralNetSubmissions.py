@@ -13,22 +13,22 @@ def tryOne(label, example):
         data, target, model, weights = example
     except:
         print('Error:', example, 'should have 4 elements.')
-        return null
+        return
     try:
         model.fit(data, target, epochs=1)
     except:
         print('Error: model.fit(data, target, epochs=1) fails.')
-        return null
+        return
     try:
         model.set_weights(weights)
     except:
         print('Error: model.set_weights(weights) fails.')
-        return null
+        return
     try:
         raw = model.predict(data)
     except:
         print('Error: model.predict(data) fails.')
-        return null
+        return
     prediction = raw.round()
     print(label + ':')
     # print_table(fit.theta_,
