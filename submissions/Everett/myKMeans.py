@@ -1,9 +1,9 @@
 from sklearn import datasets
 from sklearn.cluster import KMeans
-boston = datasets.load_boston()
+diabetes = datasets.load_diabetes()
 
 Examples = {
-    'BostonHouss': {
-        'frame': boston,
+    'Diabetus': {
+        'frame': diabetes,
     },
 }
