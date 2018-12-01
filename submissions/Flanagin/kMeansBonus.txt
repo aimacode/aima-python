@@ -1,0 +1,12 @@
+This data comes from the corgis schools_scores data:
+    https://think.cs.vt.edu/corgis/csv/school_scores/school_scores.html
+I used the columns [Arts/Music.Average Years, A.Test-takers, B.Test-takers, C.Test-takers, D or lower.Test-takers]
+    to try and see if there was a correlation between years of music and test scores.
+
+
+Scores:
+    75: Completed a 75 point assignment.
+        The silhouette coefficient is maximized at k=2.
+
+    +5: Submitted before Saturday Dec 1 6am.
+    +5: Normalized data to between [0,1].
