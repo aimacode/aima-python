@@ -5,6 +5,13 @@ import os
 from sklearn.cluster import KMeans
 from sklearn import metrics
 from numpy import unique
+# import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d import Axes3D
+#
+# def plot(title, X3D):
+#     fig = plt.figure(title)
+#     ax = Axes3D(fig, rect=[0, 0, .95, 1], elev=48, azim=134)
+#     pass
 
 def indent(howMuch = 1):
     space = ' '
@@ -12,45 +19,41 @@ def indent(howMuch = 1):
         space += '  '
     return space
 
-def tryOne(label, fAndP):
-    frame = fAndP['frame']
-    if 'kmeans' in fAndP.keys():
-        kmeans = fAndP['kmeans']
-    else:
-        nc = len(unique(frame.target))
+def tryOne(label, kDict):
+    data = kDict['data']
+    kValues = kDict['k']
+    if 'main' in kDict:
+        main = kDict['main']
+        try:
+            main()
+        except:
+            traceback.print_exc()
+    for nc in kValues:
+        print('%s[%d]:' % (label, nc))
         kmeans = KMeans(n_clusters=nc)
-    try:
-        fit = kmeans.fit(frame.data)
-    except:
-        traceback.print_exc()
-    print(label + ':')
-    # print_table(fit.theta_,
-    #             header=[frame.feature_names],
-    #             topLeft=[label],
-    #             leftColumn=frame.target_names,
-    #             numfmt='%6.3f',
-    #             njust='center',
-    #             tjust='rjust',
-    #             )
-    # y_pred = fit.predict(frame.data)
-    # tot = len(frame.data)
-    # mis = (frame.target != y_pred).sum()
-    # cor = 1 - mis / tot
-    # print(
-    #     "  Number of mislabeled points out of a total {0} points : {1} ({2:.0%} correct)"
-    #         .format(tot, mis, cor)
-    # )
-    score = metrics.adjusted_rand_score(frame.target, fit.labels_)
-    print('Adjusted Rand index: ', score)
+        try:
+            kmeans.fit(data)
+        except:
+            traceback.print_exc()
+            continue
+        print(kmeans.cluster_centers_)
+        labels = kmeans.labels_
+
+        # https://sklearn.org/modules/clustering.html#silhouette-coefficient
+        sscore = metrics.silhouette_score(data, labels)
+        print('Silhouette Coefficient: %f' % sscore)
+
+        # https://sklearn.org/modules/clustering.html#calinski-harabaz-index
+        chindex = metrics.calinski_harabaz_score(data, labels)
+        print('Calinski-Harabaz Index: %f' % chindex)
+        # print(kmeans.get_params())
+    # score = metrics.adjusted_rand_score(frame.target, fit.labels_)
+    # print('Adjusted Rand index: ', score)
 
 def tryExamples(examples):
     for label in examples:
         example = examples[label]
-        main = getattr(example, 'main', None)
-        if main != None:
-            example.main()
-        else:
-            tryOne(label, example)
+        tryOne(label, example)
 
 submissions = {}
 scores = {}
@@ -60,7 +63,12 @@ message1 = 'Submissions that compile:'
 root = os.getcwd()
 for student in roster:
     try:
-        os.chdir(root + '/submissions/' + student)
+        directory = root + '/../submissions/' + student
+        os.chdir(directory)
+    except:
+        print('missing directory: ' + directory)
+        continue
+    try:
         # http://stackoverflow.com/a/17136796/2619926
         mod = importlib.import_module('submissions.' + student + '.myKMeans')
         submissions[student] = mod.Examples
