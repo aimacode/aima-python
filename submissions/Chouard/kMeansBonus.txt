@@ -1,0 +1,5 @@
+The data set was obtained from the UCI machine learning repository, here: http://archive.ics.uci.edu/ml/datasets/Wine.
+It shows the chemical analysis of different wines.
+Bonuses:
++5 data normalized was normalized using scikit's MinMaxScaler.
++10 created main function to plot data.
