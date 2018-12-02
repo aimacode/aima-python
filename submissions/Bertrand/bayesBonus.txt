@@ -1,0 +1,18 @@
+Bayesian Bonuses
+
+Sources:
+https://www.census.gov/newsroom/facts-for-features/2017/cb17-ff08.html --> % of Americans over age 65
+https://www.cdc.gov/heartdisease/facts.htm --> heart attack and death given heart attack
+https://www.statista.com/statistics/241572/death-rate-by-age-and-sex-in-the-us/ --> death rate by age
+
+
+(5) Submit at least 4 queries that have unique paths of at least two inferences.
+    --> 5 queries that draw from either the heart attack branch (which has parents associated to the heart attack) or old age branch (which only feeds into the death node)
+
+(2N, <= 10) Explain how each variable in your model accurately corresponds to an aspect of a real-word event.  If you use probability tables, cite statistics supporting the entries in those tables.
+    --> every node in this network was derived from the CDC and other sources on real world age, obesity, heart attack, and death statistics
+    --> 5 nodes in network
+
+(5N, <= 10) for any probability table actually derived from real-world data of 1000 samples or more.
+    --> every node is derived from statistics of the american population > 1000 samples
+    --> 5 nodes in network
