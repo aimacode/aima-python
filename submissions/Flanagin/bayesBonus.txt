@@ -1,0 +1,16 @@
+  75: turned in a C level program
+
+ + 5: 4 queries that have unique paths with at least
+      two inferences
+ + 2: HW: this is based on anecdotal statistics of my
+        personal actions
+ + 2: Bed: this is based on anecdotal statistics of my
+        personal actions
+ + 2: Laptop: this is based on anecdotal statistics of my
+        personal actions
+ + 2: CatSits: this is based on anecdotal statistics of my
+        cat's actions
+ + 2: Pets: this is based on anecdotal statistics of my
+        personal actions
+
+Total: 90 points
