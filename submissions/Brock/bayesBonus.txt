@@ -1,0 +1,7 @@
+"B" Level (75), I have all the variable specifications met and have multiple queries.
+
+Bonuses:
+(5) Submit at least 4 queries that have unique paths of at least two inferences.
+    I have at least 5 queries with unique paths and two inferences.
+(2) For each properly constructed table of size 6 or larger.
+    I have one constructed table greater than size 6.
