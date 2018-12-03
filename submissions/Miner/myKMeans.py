@@ -12,7 +12,7 @@ with open('./forestfires.csv') as csv_data:
         this_row = [float(row['temp']), float(row['wind']), float(row['rain']), float(row['RH'])]
         data.append(this_row)
 
-kmeans = KMeans(n_clusters=4)
+kmeans = KMeans(n_clusters=2)
 kmeans.fit(data)
 
 colormap = np.array(['red', 'lime', 'black', 'blue'])
