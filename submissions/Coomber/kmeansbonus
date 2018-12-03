@@ -1,0 +1,16 @@
+KMeans Bonus
+
+(70)
+The data that was used was a data set of 398 cars containing number of
+horse power, mpg, and weight.
+https://stackoverflow.com/questions/3877209/how-to-convert-an-array-of-strings-to-an-array-of-floats-in-numpy
+
+(75) the data clusters by taking the mpg(x-axis) and Horse Power(y-axis) then factoring in the weight of the car
+to decide up the different clusters.
+
+(80) normalize data
+
+(90) plot the data using main
+
+
+
