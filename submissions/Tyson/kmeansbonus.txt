@@ -1,0 +1,6 @@
++75: Got a "c" level project to compile and produce a list of centers for
+each k value. The dataset was about the perceived quality of wine in regard to its
+chemical make-up. The last column in the dataset was the overall quality.
+The others were values for things like volatile acidity, citric acid, and ph level.
+
++5: c-level project in by saturday.

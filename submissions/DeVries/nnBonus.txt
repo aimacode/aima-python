@@ -1,0 +1,18 @@
+Homework 17, Michael DeVries
+
+C Level (+75): Data set of over 100 samples, 16 inputs, 4 outputs. This simply counts the number of bits for the output
+                ([1,0,0,0] means the total bits on was less than four, etc.). Found in example "CLevel"
+                Accuracy of first run: 54%
+2.5 (+5): Found in example "Bonus5". Used about 100 epochs to achieve accuracy of 68% (over a 20% improvement).
+2.6 (+5): Found in example "Bonus6". Used another layer to achieve accuracy of 75% (over 20% improvement).
+2.7 (+5): Found in example "Bonus7". Added a fourth layer and around 1000 epochs to achieve accuracy of 82% (over 20%
+            improvement).
+2.8 (+10): Found in example "Bonus8". Added an entirely new data set, about 1500 samples, 64 inputs, 6 outputs.
+            Loosely based on 64 bit floating point calculator. First bit in output is on if first bit in input is on,
+            The number of bits turned among the last 52 is raised to the number of bits turned on between the first and
+            13th (11 bits of the exponent in a 64 bit floating point). The remainder of the output is calculated based
+            on varying ranges of that number (significand ** exponent). The bit is 1 if it is within the given range,
+            0 if not. Surprisingly, with 1 epoch and 2 layers, the neural net did a very good job of figuring this one
+            out - 78% accuracy. This really demonstrates the power of a large labeled data set.
+
+Total: 75 + 5 + 5 + 5 + 10 == 100.

@@ -1,0 +1,20 @@
++75: Satisfies B level requirements
+
+The variables in this model correspond to the real-world probability that I will drink coffee based on the
+probability that I'm at work, tired or both and assesses the probability that drinking coffee gives me energy, jitters,
+or both.
+
++2: Tired - If I am tired, the probability of drinking coffee increases because I need more energy.
+
++2: Working - If I am working, the probability of drinking coffee increases because I want to get more work done.
+
++2: Coffee - I will get coffee if I am tired, working, or both. Drinking coffee increases my chances of having energy,
+jitters, or both
+
++2: Energy - If I have energy, there is a higher probability that I drank coffee suggesting that either I was tired
+prior to drinking coffee or I am at work.
+
++2: Jitters - If I have jitters, there is a higher probability that I drank coffee suggesting that either I was tired
+prior to drinking coffee or I am at work.
+
+Total: 85 points

@@ -1,0 +1,11 @@
+Homework 24:
+
+C Level:
+3.1 Explain the source and apparent meaning of the data, citing sources and URL's as appropriate.
+    This data comes from sklearn.datasets.load_wine().
+    (https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_wine.html#sklearn.datasets.load_wine)
+    Each entry (row) represents a different wine, and each column represents a property of that wine, such as
+    alcohol content, flavanoids, and hue.
+
+Bonuses:
+2.2 (+5) C-Level project submitted by Saturday, Dec. 1st at 6:00 am.

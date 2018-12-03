@@ -1,0 +1,27 @@
+**** Homework for Tuesday, December 4th ****
+
+"C" Level (75)
+    Create myKMeans.py
+        Find a data set:
+            At least 100 rows
+            At least 3 columns.
+            Each cell is a number.
+                Convert labels "A", "B", or "C" to [ ..., 0, 1, 0, ... ], using one column for each significant value (and one column, if needed, for "other")
+        Define the dictionary named Examples, containing at least one entry
+            label: is a identifying string.  the value is a sub-dictionary:
+            'data': tags the data set.
+            'k': tags a list of K values to try.  The middle K should produce the best classification.
+        for example:
+
+        Examples = {
+            'IrisClasses': {
+                'data': irisData,
+                'k': [2, 3, 4],
+            },
+            ...
+        }
+
+
+(5) Submit a project at C level by Saturday, Dec. 1 before 6:00 am.
+
+
