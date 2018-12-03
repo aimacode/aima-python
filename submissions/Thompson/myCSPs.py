@@ -107,4 +107,3 @@ myCSPs = [
         # 'inference': csp.forward_checking,
     },
 ]
-#
