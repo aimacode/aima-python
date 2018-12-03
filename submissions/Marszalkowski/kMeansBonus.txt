@@ -1,0 +1,6 @@
++5 Submit a project at C level by Saturday before 6 am
+    This submission compiles, produces centers for each k value, and computes the chosen metrics
++5 Normalize your data, so that every value 0 <= data[i][j] <= 1
+    The variable 'normalized data' stores the linearly normalized data from nbaPGData
+
+Current score: 85
