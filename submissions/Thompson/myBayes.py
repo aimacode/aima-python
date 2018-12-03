@@ -1,4 +1,4 @@
-# Burglary example [Figure 14.2]
+## Burglary example [Figure 14.2]
 from probability import BayesNet
 
 T, F = True, False
@@ -38,3 +38,4 @@ examples = {
          }
     ]
 }
+#
