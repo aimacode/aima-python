@@ -1,4 +1,4 @@
-import csp#
+import csp
 
 rgb = ['blue ', 'red', 'purple', 'orange']
 
@@ -107,4 +107,3 @@ myCSPs = [
         # 'inference': csp.forward_checking,
     },
 ]
-#

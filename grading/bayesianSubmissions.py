@@ -1,11 +1,13 @@
 import importlib
 import traceback
+from probability import BayesNet, enumeration_ask, enumerate_all, elimination_ask
+
 from grading.util import roster, print_table
 # from logic import FolKB
 # from utils import expr
 import os
-from sklearn.naive_bayes import GaussianNB
-gnb = GaussianNB()
+# from sklearn.naive_bayes import GaussianNB
+# gnb = GaussianNB()
 
 def indent(howMuch = 1):
     space = ' '
@@ -13,11 +15,11 @@ def indent(howMuch = 1):
         space += '  '
     return space
 
-def printKB(label, kb):
-    print(indent(), label + ' example:')
-    print(indent(2), 'knowledge base:')
-    for clause in kb.clauses:
-        print(indent(3), str(clause))
+# def printKB(label, kb):
+#     print(indent(), label + ' example:')
+#     print(indent(2), 'knowledge base:')
+#     for clause in kb.clauses:
+#         print(indent(3), str(clause))
 
 def printResults(query, gen, limit=3):
     for count in range(limit):
@@ -33,24 +35,30 @@ def printResults(query, gen, limit=3):
         print(short, end=' ')
     print('...')
 
-def tryOne(label, frame):
-    fit = gnb.fit(frame.data, frame.target)
-    print('')
-    print_table(fit.theta_,
-                header=[frame.feature_names],
-                topLeft=['Means:'],
-                leftColumn=frame.target_names,
-                numfmt='%6.3f',
-                njust='center',
-                tjust='rjust',
-                )
-    y_pred = fit.predict(frame.data)
-    print("Number of mislabeled points out of a total %d points : %d"
-          % (len(frame.data), (frame.target != y_pred).sum()))
+def printNode(node):
+    print('(\'' + node.variable + '\',', str(node.parents))
+    print(' ', str(node.cpt) + '),')
+
+def printBN(bn):
+    print(bn.label + ':')
+    for node in bn.nodes:
+        printNode(node)
+
+
+def tryOne(bn, query):
+    X = query['variable']
+    e = query['evidence']
+    estr = str(e)[1:-1]
+    print('P( %s | %s ) = ' % (X, estr), end='')
+    prob = elimination_ask(X, e, bn)
+    print(prob.show_approx())
 
 def tryExamples(examples):
-    for label in examples:
-        tryOne(label, examples[label])
+    for bn in examples:
+        printBN(bn)
+        qlist = examples[bn]
+        for query in qlist:
+            tryOne(bn, query)
 
 submissions = {}
 scores = {}
@@ -60,10 +68,10 @@ message1 = 'Submissions that compile:'
 root = os.getcwd()
 for student in roster:
     try:
-        os.chdir(root + '/submissions/' + student)
+        # os.chdir(root + '/submissions/' + student)
         # http://stackoverflow.com/a/17136796/2619926
         mod = importlib.import_module('submissions.' + student + '.myBayes')
-        submissions[student] = mod.Examples
+        submissions[student] = mod.examples
         message1 += ' ' + student
     except ImportError:
         pass
@@ -86,5 +94,6 @@ for student in roster:
     except:
         traceback.print_exc()
 
-    print(student + ' scores ' + str(scores[student]) + ' = ' + str(sum(scores[student])))
-    print('----------------------------------------')
+    print(student, 'summary:', str(scores[student]), '\n' +
+          student, '  total:', str(sum(scores[student])), '\n' +
+          '----------------------------------------')

@@ -162,7 +162,6 @@ class LeftRightMazePuzzle(search.Problem):
             except:
                 return self.result(board[x][y - 1], 'Down', x, y - 1)
 
-
     def goal_test(self, state):
         return state == 'F'
 
@@ -180,11 +179,11 @@ LRM_puzzle.label = 'Left Right Maze Puzzle'
 
 
 mySearches = [
- #   swiss_puzzle,
- #   sumner_puzzle,
- #   romania_puzzle,
- #   switch_puzzle,
- #   solarSystem_puzzle,
+    #   swiss_puzzle,
+    #   sumner_puzzle,
+    #   romania_puzzle,
+    #   switch_puzzle,
+    # solarSystem_puzzle,
     LRM_puzzle,
 ]
 
@@ -206,7 +205,8 @@ mySearchMethods = [
     flounder
 ]
 
-mySearchMethods = [
-    LRM_puzzle,
-    switch_puzzle,
-]
+# commented out by whh 2018-10-30
+# mySearchMethods = [
+#     LRM_puzzle,
+#     switch_puzzle,
+# ]

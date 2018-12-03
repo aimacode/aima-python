@@ -3,9 +3,11 @@ import agents as ag
 import importlib
 import traceback
 import search
+from math import inf
 
 from utils import isnumber, memoize
 from grading.util import roster, print_table
+from inspect import signature
 from math import inf
 
 class MyException(Exception):
@@ -20,12 +22,17 @@ def compare_searchers(problems, header, searchers=[]):
     def do(searcher, problem):
         nonlocal best, bestNode
         p = search.InstrumentedProblem(problem)
-        goalNode = searcher(p)
-        cost = goalNode.path_cost
-        if cost < best[p.label]:
-            best[p.label] = cost
-            bestNode[p.label] = goalNode
-        return p, cost
+        try:
+            goalNode = searcher(p)
+            cost = goalNode.path_cost
+            if cost < best[p.label]:
+                best[p.label] = cost
+                bestNode[p.label] = goalNode
+            return p, cost
+        except:
+            # print('searcher(' + p.label + ') raised an exception:')
+            # traceback.print_exc()
+            return p, inf
     table = [[search.name(s)] + [do(s, p) for p in problems] for s in searchers]
     print_table(table, header)
     print('----------------------------------------')
@@ -40,7 +47,7 @@ def compare_searchers(problems, header, searchers=[]):
             try:
                 summary += "\n" + p.prettyPrint(state) + "\n---------"
             except:
-                summary += " " + state
+                summary += " " + str(state)
         print(summary)
         print('----------------------------------------')
 
@@ -55,20 +62,19 @@ for student in roster:
     try:
         # http://stackoverflow.com/a/17136796/2619926
         mod = importlib.import_module('submissions.' + student + '.mySearches')
-        searches[student] = mod.mySearches
-        messages[0] += ' ' + student
+        try:
+            searches[student] = mod.mySearches
+            messages[0] += ' ' + student
+        except:
+            print(student + ': mySearches[] is missing or defective.')
+        try:
+            searchMethods[student] = mod.mySearchMethods
+            if len(searchMethods[student]) > 0:
+                messages[1] += ' ' + student
+        except:
+            print(student + ': mySearchMethods[] is missing or defective.')
     except ImportError:
-        pass
-    except:
-        traceback.print_exc()
-    try:
-        # http://stackoverflow.com/a/17136796/2619926
-        #searchMethods[student] = submissions.bbbetter.mySearchMethods
-        mod = importlib.import_module('submissions.' + student + '.mySearches')
-        searchMethods[student] = mod.mySearchMethods
-        if len(searchMethods[student]) > 0:
-            messages[1] += ' ' + student
-    except ImportError:
+        # print('submissions/' + student + '/mySearches.py is missing or defective.')
         pass
     except:
         traceback.print_exc()
@@ -80,6 +86,43 @@ print('----------------------------------------')
 def bestFS(problem, h=None):
     h = memoize(h or problem.h, 'h')
     return search.best_first_graph_search(problem, lambda n: h(n))
+
+def wellFormed(problem):
+    if not hasattr( problem, 'initial' ):
+        print('problem "' + problem.label + '" has no initial state.')
+        return False
+
+    if not hasattr(problem, 'actions'):
+        print('problem "' + problem.label + '" has no actions() method.')
+        return False
+    pasig = signature(problem.actions)
+    if len(pasig.parameters) != 1:
+        print('in problem "' + problem.label + '",')
+        print('  actions(...) has the wrong number of parameters.  Define it as:')
+        print('  def actions(self, state):')
+        return False
+
+    if not hasattr(problem, 'result'):
+        print('problem "' + problem.label + '" has no result() method.')
+        return False
+    prsig = str(signature(problem.result))
+    if len(pasig.parameters) != 2:
+        print('in problem "' + problem.label + '",')
+        print('  result(...) has the wrong number of parameters.  Define it as:')
+        print('  def result(self, state, action):')
+        return False
+
+    if not hasattr(problem, 'goal_test'):
+        if problem.goal == None:
+            print('problem "' + problem.label + '" has no goal, and no goal_test() method.')
+            return False
+    pgsig = str(signature(problem.goal_test))
+    if len(pgsig.parameters) != 1:
+        print('in problem "' + problem.label + '",')
+        print('  goal_test(...) has the wrong number of parameters.  Define it as:')
+        print('  def goal_test(self, state):')
+        return False
+    return True
 
 for student in roster:
     if not student in searches.keys():
@@ -101,6 +144,8 @@ for student in roster:
         hlist = [[student],['']]
         i = 0
         for problem in plist:
+            if not wellFormed(problem):
+                continue
             try:
                 hlist[0].append(problem.label)
             except:
@@ -116,6 +161,6 @@ for student in roster:
     except:
         traceback.print_exc()
 
-    print(student + ' scores ' + str(scores[student])
-          + ' = ' + str(sum(scores[student])))
-    print('----------------------------------------')
+    print(student, 'summary:', str(scores[student]), '\n' +
+          student, '  total:', str(sum(scores[student])), '\n' +
+          '----------------------------------------')
