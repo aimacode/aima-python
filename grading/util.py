@@ -2,7 +2,8 @@
 from utils import isnumber
 
 roster = [
-   # 'Bertrand',
+    'aardvark',
+    'Bertrand',
     'Brock',
     'Carei',
     'Chouard',
@@ -25,7 +26,6 @@ roster = [
     'Thompson',
     'Tyson',
     'Zemgulys',
-    'aardvark',
     'bbbetter',
     'cccute',
     'zzzsolutions',
