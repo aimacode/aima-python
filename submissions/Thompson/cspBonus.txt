@@ -2,4 +2,8 @@
 +10 Map is in 4 colors.
 +10 There are fewer assignments with mrv.
 +10 There are fewer assignments with lcv.
+<<<<<<< HEAD
 +10 There are fewer assignments with mac.
+=======
++10 There are fewer assignments with mac.
+>>>>>>> origin/master

@@ -1,0 +1,11 @@
+1. B Level (75):
+    - myBayes.py was created. The variables snow and windChill have prior probability. noSchool and extremeWarning
+        have a single parent. advisory has two parents. A dictionary named examples is defined, with the snowDay instance
+        and 4 subsequent queries. The submission compiles and runs, and prints out accurate estimates, each with two Bayesian
+        inferences
+2. Better:
+    (+5): Submit at least 4 queries that have unique paths of at least two inferences.
+        - The 4 queries that are printed out when the program is run contain different inferences that will lead to unique
+        paths when finding the probabilities.
+
+75 + 5 = 80

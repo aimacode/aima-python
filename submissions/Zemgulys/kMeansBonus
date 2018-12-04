@@ -1,0 +1,9 @@
+I used the Wine Data Set from the UCI Machine Learning Repository. This data set contains the results of chemical analyses of wines grown by three different cultivars in the same region of Italy.
+The analysis included measurements of 13 constituents found in each of the three types of wine.
+
+Data set URL: http://archive.ics.uci.edu/ml/datasets/Wine
+
++75: C Level
++5: Submitted before Saturday, Dec. 1
+
+Total: 80 points

@@ -1,0 +1,10 @@
+        November 8th
+
+
+75+ I used Imdb massive dataset and then trimmed down so only the top 5000 words will be loaded and bounded reviews to 1000 words. 
+5+  1000+ samples (10000)
+5+  64+ input variables (200)
+5+  2 layer submission 50% accuracy
+5+  3 layer submission 81% accuracy
+
+ total 95
