@@ -1,0 +1,6 @@
++75 "C" level submission
+I chose the wine data set from UC Irvine's Machine Learning Repository. The data set is the result of a chemical
+analysis of wines grown in the same region. The numbers represent 13 different properties of the wine like abv, hue,
+proline etc..
+
+URL: http://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
