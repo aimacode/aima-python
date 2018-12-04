@@ -169,7 +169,7 @@ class Tents(search.Problem):
         #     return state
 
     def goal_test(self, state):
-        print('goal test', state == self.goal)
+        # print('goal test', state == self.goal)
         return state == self.goal
 
 

@@ -1,0 +1,5 @@
+1. C level by Saturday 5
+2. Normalize your data 5
+3. Apply Principal Component Analysis 10
+
+Total 95 

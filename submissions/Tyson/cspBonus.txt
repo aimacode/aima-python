@@ -1,0 +1,3 @@
+I got the bonuses for pushing a 60-point solution by Monday night, and the bonus for a map that
+cannot be colored in less than 4 colors, and a map requires fewer assignments
+when select_unassigned_variable=csp.mrv.

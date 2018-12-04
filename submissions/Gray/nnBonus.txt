@@ -1,0 +1,6 @@
+C Level "75"
+1000+ samples 5
+64+ input 5
+2-layer 5
+3-layer 5
+4-layer 5

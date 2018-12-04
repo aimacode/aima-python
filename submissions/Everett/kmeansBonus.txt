@@ -1,0 +1,39 @@
+**** Homework for Tuesday, December 4th ****
+
+"C" Level (75)
+
+https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.names
+-This data set is of wine recognition data gathered by the results of a chemical analysis of three different wines
+grown in Italy.
+
+
+WineClasses[2]: --- First K
+Silhouette Coefficient: 0.472398
+Calinski-Harabaz Index: 118.603282
+
+WineClasses[110]: --- Middle K
+Silhouette Coefficient: 0.231907
+Calinski-Harabaz Index: 702.110079
+
+
+WineClasses[111]: --- Last K
+Silhouette Coefficient: 0.213605
+Calinski-Harabaz Index: 679.046480
+
+
+On some occasions, the middle K maximizes the Calinski-Harabaz Index. 
+
+(5) Submit a project at C level by Saturday, Dec. 1 before 6:00 am.
+     I did it!
+
+
+
+(10) Apply Principal Component Analysis to reduce a data set with more than
+3 columns, to one with 3 columns.
+
+     I used the sklearn module to complete this task.
+
+
+(5) Normalize your data, so that every value 0 <= data[i][j] <= 1.
+
+      I used the sklearn module to compelete this task

@@ -1,0 +1,2 @@
+-My submission compiles, but i couldn't fix the "AttributeError: 'bool' object has no attribute 'sum'"
+error

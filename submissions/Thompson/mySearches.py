@@ -144,7 +144,7 @@ def guess_number():
 a = guess_letter()
 b = guess_number()
 
-print(a + b)
+# print(a + b)
 
 
 cheese_puzzle = search.GraphProblem('A1', a+b , cheese_map)
