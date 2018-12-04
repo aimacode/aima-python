@@ -1,0 +1,5 @@
+60ish- csp doesnt run sometimes, if select unnasigned variable is uncommented it runs well, 14 recursive calls, 28 asigments 
++10- cannot be colored in less than 4 colors
++10? needs 14 recursive calls and 28 assigments 
++10- 14 recursive calls 13 assigments
+for some reason using no extra csps crashes it.
