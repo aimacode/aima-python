@@ -1,0 +1,7 @@
+Source of data:
+https://www.dataquest.io/blog/k-means-clustering-us-senators/
+The data represents the votes of US Senators on various bills.
+
+Sample is 100 rows long and more than 3 columns, and the k value in the middle of the other two performed the best.
+
+5 - my data is normalized, which is >= 0 and <= 1
