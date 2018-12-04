@@ -1,0 +1,7 @@
+75: compiles.
++5? : i wanted to show IV and Total, it seems to be working because most pokemon have around the same total with a 100 points difference  max 
+it simply looks like a mess at this point
++5 : data normalized
++10: main function plotting correctly
++10: PCA Added
+105? hopefully
