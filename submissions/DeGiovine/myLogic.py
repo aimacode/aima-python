@@ -1,6 +1,6 @@
 
 farmer = {
-    'kb': '''
+  'kb': '''
 Farmer(Mac)
 Rabbit(Pete)
 Mother(MrsMac, Mac)
