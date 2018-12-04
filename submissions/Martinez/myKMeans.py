@@ -34,41 +34,41 @@ def main():
                     iterate += 1
                 Pokedex.append(cp.deepcopy(fi))
             count1 += 1
-    pca = PCA(n_components=4)
+    pca = PCA(n_components=3)
     Normalize = normalize(Pokedex)
     pca.fit(Normalize)
     PokeDexImproved = pca.transform(Normalize)
-
+    return PokeDexImproved
 
 #visualizing the clusters kmeans. thanks to dummies.com!
+#you will need to uncomment and run to see the plot otherwise the above wont show in the terminal
 
-
-    kmeans = cluster.KMeans(n_clusters=4)
-    kmeans.fit(PokeDexImproved)
-    labels = kmeans.labels_
-    types = {0: [], 1: [], 2: [], 3: []}
-    for i in range(len(PokeDexImproved)):
-        HP = PokeDexImproved[i][1]
-        Attack = PokeDexImproved[i][2]
-        plot = [HP, Attack]
-        types[labels[i]].append(plot)
-
-    for i in range(0, 3):
-        types[i] = np.array(types[i])
-    plt.xlabel('IV')
-    plt.ylabel('Total')
-
-    plt.scatter(types[0][:, 0], types[0][:, 1])
-    plt.scatter(types[1][:, 0], types[1][:, 1])
-    plt.scatter(types[2][:, 0], types[2][:, 1])
-    plt.scatter(types[3][:, 0], types[3][:, 1])
-    plt.show()
+# kmeans = cluster.KMeans(n_clusters=3)
+# kmeans.fit(main())
+# labels = kmeans.labels_
+# types = {0: [], 1: [], 2: [], 3: []}
+# for i in range(len(main())):
+#     HP = main()[i][1]
+#     Attack = main()[i][2]
+#     plot = [HP, Attack]
+#     types[labels[i]].append(plot)
+#
+# for i in range(0, 2):
+#     types[i] = np.array(types[i])
+# plt.xlabel('IV')
+# plt.ylabel('Total')
+#
+# plt.scatter(types[0][:, 0], types[0][:, 1])
+# plt.scatter(types[1][:, 0], types[1][:, 1])
+# plt.scatter(types[2][:, 0], types[2][:, 1])
+# plt.scatter(types[3][:, 0], types[3][:, 1])
+# plt.show()
 
 Start = main()
 
 Examples = {
     'pokemon': {
         'data': Start,
-        'k': [2, 5, 6],
+        'k': [10, 15, 20],
     },
 }
