@@ -1,0 +1,40 @@
+** Homework for Thursday, November 15th ****
+
+(5) Submit a project at C level by Monday night.
+    I did it!
+
+(5) Submit at least 4 queries that have unique paths of at least two inferences.
+    I have four queries that produce unique paths of at least two inferences.
+
+
+(10)Explain how each variable in your model accurately corresponds to an aspect of a real-word event.
+    If you use probability tables, cite statistics supporting the entries in those tables.
+For this Bayesian Network, I used Lung Cancer as my theme. I mainly chose Lung Cancer because it has the least amount
+of causes since it is mainly caused by Smoking and sometimes chemicals within highly polluted areas.
+I did not have a probability table for this because I pulled and calculated the probabilities for several websites that I included
+below.
+
+To start, (1)Lung Cancer is a real world health factor that reflect mainly in (2)smokers, which have a probability 90%
+to getting being diagnosed. In addition to this, Lung Cancer is rarely caused by high air (3)pollution, which has a probability of
+10%. In addition to this, Lung Cancer leads to (4)Dyspnoea, which a very common symptom of lung cancer, and therefore has a
+probability 70%. Finally, Lung Cancer has a 87% probability of leading to (5)death.
+
+Here are some of the sources
+(Lung Cancer)
+https://www.lung.org/lung-health-and-diseases/lung-disease-lookup/lung-cancer/resource-library/lung-cancer-fact-sheet.html
+https://www.cancer.org/cancer/non-small-cell-lung-cancer/about/key-statistics.html
+
+(Pollution)
+https://www.cancerresearchuk.org/about-cancer/causes-of-cancer/air-pollution-radon-gas-and-cancer/how-air-pollution-can-cause-cancer
+
+(Dyspnoea)
+https://www.lungcancer.org/find_information/publications/163-lung_cancer_101/266-symptoms
+
+(Death & Smoking)
+https://www.cdc.gov/cancer/lung/basic_info/risk_factors.htm
+
+(5N, <= 10) for any probability table actually derived from real-world data of 1000 samples or more
+I think I apply for this bonus? Although I didn't find a probability table that has this exact data on in, these
+probabilities are pulled from +1000 samples of different lung cancer patients. It's okay if
+I don't I just didn't want to miss out on any extra points.
+

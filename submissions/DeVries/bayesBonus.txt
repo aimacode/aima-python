@@ -1,0 +1,53 @@
+Homework 19 Bonuses
+
+C Level (+75):
+At least two variables with prior probability - Female and LGB
+At least one variable with a single parent - PrematureDeath [LungCancer is only parent]
+At least one variable with two parents - Smoking[Female and LGB are the two parents]
+
+2.3 (+5)
+Query 1, P( LungCancer | 'LGB': True ), requires an inference between LGB and Smoker, and Smoker and LungCancer.
+Query 2, P( LGB | 'PrematureDeath': False ), requires an inference between PrematureDeath and LungCancer, LungCancer
+    and Smoker, and Smoker and LGB.
+Query 3, P( PrematureDeath | 'Female': True, 'LGB': True ), requires an inference between LGB, Female, and Smoker,
+    Smoking, Female and LungCancer, and LungCancer and PrematureDeath.
+Query 4, P( Smoker | 'Female': False, 'PrematureDeath': True ), requires an inference between Female and Smoker, PrematureDeath
+    and LungCancer, and LungCancer and Smoker.
+
+2.4 (+10)
+    (+2) LGB is the percentage of American population which is Lesbian, Gay, or Bisexual.
+    From: https://en.wikipedia.org/wiki/LGBT_demographics_of_the_United_States
+    (+2) Female is the percentage of Americans that are female.
+    From: https://www.kff.org/other/state-indicator/distribution-by-gender/?currentTimeframe=0&sortModel=%7B%22colId%22:%22Location%22,%22sort%22:%22asc%22%7D
+    (+2) Smoker is the percentage of Americans that are smokers based on gender and sexual orientation.
+    Calculated from: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5665254/
+    (+2) LungCancer is the likelihood of getting lung cancer based on smoking and gender.
+    From: https://www.verywellhealth.com/what-percentage-of-smokers-get-lung-cancer-2248868
+    (+2) PrematureDeath is the likelihood of dying within 5 years based on having lung cancer or not.
+    From: https://www.healthline.com/health/lung-cancer#life-expectancy,
+    and the likelihood of dying within 5 years without lung cancer was calculated from how many Americans die prematurely each year,
+    found here: https://www.cdc.gov/media/releases/2014/p0501-preventable-deaths.html
+    subtracting the number that die from lung cancer every 5 years, found here:
+    https://www.lung.org/lung-health-and-diseases/lung-disease-lookup/lung-cancer/resource-library/lung-cancer-fact-sheet.html
+    and dividing by the total population of the US.
+
+2.5 (+10)
+    (+5) The first probability table, comparing likelihood of smoking based on gender and sexual orientation, was derived from
+    the data found here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5665254/
+    which is based on over 40,000 samples.
+    (+5) The second probability table, comparing likelihood of lung cancer based on gender and smoking habits, was derived from
+    the statistics found here: https://www.verywellhealth.com/what-percentage-of-smokers-get-lung-cancer-2248868
+    which was from a study of over 2,000 lung cancer cases.
+
+
+Total bonuses: +25; 75 + 25 == 100 total points.
+
+
+All Resources:
+https://www.cdc.gov/tobacco/data_statistics/fact_sheets/adult_data/cig_smoking/index.htm
+https://news.gallup.com/poll/234863/estimate-lgbt-population-rises.aspx
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5665254/
+https://www.verywellhealth.com/what-percentage-of-smokers-get-lung-cancer-2248868
+https://www.healthline.com/health/lung-cancer#life-expectancy
+https://www.lung.org/lung-health-and-diseases/lung-disease-lookup/lung-cancer/resource-library/lung-cancer-fact-sheet.html
+https://www.cdc.gov/media/releases/2014/p0501-preventable-deaths.html

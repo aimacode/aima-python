@@ -162,7 +162,6 @@ class LeftRightMazePuzzle(search.Problem):
             except:
                 return self.result(board[x][y - 1], 'Down', x, y - 1)
 
-
     def goal_test(self, state):
         return state == 'F'
 
@@ -184,7 +183,7 @@ mySearches = [
     #   sumner_puzzle,
     #   romania_puzzle,
     #   switch_puzzle,
-    solarSystem_puzzle,
+    # solarSystem_puzzle,
     LRM_puzzle,
 ]
 

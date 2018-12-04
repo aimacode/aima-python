@@ -1,0 +1,4 @@
+(5) Submit a project at C level by Saturday, Dec. 1 before 6:00 am.
+(10) Provide a 'main': function that plots 2 or 3 columns of your data, color-coded according to the labels assigned by the K-Means algorithm, e.g.,the figure at right.
+
+Total = 75 + 5 + 10 = 90

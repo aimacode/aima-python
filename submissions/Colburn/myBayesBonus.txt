@@ -1,0 +1,10 @@
+1. B level network 75
+
+2. 4 queries with unique paths of at least two inferences 5
+
+3. Each variable is accurate to real world event. NBA statics for the 2016-2017 season were analyzed to figure out the probabilities of each variable. For example, for the prior probability that Stephen Curry plays I took the amount of games Curry played in the 2016-2017 season divided by 82(the total number of regular season games). number of 25+games for Kevin and Steph were added up and divided into loses and wins. these probabilities were found this way. https://www.basketball-reference.com/players/c/curryst01/gamelog/2017 here is the link to the website used. 10
+
+
+4.2 Tables with over 6 entries. 4
+
+Total: 94 

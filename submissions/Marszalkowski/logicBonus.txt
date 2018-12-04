@@ -1,0 +1,21 @@
+My logic statements are based off of the Shakespeare classic Romeo and Juliet.
+1.) 60: The inference engine runs without exceptions*, and uses at least one rule to answer a query.
+2.) +10: Includes at least one query that uses exactly two rules to satisfy.
+    -> The query for Capulet(x) satisfies this
+3.) +5: Includes another query that uses a different sequence of two rules to satisfy.
+    -> The query for Montague(x) satisfies this
+4.) +5: Includes at least one query that uses exactly three rules to satisfy.
+    -> The query for Tragic(x,y) satisfies this, as it uses Lovers(Romeo, Juliet), (Lovers(x, y) ==> Forbidden(x, y)),
+        and (Forbidden(x, y) ==> Tragic(x, y)).
+5.) +5: Includes another query that uses a different sequence of three rules to satisfy.
+    -> The query Frustrated(x) satisfies this, as it uses Reader(Me), (Reader(q) ==> Awareofirony(q)), and (Awareofirony(i) ==> Frustrated(i))
+6.) +5: Includes at least one query that uses exactly four rules to satisfy.
+    -> The query for Despises (x,y) and the answer (x: Mercutio, y: FatherCapulet) satisfies this,
+        as it uses Friends(Romeo, Mercutio), Father(FatherCapulet, Juliet),
+        ((Friends(Romeo, f) & Capulet(c)) ==> Despises(f, c)), and (Father(d, Juliet) ==> Capulet(d))
+7.) +5: Includes one query that returns 5-10 valid substitutions.
+    -> The query Despises(x, y) offers 6 valid substitutions
+
+If all of these cases wind up being approved, I have earned a 95
+
+

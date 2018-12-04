@@ -1,0 +1,2 @@
++5 Submit at least 4 queries that have unique paths of at least two inferences.
+Each query present unique output with unique variables
