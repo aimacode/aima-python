@@ -725,8 +725,8 @@ Examples = {
          # 'k': [2, 3, 4],
     },
 'NormalizedWineClasses': {
-        'data': wineData,
-        'k': [4, 6, 7],
+        'data': normalizedWineData,
+        'k': [5, 6, 7],
          # 'k': [2, 3, 4],
     },
 
