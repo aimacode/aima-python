@@ -15,6 +15,7 @@ import math
 import random
 import sys
 import bisect
+from .learning import hamming_distance
 from operator import itemgetter
 
 
@@ -493,7 +494,7 @@ class NPuzzle(Problem):
 
 
 
-    def __init__(self, initial= None, goal= None, size = 3, heuristic = 'manhattan_distance', shuffle =10):
+    def __init__(self, initial= None, goal= None, size = 3, heuristic = 'hamming', shuffle =10):
         """   Args:
                             intial: intiail state of puzzle. If not passed will default to goal state
                             size: number of rows and columns in puzzle
@@ -513,25 +514,20 @@ class NPuzzle(Problem):
         assert self.check_solvability(initial), "The puzzle is not solvable from the given initial state!"
         Problem.__init__(self, initial, goal)
     def shuffle_state(self, shuffle, state):
-        """ perfrom random action from the initial state"""
-
+        """ perform random action from the initial state"""
         for _ in range(shuffle):
             action = random.sample(self.actions(state),1)[0]
             state = self.result(state,action)
         return state
 
-
-
     def find_blank_square(self, state):
         """Return the index of the blank square in a given state"""
-
         return state.index(0)
 
     def actions(self, state):
         """ Return the actions that can be executed in the given state.
         The result would be a list of maximally four directions, since there are only four possible actions
         in any given state of the environment """
-
         possible_actions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
         index_blank_square = self.find_blank_square(state)
 
@@ -543,25 +539,20 @@ class NPuzzle(Problem):
             possible_actions.remove('RIGHT')
         if index_blank_square > self.size*self.size - self.size - 1:
             possible_actions.remove('DOWN')
-
         return possible_actions
 
     def result(self, state, action):
         """ Given state and action, return a new state that is the result of the action.
         Action is assumed to be a valid action in the state """
-
         index_blank_square = self.find_blank_square(state)
         new_state = list(state)
-
         delta = {'UP': -self.size, 'DOWN': self.size, 'LEFT': -1, 'RIGHT': 1}
         neighbor = index_blank_square + delta[action]
         new_state[index_blank_square], new_state[neighbor] = new_state[neighbor], new_state[index_blank_square]
-
         return tuple(new_state)
 
     def goal_test(self, state):
         """ Given a state, return True if state is a goal state or False otherwise """
-
         return state == self.goal
 
     def check_solvability(self, state):
@@ -570,14 +561,12 @@ class NPuzzle(Problem):
                     If N is even, puzzle instance is solvable if the blank is on an even row counting from the bottom (second-last, fourth-last, etc.) and number of inversions is odd
                     or the blank is on an odd row counting from the bottom (last, third-last, fifth-last, etc.) and number of inversions is even."
                     reference : https://www.geeksforgeeks.org/check-instance-15-puzzle-solvable/"""
-
         solvable = True
         inversions = 0
         for i in range(len(state)-1):
             for j in range(i+1, len(state)):
                 if state[i] != 0 and state[j] != 0 and state[i] > state[j]:
                     inversions += 1
-
         if self.size % 2 != 0:
             solvable = True if (inversions % 2 == 0 ) else False
         elif self.find_blank_square(state) // self.size % 2 == 0 and inversions % 2 != 0 :
@@ -587,24 +576,24 @@ class NPuzzle(Problem):
         else:
             solvable = False
 
-
         return solvable
 
     def h(self, node):
         """ Return the heuristic value for a given state. Default heuristic function used is
         h(n) = number of misplaced tiles """
         heuristics = {
-            'manhattan_distance':self.manhattan_distance_heuristic(node),
-            'misplaced_tiles':self.misplaced_tiles_heuristic(node)
+
+            'hamming':self.hamming_distance_heuristic(node)
         }
         return heuristics.get(self.heuristic)
 
-    def manhattan_distance_heuristic(self, node):
 
-        return sum(abs(s%self.size - g%self.size) +
-                   abs(s//self.size - g//self.size)for (s, g) in zip(node.state, self.goal))
-    def misplaced_tiles_heuristic(self, node):
-        return sum(s != g for (s, g) in zip(node.state, self.goal))
+    def hamming_distance_heuristic(self, node):
+
+        return hamming_distance(node.state, self.goal)
+
+
+
 
 
 
