@@ -15,7 +15,7 @@ import math
 import random
 import sys
 import bisect
-from .learning import hamming_distance
+from learning import hamming_distance
 from operator import itemgetter
 
 
