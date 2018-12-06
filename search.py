@@ -487,22 +487,17 @@ class EightPuzzle(Problem):
 
 # ______________________________________________________________________________
 class NPuzzle(Problem):
-    """ Generalization of  the Eight Puzzle problem. The problem  consists of sliding tiles numbered from 1 to N ^2  on a NxN board,
+    """Generalization of  the Eight Puzzle problem. The problem  consists of sliding tiles numbered from 1 to N ^2  on a NxN board,
     where one of the squares is a blank. The state is represented as a tuple of length N^2,
-    where element at index i represents the tile number at index i , where '0' denotes empty square index
-    """
-
-
-
-    def __init__(self, initial= None, goal= None, size = 3, heuristic = 'hamming', shuffle =10):
-        """   Args:
-                            intial: intiail state of puzzle. If not passed will default to goal state
-                            size: number of rows and columns in puzzle
-                            heuristic: heuristic used in astat search
-                            shuffle: number of times to perfrom random action from the initial state.
-                    Returns:
-                        Problem instance modeling any size of sliding puzzle
-                         """
+    where element at index i represents the tile number at index i , where '0' denotes empty square index"""
+    def __init__(self, initial=None, goal=None, size=3, heuristic='hamming', shuffle=10):
+        """Args:
+                intial: intiail state of puzzle. If not passed will default to goal state
+                size: number of rows and columns in puzzle
+                heuristic: heuristic used in astat search
+                shuffle: number of times to perfrom random action from the initial state.
+           Returns:
+                  Problem instance modeling any size of sliding puzzle"""
         self.size = size
         self.heuristic = heuristic
         goal = goal or (tuple(range(1,size*size, 1)) + (0, ))
@@ -513,8 +508,9 @@ class NPuzzle(Problem):
         assert len(initial) == size * size, "length of initial tuple should be {length}".format(length=size * size)
         assert self.check_solvability(initial), "The puzzle is not solvable from the given initial state!"
         Problem.__init__(self, initial, goal)
+        
     def shuffle_state(self, shuffle, state):
-        """ perform random action from the initial state"""
+        """Perform random action from the initial state"""
         for _ in range(shuffle):
             action = random.sample(self.actions(state),1)[0]
             state = self.result(state,action)
@@ -525,12 +521,11 @@ class NPuzzle(Problem):
         return state.index(0)
 
     def actions(self, state):
-        """ Return the actions that can be executed in the given state.
+        """Return the actions that can be executed in the given state.
         The result would be a list of maximally four directions, since there are only four possible actions
-        in any given state of the environment """
+        in any given state of the environment"""
         possible_actions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
         index_blank_square = self.find_blank_square(state)
-
         if index_blank_square % self.size == 0:
             possible_actions.remove('LEFT')
         if index_blank_square < self.size:
@@ -542,8 +537,8 @@ class NPuzzle(Problem):
         return possible_actions
 
     def result(self, state, action):
-        """ Given state and action, return a new state that is the result of the action.
-        Action is assumed to be a valid action in the state """
+        """Given state and action, return a new state that is the result of the action.
+        Action is assumed to be a valid action in the state"""
         index_blank_square = self.find_blank_square(state)
         new_state = list(state)
         delta = {'UP': -self.size, 'DOWN': self.size, 'LEFT': -1, 'RIGHT': 1}
@@ -552,15 +547,15 @@ class NPuzzle(Problem):
         return tuple(new_state)
 
     def goal_test(self, state):
-        """ Given a state, return True if state is a goal state or False otherwise """
+        """Given a state, return True if state is a goal state or False otherwise"""
         return state == self.goal
 
     def check_solvability(self, state):
-        """ Checks if the given state is solvable. Whether or not puzzle is solvable depends on size being even or odd.
-                     If N is odd, then puzzle instance is solvable if number of inversions is even in the input state.
-                    If N is even, puzzle instance is solvable if the blank is on an even row counting from the bottom (second-last, fourth-last, etc.) and number of inversions is odd
-                    or the blank is on an odd row counting from the bottom (last, third-last, fifth-last, etc.) and number of inversions is even."
-                    reference : https://www.geeksforgeeks.org/check-instance-15-puzzle-solvable/"""
+        """Checks if the given state is solvable. Whether or not puzzle is solvable depends on size being even or odd.
+         If N is odd, then puzzle instance is solvable if number of inversions is even in the input state.
+         If N is even, puzzle instance is solvable if the blank is on an even row counting from the bottom (second-last, fourth-last, etc.) and number of inversions is odd
+         or the blank is on an odd row counting from the bottom (last, third-last, fifth-last, etc.) and number of inversions is even."
+         reference : https://www.geeksforgeeks.org/check-instance-15-puzzle-solvable/"""
         solvable = True
         inversions = 0
         for i in range(len(state)-1):
@@ -575,21 +570,15 @@ class NPuzzle(Problem):
             solvable = True
         else:
             solvable = False
-
         return solvable
 
     def h(self, node):
-        """ Return the heuristic value for a given state. Default heuristic function used is
-        h(n) = number of misplaced tiles """
-        heuristics = {
-
-            'hamming':self.hamming_distance_heuristic(node)
-        }
+        """Return the heuristic value for a given state. Default heuristic function used is
+        h(n) = number of misplaced tiles"""
+        heuristics = {'hamming':self.hamming_distance_heuristic(node)}
         return heuristics.get(self.heuristic)
-
-
+    
     def hamming_distance_heuristic(self, node):
-
         return hamming_distance(node.state, self.goal)
 
 
