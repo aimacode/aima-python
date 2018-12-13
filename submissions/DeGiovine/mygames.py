@@ -1,11 +1,14 @@
-from collections import namedtuple
-from games import (Game)
+from games import Game
+from math import nan, isnan
 from queue import PriorityQueue
 from copy import deepcopy
+from utils import isnumber
+from grading.util import print_table
 
 class GameState:
-    def __init__(self, to_move, board, label=None, depth=8):
+    def __init__(self, to_move, board, position, label=None, depth=15):
         self.to_move = to_move
+        self.position = position
         self.board = board
         self.label = label
         self.maxDepth = depth

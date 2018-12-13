@@ -1,0 +1,7 @@
+Chris DeGiovine
+
++60 Map runs without exceptions
++10 Map uilizes at least 4 colors
++10 Map requires fewer assignments than original using mrv
++10 Map requires fewer assignments than original using lcv
++10 Map requires fewer assignments than original using forward checking
