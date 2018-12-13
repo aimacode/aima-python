@@ -1,0 +1,4 @@
+This data comes from https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_boston.html
+Data: https://archive.ics.uci.edu/ml/machine-learning-databases/housing/housing.data I used the first 110 lines of data.
+Each row is a home with the columns representing attribute data such as crime rate, nitric oxides concentrations, etc.
+
