@@ -9,3 +9,29 @@ C Level:
 
 Bonuses:
 2.2 (+5) C-Level project submitted by Saturday, Dec. 1st at 6:00 am.
+2.3 (+5) Explain why your data clusters the way it does. -
+    Since this wine data has 13 dimensions, it is difficult to identify exactly why the data clusters as it does. After
+    graphing a two-dimensional plot for many combinations of dimensions, it seems that property 12 (the 13th property)
+    is clustered the most distinctly. Graphing the clusters along property 12 and any other property for the other
+    dimension yields a very distinctly layered graph. That is to say, each cluster lies in a specific range of values
+    for property 12, almost without fail/outliers. What would cause the clusters to form this way? The mathematical
+    explanation is fairly simple. Property 12 is Proline (as per https://scikit-learn.org/stable/datasets/index.html),
+    which is measured on a much larger scale than the other properties. Values for this property can get into the
+    1000's, which is orders of magnitude larger than the other properties. This causes clusters to form primarily
+    around this property, and then secondarily around the other properties. So, that is the reason why this wine data
+    clusters the way it does.
+2.4 (+5) I did a linear normalization of the data, but for some reason the clustering is approximately half as
+    effective as the non-normalized data (according to the silhouette coefficient). My guess as to why that might
+    be is heavily tied to my answer for 2.3. The original wine data is clustered primarily around property 12, since
+    its values are so much larger than the others. When the values are between 0 and 1, there is no longer a single
+    property to cluster around to achieve a high silhouette coefficient. Despite the lower silhouette coefficient,
+    when generating an image of the clusters for bonus 2.5, the normalized data seems to do about as well as the
+    original data, looking at the clusters formed, although the exact clusters differ somewhat (as expected).
+    *NOTE*: because of this behavior, the normalized data is commented out, as are the normalized centroids
+    in main() for bonus 2.5, and the shown image of the clusters is generated using the original data.
+2.5 (+10) Image of the generated clusters (2D) in bonus2-5plot.png. Also, by uncommenting the call to main() in
+    myKMeans.py, the same image will be shown when run. It uses the clusters created with 7 centroids (found in main()).
+    To get the same image using the normalized data, simply comment out the original data and centroids for the
+    original data, and uncomment the normalized data and centroids for the normalized data, then run again.
+
+TOTAL: 75 + 5 + 5 + 5 + 10 = 100
