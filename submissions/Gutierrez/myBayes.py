@@ -17,6 +17,7 @@ burglary = BayesNet([
 
 burglary.label = 'Burglary Example, Fig. 14.2'
 
+
 famous = BayesNet([
 # will you get famous?
 # statistics recevied from https://nypost.com/2009/07/25/you-are-not-going-to-be-famous/ and
