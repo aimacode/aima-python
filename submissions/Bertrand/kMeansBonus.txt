@@ -1,3 +1,5 @@
 Earned Bonuses:
 
 2. (5) --> Submit a project at C level by Saturday, Dec. 1 before 6:00 am
+4. (5) --> Normalize your data, so that every value 0 <= data[i][j] <= 1.
+        --> normData contains values ranging from 0 to 1
