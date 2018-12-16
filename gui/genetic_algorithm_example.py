@@ -155,7 +155,7 @@ def genetic_algorithm_stepwise(population):
 			canvas.create_text((canvas_width * .825), (canvas_height * .25 + (25 * i)), fill=lp_blue, font='Consolas 16', text=members[3 * i + 2])
 
 		# displays current generation number
-		canvas.create_text((canvas_width * .5), (canvas_height * 0.95), fill=p_blue, font='Consolas 18 bold', text=f'Generation {generation}')
+		canvas.create_text((canvas_width * .5), (canvas_height * 0.95), fill=p_blue, font='Consolas 18 bold', text='Generation '+str(generation))
 
 		# displays blue bar that indicates current maximum fitness compared to maximum possible fitness
 		scaling_factor = fitness_fn(current_best) / len(target)
