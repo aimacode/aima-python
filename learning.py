@@ -1078,10 +1078,11 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
         fold_errV = 0
         n = len(dataset.examples)
         examples = dataset.examples
-        for fold in range(k):
-            random.shuffle(dataset.examples)
+        random.shuffle(dataset.examples)
+        for fold in range(k)
             train_data, val_data = train_test_split(dataset, fold * (n / k),
                                                     (fold + 1) * (n / k))
+            random.shuffle(train_data)
             dataset.examples = train_data
             h = learner(dataset, size)
             fold_errT += err_ratio(h, dataset, train_data)
