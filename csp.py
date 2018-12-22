@@ -230,6 +230,7 @@ def no_inference(csp, var, value, assignment, removals):
 
 def forward_checking(csp, var, value, assignment, removals):
     """Prune neighbor values inconsistent with var=value."""
+    csp.support_pruning()
     for B in csp.neighbors[var]:
         if B not in assignment:
             for b in csp.curr_domains[B][:]:
@@ -450,7 +451,7 @@ australia = MapColoringCSP(list('RGB'),
 
 usa = MapColoringCSP(list('RGBY'),
                      """WA: OR ID; OR: ID NV CA; CA: NV AZ; NV: ID UT AZ; ID: MT WY UT;
-        UT: WY CO AZ; MT: ND SD WY; WY: SD NE CO; CO: NE KA OK NM; NM: OK TX;
+        UT: WY CO AZ; MT: ND SD WY; WY: SD NE CO; CO: NE KA OK NM; NM: OK TX AZ;
         ND: MN SD; SD: MN IA NE; NE: IA MO KA; KA: MO OK; OK: MO AR TX;
         TX: AR LA; MN: WI IA; IA: WI IL MO; MO: IL KY TN AR; AR: MS TN LA;
         LA: MS; WI: MI IL; IL: IN KY; IN: OH KY; MS: TN AL; AL: TN GA FL;

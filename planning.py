@@ -32,7 +32,7 @@ class PlanningProblem:
         try:
             clauses = conjuncts(clauses)
         except AttributeError:
-            clauses = clauses
+            pass
 
         new_clauses = []
         for clause in clauses:

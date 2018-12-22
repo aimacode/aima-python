@@ -415,8 +415,8 @@ def astar_search(problem, h=None):
 class EightPuzzle(Problem):
 
     """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board,
-    where one of the squares is a blank. A state is represented as a 3x3 list,
-    where element at index i,j represents the tile number (0 if it's an empty square) """
+    where one of the squares is a blank. A state is represented as a tuple of length 9,
+    where element at index i represents the tile number  at index i (0 if it's an empty square) """
  
     def __init__(self, initial, goal=(1, 2, 3, 4, 5, 6, 7, 8, 0)):
         """ Define goal state and initialize a problem """
@@ -472,8 +472,8 @@ class EightPuzzle(Problem):
 
         inversion = 0
         for i in range(len(state)):
-            for j in range(i, len(state)):
-                if state[i] > state[j] != 0:
+            for j in range(i+1, len(state)):
+                if (state[i] > state[j]) and state[i] != 0 and state[j]!= 0:
                     inversion += 1
         
         return inversion % 2 == 0
