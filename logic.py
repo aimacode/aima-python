@@ -35,7 +35,7 @@ from utils import (
     removeall, unique, first, argmax, probability,
     isnumber, issequence, Expr, expr, subexpressions
 )
-from agents import *
+from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
 from search import astar_search, PlanRoute
 
 import itertools
