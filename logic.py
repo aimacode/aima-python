@@ -35,7 +35,7 @@ from utils import (
     removeall, unique, first, argmax, probability,
     isnumber, issequence, Expr, expr, subexpressions
 )
-import agents
+from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
 from search import astar_search, PlanRoute
 
 import itertools
@@ -851,7 +851,7 @@ class WumpusKB(PropKB):
         wumpus_at_least = list()
         for x in range(1, dimrow+1):
             for y in range(1, dimrow + 1):
-                wumps_at_least.append(wumpus(x, y))
+                wumpus_at_least.append(wumpus(x, y))
 
         self.tell(new_disjunction(wumpus_at_least))
 
@@ -913,7 +913,7 @@ class WumpusKB(PropKB):
             self.tell(percept_scream(time))
 
         ## Things not perceived
-        for i in len(range(flags)):
+        for i in range(len(flags)):
             if flags[i] == 0:
                 if i == 0:
                     self.tell(~percept_glitter(time))
@@ -1037,16 +1037,16 @@ class WumpusPosition():
 # ______________________________________________________________________________
 
 
-class HybridWumpusAgent(agents.Agent):
+class HybridWumpusAgent(Agent):
     """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
-    def __init__(self):
-        super().__init__()
-        self.dimrow = 4
+    def __init__(self,dimentions):
+        self.dimrow = dimentions
         self.kb = WumpusKB(self.dimrow)
         self.t = 0
         self.plan = list()
         self.current_position = WumpusPosition(1, 1, 'UP')
+        super().__init__(self.execute)
 
 
     def execute(self, percept):
