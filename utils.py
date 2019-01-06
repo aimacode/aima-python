@@ -36,10 +36,22 @@ def unique(seq):  # TODO: replace with set
     return list(set(seq))
 
 
-def count(seq):
+def count(seq): # TODO: replace with quantify
     """Count the number of items in sequence that are interpreted as true."""
     return sum(bool(x) for x in seq)
 
+def multimap(items):
+    """Given (key, val) pairs, return {key: [val, ....], ...}."""
+    result = defaultdict(list)
+    for (key, val) in items:
+        result[key].append(val)
+    return result
+
+def multimap_items(mmap):
+    """Yield all (key, val) pairs stored in the multimap."""
+    for (key, vals) in mmap.items():
+        for val in vals:
+            yield key, val
 
 def product(numbers):
     """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
@@ -50,14 +62,8 @@ def product(numbers):
 
 
 def first(iterable, default=None):
-    """Return the first element of an iterable or the next element of a generator; or default."""
-    try:
-        return iterable[0]
-    except IndexError:
-        return default
-    except TypeError:
-        return next(iterable, default)
-
+    """Return the first element of an iterable; or default."""
+    return next(iter(iterable), default)
 
 def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
@@ -78,7 +84,6 @@ def powerset(iterable):
 
 # ______________________________________________________________________________
 # argmin and argmax
-
 
 identity = lambda x: x
 
@@ -223,7 +228,19 @@ def weighted_sampler(seq, weights):
     return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
 
 
-def rounder(numbers, d=4):
+def weighted_choice(choices):
+    """A weighted version of random.choice"""
+    # NOTE: Shoule be replaced by random.choices if we port to Python 3.6
+
+    total = sum(w for _, w in choices)
+    r = random.uniform(0, total)
+    upto = 0
+    for c, w in choices:
+        if upto + w >= r:
+            return c, w
+        upto += w
+	
+wdef rounder(numbers, d=4):
     """Round a single number, or sequence of numbers, to d decimal places."""
     if isinstance(numbers, (int, float)):
         return round(numbers, d)
@@ -232,7 +249,7 @@ def rounder(numbers, d=4):
         return constructor(rounder(n, d) for n in numbers)
 
 
-def num_or_str(x):
+def num_or_str(x): # TODO: rename as `atom`
     """The argument is a string; convert to a number if
        possible, or strip it."""
     try:
@@ -337,20 +354,6 @@ except ImportError:
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
         """Return true if numbers a and b are close to each other."""
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
-
-
-def weighted_choice(choices):
-    """A weighted version of random.choice"""
-    # NOTE: Shoule be replaced by random.choices if we port to Python 3.6
-
-    total = sum(w for _, w in choices)
-    r = random.uniform(0, total)
-    upto = 0
-    for c, w in choices:
-        if upto + w >= r:
-            return c, w
-        upto += w
-
 
 # ______________________________________________________________________________
 # Grid Functions
