@@ -240,7 +240,7 @@ def weighted_choice(choices):
             return c, w
         upto += w
 	
-wdef rounder(numbers, d=4):
+def rounder(numbers, d=4):
     """Round a single number, or sequence of numbers, to d decimal places."""
     if isinstance(numbers, (int, float)):
         return round(numbers, d)
