@@ -989,10 +989,15 @@ def mutate(x, gene_pool, pmut):
 class PourProblem(Problem):
     """Problem about pouring water between jugs to achieve some water level.
     Each state is a tuples of levels. In the initialization, provide a tuple of 
-    capacities, e.g. PourProblem(capacities=(8, 16, 32), initial=(2, 4, 3), goals={7}), 
-    which means three jugs of capacity 8, 16, 32, currently filled with 2, 4, 3 units of 
-    water, respectively, and the goal is to get a level of 7 in any one of the jugs."""
-    
+    capacities, e.g. PourProblem(capacities=(8, 16, 32), initial=(2, 4, 3), 
+    goals={7}), which means three jugs of capacity 8, 16, 32, currently filled 
+    with 2, 4, 3 units of water, respectively, and the goal is to get a level 
+    of 7 in any one of the jugs."""
+    def __init__(self, initial = None, goals = (), capacities = None):
+        self.initial = initial
+        self.goals = goals
+        self.capacities = capacities
+
     def actions(self, state):
         """The actions executable in this state."""
         jugs = range(len(state))
