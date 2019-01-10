@@ -993,7 +993,7 @@ class PourProblem(Problem):
     goals={7}), which means three jugs of capacity 8, 16, 32, currently filled 
     with 2, 4, 3 units of water, respectively, and the goal is to get a level 
     of 7 in any one of the jugs."""
-    def __init__(self, initial = None, goals = (), capacities = None):
+    def __init__(self, initial=None, goals=(), capacities=None):
         self.initial = initial
         self.goals = goals
         self.capacities = capacities
@@ -1029,7 +1029,7 @@ class PourProblem(Problem):
     
     def step_cost(self, state, action, result=None):
         "The cost of taking this action from this state."
-        return 1 # Override this if actions have different costs
+        return 1 
     
 
 # ______________________________________________________________________________
