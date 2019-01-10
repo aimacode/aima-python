@@ -1026,13 +1026,10 @@ class PourProblem(Problem):
         """True if any of the jugs has a level equal to one of the goal levels."""
         return any(level in self.goals for level in state)
     
-    def action_sequence(node):
-        "The sequence of actions to get to this node."
-        actions = []
-        while node.previous:
-              actions.append(node.action)
-              node = node.previous
-        return actions[::-1]
+    
+    def step_cost(self, state, action, result=None):
+        "The cost of taking this action from this state."
+        return 1 # Override this if actions have different costs
     
 
 # ______________________________________________________________________________

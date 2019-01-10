@@ -1124,9 +1124,9 @@ def visual_pour(searcher, problem):
         node = result
         "The sequence of actions to get to this node."
         action = []
-        while node.previous:
+        while node.parent:
               action.append(node.action)
-              node = node.previous
+              node = node.parent
         actions = action[::-1]
         state = problem.initial
         path_cost = 0
@@ -1135,11 +1135,11 @@ def visual_pour(searcher, problem):
             result = problem.result(state, action)
             print('  {} =={}==> {}; cost {} after {} steps'
                   .format(state, action, result, path_cost, steps,
-                          '; GOAL!' if problem.is_goal(result) else ''))
+                          '; GOAL!' if problem.goal_test(result) else ''))
             state = result
     msg = 'GOAL FOUND' if result else 'no solution'
     print('{} after {} results and {} goal checks'
-          .format(msg, problem._counter['result'], problem._counter['is_goal']))
+          .format(msg, problem._counter['result'], problem._counter['goal_test']))
         
 class Instrumented:
     "Instrument an object to count all the attribute accesses in _counter."
