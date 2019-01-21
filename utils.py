@@ -186,14 +186,14 @@ def vector_add(a, b):
     return tuple(map(operator.add, a, b))
 
 
-def scalar_vector_product(X, Y):
+def scalar_vector_product(scalar, vector):
     """Return vector as a product of a scalar and a vector"""
-    return [X * y for y in Y]
+    return [scalar * v for v in vector]
 
 
-def scalar_matrix_product(X, Y):
+def scalar_matrix_product(scalar, matrix):
     """Return matrix as a product of a scalar and a matrix"""
-    return [scalar_vector_product(X, y) for y in Y]
+    return [scalar_vector_product(scalar,row) for row in matrix]
 
 
 def inverse_matrix(X):
