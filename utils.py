@@ -182,6 +182,7 @@ def vector_to_diagonal(v):
 
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
+    assert len(a)==len(b),"Length of the 2 vectors is not same"
     return tuple(map(operator.add, a, b))
 
 
