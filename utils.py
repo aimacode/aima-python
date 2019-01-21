@@ -132,6 +132,7 @@ def histogram(values, mode=0, bin_function=None):
 
 def dotproduct(X, Y):
     """Return the sum of the element-wise product of vectors X and Y."""
+    assert len(X)==len(Y),"Length of the 2 vectors is not same"
     return sum(x * y for x, y in zip(X, Y))
 
 

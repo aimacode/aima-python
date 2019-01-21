@@ -950,12 +950,14 @@ def AdaBoost(L, K):
             h_k = L(dataset, w)
             h.append(h_k)
             error = sum(weight for example, weight in zip(examples, w)
-                        if example[target] != h_k(example))
+                        if example[target] != h_k(example[:-1]))
 
             # Avoid divide-by-0 from either 0% or 100% error rates:
             error = clip(error, epsilon, 1 - epsilon)
             for j, example in enumerate(examples):
-                if example[target] == h_k(example):
+                input_example=dataset.sanitize(example)
+                input_example.remove(None)
+                if example[target] == h_k(input_example):
                     w[j] *= error/(1 - error)
             w = normalize(w)
             z.append(math.log((1 - error)/error))
@@ -1031,14 +1033,16 @@ def err_ratio(predict, dataset, examples=None, verbose=0):
     right = 0
     for example in examples:
         desired = example[dataset.target]
-        output = predict(dataset.sanitize(example))
+        input_example=dataset.sanitize(example)
+        input_example.remove(None)
+        output = predict(input_example)
         if output == desired:
             right += 1
             if verbose >= 2:
-                print('   OK: got {} for {}'.format(desired, example))
+                print('   OK: got {} for {}'.format(desired, input_example))
         elif verbose:
             print('WRONG: got {}, expected {} for {}'.format(
-                output, desired, example))
+                output, desired, input_example))
     return 1 - (right/len(examples))
 
 
