@@ -138,7 +138,7 @@ def dotproduct(X, Y):
 
 def element_wise_product(X, Y):
     """Return vector as an element-wise product of vectors X and Y"""
-    assert len(X) == len(Y)
+    assert len(X) == len(Y),"The vectors give for element wise product are not of the same length"
     return [x * y for x, y in zip(X, Y)]
 
 
