@@ -156,11 +156,11 @@ def matrix_multiplication(X_M, *Y_M):
         """
         X_M_row_length=len(X_M[0])
         for row in X_M:
-            assert len(row)==X_M_row_length,"Lenght of the rows of matrix X_M is not uniform"
+            assert len(row)==X_M_row_length,"Length of the rows of matrix X_M is not uniform"
 
         Y_M_row_length=len(Y_M[0])
         for row in Y_M:
-            assert len(row)==Y_M_row_length,"Lenght of the rows of matrix Y_M is not uniform"
+            assert len(row)==Y_M_row_length,"Length of the rows of matrix Y_M is not uniform"
 
         assert len(X_M[0])==len(Y_M),"The width of X_M and the height of Y_M do not match"
 
