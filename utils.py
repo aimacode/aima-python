@@ -38,7 +38,7 @@ def unique(seq):
 
 def count(seq):
     """Count the number of items in sequence that are interpreted as true."""
-    return sum(map(bool,seq))
+    return sum(map(bool, seq))
 
 def multimap(items):
     """Given (key, val) pairs, return {key: [val, ....], ...}."""
