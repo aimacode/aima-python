@@ -58,8 +58,8 @@ def product(numbers):
 		real numbers or strings that can be converted into numbers, such as [1,1.0,'1'] etc. Else ValueError is raised."""
     result = 1
     for x in numbers:
-				float(x)
-    		result *= x
+        x=float(x)
+        result *= x
     return result
 
 
