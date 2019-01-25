@@ -750,7 +750,7 @@ class PriorityQueue:
         elif order == 'max':  # now item with max f(x)
             self.f = lambda x: -f(x)  # will be popped first
         else:
-            raise ValueError("order must be either 'min' or max'.")
+            raise ValueError("order must be either 'min' or 'max'.")
 
     def append(self, item):
         """Insert item at its correct position."""
@@ -762,7 +762,7 @@ class PriorityQueue:
             self.append(item)
 
     def pop(self):
-        """Pop and return the item (with min or max f(x) value
+        """Pop and return the item (with min or max f(x) value)
         depending on the order."""
         if self.heap:
             return heapq.heappop(self.heap)[1]
