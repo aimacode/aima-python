@@ -54,10 +54,12 @@ def multimap_items(mmap):
             yield key, val
 
 def product(numbers):
-    """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
+    """Return the product of the numbers, e.g. product([2, 3, 10]) == 60. list numbers should only contain 
+		real numbers or strings that can be converted into numbers, such as [1,1.0,'1'] etc. Else ValueError is raised."""
     result = 1
     for x in numbers:
-        result *= x
+				float(x)
+    		result *= x
     return result
 
 
