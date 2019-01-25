@@ -955,7 +955,7 @@ def AdaBoost(L, K):
             # Avoid divide-by-0 from either 0% or 100% error rates:
             error = clip(error, epsilon, 1 - epsilon)
             for j, example in enumerate(examples):
-                input_example=dataset.sanitize(example)
+                input_example = dataset.sanitize(example)
                 input_example.remove(None)
                 if example[target] == h_k(input_example):
                     w[j] *= error/(1 - error)
@@ -1033,7 +1033,7 @@ def err_ratio(predict, dataset, examples=None, verbose=0):
     right = 0
     for example in examples:
         desired = example[dataset.target]
-        input_example=dataset.sanitize(example)
+        input_example = dataset.sanitize(example)
         input_example.remove(None)
         output = predict(input_example)
         if output == desired:

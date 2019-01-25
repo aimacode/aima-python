@@ -77,7 +77,7 @@ def test_dotproduct():
     assert dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
     with pytest.raises(AssertionError):
         # this is done to test weather it does dotproduct of 2 vectors of unequal length
-        assert dotproduct([1,2,3,4],[1000,100,10])==AssertionError
+        assert dotproduct([1, 2, 3, 4],[1000, 100, 10]) == AssertionError
 
 
 def test_element_wise_product():
