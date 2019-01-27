@@ -13,7 +13,7 @@ def test_removeall_list():
 def test_removeall_string():
     assert removeall('s', '') == ''
     assert removeall('s', 'This is a test. Was a test.') == 'Thi i a tet. Wa a tet.'
-    assert removeall('a' ,'aima : artificial Intelligence: a Modern approach') == 'im : rtificil Intelligence:  modern pproch' 
+    assert removeall('a' ,'aima : artificial Intelligence: a Modern approach') == 'im : rtificil Intelligence:  Modern pproch' 
 
 def test_unique():
     assert unique([1, 2, 3, 2, 1]) == [1, 2, 3]
@@ -30,7 +30,6 @@ def test_count():
 def test_product():
     assert product([1, 2, 3, 4]) == 24
     assert product(list(range(1, 11))) == 3628800
-    assert product([0.1,0.2,0.3,0.4]) == 0.0024	
 
 
 def test_first():
