@@ -7,12 +7,13 @@ def test_removeall_list():
     assert removeall(4, []) == []
     assert removeall(4, [1, 2, 3, 4]) == [1, 2, 3]
     assert removeall(4, [4, 1, 4, 2, 3, 4, 4]) == [1, 2, 3]
+    
 
 
 def test_removeall_string():
     assert removeall('s', '') == ''
     assert removeall('s', 'This is a test. Was a test.') == 'Thi i a tet. Wa a tet.'
-
+    assert removeall('a' ,'aima : artificial Intelligence: a Modern approach') == 'im : rtificil Intelligence:  modern pproch' 
 
 def test_unique():
     assert unique([1, 2, 3, 2, 1]) == [1, 2, 3]
@@ -29,6 +30,7 @@ def test_count():
 def test_product():
     assert product([1, 2, 3, 4]) == 24
     assert product(list(range(1, 11))) == 3628800
+    assert product([0.1,0.2,0.3,0.4]) == 0.0024	
 
 
 def test_first():
@@ -38,6 +40,7 @@ def test_first():
     assert first(range(10)) == 0
     assert first(x for x in range(10) if x > 3) == 4
     assert first(x for x in range(10) if x > 100) is None
+    assert first('aima') == 'a'	
 
 
 def test_is_in():
@@ -49,6 +52,7 @@ def test_is_in():
 def test_mode():
     assert mode([12, 32, 2, 1, 2, 3, 2, 3, 2, 3, 44, 3, 12, 4, 9, 0, 3, 45, 3]) == 3
     assert mode("absndkwoajfkalwpdlsdlfllalsflfdslgflal") == 'l'
+    assert mode("artificialintelligence") == 'i'	
 
 
 def test_powerset():
@@ -75,6 +79,7 @@ def test_histogram():
 
 def test_dotproduct():
     assert dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
+    assert dotproduct([1, 1, 1], [2, 2, 2]) == 6
 
 
 def test_element_wise_product():
@@ -141,6 +146,7 @@ def test_num_or_str():
 
 def test_normalize():
     assert normalize([1, 2, 1]) == [0.25, 0.5, 0.25]
+    assert normalize([1, 3, 1]) == [0.2, 0.6, 0.2]
 
 
 def test_norm():
