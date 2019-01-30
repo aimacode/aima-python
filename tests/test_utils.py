@@ -35,9 +35,14 @@ def test_first():
     assert first('word') == 'w'
     assert first('') is None
     assert first('', 'empty') == 'empty'
+    assert first([1, 2, 3, 4, 5]) == 1
+    assert first([]) == None
     assert first(range(10)) == 0
     assert first(x for x in range(10) if x > 3) == 4
     assert first(x for x in range(10) if x > 100) is None
+    assert first((1, 2, 3)) == 1
+    assert first([(1, 2),(1, 3),(1, 4)]) == (1, 2)
+    assert first({1:"one", 2:"two", 3:"three"}) == 1
 
 
 def test_is_in():
