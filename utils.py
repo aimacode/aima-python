@@ -31,14 +31,14 @@ def removeall(item, seq):
         return [x for x in seq if x != item]
 
 
-def unique(seq):  # TODO: replace with set
+def unique(seq):
     """Remove duplicate elements from seq. Assumes hashable elements."""
     return list(set(seq))
 
 
-def count(seq): # TODO: replace with quantify
+def count(seq):
     """Count the number of items in sequence that are interpreted as true."""
-    return sum(bool(x) for x in seq)
+    return sum(map(bool, seq))
 
 def multimap(items):
     """Given (key, val) pairs, return {key: [val, ....], ...}."""
