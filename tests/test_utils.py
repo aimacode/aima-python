@@ -2,6 +2,14 @@ import pytest
 from utils import *
 import random
 
+def test_sequence():
+    assert sequence(1) == (1,)
+    assert sequence("helloworld") == "helloworld"
+    assert sequence({"hello":4, "world":5}) == ({"hello":4, "world":5},)
+    assert sequence([1, 2, 3]) == [1, 2, 3]
+    assert sequence((4, 5, 6)) == (4, 5, 6)
+    assert sequence([(1, 2),(2, 3),(4, 5)]) == [(1, 2), (2, 3),(4, 5)]
+    assert sequence(([1, 2],[3, 4],[5, 6])) == ([1, 2], [3, 4],[5, 6])
 
 def test_removeall_list():
     assert removeall(4, []) == []

@@ -18,9 +18,9 @@ from itertools import chain, combinations
 
 
 def sequence(iterable):
-    """Coerce iterable to sequence, if it is not already one."""
+    """Converts iterable to sequence, if it is not already one."""
     return (iterable if isinstance(iterable, collections.abc.Sequence)
-            else tuple(iterable))
+            else tuple([iterable]))
 
 
 def removeall(item, seq):
