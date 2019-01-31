@@ -42,10 +42,10 @@ def count(seq):
 
 def multimap(items):
     """Given (key, val) pairs, return {key: [val, ....], ...}."""
-    result = defaultdict(list)
+    result = collections.defaultdict(list)
     for (key, val) in items:
         result[key].append(val)
-    return result
+    return dict(result)
 
 def multimap_items(mmap):
     """Yield all (key, val) pairs stored in the multimap."""

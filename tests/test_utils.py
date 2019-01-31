@@ -33,6 +33,11 @@ def test_count():
     assert count([True, False, True, True, False]) == 3
     assert count([5 > 1, len("abc") == 3, 3+1 == 5]) == 2
 
+def test_multimap():
+    assert multimap([(1, 2),(1, 3),(1, 4),(2, 3),(2, 4),(4, 5)]) == \
+        {1: [2, 3, 4], 2: [3, 4], 4: [5]}
+    assert multimap([("a", 2), ("a", 3), ("a", 4), ("b", 3), ("b", 4), ("c", 5)]) == \
+        {'a': [2, 3, 4], 'b': [3, 4], 'c': [5]}
 
 def test_product():
     assert product([1, 2, 3, 4]) == 24
