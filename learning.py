@@ -838,7 +838,6 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
     hidden_layers_sizes : List number of neuron units in each hidden layer
     excluding input and output layers
     """
-    
     layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
 
     net = [[NNUnit(activation) for n in range(size)]
