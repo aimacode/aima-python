@@ -838,11 +838,7 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
     hidden_layers_sizes : List number of neuron units in each hidden layer
     excluding input and output layers
     """
-    # Check for PerceptronLearner
-    if hidden_layer_sizes:
-        layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
-    else:
-        layers_sizes = [input_units] + [output_units]
+    layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
 
     net = [[NNUnit(activation) for n in range(size)]
            for size in layers_sizes]
