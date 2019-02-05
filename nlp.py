@@ -567,3 +567,75 @@ def HITS(query):
             pages[p].hub = sum(authority[x] for x in getOutlinks(pages[p]))
         normalize(pages)
     return pages
+
+
+
+# ______________________________________________________________________________
+# BottomUpParse
+
+class BUParse:
+
+    """Class for parsing sentences using a bottom up parser.
+    >>> parser = BUParse(E0)
+    >>> 
+    1
+    """
+
+    def __init__(self, grammar):
+        self.grammar = grammar
+   
+    def chekkinrule(self,sentance,i):
+        rules = self.grammar.rules
+        for i in range(0,len(sentance)):
+            for w in range(0,4):
+                if (i+w<=len(sentance)):
+                    for LHS,RHS in rules.items():
+                        for production in RHS:
+                            if (production==sentance[i:i+w]):
+                                sentance[i:i+w]=[]
+                                sentance.insert(i,LHS)
+                                return sentance,1
+        return sentance,0
+
+    def findrule(self,subsequence,i):
+        lexicon = self.grammar.lexicon
+        for cat,lex in lexicon.items():  
+            if subsequence in lex:
+                return cat,1
+        return subsequence,0
+    
+    
+    def algo(self, sentance):
+        
+        tokens = (sum(list(self.grammar.lexicon.values()),[]))
+        sentance = sentance.split(" ")
+        sentance = [x.lower() for x in sentance]
+        lexicon = self.grammar.lexicon
+        rules = self.grammar.rules        
+        
+        #to remove any unrecognised words from the sentance 
+        for i in sentance:
+            if i in tokens:
+                continue
+            else:
+                sentance.remove(i)           
+        
+        #handle the single lexicon sentances
+        if (len(sentance)==1 and chekkinrule(sentance,i,rules,j)=='S'):
+            print("S")
+        else:
+            j=0
+            #do while sentance is not S (indefinate loop for grammars that dont form S
+            while(len(sentance)>1):
+                j=0
+                for i in range(0,len(sentance)): 
+                    print(sentance)
+                    #breaks on replacement
+                    if j!=1:
+                        subsequence=sentance[i]
+                        #if subsequence is a lexicon then replace
+                        sentance[i],j=self.findrule(subsequence,j)
+                        #if lexicon is not found check for production rules
+                        sentance,j=self.chekkinrule(sentance,i)                    
+
+       
