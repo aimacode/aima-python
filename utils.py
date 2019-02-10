@@ -773,18 +773,24 @@ class PriorityQueue:
         """Return current capacity of PriorityQueue."""
         return len(self.heap)
 
-    def __contains__(self, item):
-        """Return True if item in PriorityQueue."""
-        return (self.f(item), item) in self.heap
+    def __contains__(self, key):
+        """Return True if the key is in PriorityQueue."""
+        return any([item == key for _, item in self.heap])
 
     def __getitem__(self, key):
-        for _, item in self.heap:
+        """Returns the first value associated with key in PriorityQueue.
+        Raises KeyError if key is not present."""
+        for value, item in self.heap:
             if item == key:
-                return item
+                return value
+        raise KeyError(str(key) + " is not in the priority queue")
 
     def __delitem__(self, key):
         """Delete the first occurrence of key."""
-        self.heap.remove((self.f(key), key))
+        try:
+            del self.heap[[item == key for _, item in self.heap].index(True)]
+        except ValueError:
+            raise KeyError(str(key) + " is not in the priority queue")
         heapq.heapify(self.heap)
 
 
