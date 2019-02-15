@@ -4,7 +4,8 @@ from agents import Agent
 from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
                    RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram, \
 		           SimpleReflexAgentProgram, ModelBasedReflexAgentProgram, rule_match
-from agents import Wall, Gold, Explorer, Thing, Bump, Glitter, WumpusEnvironment, Pit
+from agents import Wall, Gold, Explorer, Thing, Bump, Glitter, WumpusEnvironment, Pit, \
+                   VacuumEnvironment, Dirt
 
 
 random.seed("aima-python")
@@ -266,6 +267,32 @@ def test_Agent():
     result = agent.program(5)
     assert result == 5
 
+def test_VacuumEnvironment():
+    # Initialize Vacuum Environment
+    v = VacuumEnvironment(6,6)
+    #Get an agent
+    agent = ModelBasedVacuumAgent()
+    agent.direction = Direction(Direction.R)
+    v.add_thing(agent)
+    v.add_thing(Dirt(), location=(2,1))
+
+    # Check if things are added properly
+    assert len([x for x in v.things if isinstance(x, Wall)]) == 20
+    assert len([x for x in v.things if isinstance(x, Dirt)]) == 1
+
+    #Let the action begin!
+    assert v.percept(agent) == ("Clean", "None")
+    v.execute_action(agent, "Forward")
+    assert v.percept(agent) == ("Dirty", "None")
+    v.execute_action(agent, "TurnLeft")
+    v.execute_action(agent, "Forward")
+    assert v.percept(agent) == ("Dirty", "Bump")
+    v.execute_action(agent, "Suck")
+    assert  v.percept(agent) == ("Clean", "None")
+    old_performance = agent.performance
+    v.execute_action(agent, "NoOp")
+    assert old_performance == agent.performance
+
 def test_WumpusEnvironment():
     def constant_prog(percept):
         return percept
@@ -314,5 +341,34 @@ def test_WumpusEnvironment():
     assert agent.alive == False
     assert agent.killed_by == Pit.__name__
     assert agent.performance == -1000
+
+    assert w.is_done()==True
+
+def test_WumpusEnvironmentActions():
+    def constant_prog(percept):
+        return percept
+    # Initialize Wumpus Environment
+    w = WumpusEnvironment(constant_prog)
+
+    agent = [x for x in w.things if isinstance(x, Explorer)][0]
+    gold = [x for x in w.things if isinstance(x, Gold)][0]
+    pit = [x for x in w.things if isinstance(x, Pit)][0]
+
+    agent.location = (1,1)
+    assert agent.direction.direction == "right"
+    w.execute_action(agent, 'TurnRight')
+    assert agent.direction.direction == "down"
+    w.execute_action(agent, 'TurnLeft')
+    assert agent.direction.direction == "right"
+    w.execute_action(agent, 'Forward')
+    assert agent.location == (2,1)
+
+    agent.location = gold.location
+    w.execute_action(agent, 'Grab')
+    assert agent.holding == [gold]
+
+    agent.location = (1,1)
+    w.execute_action(agent, 'Climb')
+    assert not any(map(lambda x: isinstance(x, Explorer), w.things))
 
     assert w.is_done()==True
