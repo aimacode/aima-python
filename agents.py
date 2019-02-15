@@ -719,6 +719,7 @@ class VacuumEnvironment(XYEnvironment):
         return (status, bump)
 
     def execute_action(self, agent, action):
+        agent.bump = False
         if action == 'Suck':
             dirt_list = self.list_things_at(agent.location, Dirt)
             if dirt_list != []:
