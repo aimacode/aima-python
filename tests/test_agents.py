@@ -307,7 +307,7 @@ def test_WumpusEnvironment():
 
     #Check that gold and wumpus are not present on (1,1)
     assert not any(map(lambda x: isinstance(x, Gold) or isinstance(x,WumpusEnvironment), 
-                    w.list_things_at((1,1)))) 
+                    w.list_things_at((1, 1)))) 
 
     #Check if w.get_world() segments objects correctly
     assert len(w.get_world()) == 6
@@ -322,7 +322,7 @@ def test_WumpusEnvironment():
     assert w.is_done()==False
 
     #Check Walls
-    agent.location = (1,2)
+    agent.location = (1, 2)
     percepts = w.percept(agent)
     assert len(percepts) == 5
     assert any(map(lambda x: isinstance(x,Bump), percepts[0]))
@@ -354,20 +354,20 @@ def test_WumpusEnvironmentActions():
     gold = [x for x in w.things if isinstance(x, Gold)][0]
     pit = [x for x in w.things if isinstance(x, Pit)][0]
 
-    agent.location = (1,1)
+    agent.location = (1, 1)
     assert agent.direction.direction == "right"
     w.execute_action(agent, 'TurnRight')
     assert agent.direction.direction == "down"
     w.execute_action(agent, 'TurnLeft')
     assert agent.direction.direction == "right"
     w.execute_action(agent, 'Forward')
-    assert agent.location == (2,1)
+    assert agent.location == (2, 1)
 
     agent.location = gold.location
     w.execute_action(agent, 'Grab')
     assert agent.holding == [gold]
 
-    agent.location = (1,1)
+    agent.location = (1, 1)
     w.execute_action(agent, 'Climb')
     assert not any(map(lambda x: isinstance(x, Explorer), w.things))
 
