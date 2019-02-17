@@ -984,6 +984,56 @@ def mutate(x, gene_pool, pmut):
 # _____________________________________________________________________________
 # The remainder of this file implements examples for the search algorithms.
 
+# _____________________________________________________________________________
+# Implementation of Water Pouring Problem
+
+
+class PourProblem(Problem):
+    """Problem about pouring water between jugs to achieve some water level.
+    Each state is a tuples of levels. In the initialization, provide a tuple of
+    capacities, e.g. PourProblem(capacities=(8, 16, 32), initial=(2, 4, 3),
+    goals={7}), which means three jugs of capacity 8, 16, 32, currently filled
+    with 2, 4, 3 units of water, respectively, and the goal is to get a level
+    of 7 in any one of the jugs."""
+    def __init__(self, initial=None, goals=(), capacities=None):
+        self.initial = initial
+        self.goals = goals
+        self.capacities = capacities
+
+    def actions(self, state):
+        """The actions executable in this state."""
+        jugs = range(len(state))
+        return ([('Fill', i)    for i in jugs if state[i] != self.capacities[i]] +
+                [('Dump', i)    for i in jugs if state[i] != 0] +
+                [('Pour', i, j) for i in jugs for j in jugs if i != j])
+
+    def result(self, state, action):
+        """The state that results from executing this action in this state."""
+        result = list(state)
+        act, i, j = action[0], action[1], action[-1]
+        if act == 'Fill':  # Fill i to capacity
+            result[i] = self.capacities[i]
+        elif act == 'Dump':  # Empty i
+            result[i] = 0
+        elif act == 'Pour':
+            a, b = state[i], state[j]
+            result[i], result[j] = ((0, a + b)
+                                    if (a + b <= self.capacities[j]) else
+                                    (a + b - self.capacities[j], self.capacities[j]))
+        else:
+            raise ValueError('unknown action', action)
+        return tuple(result)
+
+    def goal_test(self, state):
+        """True if any of the jugs has a level equal to
+        one of the goal levels."""
+        return any(level in self.goals for level in state)
+
+    def step_cost(self, state, action, result=None):
+        "The cost of taking this action from this state."
+        return 1
+
+
 # ______________________________________________________________________________
 # Graphs and Graph Problems
 
