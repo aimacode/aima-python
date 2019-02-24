@@ -15,6 +15,7 @@ install:
   - pip install networkx
   - pip install ipywidgets
   - pip install Pillow
+  - pip install ipythonblocks
 
 script:
   - py.test
