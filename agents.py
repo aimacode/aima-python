@@ -37,10 +37,10 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 
 from utils import distance_squared, turn_heading
 from statistics import mean
+from collections.abc import Callable
 
 import random
 import copy
-import collections
 
 
 # ______________________________________________________________________________
@@ -86,7 +86,7 @@ class Agent(Thing):
         self.bump = False
         self.holding = []
         self.performance = 0
-        if program is None or not isinstance(program, collections.Callable):
+        if program is None or not isinstance(program, Callable):
             print("Can't find a valid program for {}, falling back to default.".format(
                 self.__class__.__name__))
 
