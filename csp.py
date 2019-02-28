@@ -485,7 +485,7 @@ class NQueensCSP(CSP):
     That means position (x, y) represents (var, val) in the CSP.
     The main structures are three arrays to count queens that could conflict:
         rows[i]      Number of queens in the ith row (i.e val == i)
-        downs[i]     Number of queens in the \ diagonal
+        downs[i]     Number of queens in the diagonal
                      such that their (x, y) coordinates sum to i
         ups[i]       Number of queens in the / diagonal
                      such that their (x, y) coordinates have x-y+n-1 = i
