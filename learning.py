@@ -102,7 +102,7 @@ class DataSet:
         else:
             self.examples = examples
 
-        # Attrs are the indices of examples, unless otherwise stated.   
+        # Attrs are the indices of examples, unless otherwise stated.
         if self.examples is not None and attrs is None:
             attrs = list(range(len(self.examples[0])))
 
@@ -624,18 +624,18 @@ class DLTest:
         self.attr_values = {}
 
     def add(self, attr, value):
-        """add new attribute and value to the test"""
+        """Add new attribute and value to the test"""
         self.attr_values[attr] = value
 
     def matches(self, example):
-        """check if the given `example` passes the test of not"""
+        """Check if the given `example` passes the test of not"""
         for attr in self.attr_values.keys():
             if self.attr_values[attr] != example[attr]:
                 return False
         return True
 
     def matched_examples(self, examples):
-        """returns a subset of `examples` which pass the test"""
+        """Returns a subset of `examples` which pass the test"""
         matched_examples_list = []
         for example in examples:
             if self.matches(example):
@@ -643,7 +643,7 @@ class DLTest:
         return matched_examples_list
 
     def unmatched_examples(self, examples):
-        """returns a subset of `examples` which do not pass the test"""
+        """Returns a subset of `examples` which do not pass the test"""
         unmatched_examples_list = []
         for example in examples:
             if not self.matches(example):
@@ -653,7 +653,7 @@ class DLTest:
 
 def create_DLTests(dataset, attribute_count=1):
     """
-    returns a list of all possible tests for the given dataset.
+    Returns a list of all possible tests for the given dataset.
     `attribute_count` (int): maximum number of literals/attributes to consider for each test
     """
     all_possible_tests = []
@@ -684,7 +684,7 @@ class DecisionListLearner:
         self.decision_list = self.decision_list_learning(self.dataset.examples)
 
     def decision_list_learning(self, examples):
-        """learning decision list for the given examples. refer: [Figure 18.11]"""
+        """Learning decision list for the given examples. refer: [Figure 18.11]"""
         if not examples:
             return [None, self.negative]
         t = self.get_valid_test(examples)
@@ -696,12 +696,12 @@ class DecisionListLearner:
         return [(t, o)] + self.decision_list_learning(unmatched_examples)
 
     def all_positive(self, examples):
-        """check wheather all `examples` are `positive` or not"""
+        """Check wheather all `examples` are `positive` or not"""
         target_index = self.dataset.target
         return all(ex[target_index] == self.positive for ex in examples)
 
     def get_valid_test(self, examples):
-        """return a test that matches a nonempty subset from `examples`
+        """Returns a test that matches a nonempty subset from `examples`
         such that the members of examples t are all positive or all negative"""
         for test in self.possible_tests:
             matched_examples = test.matched_examples(examples)
@@ -711,7 +711,7 @@ class DecisionListLearner:
         return None
 
     def all_examples_have_same_target_value(self, test, examples):
-        """check wheather all examples have same target value or not"""
+        """Check wheather all examples have same target value or not"""
         target_index = self.dataset.target
         target_value = examples[0][target_index]
         for example in examples:
