@@ -8,7 +8,7 @@ from utils import argmin, argmax, hashabledict
 from learning import CountingProbDist
 import search
 
-from math import log, exp
+import math
 from collections import defaultdict
 import heapq
 import re
@@ -184,8 +184,8 @@ class IRSystem:
     def score(self, word, docid):
         """Compute a score for this word on the document with this docid."""
         # There are many options; here we take a very simple approach
-        return (log(1 + self.index[word][docid]) /
-                log(1 + self.documents[docid].nwords))
+        return (math.log(1 + self.index[word][docid]) /
+                math.log(1 + self.documents[docid].nwords))
 
     def total_score(self, words, docid):
         """Compute the sum of the scores of these words on the document with this docid."""
@@ -390,10 +390,10 @@ class PermutationDecoder:
 
         # add small positive value to prevent computing log(0)
         # TODO: Modify the values to make score more accurate
-        logP = (sum(log(self.Pwords[word] + 1e-20) for word in words(text)) +
-                sum(log(self.P1[c] + 1e-5) for c in text) +
-                sum(log(self.P2[b] + 1e-10) for b in bigrams(text)))
-        return -exp(logP)
+        logP = (sum(math.log(self.Pwords[word] + 1e-20) for word in words(text)) +
+                sum(math.log(self.P1[c] + 1e-5) for c in text) +
+                sum(math.log(self.P2[b] + 1e-10) for b in bigrams(text)))
+        return -math.exp(logP)
 
 
 class PermutationDecoderProblem(search.Problem):
@@ -418,93 +418,118 @@ class PermutationDecoderProblem(search.Problem):
     def goal_test(self, state):
         """We're done when all letters in search domain are assigned."""
         return len(state) >= len(self.decoder.chardomain)
+
+
 #-----------------------------TF-IDF--------------------------------------
+
+
 class tf_idf_analysis:
-    '''a class to perform tf-idf analysis on a given set of documents and also search a query'''
-#     class variabels(their type)= values contained in the variable
-#     docs(list)=contains all the documents
-#     terms_tf_idf_score(list of dict)=tf-idf-score of all the documents with all words
-#     doc_tf(list of dict)=a list containting the tf of each word in each document
-#     terms_df(dict of list)= gives the df of ach term
-    def __init__(self,docs):
-        '''input: list of all documents'''
-        self.docs=docs
-        self.tf_idf_score=self.make_tf_idf()
+    """A class to perform TF-IDF analysis on a given set of documents and search a query from the given set of documents.
+
+        variabels(type) = Values contained in the variable.
+
+        docs(list of strings) = Contains a list of all the documents as a string.
+        terms_tf_idf_score(list of dict) = TF-IDF-Score of all the documents with all words.
+        doc_tf(list of dict)= A list containing the Term Frequency of every word in the corresponding document.
+        terms_df(dict of list)= Gives the Document Frequency of each term.
+    """
+    
+    def __init__(self, docs):
+        """Input: A list of all documents."""
+    
+        self.docs = docs
+        self.tf_idf_score = self.make_tf_idf()
+    
     def make_tf_idf(self):
-        '''makes the tf-idf score of all the words in all the documents'''
-        terms_df={}
-        doc_tf=[]
-        counter=0
+        """Makes the TF-IDF score of all the words in all the documents."""
+    
+        terms_df, doc_tf, counter, terms_tf_idf_score = {}, [], 0, []
+        
         for i in self.docs:
-            counter+=1
-            tf=self.get_term_frequency(i)
+            counter += 1
+            tf = self.get_term_frequency(i)
             doc_tf.append(tf)
+            
             for j in tf.items():
-                if(terms_df.get(j[0],None)==None):
-                    terms_df[j[0]]=[counter]
+                if(terms_df.get(j[0], None) == None):
+                    terms_df[j[0]] = [counter]
                 elif(i not in terms_df[j[0]]):
                     terms_df[j[0]].append(counter)
-        terms_tf_idf_score=[]
+        
         for i in doc_tf:
-            x={}
+            x = {}
             for j in i.items():
-                x[j[0]]=self.tf_mul_idf(j[1],len(terms_df.get(j[0],[])))
+                x[j[0]] = self.tf_mul_idf(j[1], len(terms_df.get(j[0], [])))
             terms_tf_idf_score.append(x)
-        self.terms_tf_idf_score=terms_tf_idf_score
-        self.doc_tf=doc_tf
-        self.terms_df=terms_df
+        
+        self.terms_tf_idf_score = terms_tf_idf_score
+        self.doc_tf = doc_tf
+        self.terms_df = terms_df
+        
         return terms_tf_idf_score
-    def tf_mul_idf(self,tf,df):
-        '''multiplies the term frequency and inter-docuemt frequency to give the correct score'''
-        return math.log(1+tf)*math.log(len(self.docs)/(1+df))
-    def get_term_frequency(self,doc):
-        '''returns a dictionary containing the frequency of each term in a given document'''
-        term_freq={}
-        total_terms=0
+    
+    def tf_mul_idf(self, tf, df):
+        """Multiplies the Term Frequency and Inter-Document Frequency to give the correct score."""
+        return math.log(1 + tf) * math.log(len(self.docs) / (1 + df))
+    
+    def get_term_frequency(self, doc):
+        """Returns a dictionary containing the frequency of each term in a given document."""
+        term_freq, total_terms={}, 0
+        
         for i in doc.split():
             total_terms+=1
-            if(term_freq.get(i,0)==0):
-                term_freq[i]=1
+            if(term_freq.get(i, 0) == 0):
+                term_freq[i] = 1
             else:
-                term_freq[i]+=1
+                term_freq[i] += 1
+
         for i,j in term_freq.items():
-            term_freq[i]=j/total_terms
+            term_freq[i] = j / total_terms
+
         return term_freq
-    def get_doc_no(self,doc):
-        '''gets the document number of a given document from the list of docuemnts given '''
-        counter=0
+
+    def get_doc_no(self, doc):
+        """Gets the document number of a given document from the list of documents given."""
+        counter = 0
         for i in self.docs:
-            if(i==doc):
+            if(i == doc):
                 return counter
-            counter+=1
-    def get_tf_idf_score(self,word,doc):
-        '''returns the tf-idf score of the document '''
-        tf=self.get_term_frequency(doc)
-        ans=self.tf_mul_idf(tf.get(word,0),len(self.terms_df.get(word,[])))
+            counter += 1
+    
+    def get_tf_idf_score(self, word, doc):
+        """Returns the TF-IDF score of the document."""
+        tf = self.get_term_frequency(doc)
+        ans = self.tf_mul_idf(tf.get(word, 0), len(self.terms_df.get(word, [])))
         return ans
-    def top(self,doc_no,n):
-        '''returns top n most important word of the given document number'''
-        x=self.terms_tf_idf_score[doc_no]
-        return sorted(x.items(),key=lambda z:z[1],reverse=True)[:n]
-    def get_tf_idf_vector(self,doc):
-        '''returns the tf-idf vector of the document'''
-        tf=self.get_term_frequency(doc)
-        vector={}
+
+    def top(self, doc_no, n):
+        """Returns top-n most important word of the given document number."""
+        x = self.terms_tf_idf_score[doc_no]
+        return sorted(x.items(), key = lambda z: z[1], reverse = True)[:n]
+    
+    def get_tf_idf_vector(self, doc):
+        """Returns the TF-IDF vector of the document."""
+        tf = self.get_term_frequency(doc)
+        vector = {}
         for i in doc.split():
-            vector[i]=self.tf_mul_idf(tf.get(i,0),len(self.terms_df.get(i,[])))
+            vector[i] = self.tf_mul_idf(tf.get(i,0), len(self.terms_df.get(i, [])))
+        
         return vector
-    def search_query(self,query):
-        '''returns the sorted list of all the relevant docuemnts along with their relevance scores'''
-        queryvec=self.get_tf_idf_vector(query)
-        doc_score={}
-        query_mag=math.sqrt(sum([j[1]**2 for j in queryvec.items()]))
+    
+    def search_query(self, query):
+        """Returns the sorted list of all the relevant docuemnts along with their relevance scores."""
+        queryvec = self.get_tf_idf_vector(query)
+        doc_score = {}
+        query_mag = math.sqrt(sum([j[1]**2 for j in queryvec.items()]))
+        
         for i in range(len(self.docs)):
-            common_words=[j for j in query.split() if j in self.docs[i].split()]
-            if(len(common_words)==0):
-                doc_score[i]=0
+            common_words = [j for j in query.split() if j in self.docs[i].split()]
+            if(len(common_words) == 0):
+                doc_score[i] = 0
             else:
-                dot_product=sum([queryvec[j]*self.terms_tf_idf_score[i][j] for j in common_words])
-                doc_mag=math.sqrt(sum([j[1]**2 for j in self.terms_tf_idf_score[i].items()]))
-                doc_score[i]=dot_product/(query_mag*doc_mag)
-        sorted_doc_score=sorted(doc_score.items(),key=lambda x:x[1],reverse=True)
+                dot_product = sum([queryvec[j] * self.terms_tf_idf_score[i][j] for j in common_words])
+                doc_mag = math.sqrt(sum([j[1]**2 for j in self.terms_tf_idf_score[i].items()]))
+                doc_score[i] = dot_product / (query_mag * doc_mag)
+        
+        sorted_doc_score = sorted(doc_score.items(), key = lambda x: x[1], reverse= True)
         return sorted_doc_score
