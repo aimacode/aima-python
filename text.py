@@ -8,7 +8,7 @@ from utils import argmin, argmax, hashabledict
 from learning import CountingProbDist
 import search
 
-import math
+from math import log,exp
 from collections import defaultdict
 import heapq
 import re
@@ -184,8 +184,8 @@ class IRSystem:
     def score(self, word, docid):
         """Compute a score for this word on the document with this docid."""
         # There are many options; here we take a very simple approach
-        return (math.log(1 + self.index[word][docid]) /
-                math.log(1 + self.documents[docid].nwords))
+        return (log(1 + self.index[word][docid]) /
+                log(1 + self.documents[docid].nwords))
 
     def total_score(self, words, docid):
         """Compute the sum of the scores of these words on the document with this docid."""
@@ -390,10 +390,10 @@ class PermutationDecoder:
 
         # add small positive value to prevent computing log(0)
         # TODO: Modify the values to make score more accurate
-        logP = (sum(math.log(self.Pwords[word] + 1e-20) for word in words(text)) +
-                sum(math.log(self.P1[c] + 1e-5) for c in text) +
-                sum(math.log(self.P2[b] + 1e-10) for b in bigrams(text)))
-        return -math.exp(logP)
+        logP = (sum(log(self.Pwords[word] + 1e-20) for word in words(text)) +
+                sum(log(self.P1[c] + 1e-5) for c in text) +
+                sum(log(self.P2[b] + 1e-10) for b in bigrams(text)))
+        return -exp(logP)
 
 
 class PermutationDecoderProblem(search.Problem):
@@ -426,12 +426,12 @@ class PermutationDecoderProblem(search.Problem):
 class tf_idf_analysis:
     """A class to perform TF-IDF analysis on a given set of documents and search a query from the given set of documents.
 
-        variabels(type) = Values contained in the variable.
+        variables(type) = Values contained in the variable.
 
         docs(list of strings) = Contains a list of all the documents as a string.
         terms_tf_idf_score(list of dict) = TF-IDF-Score of all the documents with all words.
-        doc_tf(list of dict)= A list containing the Term Frequency of every word in the corresponding document.
-        terms_df(dict of list)= Gives the Document Frequency of each term.
+        doc_tf(list of dict) = A list containing the Term Frequency of every word in the corresponding document.
+        terms_df(dict of list) = Gives the Document Frequency of each term.
     """
     
     def __init__(self, docs):
@@ -470,7 +470,7 @@ class tf_idf_analysis:
     
     def tf_mul_idf(self, tf, df):
         """Multiplies the Term Frequency and Inter-Document Frequency to give the correct score."""
-        return math.log(1 + tf) * math.log(len(self.docs) / (1 + df))
+        return log(1 + tf) * log(len(self.docs) / (1 + df))
     
     def get_term_frequency(self, doc):
         """Returns a dictionary containing the frequency of each term in a given document."""
