@@ -59,7 +59,7 @@ def display(gridmdp, _height, _width):
 
 	for i in range(max(1, _height)):
 		for j in range(max(1, _width)):
-			label = ttk.Label(container, text=f'{gridmdp[_height - i - 1][j]:.3f}', font=('Helvetica', 12))
+			label = ttk.Label(container, text=format(gridmdp[_height - i - 1][j],'.3f'), font=('Helvetica', 12))
 			label.grid(row=i + 1, column=j + 1, padx=3, pady=3)
 
 	dialog.mainloop()
@@ -91,9 +91,9 @@ def initialize_dialogbox(_width, _height, gridmdp, terminals, buttons):
 	container.grid_rowconfigure(0, weight=1)
 	container.grid_columnconfigure(0, weight=1)
 
-	wall = tk.IntVar()
+	wall = tk.DoubleVar()
 	wall.set(0)
-	term = tk.IntVar()
+	term = tk.DoubleVar()
 	term.set(0)
 	reward = tk.DoubleVar()
 	reward.set(0.0)
@@ -138,7 +138,7 @@ def update_table(i, j, gridmdp, terminals, buttons, reward, term, wall, label_re
 		if reward.get() != 0.0:
 			gridmdp[i][j] = reward.get()
 			buttons[i][j].configure(style='reward.TButton')
-			buttons[i][j].config(text=f'R = {reward.get()}')
+			buttons[i][j].config(text='R = '+str(reward.get()))
 
 		if term.get() == TERM_VALUE:
 			if (i, j) not in terminals:
@@ -170,7 +170,7 @@ def reset_all(_height, i, j, gridmdp, terminals, buttons, reward, term, wall, la
 	wall.set(0)
 	gridmdp[i][j] = 0.0
 	buttons[i][j].configure(style='TButton')
-	buttons[i][j].config(text=f'({_height - i - 1}, {j})')
+	buttons[i][j].config(text='('+str(_height - i - 1)+', '+str(j)+')')
 
 	if (i, j) in terminals:
 		terminals.remove((i, j))
@@ -197,7 +197,7 @@ def external_reset(_width, _height, gridmdp, terminals, buttons):
 		for j in range(max(1, _width)):
 			gridmdp[i][j] = 0.0
 			buttons[i][j].configure(style='TButton')
-			buttons[i][j].config(text=f'({_height - i - 1}, {j})')
+			buttons[i][j].config(text='('+str(_height - i - 1)+', '+str(j)+')')
 
 def widget_disability_checks(i, j, gridmdp, terminals, label_reward, entry_reward, rbtn_wall, rbtn_term):
 	''' checks for required state of widgets in dialogboxes '''
@@ -252,21 +252,21 @@ def dialogbox(i, j, gridmdp, terminals, buttons, _height):
 	''' creates dialogbox for each cell '''
 
 	dialog = tk.Toplevel()
-	dialog.wm_title(f'{_height - i - 1}, {j}')
+	dialog.wm_title(str(_height - i - 1)+', '+str(j))
 
 	container = tk.Frame(dialog)
 	container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 	container.grid_rowconfigure(0, weight=1)
 	container.grid_columnconfigure(0, weight=1)
 
-	wall = tk.IntVar()
+	wall = tk.DoubleVar()
 	wall.set(gridmdp[i][j])
-	term = tk.IntVar()
+	term = tk.DoubleVar()
 	term.set(TERM_VALUE if (i, j) in terminals else 0.0)
 	reward = tk.DoubleVar()
 	reward.set(gridmdp[i][j] if gridmdp[i][j] != WALL_VALUE else 0.0)
 
-	label = ttk.Label(container, text=f'Configure cell {_height - i - 1}, {j}', font=('Helvetica', 12), anchor=tk.N)
+	label = ttk.Label(container, text='Configure cell '+str(_height - i - 1)+', '+str(j), font=('Helvetica', 12), anchor=tk.N)
 	label.grid(row=0, column=0, columnspan=3, sticky='new', pady=15, padx=5)
 	label_reward = ttk.Label(container, text='Reward', font=('Helvetica', 10), anchor=tk.N)
 	label_reward.grid(row=1, column=0, columnspan=3, sticky='new', pady=1, padx=5)
@@ -513,7 +513,7 @@ class BuildMDP(tk.Frame):
 
 		for i in range(max(1, _height)):
 			for j in range(max(1, _width)):
-				self.buttons[i][j] = ttk.Button(self.frame, text=f'({_height - i - 1}, {j})', width=int(196/max(1, _width)), command=partial(dialogbox, i, j, self.gridmdp, self.terminals, self.buttons, _height))
+				self.buttons[i][j] = ttk.Button(self.frame, text='('+str(_height - i - 1)+', '+str(j)+')', width=int(196/max(1, _width)), command=partial(dialogbox, i, j, self.gridmdp, self.terminals, self.buttons, _height))
 				self.buttons[i][j].grid(row=i, column=j, ipady=int(336/max(1, _height)) - 12)
 
 	def initialize(self):
@@ -585,7 +585,7 @@ class SolveMDP(tk.Frame):
 		self.canvas = FigureCanvasTkAgg(fig, self.frame)
 		self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 		self.anim = animation.FuncAnimation(fig, self.animate_graph, interval=50)
-		self.canvas.show()
+		self.canvas.draw()
 
 	def animate_graph(self, i):
 		''' performs value iteration and animates graph '''
