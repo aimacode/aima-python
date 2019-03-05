@@ -12,9 +12,12 @@ class Gui(VacuumEnvironment):
     """
     xi, yi = (0, 0)
     perceptible_distance = 1
-
+    agnt = -1
+	#agnt variable is used to check if we have right to change the position of the agent(i.e, if the change agent position button is clicked)
     def __init__(self, root, width=7, height=7, elements=['D', 'W']):
         super().__init__(width, height)
+        global agnt
+        agnt = -1 #intially the agent variable is set to -1
         self.root = root
         self.create_frames()
         self.create_buttons()
@@ -32,15 +35,18 @@ class Gui(VacuumEnvironment):
     def create_buttons(self):
         """Adds buttons to the respective frames in the GUI."""
         self.buttons = []
+        global agnt
+        row = 0
         for frame in self.frames:
             button_row = []
-            for _ in range(7):
+            for column in range(7):
                 button = Button(frame, height=3, width=5, padx=2, pady=2)
                 button.config(
-                    command=lambda btn=button: self.display_element(btn))
+                    command=lambda btn=button, row = row, column = column: self.display_element(btn, row, column)) #adding coordinate system for each button
                 button.pack(side='left')
                 button_row.append(button)
             self.buttons.append(button_row)
+            row = row + 1
 
     def create_walls(self):
         """Creates the outer boundary walls which do not move."""
@@ -56,19 +62,29 @@ class Gui(VacuumEnvironment):
                                                        state='disabled', disabledforeground='black')
         # Place the agent in the centre of the grid.
         self.buttons[3][3].config(
-            text='A', state='disabled', disabledforeground='black')
+            text='A', disabledforeground='black')
 
-    def display_element(self, button):
+    def display_element(self, button, posx, posy):
         """Show the things on the GUI."""
+        global agnt
         txt = button['text']
-        if txt != 'A':
+        if txt != 'A' and agnt == -1:
             if txt == 'W':
                 button.config(text='D')
             elif txt == 'D':
                 button.config(text='')
             elif txt == '':
                 button.config(text='W')
-
+        if agnt != -1:
+	    #if the button(Change agent position) is pressed we can change the agent's position.
+            txt = button['text']
+            if txt != 'W' and txt!='A': #The agent cannot be changed to a cell where previously a wall was present.
+                button.config(text = 'A')
+                self.buttons[self.xi][self.yi].config(text='')
+                agt = self.agents[0]
+                agt.location = posx, posy  #changing agent's location
+                self.xi, self.yi = posx, posy
+            
     def execute_action(self, agent, action):
         """Determines the action the agent performs."""
         xi, yi = ((self.xi, self.yi))
@@ -81,7 +97,7 @@ class Gui(VacuumEnvironment):
                 self.buttons[xi][yi].config(text='', state='normal')
                 xf, yf = agent.location
                 self.buttons[xf][yf].config(
-                    text='A', state='disabled', disabledforeground='black')
+                    text='A', disabledforeground='black')
 
         else:
             agent.bump = False
@@ -95,7 +111,7 @@ class Gui(VacuumEnvironment):
                     self.buttons[xi][yi].config(text='', state='normal')
                     xf, yf = agent.location
                     self.buttons[xf][yf].config(
-                        text='A', state='disabled', disabledforeground='black')
+                        text='A', disabledforeground='black')
 
         if action != 'NoOp':
             agent.performance -= 1
@@ -116,6 +132,8 @@ class Gui(VacuumEnvironment):
 
     def update_env(self):
         """Updates the GUI environment according to the current state."""
+        global agnt
+        agnt = -1
         self.read_env()
         agt = self.agents[0]
         previous_agent_location = agt.location
@@ -123,8 +141,21 @@ class Gui(VacuumEnvironment):
         self.step()
         xf, yf = agt.location
 
+    def update_env_agent(self):
+        """Updates the agent's location according to the current state."""
+        global agnt, xi, yi
+        agnt = 0 #the agnt variable is changed
+        self.read_env()
+        agt = self.agents[0]
+        previous_agent_location = agt.location
+        self.xi, self.yi = previous_agent_location
+
+
+        
     def reset_env(self, agt):
         """Resets the GUI environment to the initial state."""
+        global agnt
+        agnt = -1
         self.read_env()
         for i, btn_row in enumerate(self.buttons):
             for j, btn in enumerate(btn_row):
@@ -176,9 +207,13 @@ def main():
     root.geometry("420x440")
     root.resizable(0, 0)
     frame = Frame(root, bg='black')
+    agent_button = Button(frame, text='Change Agent position', height=2,
+                          width=18, padx=2, pady=2)
+    agent_button.pack(side='left')
     reset_button = Button(frame, text='Reset', height=2,
                           width=6, padx=2, pady=2)
     reset_button.pack(side='left')
+    
     next_button = Button(frame, text='Next', height=2,
                          width=6, padx=2, pady=2)
     next_button.pack(side='left')
@@ -187,10 +222,10 @@ def main():
     agt = XYReflexAgent(program=XYReflexAgentProgram)
     env.add_thing(agt, location=(3, 3))
     next_button.config(command=env.update_env)
+    agent_button.config(command=env.update_env_agent)
     reset_button.config(command=lambda: env.reset_env(agt))
     root.mainloop()
 
 
 if __name__ == "__main__":
     main()
-#abcd
