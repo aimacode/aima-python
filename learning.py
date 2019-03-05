@@ -662,7 +662,6 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     epochs: Number of passes over the dataset
     """
 
-    hidden_layer_sizes = hidden_layer_sizes
     i_units = len(dataset.inputs)
     o_units = len(dataset.values[dataset.target])
 
