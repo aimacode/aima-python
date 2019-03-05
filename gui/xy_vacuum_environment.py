@@ -13,7 +13,7 @@ class Gui(VacuumEnvironment):
     xi, yi = (0, 0)
     perceptible_distance = 1
     agnt = -1
-	#agnt variable is used to check if we have right to change the position of the agent(i.e, if the change agent position button is clicked)
+    #agnt variable is used to check if we have right to change the position of the agent(i.e, if the change agent position button is clicked)
     def __init__(self, root, width=7, height=7, elements=['D', 'W']):
         super().__init__(width, height)
         global agnt
