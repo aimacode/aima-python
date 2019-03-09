@@ -37,7 +37,7 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 
 from utils import distance_squared, turn_heading
 from statistics import mean
-from collections.abc import Callable
+from collections
 
 import random
 import copy
@@ -86,7 +86,7 @@ class Agent(Thing):
         self.bump = False
         self.holding = []
         self.performance = 0
-        if program is None or not isinstance(program, Callable):
+        if program is None or not isinstance(program, collections.Callable):
             print("Can't find a valid program for {}, falling back to default.".format(
                 self.__class__.__name__))
 
@@ -575,7 +575,7 @@ class Wall(Obstacle):
 
 
 try:
-    from ipythonblocks import BlockGrid
+    from blockgrid import BlockGrid
     from IPython.display import HTML, display
     from time import sleep
 except:
