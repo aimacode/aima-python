@@ -575,7 +575,7 @@ class Wall(Obstacle):
 
 
 try:
-    from blockgrid import BlockGrid
+    from ipythonblocks import BlockGrid
     from IPython.display import HTML, display
     from time import sleep
 except:
