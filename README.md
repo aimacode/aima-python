@@ -31,7 +31,7 @@ To download the repository:
 
 `git clone https://github.com/aimacode/aima-python.git`
 
-Then you need to install the basic dependencies to run the project in your system (although they are very less):
+Then you need to install the basic dependencies to run the project in your system:
 
 `pip install -r requirements.txt`
 
