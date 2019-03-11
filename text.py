@@ -418,3 +418,30 @@ class PermutationDecoderProblem(search.Problem):
     def goal_test(self, state):
         """We're done when all letters in search domain are assigned."""
         return len(state) >= len(self.decoder.chardomain)
+
+def soundex(word):
+    """Returns the Soundex code of a given word."""
+    word = word.upper()
+    code = word[0]
+    
+    for char in word[1:]:
+        if(char in ['B', 'F', 'P', 'V'] and code[-1] != "1"):
+            code += "1"
+        elif(char in ['C', 'G', 'J', 'K', 'Q', 'S', 'X', 'Z'] and code[-1] != "2"):
+            code += "2"
+        elif(char in ['D', 'T'] and code[-1]!="3"):
+            code += "3"
+        elif(char in ['L'] and code[-1] != "4"):
+            code += "4"
+        elif(char in ['M', 'N'] and code[-1] != "5"):
+            code += "5"
+        elif(char in ['R'] and code[-1] != "6"):
+            code += "6"
+    
+    if(len(code) <= 4):
+        code += "0"*(4 - len(code))
+    else:
+        code = code[:4]
+    
+    return code
+
