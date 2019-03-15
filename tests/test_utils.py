@@ -273,6 +273,43 @@ def test_expr():
     assert (expr('GP(x, z) <== P(x, y) & P(y, z)')
             == Expr('<==', GP(x, z), P(x, y) & P(y, z)))
 
+def test_min_priorityqueue():
+    queue = PriorityQueue(f=lambda x: x[1])
+    queue.append((1,100))
+    queue.append((2,30))
+    queue.append((3,50))
+    assert queue.pop() == (2,30)
+    assert len(queue) == 2
+    assert queue[(3,50)] == 50
+    assert (1,100) in queue
+    del queue[(1,100)]
+    assert (1,100) not in queue
+    queue.extend([(1,100), (4,10)])
+    assert queue.pop() == (4,10)
+    assert len(queue) == 2
+
+def test_max_priorityqueue():
+    queue = PriorityQueue(order='max', f=lambda x: x[1])
+    queue.append((1,100))
+    queue.append((2,30))
+    queue.append((3,50))
+    assert queue.pop() == (1,100)
+
+def test_priorityqueue_with_objects():
+    class Test:
+        def __init__(self, a, b):
+            self.a = a
+            self.b = b
+        def __eq__(self, other):
+            return self.a==other.a
+
+    queue = PriorityQueue(f=lambda x: x.b)
+    queue.append(Test(1,100))
+    other = Test(1,10)
+    assert queue[other]==100
+    assert other in queue
+    del queue[other]
+    assert len(queue)==0
 
 if __name__ == '__main__':
     pytest.main()
