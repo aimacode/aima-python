@@ -655,7 +655,7 @@ def DecisionListLearner(dataset):
 
 
 def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
-                     learning_rate=0.01, epochs=100, activation = sigmoid, momentum=False):
+                     learning_rate=0.01, epochs=100, activation=sigmoid, momentum=False):
     """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
     learning_rate: Learning rate of gradient descent
@@ -730,14 +730,14 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
             for v, n in zip(i_val, i_nodes):
                 n.value = v
 
-            # Forward pass
+            # Finding the values of the nodes through forward propogation
             for layer in net[1:]:
                 for node in layer:
                     inc = [n.value for n in node.inputs]
                     in_val = dotproduct(inc, node.weights)
                     node.value = node.activation(in_val)
 
-            # Initialize delta
+            # Initialize delta which stores the values of the gradients for each activation units
             delta = [[] for _ in range(n_layers)]
 		
             #initializing the velocity_gradient
@@ -750,6 +750,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
             err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
 
             # The activation function used is relu or sigmoid function
+            # First backward fast 
             if node.activation == sigmoid:
                 delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
             elif node.activation == relu:
@@ -762,7 +763,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 delta[-1] = [leaky_relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
 
 
-            # Backward pass
+            # Propogating backward and finding gradients of nodes for each hidden layer
             h_layers = n_layers - 2
             for i in range(h_layers, 0, -1):
                 layer = net[i]
@@ -818,12 +819,9 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                                                     scalar_vector_product(
                                                     learning_rate * delta[i][j], 
                                                     inc
-                                                    ))
-                                                    
-
+                                                    ))                                               
             # Update weights with velocity gradient optimizer in gradient descent
             else:
-
                 for i in range(1, n_layers):
                     layer = net[i]
                     inc = [node.value for node in net[i-1]]
