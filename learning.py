@@ -299,11 +299,11 @@ class CountingProbDist:
                                             list(self.dictionary.values()))
         return self.sampler()
         
-    def remove_sparse(self,sparse_value):
-    	""" keep items with probablity sparse value 
-    	and remove all others , eg if sparse_value=0.98 items with probablity
+    def remove_sparse(self, sparse_value):
+    	""" Keep items with probablity greater than sparse value 
+    	and remove all others, eg. if sparse_value=0.98 items with probablity
     	0.02 would be removed"""
-    	prob_to_remove= 1-sparse_value
+    	prob_to_remove = 1-sparse_value
     	tot = self.n_obs
     	for (k, v) in self.dictionary.items():
     		if v/tot < prob_to_remove:
