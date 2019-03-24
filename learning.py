@@ -1104,7 +1104,15 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     err_train = []
     size = 1
 
-    while True:
+    """
+    [deviates from pseudocode]
+    Intuition: The size, i.e complexity of a function would never be physically greater than the 
+    number of total training data points. For example, if we have 3 data points, a polynomial of degree 
+    greater than 3 is more than just overfitting. So, instead of looping till infinity, can just add the 
+    length of the data set as a rough upper limit to it. 
+    """
+
+    while len(dataset):
         errT, errV = cross_validation(learner, size, dataset, k)
         # Check for convergence provided err_val is not empty
         if (err_train and isclose(err_train[-1], errT, rel_tol=1e-6)):
