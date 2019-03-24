@@ -1112,7 +1112,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     length of the data set as a rough upper limit to it. 
     """
 
-    while len(dataset):
+    while size < len(dataset):
         errT, errV = cross_validation(learner, size, dataset, k)
         # Check for convergence provided err_val is not empty
         if (err_train and isclose(err_train[-1], errT, rel_tol=1e-6)):
