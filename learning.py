@@ -1086,7 +1086,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
             dataset.examples = examples
         return fold_errT/k, fold_errV/k
 
-# TODO: The function cross_validation_wrapper needs to be fixed. (The while loop runs forever!)
+
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     """[Fig 18.8]
     Return the optimal value of size having minimum error
