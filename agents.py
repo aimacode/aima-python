@@ -37,6 +37,9 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 
 from utils import distance_squared, turn_heading
 from statistics import mean
+from ipythonblocks import BlockGrid
+from IPython.display import HTML, display
+from time import sleep
 
 import random
 import copy
@@ -572,14 +575,6 @@ class Wall(Obstacle):
     pass
 
 # ______________________________________________________________________________
-
-
-try:
-    from ipythonblocks import BlockGrid
-    from IPython.display import HTML, display
-    from time import sleep
-except:
-    pass
 
 
 class GraphicEnvironment(XYEnvironment):
