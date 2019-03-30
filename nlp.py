@@ -4,6 +4,7 @@ from collections import defaultdict
 from utils import weighted_choice
 import urllib.request
 import re
+import math
 
 # ______________________________________________________________________________
 # Grammars and Lexicons
@@ -567,3 +568,69 @@ def HITS(query):
             pages[p].hub = sum(authority[x] for x in getOutlinks(pages[p]))
         normalize(pages)
     return pages
+
+#implementing Tfidf 
+class tfidfVectorizer:
+      def __init__(self,text):
+          self.text = text
+      
+    
+      #vectorize the text  
+      def vectorizer(self,text):
+          rx = r"[\w]+"
+          documents = list(re.findall(rx,k) for k in text)
+          return documents
+        
+      #Get unique words as a feature  
+      def getUniqueWords(self,allWords):
+          flat_list = [item.lower() for sublist in allWords for item in sublist]
+          unique_list = [] 
+      
+          for x in flat_list: 
+              if x not in unique_list: 
+                 unique_list.append(x) 
+          return unique_list
+    
+      #Calculate term frequency and document frequency
+      def Tf_df(self,text):
+          vect = self.vectorizer(text)
+          unique = self.getUniqueWords(vect)  
+          tf =[[0 for i in range(len(unique))] for j in range(len(text))] 
+          for i in range(len(text)):
+              for j in range(len(vect[i])):
+                  for k in range(len(unique)):
+                      if (unique[k] == vect[i][j].lower()):
+                         tf[i][k] = tf[i][k]+1
+          df = [0 for i in range(len(unique))]              
+          for i in range(len(unique)):
+              for j in range(len(text)):
+                  if tf[j][i]!=0:
+                     df[i]= df[i]+1    
+          return (tf,df)
+    
+     # Calculate IDF 
+      def Idf(self,text):
+          tf,df = self.Tf_df(text)
+          N = len(text)
+          idf = [0 for i in range(len(df))] 
+          for i in range(len(df)):
+              idf[i] = math.log10((N-df[i]+0.5)/(df[i]+0.5))                 
+          return idf
+    
+      #Calculate BM25
+      def BM25(self,text,k=2,b=0.75):
+          tf,df = self.Tf_df(text)
+          idf = self.Idf(text)
+          bm25 = 0
+          vect = self.vectorizer(text)  
+          Davg = 0
+          for k in range(len(vect)):
+              length.append(len(vect[k])) #length of term in document
+          for t in length:
+              Davg = Davg+t   # average length of term in document
+          Davg = Davg/len(text)
+        
+          for i in range(len(df)):
+              for j in range(len(text)):
+                  bm25=bm25+(idf[i]*(tf[j][i]*(k+1))/(tf[j][i] - k*(1 - b + b*length[j]/Davg)))
+          return bm25
