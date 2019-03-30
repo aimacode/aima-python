@@ -1,7 +1,7 @@
 How to Contribute to aima-python
 ==========================
 
-Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5674023002832896/) student, or an independent contributor, here is a guide on how you can help.
+Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5431334980288512/) student, or an independent contributor, here is a guide on how you can help.
 
 First of all, you can read these write-ups from past GSoC students to get an idea about what you can do for the project. [Chipe1](https://github.com/aimacode/aima-python/issues/641) - [MrDupin](https://github.com/aimacode/aima-python/issues/632)
 
