@@ -16,6 +16,7 @@ install:
   - pip install ipywidgets
   - pip install Pillow
   - pip install pytest-cov
+  - pip install ipythonblocks
 
 script:
   - py.test --cov=./
