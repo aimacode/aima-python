@@ -460,9 +460,15 @@ def truncated_svd(X, num_val=2, max_iter=1000):
 
         projected_X = matrix_multiplication(A, [[x] for x in X])
         projected_X = [x[0] for x in projected_X]
-        eivals.append(norm(projected_X, 1)/norm(X, 1))
-        eivec_m.append(X[:m])
-        eivec_n.append(X[m:])
+        new_eigenvalue = norm(projected_X, 1)/norm(X, 1)
+        ev_m = X[:m]
+        ev_n = X[m:]
+        if new_eigenvalue < 0:
+            new_eigenvalue = -new_eigenvalue
+            ev_m = [-ev_m_i for ev_m_i in ev_m]
+        eivals.append(new_eigenvalue)
+        eivec_m.append(ev_m)
+        eivec_n.append(ev_n)
     return (eivec_m, eivec_n, eivals)
 
 # ______________________________________________________________________________
