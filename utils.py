@@ -480,6 +480,18 @@ def open_data(name, mode='r'):
 
     return open(aima_file, mode=mode)
 
+def stopword_data(name,mode = 'r+'):
+    aima_root = os.path.dirname(__file__)
+    aima_file = os.path.join(aima_root, *['stopword', name])
+
+    return open(aima_file, mode=mode)
+	
+def lemmatization(name,mode = 'r+'):
+    aima_root = os.path.dirname(__file__)
+    aima_file = os.path.join(aima_root, *['lemmatization', name])
+
+    return open(aima_file, mode=mode)	
+
 
 def failure_test(algorithm, tests):
     """Grades the given algorithm based on how many tests it passes.
