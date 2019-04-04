@@ -31,6 +31,10 @@ To download the repository:
 
 `git clone https://github.com/aimacode/aima-python.git`
 
+Then you need to install the basic dependencies to run the project on your system:
+
+`pip install -r requirements.txt`
+
 You also need to fetch the datasets from the [`aima-data`](https://github.com/aimacode/aima-data) repository:
 
 ```
@@ -98,7 +102,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`][logic]             | Done | Included |
 | 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`][logic]             | Done | Included |
 | 7.14   | Convert to CNF                    | `to_cnf`                      | [`logic.py`][logic]             | Done | Included |
-| 7.15   | PL-FC-Entails?                    | `pl_fc_resolution`            | [`logic.py`][logic]             | Done | Included |
+| 7.15   | PL-FC-Entails?                    | `pl_fc_entails`               | [`logic.py`][logic]             | Done | Included |
 | 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`][logic]             | Done | Included |
 | 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done | Included |
 | 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |

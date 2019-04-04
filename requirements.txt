@@ -4,3 +4,5 @@ pandas
 matplotlib
 pillow
 Image
+ipython
+ipythonblocks

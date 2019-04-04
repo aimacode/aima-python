@@ -2,6 +2,14 @@ import pytest
 from utils import *
 import random
 
+def test_sequence():
+    assert sequence(1) == (1,)
+    assert sequence("helloworld") == "helloworld"
+    assert sequence({"hello":4, "world":5}) == ({"hello":4, "world":5},)
+    assert sequence([1, 2, 3]) == [1, 2, 3]
+    assert sequence((4, 5, 6)) == (4, 5, 6)
+    assert sequence([(1, 2),(2, 3),(4, 5)]) == [(1, 2), (2, 3),(4, 5)]
+    assert sequence(([1, 2],[3, 4],[5, 6])) == ([1, 2], [3, 4],[5, 6])
 
 def test_removeall_list():
     assert removeall(4, []) == []
@@ -25,6 +33,11 @@ def test_count():
     assert count([True, False, True, True, False]) == 3
     assert count([5 > 1, len("abc") == 3, 3+1 == 5]) == 2
 
+def test_multimap():
+    assert multimap([(1, 2),(1, 3),(1, 4),(2, 3),(2, 4),(4, 5)]) == \
+        {1: [2, 3, 4], 2: [3, 4], 4: [5]}
+    assert multimap([("a", 2), ("a", 3), ("a", 4), ("b", 3), ("b", 4), ("c", 5)]) == \
+        {'a': [2, 3, 4], 'b': [3, 4], 'c': [5]}
 
 def test_product():
     assert product([1, 2, 3, 4]) == 24
@@ -35,9 +48,14 @@ def test_first():
     assert first('word') == 'w'
     assert first('') is None
     assert first('', 'empty') == 'empty'
+    assert first([1, 2, 3, 4, 5]) == 1
+    assert first([]) == None
     assert first(range(10)) == 0
     assert first(x for x in range(10) if x > 3) == 4
     assert first(x for x in range(10) if x > 100) is None
+    assert first((1, 2, 3)) == 1
+    assert first([(1, 2),(1, 3),(1, 4)]) == (1, 2)
+    assert first({1:"one", 2:"two", 3:"three"}) == 1
 
 
 def test_is_in():
@@ -255,6 +273,43 @@ def test_expr():
     assert (expr('GP(x, z) <== P(x, y) & P(y, z)')
             == Expr('<==', GP(x, z), P(x, y) & P(y, z)))
 
+def test_min_priorityqueue():
+    queue = PriorityQueue(f=lambda x: x[1])
+    queue.append((1,100))
+    queue.append((2,30))
+    queue.append((3,50))
+    assert queue.pop() == (2,30)
+    assert len(queue) == 2
+    assert queue[(3,50)] == 50
+    assert (1,100) in queue
+    del queue[(1,100)]
+    assert (1,100) not in queue
+    queue.extend([(1,100), (4,10)])
+    assert queue.pop() == (4,10)
+    assert len(queue) == 2
+
+def test_max_priorityqueue():
+    queue = PriorityQueue(order='max', f=lambda x: x[1])
+    queue.append((1,100))
+    queue.append((2,30))
+    queue.append((3,50))
+    assert queue.pop() == (1,100)
+
+def test_priorityqueue_with_objects():
+    class Test:
+        def __init__(self, a, b):
+            self.a = a
+            self.b = b
+        def __eq__(self, other):
+            return self.a==other.a
+
+    queue = PriorityQueue(f=lambda x: x.b)
+    queue.append(Test(1,100))
+    other = Test(1,10)
+    assert queue[other]==100
+    assert other in queue
+    del queue[other]
+    assert len(queue)==0
 
 if __name__ == '__main__':
     pytest.main()

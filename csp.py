@@ -160,7 +160,7 @@ class CSP(search.Problem):
 def AC3(csp, queue=None, removals=None):
     """[Figure 6.3]"""
     if queue is None:
-        queue = [(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]]
+        queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
     csp.support_pruning()
     while queue:
         (Xi, Xj) = queue.pop()
@@ -169,7 +169,7 @@ def AC3(csp, queue=None, removals=None):
                 return False
             for Xk in csp.neighbors[Xi]:
                 if Xk != Xj:
-                    queue.append((Xk, Xi))
+                    queue.add((Xk, Xi))
     return True
 
 
@@ -243,7 +243,7 @@ def forward_checking(csp, var, value, assignment, removals):
 
 def mac(csp, var, value, assignment, removals):
     """Maintain arc consistency."""
-    return AC3(csp, [(X, var) for X in csp.neighbors[var]], removals)
+    return AC3(csp, {(X, var) for X in csp.neighbors[var]}, removals)
 
 # The search, proper
 
@@ -374,7 +374,7 @@ def make_arc_consistent(Xj, Xk, csp):
                 # Found a consistent assignment for val1, keep it
                 keep = True
                 break
-        
+
         if not keep:
             # Remove val1
             csp.prune(Xj, val1, None)

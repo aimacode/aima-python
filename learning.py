@@ -460,9 +460,15 @@ def truncated_svd(X, num_val=2, max_iter=1000):
 
         projected_X = matrix_multiplication(A, [[x] for x in X])
         projected_X = [x[0] for x in projected_X]
-        eivals.append(norm(projected_X, 1)/norm(X, 1))
-        eivec_m.append(X[:m])
-        eivec_n.append(X[m:])
+        new_eigenvalue = norm(projected_X, 1)/norm(X, 1)
+        ev_m = X[:m]
+        ev_n = X[m:]
+        if new_eigenvalue < 0:
+            new_eigenvalue = -new_eigenvalue
+            ev_m = [-ev_m_i for ev_m_i in ev_m]
+        eivals.append(new_eigenvalue)
+        eivec_m.append(ev_m)
+        eivec_n.append(ev_n)
     return (eivec_m, eivec_n, eivals)
 
 # ______________________________________________________________________________
@@ -654,7 +660,7 @@ def DecisionListLearner(dataset):
 # ______________________________________________________________________________
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes=None,
+def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
                      learning_rate=0.01, epochs=100, activation = sigmoid):
     """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
@@ -662,7 +668,6 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None,
     epochs: Number of passes over the dataset
     """
 
-    hidden_layer_sizes = hidden_layer_sizes or [3]  # default value
     i_units = len(dataset.inputs)
     o_units = len(dataset.values[dataset.target])
 
@@ -838,11 +843,7 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
     hidden_layers_sizes : List number of neuron units in each hidden layer
     excluding input and output layers
     """
-    # Check for PerceptronLearner
-    if hidden_layer_sizes:
-        layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
-    else:
-        layers_sizes = [input_units] + [output_units]
+    layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
 
     net = [[NNUnit(activation) for n in range(size)]
            for size in layers_sizes]
@@ -1078,8 +1079,8 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
         fold_errV = 0
         n = len(dataset.examples)
         examples = dataset.examples
+        random.shuffle(dataset.examples)
         for fold in range(k):
-            random.shuffle(dataset.examples)
             train_data, val_data = train_test_split(dataset, fold * (n / k),
                                                     (fold + 1) * (n / k))
             dataset.examples = train_data

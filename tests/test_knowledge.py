@@ -59,27 +59,21 @@ def test_current_best_learning():
     examples = restaurant
     hypothesis = [{'Alt': 'Yes'}]
     h = current_best_learning(examples, hypothesis)
-    values = []
-    for e in examples:
-        values.append(guess_value(e, h))
+    values = [guess_value(e, h) for e in examples]
 
     assert values == [True, False, True, True, False, True, False, True, False, False, False, True]
 
     examples = animals_umbrellas
     initial_h = [{'Species': 'Cat'}]
     h = current_best_learning(examples, initial_h)
-    values = []
-    for e in examples:
-        values.append(guess_value(e, h))
+    values = [guess_value(e, h) for e in examples]
 
     assert values == [True, True, True, False, False, False, True]
 
     examples = party
     initial_h = [{'Pizza': 'Yes'}]
     h = current_best_learning(examples, initial_h)
-    values = []
-    for e in examples:
-        values.append(guess_value(e, h))
+    values = [guess_value(e, h) for e in examples]
 
     assert values == [True, True, False]
 

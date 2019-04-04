@@ -37,6 +37,9 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 
 from utils import distance_squared, turn_heading
 from statistics import mean
+from ipythonblocks import BlockGrid
+from IPython.display import HTML, display
+from time import sleep
 
 import random
 import copy
@@ -540,7 +543,7 @@ class XYEnvironment(Environment):
         for x in range(self.width):
             self.add_thing(Wall(), (x, 0))
             self.add_thing(Wall(), (x, self.height - 1))
-        for y in range(self.height):
+        for y in range(1, self.height-1):
             self.add_thing(Wall(), (0, y))
             self.add_thing(Wall(), (self.width - 1, y))
 
@@ -572,14 +575,6 @@ class Wall(Obstacle):
     pass
 
 # ______________________________________________________________________________
-
-
-try:
-    from ipythonblocks import BlockGrid
-    from IPython.display import HTML, display
-    from time import sleep
-except:
-    pass
 
 
 class GraphicEnvironment(XYEnvironment):
@@ -719,6 +714,7 @@ class VacuumEnvironment(XYEnvironment):
         return (status, bump)
 
     def execute_action(self, agent, action):
+        agent.bump = False
         if action == 'Suck':
             dirt_list = self.list_things_at(agent.location, Dirt)
             if dirt_list != []:

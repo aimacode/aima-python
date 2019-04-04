@@ -41,6 +41,7 @@ pblue = '#000040'
 green8 = '#008080'
 green4 = '#004040'
 
+cell_window_mantainer=None
 
 def extents(f):
 	''' adjusts axis markers for heatmap '''
@@ -251,7 +252,12 @@ def initialize_widget_disability_checks(_width, _height, gridmdp, terminals, lab
 def dialogbox(i, j, gridmdp, terminals, buttons, _height):
 	''' creates dialogbox for each cell '''
 
+	global cell_window_mantainer
+	if(cell_window_mantainer!=None):
+		cell_window_mantainer.destroy()
+	
 	dialog = tk.Toplevel()
+	cell_window_mantainer=dialog
 	dialog.wm_title(f'{_height - i - 1}, {j}')
 
 	container = tk.Frame(dialog)
