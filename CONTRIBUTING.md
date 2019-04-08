@@ -84,6 +84,8 @@ Patch Rules
   without your patch.
 
 - Follow the style guidelines described above.
+- Refer the issue you have fixed.
+- Explain in brief what changes you have made with affected files name.
 
 # Choice of Programming Languages
 
