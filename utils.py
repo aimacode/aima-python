@@ -132,12 +132,13 @@ def histogram(values, mode=0, bin_function=None):
 
 def dotproduct(X, Y):
     """Return the sum of the element-wise product of vectors X and Y."""
+    assert len(X) == len(Y), "Length of the 2 vectors is not same"
     return sum(x * y for x, y in zip(X, Y))
 
 
 def element_wise_product(X, Y):
     """Return vector as an element-wise product of vectors X and Y"""
-    assert len(X) == len(Y)
+    assert len(X) == len(Y), "The vectors give for element wise product are not of the same length"
     return [x * y for x, y in zip(X, Y)]
 
 
@@ -153,7 +154,15 @@ def matrix_multiplication(X_M, *Y_M):
                                     [1, 0]])
         [[8, 8],[13, 14]]
         """
-        assert len(X_M[0]) == len(Y_M)
+        X_M_row_length = len(X_M[0])
+        for row in X_M:
+            assert len(row) == X_M_row_length, "Length of the rows of matrix X_M is not uniform"
+
+        Y_M_row_length = len(Y_M[0])
+        for row in Y_M:
+            assert len(row) == Y_M_row_length, "Length of the rows of matrix Y_M is not uniform"
+
+        assert len(X_M[0]) == len(Y_M), "The width of X_M and the height of Y_M do not match"
 
         result = [[0 for i in range(len(Y_M[0]))] for j in range(len(X_M))]
         for i in range(len(X_M)):
@@ -181,17 +190,18 @@ def vector_to_diagonal(v):
 
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
+    assert len(a) == len(b), "Length of the 2 vectors is not same"
     return tuple(map(operator.add, a, b))
 
 
-def scalar_vector_product(X, Y):
+def scalar_vector_product(scalar, vector):
     """Return vector as a product of a scalar and a vector"""
-    return [X * y for y in Y]
+    return [scalar * v for v in vector]
 
 
-def scalar_matrix_product(X, Y):
+def scalar_matrix_product(scalar, matrix):
     """Return matrix as a product of a scalar and a matrix"""
-    return [scalar_vector_product(X, y) for y in Y]
+    return [scalar_vector_product(scalar, row) for row in matrix]
 
 
 def inverse_matrix(X):
@@ -201,7 +211,6 @@ def inverse_matrix(X):
     det = X[0][0] * X[1][1] - X[0][1] * X[1][0]
     assert det != 0
     inv_mat = scalar_matrix_product(1.0 / det, [[X[1][1], -X[0][1]], [-X[1][0], X[0][0]]])
-
     return inv_mat
 
 
@@ -215,7 +224,6 @@ def weighted_sample_with_replacement(n, seq, weights):
     probability of each element in proportion to its corresponding
     weight."""
     sample = weighted_sampler(seq, weights)
-
     return [sample() for _ in range(n)]
 
 
