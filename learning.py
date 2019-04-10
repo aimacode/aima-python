@@ -661,7 +661,7 @@ def DecisionListLearner(dataset):
 
 
 def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
-                     learning_rate=0.01, epochs=100, activation = sigmoid):
+                     learning_rate=0.01, epochs=100, activation=sigmoid, momentum=False):
     """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
     learning_rate: Learning rate of gradient descent
@@ -674,7 +674,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
     # construct a network
     raw_net = network(i_units, hidden_layer_sizes, o_units, activation)
     learned_net = BackPropagationLearner(dataset, raw_net,
-                                         learning_rate, epochs, activation)
+                                         learning_rate, epochs, activation, momentum=momentum)
 
     def predict(example):
         # Input nodes
@@ -703,7 +703,7 @@ def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
-def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmoid):
+def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmoid, momentum=False, beta=0.903):
     """[Figure 18.23] The back-propagation algorithm for multilayer networks"""
     # Initialise weights
     for layer in net:
@@ -736,15 +736,19 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
             for v, n in zip(i_val, i_nodes):
                 n.value = v
 
-            # Forward pass
+            # Finding the values of the nodes through forward propogation
             for layer in net[1:]:
                 for node in layer:
                     inc = [n.value for n in node.inputs]
                     in_val = dotproduct(inc, node.weights)
                     node.value = node.activation(in_val)
 
-            # Initialize delta
+            # Initialize delta which stores the values of the gradients for each activation units
             delta = [[] for _ in range(n_layers)]
+		
+            #initializing the velocity_gradient
+            if momentum == True:
+                v_dw = [[0 for i in range(len(_))] for _ in net]
 
             # Compute outer layer delta
 
@@ -752,6 +756,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
             err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
 
             # The activation function used is relu or sigmoid function
+            # First backward fast 
             if node.activation == sigmoid:
                 delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
             elif node.activation == relu:
@@ -764,7 +769,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 delta[-1] = [leaky_relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
 
 
-            # Backward pass
+            # Propogating backward and finding gradients of nodes for each hidden layer
             h_layers = n_layers - 2
             for i in range(h_layers, 0, -1):
                 layer = net[i]
@@ -790,15 +795,51 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                     delta[i] = [leaky_relu_derivative(layer[j].value) * dotproduct(w[j], delta[i+1])
                             for j in range(h_units)]
 
-            #  Update weights
-            for i in range(1, n_layers):
-                layer = net[i]
-                inc = [node.value for node in net[i-1]]
-                units = len(layer)
-                for j in range(units):
-                    layer[j].weights = vector_add(layer[j].weights,
-                                                  scalar_vector_product(
-                                                  learning_rate * delta[i][j], inc))
+            #optimization with velocity gradient
+            t_ = epoch + 1
+
+            if momentum == True:
+                if epoch == 0:
+
+                    for i in range(len(delta)):
+                        for j in range(len(delta[i])):
+                            v_dw[i][j] = ((1-beta)*delta[i][j])/(1-beta**(t_+1))
+                else:
+
+                    for i in range(len(delta)):
+                        for j in range(len(delta[i])):
+                            v_dw[i][j] = (beta*v_dw[i][j]+(1-beta)*delta[i][j])/(1-beta**(t_+1))
+
+
+
+
+
+            #  Update weights with normal gradient descent
+            if momentum == False:
+                for i in range(1, n_layers):
+                    layer = net[i]
+                    inc = [node.value for node in net[i-1]]
+                    units = len(layer)
+                    for j in range(units):
+                        layer[j].weights = vector_add(layer[j].weights,
+                                                    scalar_vector_product(
+                                                    learning_rate * delta[i][j], 
+                                                    inc
+                                                    ))                                               
+            # Update weights with velocity gradient optimizer in gradient descent
+            else:
+                for i in range(1, n_layers):
+                    layer = net[i]
+                    inc = [node.value for node in net[i-1]]
+                    units = len(layer)
+                    for j in range(units):
+                        layer[j].weights = vector_add(layer[j].weights,
+                                                    scalar_vector_product(
+                                                    learning_rate * v_dw[i][j], 
+                                                    inc
+                                                    ))
+                                                    
+
 
     return net
 
