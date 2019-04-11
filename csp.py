@@ -3,7 +3,7 @@
 from utils import argmin_random_tie, count, first
 import search
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from functools import reduce
 
 import itertools
@@ -50,13 +50,12 @@ class CSP(search.Problem):
 
     def __init__(self, variables, domains, neighbors, constraints):
         """Construct a CSP problem. If variables is empty, it becomes domains.keys()."""
+        super().__init__(())
         variables = variables or list(domains.keys())
-
         self.variables = variables
         self.domains = domains
         self.neighbors = neighbors
         self.constraints = constraints
-        self.initial = ()
         self.curr_domains = None
         self.nassigns = 0
 
@@ -74,10 +73,12 @@ class CSP(search.Problem):
 
     def nconflicts(self, var, val, assignment):
         """Return the number of conflicts var=val has with other variables."""
+
         # Subclasses may implement this more efficiently
         def conflict(var2):
             return (var2 in assignment and
                     not self.constraints(var, val, var2, assignment[var2]))
+
         return count(conflict(v) for v in self.neighbors[var])
 
     def display(self, assignment):
@@ -153,6 +154,7 @@ class CSP(search.Problem):
         return [var for var in self.variables
                 if self.nconflicts(var, current[var], current) > 0]
 
+
 # ______________________________________________________________________________
 # Constraint Propagation with AC-3
 
@@ -183,6 +185,51 @@ def revise(csp, Xi, Xj, removals):
             revised = True
     return revised
 
+
+# Constraint Propagation with AC-4
+
+def AC4(csp, queue=None, removals=None):
+    """AC4 algorithm runs in O(cd^2) worst-case time but can be slower
+    than AC3 on average cases"""
+    if queue is None:
+        queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
+    csp.support_pruning()
+    support_counter = Counter()
+    variable_value_pairs_supported = defaultdict(set)
+    unsupported_variable_value_pairs = []
+    # construction and initialization of support sets
+    while queue:
+        (Xi, Xj) = queue.pop()
+        revised = False
+        for x in csp.curr_domains[Xi][:]:
+            for y in csp.curr_domains[Xj]:
+                if csp.constraints(Xi, x, Xj, y):
+                    support_counter[(Xi, x, Xj)] += 1
+                    variable_value_pairs_supported[(Xj, y)].add((Xi, x))
+            if support_counter[(Xi, x, Xj)] == 0:
+                csp.prune(Xi, x, removals)
+                revised = True
+                unsupported_variable_value_pairs.append((Xi, x))
+        if revised:
+            if not csp.curr_domains[Xi]:
+                return False
+    # propagation of removed values
+    while unsupported_variable_value_pairs:
+        Xj, y = unsupported_variable_value_pairs.pop()
+        for Xi, x in variable_value_pairs_supported[(Xj, y)]:
+            revised = False
+            if x in csp.curr_domains[Xi][:]:
+                support_counter[(Xi, x, Xj)] -= 1
+                if support_counter[(Xi, x, Xj)] == 0:
+                    csp.prune(Xi, x, removals)
+                    revised = True
+                    unsupported_variable_value_pairs.append((Xi, x))
+            if revised:
+                if not csp.curr_domains[Xi]:
+                    return False
+    return True
+
+
 # ______________________________________________________________________________
 # CSP Backtracking Search
 
@@ -208,6 +255,7 @@ def num_legal_values(csp, var, assignment):
         return count(csp.nconflicts(var, val, assignment) == 0
                      for val in csp.domains[var])
 
+
 # Value ordering
 
 
@@ -220,6 +268,7 @@ def lcv(var, assignment, csp):
     """Least-constraining-values heuristic."""
     return sorted(csp.choices(var),
                   key=lambda val: csp.nconflicts(var, val, assignment))
+
 
 # Inference
 
@@ -244,6 +293,7 @@ def forward_checking(csp, var, value, assignment, removals):
 def mac(csp, var, value, assignment, removals):
     """Maintain arc consistency."""
     return AC3(csp, {(X, var) for X in csp.neighbors[var]}, removals)
+
 
 # The search, proper
 
@@ -274,6 +324,7 @@ def backtracking_search(csp,
     assert result is None or csp.goal_test(result)
     return result
 
+
 # ______________________________________________________________________________
 # Min-conflicts hillclimbing search for CSPs
 
@@ -301,6 +352,7 @@ def min_conflicts_value(csp, var, current):
     If there is a tie, choose at random."""
     return argmin_random_tie(csp.domains[var],
                              key=lambda val: csp.nconflicts(var, val, current))
+
 
 # ______________________________________________________________________________
 
@@ -356,7 +408,7 @@ def build_topological(node, parent, neighbors, visited, stack, parents):
     visited[node] = True
 
     for n in neighbors[node]:
-        if(not visited[n]):
+        if (not visited[n]):
             build_topological(n, node, neighbors, visited, stack, parents)
 
     parents[node] = parent
@@ -366,9 +418,9 @@ def build_topological(node, parent, neighbors, visited, stack, parents):
 def make_arc_consistent(Xj, Xk, csp):
     """Make arc between parent (Xj) and child (Xk) consistent under the csp's constraints,
     by removing the possible values of Xj that cause inconsistencies."""
-    #csp.curr_domains[Xj] = []
+    # csp.curr_domains[Xj] = []
     for val1 in csp.domains[Xj]:
-        keep = False # Keep or remove val1
+        keep = False  # Keep or remove val1
         for val2 in csp.domains[Xk]:
             if csp.constraints(Xj, val1, Xk, val2):
                 # Found a consistent assignment for val1, keep it
@@ -392,6 +444,7 @@ def assign_value(Xj, Xk, csp, assignment):
 
     # No consistent assignment available
     return None
+
 
 # ______________________________________________________________________________
 # Map-Coloring Problems
@@ -468,6 +521,7 @@ france = MapColoringCSP(list('RGBY'),
         PI; PA: LR RA; PC: PL CE LI AQ; PI: NH NO CA IF; PL: BR NB CE PC; RA:
         AU BO FC PA LR""")
 
+
 # ______________________________________________________________________________
 # n-Queens Problem
 
@@ -503,16 +557,16 @@ class NQueensCSP(CSP):
         CSP.__init__(self, list(range(n)), UniversalDict(list(range(n))),
                      UniversalDict(list(range(n))), queen_constraint)
 
-        self.rows = [0]*n
-        self.ups = [0]*(2*n - 1)
-        self.downs = [0]*(2*n - 1)
+        self.rows = [0] * n
+        self.ups = [0] * (2 * n - 1)
+        self.downs = [0] * (2 * n - 1)
 
     def nconflicts(self, var, val, assignment):
         """The number of conflicts, as recorded with each assignment.
         Count conflicts in row and in up, down diagonals. If there
         is a queen there, it can't conflict with itself, so subtract 3."""
         n = len(self.variables)
-        c = self.rows[val] + self.downs[var+val] + self.ups[var-val+n-1]
+        c = self.rows[val] + self.downs[var + val] + self.ups[var - val + n - 1]
         if assignment.get(var, None) == val:
             c -= 3
         return c
@@ -559,6 +613,7 @@ class NQueensCSP(CSP):
                     ch = ' '
                 print(str(self.nconflicts(var, val, assignment)) + ch, end=' ')
             print()
+
 
 # ______________________________________________________________________________
 # Sudoku
@@ -646,9 +701,12 @@ class Sudoku(CSP):
 
         def abut(lines1, lines2): return list(
             map(' | '.join, list(zip(lines1, lines2))))
+
         print('\n------+-------+------\n'.join(
             '\n'.join(reduce(
                 abut, map(show_box, brow))) for brow in self.bgrid))
+
+
 # ______________________________________________________________________________
 # The Zebra Puzzle
 
@@ -716,6 +774,7 @@ def Zebra():
                 (A in Smokes and B in Smokes)):
             return not same
         raise Exception('error')
+
     return CSP(variables, domains, neighbors, zebra_constraint)
 
 
