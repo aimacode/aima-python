@@ -376,12 +376,12 @@ def test_min_conflicts():
 
     australia_impossible = MapColoringCSP(list('RG'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
     assert min_conflicts(australia_impossible, 1000) is None
-    assert min_conflicts(NQueensCSP(2), 1000) is None
-    assert min_conflicts(NQueensCSP(3), 1000) is None
+    assert min_conflicts(NQueens(2), 1000) is None
+    assert min_conflicts(NQueens(3), 1000) is None
 
 
 def test_nqueens_csp():
-    csp = NQueensCSP(8)
+    csp = NQueens(8)
 
     assignment = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4}
     csp.assign(5, 5, assignment)
@@ -428,7 +428,7 @@ def test_nqueens_csp():
     assert 6 not in assignment
 
     for n in range(5, 9):
-        csp = NQueensCSP(n)
+        csp = NQueens(n)
         solution = min_conflicts(csp)
         assert not solution or sorted(solution.values()) == list(range(n))
 
