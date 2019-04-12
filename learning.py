@@ -1049,13 +1049,25 @@ def grade_learner(predict, tests):
     return mean(int(predict(X) == y) for X, y in tests)
 
 
-def train_test_split(dataset, start, end):
-    """Reserve dataset.examples[start:end] for test; train on the remainder."""
-    start = int(start)
-    end = int(end)
+def train_test_split(dataset, start = None, end = None, test_split = None):
+    """If you are giving 'start' and 'end' as parameters,
+    then it will return the testing set from index 'start' to 'end'
+    and the rest for training.
+    If you give 'test_split' as a parameter then it will return 
+    test_split * 100% as the testing set and the rest as 
+    training set.
+    """
     examples = dataset.examples
-    train = examples[:start] + examples[end:]
-    val = examples[start:end]
+    if test_split == None:
+        train = examples[:start] + examples[end:]
+        val = examples[start:end]
+    else:
+        total_size = len(examples)
+        val_size = int(total_size * test_split)
+        train_size = total_size - val_size
+        train = examples[:train_size]
+        val = examples[train_size:total_size]
+
     return train, val
 
 
