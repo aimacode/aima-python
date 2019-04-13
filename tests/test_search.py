@@ -21,7 +21,7 @@ def test_breadth_first_tree_search():
 
 
 def test_breadth_first_graph_search():
-    assert breadth_first_graph_search(romania_problem) == ['Sibiu', 'Fagaras', 'Bucharest']
+    assert breadth_first_graph_search(romania_problem) == ['Sibiu', 'Rimnicu','Pitesti', 'Bucharest']
 
 
 def test_best_first_graph_search():
