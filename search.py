@@ -184,17 +184,28 @@ def breadth_first_tree_search(problem):
     """Search the shallowest nodes in the search tree first.
         Search through the successors of a problem to find a goal.
         The argument frontier should be an empty queue.
-        Repeats infinitely in case of loops. [Figure 3.7]"""
-
-    frontier = deque([Node(problem.initial)])  # FIFO queue
+        Repeats infinitely in case of loops. [Figure 3.7]
+        Returns the complete path from the initial to the goal node and None in case of no path found"""
+    
+    # FIFO queue 
+    frontier = deque([Node(problem.initial)])
+    # Dictionary containing the path for each node(key) from initial node  
+    path_dict = {}
 
     while frontier:
         node = frontier.popleft()
-        if problem.goal_test(node.state):
-            return node
-        frontier.extend(node.expand(problem))
+        path = []
+        if node in path_dict.keys():
+            path = path_dict[node]
+        # If current node is the goal node then return the path from initial to the current node
+        if problem.goal_test(node.state): 
+            return "<Node {}>".format(tuple(path))
+        child_nodes = node.expand(problem)
+        for child in child_nodes:
+            # Extend the path by adding the child.action to the path from initial node to their parent node
+            path_dict[child] = (path + [child.action])
+            frontier.append(child)
     return None
-
 
 def depth_first_tree_search(problem):
     """Search the deepest nodes in the search tree first.
@@ -214,7 +225,7 @@ def depth_first_tree_search(problem):
         	path = path_dict[node]
         # If current node is the goal node then return the path from initial to the current node
         if problem.goal_test(node.state): 
-            return path
+            return "<Node {}>".format(tuple(path))
         child_nodes = node.expand(problem)
         for child in child_nodes:
         	# Extend the path by adding the child to the path from initial node to their parent node
@@ -245,7 +256,7 @@ def depth_first_graph_search(problem):
         	path = path_dict[node]
         # If current node is the goal node then return the path from initial to the current node
         if problem.goal_test(node.state): 
-            return path
+            return "<Node {}>".format(tuple(path))
         explored.add(node.state)
         child_nodes = node.expand(problem)
         for child in child_nodes:
@@ -273,7 +284,7 @@ def breadth_first_graph_search(problem):
     
     node = Node(problem.initial)
     if problem.goal_test(node.state):
-        return [node.action]
+        return "<Node {}>".format((node.action))
     # FIFO queue 
     frontier = deque([node]) 
     # Set containing nodes already visited
@@ -288,7 +299,7 @@ def breadth_first_graph_search(problem):
         explored.add(node.state)
         # If current node is the goal node then return the path from initial to the current node
         if problem.goal_test(node.state): 
-        	return path
+        	return "<Node {}>".format(tuple(path))
         for child in node.expand(problem):
         	# Extend the path by adding the child to the path from initial node to their parent node
         	new_path = path + [child.action] 
@@ -321,7 +332,7 @@ def best_first_graph_search(problem, f):
         	path = path_dict[node]
         # If current node is the goal node then return the path from initial to the current node
         if problem.goal_test(node.state):
-            return (path,node)
+            return ("<Node {}>".format(tuple(path)),node)
         explored.add(node.state)
         for child in node.expand(problem):
         	# Extend the path by adding the child to the path from initial node to their parent node
