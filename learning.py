@@ -23,7 +23,7 @@ def euclidean_distance(X, Y):
     return math.sqrt(sum((x - y)**2 for x, y in zip(X, Y)))
 
 
-def cross_entropy_loss(X,Y):
+def cross_entropy_loss(X, Y):
     n=len(X)
     return (-1.0/n)*sum(x*math.log(y) + (1-x)*math.log(1-y) for x, y in zip(X, Y))
 
@@ -180,7 +180,7 @@ class DataSet:
         for item in self.examples:
             item[self.target] = classes.index(item[self.target])
 
-    def remove_examples(self, value=""):
+    def remove_examples(self, value=''):
         """Remove examples that contain given value."""
         self.examples = [x for x in self.examples if value not in x]
         self.update_values()
@@ -661,7 +661,7 @@ def DecisionListLearner(dataset):
 
 
 def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
-                     learning_rate=0.01, epochs=100, activation = sigmoid):
+                     learning_rate=0.01, epochs=100, activation=sigmoid):
     """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
     learning_rate: Learning rate of gradient descent
@@ -859,12 +859,9 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
 
 
 def init_examples(examples, idx_i, idx_t, o_units):
-    inputs = {}
-    targets = {}
+    inputs, targets = {}, {}
 
-    for i in range(len(examples)):
-        e = examples[i]
-
+    for i, e in enumerate(examples):
         # Input values of e
         inputs[i] = [e[i] for i in idx_i]
 
@@ -1049,7 +1046,7 @@ def grade_learner(predict, tests):
     return mean(int(predict(X) == y) for X, y in tests)
 
 
-def train_test_split(dataset, start = None, end = None, test_split = None):
+def train_test_split(dataset, start=None, end=None, test_split=None):
     """If you are giving 'start' and 'end' as parameters,
     then it will return the testing set from index 'start' to 'end'
     and the rest for training.
@@ -1263,9 +1260,7 @@ def ContinuousXor(n):
 # ______________________________________________________________________________
 
 
-def compare(algorithms=None,
-            datasets=None,
-            k=10, trials=1):
+def compare(algorithms=None, datasets=None, k=10, trials=1):
     """Compare various learners on various datasets using cross-validation.
     Print results as a table."""
     algorithms = algorithms or [PluralityLearner, NaiveBayesLearner,                 # default list
