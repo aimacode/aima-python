@@ -16,7 +16,7 @@ def test_find_min_edge():
 
 def test_breadth_first_tree_search():
     assert breadth_first_tree_search(
-        romania_problem) == ['Sibiu','Rimnicu','Pitesti', 'Bucharest']
+        romania_problem).solution() == ['Sibiu','Fagaras', 'Bucharest']
     assert breadth_first_graph_search(nqueens) == [0, 4, 7, 5, 2, 6, 1, 3]
 
 

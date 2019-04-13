@@ -184,27 +184,15 @@ def breadth_first_tree_search(problem):
     """Search the shallowest nodes in the search tree first.
         Search through the successors of a problem to find a goal.
         The argument frontier should be an empty queue.
-        Repeats infinitely in case of loops. [Figure 3.7]
-        Returns the complete path from the initial to the goal node and None in case of no path found"""
-    
-    # FIFO queue 
-    frontier = deque([Node(problem.initial)])
-    # Dictionary containing the path for each node(key) from initial node  
-    path_dict = {}
+        Repeats infinitely in case of loops. [Figure 3.7]"""
+
+    frontier = deque([Node(problem.initial)])  # FIFO queue
 
     while frontier:
         node = frontier.popleft()
-        path = []
-        if node in path_dict.keys():
-        	path = path_dict[node]
-        # If current node is the goal node then return the path from initial to the current node
-        if problem.goal_test(node.state): 
-            return path
-        child_nodes = node.expand(problem)
-        for child in child_nodes:
-        	# Extend the path by adding the child.action to the path from initial node to their parent node
-        	path_dict[child] = (path + [child.action])
-        	frontier.append(child)
+        if problem.goal_test(node.state):
+            return node
+        frontier.extend(node.expand(problem))
     return None
 
 
