@@ -373,7 +373,7 @@ class PermutationDecoder:
         self.chardomain = {c for c in self.ciphertext if c != ' '}
         problem = PermutationDecoderProblem(decoder=self)
         solution = search.best_first_graph_search(
-            problem, lambda node: self.score(node.state))
+            problem, lambda node: self.score(node.state))[1]
 
         solution.state[' '] = ' '
         return translate(self.ciphertext, lambda c: solution.state[c])
