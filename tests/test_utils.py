@@ -21,13 +21,13 @@ def test_removeall_list():
 def test_removeall_string():
     assert removeall('s', '') == ''
     assert removeall('s', 'This is a test. Was a test.') == 'Thi i a tet. Wa a tet.'
-    assert removeall('a','artificial intelligence: a modern approach') == 'rtificil intelligence:  modern pproch'	
+    assert removeall('a', 'artificial intelligence: a modern approach') == 'rtificil intelligence:  modern pproch'	
 
 
 def test_unique():
     assert unique([1, 2, 3, 2, 1]) == [1, 2, 3]
     assert unique([1, 5, 6, 7, 6, 5]) == [1, 5, 6, 7]
-    assert unique([1,2,3,4,5]) == [1,2,3,4,5]	
+    assert unique([1, 2, 3, 4, 5]) == [1, 2, 3, 4, 5]	
 
 
 def test_count():
@@ -58,7 +58,7 @@ def test_first():
     assert first(x for x in range(10) if x > 3) == 4
     assert first(x for x in range(10) if x > 100) is None
     assert first((1, 2, 3)) == 1
-    assert first(range(2,10)) == 2
+    assert first(range(2, 10)) == 2
     assert first([(1, 2),(1, 3),(1, 4)]) == (1, 2)
     assert first({1:"one", 2:"two", 3:"three"}) == 1
 
@@ -100,7 +100,7 @@ def test_histogram():
 
 def test_dotproduct():
     assert dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
-    assert dotproduct([1,2,3],[0,0,0]) == 0
+    assert dotproduct([1, 2, 3], [0, 0, 0]) == 0
 
 
 def test_element_wise_product():
@@ -133,11 +133,12 @@ def test_vector_to_diagonal():
 
 def test_vector_add():
     assert vector_add((0, 1), (8, 9)) == (8, 10)
+    assert vector_add((1, 1, 1), (2, 2, 2)) == (3, 3, 3)
 
 
 def test_scalar_vector_product():
     assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
-
+    assert scalar_vector_product(0, [9, 9, 9]) == [0, 0, 0]
 
 def test_scalar_matrix_product():
     assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20],
