@@ -15,7 +15,7 @@ def test_removeall_list():
     assert removeall(4, []) == []
     assert removeall(4, [1, 2, 3, 4]) == [1, 2, 3]
     assert removeall(4, [4, 1, 4, 2, 3, 4, 4]) == [1, 2, 3]
-    assert removeall(1,[2,3,4,5,6]) == [2,3,4,5,6]
+    assert removeall(1, [2,3,4,5,6]) == [2,3,4,5,6]
 
 
 def test_removeall_string():
