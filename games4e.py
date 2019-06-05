@@ -174,7 +174,7 @@ def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 # Monte Carlo Tree Search
 
 
-def monte_carlo_tree_search(game, state, N=5000):
+def monte_carlo_tree_search(state, game, N=1000):
     def select(n):
         """select a leaf node in the tree"""
         if n.children:
@@ -184,17 +184,15 @@ def monte_carlo_tree_search(game, state, N=5000):
 
     def expand(n):
         """expand the leaf node by adding all its children states"""
-        if n.children:
-            raise "Input is not a leaf node!"
-        if not game.is_terminal(n.state):
+        if not n.children and not game.terminal_test(n.state):
             n.children = {MCT_Node(state=game.result(n.state, action), parent=n): action for action in
                           game.actions(n.state)}
         return select(n)
 
     def simulate(game, state):
         """simulate the utility of current state by random picking a step"""
-        player = state.to_move
-        while not game.is_terminal(state):
+        player = game.to_move(state)
+        while not game.terminal_test(state):
             action = random.choice(list(game.actions(state)))
             state = game.result(state, action)
         v = game.utility(state, player)
@@ -204,8 +202,8 @@ def monte_carlo_tree_search(game, state, N=5000):
         """passing the utility back to all parent nodes"""
         if utility > 0:
             n.U += utility
-        if utility == 0:
-            n.U += 0.5
+        # if utility == 0:
+        #     n.U += 0.5
         n.N += 1
         if n.parent:
             backprop(n.parent, -utility)
@@ -220,7 +218,7 @@ def monte_carlo_tree_search(game, state, N=5000):
         N -= 1
     max_state = max(root.children, key=lambda p: p.N)
 
-    return -1, root.children.get(max_state)
+    return root.children.get(max_state)
 
 # ______________________________________________________________________________
 # Players for Games
@@ -248,11 +246,17 @@ def random_player(game, state):
     """A player that chooses a legal move at random."""
     return random.choice(game.actions(state)) if game.actions(state) else None
 
+
 def alphabeta_player(game, state):
     return alphabeta_search(state, game)
 
+
 def expectiminimax_player(game, state):
     return expectiminimax(state, game)
+
+
+def mcts_player(game, state):
+    return monte_carlo_tree_search(state, game)
 
 
 # ______________________________________________________________________________
