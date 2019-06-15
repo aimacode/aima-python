@@ -15,10 +15,11 @@ install:
   - pip install networkx
   - pip install ipywidgets
   - pip install Pillow
+  - pip install pytest-cov
   - pip install ipythonblocks
 
 script:
-  - py.test
+  - py.test --cov=./
   - python -m doctest -v *.py
 
 after_success:

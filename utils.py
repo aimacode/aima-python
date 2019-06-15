@@ -795,6 +795,21 @@ class PriorityQueue:
 
 
 # ______________________________________________________________________________
+# Monte Carlo tree node and ucb function
+class MCT_Node:
+    """Node in the Monte Carlo search tree, keeps track of the children states"""
+    def __init__(self, parent=None, state=None, U=0, N=0):
+        self.__dict__.update(parent=parent, state=state, U=U, N=N)
+        self.children = {}
+        self.actions = None
+
+
+def ucb(n, C=1.4):
+    return (float('inf') if n.N == 0 else
+        n.U / n.N + C * math.sqrt(math.log(n.parent.N)/n.N))
+
+
+# ______________________________________________________________________________
 # Useful Shorthands
 
 
