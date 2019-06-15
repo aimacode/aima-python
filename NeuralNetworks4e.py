@@ -279,11 +279,10 @@ class BatchNormalizationLayer(Layer):
                 for node in self.nodes]
 
 
-def BackPropagation(dataset, weights, net, loss, activation=leaky_relu):
+def BackPropagation(batch_size,inputs,targets, weights, net, loss, activation=leaky_relu):
     """The back-propagation algorithm for multilayer networks for only one epoch"""
     # Initialise weights outside of backprop
 
-    examples = dataset.examples  # dataset should be a dataset batch
     '''
     As of now dataset.target gives an int instead of list,
     Changing dataset class will have effect on all the learners.
@@ -291,16 +290,13 @@ def BackPropagation(dataset, weights, net, loss, activation=leaky_relu):
     '''
     o_nodes = net[-1].nodes
     o_units = len(o_nodes)
-    idx_t = dataset.target
-    idx_i = dataset.inputs
     n_layers = len(net)
 
-    inputs, targets = init_examples(examples, idx_i, idx_t, o_units)
     gradients = [[] for _ in range(n_layers)]
     # Iterate over each example
 
     l = 0
-    for e in range(len(examples)):
+    for e in range(batch_size):
         i_val = inputs[e]
         t_val = targets[e]
 
@@ -315,8 +311,8 @@ def BackPropagation(dataset, weights, net, loss, activation=leaky_relu):
         l += loss(t_val, layer_out)
         # compute loss
         err = [layer_out[i]-t_val[i] for i in range(o_units)]
-        delta[-1] = [activation().derivative(o_nodes[i].val) * err[i] for i in range(o_units)]
-        gradients[-1] = [scalar_vector_product(d/len(examples), net[-1].inputs) for d in delta[-1]]
+        delta[-1] = [activation().derivative(layer_out[i]) * err[i] for i in range(o_units)]
+        gradients[-1] = [scalar_vector_product(d/batch_size, net[-1].inputs) for d in delta[-1]]
 
         # Backward pass
         h_layers = n_layers - 2
@@ -327,7 +323,7 @@ def BackPropagation(dataset, weights, net, loss, activation=leaky_relu):
             # weights from each ith layer node to each i + 1th layer node
             derivates = [activation().derivative(node.val) for node in layer.nodes]
             delta[i] = element_wise_product(matrix_multiplication([delta[i+1]], nx_w)[0], derivates)
-            gradients[i] = [scalar_vector_product(d/len(examples), net[i].inputs) for d in delta[i]]
+            gradients[i] = [scalar_vector_product(d/batch_size, net[i].inputs) for d in delta[i]]
 
         SGD(weights, gradients, net)
 
@@ -343,13 +339,18 @@ def NeuaralNetLeaner(dataset, epoch=2000):
     # init loss
     loss = mse_loss
     # init data
+    examples = dataset.examples
+    o_nodes = net[-1].nodes
+    o_units = len(o_nodes)
+    n_layers = len(net)
+    inputs, targets = init_examples(examples, dataset.inputs, dataset.target, o_units)
 
     for e in range(epoch):
         print("epoch:", e)
 
         weights = [[node.weights for node in layer.nodes] for layer in net]
 
-        theta = BackPropagation(dataset, weights, net, loss)
+        theta = BackPropagation(len(examples),inputs,targets, weights, net, loss)
 
         # update the weights of network
         for i in range(len(net)):
