@@ -911,7 +911,7 @@ def new_disjunction(sentences):
 
 class WumpusKB(PropKB):
     """
-    Create a Knowledge Base that contains the atemporal "Wumpus physics" and temporal rules with time zero.
+    Create a Knowledge Base that contains the a temporal "Wumpus physics" and temporal rules with time zero.
     """
 
     def __init__(self, dimrow):
@@ -1120,8 +1120,7 @@ class WumpusPosition:
         self.orientation = orientation
 
     def __eq__(self, other):
-        if other.get_location() == self.get_location() and \
-                other.get_orientation() == self.get_orientation():
+        if other.get_location() == self.get_location() and other.get_orientation() == self.get_orientation():
             return True
         else:
             return False
@@ -1558,8 +1557,8 @@ wumpus_kb = PropKB()
 
 P11, P12, P21, P22, P31, B11, B21 = expr('P11, P12, P21, P22, P31, B11, B21')
 wumpus_kb.tell(~P11)
-wumpus_kb.tell(B11 | '<=>' | ((P12 | P21)))
-wumpus_kb.tell(B21 | '<=>' | ((P11 | P22 | P31)))
+wumpus_kb.tell(B11 | '<=>' | (P12 | P21))
+wumpus_kb.tell(B21 | '<=>' | (P11 | P22 | P31))
 wumpus_kb.tell(~B11)
 wumpus_kb.tell(B21)
 
@@ -1620,7 +1619,7 @@ def diff(y, x):
         elif op == '/':
             return (v * diff(u, x) - u * diff(v, x)) / (v * v)
         elif op == '**' and isnumber(x.op):
-            return (v * u ** (v - 1) * diff(u, x))
+            return v * u ** (v - 1) * diff(u, x)
         elif op == '**':
             return (v * u ** (v - 1) * diff(u, x) +
                     u ** v * Expr('log')(u) * diff(v, x))
