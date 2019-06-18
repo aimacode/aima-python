@@ -1,7 +1,7 @@
 import math
 import statistics
 from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, \
-    vector_add, random_weights, scalar_vector_product, matrix_multiplication, transpose2D, leaky_relu
+    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector
 from learning4e import DataSet
 import random
 
@@ -13,7 +13,7 @@ def cross_entropy_loss(X, Y):
 
 def mse_loss(X, Y):
     n = len(X)
-    return (1.0/2)*sum((x-y)**2 for x, y in zip(X, Y))
+    return (1.0/n)*sum((x-y)**2 for x, y in zip(X, Y))
 
 
 class Node:
@@ -148,37 +148,6 @@ class MaxPoolingLayer1D(Layer):
 # 19.4 optimization algorithms
 
 
-def SGD():
-    """
-    # use sgd to update learnable parameters
-    """
-
-    def update(theta, gradients, lrate=0.01):
-        # theta = vector_add(theta, scalar_vector_product(-lrate, gradients))
-        # return theta
-        for i in range(len(gradients)):
-            if gradients[i]:
-                for j in range(len(gradients[i])):
-                    theta[i][j] = list(vector_add(theta[i][j], list(
-                        scalar_vector_product(-lrate, gradients[i][j]))))
-    return update
-
-
-def adam_optimizer(s, r, t, rho=(0.9, 0.999), delta=1/10**8):
-    def update(theta, gradients, lrate=0.001):
-        for i in range(1, len(gradients)):
-            for j in range(len(gradients[i])):
-                s[i][j] = vector_add(scalar_vector_product(rho[0],s[i][j]), scalar_vector_product((1-rho[0]),gradients[i][j]))
-                r[i][j] = vector_add(scalar_vector_product(rho[1],r[i][j]),
-                                     scalar_vector_product((1-rho[1]), element_wise_product(gradients[i][j], gradients[i][j])))
-                s_hat = scalar_vector_product(1/(1-rho[0]**t), s[i][j])
-                r_hat = scalar_vector_product(1/(1-rho[1]**t), r[i][j])
-                delta_theta = [-lrate*s_x*1/(math.sqrt(r_x)+delta) for s_x, r_x in zip(s_hat, r_hat)]
-                theta[i][j] = list(vector_add(theta[i][j], delta_theta))
-
-    return update
-
-
 def init_examples(examples, idx_i, idx_t, o_units):
     inputs, targets = {}, {}
     # random.shuffle(examples)
@@ -212,79 +181,130 @@ class BatchNormalizationLayer(Layer):
                 for node in self.nodes]
 
 
-def BackPropagation(inputs, targets, theta, net, loss, lrate=0.5, optimizor=SGD()):
-    """The back-propagation algorithm for multilayer networks for only one epoch"""
-    # Initialise weights outside of backprop
+def BackPropagation(inputs, targets, theta, net, loss):
+    """The back-propagation algorithm for multilayer networks for only one epoch, to calculate gradients of theta
+    theta: parameters to be updated """
 
     assert len(inputs) == len(targets)
     o_units = len(net[-1].nodes)
     n_layers = len(net)
     batch_size = len(inputs)
 
-    gradients = [[[0]*len(node.weights) for node in layer.nodes] for layer in net]
+    gradients = [[[] for _ in layer.nodes] for layer in net]
+    total_gradients = [[[0]*len(node.weights) for node in layer.nodes] for layer in net]
 
     batch_loss = 0
+
+    # iterate over each example in batch
     for e in range(batch_size):
         i_val = inputs[e]
         t_val = targets[e]
 
-        # Forward pass
+        # Forward pass and compute batch loss
         for i in range(1, n_layers):
             layer_out = net[i].forward(i_val)
             i_val = layer_out
-        # Initialize delta
-        delta = [[] for _ in range(n_layers)]
-        # compute loss
         batch_loss += loss(t_val, layer_out)
 
-        # Backward pass
+        # Initialize delta
+        delta = [[] for _ in range(n_layers)]
+
         previous = [layer_out[i]-t_val[i] for i in range(o_units)]
         h_layers = n_layers - 1
+        # Backward pass
         for i in range(h_layers, 0, -1):
             layer = net[i]
             derivative = [layer.activation.derivative(node.val) for node in layer.nodes]
             delta[i] = element_wise_product(previous, derivative)
+            # pass to layer i-1 in the next iteration
             previous = matrix_multiplication([delta[i]], theta[i])[0]
+            # compute gradient of layer i
             gradients[i] = [scalar_vector_product(d, net[i].inputs) for d in delta[i]]
 
-        optimizor(theta, gradients)
-        for i in range(len(net)):
-            if theta[i]:
-                for j in range(len(theta[i])):
-                    net[i].nodes[j].weights = theta[i][j]
-    print("loss:", batch_loss)
-    return theta
+        # add gradient of current example to batch gradient
+        total_gradients = vector_add(total_gradients, gradients)
+
+    return total_gradients, batch_loss
 
 
-def NeuaralNetLeaner(dataset, lrate=0.15, epoch=1000):
-    # init network
-    net = [InputLayer(4), DenseLayer(4, 4), DenseLayer(4, 3)]
-    # init loss
-    loss = mse_loss
+def gradient_descent(dataset, net, loss, l_rate=0.01, epoches=1000):
     # init data
-    examples =dataset.examples
-    # inputs, targets = init_examples(examples, dataset.inputs, dataset.target, len(net[-1].nodes))
+    examples = dataset.examples
 
-    s = [[[0]*len(node.weights) for node in layer.nodes] for layer in net]
-    r = [[[0]*len(node.weights) for node in layer.nodes] for layer in net]
-
-    for e in range(epoch):
-        inputs, targets = init_examples(examples, dataset.inputs, dataset.target, len(net[-1].nodes))
-        print("epoch:", e)
-        opt = adam_optimizer(s, r, e+1)
+    for e in range(epoches):
+        total_loss = 0
+        random.shuffle(examples)
         weights = [[node.weights for node in layer.nodes] for layer in net]
-        theta = BackPropagation(inputs, targets, weights, net, loss, lrate=lrate)
 
-        # update the weights of network
-        for i in range(len(net)):
-            if theta[i]:
-                for j in range(len(theta[i])):
-                    net[i].nodes[j].weights = theta[i][j]
+        for batch in get_batch(examples, 1):
+
+            inputs, targets = init_examples(batch, dataset.inputs, dataset.target, len(net[-1].nodes))
+            # compute gradients of weights
+            gs, batch_loss = BackPropagation(inputs, targets, weights, net, loss)
+            # update weights with gradient descent
+            weights = vector_add(weights, scalar_vector_product(-l_rate, gs))
+            total_loss += batch_loss
+            # update the weights of network each batch
+            for i in range(len(net)):
+                if weights[i]:
+                    for j in range(len(weights[i])):
+                        net[i].nodes[j].weights = weights[i][j]
+
+        if (e+1) % 10 == 0:
+            print("epoch:{}, total_loss:{}".format(e+1,total_loss))
+    return net
+
+
+def get_batch(examples, batch_size=1):
+    """split examples into multiple batches"""
+    for i in range(0, len(examples), batch_size):
+        yield examples[i: i+batch_size]
+
+
+def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/10**8, lrate=0.001):
+    examples = dataset.examples
+    s = [[[0] * len(node.weights) for node in layer.nodes] for layer in net]
+    r = [[[0] * len(node.weights) for node in layer.nodes] for layer in net]
+    t = 0
+
+    for e in range(epochs):
+        total_loss = 0
+        random.shuffle(examples)
+        weights = [[node.weights for node in layer.nodes] for layer in net]
+
+        for batch in get_batch(examples, 1):
+            t += 1
+            inputs, targets = init_examples(batch, dataset.inputs, dataset.target, len(net[-1].nodes))
+            # compute gradients of weights
+            gs, batch_loss = BackPropagation(inputs, targets, weights, net, loss)
+            # weights = update(weights, gs, lrate, e+1)
+            s = vector_add(scalar_vector_product(rho[0], s),
+                           scalar_vector_product((1 - rho[0]), gs))
+            r = vector_add(scalar_vector_product(rho[1], r),
+                           scalar_vector_product((1 - rho[1]), element_wise_product(gs, gs)))
+            s_hat = scalar_vector_product(1 / (1 - rho[0] ** t), s)
+            r_hat = scalar_vector_product(1 / (1 - rho[1] ** t), r)
+            # rescale r_hat
+            r_hat = map_vector(lambda x:1/(math.sqrt(x)+delta), r_hat)
+            delta_theta = scalar_vector_product(-lrate, element_wise_product(s_hat, r_hat))
+            weights = vector_add(weights, delta_theta)
+            total_loss += batch_loss
+            # update the weights of network each batch
+            for i in range(len(net)):
+                if weights[i]:
+                    for j in range(len(weights[i])):
+                        net[i].nodes[j].weights = weights[i][j]
+
+        if (e+1) % 10 == 0:
+            print("epoch:{}, total_loss:{}".format(e+1,total_loss))
+    return net
 
 
 if __name__ == '__main__':
     iris = DataSet(name="iris")
     classes = ["setosa", "versicolor", "virginica"]
     iris.classes_to_numbers(classes)
-    network = [InputLayer(4), DenseLayer(4,4), DenseLayer(4,3)]
-    NeuaralNetLeaner(iris)
+    network = [InputLayer(4), DenseLayer(4, 4), DenseLayer(4, 3)]
+    loss = mse_loss
+    # gradient_dscent(iris, network, loss)
+    adam_optimizer(iris, network, loss)
