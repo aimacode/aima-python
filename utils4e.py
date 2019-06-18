@@ -12,6 +12,7 @@ import functools
 import numpy as np
 from itertools import chain, combinations
 from statistics import mean
+import warnings
 
 # part1. General data structures and their functions
 # ______________________________________________________________________________
@@ -204,10 +205,20 @@ def dotproduct(X, Y):
     return sum(x * y for x, y in zip(X, Y))
 
 
-def element_wise_product(X, Y):
+def element_wise_product_2D(X, Y):
     """Return vector as an element-wise product of vectors X and Y"""
     assert len(X) == len(Y)
     return [x * y for x, y in zip(X, Y)]
+
+
+def element_wise_product(X, Y):
+    if hasattr(X, '__iter__') and hasattr(Y, '__iter__'):
+        assert len(X) == len(Y)
+        return [element_wise_product(x,y) for x,y in zip(X,Y)]
+    elif hasattr(X, '__iter__') == hasattr(Y, '__iter__'):
+        return X*Y
+    else:
+        raise Exception("Inputs must be in the same size!")
 
 
 def transpose2D(M):
@@ -255,12 +266,24 @@ def vector_add(a, b):
     """Component-wise addition of two vectors."""
     if not (a and b):
         return a or b
-    return tuple(map(operator.add, a, b))
+    if hasattr(a, '__iter__') and hasattr(b, '__iter__'):
+        assert len(a) == len(b)
+        return list(map(vector_add, a, b))
+    else:
+        try:
+            return a+b
+        except TypeError:
+            raise Exception("Inputs must be in the same size!")
 
 
 def scalar_vector_product(X, Y):
-    """Return vector as a product of a scalar and a vector"""
-    return [X * y for y in Y]
+    """Return vector as a product of a scalar and a vector recursively"""
+    return [scalar_vector_product(X, y) for y in Y] if hasattr(Y, '__iter__') else X*Y
+
+
+def map_vector(f, X):
+    """apply function f to iterable X"""
+    return [map_vector(f, x) for x in X] if hasattr(X, '__iter__') else list(map(f, [X]))[0]
 
 
 def scalar_matrix_product(X, Y):
@@ -433,7 +456,7 @@ class sigmoid(Activation):
         return 1 / (1 + math.exp(-x))
 
     def derivative(self, value):
-        return self.f(value) * (1 - self.f(value))
+        return value * (1 - value)
 
 
 class relu(Activation):
