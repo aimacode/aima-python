@@ -2,7 +2,6 @@ import math
 import statistics
 from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, \
     vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector
-from learning4e import DataSet
 import random
 
 
@@ -227,16 +226,16 @@ def BackPropagation(inputs, targets, theta, net, loss):
     return total_gradients, batch_loss
 
 
-def gradient_descent(dataset, net, loss, l_rate=0.01, epoches=1000):
+def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01,  batch_size=1):
     # init data
     examples = dataset.examples
 
-    for e in range(epoches):
+    for e in range(epochs):
         total_loss = 0
         random.shuffle(examples)
         weights = [[node.weights for node in layer.nodes] for layer in net]
 
-        for batch in get_batch(examples, 1):
+        for batch in get_batch(examples, batch_size):
 
             inputs, targets = init_examples(batch, dataset.inputs, dataset.target, len(net[-1].nodes))
             # compute gradients of weights
@@ -261,7 +260,7 @@ def get_batch(examples, batch_size=1):
         yield examples[i: i+batch_size]
 
 
-def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/10**8, lrate=0.001):
+def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/10**8, l_rate=0.001, batch_size=1):
     examples = dataset.examples
     s = [[[0] * len(node.weights) for node in layer.nodes] for layer in net]
     r = [[[0] * len(node.weights) for node in layer.nodes] for layer in net]
@@ -272,7 +271,7 @@ def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/1
         random.shuffle(examples)
         weights = [[node.weights for node in layer.nodes] for layer in net]
 
-        for batch in get_batch(examples, 1):
+        for batch in get_batch(examples, batch_size):
             t += 1
             inputs, targets = init_examples(batch, dataset.inputs, dataset.target, len(net[-1].nodes))
             # compute gradients of weights
@@ -286,7 +285,7 @@ def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/1
             r_hat = scalar_vector_product(1 / (1 - rho[1] ** t), r)
             # rescale r_hat
             r_hat = map_vector(lambda x:1/(math.sqrt(x)+delta), r_hat)
-            delta_theta = scalar_vector_product(-lrate, element_wise_product(s_hat, r_hat))
+            delta_theta = scalar_vector_product(-l_rate, element_wise_product(s_hat, r_hat))
             weights = vector_add(weights, delta_theta)
             total_loss += batch_loss
             # update the weights of network each batch
@@ -300,11 +299,48 @@ def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/1
     return net
 
 
-if __name__ == '__main__':
-    iris = DataSet(name="iris")
-    classes = ["setosa", "versicolor", "virginica"]
-    iris.classes_to_numbers(classes)
-    network = [InputLayer(4), DenseLayer(4, 4), DenseLayer(4, 3)]
-    loss = mse_loss
-    # gradient_dscent(iris, network, loss)
-    adam_optimizer(iris, network, loss)
+def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epochs=100, optimizer=gradient_descent):
+    """Example of a simple dense multilayer neural network"""
+    input_size = len(dataset.inputs)
+    output_size = len(dataset.values[dataset.target])
+
+    # initialize the network
+    raw_net = [InputLayer(input_size)]
+
+    hidden_input_size = input_size
+    for h_size in hidden_layer_sizes:
+        raw_net.append(DenseLayer(hidden_input_size, h_size))
+        hidden_input_size = h_size
+    raw_net.append(DenseLayer(hidden_input_size, output_size))
+
+    learned_net = optimizer(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate)
+
+    def predict(example):
+        n_layers = len(learned_net)
+
+        layer_input = example
+        layer_out = example
+        for i in range(1, n_layers):
+            layer_out = learned_net[i].forward(layer_input)
+            layer_input = layer_out
+
+        return layer_out.index(max(layer_out))
+
+    return predict
+
+
+def perceptron_learner(dataset, learning_rate=0.15, epochs=100):
+    """Example of a simple dense multilayer neural network"""
+    input_size = len(dataset.inputs)
+    output_size = len(dataset.values[dataset.target])
+
+    # initialize the network
+    raw_net = [DenseLayer(input_size, output_size)]
+    learned_net = gradient_descent(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate)
+
+    def predict(example):
+
+        layer_out = learned_net[0].forward(example)
+        return layer_out.index(max(layer_out))
+
+    return predict
