@@ -47,3 +47,12 @@ def test_perceptron():
              ([7, 3, 6, 2.5], 2)]
     assert grade_learner(perceptron, tests) > 1/2
     assert err_ratio(perceptron, iris) < 0.4
+
+
+def test_rnn():
+    data = imdb.load_data(num_words=5000)
+    train, val, test = keras_dataset_loader(data)
+    model = simple_rnn_learner(train, val)
+    score = model.evaluate(test[0], test[1], verbose=0)
+    assert score >= 0.7
+

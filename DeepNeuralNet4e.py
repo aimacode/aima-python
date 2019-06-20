@@ -1,8 +1,16 @@
 import math
 import statistics
 from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, \
-    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector
+    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector, transpose2D
 import random
+from learning4e import grade_learner, DataSet
+
+import numpy as np
+from keras.models import Sequential
+from keras.layers import Dense, SimpleRNN, Flatten
+from keras.layers.embeddings import Embedding
+from keras.preprocessing import sequence
+from keras.datasets import imdb, cifar10
 
 
 def cross_entropy_loss(X, Y):
@@ -344,3 +352,36 @@ def perceptron_learner(dataset, learning_rate=0.15, epochs=100):
         return layer_out.index(max(layer_out))
 
     return predict
+
+
+def simple_rnn_learner(train_data, val_data, epochs=2):
+
+    total_inputs = 5000
+    input_length = 500
+
+    # init data
+    X_train, y_train = train_data
+    X_val, y_val = val_data
+
+    # init model
+    model = Sequential()
+    model.add(Embedding(total_inputs, 32, input_length=input_length))
+    model.add(SimpleRNN(units=128))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+    # train the model
+    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=128, verbose=2)
+
+    return model
+
+
+def keras_dataset_loader(dataset, max_length=500):
+    """helper function to load keras datasets"""
+    # init dataset
+    (X_train, y_train), (X_val, y_val) = dataset
+    if max_length>0:
+        X_train = sequence.pad_sequences(X_train, maxlen=max_length)
+        X_val = sequence.pad_sequences(X_val, maxlen=max_length)
+    return (X_train[10:10000], y_train[10:10000]), (X_val, y_val), (X_train[:10], y_train[:10])
+
