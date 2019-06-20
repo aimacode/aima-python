@@ -6,6 +6,7 @@ import random
 from learning4e import grade_learner, DataSet
 
 import numpy as np
+from keras import optimizers
 from keras.models import Sequential
 from keras.layers import Dense, SimpleRNN, Flatten
 from keras.layers.embeddings import Embedding
@@ -385,3 +386,21 @@ def keras_dataset_loader(dataset, max_length=500):
         X_val = sequence.pad_sequences(X_val, maxlen=max_length)
     return (X_train[10:10000], y_train[10:10000]), (X_val, y_val), (X_train[:10], y_train[:10])
 
+
+def auto_encoder_learner(inputs, encoding_size, epochs=200):
+    """simple example of linear auto encode learner"""
+
+    # init data
+    input_size = len(inputs[0])
+
+    # init model
+    model = Sequential()
+    model.add(Dense(encoding_size, input_dim=input_size, activation='relu', kernel_initializer='random_uniform',bias_initializer='ones'))
+    model.add(Dense(input_size, activation='relu',kernel_initializer='random_uniform',bias_initializer='ones'))
+    sgd = optimizers.SGD(lr=0.01)
+    model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy'])
+
+    # train the model
+    model.fit(inputs, inputs, epochs=epochs, batch_size=10, verbose=2)
+
+    return model

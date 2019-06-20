@@ -56,3 +56,14 @@ def test_rnn():
     score = model.evaluate(test[0], test[1], verbose=0)
     assert score >= 0.7
 
+
+def test_auto_encoder():
+    iris = DataSet(name="iris")
+    classes = ["setosa", "versicolor", "virginica"]
+    iris.classes_to_numbers(classes)
+    inputs = np.asarray(iris.examples)
+    # print(inputs[0])
+    model = auto_encoder_learner(inputs, 100)
+    print(inputs[0])
+    print(model.predict(inputs[:1]))
+
