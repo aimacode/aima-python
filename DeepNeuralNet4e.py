@@ -1,17 +1,14 @@
 import math
 import statistics
 from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, \
-    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector, transpose2D
+    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector
 import random
-from learning4e import grade_learner, DataSet
 
-import numpy as np
 from keras import optimizers
 from keras.models import Sequential
-from keras.layers import Dense, SimpleRNN, Flatten
+from keras.layers import Dense, SimpleRNN
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
-from keras.datasets import imdb, cifar10
 
 
 def cross_entropy_loss(X, Y):
@@ -58,12 +55,8 @@ class Layer:
         """Define the operation to get the output of this layer"""
         raise NotImplementedError
 
-    def backward(self, nxt):
-        """take the information back passed from the next layer
-         calculate the information to pass backward"""
-        return nxt
 
-
+# ________________________________________________
 # 19.3 Models
 
 
@@ -119,14 +112,14 @@ class ConvLayer1D(Layer):
     """Single 1D convolution layer of a neural network
     input channel equals output channel"""
 
-    def __init__(self, size=3, kernel_size=3, kernel_type=None):
-        #
+    def __init__(self, size=3, kernel_size=3):
         super(ConvLayer1D, self).__init__(size)
-        if not kernel_type:
-            for node in self.nodes:
-                node.weights = GaussianKernel(kernel_size)
+        # init convolution kernel as gaussian kernel
+        for node in self.nodes:
+            node.weights = GaussianKernel(kernel_size)
 
     def forward(self, features):
+        assert len(self.nodes) == len(features)
         res = []
         for node, feature in zip(self.nodes, features):
             out = conv1D(feature, node.weights)
@@ -141,10 +134,12 @@ class MaxPoolingLayer1D(Layer):
     def __init__(self, size=3, kernel_size=3):
         super(MaxPoolingLayer1D, self).__init__(size)
         self.kernel_size = kernel_size
+        self.inputs = None
 
     def forward(self, features):
         assert len(self.nodes) == len(features)
         res = []
+        self.inputs = features
         for i in range(len(self.nodes)):
             feature = features[i]
             out = [max(feature[i:i+self.kernel_size]) for i in range(len(feature)-self.kernel_size+1)]
@@ -157,6 +152,8 @@ class MaxPoolingLayer1D(Layer):
 
 
 def init_examples(examples, idx_i, idx_t, o_units):
+    """Init examples from dataset.examples."""
+
     inputs, targets = {}, {}
     # random.shuffle(examples)
     for i, e in enumerate(examples):
@@ -176,22 +173,35 @@ def init_examples(examples, idx_i, idx_t, o_units):
 
 
 class BatchNormalizationLayer(Layer):
-
-    def __init__(self, inputs, epsilon=0.001):
-        super(BatchNormalizationLayer, self).__init__(inputs)
+    """Example of a batch normalization layer."""
+    def __init__(self, size, epsilon=0.001):
+        super(BatchNormalizationLayer, self).__init__(size)
         self.epsilon = epsilon
         self.weights = [0, 0]  # beta and gamma
-        self.mu = sum(inputs)/len(inputs)
-        self.stderr = statistics.stdev(inputs)
+        self.inputs = None
 
-    def forward(self):
-        return [(node.val-self.mu)*self.weights[0]/math.sqrt(self.epslong+self.stderr**2)+self.weights[1]
-                for node in self.nodes]
+    def forward(self, inputs):
+        mu = sum(inputs) / len(inputs)
+        stderr = statistics.stdev(inputs)
+        self.inputs = inputs
+        res = []
+        for i in range(len(self.nodes)):
+            val = [(inputs[i] - mu)*self.weights[0]/math.sqrt(self.epsilon + stderr**2)+self.weights[1]]
+            res.append(val)
+            self.nodes[i].val = val
+        return res
 
 
 def BackPropagation(inputs, targets, theta, net, loss):
-    """The back-propagation algorithm for multilayer networks for only one epoch, to calculate gradients of theta
-    theta: parameters to be updated """
+    """
+    The back-propagation algorithm for multilayer networks in only one epoch, to calculate gradients of theta
+    :param inputs: A batch of inputs in an array. Each input is an iterable object.
+    :param targets: A batch of targets in an array. Each target is an iterable object.
+    :param theta: parameters to be updated.
+    :param net: a list of predefined layer objects representing their linear sequence.
+    :param loss: a predefined loss function taking array of inputs and targets.
+    :return: gradients of theta, loss of the input batch.
+    """
 
     assert len(inputs) == len(targets)
     o_units = len(net[-1].nodes)
@@ -236,6 +246,10 @@ def BackPropagation(inputs, targets, theta, net, loss):
 
 
 def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01,  batch_size=1):
+    """
+    gradient descent algorithm to update the learnable parameters of a network.
+    :return: the updated network.
+    """
     # init data
     examples = dataset.examples
 
@@ -270,6 +284,10 @@ def get_batch(examples, batch_size=1):
 
 
 def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/10**8, l_rate=0.001, batch_size=1):
+    """
+    Adam optimizer in Figure 19.6 to update the learnable parameters of a network.
+    Required parameters are similar to gradient descent.
+    """
     examples = dataset.examples
     s = [[[0] * len(node.weights) for node in layer.nodes] for layer in net]
     r = [[[0] * len(node.weights) for node in layer.nodes] for layer in net]
@@ -308,8 +326,9 @@ def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/1
     return net
 
 
-def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epochs=100, optimizer=gradient_descent):
+def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epochs=100, optimizer=gradient_descent, batch_size=1):
     """Example of a simple dense multilayer neural network"""
+
     input_size = len(dataset.inputs)
     output_size = len(dataset.values[dataset.target])
 
@@ -322,7 +341,7 @@ def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epoc
         hidden_input_size = h_size
     raw_net.append(DenseLayer(hidden_input_size, output_size))
 
-    learned_net = optimizer(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate)
+    learned_net = optimizer(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate, batch_size=batch_size)
 
     def predict(example):
         n_layers = len(learned_net)
@@ -338,24 +357,37 @@ def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epoc
     return predict
 
 
-def perceptron_learner(dataset, learning_rate=0.15, epochs=100):
-    """Example of a simple dense multilayer neural network"""
+def perceptron_learner(dataset, learning_rate=0.01, epochs=100):
+    """
+    Example of a simple perceptron neural network
+    """
     input_size = len(dataset.inputs)
     output_size = len(dataset.values[dataset.target])
 
     # initialize the network
-    raw_net = [DenseLayer(input_size, output_size)]
+    raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
     learned_net = gradient_descent(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate)
 
     def predict(example):
 
-        layer_out = learned_net[0].forward(example)
+        layer_out = learned_net[1].forward(example)
         return layer_out.index(max(layer_out))
 
     return predict
 
+# ____________________________________________________________________
+# 19.6 Recurrent neural networks
+
 
 def simple_rnn_learner(train_data, val_data, epochs=2):
+    """
+    rnn example for text sentimental analysis
+    :param train_data: a tuple of (training data, targets)
+            Training data: ndarray taking training examples, while each example is coded by embedding
+            Targets: ndarry taking targets of each example. Each target is mapped to an integer.
+    :param val_data: a tuple of (validation data, targets)
+    :return: a keras model
+    """
 
     total_inputs = 5000
     input_length = 500
@@ -378,17 +410,20 @@ def simple_rnn_learner(train_data, val_data, epochs=2):
 
 
 def keras_dataset_loader(dataset, max_length=500):
-    """helper function to load keras datasets"""
+    """helper function to load keras datasets
+    dataset: keras data set type"""
     # init dataset
     (X_train, y_train), (X_val, y_val) = dataset
-    if max_length>0:
+    if max_length > 0:
         X_train = sequence.pad_sequences(X_train, maxlen=max_length)
         X_val = sequence.pad_sequences(X_val, maxlen=max_length)
-    return (X_train[10:10000], y_train[10:10000]), (X_val, y_val), (X_train[:10], y_train[:10])
+    return (X_train[10:], y_train[10:]), (X_val, y_val), (X_train[:10], y_train[:10])
 
 
 def auto_encoder_learner(inputs, encoding_size, epochs=200):
-    """simple example of linear auto encode learner"""
+    """simple example of linear auto encoder learning producing the input itself.
+    :param inputs: a batch of input data in np.ndarray type
+    :param encoding_size: int, the size of encoding layer"""
 
     # init data
     input_size = len(inputs[0])
