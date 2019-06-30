@@ -8,3 +8,4 @@ ipython
 ipythonblocks
 keras
 numpy
+tensorflow
