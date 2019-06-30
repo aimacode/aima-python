@@ -1,14 +1,14 @@
-import random
+import random, gc
 from agents_4e import Direction
 from agents_4e import Agent
 from agents_4e import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
                    RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram, \
-		           SimpleReflexAgentProgram, ModelBasedReflexAgentProgram, rule_match
+		           SimpleReflexAgentProgram, ModelBasedReflexAgentProgram
 from agents_4e import Wall, Gold, Explorer, Thing, Bump, Glitter, WumpusEnvironment, Pit, \
                    VacuumEnvironment, Dirt
 
-
 random.seed("aima-python")
+gc.collect()
 
 
 def test_move_forward():
