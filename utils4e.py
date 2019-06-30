@@ -327,7 +327,7 @@ def weighted_sampler(seq, weights):
 
 def weighted_choice(choices):
     """A weighted version of random.choice"""
-    # NOTE: Shoule be replaced by random.choices if we port to Python 3.6
+    # NOTE: Should be replaced by random.choices if we port to Python 3.6
 
     total = sum(w for _, w in choices)
     r = random.uniform(0, total)
@@ -517,7 +517,16 @@ def step(x):
 
 def gaussian(mean, st_dev, x):
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
-    return 1 / (math.sqrt(2 * math.pi) * st_dev) * math.e ** (-0.5 * (float(x - mean) / st_dev) ** 2)
+    return 1 / (math.sqrt(2 * math.pi) * st_dev) * math.exp(-0.5 * (float(x - mean) / st_dev) ** 2)
+
+
+def gaussian_2D(means, sigma, point):
+    det = sigma[0][0] * sigma[1][1] - sigma[0][1] * sigma[1][0]
+    inverse = inverse_matrix(sigma)
+    assert det != 0
+    x_u = vector_add(point, scalar_vector_product(-1, means))
+    buff = matrix_multiplication(matrix_multiplication([x_u], inverse), transpose2D([x_u]))
+    return 1/(math.sqrt(det)*2*math.pi) * math.exp(-0.5 * buff[0][0])
 
 
 try:  # math.isclose was added in Python 3.5; but we might be in 3.4
