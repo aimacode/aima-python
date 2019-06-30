@@ -6,3 +6,5 @@ pillow
 Image
 ipython
 ipythonblocks
+keras
+numpy
