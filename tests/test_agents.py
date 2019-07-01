@@ -63,7 +63,7 @@ def test_RandomAgentProgram() :
     list = ['Right', 'Left', 'Suck', 'NoOp']
     # create a program and then an object of the RandomAgentProgram
     program = RandomAgentProgram(list)
-    
+
     agent = Agent(program)
     # create an object of TrivialVacuumEnvironment
     environment = TrivialVacuumEnvironment()
@@ -139,26 +139,26 @@ def test_ReflexVacuumAgent() :
 
 def test_SimpleReflexAgentProgram():
     class Rule:
-        
+
         def __init__(self, state, action):
             self.__state = state
             self.action = action
-            
+
         def matches(self, state):
             return self.__state == state
-        
+
     loc_A = (0, 0)
     loc_B = (1, 0)
-    
+
     # create rules for a two state Vacuum Environment
     rules = [Rule((loc_A, "Dirty"), "Suck"), Rule((loc_A, "Clean"), "Right"),
             Rule((loc_B, "Dirty"), "Suck"), Rule((loc_B, "Clean"), "Left")]
-    
+
     def interpret_input(state):
         return state
-    
+
     # create a program and then an object of the SimpleReflexAgentProgram
-    program = SimpleReflexAgentProgram(rules, interpret_input) 
+    program = SimpleReflexAgentProgram(rules, interpret_input)
     agent = Agent(program)
     # create an object of TrivialVacuumEnvironment
     environment = TrivialVacuumEnvironment()
@@ -306,8 +306,8 @@ def test_WumpusEnvironment():
     assert not any(map(lambda x: not isinstance(x,Thing), w.things))
 
     #Check that gold and wumpus are not present on (1,1)
-    assert not any(map(lambda x: isinstance(x, Gold) or isinstance(x,WumpusEnvironment), 
-                    w.list_things_at((1, 1)))) 
+    assert not any(map(lambda x: isinstance(x, Gold) or isinstance(x,WumpusEnvironment),
+                    w.list_things_at((1, 1))))
 
     #Check if w.get_world() segments objects correctly
     assert len(w.get_world()) == 6
