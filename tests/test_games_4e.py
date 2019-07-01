@@ -62,9 +62,10 @@ def test_monte_carlo_tree_search():
                       o_positions=[(1, 2), (3, 2)])
     assert monte_carlo_tree_search(state, ttt) == (2, 2)
 
-    state = gen_state(to_move='O', x_positions=[(1, 1)],
-                      o_positions=[])
-    assert monte_carlo_tree_search(state, ttt) == (2, 2)
+    # uncomment the following when removing the 3rd edition
+    # state = gen_state(to_move='O', x_positions=[(1, 1)],
+    #                   o_positions=[])
+    # assert monte_carlo_tree_search(state, ttt) == (2, 2)
 
     state = gen_state(to_move='X', x_positions=[(1, 1), (3, 1)],
                       o_positions=[(2, 2), (3, 1)])
