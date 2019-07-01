@@ -505,11 +505,6 @@ class XYEnvironment(Environment):
     def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items=False):
         """Add things to the world. If (exclude_duplicate_class_items) then the item won't be
         added if the location has at least one item of the same class."""
-        if thing == Gold():
-            print(thing, location)
-            print(self.is_inbounds(location))
-            print(self.x_start,self.x_end)
-            print(self.y_start, self.y_end)
         if (self.is_inbounds(location)):
             if (exclude_duplicate_class_items and
                     any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):
@@ -861,7 +856,6 @@ class WumpusEnvironment(XYEnvironment):
 
         "GOLD"
         self.add_thing(Gold(), self.random_location_inbounds(exclude=(1, 1)), True)
-        print(self.things)
 
         "AGENT"
         self.add_thing(Explorer(program), (1, 1), True)
