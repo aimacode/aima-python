@@ -1,4 +1,4 @@
-import random, gc
+import random
 from agents_4e import Direction
 from agents_4e import Agent
 from agents_4e import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,\
@@ -8,7 +8,6 @@ from agents_4e import Wall, Gold, Explorer, Thing, Bump, Glitter, WumpusEnvironm
                    VacuumEnvironment, Dirt
 
 random.seed("aima-python")
-gc.collect()
 
 
 def test_move_forward():
@@ -111,8 +110,7 @@ def test_TableDrivenAgent():
     # initializing some environment status
     environment.status = {loc_A:'Dirty', loc_B:'Dirty'}
     # add agent to the environment
-    environment.add_thing(agent)
-
+    environment.add_thing(agent, location=(1, 0))
     # run the environment by single step everytime to check how environment evolves using TableDrivenAgentProgram
     environment.run(steps = 1)
     assert environment.status == {(1,0): 'Clean', (0,0): 'Dirty'}
@@ -293,11 +291,11 @@ def test_VacuumEnvironment():
     v.execute_action(agent, "NoOp")
     assert old_performance == agent.performance
 
-def test_WumpusEnvironment():
-    def constant_prog(percept):
+def test_WumpusEnvironment_4e():
+    def cons_prog(percept):
         return percept
     # Initialize Wumpus Environment
-    w = WumpusEnvironment(constant_prog)
+    w = WumpusEnvironment(lambda x: x)
 
     #Check if things are added properly
     assert len([x for x in w.things if isinstance(x, Wall)]) == 20

@@ -54,10 +54,10 @@ def test_perceptron():
 def test_rnn():
     data = imdb.load_data(num_words=5000)
     train, val, test = keras_dataset_loader(data)
-    train = (train[0][:20000], train[1][:20000])
-    val = (val[0][:5000], val[1][:5000])
+    train = (train[0][:1000], train[1][:1000])
+    val = (val[0][:200], val[1][:200])
     model = simple_rnn_learner(train, val)
-    score = model.evaluate(test[0], test[1], verbose=0)
+    score = model.evaluate(test[0][:200], test[1][:200], verbose=0)
     acc = score[1]
     assert acc >= 0.4
 
