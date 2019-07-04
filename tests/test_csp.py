@@ -211,37 +211,11 @@ def test_AC3():
             removals == [('B', 1), ('B', 3), ('A', 1), ('A', 3)])
 
     domains = {'A': [2, 4], 'B': [3, 5]}
-    constraints = lambda X, x, Y, y: x > y
+    constraints = lambda X, x, Y, y: int(x) > int(y)
     removals = []
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
     assert AC3(csp, removals=removals)
-
-
-def test_AC4():
-    neighbors = parse_neighbors('A: B; B: ')
-    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
-    constraints = lambda X, x, Y, y: x % 2 == 0 and (x + y) == 4 and y % 2 != 0
-    removals = []
-
-    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
-
-    assert AC4(csp, removals=removals) is False
-
-    constraints = lambda X, x, Y, y: (x % 2) == 0 and (x + y) == 4
-    removals = []
-    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
-
-    assert AC4(csp, removals=removals) is True
-    assert (removals == [('A', 1), ('A', 3), ('B', 1), ('B', 3)] or
-            removals == [('B', 1), ('B', 3), ('A', 1), ('A', 3)])
-
-    domains = {'A': [2, 4], 'B': [3, 5]}
-    constraints = lambda X, x, Y, y: (X == 'A' and Y == 'B') or (X == 'B' and Y == 'A') and x < y
-    removals = []
-    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
-
-    assert AC4(csp, removals=removals)
 
 
 def test_first_unassigned_variable():
