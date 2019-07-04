@@ -741,36 +741,19 @@ def MapColoringSAT(colors, neighbors):
     if isinstance(neighbors, str):
         neighbors = parse_neighbors(neighbors)
     colors = UniversalDict(colors)
-    part = str()
-    t = str()
-    for x in neighbors.keys():
-        part += '('
-        l = 0
-        for c in colors[x]:
-            l += 1
-            part += str(x) + '_' + str(c)
-            t += str(x) + '_' + str(c)
-            if l != len(colors[x]):
-                part += ' | '
-                t += '|'
-        part += ') & '
-        list = t.split('|')
-        t = str()
-        for idx, val in enumerate(list):
-            for x in list[idx + 1:]:
-                part += '~(' + val + ' & ' + x + ') & '
-    not_part = str()
-    visit = set()
-    for x in neighbors.keys():
-        adj = set(neighbors[x])
-        adj = adj - visit
-        visit.add(x)
-        for n in adj:
-            for col in colors[n]:
-                not_part += '~(' + str(x) + '_' + str(col) + ' & '
-                not_part += str(n) + '_' + str(col) + ') & '
-    clause = part + not_part[:len(not_part) - 2]
-    return expr(clause)
+    clauses = []
+    for state in neighbors.keys():
+        clause = [expr(state + '_' + c) for c in colors[state]]
+        clauses.append(clause)
+        for t in itertools.combinations(clause, 2):
+            clauses.append([~t[0], ~t[1]])
+        visited = set()
+        adj = set(neighbors[state]) - visited
+        visited.add(state)
+        for n_state in adj:
+            for col in colors[n_state]:
+                clauses.append([expr('~' + state + '_' + col), expr('~' + n_state + '_' + col)])
+    return associate('&', map(lambda c: associate('|', c), clauses))
 
 
 australia_sat = MapColoringSAT(list('RGB'), """SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: """)
