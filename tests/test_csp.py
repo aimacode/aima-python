@@ -10,16 +10,16 @@ def test_csp_assign():
     var = 10
     val = 5
     assignment = {}
-    australia.assign(var, val, assignment)
+    australia_csp.assign(var, val, assignment)
 
-    assert australia.nassigns == 1
+    assert australia_csp.nassigns == 1
     assert assignment[var] == val
 
 
 def test_csp_unassign():
     var = 10
     assignment = {var: 5}
-    australia.unassign(var, assignment)
+    australia_csp.unassign(var, assignment)
 
     assert var not in assignment
 
@@ -330,22 +330,22 @@ def test_forward_checking():
 
 
 def test_backtracking_search():
-    assert backtracking_search(australia)
-    assert backtracking_search(australia, select_unassigned_variable=mrv)
-    assert backtracking_search(australia, order_domain_values=lcv)
-    assert backtracking_search(australia, select_unassigned_variable=mrv,
+    assert backtracking_search(australia_csp)
+    assert backtracking_search(australia_csp, select_unassigned_variable=mrv)
+    assert backtracking_search(australia_csp, order_domain_values=lcv)
+    assert backtracking_search(australia_csp, select_unassigned_variable=mrv,
                                order_domain_values=lcv)
-    assert backtracking_search(australia, inference=forward_checking)
-    assert backtracking_search(australia, inference=mac)
-    assert backtracking_search(usa, select_unassigned_variable=mrv,
+    assert backtracking_search(australia_csp, inference=forward_checking)
+    assert backtracking_search(australia_csp, inference=mac)
+    assert backtracking_search(usa_csp, select_unassigned_variable=mrv,
                                order_domain_values=lcv, inference=mac)
 
 
 def test_min_conflicts():
-    assert min_conflicts(australia)
-    assert min_conflicts(france)
+    assert min_conflicts(australia_csp)
+    assert min_conflicts(france_csp)
 
-    tests = [(usa, None)] * 3
+    tests = [(usa_csp, None)] * 3
     assert failure_test(min_conflicts, tests) >= 1 / 3
 
     australia_impossible = MapColoringCSP(list('RG'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
@@ -418,7 +418,7 @@ def test_parse_neighbours():
 
 def test_topological_sort():
     root = 'NT'
-    Sort, Parents = topological_sort(australia, root)
+    Sort, Parents = topological_sort(australia_csp, root)
 
     assert Sort == ['NT', 'SA', 'Q', 'NSW', 'V', 'WA']
     assert Parents['NT'] == None
