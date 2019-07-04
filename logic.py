@@ -30,7 +30,7 @@ And a few other functions:
     unify            Do unification of two FOL sentences
     diff, simp       Symbolic differentiation and simplification
 """
-from csp import parse_neighbors, UniversalDict
+
 from utils import (
     removeall, unique, first, argmax, probability,
     isnumber, issequence, Expr, expr, subexpressions
@@ -42,11 +42,11 @@ import itertools
 import random
 from collections import defaultdict
 
-
 # ______________________________________________________________________________
 
 
 class KB:
+
     """A knowledge base to which you can tell and ask sentences.
     To create a KB, first subclass this class and implement
     tell, ask_generator, and retract.  Why ask_generator instead of ask?
@@ -105,7 +105,6 @@ class PropKB(KB):
         for c in conjuncts(to_cnf(sentence)):
             if c in self.clauses:
                 self.clauses.remove(c)
-
 
 # ______________________________________________________________________________
 
@@ -320,7 +319,6 @@ def pl_true(exp, model={}):
     else:
         raise ValueError("illegal operator in logic expression" + str(exp))
 
-
 # ______________________________________________________________________________
 
 # Convert to Conjunctive Normal Form (CNF)
@@ -370,7 +368,6 @@ def move_not_inwards(s):
     if s.op == '~':
         def NOT(b):
             return move_not_inwards(~b)
-
         a = s.args[0]
         if a.op == '~':
             return move_not_inwards(a.args[0])  # ~~A ==> A
@@ -448,7 +445,6 @@ def dissociate(op, args):
                 collect(arg.args)
             else:
                 result.append(arg)
-
     collect(args)
     return result
 
@@ -472,7 +468,6 @@ def disjuncts(s):
     """
     return dissociate('|', [s])
 
-
 # ______________________________________________________________________________
 
 
@@ -486,7 +481,7 @@ def pl_resolution(KB, alpha):
     while True:
         n = len(clauses)
         pairs = [(clauses[i], clauses[j])
-                 for i in range(n) for j in range(i + 1, n)]
+                 for i in range(n) for j in range(i+1, n)]
         for (ci, cj) in pairs:
             resolvents = pl_resolve(ci, cj)
             if False in resolvents:
@@ -509,7 +504,6 @@ def pl_resolve(ci, cj):
                               removeall(dj, disjuncts(cj)))
                 clauses.append(associate('|', dnew))
     return clauses
-
 
 # ______________________________________________________________________________
 
@@ -566,6 +560,7 @@ Simple inference in a wumpus world example
 """
 wumpus_world_inference = expr("(B11 <=> (P12 | P21))  &  ~B11")
 
+
 """ [Figure 7.16]
 Propositional Logic Forward Chaining example
 """
@@ -577,10 +572,8 @@ for s in "P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B".split(';'):
 Definite clauses KB example
 """
 definite_clauses_KB = PropDefiniteKB()
-for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B',
-               'C']:
+for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B', 'C']:
     definite_clauses_KB.tell(expr(clause))
-
 
 # ______________________________________________________________________________
 # DPLL-Satisfiable [Figure 7.17]
@@ -672,7 +665,7 @@ def unit_clause_assign(clause, model):
             if model[sym] == positive:
                 return None, None  # clause already True
         elif P:
-            return None, None  # more than 1 unbound variable
+            return None, None      # more than 1 unbound variable
         else:
             P, value = sym, positive
     return P, value
@@ -690,7 +683,6 @@ def inspect_literal(literal):
         return literal.args[0], False
     else:
         return literal, True
-
 
 # ______________________________________________________________________________
 # Walk-SAT [Figure 7.18]
@@ -722,186 +714,95 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
                 count = len([clause for clause in clauses if pl_true(clause, model)])
                 model[sym] = not model[sym]
                 return count
-
             sym = argmax(prop_symbols(clause), key=sat_count)
         model[sym] = not model[sym]
     # If no solution is found within the flip limit, we return failure
     return None
-
-
-# ______________________________________________________________________________
-# Map Coloring Problems
-
-
-def MapColoringSAT(colors, neighbors):
-    """Make a SAT for the problem of coloring a map with different colors
-    for any two adjacent regions. Arguments are a list of colors, and a
-    dict of {region: [neighbor,...]} entries. This dict may also be
-    specified as a string of the form defined by parse_neighbors."""
-    if isinstance(neighbors, str):
-        neighbors = parse_neighbors(neighbors)
-    colors = UniversalDict(colors)
-    part = str()
-    t = str()
-    for x in neighbors.keys():
-        part += '('
-        l = 0
-        for c in colors[x]:
-            l += 1
-            part += str(x) + '_' + str(c)
-            t += str(x) + '_' + str(c)
-            if l != len(colors[x]):
-                part += ' | '
-                t += '|'
-        part += ') & '
-        list = t.split('|')
-        t = str()
-        for idx, val in enumerate(list):
-            for x in list[idx + 1:]:
-                part += '~(' + val + ' & ' + x + ') & '
-    not_part = str()
-    visit = set()
-    for x in neighbors.keys():
-        adj = set(neighbors[x])
-        adj = adj - visit
-        visit.add(x)
-        for n in adj:
-            for col in colors[n]:
-                not_part += '~(' + str(x) + '_' + str(col) + ' & '
-                not_part += str(n) + '_' + str(col) + ') & '
-    clause = part + not_part[:len(not_part) - 2]
-    return expr(clause)
-
-
-australia_sat = MapColoringSAT(list('RGB'), """SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: """)
-
-france_sat = MapColoringSAT(list('RGBY'),
-                            """AL: LO FC; AQ: MP LI PC; AU: LI CE BO RA LR MP; BO: CE IF CA FC RA
-                            AU; BR: NB PL; CA: IF PI LO FC BO; CE: PL NB NH IF BO AU LI PC; FC: BO
-                            CA LO AL RA; IF: NH PI CA BO CE; LI: PC CE AU MP AQ; LO: CA AL FC; LR:
-                            MP AU RA PA; MP: AQ LI AU LR; NB: NH CE PL BR; NH: PI IF CE NB; NO:
-                            PI; PA: LR RA; PC: PL CE LI AQ; PI: NH NO CA IF; PL: BR NB CE PC; RA:
-                            AU BO FC PA LR""")
-
-usa_sat = MapColoringSAT(list('RGBY'),
-                         """WA: OR ID; OR: ID NV CA; CA: NV AZ; NV: ID UT AZ; ID: MT WY UT;
-                         UT: WY CO AZ; MT: ND SD WY; WY: SD NE CO; CO: NE KA OK NM; NM: OK TX AZ;
-                         ND: MN SD; SD: MN IA NE; NE: IA MO KA; KA: MO OK; OK: MO AR TX;
-                         TX: AR LA; MN: WI IA; IA: WI IL MO; MO: IL KY TN AR; AR: MS TN LA;
-                         LA: MS; WI: MI IL; IL: IN KY; IN: OH KY; MS: TN AL; AL: TN GA FL;
-                         MI: OH IN; OH: PA WV KY; KY: WV VA TN; TN: VA NC GA; GA: NC SC FL;
-                         PA: NY NJ DE MD WV; WV: MD VA; VA: MD DC NC; NC: SC; NY: VT MA CT NJ;
-                         NJ: DE; DE: MD; MD: DC; VT: NH MA; MA: NH RI CT; CT: RI; ME: NH;
-                         HI: ; AK: """)
-
 
 # ______________________________________________________________________________
 
 
 # Expr functions for WumpusKB and HybridWumpusAgent
 
-def facing_east(time):
+def facing_east (time):
     return Expr('FacingEast', time)
 
-
-def facing_west(time):
+def facing_west (time):
     return Expr('FacingWest', time)
 
-
-def facing_north(time):
+def facing_north (time):
     return Expr('FacingNorth', time)
 
-
-def facing_south(time):
+def facing_south (time):
     return Expr('FacingSouth', time)
 
-
-def wumpus(x, y):
+def wumpus (x, y):
     return Expr('W', x, y)
-
 
 def pit(x, y):
     return Expr('P', x, y)
 
-
 def breeze(x, y):
     return Expr('B', x, y)
-
 
 def stench(x, y):
     return Expr('S', x, y)
 
-
 def wumpus_alive(time):
     return Expr('WumpusAlive', time)
-
 
 def have_arrow(time):
     return Expr('HaveArrow', time)
 
-
 def percept_stench(time):
     return Expr('Stench', time)
-
 
 def percept_breeze(time):
     return Expr('Breeze', time)
 
-
 def percept_glitter(time):
     return Expr('Glitter', time)
-
 
 def percept_bump(time):
     return Expr('Bump', time)
 
-
 def percept_scream(time):
     return Expr('Scream', time)
-
 
 def move_forward(time):
     return Expr('Forward', time)
 
-
 def shoot(time):
     return Expr('Shoot', time)
-
 
 def turn_left(time):
     return Expr('TurnLeft', time)
 
-
 def turn_right(time):
     return Expr('TurnRight', time)
-
 
 def ok_to_move(x, y, time):
     return Expr('OK', x, y, time)
 
-
-def location(x, y, time=None):
+def location(x, y, time = None):
     if time is None:
         return Expr('L', x, y)
     else:
         return Expr('L', x, y, time)
-
 
 # Symbols
 
 def implies(lhs, rhs):
     return Expr('==>', lhs, rhs)
 
-
 def equiv(lhs, rhs):
     return Expr('<=>', lhs, rhs)
-
 
 # Helper Function
 
 def new_disjunction(sentences):
     t = sentences[0]
-    for i in range(1, len(sentences)):
+    for i in range(1,len(sentences)):
         t |= sentences[i]
     return t
 
@@ -914,56 +815,59 @@ class WumpusKB(PropKB):
     Create a Knowledge Base that contains the atemporal "Wumpus physics" and temporal rules with time zero.
     """
 
-    def __init__(self, dimrow):
+    def __init__(self,dimrow):
         super().__init__()
         self.dimrow = dimrow
-        self.tell(~wumpus(1, 1))
-        self.tell(~pit(1, 1))
+        self.tell( ~wumpus(1, 1) )
+        self.tell( ~pit(1, 1) )
 
-        for y in range(1, dimrow + 1):
-            for x in range(1, dimrow + 1):
+        for y in range(1, dimrow+1):
+            for x in range(1, dimrow+1):
 
                 pits_in = list()
                 wumpus_in = list()
 
-                if x > 1:  # West room exists
+                if x > 1: # West room exists
                     pits_in.append(pit(x - 1, y))
                     wumpus_in.append(wumpus(x - 1, y))
 
-                if y < dimrow:  # North room exists
+                if y < dimrow: # North room exists
                     pits_in.append(pit(x, y + 1))
                     wumpus_in.append(wumpus(x, y + 1))
 
-                if x < dimrow:  # East room exists
+                if x < dimrow: # East room exists
                     pits_in.append(pit(x + 1, y))
                     wumpus_in.append(wumpus(x + 1, y))
 
-                if y > 1:  # South room exists
+                if y > 1: # South room exists
                     pits_in.append(pit(x, y - 1))
                     wumpus_in.append(wumpus(x, y - 1))
 
                 self.tell(equiv(breeze(x, y), new_disjunction(pits_in)))
                 self.tell(equiv(stench(x, y), new_disjunction(wumpus_in)))
 
-        # Rule that describes existence of at least one Wumpus
+
+        ## Rule that describes existence of at least one Wumpus
         wumpus_at_least = list()
-        for x in range(1, dimrow + 1):
+        for x in range(1, dimrow+1):
             for y in range(1, dimrow + 1):
                 wumpus_at_least.append(wumpus(x, y))
 
         self.tell(new_disjunction(wumpus_at_least))
 
-        # Rule that describes existence of at most one Wumpus
-        for i in range(1, dimrow + 1):
-            for j in range(1, dimrow + 1):
-                for u in range(1, dimrow + 1):
-                    for v in range(1, dimrow + 1):
-                        if i != u or j != v:
+
+        ## Rule that describes existence of at most one Wumpus
+        for i in range(1, dimrow+1):
+            for j in range(1, dimrow+1):
+                for u in range(1, dimrow+1):
+                    for v in range(1, dimrow+1):
+                        if i!=u or j!=v:
                             self.tell(~wumpus(i, j) | ~wumpus(u, v))
 
-        # Temporal rules at time zero
+
+        ## Temporal rules at time zero
         self.tell(location(1, 1, 0))
-        for i in range(1, dimrow + 1):
+        for i in range(1, dimrow+1):
             for j in range(1, dimrow + 1):
                 self.tell(implies(location(i, j, 0), equiv(percept_breeze(0), breeze(i, j))))
                 self.tell(implies(location(i, j, 0), equiv(percept_stench(0), stench(i, j))))
@@ -976,6 +880,7 @@ class WumpusKB(PropKB):
         self.tell(~facing_north(0))
         self.tell(~facing_south(0))
         self.tell(~facing_west(0))
+
 
     def make_action_sentence(self, action, time):
         actions = [move_forward(time), shoot(time), turn_left(time), turn_right(time)]
@@ -990,7 +895,7 @@ class WumpusKB(PropKB):
         # Glitter, Bump, Stench, Breeze, Scream
         flags = [0, 0, 0, 0, 0]
 
-        # Things perceived
+        ## Things perceived
         if isinstance(percept, Glitter):
             flags[0] = 1
             self.tell(percept_glitter(time))
@@ -1007,7 +912,7 @@ class WumpusKB(PropKB):
             flags[4] = 1
             self.tell(percept_scream(time))
 
-        # Things not perceived
+        ## Things not perceived
         for i in range(len(flags)):
             if flags[i] == 0:
                 if i == 0:
@@ -1021,14 +926,15 @@ class WumpusKB(PropKB):
                 elif i == 4:
                     self.tell(~percept_scream(time))
 
+
     def add_temporal_sentences(self, time):
         if time == 0:
             return
         t = time - 1
 
-        # current location rules
-        for i in range(1, self.dimrow + 1):
-            for j in range(1, self.dimrow + 1):
+        ## current location rules
+        for i in range(1, self.dimrow+1):
+            for j in range(1, self.dimrow+1):
                 self.tell(implies(location(i, j, time), equiv(percept_breeze(time), breeze(i, j))))
                 self.tell(implies(location(i, j, time), equiv(percept_stench(time), stench(i, j))))
 
@@ -1050,15 +956,15 @@ class WumpusKB(PropKB):
                 if j != self.dimrow:
                     s.append(location(i, j + 1, t) & facing_south(t) & move_forward(t))
 
-                # add sentence about location i,j
+                ## add sentence about location i,j
                 self.tell(new_disjunction(s))
 
-                # add sentence about safety of location i,j
+                ## add sentence about safety of location i,j
                 self.tell(
                     equiv(ok_to_move(i, j, time), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(time))
                 )
 
-        # Rules about current orientation
+        ## Rules about current orientation
 
         a = facing_north(t) & turn_right(t)
         b = facing_south(t) & turn_left(t)
@@ -1084,14 +990,15 @@ class WumpusKB(PropKB):
         s = equiv(facing_south(time), a | b | c)
         self.tell(s)
 
-        # Rules about last action
+        ## Rules about last action
         self.tell(equiv(move_forward(t), ~turn_right(t) & ~turn_left(t)))
 
-        # Rule about the arrow
+        ##Rule about the arrow
         self.tell(equiv(have_arrow(time), have_arrow(t) & ~shoot(t)))
 
-        # Rule about Wumpus (dead or alive)
+        ##Rule about Wumpus (dead or alive)
         self.tell(equiv(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
+
 
     def ask_if_true(self, query):
         return pl_resolution(self, query)
@@ -1100,11 +1007,12 @@ class WumpusKB(PropKB):
 # ______________________________________________________________________________
 
 
-class WumpusPosition:
+class WumpusPosition():
     def __init__(self, x, y, orientation):
         self.X = x
         self.Y = y
         self.orientation = orientation
+
 
     def get_location(self):
         return self.X, self.Y
@@ -1121,11 +1029,10 @@ class WumpusPosition:
 
     def __eq__(self, other):
         if other.get_location() == self.get_location() and \
-                other.get_orientation() == self.get_orientation():
+                        other.get_orientation()==self.get_orientation():
             return True
         else:
             return False
-
 
 # ______________________________________________________________________________
 
@@ -1133,7 +1040,7 @@ class WumpusPosition:
 class HybridWumpusAgent(Agent):
     """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
-    def __init__(self, dimentions):
+    def __init__(self,dimentions):
         self.dimrow = dimentions
         self.kb = WumpusKB(self.dimrow)
         self.t = 0
@@ -1141,14 +1048,15 @@ class HybridWumpusAgent(Agent):
         self.current_position = WumpusPosition(1, 1, 'UP')
         super().__init__(self.execute)
 
+
     def execute(self, percept):
         self.kb.make_percept_sentence(percept, self.t)
         self.kb.add_temporal_sentences(self.t)
 
         temp = list()
 
-        for i in range(1, self.dimrow + 1):
-            for j in range(1, self.dimrow + 1):
+        for i in range(1, self.dimrow+1):
+            for j in range(1, self.dimrow+1):
                 if self.kb.ask_if_true(location(i, j, self.t)):
                     temp.append(i)
                     temp.append(j)
@@ -1163,8 +1071,8 @@ class HybridWumpusAgent(Agent):
             self.current_position = WumpusPosition(temp[0], temp[1], 'RIGHT')
 
         safe_points = list()
-        for i in range(1, self.dimrow + 1):
-            for j in range(1, self.dimrow + 1):
+        for i in range(1, self.dimrow+1):
+            for j in range(1, self.dimrow+1):
                 if self.kb.ask_if_true(ok_to_move(i, j, self.t)):
                     safe_points.append([i, j])
 
@@ -1172,14 +1080,14 @@ class HybridWumpusAgent(Agent):
             goals = list()
             goals.append([1, 1])
             self.plan.append('Grab')
-            actions = self.plan_route(self.current_position, goals, safe_points)
+            actions = self.plan_route(self.current_position,goals,safe_points)
             self.plan.extend(actions)
             self.plan.append('Climb')
 
         if len(self.plan) == 0:
             unvisited = list()
-            for i in range(1, self.dimrow + 1):
-                for j in range(1, self.dimrow + 1):
+            for i in range(1, self.dimrow+1):
+                for j in range(1, self.dimrow+1):
                     for k in range(self.t):
                         if self.kb.ask_if_true(location(i, j, k)):
                             unvisited.append([i, j])
@@ -1189,13 +1097,13 @@ class HybridWumpusAgent(Agent):
                     if u not in unvisited_and_safe and s == u:
                         unvisited_and_safe.append(u)
 
-            temp = self.plan_route(self.current_position, unvisited_and_safe, safe_points)
+            temp = self.plan_route(self.current_position,unvisited_and_safe,safe_points)
             self.plan.extend(temp)
 
         if len(self.plan) == 0 and self.kb.ask_if_true(have_arrow(self.t)):
             possible_wumpus = list()
-            for i in range(1, self.dimrow + 1):
-                for j in range(1, self.dimrow + 1):
+            for i in range(1, self.dimrow+1):
+                for j in range(1, self.dimrow+1):
                     if not self.kb.ask_if_true(wumpus(i, j)):
                         possible_wumpus.append([i, j])
 
@@ -1204,8 +1112,8 @@ class HybridWumpusAgent(Agent):
 
         if len(self.plan) == 0:
             not_unsafe = list()
-            for i in range(1, self.dimrow + 1):
-                for j in range(1, self.dimrow + 1):
+            for i in range(1, self.dimrow+1):
+                for j in range(1, self.dimrow+1):
                     if not self.kb.ask_if_true(ok_to_move(i, j, self.t)):
                         not_unsafe.append([i, j])
             temp = self.plan_route(self.current_position, not_unsafe, safe_points)
@@ -1225,9 +1133,11 @@ class HybridWumpusAgent(Agent):
 
         return action
 
+
     def plan_route(self, current, goals, allowed):
         problem = PlanRoute(current, goals, allowed, self.dimrow)
         return astar_search(problem).solution()
+
 
     def plan_shot(self, current, goals, allowed):
         shooting_positions = set()
@@ -1235,7 +1145,7 @@ class HybridWumpusAgent(Agent):
         for loc in goals:
             x = loc[0]
             y = loc[1]
-            for i in range(1, self.dimrow + 1):
+            for i in range(1, self.dimrow+1):
                 if i < x:
                     shooting_positions.add(WumpusPosition(i, y, 'EAST'))
                 if i > x:
@@ -1247,7 +1157,7 @@ class HybridWumpusAgent(Agent):
 
         # Can't have a shooting position from any of the rooms the Wumpus could reside
         orientations = ['EAST', 'WEST', 'NORTH', 'SOUTH']
-        for loc in goals:
+        for loc in goals:            
             for orientation in orientations:
                 shooting_positions.remove(WumpusPosition(loc[0], loc[1], orientation))
 
@@ -1276,7 +1186,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
         # Symbol claiming state s at time t
         state_counter = itertools.count()
         for s in states:
-            for t in range(time + 1):
+            for t in range(time+1):
                 state_sym[s, t] = Expr("State_{}".format(next(state_counter)))
 
         # Add initial state axiom
@@ -1296,11 +1206,11 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
                         "Transition_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
-                    clauses.append(action_sym[s, action, t] | '==>' | state_sym[s, t])
-                    clauses.append(action_sym[s, action, t] | '==>' | state_sym[s_, t + 1])
+                    clauses.append(action_sym[s, action, t] |'==>'| state_sym[s, t])
+                    clauses.append(action_sym[s, action, t] |'==>'| state_sym[s_, t + 1])
 
         # Allow only one state at any time
-        for t in range(time + 1):
+        for t in range(time+1):
             # must be a state at any time
             clauses.append(associate('|', [state_sym[s, t] for s in states]))
 
@@ -1453,7 +1363,6 @@ def standardize_variables(sentence, dic=None):
 
 standardize_variables.counter = itertools.count()
 
-
 # ______________________________________________________________________________
 
 
@@ -1495,7 +1404,6 @@ def fol_fc_ask(KB, alpha):
     """A simple forward-chaining algorithm. [Figure 9.3]"""
     # TODO: Improve efficiency
     kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
-
     def enum_subst(p):
         query_vars = list({v for clause in p for v in variables(clause)})
         for assignment_list in itertools.product(kb_consts, repeat=len(query_vars)):
@@ -1588,7 +1496,6 @@ crime_kb = FolKB(
                'American(West)',
                'Enemy(Nono, America)'
                ]))
-
 
 # ______________________________________________________________________________
 
