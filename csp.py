@@ -290,9 +290,9 @@ def forward_checking(csp, var, value, assignment, removals):
     return True
 
 
-def mac(csp, var, value, assignment, removals, constraint_propagation=AC3):
+def mac(csp, var, value, assignment, removals):
     """Maintain arc consistency."""
-    return constraint_propagation(csp, {(X, var) for X in csp.neighbors[var]}, removals)
+    return AC3(csp, {(X, var) for X in csp.neighbors[var]}, removals)
 
 
 # The search, proper
@@ -326,11 +326,11 @@ def backtracking_search(csp,
 
 
 # ______________________________________________________________________________
-# Min-conflicts Hill Climbing search for CSPs
+# Min-conflicts hillclimbing search for CSPs
 
 
 def min_conflicts(csp, max_steps=100000):
-    """Solve a CSP by stochastic Hill Climbing on the number of conflicts."""
+    """Solve a CSP by stochastic hillclimbing on the number of conflicts."""
     # Generate a complete assignment for all variables (probably with conflicts)
     csp.current = current = {}
     for var in csp.variables:
@@ -532,7 +532,7 @@ def queen_constraint(A, a, B, b):
     return A == B or (a != b and A + a != B + b and A - a != B - b)
 
 
-class NQueens(CSP):
+class NQueensCSP(CSP):
     """Make a CSP for the nQueens problem for search with min_conflicts.
     Suitable for large n, it uses only data structures of size O(n).
     Think of placing queens one per column, from left to right.
@@ -548,7 +548,7 @@ class NQueens(CSP):
     a variable, and a best value for the variable, are each O(n).
     If you want, you can keep track of conflicted variables, then variable
     selection will also be O(1).
-    >>> len(backtracking_search(NQueens(8)))
+    >>> len(backtracking_search(NQueensCSP(8)))
     8
     """
 
@@ -673,37 +673,7 @@ class Sudoku(CSP):
     >>> h = Sudoku(harder1)
     >>> backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking) is not None
     True
-
-    >>> e = Sudoku(easy1)
-    >>> e.display(e.infer_assignment())
-    . . 3 | . 2 . | 6 . .
-    9 . . | 3 . 5 | . . 1
-    . . 1 | 8 . 6 | 4 . .
-    ------+-------+------
-    . . 8 | 1 . 2 | 9 . .
-    7 . . | . . . | . . 8
-    . . 6 | 7 . 8 | 2 . .
-    ------+-------+------
-    . . 2 | 6 . 9 | 5 . .
-    8 . . | 2 . 3 | . . 9
-    . . 5 | . 1 . | 3 . .
-    >>> AC4(e); e.display(e.infer_assignment())
-    True
-    4 8 3 | 9 2 1 | 6 5 7
-    9 6 7 | 3 4 5 | 8 2 1
-    2 5 1 | 8 7 6 | 4 9 3
-    ------+-------+------
-    5 4 8 | 1 3 2 | 9 7 6
-    7 2 9 | 5 6 4 | 1 3 8
-    1 3 6 | 7 9 8 | 2 4 5
-    ------+-------+------
-    3 7 2 | 6 8 9 | 5 1 4
-    8 1 4 | 2 5 3 | 7 6 9
-    6 9 5 | 4 1 7 | 3 8 2
-    >>> h = Sudoku(harder1)
-    >>> backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking) is not None
-    True
-    """
+    """  # noqa
 
     R3 = _R3
     Cell = _CELL
