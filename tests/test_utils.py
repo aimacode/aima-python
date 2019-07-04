@@ -15,16 +15,19 @@ def test_removeall_list():
     assert removeall(4, []) == []
     assert removeall(4, [1, 2, 3, 4]) == [1, 2, 3]
     assert removeall(4, [4, 1, 4, 2, 3, 4, 4]) == [1, 2, 3]
+    assert removeall(1, [2,3,4,5,6]) == [2,3,4,5,6]
 
 
 def test_removeall_string():
     assert removeall('s', '') == ''
     assert removeall('s', 'This is a test. Was a test.') == 'Thi i a tet. Wa a tet.'
+    assert removeall('a', 'artificial intelligence: a modern approach') == 'rtificil intelligence:  modern pproch'	
 
 
 def test_unique():
     assert unique([1, 2, 3, 2, 1]) == [1, 2, 3]
     assert unique([1, 5, 6, 7, 6, 5]) == [1, 5, 6, 7]
+    assert unique([1, 2, 3, 4, 5]) == [1, 2, 3, 4, 5]	
 
 
 def test_count():
@@ -32,6 +35,7 @@ def test_count():
     assert count("aldpeofmhngvia") == 14
     assert count([True, False, True, True, False]) == 3
     assert count([5 > 1, len("abc") == 3, 3+1 == 5]) == 2
+    assert count("aima") == 4 	
 
 def test_multimap():
     assert multimap([(1, 2),(1, 3),(1, 4),(2, 3),(2, 4),(4, 5)]) == \
@@ -54,6 +58,7 @@ def test_first():
     assert first(x for x in range(10) if x > 3) == 4
     assert first(x for x in range(10) if x > 100) is None
     assert first((1, 2, 3)) == 1
+    assert first(range(2, 10)) == 2
     assert first([(1, 2),(1, 3),(1, 4)]) == (1, 2)
     assert first({1:"one", 2:"two", 3:"three"}) == 1
 
@@ -67,6 +72,7 @@ def test_is_in():
 def test_mode():
     assert mode([12, 32, 2, 1, 2, 3, 2, 3, 2, 3, 44, 3, 12, 4, 9, 0, 3, 45, 3]) == 3
     assert mode("absndkwoajfkalwpdlsdlfllalsflfdslgflal") == 'l'
+    assert mode("artificialintelligence") == 'i'	
 
 
 def test_powerset():
@@ -75,6 +81,7 @@ def test_powerset():
 
 def test_argminmax():
     assert argmin([-2, 1], key=abs) == 1
+    assert argmin(['one', 'to', 'three'], key=len) == 'to'
     assert argmax([-2, 1], key=abs) == -2
     assert argmax(['one', 'to', 'three'], key=len) == 'three'
 
@@ -93,6 +100,7 @@ def test_histogram():
 
 def test_dotproduct():
     assert dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
+    assert dotproduct([1, 2, 3], [0, 0, 0]) == 0
 
 
 def test_element_wise_product():
@@ -125,11 +133,12 @@ def test_vector_to_diagonal():
 
 def test_vector_add():
     assert vector_add((0, 1), (8, 9)) == (8, 10)
+    assert vector_add((1, 1, 1), (2, 2, 2)) == (3, 3, 3)
 
 
 def test_scalar_vector_product():
     assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
-
+    assert scalar_vector_product(0, [9, 9, 9]) == [0, 0, 0]
 
 def test_scalar_matrix_product():
     assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20],

@@ -437,5 +437,129 @@ def test_tree_csp_solver():
            (tcs['NT'] == 'B' and tcs['WA'] == 'R' and tcs['Q'] == 'R' and tcs['NSW'] == 'B' and tcs['V'] == 'R')
 
 
+def test_different_values_constraint():
+    assert different_values_constraint('A', 1, 'B', 2) == True
+    assert different_values_constraint('A', 1, 'B', 1) == False
+
+
+def test_flatten():
+    sequence = [[0, 1, 2], [4, 5]]
+    assert flatten(sequence) == [0, 1, 2, 4, 5]
+
+
+def test_sudoku():
+    h = Sudoku(easy1)
+    assert backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking) is not None
+    g = Sudoku(harder1)
+    assert backtracking_search(g, select_unassigned_variable=mrv, inference=forward_checking) is not None
+
+
+def test_make_arc_consistent():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0], 'B': [3]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x + y) == 4
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+    Xi = 'A'
+    Xj = 'B'
+
+    assert make_arc_consistent(Xi, Xj, csp) == []
+
+    domains = {'A': [0], 'B': [4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x + y) == 4
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+    Xi = 'A'
+    Xj = 'B'
+
+    assert make_arc_consistent(Xi, Xj, csp) == [0]
+
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+
+    assert make_arc_consistent(Xi, Xj, csp) == [0, 2, 4]
+
+def test_assign_value():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x + y) == 4
+    Xi = 'A'
+    Xj = 'B'
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+
+    assignment = {'A': 1}
+    assert assign_value(Xi, Xj, csp, assignment) is None
+
+    assignment = {'A': 2}
+    assert assign_value(Xi, Xj, csp, assignment) == 2
+
+    constraints = lambda X, x, Y, y: (x + y) == 4
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    csp.support_pruning()
+
+    assignment = {'A': 1}
+    assert assign_value(Xi, Xj, csp, assignment) == 3
+
+def test_no_inference():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 5]}
+    constraints = lambda X, x, Y, y: (x + y) < 8
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    var = 'B'
+    value = 3
+    assignment = {'A': 1}
+    assert no_inference(csp, var, value, assignment, None) == True
+
+
+def test_mac():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0], 'B': [0]}
+    constraints = lambda X, x, Y, y: x % 2 == 0
+    var = 'B'
+    value = 0
+    assignment = {'A': 0}
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    assert mac(csp, var, value, assignment, None) == True
+
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and (x + y) == 4 and y % 2 != 0
+    var = 'B'
+    value = 3
+    assignment = {'A': 1}
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    assert mac(csp, var, value, assignment, None) == False
+
+    constraints = lambda X, x, Y, y: x % 2 != 0 and (x + y) == 6 and y % 2 != 0
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+    assert mac(csp, var, value, assignment, None) == True
+
+def test_queen_constraint():
+    assert queen_constraint(0, 1, 0, 1) == True
+    assert queen_constraint(2, 1, 4, 2) == True
+    assert queen_constraint(2, 1, 3, 2) == False
+
+
+def test_zebra():
+    z = Zebra()
+    algorithm=min_conflicts
+#  would take very long
+    ans = algorithm(z, max_steps=10000)
+    assert ans is None or ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1, 'Snails': 3, 'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3, 'Water': 1, 'Englishman': 3, 'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2, 'Japanese': 5, 'Kools': 1, 'Chesterfields': 2, 'Winston': 3, 'LuckyStrike': 4, 'Parliaments': 5}
+
+#  restrict search space
+    z.domains = {'Red': [3, 4], 'Yellow': [1, 2], 'Blue': [1, 2], 'Green': [4, 5], 'Ivory': [4, 5], 'Dog': [4, 5], 'Fox': [1, 2], 'Snails': [3], 'Horse': [2], 'Zebra': [5], 'OJ': [1, 2, 3, 4, 5], 'Tea': [1, 2, 3, 4, 5], 'Coffee': [1, 2, 3, 4, 5], 'Milk': [3], 'Water': [1, 2, 3, 4, 5], 'Englishman': [1, 2, 3, 4, 5], 'Spaniard': [1, 2, 3, 4, 5], 'Norwegian': [1], 'Ukranian': [1, 2, 3, 4, 5], 'Japanese': [1, 2, 3, 4, 5], 'Kools': [1, 2, 3, 4, 5], 'Chesterfields': [1, 2, 3, 4, 5], 'Winston': [1, 2, 3, 4, 5], 'LuckyStrike': [1, 2, 3, 4, 5], 'Parliaments': [1, 2, 3, 4, 5]}
+    ans = algorithm(z, max_steps=10000)
+    assert ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1, 'Snails': 3, 'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3, 'Water': 1, 'Englishman': 3, 'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2, 'Japanese': 5, 'Kools': 1, 'Chesterfields': 2, 'Winston': 3, 'LuckyStrike': 4, 'Parliaments': 5}
+
+
 if __name__ == "__main__":
     pytest.main()

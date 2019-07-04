@@ -23,7 +23,7 @@ def euclidean_distance(X, Y):
     return math.sqrt(sum((x - y)**2 for x, y in zip(X, Y)))
 
 
-def cross_entropy_loss(X,Y):
+def cross_entropy_loss(X, Y):
     n=len(X)
     return (-1.0/n)*sum(x*math.log(y) + (1-x)*math.log(1-y) for x, y in zip(X, Y))
 
@@ -180,7 +180,7 @@ class DataSet:
         for item in self.examples:
             item[self.target] = classes.index(item[self.target])
 
-    def remove_examples(self, value=""):
+    def remove_examples(self, value=''):
         """Remove examples that contain given value."""
         self.examples = [x for x in self.examples if value not in x]
         self.update_values()
@@ -661,7 +661,7 @@ def DecisionListLearner(dataset):
 
 
 def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
-                     learning_rate=0.01, epochs=100, activation = sigmoid):
+                     learning_rate=0.01, epochs=100, activation=sigmoid):
     """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
     learning_rate: Learning rate of gradient descent
@@ -751,7 +751,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
             # Error for the MSE cost function
             err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
 
-            # The activation function used is relu or sigmoid function
+            # Calculate delta at output
             if node.activation == sigmoid:
                 delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
             elif node.activation == relu:
@@ -859,12 +859,9 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
 
 
 def init_examples(examples, idx_i, idx_t, o_units):
-    inputs = {}
-    targets = {}
+    inputs, targets = {}, {}
 
-    for i in range(len(examples)):
-        e = examples[i]
-
+    for i, e in enumerate(examples):
         # Input values of e
         inputs[i] = [e[i] for i in idx_i]
 
@@ -1049,13 +1046,25 @@ def grade_learner(predict, tests):
     return mean(int(predict(X) == y) for X, y in tests)
 
 
-def train_test_split(dataset, start, end):
-    """Reserve dataset.examples[start:end] for test; train on the remainder."""
-    start = int(start)
-    end = int(end)
+def train_test_split(dataset, start=None, end=None, test_split=None):
+    """If you are giving 'start' and 'end' as parameters,
+    then it will return the testing set from index 'start' to 'end'
+    and the rest for training.
+    If you give 'test_split' as a parameter then it will return 
+    test_split * 100% as the testing set and the rest as 
+    training set.
+    """
     examples = dataset.examples
-    train = examples[:start] + examples[end:]
-    val = examples[start:end]
+    if test_split == None:
+        train = examples[:start] + examples[end:]
+        val = examples[start:end]
+    else:
+        total_size = len(examples)
+        val_size = int(total_size * test_split)
+        train_size = total_size - val_size
+        train = examples[:train_size]
+        val = examples[train_size:total_size]
+
     return train, val
 
 
@@ -1251,9 +1260,7 @@ def ContinuousXor(n):
 # ______________________________________________________________________________
 
 
-def compare(algorithms=None,
-            datasets=None,
-            k=10, trials=1):
+def compare(algorithms=None, datasets=None, k=10, trials=1):
     """Compare various learners on various datasets using cross-validation.
     Print results as a table."""
     algorithms = algorithms or [PluralityLearner, NaiveBayesLearner,                 # default list
