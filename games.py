@@ -419,6 +419,12 @@ class ConnectFour(TicTacToe):
         return [(x, y) for (x, y) in state.moves
                 if x == self.h or (x + 1 , y ) in state.board]
 
+class Gomoku(TicTacToe):
+    """Also known as Five in a row."""
+
+    def __init__(self, h=15, v=16, k=5):
+        TicTacToe.__init__(self, h, v, k)
+
 
 class Backgammon(StochasticGame):
     """A two player game where the goal of each player is to move all the
