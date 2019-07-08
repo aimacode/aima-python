@@ -201,6 +201,8 @@ def alphabeta_player(game, state):
 def expectiminimax_player(game, state):
     return expectiminimax(state, game)
 
+def alphabeta_cutoff_player( d=4, cutoff_test=None, eval_fn=None):
+    return partial(alphabeta_cutoff_search,d=d, cutoff_test=cutoff_test, eval_fn = eval_fn)
 
 # ______________________________________________________________________________
 # Some Sample Games
