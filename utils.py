@@ -331,12 +331,6 @@ def leaky_relu_derivative(value, alpha=0.01):
 
 def relu(x):
 	return max(0, x)
-	
-def relu_derivative(value):
-	if value > 0:
-		return 1
-	else:
-		return 0
 		
 def step(x):
     """Return activation value of x with sign function"""
@@ -734,6 +728,47 @@ class hashabledict(dict):
 # Stack and FIFOQueue are implemented as list and collection.deque
 # PriorityQueue is implemented here
 
+def Stack():
+    """Return an empty list, suitable as a Last-In-First-Out Queue."""
+    return []
+
+class Queue:
+    """Queue is an abstract class/interface. There are three types:
+        Stack(): A Last In First Out Queue.
+        FIFOQueue(): A First In First Out Queue.
+        PriorityQueue(lt): Queue where items are sorted by lt, (default <).
+    Each type supports the following methods and functions:
+        q.append(item)  -- add an item to the queue
+        q.extend(items) -- equivalent to: for item in items: q.append(item)
+        q.pop()         -- return the top item from the queue
+        len(q)          -- number of items in q (also q.__len())
+    Note that isinstance(Stack(), Queue) is false, because we implement stacks
+    as lists.  If Python ever gets interfaces, Queue will be an interface."""
+
+    def __init__(self): 
+        pass
+
+    def extend(self, items):
+        for item in items: self.append(item)
+
+
+class FIFOQueue(Queue):
+    """A First-In-First-Out Queue."""
+    def __init__(self):
+        self.A = []; self.start = 0
+    def append(self, item):
+        self.A.append(item)
+    def __len__(self):
+        return len(self.A) - self.start
+    def extend(self, items):
+        self.A.extend(items)     
+    def pop(self):        
+        e = self.A[self.start]
+        self.start += 1
+        if self.start > 5 and self.start > len(self.A)/2:
+            self.A = self.A[self.start:]
+            self.start = 0
+        return e
 
 class PriorityQueue:
     """A Queue in which the minimum (or maximum) element (as determined by f and
@@ -820,3 +855,42 @@ class Bool(int):
 
 T = Bool(True)
 F = Bool(False)
+
+## Fig: The idea is we can define things like Fig[3,10] later.
+## Alas, it is Fig[3,10] not Fig[3.10], because that would be the same as Fig[3.1]
+Fig = {} 
+
+#______________________________________________________________________________
+# Mark's Helpers
+
+# Timer class (courtesy of Eli Bendersky on StackOverflow)
+
+import time
+
+class Timer(object):
+    def __init__(self, name=None, format='%s'):
+        self.name = name
+        self.format = format
+
+    def __enter__(self):
+        self.tstart = time.time()
+
+    def __exit__(self, type, value, traceback):
+        if self.name:
+            print(('[%s] - Elapsed: ' + self.format) % (self.name, time.time() - self.tstart))
+        else:
+            print(('Elapsed: ' + self.format) % (time.time() - self.tstart))
+
+
+def update(x, **entries):
+    """Update a dict; or an object with slots; according to entries.
+    >>> update({'a': 1}, a=10, b=20)
+    {'a': 10, 'b': 20}
+    >>> update(Struct(a=1), a=10, b=20)
+    Struct(a=10, b=20)
+    """
+    if isinstance(x, dict):
+        x.update(entries)   
+    else:
+        x.__dict__.update(entries) 
+    return x 

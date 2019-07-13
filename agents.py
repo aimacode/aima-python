@@ -103,6 +103,30 @@ class Agent(Thing):
         Override for appropriate subclasses of Agent and Thing."""
         return False
 
+class XYAgent(Agent):
+    holding = []
+    heading = (1, 0)
+
+class RandomXYAgent(XYAgent):
+    "An agent that chooses an action at random, ignoring all percepts."
+
+    def __init__(self, actions):
+        Agent.__init__(self)
+        self.program = lambda percept: random.choice(actions)
+
+class RandomReflexAgent(XYAgent):
+    '''This agent takes action based solely on the percept. [Fig. 2.13]'''
+
+    def __init__(self, actions):
+        Agent.__init__(self)
+        self.actions = actions
+
+        def program(percept):
+            if percept[0] == 'Dirty':
+                return "Grab"
+            else:
+                return random.choice(actions)
+        self.program = program
 
 def TraceAgent(agent):
     """Wrap the agent's program to print its input and output. This will let
@@ -193,6 +217,14 @@ def RandomVacuumAgent():
     """
     return Agent(RandomAgentProgram(['Right', 'Left', 'Suck', 'NoOp']))
 
+
+def NewRandomReflexAgent(debug=False):
+    "If the cell is dirty, Grab the dirt; otherwise, randomly choose one of the actions from the vaccum environment."
+    # the extra forwards are just to alter the probabilities
+    if debug:
+        return DebugAgent(RandomReflexAgent(['TurnRight', 'TurnLeft', 'Forward', 'Forward', 'Forward', 'Forward', 'Forward', 'Forward']))
+    else:
+        return RandomReflexAgent(['TurnRight', 'TurnLeft', 'Forward', 'Forward', 'Forward', 'Forward', 'Forward', 'Forward'])
 
 def TableDrivenVacuumAgent():
     """[Figure 2.3]"""
