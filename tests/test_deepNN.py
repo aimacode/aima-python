@@ -59,7 +59,7 @@ def test_rnn():
     model = simple_rnn_learner(train, val)
     score = model.evaluate(test[0][:200], test[1][:200], verbose=0)
     acc = score[1]
-    assert acc >= 0.4
+    assert acc >= 0.3
 
 
 def test_auto_encoder():
