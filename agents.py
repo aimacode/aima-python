@@ -103,6 +103,8 @@ class Agent(Thing):
         Override for appropriate subclasses of Agent and Thing."""
         return False
 
+    blocker = True
+
 class XYAgent(Agent):
     holding = []
     heading = (1, 0)

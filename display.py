@@ -189,7 +189,7 @@ class EnvFrame(tk.Frame):
             obj.image = None
             obj.id_image = None
             obj.canvas = self.canvas
-            obj.destroy_images = instancemethod(destroy_images,obj,None)
+            obj.destroy_images = instancemethod(destroy_images,obj)
         return obj
 
     def NewIcon(self, obj):

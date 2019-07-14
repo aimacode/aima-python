@@ -335,8 +335,8 @@ def test1():
 
     # Generate walls with dead cells in the center
     if True:
-        for x in range(int(e.width/2-5,e.width/2+5)):
-            for y in range(e.height/2-5,e.height/2+5):
+        for x in range(int(e.width/2-5),int(e.width/2+5)):
+            for y in range(int(e.height/2-5),int(e.height/2+5)):
                 if ((x == (e.width/2-5)) or (x == (e.width/2+4)) or
                     (y == (e.height/2-5)) or (y == (e.height/2+4))):
                     e.add_object(Wall(), (x,y))
