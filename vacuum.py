@@ -166,10 +166,10 @@ class XYEnvironment(Environment):
         #
         # Implemented actions are 'TurnRignt', 'TurnLeft', 'Forward', 'Grab', 'Release'
         if action == 'TurnRight':
-            # decrement the heading by -90deg by getting the previous index of the headings array
+            # decrement the heading by -90° by getting the previous index of the headings array
             agent.heading = self.turn_heading(agent.heading, -1)
         elif action == 'TurnLeft':
-            # increment the heading by +90deg by getting the next index of the headings array
+            # increment the heading by +90° by getting the next index of the headings array
             agent.heading = self.turn_heading(agent.heading, +1)
         elif action == 'Forward':
             # move the Agent in the facing direction by adding the heading vector to the Agent location
