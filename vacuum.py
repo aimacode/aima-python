@@ -57,7 +57,8 @@ class Environment:
     """
 
     def __init__(self,):
-        self.objects = []; self.agents = []
+        self.objects = []
+        self.agents = []
 
     # Mark: What does this do?  It isn't checked in the Environment class's add_object.
     object_classes = [] ## List of classes that can go into environment
@@ -135,7 +136,8 @@ class XYEnvironment(Environment):
 
     def __init__(self, width=10, height=10):
         # set all of the initial conditions with the update function
-        # self.objects = [], self.agents = [], self.width = width, and self.height = height
+        self.width = width
+        self.height = height
         update(self, objects=[], agents=[], width=width, height=height)
 
     def objects_of_type(self, cls):
@@ -153,7 +155,7 @@ class XYEnvironment(Environment):
         "Return all objects within radius of location."
         radius2 = radius * radius # square radius instead of taking the square root for faster processing
         return [obj for obj in self.objects
-                if distance2(location, obj.location) <= radius2]
+                if distance2(location[0], location[1], obj.location[0], obj.location[1]) <= radius2]
 
     def percept(self, agent): # Unused, currently at default settings
         "By default, agent perceives objects within radius r."

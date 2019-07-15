@@ -20,8 +20,7 @@ from itertools import chain, combinations
 def sequence(iterable):
     """Converts iterable to sequence, if it is not already one."""
     return (iterable if isinstance(iterable, collections.abc.Sequence)
-            else tuple([iterable]))
-
+        else tuple([iterable]))
 
 def removeall(item, seq):
     """Return a copy of seq (or string) with all occurrences of item removed."""
@@ -382,13 +381,15 @@ def distance_squared(a, b):
     xB, yB = b
     return (xA - xB) ** 2 + (yA - yB) ** 2
 
+def distance2(ax, ay, bx, by):
+    "The square of the distance between two (x, y) points."
+    return (ax - bx)**2 + (ay - by)**2
 
 def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
     value of lowest or more than the corresponding value of highest, clip to
     those values."""
     return type(vector)(map(clip, vector, lowest, highest))
-
 
 # ______________________________________________________________________________
 # Misc Functions

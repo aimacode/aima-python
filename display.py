@@ -74,7 +74,7 @@ class EnvFrame(tk.Frame):
 
         tk.Frame.__init__(self, None, width=min((cellwidth + 2) * env.width,self.root.winfo_screenwidth()),
                           height=min((cellwidth + 2) * env.height, self.root.winfo_screenheight()))
-        self.root.title(title)
+        self.root.title(title) 
 
         # Toolbar
         toolbar = tk.Frame(self, relief='raised', bd=2)
@@ -200,8 +200,6 @@ class EnvFrame(tk.Frame):
         obj.destroy = MethodType(destroy_with_images, obj)
         return obj
 
-
-
     def NewIcon(self, obj):
         # lookup default image and add it to the list
         imgs = {}
@@ -220,6 +218,8 @@ class EnvFrame(tk.Frame):
     def configure_display(self):
         for obj in self.env.objects:
             obj = self.display_object(obj)
+        # for i in range(len(self.env.objects)):
+        #     self.env.objects[i] = self.display_object(self.env.objects[i])
         self.update_display()
 
     def update_display(self):
