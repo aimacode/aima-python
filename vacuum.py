@@ -9,6 +9,7 @@ http://aima.cs.berkeley.edu/python/agents.py
 import inspect
 from utils import *
 import random, copy
+from functools import partial
 
 # import my files
 #import agents as ag
@@ -145,6 +146,9 @@ class XYEnvironment(Environment):
         "Return all objects exactly at a given location."
         return [obj for obj in self.objects if obj.location == location]
 
+    def find_at(self, cls, loc):
+        return [o for o in self.objects_at(loc) if isinstance(o, cls)]
+
     def objects_near(self, location, radius):
         "Return all objects within radius of location."
         radius2 = radius * radius # square radius instead of taking the square root for faster processing
@@ -176,13 +180,14 @@ class XYEnvironment(Environment):
                 if (obj != agent and obj.is_grabbable(agent))]
             # if so, pick up all grabbable objects and add them to the holding array
             if objs:
-                agent.holding.append(objs)
+                agent.holding += objs
                 for o in objs:
                     # set the location of the Object = the Agent instance carrying the Object
                     # by setting the location to an object instead of a tuple, we can now detect
                     # when to remove if from the display.  This may be useful in other ways, if
                     # the object needs to know who it's holder is
                     o.location = agent
+                    if isinstance(o,Dirt): agent.performance += 100
         elif action == 'Release':
             # drop an objects being held by the Agent.
             if agent.holding:
@@ -213,14 +218,13 @@ class XYEnvironment(Environment):
 
     def add_object(self, obj, location=(1, 1)):
         Environment.add_object(self, obj, location)
+
+        if isinstance(obj, Agent): obj.bump = False
+
         obj.holding = []
         obj.held = None
-        return obj
 
-    def add_agent(self, agent, location=(1,1)):
-        agent.bump = False
-        self.add_object(agent, location)
-        return agent
+        return obj
 
     def add_walls(self):
         "Put walls around the entire perimeter of the grid."
@@ -264,43 +268,78 @@ class VacuumEnvironment(XYEnvironment):
         agent.performance -= 1
         XYEnvironment.execute_action(self, agent, action)
 
-    def find_at(self, cls, loc):
-        return [o for o in self.objects_at(loc) if isinstance(o, cls)]
-
-    def exogenous_dirt(self):
-        if random.uniform(0,1)<1.0:
-            loc = (random.randrange(self.width), random.randrange(self.height))
-            if not (self.find_at(Dirt, loc) or self.find_at(Wall, loc)):
-                self.add_object(Dirt(), loc)
-
-
-    def exogenous_fire(self):
-        fs = self.objects_of_type(Fire)
-
-        if fs:
-            for f in fs:
-                if f.t == 0:
-                    f.destroy_images()
-                    self.objects.remove(f)
-                else:
-                    f.t -= 1
-                    if random.uniform(0, 1) < 0.21:
-                        emptyCells = [(x, y) for x in range(f.location[0] - 1, f.location[0] + 2)
-                                      for y in range(f.location[1] - 1, f.location[1] + 2)
-                                      if not self.objects_at((x, y))]
-                        if emptyCells: self.add_object(Fire(), random.choice(emptyCells))
-        else:  # if there is no fire
-            for i in range(5):
-                for i in range(10):  # try 10 times, would do while, but that could get stuck
-                    loc = (random.randrange(1, self.width), random.randrange(1, self.width))
-                    if not self.objects_at(loc):
-                        self.add_object(Fire(), loc)
-                        break
-
     def exogenous_change(self):
-        self.exogenous_dirt()
-        self.exogenous_fire()
+        pass
 
+def NewVacuumEnvironment(width=10, height=10, config=None):
+    e = VacuumEnvironment(width=width, height=height)
+    # Generate walls with dead cells in the center
+    if config==None:
+        pass
+    elif config=='center walls':
+        for x in range(int(e.width/2-5),int(e.width/2+5)):
+            for y in range(int(e.height/2-5),int(e.height/2+5)):
+                if ((x == int(e.width/2-5)) or (x == int(e.width/2+4)) or
+                    (y == int(e.height/2-5)) or (y == int(e.height/2+4))):
+                    e.add_object(Wall(), (x,y))
+                else:
+                    e.add_object(DeadCell(), (x,y))
+    elif config=='full dirt':
+        # Fill a square area with dirt
+        if False:
+            for x in range(0,e.width):
+                for y in range(0,e.height):
+                    if e.find_at(Wall,(x,y)): e.add_object(Dirt(),location=(x,y))
+    elif config=='center walls w/ random dirt and fire':
+        for x in range(int(e.width/2-5),int(e.width/2+5)):
+            for y in range(int(e.height/2-5),int(e.height/2+5)):
+                if ((x == int(e.width/2-5)) or (x == int(e.width/2+4)) or
+                    (y == int(e.height/2-5)) or (y == int(e.height/2+4))):
+                    e.add_object(Wall(), (x,y))
+                else:
+                    e.add_object(DeadCell(), (x,y))
+
+        # adds custom behavior to the exogenous_chage() method to avoid creating a new class
+        # is that correct?  should we just create a new class?
+
+        def exogenous_dirt(self):
+            if random.uniform(0, 1) < 1.0:
+                loc = (random.randrange(self.width), random.randrange(self.height))
+                if not (self.find_at(Dirt, loc) or self.find_at(Wall, loc)):
+                    self.add_object(Dirt(), loc)
+
+        def exogenous_fire(self):
+            fs = self.objects_of_type(Fire)
+
+            if fs:
+                for f in fs:
+                    if f.t == 0:
+                        f.destroy()
+                        self.objects.remove(f)
+                    else:
+                        f.t -= 1
+                        if random.uniform(0, 1) < 0.21:
+                            emptyCells = [(x, y) for x in range(f.location[0] - 1, f.location[0] + 2)
+                                          for y in range(f.location[1] - 1, f.location[1] + 2)
+                                          if not self.objects_at((x, y))]
+                            if emptyCells: self.add_object(Fire(), random.choice(emptyCells))
+            else:  # if there is no fire
+                for i in range(5):
+                    for i in range(10):  # try 10 times, would do while, but that could get stuck
+                        loc = (random.randrange(1, self.width), random.randrange(1, self.width))
+                        if not self.objects_at(loc):
+                            self.add_object(Fire(), loc)
+                            break
+
+        old_exogenous_chage = e.exogenous_change
+        def new_exogenous_change(self):
+            old_exogenous_chage()
+            exogenous_dirt(self)
+            exogenous_fire(self)
+
+        e.exogenous_change = MethodType(new_exogenous_change, e)
+
+    return e
 #______________________________________________________________________________
 
 def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
@@ -315,54 +354,39 @@ def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
 def test_agent(AgentFactory, steps, envs):
     "Return the mean score of running an agent in each of the envs, for steps"
     total = 0
+    i = 0
     for env in envs:
-        agent = AgentFactory()
-        env.add_object(agent)
-        env.run(steps)
-        total += agent.performance
+        i+=1
+        with Timer(name='Simulation Timer - Agent=%s' % i, format='%.4f'):
+            agent = AgentFactory()
+            env.add_object(agent)
+            env.run(steps)
+            total += agent.performance
     return float(total)/len(envs)
 
 #______________________________________________________________________________
 
 def test1():
-
-    e = VacuumEnvironment(width=20,height=20)
+    e = NewVacuumEnvironment(width=20,height=20,config="center walls w/ random dirt and fire")
     ef = EnvFrame(e,cellwidth=30)
 
     # Create agents on left wall
     for i in range(1,19):
-        e.add_agent(NewRandomReflexAgent(debug=False),location=(1,i)).id = i
-
-    # Generate walls with dead cells in the center
-    if True:
-        for x in range(int(e.width/2-5),int(e.width/2+5)):
-            for y in range(int(e.height/2-5),int(e.height/2+5)):
-                if ((x == (e.width/2-5)) or (x == (e.width/2+4)) or
-                    (y == (e.height/2-5)) or (y == (e.height/2+4))):
-                    e.add_object(Wall(), (x,y))
-                else:
-                    e.add_object(DeadCell(), (x,y))
-
-    # Generate hollow walls in center
-    if False:
-        for x in range(e.width/2-5,e.width/2+4):
-            e.add_object(Wall(), (x, e.height/2-5))
-            e.add_object(Wall(), (x+1, e.height/2 + 4))
-        for y in range(e.height/2-5,e.height/2+4):
-            e.add_object(Wall(), (e.width/2-5, y+1))
-            e.add_object(Wall(), (e.width/2+4, y))
-
-    # Fill a square area with dirt
-    if False:
-        for x in range(1,9):
-            for y in range(1,9):
-                e.add_object(Dirt(),location=(x,y))
+        e.add_object(NewRandomReflexAgent(debug=False),location=(1,i)).id = i
 
     ef.configure_display()
     ef.run()
     ef.mainloop()
 
+def test2():
+    EnvFactory = partial(NewVacuumEnvironment,width=10,height=10,config="full dirt")
+    AgentFactory = partial(NewRandomReflexAgent, debug=False)
+    print(compare_agents(EnvFactory, [AgentFactory]*2, n=10, steps=100))
+
 def main():
+    # set a seed to provide repeatable outcomes each run
+    random.seed(0) # set seed to None to remove the seed and have different outcomes
+
     test1()
 
 if __name__ == "__main__":
