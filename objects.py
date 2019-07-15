@@ -19,6 +19,9 @@ class Object:
     def is_grabbable(self, obj):
         return False
 
+    def destroy(self):
+        #print("Destroying %s" % self)
+        pass
 
     # can the object be passed over, or does it occupy space.
     blocker = False

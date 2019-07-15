@@ -1,13 +1,11 @@
-from types import MethodType as instancemethod
+from types import MethodType
 import tkinter as tk
 import PIL.Image as Image
 import PIL.ImageTk as itk
 
 from objects import Object
 from utils import *
-
-# Debug flag for the Icon class
-USE_ICON_CLASS = False
+from agents import Agent
 
 # Relative (%) offset values for image positioning from upper left corner of the cell
 IMAGE_X_OFFSET = 0.5
@@ -23,55 +21,47 @@ ID_Y_OFFSET = 0.0
 
 #______________________________________________________________________________
 
-if USE_ICON_CLASS:  # If we are using the Icon class, run the code below
-    class Icon():
-        def __repr__(self): # Define the string representation of the class (this is to avoid importing the Object class
-            return '<%s>' % getattr(self, '__name__', self.__class__.__name__)
+class Icon():
+    def __repr__(self): # Define the string representation of the class (this is to avoid importing the Object class
+        return '<%s>' % getattr(self, '__name__', self.__class__.__name__)
 
-        def __init__(self, parent, ef, images):
-            self.parent = parent        # parent object
-            self.ef = ef
-            self.images = images
+    def __init__(self, parent, ef, images = {}):
+        self.parent = parent        # parent object
+        self.ef = ef
+        self.images = images
+        # TODO: Implement offsets in the icon class
 
-        def object_to_image(self):
-            if hasattr(self.parent, 'heading'):
-                return self.ef.file2image[self.ef.class2file.get(getattr(self.parent, '__name__', self.parent.__class__.__name__),'') % self.ef.orientation[self.parent.heading]]
-            else:
-                return self.ef.file2image[self.ef.class2file.get(getattr(self.parent, '__name__', self.parent.__class__.__name__),'')]
+    def object_to_image(self):
+        if hasattr(self.parent, 'heading'):
+            return self.ef.file2image[self.ef.class2file.get(getattr(self.parent, '__name__', self.parent.__class__.__name__),'') % self.ef.orientation[self.parent.heading]]
+        else:
+            return self.ef.file2image[self.ef.class2file.get(getattr(self.parent, '__name__', self.parent.__class__.__name__),'')]
 
-        def move_to(self, newLocation):
-            dx = newLocation[0] - self.parent.location[0]
-            dy = newLocation[1] - self.parent.location[1]
-            for img in self.images:
-                pass
+    def move_to(self, newLocation):
+        old_loc = self.ef.canvas.coords(self.images['image'])
+        dx = (self.ef.cellwidth + 1) * (newLocation[0] - int(old_loc[0]/(self.ef.cellwidth+1)))
+        dy = (self.ef.cellwidth + 1) * (newLocation[1] - int(old_loc[1]/(self.ef.cellwidth+1)))
+        for img in self.images.values():
+            self.ef.canvas.move(img, dx, dy)
 
-        def rotate(self):
-            # THIS NEEDS FIXING
-            #self.ef.canvas.itemconfig(self.parent.image, image=self.ef.object_to_image(self.parent))
-            pass
+    def rotate(self):
+        if isinstance(self.parent, Agent): self.ef.canvas.itemconfig(self.parent.icon.images['image'], image=self.ef.object_to_image(self.parent))
 
-        def hide(self):
-            for img in self.images:
-                self.ef.canvas.itemconfig(img, state='hidden')
+    def hide(self):
+        for img in self.images.values():
+            self.ef.canvas.itemconfig(img, state='hidden')
 
-        def destroy_images(self):
-            print('implement me')
-            pass
-
-        def update(self):
-            if isinstance(self.parent.location, tuple):
-                self.rotate()
-                self.move_to(self.parent.location)
-            else:
-                self.hide()
-else:
     def destroy_images(self):
-        self.canvas.delete(self.image)
-        self.canvas.delete(self.id_image)
-        self.image = None
-        self.id_image = None
+        for imgname in self.images.keys():
+            self.ef.canvas.delete(self.images[imgname])
+        self.images = {}
 
-
+    def update(self):
+        if isinstance(self.parent.location, tuple):
+            self.rotate()
+            self.move_to(self.parent.location)
+        else:
+            self.hide()
 
 class EnvFrame(tk.Frame):
     def __init__(self, env, root = tk.Tk(), title='Robot Vacuum Simulation', cellwidth=50, n=10):
@@ -93,7 +83,7 @@ class EnvFrame(tk.Frame):
                          ('Stop [ ]', self.stop)]:
             tk.Button(toolbar, text=txt, command=cmd).pack(side='left')
         tk.Label(toolbar, text='Delay').pack(side='left')
-        scale = tk.Scale(toolbar, orient='h', from_=0.0, to=10, resolution=0.1, length=300,
+        scale = tk.Scale(toolbar, orient='h', from_=0.0, to=3.0, resolution=0.1, length=300,
                          command=lambda d: setattr(self, 'delay', d))
         scale.set(self.delay)
         scale.pack(side='left')
@@ -101,7 +91,7 @@ class EnvFrame(tk.Frame):
 
         # Canvas for drawing on
         self.canvas = tk.Canvas(self, width=(cellwidth + 1) * env.width,
-                                height=(cellwidth + 1) * env.height, background="white")
+                                height=(cellwidth + 1) * env.height, background='white')
 
         hbar = tk.Scrollbar(self, orient=tk.HORIZONTAL)
         hbar.pack(side=tk.BOTTOM, fill=tk.X)
@@ -115,9 +105,9 @@ class EnvFrame(tk.Frame):
 
 
         # Canvas click handlers (1 = left, 2 = middle, 3 = right)
-        self.canvas.bind('<Button-1>', self.left)  ## What should this do?
-        self.canvas.bind('<Button-2>', self.edit_objects)
-        self.canvas.bind('<Button-3>', self.edit_objects)
+        self.canvas.bind('<Button-1>', self.left_click)  ## What should this do?
+        self.canvas.bind('<Button-2>', self.middle_click)
+        self.canvas.bind('<Button-3>', self.right_click)
         if cellwidth:
             c = self.canvas
             for i in range(1, env.width + 1):
@@ -166,15 +156,31 @@ class EnvFrame(tk.Frame):
         print('stop')
         self.running = 0
 
-    def left(self, event):
-        loc = (event.x / (self.cellwidth + 1), event.y / (self.cellwidth + 1))
+    def left_click(self, event):
+        loc = (int(event.x / (self.cellwidth + 1)), int(event.y / (self.cellwidth + 1)))
         objs = self.env.find_at(Object, loc)
-        if not objs: objs = 'Nothing'
-        print('Cell (%s, %s) contains %s' %  (loc[0], loc[1], objs))
+        if not objs:
+            obj_string = 'Nothing'
+        else:
+            obj_string = str([str(o)[:len(str(o))-1] + ' performance=%s>' % o.performance if hasattr(o, 'performance') else str(o) for o in objs])
+        print('Cell (%s, %s) contains %s' %  (loc[0], loc[1], obj_string))
 
-    def edit_objects(self, event):
-        '''Choose an object within radius and edit its fields.'''
+    def middle_click(self, event):
         pass
+
+    def right_click(self, event):
+        loc = (int(event.x / (self.cellwidth + 1)), int(event.y / (self.cellwidth + 1)))
+        agts = self.env.find_at(Agent, loc)
+        if agts:
+            for a in agts:
+                hld = ''
+                if hasattr(a, 'holding') and a.holding:
+                    hld = a.holding
+                else:
+                    hld = 'Nothing'
+                print('%s in Cell (%s, %s) is holding %s' % (a, loc[0], loc[1], hld))
+        else:
+            print('Cell (%s, %s) contains %s' % (loc[0], loc[1], 'No Agents'))
 
     def object_to_image(self,obj):
         if hasattr(obj, 'heading'):
@@ -182,70 +188,46 @@ class EnvFrame(tk.Frame):
         else:
             return self.file2image[self.class2file.get(getattr(obj, '__name__', obj.__class__.__name__),'')]
 
-    def DisplayObject(self, obj):
-        if USE_ICON_CLASS:
-            obj.icon = self.NewIcon(obj)
-        else:
-            obj.image = None
-            obj.id_image = None
-            obj.canvas = self.canvas
-            obj.destroy_images = instancemethod(destroy_images,obj)
+    def display_object(self, obj):
+        obj.icon = self.NewIcon(obj)
+
+        old_destroy = obj.destroy  # save old obj.destroy() method
+
+        def destroy_with_images(self):  # define a new obj.destroy() method
+            old_destroy()  # first run old obj.destroy()
+            obj.icon.destroy_images()
+
+        obj.destroy = MethodType(destroy_with_images, obj)
         return obj
+
+
 
     def NewIcon(self, obj):
         # lookup default image and add it to the list
-        imgs = []
-        imgs.append(self.canvas.create_image(
+        imgs = {}
+        imgs['image'] = (self.canvas.create_image(
             (obj.location[0] + (IMAGE_X_OFFSET + (obj.id != '') * IMAGEID_X_OFFSET)) * (self.cellwidth + 1),
             (obj.location[1] + (IMAGE_Y_OFFSET + (obj.id != '') * IMAGEID_Y_OFFSET)) * (self.cellwidth + 1),
             image=self.object_to_image(obj), tag=getattr(obj, '__name__', obj.__class__.__name__)))
 
         if obj.id:
-            imgs.append(self.canvas.create_text((obj.location[0] + ID_X_OFFSET) * (self.cellwidth + 1),
+            imgs['id'] = (self.canvas.create_text((obj.location[0] + ID_X_OFFSET) * (self.cellwidth + 1),
                                                (obj.location[1] + ID_Y_OFFSET) * (self.cellwidth + 1),
-                                               text=obj.id, anchor='nw', font=("Helvetica", int(self.cellwidth / 5.0)),
+                                               text=obj.id, anchor='nw', font=('Helvetica', int(self.cellwidth / 5.0)),
                                                tag=getattr(obj, '__name__', obj.__class__.__name__)))
         return Icon(obj, self, imgs)
 
     def configure_display(self):
         for obj in self.env.objects:
-            obj = self.DisplayObject(obj)
+            obj = self.display_object(obj)
         self.update_display()
 
     def update_display(self):
-        if USE_ICON_CLASS:
-            for obj in self.env.objects:
+        for obj in self.env.objects:
+            if hasattr(obj, 'icon') and obj.icon:
                 obj.icon.update()
-        else:
-            for obj in self.env.objects:
-                if not(hasattr(obj,'image') and hasattr(obj,'id_image')):
-                    self.DisplayObject(obj)
-                if hasattr(obj, 'image') and obj.image:
-                    if isinstance(obj.location, tuple):
-                        self.canvas.itemconfig(obj.image, image=self.object_to_image(obj))
+            else:
+                self.display_object(obj)
 
-                        old_loc = self.canvas.coords(obj.image)
-                        self.canvas.move(obj.image, (obj.location[0]+(IMAGE_X_OFFSET + (obj.id!='')*IMAGEID_X_OFFSET))*(self.cellwidth + 1)-old_loc[0],
-                                                        (obj.location[1]+IMAGE_Y_OFFSET + (obj.id!='')*IMAGEID_Y_OFFSET)*(self.cellwidth + 1)-old_loc[1])
-                    else:
-                        self.canvas.itemconfig(obj.image, state='hidden')
-                else:
-                    obj.image = self.canvas.create_image((obj.location[0] + (IMAGE_X_OFFSET + (obj.id!='')*IMAGEID_X_OFFSET)) * (self.cellwidth + 1),
-                                                            (obj.location[1] + (IMAGE_Y_OFFSET + (obj.id!='')*IMAGEID_Y_OFFSET)) * (self.cellwidth + 1),
-                                                            image=self.object_to_image(obj), tag=getattr(obj, '__name__', obj.__class__.__name__))
-
-                if hasattr(obj, 'id_image') and obj.id_image:
-                    if isinstance(obj.location, tuple):
-                        old_loc = self.canvas.coords(obj.id_image)
-                        self.canvas.move(obj.id_image, (obj.location[0] + ID_X_OFFSET) * (self.cellwidth + 1) - old_loc[0],
-                                         (obj.location[1] + ID_Y_OFFSET) * (self.cellwidth + 1) - old_loc[1])
-                    else:
-                        self.canvas.itemconfig(obj.id_image, state='hidden')
-                else:
-                    obj.id_image = self.canvas.create_text((obj.location[0] + ID_X_OFFSET) * (self.cellwidth + 1),
-                                                            (obj.location[1] + ID_Y_OFFSET) * (self.cellwidth + 1),
-                                                            text=obj.id, anchor='nw', font=("Helvetica", int(self.cellwidth/5.0)),
-                                                            tag=getattr(obj, '__name__', obj.__class__.__name__))
-
-            self.canvas.tag_lower('Dirt')
+        self.canvas.tag_lower('Dirt')
 #______________________________________________________________________________
