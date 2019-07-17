@@ -95,6 +95,12 @@ class Environment:
             # for each agent
             # run agent.program with the agent's preception as an input
             # agent's perception = Env.precept(agent)
+
+            # TODO: Implement comms
+            #for a in self.agents:
+            #    agents_seen = self.communication_network(a)
+            #    a.state_update(self.communicate(a))
+
             actions = [agent.program(self.percept(agent))
                        for agent in self.agents]
 
@@ -163,6 +169,9 @@ class XYEnvironment(Environment):
                 for obj in self.objects_near(agent)]
 
     def execute_action(self, agent, action):
+        # TODO: Add stochasticity
+        # TODO: Add actions on objects e.g. Grab(Target)
+
         # The world processes actions on behalf of an agent.
         # Agents decide what to do, but the Environment class actually processes the behavior.
         #
@@ -369,7 +378,7 @@ def test_agent(AgentFactory, steps, envs):
 #______________________________________________________________________________
 
 def test1():
-    e = NewVacuumEnvironment(width=20,height=20,config="center walls w/ random dirt and fire")
+    e = NewVacuumEnvironment(width=50,height=50,config="center walls w/ random dirt and fire")
     ef = EnvFrame(e,cellwidth=30)
 
     # Create agents on left wall
@@ -383,13 +392,13 @@ def test1():
 def test2():
     EnvFactory = partial(NewVacuumEnvironment,width=10,height=10,config="full dirt")
     AgentFactory = partial(NewRandomReflexAgent, debug=False)
-    print(compare_agents(EnvFactory, [AgentFactory]*2, n=10, steps=100))
+    print(compare_agents(EnvFactory, [AgentFactory]*2, n=10, steps=1000))
 
 def main():
     # set a seed to provide repeatable outcomes each run
     random.seed(0) # set seed to None to remove the seed and have different outcomes
 
-    test1()
+    test2()
 
 if __name__ == "__main__":
     # execute only if run as a script

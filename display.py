@@ -1,3 +1,6 @@
+
+# TODO: Logging and playback
+
 from types import MethodType
 import tkinter as tk
 import PIL.Image as Image
@@ -168,7 +171,7 @@ class EnvFrame(tk.Frame):
     def middle_click(self, event):
         pass
 
-    def right_click(self, event):
+    def right_click(self, event):  # TODO: Add additional debugging for the Agent state
         loc = (int(event.x / (self.cellwidth + 1)), int(event.y / (self.cellwidth + 1)))
         agts = self.env.find_at(Agent, loc)
         if agts:
