@@ -59,15 +59,16 @@ class Environment:
     def __init__(self,):
         self.objects = []
         self.agents = []
-        self.perceptors = []
+        self.perceptors = {}
 
     # Mark: What does this do?  It isn't checked in the Environment class's add_object.
     object_classes = [] ## List of classes that can go into environment
 
     def percept(self, agent):
-        agentpercept = {}
-        for per in self.perceptors:
-            agentpercept.update(per.percept(agent))
+        agentpercept = {}  # initialize the percept dictionary
+        for per in agent.perceptorTypes:  # for each perceptor in agent
+            # calculate the percept value for the perceptor and append to the percept dictionary
+            agentpercept.update(self.perceptors[per.__name__].percept(agent))
         return agentpercept
 
     def execute_action(self, agent, action):
@@ -134,9 +135,9 @@ class Environment:
 
     def add_perceptor_for_agent(self, agent):
         for pertype in agent.perceptorTypes: # for each type of perceptor for the agent
-            if not [p for p in self.perceptors if isinstance(p, pertype)]:
+            if not [p for p in self.perceptors.values() if isinstance(p, pertype)]: # if the perceptor doesn't exist yet
                 print('creating perceptor of type %s' % pertype.__name__)
-                self.perceptors.append(pertype(self))
+                self.perceptors[pertype.__name__] = pertype(self) # add the name:perceptor pair to the dictionary
 
 
 class XYEnvironment(Environment):
@@ -169,7 +170,7 @@ class XYEnvironment(Environment):
     def objects_near(self, location, radius):
         "Return all objects within radius of location."
         radius2 = radius * radius # square radius instead of taking the square root for faster processing
-        return [obj for obj in self.objects
+        return [(obj for obj in self.objects
                 if distance2(location[0], location[1], obj.location[0], obj.location[1]) <= radius2]
 
     def execute_action(self, agent, action):
