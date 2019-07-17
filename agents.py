@@ -5,6 +5,7 @@ This file holds the agents.
 
 import random, copy, collections
 from objects import Object
+from perception import *
 
 # ______________________________________________________________________________
 
@@ -19,14 +20,16 @@ class Agent(Object):
     performance measure of the agent in its environment.
     '''
 
+    perceptorTypes = [BasicPerceptor]
+
     def __init__(self):
         def program(percept):
             return raw_input('Percept=%s; action? ' % percept)
 
+
         self.program = program
         self.alive = True
 
-        self.bump = False
         self.holding = []
 
         self.performance = 0
@@ -79,13 +82,17 @@ def NewRandomXYAgent(debug=False):
 class RandomReflexAgent(XYAgent):
     '''This agent takes action based solely on the percept. [Fig. 2.13]'''
 
+    perceptorTypes = [DirtPerceptor, BumpPerceptor]
+
     def __init__(self, actions):
         Agent.__init__(self)
         self.actions = actions
 
         def program(percept):
-            if percept[0] == 'Dirty':
+            if percept['Dirty']:
                 return "Grab"
+            elif percept['Bump']:
+                return random.choice(['TurnRight','TurnLeft'])
             else:
                 return random.choice(actions)
         self.program = program

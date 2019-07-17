@@ -59,14 +59,16 @@ class Environment:
     def __init__(self,):
         self.objects = []
         self.agents = []
+        self.perceptors = []
 
     # Mark: What does this do?  It isn't checked in the Environment class's add_object.
     object_classes = [] ## List of classes that can go into environment
 
     def percept(self, agent):
-	    # Return the percept that the agent sees at this point. Override this.
-        # Mark: Updated the code to use best practices on NotImplementedError over abstract
-        raise NotImplementedError
+        agentpercept = {}
+        for per in self.perceptors:
+            agentpercept.update(per.percept(agent))
+        return agentpercept
 
     def execute_action(self, agent, action):
         "Change the world to reflect this action. Override this."
@@ -125,9 +127,16 @@ class Environment:
         self.objects.append(obj)
         # If the object is an Agent, add it to self.agents and initialize performance parameter
         if isinstance(obj, Agent):
-            obj.performance = 0  # why isn't this part of the Agent class?
+            obj.performance = 0
+            self.add_perceptor_for_agent(obj)
             self.agents.append(obj)
         return obj
+
+    def add_perceptor_for_agent(self, agent):
+        for pertype in agent.perceptorTypes: # for each type of perceptor for the agent
+            if not [p for p in self.perceptors if isinstance(p, pertype)]:
+                print('creating perceptor of type %s' % pertype.__name__)
+                self.perceptors.append(pertype(self))
 
 
 class XYEnvironment(Environment):
@@ -144,7 +153,7 @@ class XYEnvironment(Environment):
         # set all of the initial conditions with the update function
         self.width = width
         self.height = height
-        update(self, objects=[], agents=[], width=width, height=height)
+        Environment.__init__(self)
 
     def objects_of_type(self, cls):
         # Use a list comprehension to return a list of all objects of type cls
@@ -162,11 +171,6 @@ class XYEnvironment(Environment):
         radius2 = radius * radius # square radius instead of taking the square root for faster processing
         return [obj for obj in self.objects
                 if distance2(location[0], location[1], obj.location[0], obj.location[1]) <= radius2]
-
-    def percept(self, agent): # Unused, currently at default settings
-        "By default, agent perceives objects within radius r."
-        return [self.object_percept(obj, agent)
-                for obj in self.objects_near(agent)]
 
     def execute_action(self, agent, action):
         # TODO: Add stochasticity
@@ -204,11 +208,6 @@ class XYEnvironment(Environment):
             if agent.holding:
                 # restore the location parameter to add the object back to the display
                 agent.holding.pop().location = agent.location
-        agent.bump = False  # Reset the bump value of the agent
-
-    def object_percept(self, obj, agent): #??? Should go to object?
-        "Return the percept for this object."
-        return obj.__class__.__name__
 
     def default_location(self, obj):
         # If no location is specified, set the location to be a random location in the Environment.
@@ -229,8 +228,6 @@ class XYEnvironment(Environment):
 
     def add_object(self, obj, location=(1, 1)):
         Environment.add_object(self, obj, location)
-
-        if isinstance(obj, Agent): obj.bump = False
 
         obj.holding = []
         obj.held = None
@@ -264,13 +261,6 @@ class VacuumEnvironment(XYEnvironment):
         self.add_walls()
 
     object_classes = []
-
-    def percept(self, agent):
-        '''The percept is a tuple of ('Dirty' or 'Clean', 'Bump' or 'None').
-        Unlike the TrivialVacuumEnvironment, location is NOT perceived.'''
-        status =  if_(self.find_at(Dirt, agent.location), 'Dirty', 'Clean')
-        bump = if_(agent.bump, 'Bump', 'None')
-        return (status, bump)
 
     def execute_action(self, agent, action):
         if action == 'Suck':
@@ -378,7 +368,7 @@ def test_agent(AgentFactory, steps, envs):
 #______________________________________________________________________________
 
 def test1():
-    e = NewVacuumEnvironment(width=50,height=50,config="center walls w/ random dirt and fire")
+    e = NewVacuumEnvironment(width=20,height=20,config="center walls w/ random dirt and fire")
     ef = EnvFrame(e,cellwidth=30)
 
     # Create agents on left wall
@@ -398,7 +388,7 @@ def main():
     # set a seed to provide repeatable outcomes each run
     random.seed(0) # set seed to None to remove the seed and have different outcomes
 
-    test2()
+    test1()
 
 if __name__ == "__main__":
     # execute only if run as a script
