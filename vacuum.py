@@ -166,7 +166,7 @@ class XYEnvironment(Environment):
     def percept(self, agent): # Unused, currently at default settings
         "By default, agent perceives objects within radius r."
         return [self.object_percept(obj, agent)
-                for obj in self.objects_near(agent)]
+                for obj in self.objects_near(agent, 3)]
 
     def execute_action(self, agent, action):
         # TODO: Add stochasticity
@@ -265,12 +265,18 @@ class VacuumEnvironment(XYEnvironment):
 
     object_classes = []
 
+    # def percept(self, agent):
+    #     '''The percept is a tuple of ('Dirty' or 'Clean', 'Bump' or 'None').
+    #     Unlike the TrivialVacuumEnvironment, location is NOT perceived.'''
+    #     status =  if_(self.find_at(Dirt, agent.location), 'Dirty', 'Clean')
+    #     bump = if_(agent.bump, 'Bump', 'None')
+    #     return (status, bump)
+
     def percept(self, agent):
-        '''The percept is a tuple of ('Dirty' or 'Clean', 'Bump' or 'None').
-        Unlike the TrivialVacuumEnvironment, location is NOT perceived.'''
         status =  if_(self.find_at(Dirt, agent.location), 'Dirty', 'Clean')
         bump = if_(agent.bump, 'Bump', 'None')
-        return (status, bump)
+        dirts = [obj.location for obj in self.objects_of_type(Dirt) if not isinstance(obj.location, Agent)]
+        return (status, bump, dirts, agent.location, agent.heading)
 
     def execute_action(self, agent, action):
         if action == 'Suck':
@@ -378,7 +384,7 @@ def test_agent(AgentFactory, steps, envs):
 #______________________________________________________________________________
 
 def test1():
-    e = NewVacuumEnvironment(width=50,height=50,config="center walls w/ random dirt and fire")
+    e = NewVacuumEnvironment(width=20,height=20,config="center walls w/ random dirt and fire")
     ef = EnvFrame(e,cellwidth=30)
 
     # Create agents on left wall
@@ -394,11 +400,23 @@ def test2():
     AgentFactory = partial(NewRandomReflexAgent, debug=False)
     print(compare_agents(EnvFactory, [AgentFactory]*2, n=10, steps=1000))
 
+def test3():
+    e = NewVacuumEnvironment(width=20,height=20,config="center walls w/ random dirt and fire")
+    ef = EnvFrame(e,cellwidth=30)
+
+    # Create agents on left wall
+    for i in range(1,19):
+        e.add_object(GreedyAgent(), location=(1,i)).id = i
+
+    ef.configure_display()
+    ef.run()
+    ef.mainloop()
+
 def main():
     # set a seed to provide repeatable outcomes each run
     random.seed(0) # set seed to None to remove the seed and have different outcomes
 
-    test2()
+    test3()
 
 if __name__ == "__main__":
     # execute only if run as a script
