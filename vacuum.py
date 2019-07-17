@@ -12,10 +12,10 @@ import random, copy
 from functools import partial
 
 # import my files
-#import agents as ag
 from agents import *
 from objects import *
 from display import *
+from comms import *
 
 '''Implement Agents and Environments (Chapters 1-2).
 
@@ -60,6 +60,7 @@ class Environment:
         self.objects = []
         self.agents = []
         self.perceptors = {}
+        self.communicator = Communicator(self)
 
     # Mark: What does this do?  It isn't checked in the Environment class's add_object.
     object_classes = [] ## List of classes that can go into environment
@@ -99,12 +100,21 @@ class Environment:
             # run agent.program with the agent's preception as an input
             # agent's perception = Env.precept(agent)
 
-            # TODO: Implement comms
-            #for a in self.agents:
-            #    agents_seen = self.communication_network(a)
-            #    a.state_update(self.communicate(a))
+            for a in self.agents:
+                a.percepts = self.percept(a)
 
-            actions = [agent.program(self.percept(agent))
+            # TODO: Implement comms
+            self.communicator.run_comms(self.agents)
+
+#            comms = {}
+#            for to_agent in self.agents:
+#                agents_seen = self.communicator.get_comms_network(to_agent)
+#                comms[to_agent] = [self.communicator.communicate(percepts[from_agent],from_agent,to_agent) for from_agent in agents_seen]
+
+#            for to_agent in self.agents:
+#                percepts = to_agent.merge_comms
+
+            actions = [agent.program(agent.percepts)
                        for agent in self.agents]
 
             # for each agent-action pair, have the environment process the actions
