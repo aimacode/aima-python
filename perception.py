@@ -18,7 +18,7 @@ class BasicPerceptor(Perceptor):
         return [self.object_percept(obj, agent)
                 for obj in self.env.objects_at(agent)]
 
-class DirtPerceptor(Perceptor):
+class DirtyPerceptor(Perceptor):
     def percept(self, agent):
         return {'Dirty':len(self.env.find_at(Dirt, agent.location))>0}
 
@@ -36,3 +36,12 @@ class RangePerceptor(Perceptor):
 class GPSPerceptor(Perceptor):
     def percept(self, agent):
         return {'GPS':agent.location}
+
+class CompassPerceptor(Perceptor):
+    def percept(self, agent):
+        return {'Compass':agent.heading}
+
+class PerfectPerceptor(Perceptor):
+    def percept(self, agent):
+        return {'Objects':[(obj.__class__.__name__, obj.location) for obj in self.env.objects if isinstance(obj.location, tuple)]}
+        # changed above because I think detecting if the dirt has a tuple as a location is more robust than detecting if the location is not an Agent

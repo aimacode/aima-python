@@ -121,9 +121,11 @@ class EnvFrame(tk.Frame):
                 c.pack(expand=1, fill='both')
         self.pack()
 
-        self.class2file = {'':'', 'RandomReflexAgent':'robot-%s',
-                       'Dirt':'dirt',
-                       'Wall':'wall',
+        self.class2file = {'':'', 
+                        'RandomReflexAgent':'robot-%s',
+                        'GreedyAgent':'robot-%s',
+                        'Dirt':'dirt',
+                        'Wall':'wall',
                         'Fire':'fire'}
         self.file2image = {'':None, 'robot-right':itk.PhotoImage(Image.open('img/robot-right.png').resize((int(0.8*cellwidth),int(0.8*cellwidth)),resample=Image.LANCZOS)),
                        'robot-left':itk.PhotoImage(Image.open('img/robot-left.png').resize((int(0.8*cellwidth),int(0.8*cellwidth)),resample=Image.LANCZOS)),

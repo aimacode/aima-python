@@ -7,6 +7,8 @@ import random, copy, collections
 from objects import Object
 from perception import *
 
+import numpy as np
+from scipy import spatial
 # ______________________________________________________________________________
 
 class Agent(Object):
@@ -25,7 +27,6 @@ class Agent(Object):
     def __init__(self):
         def program(percept):
             return raw_input('Percept=%s; action? ' % percept)
-
 
         self.program = program
         self.alive = True
@@ -82,7 +83,7 @@ def NewRandomXYAgent(debug=False):
 class RandomReflexAgent(XYAgent):
     '''This agent takes action based solely on the percept. [Fig. 2.13]'''
 
-    perceptorTypes = [DirtPerceptor, BumpPerceptor]
+    perceptorTypes = [DirtyPerceptor, BumpPerceptor]
 
     def __init__(self, actions):
         Agent.__init__(self)
@@ -96,6 +97,70 @@ class RandomReflexAgent(XYAgent):
             else:
                 return random.choice(actions)
         self.program = program
+
+class GreedyAgent(XYAgent):
+    '''This agent takes action based solely on the percept. [Fig. 2.13]'''
+    perceptorTypes = [DirtyPerceptor, BumpPerceptor, GPSPerceptor, CompassPerceptor, PerfectPerceptor]
+
+    def __init__(self):
+        Agent.__init__(self)
+        # orientation = {(1,0): 'right', (-1,0): 'left', (0,-1): 'up', (0,1): 'down'}
+        # def turn_heading(heading, inc, headings=[(1, 0), (0, 1), (-1, 0), (0, -1)]):
+        #     "Return the heading to the left (inc=+1) or right (inc=-1) in headings."
+        #     return headings[(headings.index(heading) + inc) % len(headings)]
+        def find_nearest(agent_location, dirts):
+            if len(dirts) == 1:
+                return dirts[0]
+            return dirts[spatial.KDTree(np.asarray(dirts)).query(np.asarray(agent_location))[1]]
+        def go_to(agent_location, agent_heading, nearest_dirt):
+            if self.id == 17 and False:
+                print(agent_location, agent_heading, nearest_dirt)
+            if agent_heading[0] == 0:
+                '''up or down'''
+                if (nearest_dirt[1] - agent_location[1]) * agent_heading[1] > 0:
+                    return 'Forward'
+                else:
+                    if nearest_dirt[0] - agent_location[0] > 0:
+                        '''dirt to right'''
+                        if agent_heading[1] == 1:
+                            return 'TurnRight'
+                        else:
+                            return 'TurnLeft'
+                    else:
+                        if agent_heading[1] == 1:
+                            return 'TurnLeft'
+                        else:
+                            return 'TurnRight'
+            else:
+                '''left or right'''
+                if (nearest_dirt[0] - agent_location[0]) * agent_heading[0] > 0:
+                    return 'Forward'
+                else:
+                    if nearest_dirt[1] - agent_location[1] > 0:
+                        '''dirt to down'''
+                        if agent_heading[0] == 1:
+                            return 'TurnLeft'
+                        else:
+                            return 'TurnRight'
+                    else:
+                        if agent_heading[0] == 1:
+                            return 'TurnRight'
+                        else:
+                            return 'TurnLeft'
+        def program(percept):
+            if percept['Dirty']:
+                return "Grab"
+            else:
+                dirts = [o[1] for o in percept['Objects'] if o[0]=='Dirt']
+                agent_location = percept['GPS']
+                agent_heading = percept['Compass']
+                if dirts:
+                    nearest_dirt = find_nearest(agent_location, dirts)
+                    command = go_to(agent_location, agent_heading, nearest_dirt)
+                    return command
+                return ''
+        self.program = program
+
 
 def NewRandomReflexAgent(debug=False):
     "If the cell is dirty, Grab the dirt; otherwise, randomly choose one of the actions from the vaccum environment."
