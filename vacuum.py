@@ -170,7 +170,7 @@ class XYEnvironment(Environment):
     def objects_near(self, location, radius):
         "Return all objects within radius of location."
         radius2 = radius * radius # square radius instead of taking the square root for faster processing
-        return [(obj for obj in self.objects
+        return [obj for obj in self.objects
                 if distance2(location[0], location[1], obj.location[0], obj.location[1]) <= radius2]
 
     def execute_action(self, agent, action):
