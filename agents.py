@@ -5,6 +5,8 @@ This file holds the agents.
 
 import random, copy, collections
 from objects import Object
+from perception import *
+
 import numpy as np
 from scipy import spatial
 # ______________________________________________________________________________
@@ -20,6 +22,8 @@ class Agent(Object):
     performance measure of the agent in its environment.
     '''
 
+    perceptorTypes = [BasicPerceptor]
+
     def __init__(self):
         def program(percept):
             return raw_input('Percept=%s; action? ' % percept)
@@ -27,7 +31,6 @@ class Agent(Object):
         self.program = program
         self.alive = True
 
-        self.bump = False
         self.holding = []
 
         self.performance = 0
@@ -80,19 +83,25 @@ def NewRandomXYAgent(debug=False):
 class RandomReflexAgent(XYAgent):
     '''This agent takes action based solely on the percept. [Fig. 2.13]'''
 
+    perceptorTypes = [DirtyPerceptor, BumpPerceptor]
+
     def __init__(self, actions):
         Agent.__init__(self)
         self.actions = actions
 
         def program(percept):
-            if percept[0] == 'Dirty':
+            if percept['Dirty']:
                 return "Grab"
+            elif percept['Bump']:
+                return random.choice(['TurnRight','TurnLeft'])
             else:
                 return random.choice(actions)
         self.program = program
 
 class GreedyAgent(XYAgent):
     '''This agent takes action based solely on the percept. [Fig. 2.13]'''
+    perceptorTypes = [DirtyPerceptor, BumpPerceptor, GPSPerceptor, CompassPerceptor, PerfectPerceptor]
+
     def __init__(self):
         Agent.__init__(self)
         # orientation = {(1,0): 'right', (-1,0): 'left', (0,-1): 'up', (0,1): 'down'}
@@ -104,7 +113,7 @@ class GreedyAgent(XYAgent):
                 return dirts[0]
             return dirts[spatial.KDTree(np.asarray(dirts)).query(np.asarray(agent_location))[1]]
         def go_to(agent_location, agent_heading, nearest_dirt):
-            if self.id == 17:
+            if self.id == 17 and False:
                 print(agent_location, agent_heading, nearest_dirt)
             if agent_heading[0] == 0:
                 '''up or down'''
@@ -139,12 +148,12 @@ class GreedyAgent(XYAgent):
                         else:
                             return 'TurnLeft'
         def program(percept):
-            if percept[0] == 'Dirty':
+            if percept['Dirty']:
                 return "Grab"
             else:
-                dirts = percept[2]
-                agent_location = percept[3]
-                agent_heading = percept[4]
+                dirts = [o[1] for o in percept['Objects'] if o[0]=='Dirt']
+                agent_location = percept['GPS']
+                agent_heading = percept['Compass']
                 if dirts:
                     nearest_dirt = find_nearest(agent_location, dirts)
                     command = go_to(agent_location, agent_heading, nearest_dirt)
