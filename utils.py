@@ -375,15 +375,11 @@ def distance(a, b):
     return math.hypot((xA - xB), (yA - yB))
 
 
-def distance_squared(a, b):
+def distance2(a, b):
     """The square of the distance between two (x, y) points."""
     xA, yA = a
     xB, yB = b
     return (xA - xB) ** 2 + (yA - yB) ** 2
-
-def distance2(ax, ay, bx, by):
-    "The square of the distance between two (x, y) points."
-    return (ax - bx)**2 + (ay - by)**2
 
 def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
