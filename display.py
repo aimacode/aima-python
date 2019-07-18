@@ -1,5 +1,6 @@
 
 # TODO: Logging and playback
+# TODO: add timestep in the GUI "t=..."
 
 from types import MethodType
 import tkinter as tk
@@ -123,7 +124,7 @@ class EnvFrame(tk.Frame):
 
         self.class2file = {'':'', 
                         'RandomReflexAgent':'robot-%s',
-                        'GreedyAgentWithRangePercetion':'robot-%s',
+                        'GreedyAgentWithRangePerception':'robot-%s',
                         'GreedyAgent':'robot-%s',
                         'Dirt':'dirt',
                         'Wall':'wall',

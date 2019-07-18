@@ -33,7 +33,6 @@ class RangePerceptor(Perceptor):
             objs = self.env.objects_near(agent.location, agent.sensor_r)
         else:
             objs = self.env.objects_near(agent.location, self.default_r)
-        print(objs)
         return {'Objects':[(obj.__class__.__name__, (obj.location[0]-agent.location[0],obj.location[1]-agent.location[1]))
                 for obj in objs]}
 

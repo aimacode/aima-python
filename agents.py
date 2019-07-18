@@ -98,12 +98,12 @@ class RandomReflexAgent(XYAgent):
                 return random.choice(actions)
         self.program = program
 
-class GreedyAgentWithRangePercetion(XYAgent):
+class GreedyAgentWithRangePerception(XYAgent):
     '''This agent takes action based solely on the percept. [Fig. 2.13]'''
     perceptorTypes = [DirtyPerceptor, BumpPerceptor, CompassPerceptor, RangePerceptor]
-    def __init__(self):
+    def __init__(self, sensor_radius=10):
         Agent.__init__(self)
-        self.sensor_r = 10
+        self.sensor_r = sensor_radius
         # orientation = {(1,0): 'right', (-1,0): 'left', (0,-1): 'up', (0,1): 'down'}
         # def turn_heading(heading, inc, headings=[(1, 0), (0, 1), (-1, 0), (0, -1)]):
         #     "Return the heading to the left (inc=+1) or right (inc=-1) in headings."
@@ -151,7 +151,6 @@ class GreedyAgentWithRangePercetion(XYAgent):
             if percept['Dirty']:
                 return 'Grab'
             else:
-                print(percept['Objects'])
                 dirts = [o[1] for o in percept['Objects'] if o[0]=='Dirt']
                 agent_location = (0, 0)
                 agent_heading = percept['Compass']
@@ -161,6 +160,15 @@ class GreedyAgentWithRangePercetion(XYAgent):
                     return command
                 return random.choice(['TurnRight', 'TurnLeft', 'Forward', 'Forward', 'Forward', 'Forward', 'Forward', 'Forward'])
         self.program = program
+
+def NewGreedyAgentWithRangePerception(debug=False, sensor_radius=10):
+    "Randomly choose one of the actions from the vaccum environment."
+    # the extra forwards are just to alter the probabilities
+    if debug:
+        return DebugAgent(GreedyAgentWithRangePerception(sensor_radius=sensor_radius))
+    else:
+        return GreedyAgentWithRangePerception(sensor_radius=sensor_radius)
+
 
 class GreedyAgent(XYAgent):
     '''This agent takes action based solely on the percept. [Fig. 2.13]'''
