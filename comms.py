@@ -8,8 +8,7 @@ class Communicator():
 
     def get_comms_network(self, toAgent):
         '''return the list of Agents that the toAgent is able to communicate with'''
-        range = 5
-        [o for o in self.env.objects_near(toAgent.location, range) if isinstance(o, Agent)]
+        return None
 
     def communicate(self, message, toAgent, fromAgent):
         '''communicate a message from the fromAgent to the toAgent'''
@@ -20,6 +19,9 @@ class Communicator():
 
 class BroadcastCommunicator(Communicator):
 
+    def get_comms_network(self, toAgent):
+        range = 5
+        return [o for o in self.env.objects_near(toAgent.location, range) if isinstance(o, Agent)]
 
     def communicate(self, message, toAgent, fromAgent):
         pass

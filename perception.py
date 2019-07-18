@@ -27,9 +27,12 @@ class BumpPerceptor(Perceptor):
         return {'Bump':len([o for o in self.env.objects_at(vector_add(agent.location, agent.heading)) if o.blocker])>0}
 
 class RangePerceptor(Perceptor):
-    r = 10  # TODO: how to handle multiple radii?
+    default_r = 5  # default in the event that agent.sensor_r is not defined
     def percept(self, agent):
-        objs = self.env.objects_near(agent.location, self.r)
+        if hasattr(agent,'sensor_r'):
+            objs = self.env.objects_near(agent.location, agent.sensor_r)
+        else:
+            objs = self.env.objects_near(agent.location, self.default_r)
         print(objs)
         return {'Objects':[(obj.__class__.__name__, (obj.location[0]-agent.location[0],obj.location[1]-agent.location[1]))
                 for obj in objs]}

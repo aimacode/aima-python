@@ -103,6 +103,7 @@ class GreedyAgentWithRangePercetion(XYAgent):
     perceptorTypes = [DirtyPerceptor, BumpPerceptor, CompassPerceptor, RangePerceptor]
     def __init__(self):
         Agent.__init__(self)
+        self.sensor_r = 10
         # orientation = {(1,0): 'right', (-1,0): 'left', (0,-1): 'up', (0,1): 'down'}
         # def turn_heading(heading, inc, headings=[(1, 0), (0, 1), (-1, 0), (0, -1)]):
         #     "Return the heading to the left (inc=+1) or right (inc=-1) in headings."
