@@ -123,6 +123,7 @@ class EnvFrame(tk.Frame):
 
         self.class2file = {'':'', 
                         'RandomReflexAgent':'robot-%s',
+                        'GreedyAgentWithRangePercetion':'robot-%s',
                         'GreedyAgent':'robot-%s',
                         'Dirt':'dirt',
                         'Wall':'wall',

@@ -27,10 +27,11 @@ class BumpPerceptor(Perceptor):
         return {'Bump':len([o for o in self.env.objects_at(vector_add(agent.location, agent.heading)) if o.blocker])>0}
 
 class RangePerceptor(Perceptor):
-    r = 3  # TODO: how to handle multiple radii?
+    r = 10  # TODO: how to handle multiple radii?
     def percept(self, agent):
-        objs = self.env.objects_near(agent, self.r)
-        return {'Objects':[(obj, (obj.location[0]-agent.location[0],obj.location[1]-agent.location[1]))
+        objs = self.env.objects_near(agent.location, self.r)
+        print(objs)
+        return {'Objects':[(obj.__class__.__name__, (obj.location[0]-agent.location[0],obj.location[1]-agent.location[1]))
                 for obj in objs]}
 
 class GPSPerceptor(Perceptor):
