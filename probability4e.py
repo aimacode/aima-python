@@ -4,7 +4,7 @@
 from utils import product, argmax, isclose, probability
 from logic import extend
 from math import sqrt, pi, exp
-
+import copy
 import random
 from collections import defaultdict
 from functools import reduce
@@ -171,13 +171,35 @@ def is_independent(variables, P):
     >>> P = JointProbDist(['X', 'Y'])
     >>> P[0,0] = 0.25; P[0,1] = 0.5; P[1,1] = P[1,0] = 0.125
     >>> is_independent(['X', 'Y'], P)
+    False
     """
     for var in variables:
+        event_vars = variables[:]
+        event_vars.remove(var)
         event = {}
         distribution = enumerate_joint_ask(var, event, P)
-        if sum(distribution.prob.values()) != 1:
-            return False
+        events = gen_possible_events(event_vars, P)
+        for e in events:
+            conditional_distr = enumerate_joint_ask(var, e, P)
+            if conditional_distr.prob != distribution.prob:
+                return False
     return True
+
+
+def gen_possible_events(vars, P):
+    """Generate all possible events of a collection of vars according to distribution of P"""
+    events = []
+
+    def backtrack(vars, P, temp):
+        if not vars:
+            events.append(temp)
+            return
+        var = vars[0]
+        for val in P.values(var):
+            temp[var] = val
+            backtrack([v for v in vars if v != var], P, copy.copy(temp))
+    backtrack(vars, P, {})
+    return events
 
 # ______________________________________________________________________________
 # Chapter 13 Probabilistic Reasoning
@@ -346,6 +368,7 @@ def gaussian_probability(param, event, value):
     >>> param = {'sigma':0.5, 'b':1, 'a':{'h1':0.5, 'h2': 1.5}}
     >>> event = {'h1':0.6, 'h2': 0.3}
     >>> gaussian_probability(param, event, 1)
+    0.2590351913317835
     """
 
     assert isinstance(event, dict)
@@ -365,8 +388,6 @@ def logistic_probability(param, event, value):
     :param event: a dict, names and values of continuous parent variables of current node
     :param value: boolean, True or False
     :return: int, probability
-    >>> param = {'mu':0.5,'sigma':0.5}
-    >>> logistic_probability(param, event, True)
     """
 
     buff = 1
