@@ -420,10 +420,16 @@ def conv1D(X, K):
     return res
 
 
-def GaussianKernel(size=3):
+def gaussian_kernel_1d(size=3, sigma=0.5):
     mean = (size-1)/2
-    stdev = 0.1
-    return [gaussian(mean, stdev, x) for x in range(size)]
+    return [gaussian(mean, sigma, x) for x in range(size)]
+
+
+def gaussian_kernel_2d(size=3, sigma=0.5):
+    x, y = np.mgrid[-size//2 + 1:size//2 + 1, -size//2 + 1:size//2 + 1]
+    g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
+    return g / g.sum()
+
 
 # ______________________________________________________________________________
 # loss and activation functions
