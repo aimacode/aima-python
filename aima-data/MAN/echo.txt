@@ -1,0 +1,59 @@
+ECHO(1)				      FSF			       ECHO(1)
+
+
+
+NAME
+       echo - display a line of text
+
+SYNOPSIS
+       echo [OPTION]... [STRING]...
+
+DESCRIPTION
+       NOTE:  your shell may have its own version of echo which will supercede
+       the version described here. Please refer to your shell's	 documentation
+       for details about the options it supports.
+
+       Echo the STRING(s) to standard output.
+
+       -n     do not output the trailing newline
+
+       -e     enable interpretation of the backslash-escaped characters listed
+	      below
+
+       -E     disable interpretation of those sequences in STRINGs
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+       Without -E, the following sequences are recognized and interpolated:
+
+       \NNN   the character whose ASCII code is NNN (octal)
+
+       \\     backslash
+
+       \a     alert (BEL)
+
+       \b     backspace
+
+       \c     suppress trailing newline
+
+       \f     form feed
+
+       \n     new line
+
+       \r     carriage return
+
+       \t     horizontal tab
+
+       \v     vertical tab
+
+AUTHOR
+       Written by FIXME unknown.
+
+REPORTING BUGS
+       Report bugs to <bug-coreutils@gnu.org>.
+
+COPYRIGHT
+       Copyright

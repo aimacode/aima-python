@@ -1,0 +1,93 @@
+INFO(1)			       FSF			  INFO(1)
+
+
+
+NAME
+       info - read Info documents
+
+SYNOPSIS
+       info [OPTION]... [MENU-ITEM...]
+
+DESCRIPTION
+       Read documentation in Info format.
+
+OPTIONS
+       --apropos=STRING
+	      look up STRING in all indices of all manuals.
+
+       -d, --directory=DIR
+	      add DIR to INFOPATH.
+
+       --dribble=FILENAME
+	      remember user keystrokes in FILENAME.
+
+       -f, --file=FILENAME
+	      specify Info file to visit.
+
+       -h, --help
+	      display this help and exit.
+
+       --index-search=STRING
+	      go to node pointed by index entry STRING.
+
+       -n, --node=NODENAME
+	      specify nodes in first visited Info file.
+
+       -o, --output=FILENAME
+	      output selected nodes to FILENAME.
+
+       -R, --raw-escapes
+	      don't remove ANSI escapes from man pages.
+
+       --restore=FILENAME
+	      read initial keystrokes from FILENAME.
+
+       -O, --show-options, --usage
+	      go to command-line options node.
+
+       --subnodes
+	      recursively output menu items.
+
+       --vi-keys
+	      use vi-like and less-like key bindings.
+
+       --version
+	      display version information and exit.
+
+       The  first  non-option  argument,  if present, is the menu
+       entry to start from; it is searched for in all `dir' files
+       along  INFOPATH.	  If  it  is not present, info merges all
+       `dir' files and shows the result.  Any remaining arguments
+       are  treated  as	 the  names of menu items relative to the
+       initial node visited.
+
+EXAMPLES
+       info   show top-level dir menu
+
+       info emacs
+	      start at emacs node from top-level dir
+
+       info emacs buffers
+	      start at buffers node within emacs manual
+
+       info --show-options emacs
+	      start at node with emacs' command line options
+
+       info -f ./foo.info
+	      show file ./foo.info, not searching dir
+
+REPORTING BUGS
+       Email bug reports to  bug-texinfo@gnu.org,  general  ques-
+       tions  and  discussion  to  help-texinfo@gnu.org.  Texinfo
+       home page: http://www.gnu.org/software/texinfo/
+
+COPYRIGHT
+       Copyright (C) 2002 Free Software Foundation,  Inc.   There
+       is  NO warranty.	 You may redistribute this software under
+       the terms of the GNU General  Public  License.	For  more
+       information about these matters, see the files named COPY-
+       ING.
+
+
+
+GNU texinfo 4.2		    April 2002			  INFO(1)

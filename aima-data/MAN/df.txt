@@ -1,0 +1,106 @@
+DF(1)			       FSF			    DF(1)
+
+
+
+NAME
+       df - report filesystem disk space usage
+
+SYNOPSIS
+       df [OPTION]... [FILE]...
+
+DESCRIPTION
+       This manual page documents the GNU version of df.  df dis-
+       plays the amount of disk space available on the filesystem
+       containing  each	 file  name argument.  If no file name is
+       given,  the  space  available  on  all  currently  mounted
+       filesystems is shown.  Disk space is shown in 1K blocks by
+       default, unless the environment	variable  POSIXLY_CORRECT
+       is set, in which case 512-byte blocks are used.
+
+       If  an argument is the absolute file name of a disk device
+       node containing a mounted filesystem, df shows  the  space
+       available on that filesystem rather than on the filesystem
+       containing the device  node  (which  is	always	the  root
+       filesystem).   This  version  of	 df cannot show the space
+       available on unmounted filesystems, because on most  kinds
+       of  systems  doing  so  requires very nonportable intimate
+       knowledge of filesystem structures.
+
+OPTIONS
+       Show information about the filesystem on which  each  FILE
+       resides, or all filesystems by default.
+
+       -a, --all
+	      include filesystems having 0 blocks
+
+       --block-size=SIZE use SIZE-byte blocks
+
+       -h, --human-readable
+	      print sizes in human readable format (e.g., 1K 234M
+	      2G)
+
+       -H, --si
+	      likewise, but use powers of 1000 not 1024
+
+       -i, --inodes
+	      list inode information instead of block usage
+
+       -k, --kilobytes
+	      like --block-size=1024
+
+       -l, --local
+	      limit listing to local filesystems
+
+       -m, --megabytes
+	      like --block-size=1048576
+
+       --no-sync
+	      do  not  invoke  sync  before  getting  usage  info
+	      (default)
+
+       -P, --portability
+	      use the POSIX output format
+
+       --sync invoke sync before getting usage info
+
+       -t, --type=TYPE
+	      limit listing to filesystems of type TYPE
+
+       -T, --print-type
+	      print filesystem type
+
+       -x, --exclude-type=TYPE
+	      limit listing to filesystems not of type TYPE
+
+       -v     (ignored)
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+AUTHOR
+       Written	by  Torbjorn  Granlund,	 David	MacKenzie,  Larry
+       McVoy, and Paul Eggert.
+
+REPORTING BUGS
+       Report bugs to <bug-fileutils@gnu.org>.
+
+COPYRIGHT
+       Copyright (C) 2001 Free Software Foundation, Inc.
+       This is free software; see the source for  copying  condi-
+       tions.  There is NO warranty; not even for MERCHANTABILITY
+       or FITNESS FOR A PARTICULAR PURPOSE.
+
+SEE ALSO
+       The full documentation for df is maintained as  a  Texinfo
+       manual.	  If  the  info	 and  df  programs  are	 properly
+       installed at your site, the command
+
+	      info df
+
+       should give you access to the complete manual.
+
+
+
+df (fileutils) 4.1	    April 2001			    DF(1)

@@ -1,0 +1,27 @@
+WHOAMI(1)			      FSF			     WHOAMI(1)
+
+
+
+NAME
+       whoami - print effective userid
+
+SYNOPSIS
+       whoami [OPTION]...
+
+DESCRIPTION
+       Print  the  user	 name  associated  with the current effective user id.
+       Same as id -un.
+
+       --help display this help and exit
+
+       --version
+	      output version information and exit
+
+AUTHOR
+       Written by Richard Mlynarik.
+
+REPORTING BUGS
+       Report bugs to <bug-coreutils@gnu.org>.
+
+COPYRIGHT
+       Copyright

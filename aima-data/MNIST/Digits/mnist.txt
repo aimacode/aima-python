@@ -1,0 +1,26 @@
+Source: http://yann.lecun.com/exdb/mnist/
+
+1. Title: THE MNIST DATABASE of handwritten digits
+
+2. Sources:
+   -- Yann LeCun, Courant Institute, NYU
+   -- Corinna Cortes, Google Labs, New York
+   -- Christopher J.C. Burges, Microsoft Research, Redmond
+
+3. Relevant Information:
+
+    The MNIST database of handwritten digits, available from this page,
+    has a training set of 60,000 examples, and a test set of 10,000 examples.
+    It is a subset of a larger set available from NIST. The digits have been
+    size-normalized and centered in a fixed-size image.
+
+    It is a good database for people who want to try learning techniques and
+    pattern recognition methods on real-world data while spending minimal
+    efforts on preprocessing and formatting.
+
+    Four files are available on this site:
+
+    train-images-idx3-ubyte:  60,000 training set images
+    train-labels-idx1-ubyte:  60,000 training set labels
+    t10k-images-idx3-ubyte:   10,000 test set images
+    t10k-labels-idx1-ubyte:   10,000 test set labels

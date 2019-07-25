@@ -1,0 +1,102 @@
+SHRED(1)		       FSF			 SHRED(1)
+
+
+
+NAME
+       shred  -	 delete	 a file securely, first overwriting it to
+       hide its contents
+
+SYNOPSIS
+       shred [OPTIONS] FILE [...]
+
+DESCRIPTION
+       Overwrite the specified FILE(s) repeatedly,  in	order  to
+       make it harder for even very expensive hardware probing to
+       recover the data.
+
+       -f, --force
+	      change permissions to allow writing if necessary
+
+       -n, --iterations=N
+	      Overwrite N times instead of the default (25)
+
+       -s, --size=N
+	      shred this  many	bytes  (suffixes  like	k,  M,	G
+	      accepted)
+
+       -u, --remove
+	      truncate and remove file after overwriting
+
+       -v, --verbose
+	      show progress
+
+       -x, --exact
+	      do not round file sizes up to the next full block
+
+       -z, --zero
+	      add a final overwrite with zeros to hide shredding
+
+       -      shred standard output
+
+       --help display this help and exit
+
+       --version
+	      print version information and exit
+
+       Delete FILE(s) if --remove (-u) is specified.  The default
+       is not to remove the files because it is common to operate
+       on  device  files  like	/dev/hda, and those files usually
+       should not be removed.  When operating on  regular  files,
+       most people use the --remove option.
+
+       CAUTION:	 Note  that  shred  relies  on	a  very important
+       assumption: that the filesystem overwrites data in  place.
+       This  is the traditional way to do things, but many modern
+       filesystem designs do not satisfy  this	assumption.   The
+       following  are  examples	 of filesystems on which shred is
+       not effective:
+
+       * log-structured or journaled filesystems, such	as  those
+       supplied with
+
+	      AIX and Solaris (and JFS, ReiserFS, XFS, etc.)
+
+       *  filesystems that write redundant data and carry on even
+       if some writes
+
+	      fail, such as RAID-based filesystems
+
+       * filesystems that make snapshots, such as Network  Appli-
+       ance's NFS server
+
+       *  filesystems  that cache in temporary locations, such as
+       NFS
+
+	      version 3 clients
+
+       * compressed filesystems
+
+AUTHOR
+       Written by Colin Plumb.
+
+REPORTING BUGS
+       Report bugs to <bug-fileutils@gnu.org>.
+
+COPYRIGHT
+       Copyright (C) 2001 Free Software Foundation, Inc.
+       This is free software; see the source for  copying  condi-
+       tions.  There is NO warranty; not even for MERCHANTABILITY
+       or FITNESS FOR A PARTICULAR PURPOSE.
+
+SEE ALSO
+       The full documentation for shred is maintained as  a  Tex-
+       info  manual.  If the info and shred programs are properly
+       installed at your site, the command
+
+	      info shred
+
+       should give you access to the complete manual.
+
+
+
+shred (fileutils) 4.1	    April 2001			 SHRED(1)
