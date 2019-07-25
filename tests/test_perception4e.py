@@ -1,6 +1,7 @@
 from perception4e import *
 from PIL import Image
 import numpy as np
+import os
 
 
 def test_array_normalization():
