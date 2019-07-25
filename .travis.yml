@@ -21,7 +21,6 @@ install:
   - pip install numpy
   - pip install tensorflow
   - pip install opencv-python
-  - pip install cython
 
 script:
   - py.test --cov=./

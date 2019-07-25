@@ -10,7 +10,6 @@ from keras.models import Sequential
 from keras.layers import Dense,  Activation, Flatten, InputLayer
 from keras.layers import Conv2D, MaxPooling2D
 import cv2
-import os
 
 # ____________________________________________________
 # 24.3 Early Image Processing Operators
@@ -452,22 +451,23 @@ def pool_roi(feature_map, roi, pooled_height, pooled_width):
     return pooled_features
 
 
-def faster_rcnn_demo(directory):
-    """
-    show the demo of rcnn, the model is from
-    @inproceedings{renNIPS15fasterrcnn,
-    Author = {Shaoqing Ren and Kaiming He and Ross Girshick and Jian Sun},
-    Title = {Faster {R-CNN}: Towards Real-Time Object Detection
-             with Region Proposal Networks},
-    Booktitle = {Advances in Neural Information Processing Systems ({NIPS})},
-    Year = {2015}}
-    :param directory: the directory where the faster rcnn model is installed
-    """
-    os.chdir(directory + '/lib')
-    # make file
-    os.system("make clean")
-    os.system("make")
-    # run demo
-    os.chdir(directory)
-    os.system("./tools/demo.py")
-    return 0
+# faster rcnn demo can be installed and shown in jupyter notebook
+# def faster_rcnn_demo(directory):
+#     """
+#     show the demo of rcnn, the model is from
+#     @inproceedings{renNIPS15fasterrcnn,
+#     Author = {Shaoqing Ren and Kaiming He and Ross Girshick and Jian Sun},
+#     Title = {Faster {R-CNN}: Towards Real-Time Object Detection
+#              with Region Proposal Networks},
+#     Booktitle = {Advances in Neural Information Processing Systems ({NIPS})},
+#     Year = {2015}}
+#     :param directory: the directory where the faster rcnn model is installed
+#     """
+    # os.chdir(directory + '/lib')
+    # # make file
+    # os.system("make clean")
+    # os.system("make")
+    # # run demo
+    # os.chdir(directory)
+    # os.system("./tools/demo.py")
+    # return 0
