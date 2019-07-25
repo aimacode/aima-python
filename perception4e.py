@@ -7,10 +7,9 @@ from utils4e import gaussian_kernel_2d
 import keras
 from keras.datasets import mnist
 from keras.models import Sequential
-from keras.layers import Dense,  Activation, Flatten, InputLayer, Layer
+from keras.layers import Dense,  Activation, Flatten, InputLayer
 from keras.layers import Conv2D, MaxPooling2D
 import cv2
-import tensorflow as tf
 import os
 
 # ____________________________________________________
