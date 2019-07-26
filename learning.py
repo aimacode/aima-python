@@ -751,7 +751,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
             # Error for the MSE cost function
             err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
 
-            # The activation function used is relu or sigmoid function
+            # Calculate delta at output
             if node.activation == sigmoid:
                 delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
             elif node.activation == relu:
