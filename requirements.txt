@@ -6,3 +6,7 @@ pillow
 Image
 ipython
 ipythonblocks
+keras
+numpy
+tensorflow
+opencv-python
