@@ -16,7 +16,7 @@ install:
   - pip install ipywidgets
   - pip install Pillow
   - pip install ipythonblocks
-   - pip install keras
+  - pip install keras
   - pip install numpy
   - pip install tensorflow
   - pip install opencv-python
