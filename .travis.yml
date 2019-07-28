@@ -17,6 +17,10 @@ install:
   - pip install Pillow
   - pip install pytest-cov
   - pip install ipythonblocks
+  - pip install keras
+  - pip install numpy
+  - pip install tensorflow
+  - pip install opencv-python
 
 script:
   - py.test --cov=./
