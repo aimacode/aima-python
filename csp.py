@@ -365,7 +365,7 @@ def build_topological(node, parent, neighbors, visited, stack, parents):
     visited[node] = True
 
     for n in neighbors[node]:
-        if (not visited[n]):
+        if not visited[n]:
             build_topological(n, node, neighbors, visited, stack, parents)
 
     parents[node] = parent
