@@ -434,7 +434,7 @@ def gaussian_kernel_1d(size=3, sigma=0.5):
 def gaussian_kernel_2d(size=3, sigma=0.5):
     x, y = np.mgrid[-size//2 + 1:size//2 + 1, -size//2 + 1:size//2 + 1]
     g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
-    return g / g.sum()l
+    return g / g.sum()
 
 
 # ______________________________________________________________________________
