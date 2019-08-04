@@ -9,3 +9,4 @@ ipythonblocks
 keras
 numpy
 tensorflow
+opencv-python
