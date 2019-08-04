@@ -20,6 +20,8 @@ install:
   - pip install keras
   - pip install numpy
   - pip install tensorflow
+  - pip install opencv-python
+
 
 script:
   - py.test --cov=./
