@@ -1,6 +1,7 @@
 import math
 import statistics
-from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, \
+
+from utils4e import sigmoid, dotproduct, softmax1D, conv1D, gaussian_kernel_2d, GaussianKernel, element_wise_product, \
     vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector
 import random
 
