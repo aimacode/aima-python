@@ -420,6 +420,12 @@ def conv1D(X, K):
     return res
 
 
+
+def GaussianKernel(size=3):
+    mean = (size-1)/2
+    stdev = 0.1
+    return [gaussian(mean, stdev, x) for x in range(size)]
+
 def gaussian_kernel_1d(size=3, sigma=0.5):
     mean = (size-1)/2
     return [gaussian(mean, sigma, x) for x in range(size)]
