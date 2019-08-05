@@ -1,6 +1,7 @@
 import math
 import statistics
-from utils4e import sigmoid, dotproduct, softmax1D, conv1D, gaussian_kernel_2d, element_wise_product, \
+
+from utils4e import sigmoid, dotproduct, softmax1D, conv1D, gaussian_kernel_2d, GaussianKernel, element_wise_product, \
     vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector
 import random
 
@@ -143,7 +144,7 @@ class ConvLayer1D(Layer):
         super(ConvLayer1D, self).__init__(size)
         # init convolution kernel as gaussian kernel
         for node in self.nodes:
-            node.weights = gaussian_kernel_2d(kernel_size)
+            node.weights = GaussianKernel(kernel_size)
 
     def forward(self, features):
         # Each node in layer takes a channel in the features.
