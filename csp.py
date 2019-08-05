@@ -74,10 +74,12 @@ class CSP(search.Problem):
 
     def nconflicts(self, var, val, assignment):
         """Return the number of conflicts var=val has with other variables."""
+
         # Subclasses may implement this more efficiently
         def conflict(var2):
             return (var2 in assignment and
                     not self.constraints(var, val, var2, assignment[var2]))
+
         return count(conflict(v) for v in self.neighbors[var])
 
     def display(self, assignment):
@@ -153,6 +155,7 @@ class CSP(search.Problem):
         return [var for var in self.variables
                 if self.nconflicts(var, current[var], current) > 0]
 
+
 # ______________________________________________________________________________
 # Constraint Propagation with AC-3
 
@@ -183,6 +186,7 @@ def revise(csp, Xi, Xj, removals):
             revised = True
     return revised
 
+
 # ______________________________________________________________________________
 # CSP Backtracking Search
 
@@ -208,6 +212,7 @@ def num_legal_values(csp, var, assignment):
         return count(csp.nconflicts(var, val, assignment) == 0
                      for val in csp.domains[var])
 
+
 # Value ordering
 
 
@@ -220,6 +225,7 @@ def lcv(var, assignment, csp):
     """Least-constraining-values heuristic."""
     return sorted(csp.choices(var),
                   key=lambda val: csp.nconflicts(var, val, assignment))
+
 
 # Inference
 
@@ -244,6 +250,7 @@ def forward_checking(csp, var, value, assignment, removals):
 def mac(csp, var, value, assignment, removals):
     """Maintain arc consistency."""
     return AC3(csp, {(X, var) for X in csp.neighbors[var]}, removals)
+
 
 # The search, proper
 
@@ -274,6 +281,7 @@ def backtracking_search(csp,
     assert result is None or csp.goal_test(result)
     return result
 
+
 # ______________________________________________________________________________
 # Min-conflicts hillclimbing search for CSPs
 
@@ -301,6 +309,7 @@ def min_conflicts_value(csp, var, current):
     If there is a tie, choose at random."""
     return argmin_random_tie(csp.domains[var],
                              key=lambda val: csp.nconflicts(var, val, current))
+
 
 # ______________________________________________________________________________
 
@@ -356,7 +365,7 @@ def build_topological(node, parent, neighbors, visited, stack, parents):
     visited[node] = True
 
     for n in neighbors[node]:
-        if(not visited[n]):
+        if not visited[n]:
             build_topological(n, node, neighbors, visited, stack, parents)
 
     parents[node] = parent
@@ -366,9 +375,9 @@ def build_topological(node, parent, neighbors, visited, stack, parents):
 def make_arc_consistent(Xj, Xk, csp):
     """Make arc between parent (Xj) and child (Xk) consistent under the csp's constraints,
     by removing the possible values of Xj that cause inconsistencies."""
-    #csp.curr_domains[Xj] = []
+    # csp.curr_domains[Xj] = []
     for val1 in csp.domains[Xj]:
-        keep = False # Keep or remove val1
+        keep = False  # Keep or remove val1
         for val2 in csp.domains[Xk]:
             if csp.constraints(Xj, val1, Xk, val2):
                 # Found a consistent assignment for val1, keep it
@@ -393,8 +402,9 @@ def assign_value(Xj, Xk, csp, assignment):
     # No consistent assignment available
     return None
 
+
 # ______________________________________________________________________________
-# Map-Coloring Problems
+# Map Coloring Problems
 
 
 class UniversalDict:
@@ -446,27 +456,27 @@ def parse_neighbors(neighbors, variables=None):
     return dic
 
 
-australia = MapColoringCSP(list('RGB'),
-                           'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
+australia_csp = MapColoringCSP(list('RGB'), """SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: """)
 
-usa = MapColoringCSP(list('RGBY'),
-                     """WA: OR ID; OR: ID NV CA; CA: NV AZ; NV: ID UT AZ; ID: MT WY UT;
-        UT: WY CO AZ; MT: ND SD WY; WY: SD NE CO; CO: NE KA OK NM; NM: OK TX AZ;
-        ND: MN SD; SD: MN IA NE; NE: IA MO KA; KA: MO OK; OK: MO AR TX;
-        TX: AR LA; MN: WI IA; IA: WI IL MO; MO: IL KY TN AR; AR: MS TN LA;
-        LA: MS; WI: MI IL; IL: IN KY; IN: OH KY; MS: TN AL; AL: TN GA FL;
-        MI: OH IN; OH: PA WV KY; KY: WV VA TN; TN: VA NC GA; GA: NC SC FL;
-        PA: NY NJ DE MD WV; WV: MD VA; VA: MD DC NC; NC: SC; NY: VT MA CT NJ;
-        NJ: DE; DE: MD; MD: DC; VT: NH MA; MA: NH RI CT; CT: RI; ME: NH;
-        HI: ; AK: """)
+usa_csp = MapColoringCSP(list('RGBY'),
+                         """WA: OR ID; OR: ID NV CA; CA: NV AZ; NV: ID UT AZ; ID: MT WY UT;
+                         UT: WY CO AZ; MT: ND SD WY; WY: SD NE CO; CO: NE KA OK NM; NM: OK TX AZ;
+                         ND: MN SD; SD: MN IA NE; NE: IA MO KA; KA: MO OK; OK: MO AR TX;
+                         TX: AR LA; MN: WI IA; IA: WI IL MO; MO: IL KY TN AR; AR: MS TN LA;
+                         LA: MS; WI: MI IL; IL: IN KY; IN: OH KY; MS: TN AL; AL: TN GA FL;
+                         MI: OH IN; OH: PA WV KY; KY: WV VA TN; TN: VA NC GA; GA: NC SC FL;
+                         PA: NY NJ DE MD WV; WV: MD VA; VA: MD DC NC; NC: SC; NY: VT MA CT NJ;
+                         NJ: DE; DE: MD; MD: DC; VT: NH MA; MA: NH RI CT; CT: RI; ME: NH;
+                         HI: ; AK: """)
 
-france = MapColoringCSP(list('RGBY'),
-                        """AL: LO FC; AQ: MP LI PC; AU: LI CE BO RA LR MP; BO: CE IF CA FC RA
-        AU; BR: NB PL; CA: IF PI LO FC BO; CE: PL NB NH IF BO AU LI PC; FC: BO
-        CA LO AL RA; IF: NH PI CA BO CE; LI: PC CE AU MP AQ; LO: CA AL FC; LR:
-        MP AU RA PA; MP: AQ LI AU LR; NB: NH CE PL BR; NH: PI IF CE NB; NO:
-        PI; PA: LR RA; PC: PL CE LI AQ; PI: NH NO CA IF; PL: BR NB CE PC; RA:
-        AU BO FC PA LR""")
+france_csp = MapColoringCSP(list('RGBY'),
+                            """AL: LO FC; AQ: MP LI PC; AU: LI CE BO RA LR MP; BO: CE IF CA FC RA
+                            AU; BR: NB PL; CA: IF PI LO FC BO; CE: PL NB NH IF BO AU LI PC; FC: BO
+                            CA LO AL RA; IF: NH PI CA BO CE; LI: PC CE AU MP AQ; LO: CA AL FC; LR:
+                            MP AU RA PA; MP: AQ LI AU LR; NB: NH CE PL BR; NH: PI IF CE NB; NO:
+                            PI; PA: LR RA; PC: PL CE LI AQ; PI: NH NO CA IF; PL: BR NB CE PC; RA:
+                            AU BO FC PA LR""")
+
 
 # ______________________________________________________________________________
 # n-Queens Problem
@@ -503,16 +513,16 @@ class NQueensCSP(CSP):
         CSP.__init__(self, list(range(n)), UniversalDict(list(range(n))),
                      UniversalDict(list(range(n))), queen_constraint)
 
-        self.rows = [0]*n
-        self.ups = [0]*(2*n - 1)
-        self.downs = [0]*(2*n - 1)
+        self.rows = [0] * n
+        self.ups = [0] * (2 * n - 1)
+        self.downs = [0] * (2 * n - 1)
 
     def nconflicts(self, var, val, assignment):
         """The number of conflicts, as recorded with each assignment.
         Count conflicts in row and in up, down diagonals. If there
         is a queen there, it can't conflict with itself, so subtract 3."""
         n = len(self.variables)
-        c = self.rows[val] + self.downs[var+val] + self.ups[var-val+n-1]
+        c = self.rows[val] + self.downs[var + val] + self.ups[var - val + n - 1]
         if assignment.get(var, None) == val:
             c -= 3
         return c
@@ -559,6 +569,7 @@ class NQueensCSP(CSP):
                     ch = ' '
                 print(str(self.nconflicts(var, val, assignment)) + ch, end=' ')
             print()
+
 
 # ______________________________________________________________________________
 # Sudoku
@@ -646,9 +657,12 @@ class Sudoku(CSP):
 
         def abut(lines1, lines2): return list(
             map(' | '.join, list(zip(lines1, lines2))))
+
         print('\n------+-------+------\n'.join(
             '\n'.join(reduce(
                 abut, map(show_box, brow))) for brow in self.bgrid))
+
+
 # ______________________________________________________________________________
 # The Zebra Puzzle
 
@@ -716,6 +730,7 @@ def Zebra():
                 (A in Smokes and B in Smokes)):
             return not same
         raise Exception('error')
+
     return CSP(variables, domains, neighbors, zebra_constraint)
 
 
