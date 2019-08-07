@@ -210,12 +210,12 @@ def monte_carlo_tree_search(state, game, N=1000):
 
     root = MCT_Node(state=state)
 
-    while N > 0:
+    for _ in range(N):
         leaf = select(root)
         child = expand(leaf)
         result = simulate(game, child.state)
         backprop(child, result)
-        N -= 1
+
     max_state = max(root.children, key=lambda p: p.N)
 
     return root.children.get(max_state)
