@@ -152,6 +152,12 @@ def powerset(iterable):
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))[1:]
 
 
+def mean_diff(a,b):
+    """the mean absolute difference between two iterable objects"""
+    pass
+
+
+
 # ______________________________________________________________________________
 # argmin and argmax
 
@@ -419,12 +425,6 @@ def conv1D(X, K):
         res += [sum([X[x+k]*K[k]] for k in K)]
     return res
 
-
-
-def GaussianKernel(size=3):
-    mean = (size-1)/2
-    stdev = 0.1
-    return [gaussian(mean, stdev, x) for x in range(size)]
 
 def gaussian_kernel_1d(size=3, sigma=0.5):
     mean = (size-1)/2
