@@ -152,12 +152,6 @@ def powerset(iterable):
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))[1:]
 
 
-def mean_diff(a,b):
-    """the mean absolute difference between two iterable objects"""
-    pass
-
-
-
 # ______________________________________________________________________________
 # argmin and argmax
 
