@@ -360,7 +360,7 @@ def num_or_str(x): # TODO: rename as `atom`
 
 
 def euclidean_distance(X, Y):
-    return math.sqrt(sum((x - y)**2 for x, y in zip(X, Y)))
+    return math.sqrt(sum((x - y)**2 for x, y in zip(X, Y) if x and y))
 
 
 def rms_error(X, Y):
@@ -658,7 +658,6 @@ def print_table(table, header=None, sep='   ', numfmt='{}'):
 
     table = [[numfmt.format(x) if isnumber(x) else x for x in row]
              for row in table]
-
     sizes = list(
         map(lambda seq: max(map(len, seq)),
             list(zip(*[map(str, row) for row in table]))))
