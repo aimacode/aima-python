@@ -1435,13 +1435,13 @@ def cascade_substitution(s):
     Parameters
     ----------
     s : Dictionary
-        This contain a substution"""
+        This contain a substution
+    """
 
     for x in s:
         s[x] = subst(s, s.get(x))
         if isinstance(s.get(x), Expr) and not is_variable(s.get(x)):
-        # Ensure Function Terms are correct updates by passing over 
-        # them again.
+        # Ensure Function Terms are correct updates by passing over them again.
             s[x] = subst(s, s.get(x))
 
 def standardize_variables(sentence, dic=None):
