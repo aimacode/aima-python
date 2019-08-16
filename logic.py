@@ -193,8 +193,7 @@ def parse_definite_clause(s):
 
 
 # Useful constant Exprs used in examples and code:
-A, B, C, D, E, F, G, P, Q, x, y, z = map(Expr, 'ABCDEFGPQxyz')
-
+A, B, C, D, E, F, G, P, Q, a, x, y, z, u = map(Expr, 'ABCDEFGPQaxyzu')
 
 # ______________________________________________________________________________
 
@@ -1425,7 +1424,7 @@ def cascade_substitution(s):
     terms are correctly updates by passing over them again.
 
     This fix issue: https://github.com/aimacode/aima-python/issues/1053
-    unify(P(A, x, F(G(y))), P(z, F(z), F(u))) 
+    unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) 
     must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
     
     >>> s = {x: y, y: G(z)}
