@@ -13,18 +13,22 @@ import random
 from collections import defaultdict
 from functools import reduce
 
+
 # ______________________________________________________________________________
 
 
 def DTAgentProgram(belief_state):
     """A decision-theoretic agent. [Figure 13.1]"""
+
     def program(percept):
         belief_state.observe(program.action, percept)
         program.action = argmax(belief_state.actions(),
                                 key=belief_state.expected_outcome_utility)
         return program.action
+
     program.action = None
     return program
+
 
 # ______________________________________________________________________________
 
@@ -132,6 +136,7 @@ def event_values(event, variables):
     else:
         return tuple([event[var] for var in variables])
 
+
 # ______________________________________________________________________________
 
 
@@ -159,6 +164,7 @@ def enumerate_joint(variables, e, P):
     Y, rest = variables[0], variables[1:]
     return sum([enumerate_joint(rest, extend(e, Y, y), P)
                 for y in P.values(Y)])
+
 
 # ______________________________________________________________________________
 
@@ -378,6 +384,7 @@ burglary = BayesNet([
     ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})
 ])
 
+
 # ______________________________________________________________________________
 
 
@@ -408,6 +415,7 @@ def enumerate_all(variables, e, bn):
     else:
         return sum(Ynode.p(y, e) * enumerate_all(rest, extend(e, Y, y), bn)
                    for y in bn.variable_values(Y))
+
 
 # ______________________________________________________________________________
 
@@ -498,6 +506,7 @@ def all_events(variables, bn, e):
             for x in bn.variable_values(X):
                 yield extend(e1, X, x)
 
+
 # ______________________________________________________________________________
 
 # [Figure 14.12a]: sprinkler network
@@ -510,6 +519,7 @@ sprinkler = BayesNet([
     ('WetGrass', 'Sprinkler Rain',
      {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
 
+
 # ______________________________________________________________________________
 
 
@@ -520,6 +530,7 @@ def prior_sample(bn):
     for node in bn.nodes:
         event[node.variable] = node.sample(event)
     return event
+
 
 # _________________________________________________________________________
 
@@ -546,6 +557,7 @@ def consistent_with(event, evidence):
     """Is event consistent with the given evidence?"""
     return all(evidence.get(k, v) == v
                for k, v in event.items())
+
 
 # _________________________________________________________________________
 
@@ -579,6 +591,7 @@ def weighted_sample(bn, e):
             event[Xi] = node.sample(event)
     return event, w
 
+
 # _________________________________________________________________________
 
 
@@ -611,6 +624,7 @@ def markov_blanket_sample(X, e, bn):
                                          for Yj in Xnode.children)
     # (assuming a Boolean variable here)
     return probability(Q.normalize()[True])
+
 
 # _________________________________________________________________________
 
@@ -655,7 +669,7 @@ def forward_backward(HMM, ev, prior):
 
     fv = [[0.0, 0.0] for _ in range(len(ev))]
     b = [1.0, 1.0]
-    bv = [b]    # we don't need bv; but we will have a list of all backward messages here
+    bv = [b]  # we don't need bv; but we will have a list of all backward messages here
     sv = [[0, 0] for _ in range(len(ev))]
 
     fv[0] = prior
@@ -670,6 +684,33 @@ def forward_backward(HMM, ev, prior):
     sv = sv[::-1]
 
     return sv
+
+
+def viterbi(HMM, ev, prior):
+    """[Figure 15.5]
+    Viterbi algorithm to find the most likely sequence. Computes the best path,
+    given an HMM model and a sequence of observations."""
+    t = len(ev)
+    ev.insert(0, None)
+
+    m = [[0.0, 0.0] for _ in range(len(ev) - 1)]
+
+    # the recursion is initialized with m1 = forward(P(X0), e1)
+    m[0] = forward(HMM, prior, ev[1])
+
+    for i in range(1, t):
+        m[i] = element_wise_product(HMM.sensor_dist(ev[i + 1]),
+                                    [max(element_wise_product(HMM.transition_model[0], m[i - 1])),
+                                     max(element_wise_product(HMM.transition_model[1], m[i - 1]))])
+
+    path = [0.0] * (len(ev) - 1)
+    # the construction of the most likely sequence starts in the final state with the largest probability,
+    # and runs backwards; the algorithm needs to store for each xt its best predecessor xt-1
+    for i in range(t, -1, -1):
+        path[i - 1] = max(m[i - 1])
+
+    return path
+
 
 # _________________________________________________________________________
 
@@ -701,6 +742,7 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
         return [normalize(i) for i in matrix_multiplication([f], B)][0]
     else:
         return None
+
 
 # _________________________________________________________________________
 
@@ -742,13 +784,15 @@ def particle_filtering(e, N, HMM):
 
     return s
 
+
 # _________________________________________________________________________
-## TODO: Implement continuous map for MonteCarlo similar to Fig25.10 from the book
+# TODO: Implement continuous map for MonteCarlo similar to Fig25.10 from the book
 
 
 class MCLmap:
     """Map which provides probability distributions and sensor readings.
     Consists of discrete cells which are either an obstacle or empty"""
+
     def __init__(self, m):
         self.m = m
         self.nrows = len(m)
@@ -772,7 +816,7 @@ class MCLmap:
         #  0
         # 3R1
         #  2
-        delta = ((sensor_num % 2 == 0)*(sensor_num - 1), (sensor_num % 2 == 1)*(2 - sensor_num))
+        delta = ((sensor_num % 2 == 0) * (sensor_num - 1), (sensor_num % 2 == 1) * (2 - sensor_num))
         # sensor direction changes based on orientation
         for _ in range(orient):
             delta = (delta[1], -delta[0])
@@ -790,9 +834,9 @@ def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
         return m.ray_cast(sensor_num, kin_state)
 
     M = len(z)
-    W = [0]*N
-    S_ = [0]*N
-    W_ = [0]*N
+    W = [0] * N
+    S_ = [0] * N
+    W_ = [0] * N
     v = a['v']
     w = a['w']
 
