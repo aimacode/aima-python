@@ -193,8 +193,7 @@ def parse_definite_clause(s):
 
 
 # Useful constant Exprs used in examples and code:
-A, B, C, D, E, F, G, P, Q, x, y, z = map(Expr, 'ABCDEFGPQxyz')
-
+A, B, C, D, E, F, G, P, Q, a, x, y, z, u = map(Expr, 'ABCDEFGPQaxyzu')
 
 # ______________________________________________________________________________
 
@@ -1370,7 +1369,9 @@ def unify_var(var, x, s):
     elif occur_check(var, x, s):
         return None
     else:
-        return extend(s, var, x)
+        new_s = extend(s, var, x)
+        cascade_substitution(new_s)
+        return new_s
 
 
 def occur_check(var, x, s):
@@ -1415,6 +1416,33 @@ def subst(s, x):
     else:
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
+def cascade_substitution(s):
+    """This method allows to return a correct unifier in normal form
+    and perform a cascade substitution to s.
+    For every mapping in s perform a cascade substitution on s.get(x)
+    and if it is replaced with a function ensure that all the function 
+    terms are correct updates by passing over them again.
+
+    This issue fix: https://github.com/aimacode/aima-python/issues/1053
+    unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) 
+    must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
+    
+    >>> s = {x: y, y: G(z)}
+    >>> cascade_substitution(s)
+    >>> print(s)
+    {x: G(z), y: G(z)}
+    
+    Parameters
+    ----------
+    s : Dictionary
+        This contain a substution
+    """
+
+    for x in s:
+        s[x] = subst(s, s.get(x))
+        if isinstance(s.get(x), Expr) and not is_variable(s.get(x)):
+        # Ensure Function Terms are correct updates by passing over them again.
+            s[x] = subst(s, s.get(x))
 
 def standardize_variables(sentence, dic=None):
     """Replace all the variables in sentence with new variables."""
