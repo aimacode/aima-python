@@ -1,4 +1,4 @@
-"""Markov Decision Processes (Chapter 16)
+"""Markov Decision Processes (Chapter 16-17)
 
 First we define an MDP, and the special case of a GridMDP, in which
 states are laid out in a 2-dimensional grid. We also represent a policy
