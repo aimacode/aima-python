@@ -1427,10 +1427,10 @@ def cascade_substitution(s):
     unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) 
     must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
     
-    >>> s = {x: y, y: G(z)}
+    >>> s = {z: A, y: G(z)}
     >>> cascade_substitution(s)
     >>> print(s)
-    {x: G(z), y: G(z)}
+    {z: A, y: G(A)}
     
     Parameters
     ----------
