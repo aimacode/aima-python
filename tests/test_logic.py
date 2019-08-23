@@ -340,15 +340,15 @@ def test_SAT_plan():
     transition = {'A': {'Left': 'A', 'Right': 'B'},
                   'B': {'Left': 'A', 'Right': 'C'},
                   'C': {'Left': 'B', 'Right': 'C'}}
-    assert SAT_plan('A', transition, 'C', 2) is None
-    assert SAT_plan('A', transition, 'B', 3) == ['Right']
-    assert SAT_plan('C', transition, 'A', 3) == ['Left', 'Left']
+    assert SATPlan('A', transition, 'C', 2) is None
+    assert SATPlan('A', transition, 'B', 3) == ['Right']
+    assert SATPlan('C', transition, 'A', 3) == ['Left', 'Left']
 
     transition = {(0, 0): {'Right': (0, 1), 'Down': (1, 0)},
                   (0, 1): {'Left': (1, 0), 'Down': (1, 1)},
                   (1, 0): {'Right': (1, 0), 'Up': (1, 0), 'Left': (1, 0), 'Down': (1, 0)},
                   (1, 1): {'Left': (1, 0), 'Up': (0, 1)}}
-    assert SAT_plan((0, 0), transition, (1, 1), 4) == ['Right', 'Down']
+    assert SATPlan((0, 0), transition, (1, 1), 4) == ['Right', 'Down']
 
 
 if __name__ == '__main__':

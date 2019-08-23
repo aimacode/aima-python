@@ -1,3 +1,4 @@
+pytest
 networkx==1.11
 jupyter
 pandas
