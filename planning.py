@@ -333,6 +333,69 @@ def have_cake_and_eat_cake_too():
                                            effect='Have(Cake)')])
 
 
+def monkey_and_bananas():
+    """
+    [Exercise 10.3] MONKEY AND BANANAS
+
+    The monkey-and-bananas problem is faced by a monkey in a laboratory
+    with some bananas hanging out of reach from the ceiling. A box is
+    available that will enable the monkey to reach the bananas if he
+    climbs on it. Initially, the monkey is at A, the bananas at B, and
+    the box at C. The monkey and box have height Low, but if the monkey
+    climbs onto the box he will have height High, the same as the
+    bananas. The actions available to the monkey include Go from one
+    place to another, Push an object from one place to another, ClimbUp
+    onto or ClimbDown from an object, and Grasp or UnGrasp an object.
+    The result of a Grasp is that the monkey holds the object if the
+    monkey and object are in the same place at the same height.
+
+    Example:
+    >>> from planning import *
+    >>> mb = monkey_and_bananas()
+    >>> mb.goal_test()
+    False
+    >>> mb.act(expr('Go(A, C)'))
+    >>> mb.act(expr('Push(Box, C, B)'))
+    >>> mb.act(expr('ClimbUp(B, Box)'))
+    >>> mb.act(expr('Grasp(Bananas, B, High)'))
+    >>> mb.goal_test()
+    True
+    >>> mb.act(expr('UnGrasp(Bananas)'))
+    >>> mb.act(expr('ClimbDown(Box)'))
+    >>> mb.goal_test()
+    False
+    >>> mb.act(expr('ClimbUp(B, Box)'))
+    >>> mb.act(expr('Grasp(Bananas, B, High)'))
+    >>> mb.goal_test()
+    True
+    >>>
+    """
+
+    return PlanningProblem(
+        init='At(Monkey, A) & At(Bananas, B) & At(Box, C) & Height(Monkey, Low) & Height(Box, Low) & Height(Bananas, '
+             'High) & Pushable(Box) & Climbable(Box) & Graspable(Bananas)',
+        goals='Have(Monkey, Bananas)',
+        actions=[Action('Go(x, y)',
+                        precond='At(Monkey, x) & Height(Monkey, Low)',
+                        effect='At(Monkey, y) & ~At(Monkey, x)'),
+                 Action('Push(b, x, y)',
+                        precond='At(Monkey, x) & Height(Monkey, Low) & At(b, x) & Pushable(b) & Height(b, Low)',
+                        effect='At(b, y) & At(Monkey, y) & ~At(b, x) & ~At(Monkey, x)'),
+                 Action('ClimbUp(x, b)',
+                        precond='At(Monkey, x) & Height(Monkey, Low) & At(b, x) & Climbable(b) & Height(b, Low)',
+                        effect='On(Monkey, b) & Height(Monkey, High) & ~Height(Monkey, Low)'),
+                 Action('ClimbDown(b)',
+                        precond='On(Monkey, b)',
+                        effect='~On(Monkey, b) & Height(Monkey, Low) & ~Height(Monkey, High)'),
+                 Action('Grasp(b, x, h)',
+                        precond='At(Monkey, x) & Height(Monkey, h) & Height(b, h) & At(b, x) & Graspable(b)',
+                        effect='Have(Monkey, b)'),
+                 Action('UnGrasp(b)',
+                        precond='Have(Monkey, b)',
+                        effect='~Have(Monkey, b)')
+                 ])
+
+
 def shopping_problem():
     """
     SHOPPING-PROBLEM
@@ -1139,6 +1202,11 @@ def air_cargo_graphPlan():
 def have_cake_and_eat_cake_too_graphPlan():
     """Solves the cake problem using GraphPlan"""
     return [GraphPlan(have_cake_and_eat_cake_too()).execute()[1]]
+
+
+def monkey_and_bananas_graphPlan():
+    """Solves the monkey and bananas problem using GraphPlan"""
+    return GraphPlan(monkey_and_bananas()).execute()
 
 
 def shopping_graphPlan():
