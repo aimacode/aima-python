@@ -738,7 +738,8 @@ class PeakFindingProblem(Problem):
         allowed_actions = []
         for action in self.defined_actions:
             next_state = vector_add(state, self.defined_actions[action])
-            if 0 <= next_state[0] <= self.n - 1 and 0 <= next_state[1] <= self.m - 1:
+            if next_state[0] >= 0 and next_state[1] >= 0 and next_state[0] <= self.n - 1 and next_state[
+                1] <= self.m - 1:
                 allowed_actions.append(action)
 
         return allowed_actions
