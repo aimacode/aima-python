@@ -360,8 +360,8 @@ def monkey_and_bananas():
     >>> mb.act(expr('Grasp(Bananas, B, High)'))
     >>> mb.goal_test()
     True
-    >>> mb.act(expr('UnGrasp(Bananas)'))
-    >>> mb.act(expr('ClimbDown(Box)'))
+    >>> mb.act(expr('UnGrasp(Bananas, B, High)'))
+    >>> mb.act(expr('ClimbDown(Box, B)'))
     >>> mb.goal_test()
     False
     >>> mb.act(expr('ClimbUp(B, Box)'))
@@ -384,13 +384,13 @@ def monkey_and_bananas():
                  Action('ClimbUp(x, b)',
                         precond='At(Monkey, x) & Height(Monkey, Low) & At(b, x) & Climbable(b) & Height(b, Low)',
                         effect='On(Monkey, b) & Height(Monkey, High) & ~Height(Monkey, Low)'),
-                 Action('ClimbDown(b)',
-                        precond='On(Monkey, b)',
+                 Action('ClimbDown(b, x)',
+                        precond='On(Monkey, b) & Height(Monkey, High)',
                         effect='~On(Monkey, b) & Height(Monkey, Low) & ~Height(Monkey, High)'),
                  Action('Grasp(b, x, h)',
                         precond='At(Monkey, x) & Height(Monkey, h) & Height(b, h) & At(b, x) & Graspable(b)',
                         effect='Have(Monkey, b)'),
-                 Action('UnGrasp(b)',
+                 Action('UnGrasp(b, x, h)',
                         precond='Have(Monkey, b)',
                         effect='~Have(Monkey, b)')
                  ])

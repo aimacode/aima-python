@@ -104,20 +104,6 @@ def test_have_cake_and_eat_cake_too():
     assert p.goal_test()
 
 
-def test_monkey_and_bananas():
-    p = monkey_and_bananas()
-    assert p.goal_test() is False
-    solution = [expr("Go(A, C)"),
-                expr("Push(Box, C, B)"),
-                expr("ClimbUp(B, Box)"),
-                expr("Grasp(Bananas, B, High)")]
-
-    for action in solution:
-        p.act(action)
-
-    assert p.goal_test()
-
-
 def test_shopping_problem():
     p = shopping_problem()
     assert p.goal_test() is False
@@ -169,13 +155,6 @@ def test_graphPlan():
     assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
     assert expr('Move(B, Table, C)') in sussman_anomaly_solution
     assert expr('Move(A, Table, B)') in sussman_anomaly_solution
-
-    monkey_and_bananas_solution = monkey_and_bananas_graphPlan()
-    monkey_and_bananas_solution = linearize(monkey_and_bananas_solution)
-    assert expr('Go(A, C)') in monkey_and_bananas_solution
-    assert expr('Push(Box, C, B)') in monkey_and_bananas_solution
-    assert expr('ClimbUp(B, Box)') in monkey_and_bananas_solution
-    assert expr('Grasp(Bananas, B, High)') in monkey_and_bananas_solution
 
     shopping_problem_solution = shopping_graphPlan()
     shopping_problem_solution = linearize(shopping_problem_solution)
