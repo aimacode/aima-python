@@ -101,8 +101,8 @@ class InformationGatheringAgent(Agent):
 
 
 # _________________________________________________________________________
-# chapter 25
-## TODO: Implement continuous map for MonteCarlo similar to Fig25.10 from the book
+# chapter 25 Robotics
+# TODO: Implement continuous map for MonteCarlo similar to Fig25.10 from the book
 
 
 class MCLmap:
