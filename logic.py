@@ -1243,11 +1243,11 @@ class HybridWumpusAgent(Agent):
 # ______________________________________________________________________________
 
 
-def SATPlan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
+def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
     [Figure 7.22]
     >>> transition = {'A': {'Left': 'A', 'Right': 'B'}, 'B': {'Left': 'A', 'Right': 'C'}, 'C': {'Left': 'B', 'Right': 'C'}}
-    >>> SATPlan('A', transition, 'C', 2) is None
+    >>> SAT_plan('A', transition, 'C', 2) is None
     True
     """
 
