@@ -1428,9 +1428,10 @@ def cascade_substitution(s):
     must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
     
     >>> s = {z: A, y: G(z)}
+    >>> goal = {z: A, y: G(A)}
     >>> cascade_substitution(s)
-    >>> print(s)
-    {z: A, y: G(A)}
+    >>> s == goal
+    True
     
     Parameters
     ----------
