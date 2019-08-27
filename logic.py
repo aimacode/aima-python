@@ -1436,8 +1436,8 @@ def cascade_substitution(s):
 
     >>> s = {x: y, y: G(z)}
     >>> cascade_substitution(s)
-    >>> s
-    {x: G(z), y: G(z)}
+    >>> s == {x: G(z), y: G(z)}
+    True
     """
 
     for x in s:
