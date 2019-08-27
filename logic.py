@@ -195,6 +195,7 @@ def parse_definite_clause(s):
 # Useful constant Exprs used in examples and code:
 A, B, C, D, E, F, G, P, Q, a, x, y, z, u = map(Expr, 'ABCDEFGPQaxyzu')
 
+
 # ______________________________________________________________________________
 
 
@@ -1416,6 +1417,7 @@ def subst(s, x):
     else:
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
+
 def cascade_substitution(s):
     """This method allows to return a correct unifier in normal form
     and perform a cascade substitution to s.
@@ -1429,20 +1431,21 @@ def cascade_substitution(s):
     
     >>> s = {x: y, y: G(z)}
     >>> cascade_substitution(s)
-    >>> print(s)
+    >>> s
     {x: G(z), y: G(z)}
     
     Parameters
     ----------
     s : Dictionary
-        This contain a substution
+        This contain a substitution
     """
 
     for x in s:
         s[x] = subst(s, s.get(x))
         if isinstance(s.get(x), Expr) and not is_variable(s.get(x)):
-        # Ensure Function Terms are correct updates by passing over them again.
+            # Ensure Function Terms are correct updates by passing over them again.
             s[x] = subst(s, s.get(x))
+
 
 def standardize_variables(sentence, dic=None):
     """Replace all the variables in sentence with new variables."""
