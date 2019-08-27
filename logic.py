@@ -1428,16 +1428,16 @@ def cascade_substitution(s):
     This issue fix: https://github.com/aimacode/aima-python/issues/1053
     unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) 
     must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
-    
-    >>> s = {x: y, y: G(z)}
-    >>> cascade_substitution(s)
-    >>> s
-    {x: G(z), y: G(z)}
-    
+
     Parameters
     ----------
     s : Dictionary
         This contain a substitution
+
+    >>> s = {x: y, y: G(z)}
+    >>> cascade_substitution(s)
+    >>> s
+    {x: G(z), y: G(z)}
     """
 
     for x in s:

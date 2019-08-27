@@ -171,6 +171,7 @@ def test_unify():
     assert unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) == {z: A, x: F(A), u: G(y)}
     assert unify(expr('P(x, A, F(G(y)))'), expr('P(F(z), z, F(u))')) == {x: F(A), z: A, u: G(y)}
 
+
 def test_pl_fc_entails():
     assert pl_fc_entails(horn_clauses_KB, expr('Q'))
     assert pl_fc_entails(definite_clauses_KB, expr('G'))
