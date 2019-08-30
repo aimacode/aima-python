@@ -1,6 +1,7 @@
 import pytest
 
 from planning import *
+from search import astar_search
 from utils import expr
 from logic import FolKB, conjuncts
 
@@ -48,6 +49,22 @@ def test_air_cargo_2():
                   expr("Unload(C1, P1, JFK)")]
 
     for action in solution_2:
+        p.act(action)
+
+    assert p.goal_test()
+
+
+def test_air_cargo_3():
+    p = air_cargo()
+    assert p.goal_test() is False
+    solution_3 = [expr("Load(C2, P2, JFK)"),
+                  expr("Fly(P2, JFK, SFO)"),
+                  expr("Unload (C2, P2, SFO)"),
+                  expr("Load(C1, P2, SFO)"),
+                  expr("Fly(P2, SFO, JFK)"),
+                  expr("Unload(C1, P2, JFK)")]
+
+    for action in solution_3:
         p.act(action)
 
     assert p.goal_test()
@@ -120,8 +137,8 @@ def test_shopping_problem():
 
 
 def test_graph_call():
-    planningproblem = spare_tire()
-    graph = Graph(planningproblem)
+    planning_problem = spare_tire()
+    graph = Graph(planning_problem)
 
     levels_size = len(graph.levels)
     graph()
@@ -163,6 +180,42 @@ def test_graphPlan():
     assert expr('Buy(Drill, HW)') in shopping_problem_solution
     assert expr('Buy(Banana, SM)') in shopping_problem_solution
     assert expr('Buy(Milk, SM)') in shopping_problem_solution
+
+
+def test_forwardPlanner():
+    spare_tire_solution = astar_search(ForwardPlanner(spare_tire())).solution()
+    spare_tire_solution = list(map(lambda action: Expr(action.name, *action.args), spare_tire_solution))
+    assert expr('Remove(Flat, Axle)') in spare_tire_solution
+    assert expr('Remove(Spare, Trunk)') in spare_tire_solution
+    assert expr('PutOn(Spare, Axle)') in spare_tire_solution
+
+    cake_solution = astar_search(ForwardPlanner(have_cake_and_eat_cake_too())).solution()
+    cake_solution = list(map(lambda action: Expr(action.name, *action.args), cake_solution))
+    assert expr('Eat(Cake)') in cake_solution
+    assert expr('Bake(Cake)') in cake_solution
+
+    air_cargo_solution = astar_search(ForwardPlanner(air_cargo())).solution()
+    air_cargo_solution = list(map(lambda action: Expr(action.name, *action.args), air_cargo_solution))
+    assert expr('Load(C2, P2, JFK)') in air_cargo_solution
+    assert expr('Fly(P2, JFK, SFO)') in air_cargo_solution
+    assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
+    assert expr('Load(C1, P2, SFO)') in air_cargo_solution
+    assert expr('Fly(P2, SFO, JFK)') in air_cargo_solution
+    assert expr('Unload(C1, P2, JFK)') in air_cargo_solution
+
+    sussman_anomaly_solution = astar_search(ForwardPlanner(three_block_tower())).solution()
+    sussman_anomaly_solution = list(map(lambda action: Expr(action.name, *action.args), sussman_anomaly_solution))
+    assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
+    assert expr('Move(B, Table, C)') in sussman_anomaly_solution
+    assert expr('Move(A, Table, B)') in sussman_anomaly_solution
+
+    shopping_problem_solution = astar_search(ForwardPlanner(shopping_problem())).solution()
+    shopping_problem_solution = list(map(lambda action: Expr(action.name, *action.args), shopping_problem_solution))
+    assert expr('Go(Home, SM)') in shopping_problem_solution
+    assert expr('Buy(Banana, SM)') in shopping_problem_solution
+    assert expr('Buy(Milk, SM)') in shopping_problem_solution
+    assert expr('Go(SM, HW)') in shopping_problem_solution
+    assert expr('Buy(Drill, HW)') in shopping_problem_solution
 
 
 def test_linearize_class():
@@ -212,12 +265,12 @@ def test_linearize_class():
 
 
 def test_expand_actions():
-    assert len(PartialOrderPlanner(spare_tire()).expand_actions()) == 16
-    assert len(PartialOrderPlanner(air_cargo()).expand_actions()) == 360
-    assert len(PartialOrderPlanner(have_cake_and_eat_cake_too()).expand_actions()) == 2
-    assert len(PartialOrderPlanner(socks_and_shoes()).expand_actions()) == 4
-    assert len(PartialOrderPlanner(simple_blocks_world()).expand_actions()) == 12
-    assert len(PartialOrderPlanner(three_block_tower()).expand_actions()) == 36
+    assert len(spare_tire().expand_actions()) == 16
+    assert len(air_cargo().expand_actions()) == 360
+    assert len(have_cake_and_eat_cake_too().expand_actions()) == 2
+    assert len(socks_and_shoes().expand_actions()) == 4
+    assert len(simple_blocks_world().expand_actions()) == 12
+    assert len(three_block_tower().expand_actions()) == 36
 
 
 def test_find_open_precondition():
@@ -273,7 +326,7 @@ def test_partial_order_planner():
 
 def test_double_tennis():
     p = double_tennis_problem()
-    assert not goal_test(p.goal, p.initial)
+    assert not goal_test(p.goals, p.initial)
 
     solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
                 expr("Hit(A, Ball, RightBaseLine)"),
@@ -282,7 +335,7 @@ def test_double_tennis():
     for action in solution:
         p.act(action)
 
-    assert goal_test(p.goal, p.initial)
+    assert goal_test(p.goals, p.initial)
 
 
 def test_job_shop_problem():
