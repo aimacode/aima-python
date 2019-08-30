@@ -40,6 +40,7 @@ def count(seq):
     """Count the number of items in sequence that are interpreted as true."""
     return sum(map(bool, seq))
 
+
 def multimap(items):
     """Given (key, val) pairs, return {key: [val, ....], ...}."""
     result = collections.defaultdict(list)
@@ -47,11 +48,13 @@ def multimap(items):
         result[key].append(val)
     return dict(result)
 
+
 def multimap_items(mmap):
     """Yield all (key, val) pairs stored in the multimap."""
     for (key, vals) in mmap.items():
         for val in vals:
             yield key, val
+
 
 def product(numbers):
     """Return the product of the numbers, e.g. product([2, 3, 10]) == 60"""
@@ -64,6 +67,7 @@ def product(numbers):
 def first(iterable, default=None):
     """Return the first element of an iterable; or default."""
     return next(iter(iterable), default)
+
 
 def is_in(elt, seq):
     """Similar to (elt in seq), but compares with 'is', not '=='."""
@@ -239,7 +243,8 @@ def weighted_choice(choices):
         if upto + w >= r:
             return c, w
         upto += w
-	
+
+
 def rounder(numbers, d=4):
     """Round a single number, or sequence of numbers, to d decimal places."""
     if isinstance(numbers, (int, float)):
@@ -249,7 +254,7 @@ def rounder(numbers, d=4):
         return constructor(rounder(n, d) for n in numbers)
 
 
-def num_or_str(x): # TODO: rename as `atom`
+def num_or_str(x):  # TODO: rename as `atom`
     """The argument is a string; convert to a number if
        possible, or strip it."""
     try:
@@ -292,52 +297,60 @@ def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
 
-
 def relu_derivative(value):
-	if value > 0:
-		return 1
-	else:
-		return 0
+    if value > 0:
+        return 1
+    else:
+        return 0
+
 
 def elu(x, alpha=0.01):
-	if x > 0:
-		return x
-	else:
-		return alpha * (math.exp(x) - 1)
-		
-def elu_derivative(value, alpha = 0.01):
-	if value > 0:
-		return 1
-	else:
-		return alpha * math.exp(value)
+    if x > 0:
+        return x
+    else:
+        return alpha * (math.exp(x) - 1)
+
+
+def elu_derivative(value, alpha=0.01):
+    if value > 0:
+        return 1
+    else:
+        return alpha * math.exp(value)
+
 
 def tanh(x):
-	return np.tanh(x)
+    return np.tanh(x)
+
 
 def tanh_derivative(value):
-	return (1 - (value ** 2))
+    return (1 - (value ** 2))
 
-def leaky_relu(x, alpha = 0.01):
-	if x > 0:
-		return x
-	else:
-		return alpha * x
+
+def leaky_relu(x, alpha=0.01):
+    if x > 0:
+        return x
+    else:
+        return alpha * x
+
 
 def leaky_relu_derivative(value, alpha=0.01):
-	if value > 0:
-		return 1
-	else:
-		return alpha
+    if value > 0:
+        return 1
+    else:
+        return alpha
+
 
 def relu(x):
-	return max(0, x)
-	
+    return max(0, x)
+
+
 def relu_derivative(value):
-	if value > 0:
-		return 1
-	else:
-		return 0
-		
+    if value > 0:
+        return 1
+    else:
+        return 0
+
+
 def step(x):
     """Return activation value of x with sign function"""
     return 1 if x >= 0 else 0
@@ -604,7 +617,7 @@ class Expr(object):
         return Expr('@', lhs, self)
 
     def __call__(self, *args):
-        "Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."
+        """Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."""
         if self.args:
             raise ValueError('can only do a call for a Symbol, not an Expr')
         else:
@@ -612,10 +625,14 @@ class Expr(object):
 
     # Equality and repr
     def __eq__(self, other):
-        "'x == y' evaluates to True or False; does not build an Expr."
+        """x == y' evaluates to True or False; does not build an Expr."""
         return (isinstance(other, Expr)
                 and self.op == other.op
                 and self.args == other.args)
+
+    def __lt__(self, other):
+        return (isinstance(other, Expr)
+                and str(self) < str(other))
 
     def __hash__(self):
         return hash(self.op) ^ hash(self.args)
@@ -798,6 +815,7 @@ class PriorityQueue:
 # Monte Carlo tree node and ucb function
 class MCT_Node:
     """Node in the Monte Carlo search tree, keeps track of the children states"""
+
     def __init__(self, parent=None, state=None, U=0, N=0):
         self.__dict__.update(parent=parent, state=state, U=U, N=N)
         self.children = {}
@@ -806,7 +824,7 @@ class MCT_Node:
 
 def ucb(n, C=1.4):
     return (float('inf') if n.N == 0 else
-        n.U / n.N + C * math.sqrt(math.log(n.parent.N)/n.N))
+            n.U / n.N + C * math.sqrt(math.log(n.parent.N) / n.N))
 
 
 # ______________________________________________________________________________
