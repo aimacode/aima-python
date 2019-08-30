@@ -70,14 +70,14 @@ def test_air_cargo_3():
     assert p.goal_test()
 
 
-def test_spare_tire():
+def test_spare_tire_1():
     p = spare_tire()
     assert p.goal_test() is False
-    solution = [expr("Remove(Flat, Axle)"),
-                expr("Remove(Spare, Trunk)"),
-                expr("PutOn(Spare, Axle)")]
+    solution_1 = [expr("Remove(Flat, Axle)"),
+                  expr("Remove(Spare, Trunk)"),
+                  expr("PutOn(Spare, Axle)")]
 
-    for action in solution:
+    for action in solution_1:
         p.act(action)
 
     assert p.goal_test()
@@ -102,6 +102,19 @@ def test_three_block_tower():
     solution = [expr("MoveToTable(C, A)"),
                 expr("Move(B, Table, C)"),
                 expr("Move(A, Table, B)")]
+
+    for action in solution:
+        p.act(action)
+
+    assert p.goal_test()
+
+
+def test_simple_blocks_world():
+    p = simple_blocks_world()
+    assert p.goal_test() is False
+    solution = [expr('ToTable(A, B)'),
+                expr('FromTable(B, A)'),
+                expr('FromTable(C, B)')]
 
     for action in solution:
         p.act(action)
@@ -173,6 +186,12 @@ def test_graphPlan():
     assert expr('Move(B, Table, C)') in sussman_anomaly_solution
     assert expr('Move(A, Table, B)') in sussman_anomaly_solution
 
+    blocks_world_solution = simple_blocks_world_graphPlan()
+    blocks_world_solution = linearize(blocks_world_solution)
+    assert expr('ToTable(A, B)') in blocks_world_solution
+    assert expr('FromTable(B, A)') in blocks_world_solution
+    assert expr('FromTable(C, B)') in blocks_world_solution
+
     shopping_problem_solution = shopping_graphPlan()
     shopping_problem_solution = linearize(shopping_problem_solution)
     assert expr('Go(Home, HW)') in shopping_problem_solution
@@ -208,6 +227,12 @@ def test_forwardPlanner():
     assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
     assert expr('Move(B, Table, C)') in sussman_anomaly_solution
     assert expr('Move(A, Table, B)') in sussman_anomaly_solution
+
+    blocks_world_solution = astar_search(ForwardPlanner(simple_blocks_world())).solution()
+    blocks_world_solution = list(map(lambda action: Expr(action.name, *action.args), blocks_world_solution))
+    assert expr('ToTable(A, B)') in blocks_world_solution
+    assert expr('FromTable(B, A)') in blocks_world_solution
+    assert expr('FromTable(C, B)') in blocks_world_solution
 
     shopping_problem_solution = astar_search(ForwardPlanner(shopping_problem())).solution()
     shopping_problem_solution = list(map(lambda action: Expr(action.name, *action.args), shopping_problem_solution))
