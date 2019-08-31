@@ -487,7 +487,10 @@ def double_tennis_problem():
                         effect='At(actor, to) & ~At(actor, loc)')])
 
 
-class ForwardPlanner(search.Problem):
+class ForwardPlan(search.Problem):
+    """
+    Forward state-space search [Section 10.2.1]
+    """
 
     def __init__(self, planning_problem):
         super().__init__(associate('&', planning_problem.initial), associate('&', planning_problem.goals))
