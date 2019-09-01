@@ -415,11 +415,11 @@ def conv1D(X, K):
     """1D convolution. X: input vector; K: kernel vector"""
     return np.convolve(X, K, mode='same')
 
-
 def GaussianKernel(size=3):
     mean = (size-1)/2
     stdev = 0.1
     return [gaussian(mean, stdev, x) for x in range(size)]
+
 
 def gaussian_kernel_1d(size=3, sigma=0.5):
     mean = (size-1)/2
