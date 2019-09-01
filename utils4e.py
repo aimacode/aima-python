@@ -413,11 +413,7 @@ def random_weights(min_value, max_value, num_weights):
 
 def conv1D(X, K):
     """1D convolution. X: input vector; K: kernel vector"""
-    K = K[::-1]
-    res = []
-    for x in range(len(X)):
-        res += [sum([X[x+k]*K[k]] for k in K)]
-    return res
+    return np.convolve(X, K, mode='same')
 
 
 def GaussianKernel(size=3):
