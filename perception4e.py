@@ -32,12 +32,12 @@ def gradient_edge_detector(image):
     :return: numpy ndarray, representing a gray scale image
     """
     if not isinstance(image, np.ndarray):
-        img = np.asarray(image)
+        image = np.asarray(image)
     # gradient filters of x and y direction edges
     x_filter, y_filter = np.array([[1, -1]]), np.array([[1], [-1]])
     # convolution between filter and image to get edges
-    y_edges = scipy.signal.convolve2d(img, x_filter, 'same')
-    x_edges = scipy.signal.convolve2d(img, y_filter, 'same')
+    y_edges = scipy.signal.convolve2d(image, x_filter, 'same')
+    x_edges = scipy.signal.convolve2d(image, y_filter, 'same')
     edges = array_normalization(x_edges+y_edges, 0, 255)
     return edges
 
@@ -45,14 +45,14 @@ def gradient_edge_detector(image):
 def gaussian_derivative_edge_detector(image):
     """Image edge detector using derivative of gaussian kernels"""
     if not isinstance(image, np.ndarray):
-        img = np.asarray(image)
+        image = np.asarray(image)
     gaussian_filter = gaussian_kernel_2d()
     # init derivative of gaussian filters
     x_filter = scipy.signal.convolve2d(gaussian_filter, np.asarray([[1, -1]]), 'same')
     y_filter = scipy.signal.convolve2d(gaussian_filter, np.asarray([[1], [-1]]), 'same')
     # extract edges using convolution
-    y_edges = scipy.signal.convolve2d(img, x_filter, 'same')
-    x_edges = scipy.signal.convolve2d(img, y_filter, 'same')
+    y_edges = scipy.signal.convolve2d(image, x_filter, 'same')
+    x_edges = scipy.signal.convolve2d(image, y_filter, 'same')
     edges = array_normalization(x_edges+y_edges, 0, 255)
     return edges
 
@@ -60,11 +60,11 @@ def gaussian_derivative_edge_detector(image):
 def laplacian_edge_detector(image):
     """Extract image edge with laplacian filter"""
     if not isinstance(image, np.ndarray):
-        img = np.asarray(image)
+        image = np.asarray(image)
     # init laplacian filter
     laplacian_kernel = np.asarray([[0, -1, 0], [-1, 4, -1], [0, -1, 0]])
     # extract edges with convolution
-    edges = scipy.signal.convolve2d(img, laplacian_kernel, 'same')
+    edges = scipy.signal.convolve2d(image, laplacian_kernel, 'same')
     edges = array_normalization(edges, 0, 255)
     return edges
 
@@ -169,9 +169,10 @@ def group_contour_detection(image, cluster_num=2):
     res = center[label.flatten()]
     res2 = res.reshape((img.shape))
     # show the image
-    cv2.imshow('res2', res2)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('res2', res2)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    return res2
 
 
 def image_to_graph(image):
