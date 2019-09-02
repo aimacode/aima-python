@@ -201,7 +201,7 @@ def test_graphPlan():
     assert expr('Buy(Milk, SM)') in shopping_problem_solution
 
 
-def test_forwardPlanner():
+def test_forwardPlan():
     spare_tire_solution = astar_search(ForwardPlan(spare_tire())).solution()
     spare_tire_solution = list(map(lambda action: Expr(action.name, *action.args), spare_tire_solution))
     assert expr('Remove(Flat, Axle)') in spare_tire_solution
@@ -213,34 +213,30 @@ def test_forwardPlanner():
     assert expr('Eat(Cake)') in cake_solution
     assert expr('Bake(Cake)') in cake_solution
 
-    air_cargo_solution = astar_search(ForwardPlan(air_cargo())).solution()
-    air_cargo_solution = list(map(lambda action: Expr(action.name, *action.args), air_cargo_solution))
-    assert expr('Load(C2, P2, JFK)') in air_cargo_solution
-    assert expr('Fly(P2, JFK, SFO)') in air_cargo_solution
-    assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
-    assert expr('Load(C1, P2, SFO)') in air_cargo_solution
-    assert expr('Fly(P2, SFO, JFK)') in air_cargo_solution
-    assert expr('Unload(C1, P2, JFK)') in air_cargo_solution
-
-    sussman_anomaly_solution = astar_search(ForwardPlan(three_block_tower())).solution()
-    sussman_anomaly_solution = list(map(lambda action: Expr(action.name, *action.args), sussman_anomaly_solution))
-    assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
-    assert expr('Move(B, Table, C)') in sussman_anomaly_solution
-    assert expr('Move(A, Table, B)') in sussman_anomaly_solution
-
     blocks_world_solution = astar_search(ForwardPlan(simple_blocks_world())).solution()
     blocks_world_solution = list(map(lambda action: Expr(action.name, *action.args), blocks_world_solution))
     assert expr('ToTable(A, B)') in blocks_world_solution
     assert expr('FromTable(B, A)') in blocks_world_solution
     assert expr('FromTable(C, B)') in blocks_world_solution
 
-    shopping_problem_solution = astar_search(ForwardPlan(shopping_problem())).solution()
-    shopping_problem_solution = list(map(lambda action: Expr(action.name, *action.args), shopping_problem_solution))
-    assert expr('Go(Home, SM)') in shopping_problem_solution
-    assert expr('Buy(Banana, SM)') in shopping_problem_solution
-    assert expr('Buy(Milk, SM)') in shopping_problem_solution
-    assert expr('Go(SM, HW)') in shopping_problem_solution
-    assert expr('Buy(Drill, HW)') in shopping_problem_solution
+
+def test_backwardPlan():
+    spare_tire_solution = astar_search(BackwardPlan(spare_tire())).solution()
+    spare_tire_solution = list(map(lambda action: Expr(action.name, *action.args), spare_tire_solution))
+    assert expr('Remove(Flat, Axle)') in spare_tire_solution
+    assert expr('Remove(Spare, Trunk)') in spare_tire_solution
+    assert expr('PutOn(Spare, Axle)') in spare_tire_solution
+
+    cake_solution = astar_search(BackwardPlan(have_cake_and_eat_cake_too())).solution()
+    cake_solution = list(map(lambda action: Expr(action.name, *action.args), cake_solution))
+    assert expr('Eat(Cake)') in cake_solution
+    assert expr('Bake(Cake)') in cake_solution
+
+    blocks_world_solution = astar_search(BackwardPlan(simple_blocks_world())).solution()
+    blocks_world_solution = list(map(lambda action: Expr(action.name, *action.args), blocks_world_solution))
+    assert expr('ToTable(A, B)') in blocks_world_solution
+    assert expr('FromTable(B, A)') in blocks_world_solution
+    assert expr('FromTable(C, B)') in blocks_world_solution
 
 
 def test_linearize_class():

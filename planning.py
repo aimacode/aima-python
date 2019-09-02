@@ -24,8 +24,7 @@ class PlanningProblem:
         self.goals = self.convert(goals)
         self.actions = actions
 
-    @staticmethod
-    def convert(clauses):
+    def convert(self, clauses):
         """Converts strings into exprs"""
         if not isinstance(clauses, Expr):
             if len(clauses) > 0:
@@ -137,7 +136,7 @@ class Action:
         return self.act(kb, args)
 
     def __repr__(self):
-        return '{}({})'.format(self.__class__.__name__, Expr(self.name, *self.args))
+        return '{}'.format(Expr(self.name, *self.args))
 
     def convert(self, clauses):
         """Converts strings into Exprs"""
@@ -158,6 +157,13 @@ class Action:
                 pass
 
         return clauses
+
+    def relaxed(self):
+        """
+        Removes delete list from the action by removing all negative literals from action's effect
+        """
+        return Action(Expr(self.name, *self.args), self.precond,
+                      list(filter(lambda effect: not effect.op.startswith('Not'), self.effect)))
 
     def substitute(self, e, args):
         """Replaces variables in expression with their respective Propositional symbol"""
@@ -492,13 +498,14 @@ class ForwardPlan(search.Problem):
     Forward state-space search [Section 10.2.1]
     """
 
-    def __init__(self, planning_problem):
+    def __init__(self, planning_problem, ignore_delete_lists_heuristic=True):
         super().__init__(associate('&', planning_problem.initial), associate('&', planning_problem.goals))
         self.planning_problem = planning_problem
         self.expanded_actions = self.planning_problem.expand_actions()
+        self.use_heuristic = ignore_delete_lists_heuristic
 
     def actions(self, state):
-        return [action for action in self.expanded_actions if action.check_precond(conjuncts(state), action.args)]
+        return [action for action in self.expanded_actions if all(pre in conjuncts(state) for pre in action.precond)]
 
     def result(self, state, action):
         return associate('&', action(conjuncts(state), action.args).clauses)
@@ -507,6 +514,72 @@ class ForwardPlan(search.Problem):
         return all(goal in conjuncts(state) for goal in self.planning_problem.goals)
 
     def h(self, state):
+        """
+        Computes ignore delete lists heuristic by creating a relaxed version of the original problem (we can do that
+        by removing the delete lists from all actions, ie. removing all negative literals from effects) that will be
+        easier to solve through GraphPlan and where the length of the solution will serve as a good heuristic.
+        """
+        if self.use_heuristic:
+            relaxed_planning_problem = PlanningProblem(initial=state.state,
+                                                       goals=self.goal,
+                                                       actions=list(filter(lambda action: not action.effect,
+                                                                           [action.relaxed() for action in
+                                                                            self.planning_problem.actions])))
+            relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
+            return len(linearize(relaxed_solution)) if relaxed_solution else float('inf')
+        return 0
+
+
+class BackwardPlan(search.Problem):
+    """
+    Backward relevant-states search [Section 10.2.2]
+    """
+
+    def __init__(self, planning_problem, ignore_delete_lists_heuristic=True):
+        super().__init__(associate('&', planning_problem.goals), associate('&', planning_problem.initial))
+        self.planning_problem = planning_problem
+        self.expanded_actions = self.planning_problem.expand_actions()
+        self.use_heuristic = ignore_delete_lists_heuristic
+
+    def actions(self, subgoal):
+        """
+        Returns True if the action is relevant to the subgoal, ie.:
+        - the action achieves an element of the effects
+        - the action doesn't delete something that needs to be achieved
+        - the preconditions are consistent with other subgoals that need to be achieved
+        """
+
+        def negate_clause(clause):
+            return Expr(clause.op.replace('Not', ''), *clause.args) if clause.op.startswith('Not') else Expr(
+                'Not' + clause.op, *clause.args)
+
+        return [action for action in self.expanded_actions if
+                (any(prop in action.effect for prop in conjuncts(subgoal)) and
+                 not any(negate_clause(prop) in conjuncts(subgoal) for prop in action.effect) and
+                 not any(negate_clause(prop) in conjuncts(subgoal) and negate_clause(prop) not in action.effect
+                         for prop in action.precond))]
+
+    def result(self, subgoal, action):
+        # g' = g - effects(a) + preconds(a)
+        return associate('&', set(set(conjuncts(subgoal)).difference(action.effect)).union(action.precond))
+
+    def goal_test(self, subgoal):
+        return all(goal in conjuncts(self.goal) for goal in conjuncts(subgoal))
+
+    def h(self, subgoal):
+        """
+        Computes ignore delete lists heuristic by creating a relaxed version of the original problem (we can do that
+        by removing the delete lists from all actions, ie. removing all negative literals from effects) that will be
+        easier to solve through GraphPlan and where the length of the solution will serve as a good heuristic.
+        """
+        if self.use_heuristic:
+            relaxed_planning_problem = PlanningProblem(initial=subgoal.state,
+                                                       goals=self.goal,
+                                                       actions=list(filter(lambda action: not action.effect,
+                                                                           [action.relaxed() for action in
+                                                                            self.planning_problem.actions])))
+            relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
+            return len(linearize(relaxed_solution)) if relaxed_solution else float('inf')
         return 0
 
 

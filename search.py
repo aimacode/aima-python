@@ -67,7 +67,7 @@ class Problem(object):
         return c + 1
 
     def value(self, state):
-        """For optimization problems, each state has a value.  Hill-climbing
+        """For optimization problems, each state has a value. Hill-climbing
         and related algorithms try to maximize this value."""
         raise NotImplementedError
 
@@ -633,8 +633,7 @@ def hill_climbing(problem):
         neighbors = current.expand(problem)
         if not neighbors:
             break
-        neighbor = argmax_random_tie(neighbors,
-                                     key=lambda node: problem.value(node.state))
+        neighbor = argmax_random_tie(neighbors, key=lambda node: problem.value(node.state))
         if problem.value(neighbor.state) <= problem.value(current.state):
             break
         current = neighbor
@@ -742,8 +741,7 @@ class PeakFindingProblem(Problem):
         allowed_actions = []
         for action in self.defined_actions:
             next_state = vector_add(state, self.defined_actions[action])
-            if next_state[0] >= 0 and next_state[1] >= 0 and next_state[0] <= self.n - 1 and next_state[
-                1] <= self.m - 1:
+            if 0 <= next_state[0] <= self.n - 1 and next_state[1] >= 0 and next_state[1] <= self.m - 1:
                 allowed_actions.append(action)
 
         return allowed_actions
