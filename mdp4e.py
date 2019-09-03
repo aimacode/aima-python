@@ -530,19 +530,19 @@ def double_tennis_problem():
     Example:
         >>> from planning import *
         >>> dtp = double_tennis_problem()
-        >>> goal_test(dtp.goals, dtp.init)
+        >>> goal_test(dtp.goals, dtp.initial)
         False
         >>> dtp.act(expr('Go(A, RightBaseLine, LeftBaseLine)'))
         >>> dtp.act(expr('Hit(A, Ball, RightBaseLine)'))
-        >>> goal_test(dtp.goals, dtp.init)
+        >>> goal_test(dtp.goals, dtp.initial)
         False
         >>> dtp.act(expr('Go(A, LeftNet, RightBaseLine)'))
-        >>> goal_test(dtp.goals, dtp.init)
+        >>> goal_test(dtp.goals, dtp.initial)
         True
     """
 
     return PlanningProblem(
-        init='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
+        initial='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
         goals='Returned(Ball) & At(a, LeftNet) & At(a, RightNet)',
         actions=[Action('Hit(actor, Ball, loc)',
                         precond='Approaching(Ball, loc) & At(actor, loc)',
