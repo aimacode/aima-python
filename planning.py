@@ -498,11 +498,10 @@ class ForwardPlan(search.Problem):
     Forward state-space search [Section 10.2.1]
     """
 
-    def __init__(self, planning_problem, ignore_delete_lists_heuristic=True):
+    def __init__(self, planning_problem):
         super().__init__(associate('&', planning_problem.initial), associate('&', planning_problem.goals))
         self.planning_problem = planning_problem
         self.expanded_actions = self.planning_problem.expand_actions()
-        self.use_heuristic = ignore_delete_lists_heuristic
 
     def actions(self, state):
         return [action for action in self.expanded_actions if all(pre in conjuncts(state) for pre in action.precond)]
@@ -519,15 +518,13 @@ class ForwardPlan(search.Problem):
         by removing the delete lists from all actions, ie. removing all negative literals from effects) that will be
         easier to solve through GraphPlan and where the length of the solution will serve as a good heuristic.
         """
-        if self.use_heuristic:
-            relaxed_planning_problem = PlanningProblem(initial=state.state,
-                                                       goals=self.goal,
-                                                       actions=list(filter(lambda action: not action.effect,
-                                                                           [action.relaxed() for action in
-                                                                            self.planning_problem.actions])))
-            relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
-            return len(linearize(relaxed_solution)) if relaxed_solution else float('inf')
-        return 0
+        relaxed_planning_problem = PlanningProblem(initial=state.state,
+                                                   goals=self.goal,
+                                                   actions=list(filter(lambda action: not action.effect,
+                                                                       [action.relaxed() for action in
+                                                                        self.planning_problem.actions])))
+        relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
+        return len(linearize(relaxed_solution)) if relaxed_solution else float('inf')
 
 
 class BackwardPlan(search.Problem):
@@ -535,11 +532,10 @@ class BackwardPlan(search.Problem):
     Backward relevant-states search [Section 10.2.2]
     """
 
-    def __init__(self, planning_problem, ignore_delete_lists_heuristic=True):
+    def __init__(self, planning_problem):
         super().__init__(associate('&', planning_problem.goals), associate('&', planning_problem.initial))
         self.planning_problem = planning_problem
         self.expanded_actions = self.planning_problem.expand_actions()
-        self.use_heuristic = ignore_delete_lists_heuristic
 
     def actions(self, subgoal):
         """
@@ -572,15 +568,13 @@ class BackwardPlan(search.Problem):
         by removing the delete lists from all actions, ie. removing all negative literals from effects) that will be
         easier to solve through GraphPlan and where the length of the solution will serve as a good heuristic.
         """
-        if self.use_heuristic:
-            relaxed_planning_problem = PlanningProblem(initial=subgoal.state,
-                                                       goals=self.goal,
-                                                       actions=list(filter(lambda action: not action.effect,
-                                                                           [action.relaxed() for action in
-                                                                            self.planning_problem.actions])))
-            relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
-            return len(linearize(relaxed_solution)) if relaxed_solution else float('inf')
-        return 0
+        relaxed_planning_problem = PlanningProblem(initial=subgoal.state,
+                                                   goals=self.goal,
+                                                   actions=list(filter(lambda action: not action.effect,
+                                                                       [action.relaxed() for action in
+                                                                        self.planning_problem.actions])))
+        relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
+        return len(linearize(relaxed_solution)) if relaxed_solution else float('inf')
 
 
 class Level:
