@@ -1,6 +1,6 @@
 from utils4e import (
     removeall, unique, mode, argmax_random_tie, isclose, dotproduct, weighted_sample_with_replacement,
-    num_or_str, normalize, clip, print_table, open_data, probability, random_weights
+    num_or_str, normalize, clip, print_table, open_data, probability, random_weights, euclidean_distance
 )
 
 import copy
@@ -382,8 +382,8 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
         examples = dataset.examples
         random.shuffle(dataset.examples)
         for fold in range(k):
-            train_data, val_data = train_test_split(dataset, fold * (n / k),
-                                                    (fold + 1) * (n / k))
+            train_data, val_data = train_test_split(dataset, fold * (n // k),
+                                                    (fold + 1) * (n // k))
             dataset.examples = train_data
             h = learner(dataset, size)
             fold_errs += err_ratio(h, dataset, train_data)
@@ -391,6 +391,37 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
             # Reverting back to original once test is completed
             dataset.examples = examples
         return fold_errs/k
+
+
+def cross_validation_nosize(learner, dataset, k=10, trials=1):
+    """Do k-fold cross_validate and return their mean.
+    That is, keep out 1/k of the examples for testing on each of k runs.
+    Shuffle the examples first; if trials>1, average over several shuffles.
+    Returns Training error, Validataion error"""
+    k = k or len(dataset.examples)
+    if trials > 1:
+        trial_errs = 0
+        for t in range(trials):
+            errs = cross_validation(learner, dataset,
+                                          k=10, trials=1)
+            trial_errs += errs
+        return trial_errs/trials
+    else:
+        fold_errs = 0
+        n = len(dataset.examples)
+        examples = dataset.examples
+        random.shuffle(dataset.examples)
+        for fold in range(k):
+            train_data, val_data = train_test_split(dataset, fold * (n // k),
+                                                    (fold + 1) * (n // k))
+            dataset.examples = train_data
+            h = learner(dataset)
+            fold_errs += err_ratio(h, dataset, train_data)
+
+            # Reverting back to original once test is completed
+            dataset.examples = examples
+        return fold_errs/k
+
 
 
 def err_ratio(predict, dataset, examples=None, verbose=0):
@@ -521,6 +552,8 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         for example in examples:
             x = [1] + example
             y = dotproduct(w, x)
+            # if threshold:
+            #     y = threshold(y)
             t = example[idx_t]
             err.append(t - y)
 
@@ -554,17 +587,20 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
 
     for epoch in range(epochs):
         err = []
+        h= []
         # Pass over all examples
         for example in examples:
             x = [1] + example
             y = 1/(1 + math.exp(-dotproduct(w, x)))
-            h = [y * (1-y)]
+            h.append(y * (1-y))
             t = example[idx_t]
             err.append(t - y)
 
         # update weights
         for i in range(len(w)):
-            w[i] = w[i] + learning_rate * (dotproduct(dotproduct(err,h), X_col[i]) / num_examples)
+            buffer = [x*y for x,y in zip(err, h)]
+            # w[i] = w[i] + learning_rate * (dotproduct(err, X_col[i]) / num_examples)
+            w[i] = w[i] + learning_rate * (dotproduct(buffer, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
@@ -580,6 +616,7 @@ def NearestNeighborLearner(dataset, k=1):
     """k-NearestNeighbor: the k nearest neighbors vote."""
     def predict(example):
         """Find the k closest items, and have them vote for the best."""
+        example.pop(dataset.target)
         best = heapq.nsmallest(k, ((dataset.distance(e, example), e)
                                    for e in dataset.examples))
         return mode(e[dataset.target] for (d, e) in best)
@@ -829,6 +866,6 @@ def compare(algorithms=None, datasets=None, k=10, trials=1):
                             Majority(7, 100), Parity(7, 100), Xor(100)]              # of datasets
 
     print_table([[a.__name__.replace('Learner', '')] +
-                 [cross_validation(a, d, k, trials) for d in datasets]
+                 [cross_validation_nosize(a, d, k, trials) for d in datasets]
                  for a in algorithms],
-                header=[''] + [d.name[0:7] for d in datasets], numfmt='%.2f')
+                header=[''] + [d.name[0:7] for d in datasets], numfmt='{0:.2f}')
