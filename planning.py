@@ -3,6 +3,7 @@
 
 import copy
 import itertools
+import sys
 from collections import deque
 from functools import reduce as _reduce
 
@@ -54,6 +55,7 @@ class PlanningProblem:
             for action in self.actions:
                 if str(action.name) == name:
                     action_list.append(action)
+                    break
         else:
             action_list = self.actions
 
@@ -163,7 +165,7 @@ class Action:
         Removes delete list from the action by removing all negative literals from action's effect
         """
         return Action(Expr(self.name, *self.args), self.precond,
-                      list(filter(lambda effect: not effect.op.startswith('Not'), self.effect)))
+                      list(filter(lambda effect: effect.op[:3] != 'Not', self.effect)))
 
     def substitute(self, e, args):
         """Replaces variables in expression with their respective Propositional symbol"""
@@ -348,7 +350,7 @@ def simple_blocks_world():
     """
 
     return PlanningProblem(initial='On(A, B) & Clear(A) & OnTable(B) & OnTable(C) & Clear(C)',
-                           goals='On(B, A) & On(C, B) & Clear(C) & OnTable(A)',
+                           goals='On(B, A) & On(C, B)',
                            actions=[Action('ToTable(x, y)',
                                            precond='On(x, y) & Clear(x)',
                                            effect='~On(x, y) & Clear(y) & OnTable(x)'),
@@ -524,7 +526,7 @@ class ForwardPlan(search.Problem):
                                                                        [action.relaxed() for action in
                                                                         self.planning_problem.actions])))
         relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
-        return len(linearize(relaxed_solution)) if relaxed_solution else float('inf')
+        return len(linearize(relaxed_solution)) if relaxed_solution else sys.maxsize
 
 
 class BackwardPlan(search.Problem):
@@ -546,17 +548,18 @@ class BackwardPlan(search.Problem):
         """
 
         def negate_clause(clause):
-            return Expr(clause.op.replace('Not', ''), *clause.args) if clause.op.startswith('Not') else Expr(
+            return Expr(clause.op.replace('Not', ''), *clause.args) if clause.op[:3] == 'Not' else Expr(
                 'Not' + clause.op, *clause.args)
 
+        subgoal = conjuncts(subgoal)
         return [action for action in self.expanded_actions if
-                (any(prop in action.effect for prop in conjuncts(subgoal)) and
-                 not any(negate_clause(prop) in conjuncts(subgoal) for prop in action.effect) and
-                 not any(negate_clause(prop) in conjuncts(subgoal) and negate_clause(prop) not in action.effect
+                (any(prop in action.effect for prop in subgoal) and
+                 not any(negate_clause(prop) in subgoal for prop in action.effect) and
+                 not any(negate_clause(prop) in subgoal and negate_clause(prop) not in action.effect
                          for prop in action.precond))]
 
     def result(self, subgoal, action):
-        # g' = g - effects(a) + preconds(a)
+        # g' = (g - effects(a)) + preconds(a)
         return associate('&', set(set(conjuncts(subgoal)).difference(action.effect)).union(action.precond))
 
     def goal_test(self, subgoal):
@@ -574,7 +577,7 @@ class BackwardPlan(search.Problem):
                                                                        [action.relaxed() for action in
                                                                         self.planning_problem.actions])))
         relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
-        return len(linearize(relaxed_solution)) if relaxed_solution else float('inf')
+        return len(linearize(relaxed_solution)) if relaxed_solution else sys.maxsize
 
 
 class Level:
