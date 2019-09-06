@@ -4,11 +4,11 @@
 import copy
 import itertools
 import sys
-from collections import deque
+from collections import deque, defaultdict
 from functools import reduce as _reduce
 
 import search
-from logic import FolKB, conjuncts, unify, associate
+from logic import FolKB, conjuncts, unify, associate, SAT_plan, dpll_satisfiable
 from search import Node
 from utils import Expr, expr, first
 
@@ -93,6 +93,13 @@ class PlanningProblem:
                     expansions.append(Action(new_expr, new_preconds, new_effects))
 
         return expansions
+
+    def is_strips(self):
+        """
+        Returns True if the problem does not contain negative literals in preconditions and goals
+        """
+        return (all(clause.op[:3] != 'Not' for clause in self.goals) and
+                all(clause.op[:3] != 'Not' for action in self.actions for clause in action.precond))
 
     def goal_test(self):
         """Checks if the goals have been reached"""
@@ -578,6 +585,31 @@ class BackwardPlan(search.Problem):
                                                                         self.planning_problem.actions])))
         relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
         return len(linearize(relaxed_solution)) if relaxed_solution else sys.maxsize
+
+
+def SATPlan(planning_problem, solution_length, SAT_solver=dpll_satisfiable):
+    """
+    Planning as Boolean satisfiability [Section 10.4.1]
+    """
+
+    def expand_transitions(state, actions):
+        state = sorted(conjuncts(state))
+        for action in filter(lambda act: act.check_precond(state, act.args), actions):
+            transition[associate('&', state)].update(
+                {Expr(action.name, *action.args):
+                     associate('&', sorted(set(filter(lambda clause: clause.op[:3] != 'Not',
+                                                      action(state, action.args).clauses))))
+                     if planning_problem.is_strips()
+                     else associate('&', sorted(set(action(state, action.args).clauses)))})
+        for state in transition[associate('&', state)].values():
+            if state not in transition:
+                expand_transitions(expr(state), actions)
+
+    transition = defaultdict(dict)
+    expand_transitions(associate('&', planning_problem.initial), planning_problem.expand_actions())
+
+    return SAT_plan(associate('&', sorted(planning_problem.initial)), transition,
+                    associate('&', sorted(planning_problem.goals)), solution_length, SAT_solver=SAT_solver)
 
 
 class Level:
