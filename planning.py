@@ -3,7 +3,6 @@
 
 import copy
 import itertools
-import sys
 from collections import deque, defaultdict
 from functools import reduce as _reduce
 
@@ -529,11 +528,12 @@ class ForwardPlan(search.Problem):
         """
         relaxed_planning_problem = PlanningProblem(initial=state.state,
                                                    goals=self.goal,
-                                                   actions=list(filter(lambda action: not action.effect,
-                                                                       [action.relaxed() for action in
-                                                                        self.planning_problem.actions])))
-        relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
-        return len(linearize(relaxed_solution)) if relaxed_solution else sys.maxsize
+                                                   actions=[action.relaxed() for action in
+                                                            self.planning_problem.actions])
+        try:
+            return len(linearize(GraphPlan(relaxed_planning_problem).execute()))
+        except:
+            return float('inf')
 
 
 class BackwardPlan(search.Problem):
@@ -580,11 +580,12 @@ class BackwardPlan(search.Problem):
         """
         relaxed_planning_problem = PlanningProblem(initial=subgoal.state,
                                                    goals=self.goal,
-                                                   actions=list(filter(lambda action: not action.effect,
-                                                                       [action.relaxed() for action in
-                                                                        self.planning_problem.actions])))
-        relaxed_solution = GraphPlan(relaxed_planning_problem).execute()
-        return len(linearize(relaxed_solution)) if relaxed_solution else sys.maxsize
+                                                   actions=[action.relaxed() for action in
+                                                            self.planning_problem.actions])
+        try:
+            return len(linearize(GraphPlan(relaxed_planning_problem).execute()))
+        except:
+            return float('inf')
 
 
 def SATPlan(planning_problem, solution_length, SAT_solver=dpll_satisfiable):
