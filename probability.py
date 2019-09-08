@@ -687,7 +687,7 @@ def forward_backward(HMM, ev, prior):
 
 
 def viterbi(HMM, ev, prior):
-    """[Figure 15.5]
+    """[Equation 15.11]
     Viterbi algorithm to find the most likely sequence. Computes the best path,
     given an HMM model and a sequence of observations."""
     t = len(ev)
