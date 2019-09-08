@@ -253,7 +253,8 @@ def air_cargo():
     """
 
     return PlanningProblem(
-        initial='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)',
+        initial='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & '
+                'Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)',
         goals='At(C1, JFK) & At(C2, SFO)',
         actions=[Action('Load(c, p, a)',
                         precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
@@ -578,8 +579,8 @@ class BackwardPlan(search.Problem):
         by removing the delete lists from all actions, ie. removing all negative literals from effects) that will be
         easier to solve through GraphPlan and where the length of the solution will serve as a good heuristic.
         """
-        relaxed_planning_problem = PlanningProblem(initial=subgoal.state,
-                                                   goals=self.goal,
+        relaxed_planning_problem = PlanningProblem(initial=self.goal,
+                                                   goals=subgoal.state,
                                                    actions=[action.relaxed() for action in
                                                             self.planning_problem.actions])
         try:

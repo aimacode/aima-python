@@ -30,7 +30,7 @@ def test_air_cargo_1():
                   expr("Unload(C1, P1, JFK)"),
                   expr("Load(C2, P2, JFK)"),
                   expr("Fly(P2, JFK, SFO)"),
-                  expr("Unload (C2, P2, SFO)")]
+                  expr("Unload(C2, P2, SFO)")]
 
     for action in solution_1:
         p.act(action)
@@ -41,12 +41,12 @@ def test_air_cargo_1():
 def test_air_cargo_2():
     p = air_cargo()
     assert p.goal_test() is False
-    solution_2 = [expr("Load(C2, P2, JFK)"),
-                  expr("Fly(P2, JFK, SFO)"),
-                  expr("Unload (C2, P2, SFO)"),
-                  expr("Load(C1 , P1, SFO)"),
+    solution_2 = [expr("Load(C1 , P1, SFO)"),
                   expr("Fly(P1, SFO, JFK)"),
-                  expr("Unload(C1, P1, JFK)")]
+                  expr("Unload(C1, P1, JFK)"),
+                  expr("Load(C2, P1, JFK)"),
+                  expr("Fly(P1, JFK, SFO)"),
+                  expr("Unload(C2, P1, SFO)")]
 
     for action in solution_2:
         p.act(action)
@@ -59,12 +59,28 @@ def test_air_cargo_3():
     assert p.goal_test() is False
     solution_3 = [expr("Load(C2, P2, JFK)"),
                   expr("Fly(P2, JFK, SFO)"),
-                  expr("Unload (C2, P2, SFO)"),
+                  expr("Unload(C2, P2, SFO)"),
+                  expr("Load(C1 , P1, SFO)"),
+                  expr("Fly(P1, SFO, JFK)"),
+                  expr("Unload(C1, P1, JFK)")]
+
+    for action in solution_3:
+        p.act(action)
+
+    assert p.goal_test()
+
+
+def test_air_cargo_4():
+    p = air_cargo()
+    assert p.goal_test() is False
+    solution_4 = [expr("Load(C2, P2, JFK)"),
+                  expr("Fly(P2, JFK, SFO)"),
+                  expr("Unload(C2, P2, SFO)"),
                   expr("Load(C1, P2, SFO)"),
                   expr("Fly(P2, SFO, JFK)"),
                   expr("Unload(C1, P2, JFK)")]
 
-    for action in solution_3:
+    for action in solution_4:
         p.act(action)
 
     assert p.goal_test()
@@ -134,16 +150,31 @@ def test_have_cake_and_eat_cake_too():
     assert p.goal_test()
 
 
-def test_shopping_problem():
+def test_shopping_problem_1():
     p = shopping_problem()
     assert p.goal_test() is False
-    solution = [expr('Go(Home, SM)'),
-                expr('Buy(Banana, SM)'),
-                expr('Buy(Milk, SM)'),
-                expr('Go(SM, HW)'),
-                expr('Buy(Drill, HW)')]
+    solution_1 = [expr('Go(Home, SM)'),
+                  expr('Buy(Banana, SM)'),
+                  expr('Buy(Milk, SM)'),
+                  expr('Go(SM, HW)'),
+                  expr('Buy(Drill, HW)')]
 
-    for action in solution:
+    for action in solution_1:
+        p.act(action)
+
+    assert p.goal_test()
+
+
+def test_shopping_problem_2():
+    p = shopping_problem()
+    assert p.goal_test() is False
+    solution_2 = [expr('Go(Home, HW)'),
+                  expr('Buy(Drill, HW)'),
+                  expr('Go(HW, SM)'),
+                  expr('Buy(Banana, SM)'),
+                  expr('Buy(Milk, SM)')]
+
+    for action in solution_2:
         p.act(action)
 
     assert p.goal_test()
@@ -255,6 +286,20 @@ def test_backwardPlan():
     assert expr('Eat(Cake)') in cake_solution
     assert expr('Bake(Cake)') in cake_solution
 
+    air_cargo_solution = astar_search(BackwardPlan(air_cargo())).solution()
+    air_cargo_solution = list(map(lambda action: Expr(action.name, *action.args), air_cargo_solution))
+    assert air_cargo_solution == [expr('Unload(C1, P1, JFK)'),
+                                  expr('Fly(P1, SFO, JFK)'),
+                                  expr('Unload(C2, P2, SFO)'),
+                                  expr('Fly(P2, JFK, SFO)'),
+                                  expr('Load(C2, P2, JFK)'),
+                                  expr('Load(C1, P1, SFO)')] or [expr('Load(C1, P1, SFO)'),
+                                                                 expr('Fly(P1, SFO, JFK)'),
+                                                                 expr('Unload(C1, P1, JFK)'),
+                                                                 expr('Load(C2, P1, JFK)'),
+                                                                 expr('Fly(P1, JFK, SFO)'),
+                                                                 expr('Unload(C2, P1, SFO)')]
+
     sussman_anomaly_solution = astar_search(BackwardPlan(three_block_tower())).solution()
     sussman_anomaly_solution = list(map(lambda action: Expr(action.name, *action.args), sussman_anomaly_solution))
     assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
@@ -266,6 +311,18 @@ def test_backwardPlan():
     assert expr('ToTable(A, B)') in blocks_world_solution
     assert expr('FromTable(B, A)') in blocks_world_solution
     assert expr('FromTable(C, B)') in blocks_world_solution
+
+    shopping_problem_solution = astar_search(BackwardPlan(shopping_problem())).solution()
+    shopping_problem_solution = list(map(lambda action: Expr(action.name, *action.args), shopping_problem_solution))
+    assert shopping_problem_solution == [expr('Go(Home, SM)'),
+                                         expr('Buy(Banana, SM)'),
+                                         expr('Buy(Milk, SM)'),
+                                         expr('Go(SM, HW)'),
+                                         expr('Buy(Drill, HW)')] or [expr('Go(Home, HW)'),
+                                                                     expr('Buy(Drill, HW)'),
+                                                                     expr('Go(HW, SM)'),
+                                                                     expr('Buy(Banana, SM)'),
+                                                                     expr('Buy(Milk, SM)')]
 
 
 def test_SATPlan():
