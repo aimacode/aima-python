@@ -903,7 +903,7 @@ class ACSolver:
             to_do = {(var, const) for const in self.csp.constraints
                      for var in const.scope}
         else:
-            to_do = to_do.copy()  # use a copy of to_do
+            to_do = to_do.copy()
         domains = orig_domains.copy()
         to_do = arc_heuristic(to_do)
         while to_do:
@@ -925,7 +925,7 @@ class ACSolver:
                 if not new_domain:
                     return False, domains
                 add_to_do = self.new_to_do(var, const).difference(to_do)
-                to_do |= add_to_do  # set union
+                to_do |= add_to_do
         return True, domains
 
     def new_to_do(self, var, const):
@@ -987,7 +987,7 @@ def partition_domain(dom):
 
 def copy_with_assign(domains, var=None, new_domain=None):
     """create a copy of the domains with an assignment var=new_domain
-    if var==None then it is just a copy.
+    if var == None then it is just a copy.
     """
     if new_domain is None:
         new_domain = {True, False}
@@ -1002,7 +1002,7 @@ class ACSearchSolver(search.Problem):
     A node is a CSP """
 
     def __init__(self, csp, arc_heuristic=sat_up):
-        self.cons = ACSolver(csp)  # copy of the CSP
+        self.cons = ACSolver(csp)
         consistency, self.domains = self.cons.GAC(arc_heuristic=arc_heuristic)
         if not consistency:
             raise Exception('CSP is inconsistent')
@@ -1023,8 +1023,8 @@ class ACSearchSolver(search.Problem):
         var = first(x for x in state if len(state[x]) > 1)
         if var:
             to_do = self.cons.new_to_do(var, None)
-            newdoms = copy_with_assign(state, var, action)
-            consistency, cons_doms = self.cons.GAC(newdoms, to_do, self.heuristic)
+            new_domains = copy_with_assign(state, var, action)
+            consistency, cons_doms = self.cons.GAC(new_domains, to_do, self.heuristic)
             if consistency:
                 return cons_doms
 
@@ -1101,22 +1101,22 @@ class Crossword(NaryCSP):
 
     def display(self, assignment=None):
         for i, line in enumerate(self.puzzle):
-            string = ""
+            puzzle = ""
             for j, element in enumerate(line):
                 if element == '*':
-                    string = string + "[*]\t"
+                    puzzle += "[*]\t"
                 else:
                     var = "p" + str(j) + str(i)
                     if assignment is not None:
                         if isinstance(assignment[var], set) and len(assignment[var]) is 1:
-                            string = string + "[" + str(first(assignment[var])).upper() + "]\t"
+                            puzzle += "[" + str(first(assignment[var])).upper() + "]\t"
                         elif isinstance(assignment[var], str):
-                            string = string + "[" + str(assignment[var]).upper() + "]\t"
+                            puzzle += "[" + str(assignment[var]).upper() + "]\t"
                         else:
-                            string = string + "[_]\t"
+                            puzzle += "[_]\t"
                     else:
-                        string = string + "[_]\t"
-            print(string)
+                        puzzle += "[_]\t"
+            print(puzzle)
 
 
 # ______________________________________________________________________________
@@ -1223,10 +1223,10 @@ class Karuko(NaryCSP):
 
     def display(self, assignment=None):
         for i, line in enumerate(self.puzzle):
-            string = ""
+            puzzle = ""
             for j, element in enumerate(line):
                 if element == '*':
-                    string = string + "[*]\t"
+                    puzzle += "[*]\t"
                 elif element == '_':
                     var1 = str(i)
                     if len(var1) == 1:
@@ -1237,20 +1237,34 @@ class Karuko(NaryCSP):
                     var = "X" + var1 + var2
                     if assignment is not None:
                         if isinstance(assignment[var], set) and len(assignment[var]) is 1:
-                            string = string + "[" + str(first(assignment[var])) + "]\t"
+                            puzzle += "[" + str(first(assignment[var])) + "]\t"
                         elif isinstance(assignment[var], int):
-                            string = string + "[" + str(assignment[var]) + "]\t"
+                            puzzle += "[" + str(assignment[var]) + "]\t"
                         else:
-                            string = string + "[_]\t"
+                            puzzle += "[_]\t"
                     else:
-                        string = string + "[_]\t"
+                        puzzle += "[_]\t"
                 else:
-                    string = string + str(element[0]) + "\\" + str(element[1]) + "\t"
-            print(string)
+                    puzzle += str(element[0]) + "\\" + str(element[1]) + "\t"
+            print(puzzle)
 
+
+# ______________________________________________________________________________
+# Cryptarithmetic Problem
+
+# [Figure 6.2]
+# T W O + T W O = F O U R
+two_two_four = NaryCSP({'T': set(range(1, 10)), 'F': set(range(1, 10)),
+                        'W': set(range(0, 10)), 'O': set(range(0, 10)), 'U': set(range(0, 10)), 'R': set(range(0, 10)),
+                        'C1': set(range(0, 2)), 'C2': set(range(0, 2)), 'C3': set(range(0, 2))},
+                       [Constraint(('T', 'F', 'W', 'O', 'U', 'R'), Constraint.all_diff),
+                        Constraint(('O', 'R', 'C1'), lambda o, r, c1: o + o == r + 10 * c1),
+                        Constraint(('W', 'U', 'C1', 'C2'), lambda w, u, c1, c2: c1 + w + w == u + 10 * c2),
+                        Constraint(('T', 'O', 'C2', 'C3'), lambda t, o, c2, c3: c2 + t + t == o + 10 * c3),
+                        Constraint(('F', 'C3'), eq)])
 
 # S E N D + M O R E = M O N E Y
-cryptarithmetic = NaryCSP({'S': set(range(1, 10)), 'M': set(range(1, 10)),
+send_more_money = NaryCSP({'S': set(range(1, 10)), 'M': set(range(1, 10)),
                            'E': set(range(0, 10)), 'N': set(range(0, 10)), 'D': set(range(0, 10)),
                            'O': set(range(0, 10)), 'R': set(range(0, 10)), 'Y': set(range(0, 10)),
                            'C1': set(range(0, 2)), 'C2': set(range(0, 2)), 'C3': set(range(0, 2)),
