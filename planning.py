@@ -7,6 +7,7 @@ from collections import deque, defaultdict
 from functools import reduce as _reduce
 
 import search
+from csp import Constraint, ac_solver, sat_up, NaryCSP
 from logic import FolKB, conjuncts, unify, associate, SAT_plan, dpll_satisfiable
 from search import Node
 from utils import Expr, expr, first
@@ -587,6 +588,76 @@ class BackwardPlan(search.Problem):
             return len(linearize(GraphPlan(relaxed_planning_problem).execute()))
         except:
             return float('inf')
+
+
+def CSPlan(planning_problem, solution_length, CSP_solver=ac_solver, arc_heuristic=sat_up):
+    """
+        Planning as Constraint Satisfaction Problem [Section 10.4.3]
+    """
+
+    def st(var, stage):
+        """Returns a string for the var-stage pair that can be used as a variable"""
+        return str(var) + "_" + str(stage)
+
+    def if_(v1, v2):
+        """If the second argument is v2, the first argument must be v1"""
+
+        def if_fun(x1, x2):
+            return x1 == v1 if x2 == v2 else True
+
+        if_fun.__name__ = "if the second argument is " + str(v2) + " then the first argument is " + str(v1) + " "
+        return if_fun
+
+    def eq_if_not_in_(actset):
+        """First and third arguments are equal if action is not in actset"""
+
+        def eq_if_not_in(x1, a, x2):
+            return x1 == x2 if a not in actset else True
+
+        eq_if_not_in.__name__ = "first and third arguments are equal if action is not in " + str(actset) + " "
+        return eq_if_not_in
+
+    expanded_actions = planning_problem.expand_actions()
+    feats_values = planning_problem.expand_feats_values()
+    for horizon in range(solution_length):
+        act_vars = [st('action', stage) for stage in range(horizon + 1)]
+        domains = {av: list(map(lambda action: expr(str(action)), expanded_actions)) for av in act_vars}
+        domains.update({st(var, stage): {True, False} for var in feats_values for stage in range(horizon + 2)})
+        # initial state constraints
+        constraints = [Constraint((st(var, 0),), Constraint.is_(val))
+                       for (var, val) in {expr(str(feats).replace('Not', '')): True if feats.op[:3] != 'Not' else False
+                                          for feats in planning_problem.initial}.items()]
+        constraints += [Constraint((st(var, 0),), Constraint.is_(False))
+                        for var in {expr(str(feats).replace('Not', ''))
+                                    for feats in feats_values if feats not in planning_problem.initial}]
+        # goal state constraints
+        constraints += [Constraint((st(var, horizon + 1),), Constraint.is_(val))
+                        for (var, val) in {expr(str(feats).replace('Not', '')): True if feats.op[:3] != 'Not' else False
+                                           for feats in planning_problem.goals}.items()]
+        # precondition constraints
+        constraints += [Constraint((st(var, stage), st('action', stage)), if_(val, act))
+                        # st(var, stage) == val if st('action', stage) == act
+                        for act, strps in {expr(str(action)): action for action in expanded_actions}.items()
+                        for var, val in {expr(str(feats).replace('Not', '')): True if feats.op[:3] != 'Not' else False
+                                         for feats in strps.precond}.items()
+                        for stage in range(horizon + 1)]
+        # effect constraints
+        constraints += [Constraint((st(var, stage + 1), st('action', stage)), if_(val, act))
+                        # st(var, stage + 1) == val if st('action', stage) == act
+                        for act, strps in {expr(str(action)): action for action in expanded_actions}.items()
+                        for var, val in {expr(str(feats).replace('Not', '')): True if feats.op[:3] != 'Not' else False
+                                         for feats in strps.effect}.items()
+                        for stage in range(horizon + 1)]
+        # frame constraints
+        constraints += [Constraint((st(var, stage), st('action', stage), st(var, stage + 1)),
+                                   eq_if_not_in_(set(map(lambda action: expr(str(action)),
+                                                         {act for act in expanded_actions if var in act.effect
+                                                          or Expr('Not' + var.op, *var.args) in act.effect}))))
+                        for var in feats_values for stage in range(horizon + 1)]
+        csp = NaryCSP(domains, constraints)
+        sol = CSP_solver(csp, arc_heuristic=arc_heuristic)
+        if sol:
+            return [sol[a] for a in act_vars]
 
 
 def SATPlan(planning_problem, solution_length, SAT_solver=dpll_satisfiable):

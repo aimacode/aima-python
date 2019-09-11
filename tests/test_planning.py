@@ -325,6 +325,46 @@ def test_backwardPlan():
                                                                      expr('Buy(Milk, SM)')]
 
 
+def test_CSPlan():
+    spare_tire_solution = CSPlan(spare_tire(), 3)
+    assert expr('Remove(Flat, Axle)') in spare_tire_solution
+    assert expr('Remove(Spare, Trunk)') in spare_tire_solution
+    assert expr('PutOn(Spare, Axle)') in spare_tire_solution
+
+    cake_solution = CSPlan(have_cake_and_eat_cake_too(), 2)
+    assert expr('Eat(Cake)') in cake_solution
+    assert expr('Bake(Cake)') in cake_solution
+
+    air_cargo_solution = CSPlan(air_cargo(), 6)
+    assert expr('Load(C1, P1, SFO)') in air_cargo_solution
+    assert expr('Fly(P1, SFO, JFK)') in air_cargo_solution
+    assert expr('Unload(C1, P1, JFK)') in air_cargo_solution
+    assert expr('Load(C2, P2, JFK)') in air_cargo_solution
+    assert expr('Fly(P2, JFK, SFO)') in air_cargo_solution
+    assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
+
+    sussman_anomaly_solution = CSPlan(three_block_tower(), 3)
+    assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
+    assert expr('Move(B, Table, C)') in sussman_anomaly_solution
+    assert expr('Move(A, Table, B)') in sussman_anomaly_solution
+
+    blocks_world_solution = CSPlan(simple_blocks_world(), 3)
+    assert expr('ToTable(A, B)') in blocks_world_solution
+    assert expr('FromTable(B, A)') in blocks_world_solution
+    assert expr('FromTable(C, B)') in blocks_world_solution
+
+    shopping_problem_solution = CSPlan(shopping_problem(), 5)
+    assert shopping_problem_solution == [expr('Go(Home, SM)'),
+                                         expr('Buy(Banana, SM)'),
+                                         expr('Buy(Milk, SM)'),
+                                         expr('Go(SM, HW)'),
+                                         expr('Buy(Drill, HW)')] or [expr('Go(Home, HW)'),
+                                                                     expr('Buy(Drill, HW)'),
+                                                                     expr('Go(HW, SM)'),
+                                                                     expr('Buy(Banana, SM)'),
+                                                                     expr('Buy(Milk, SM)')]
+
+
 def test_SATPlan():
     spare_tire_solution = SATPlan(spare_tire(), 3)
     assert expr('Remove(Flat, Axle)') in spare_tire_solution
