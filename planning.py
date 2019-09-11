@@ -45,6 +45,21 @@ class PlanningProblem:
                 new_clauses.append(clause)
         return new_clauses
 
+    def expand_feats_values(self, name=None):
+        objects = set(arg for clause in set(self.initial + self.goals) for arg in clause.args)
+        feats_list = []
+        if name is not None:
+            for feats in self.initial + self.goals:
+                if str(feats) == name:
+                    feats_list.append(feats)
+                    break
+        else:
+            feats_list = list(map(lambda feats: Expr(feats[0], *feats[1]),
+                                  {feats.op: feats.args for feats in self.initial + self.goals}.items()))
+
+        return [Expr(feats.op, *permutation) for feats in feats_list for permutation in
+                itertools.permutations(objects, len(feats.args))]
+
     def expand_actions(self, name=None):
         """Generate all possible actions with variable bindings for precondition selection heuristic"""
 
