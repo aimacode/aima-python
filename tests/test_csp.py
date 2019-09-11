@@ -24,7 +24,7 @@ def test_csp_unassign():
     assert var not in assignment
 
 
-def test_csp_nconflits():
+def test_csp_nconflicts():
     map_coloring_test = MapColoringCSP(list('RGB'), 'A: B C; B: C; C: ')
     assignment = {'A': 'R', 'B': 'G'}
     var = 'C'
@@ -67,17 +67,16 @@ def test_csp_result():
 def test_csp_goal_test():
     map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
     state = (('A', '1'), ('B', '3'), ('C', '2'))
-    assert map_coloring_test.goal_test(state) is True
+    assert map_coloring_test.goal_test(state)
 
     state = (('A', '1'), ('C', '2'))
-    assert map_coloring_test.goal_test(state) is False
+    assert not map_coloring_test.goal_test(state)
 
 
 def test_csp_support_pruning():
     map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
     map_coloring_test.support_pruning()
-    assert map_coloring_test.curr_domains == {'A': ['1', '2', '3'], 'B': ['1', '2', '3'],
-                                              'C': ['1', '2', '3']}
+    assert map_coloring_test.curr_domains == {'A': ['1', '2', '3'], 'B': ['1', '2', '3'], 'C': ['1', '2', '3']}
 
 
 def test_csp_suppose():
@@ -88,8 +87,7 @@ def test_csp_suppose():
     removals = map_coloring_test.suppose(var, value)
 
     assert removals == [('A', '2'), ('A', '3')]
-    assert map_coloring_test.curr_domains == {'A': ['1'], 'B': ['1', '2', '3'],
-                                              'C': ['1', '2', '3']}
+    assert map_coloring_test.curr_domains == {'A': ['1'], 'B': ['1', '2', '3'], 'C': ['1', '2', '3']}
 
 
 def test_csp_prune():
@@ -100,16 +98,14 @@ def test_csp_prune():
 
     map_coloring_test.support_pruning()
     map_coloring_test.prune(var, value, removals)
-    assert map_coloring_test.curr_domains == {'A': ['1', '2'], 'B': ['1', '2', '3'],
-                                              'C': ['1', '2', '3']}
+    assert map_coloring_test.curr_domains == {'A': ['1', '2'], 'B': ['1', '2', '3'], 'C': ['1', '2', '3']}
     assert removals is None
 
     map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
     removals = [('A', '2')]
     map_coloring_test.support_pruning()
     map_coloring_test.prune(var, value, removals)
-    assert map_coloring_test.curr_domains == {'A': ['1', '2'], 'B': ['1', '2', '3'],
-                                              'C': ['1', '2', '3']}
+    assert map_coloring_test.curr_domains == {'A': ['1', '2'], 'B': ['1', '2', '3'], 'C': ['1', '2', '3']}
     assert removals == [('A', '2'), ('A', '3')]
 
 
@@ -125,9 +121,9 @@ def test_csp_choices():
     assert map_coloring_test.choices(var) == ['1', '2']
 
 
-def test_csp_infer_assignement():
+def test_csp_infer_assignment():
     map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
-    map_coloring_test.infer_assignment() == {}
+    assert map_coloring_test.infer_assignment() == {}
 
     var = 'A'
     value = '3'
@@ -135,7 +131,7 @@ def test_csp_infer_assignement():
     value = '1'
     map_coloring_test.prune(var, value, None)
 
-    map_coloring_test.infer_assignment() == {'A': '2'}
+    assert map_coloring_test.infer_assignment() == {'A': '2'}
 
 
 def test_csp_restore():
@@ -145,8 +141,7 @@ def test_csp_restore():
 
     map_coloring_test.restore(removals)
 
-    assert map_coloring_test.curr_domains == {'A': ['2', '3', '1'], 'B': ['1', '2', '3'],
-                                              'C': ['2', '3']}
+    assert map_coloring_test.curr_domains == {'A': ['2', '3', '1'], 'B': ['1', '2', '3'], 'C': ['2', '3']}
 
 
 def test_csp_conflicted_vars():
@@ -181,14 +176,14 @@ def test_revise():
     Xj = 'B'
     removals = []
 
-    assert revise(csp, Xi, Xj, removals) is False
+    assert not revise(csp, Xi, Xj, removals)
     assert len(removals) == 0
 
     domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
     csp.support_pruning()
 
-    assert revise(csp, Xi, Xj, removals) is True
+    assert revise(csp, Xi, Xj, removals)
     assert removals == [('A', 1), ('A', 3)]
 
 
@@ -200,13 +195,13 @@ def test_AC3():
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
-    assert AC3(csp, removals=removals) is False
+    assert not AC3(csp, removals=removals)
 
     constraints = lambda X, x, Y, y: (x % 2) == 0 and (x + y) == 4
     removals = []
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
-    assert AC3(csp, removals=removals) is True
+    assert AC3(csp, removals=removals)
     assert (removals == [('A', 1), ('A', 3), ('B', 1), ('B', 3)] or
             removals == [('B', 1), ('B', 3), ('A', 1), ('A', 3)])
 
@@ -302,20 +297,20 @@ def test_forward_checking():
     var = 'B'
     value = 3
     assignment = {'A': 1, 'C': '3'}
-    assert forward_checking(csp, var, value, assignment, None) == True
+    assert forward_checking(csp, var, value, assignment, None)
     assert csp.curr_domains['A'] == A_curr_domains
     assert csp.curr_domains['C'] == C_curr_domains
 
     assignment = {'C': 3}
 
-    assert forward_checking(csp, var, value, assignment, None) == True
+    assert forward_checking(csp, var, value, assignment, None)
     assert csp.curr_domains['A'] == [1, 3]
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
     csp.support_pruning()
 
     assignment = {}
-    assert forward_checking(csp, var, value, assignment, None) == True
+    assert forward_checking(csp, var, value, assignment, None)
     assert csp.curr_domains['A'] == [1, 3]
     assert csp.curr_domains['C'] == [1, 3]
 
@@ -325,7 +320,7 @@ def test_forward_checking():
 
     value = 7
     assignment = {}
-    assert forward_checking(csp, var, value, assignment, None) == False
+    assert not forward_checking(csp, var, value, assignment, None)
     assert (csp.curr_domains['A'] == [] or csp.curr_domains['C'] == [])
 
 
@@ -333,12 +328,10 @@ def test_backtracking_search():
     assert backtracking_search(australia_csp)
     assert backtracking_search(australia_csp, select_unassigned_variable=mrv)
     assert backtracking_search(australia_csp, order_domain_values=lcv)
-    assert backtracking_search(australia_csp, select_unassigned_variable=mrv,
-                               order_domain_values=lcv)
+    assert backtracking_search(australia_csp, select_unassigned_variable=mrv, order_domain_values=lcv)
     assert backtracking_search(australia_csp, inference=forward_checking)
     assert backtracking_search(australia_csp, inference=mac)
-    assert backtracking_search(usa_csp, select_unassigned_variable=mrv,
-                               order_domain_values=lcv, inference=mac)
+    assert backtracking_search(usa_csp, select_unassigned_variable=mrv, order_domain_values=lcv, inference=mac)
 
 
 def test_min_conflicts():
@@ -378,7 +371,6 @@ def test_nqueens_csp():
     assert 2 not in assignment
     assert 3 not in assignment
 
-    assignment = {}
     assignment = {0: 0, 1: 1, 2: 4, 3: 1, 4: 6}
     csp.assign(5, 7, assignment)
     assert len(assignment) == 6
@@ -421,7 +413,7 @@ def test_topological_sort():
     Sort, Parents = topological_sort(australia_csp, root)
 
     assert Sort == ['NT', 'SA', 'Q', 'NSW', 'V', 'WA']
-    assert Parents['NT'] == None
+    assert Parents['NT'] is None
     assert Parents['SA'] == 'NT'
     assert Parents['Q'] == 'SA'
     assert Parents['NSW'] == 'Q'
@@ -482,6 +474,7 @@ def test_make_arc_consistent():
 
     assert make_arc_consistent(Xi, Xj, csp) == [0, 2, 4]
 
+
 def test_assign_value():
     neighbors = parse_neighbors('A: B; B: ')
     domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
@@ -505,6 +498,7 @@ def test_assign_value():
     assignment = {'A': 1}
     assert assign_value(Xi, Xj, csp, assignment) == 3
 
+
 def test_no_inference():
     neighbors = parse_neighbors('A: B; B: ')
     domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 5]}
@@ -514,7 +508,7 @@ def test_no_inference():
     var = 'B'
     value = 3
     assignment = {'A': 1}
-    assert no_inference(csp, var, value, assignment, None) == True
+    assert no_inference(csp, var, value, assignment, None)
 
 
 def test_mac():
@@ -542,23 +536,37 @@ def test_mac():
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
     assert mac(csp, var, value, assignment, None) == True
 
+
 def test_queen_constraint():
-    assert queen_constraint(0, 1, 0, 1) == True
-    assert queen_constraint(2, 1, 4, 2) == True
-    assert queen_constraint(2, 1, 3, 2) == False
+    assert queen_constraint(0, 1, 0, 1)
+    assert queen_constraint(2, 1, 4, 2)
+    assert not queen_constraint(2, 1, 3, 2)
 
 
 def test_zebra():
     z = Zebra()
-    algorithm=min_conflicts
-#  would take very long
+    algorithm = min_conflicts
+    #  would take very long
     ans = algorithm(z, max_steps=10000)
-    assert ans is None or ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1, 'Snails': 3, 'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3, 'Water': 1, 'Englishman': 3, 'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2, 'Japanese': 5, 'Kools': 1, 'Chesterfields': 2, 'Winston': 3, 'LuckyStrike': 4, 'Parliaments': 5}
+    assert ans is None or ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1,
+                                  'Snails': 3, 'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3,
+                                  'Water': 1, 'Englishman': 3, 'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2,
+                                  'Japanese': 5, 'Kools': 1, 'Chesterfields': 2, 'Winston': 3, 'LuckyStrike': 4,
+                                  'Parliaments': 5}
 
-#  restrict search space
-    z.domains = {'Red': [3, 4], 'Yellow': [1, 2], 'Blue': [1, 2], 'Green': [4, 5], 'Ivory': [4, 5], 'Dog': [4, 5], 'Fox': [1, 2], 'Snails': [3], 'Horse': [2], 'Zebra': [5], 'OJ': [1, 2, 3, 4, 5], 'Tea': [1, 2, 3, 4, 5], 'Coffee': [1, 2, 3, 4, 5], 'Milk': [3], 'Water': [1, 2, 3, 4, 5], 'Englishman': [1, 2, 3, 4, 5], 'Spaniard': [1, 2, 3, 4, 5], 'Norwegian': [1], 'Ukranian': [1, 2, 3, 4, 5], 'Japanese': [1, 2, 3, 4, 5], 'Kools': [1, 2, 3, 4, 5], 'Chesterfields': [1, 2, 3, 4, 5], 'Winston': [1, 2, 3, 4, 5], 'LuckyStrike': [1, 2, 3, 4, 5], 'Parliaments': [1, 2, 3, 4, 5]}
+    #  restrict search space
+    z.domains = {'Red': [3, 4], 'Yellow': [1, 2], 'Blue': [1, 2], 'Green': [4, 5], 'Ivory': [4, 5], 'Dog': [4, 5],
+                 'Fox': [1, 2], 'Snails': [3], 'Horse': [2], 'Zebra': [5], 'OJ': [1, 2, 3, 4, 5],
+                 'Tea': [1, 2, 3, 4, 5], 'Coffee': [1, 2, 3, 4, 5], 'Milk': [3], 'Water': [1, 2, 3, 4, 5],
+                 'Englishman': [1, 2, 3, 4, 5], 'Spaniard': [1, 2, 3, 4, 5], 'Norwegian': [1],
+                 'Ukranian': [1, 2, 3, 4, 5], 'Japanese': [1, 2, 3, 4, 5], 'Kools': [1, 2, 3, 4, 5],
+                 'Chesterfields': [1, 2, 3, 4, 5], 'Winston': [1, 2, 3, 4, 5], 'LuckyStrike': [1, 2, 3, 4, 5],
+                 'Parliaments': [1, 2, 3, 4, 5]}
     ans = algorithm(z, max_steps=10000)
-    assert ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1, 'Snails': 3, 'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3, 'Water': 1, 'Englishman': 3, 'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2, 'Japanese': 5, 'Kools': 1, 'Chesterfields': 2, 'Winston': 3, 'LuckyStrike': 4, 'Parliaments': 5}
+    assert ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1, 'Snails': 3,
+                   'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3, 'Water': 1, 'Englishman': 3,
+                   'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2, 'Japanese': 5, 'Kools': 1, 'Chesterfields': 2,
+                   'Winston': 3, 'LuckyStrike': 4, 'Parliaments': 5}
 
 
 if __name__ == "__main__":
