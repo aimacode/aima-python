@@ -30,17 +30,17 @@ And a few other functions:
     unify            Do unification of two FOL sentences
     diff, simp       Symbolic differentiation and simplification
 """
+import itertools
+import random
+from collections import defaultdict
+
+from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
 from csp import parse_neighbors, UniversalDict
+from search import astar_search, PlanRoute
 from utils import (
     removeall, unique, first, argmax, probability,
     isnumber, issequence, Expr, expr, subexpressions
 )
-from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
-from search import astar_search, PlanRoute
-
-import itertools
-import random
-from collections import defaultdict
 
 
 # ______________________________________________________________________________
@@ -194,6 +194,7 @@ def parse_definite_clause(s):
 
 # Useful constant Exprs used in examples and code:
 A, B, C, D, E, F, G, P, Q, a, x, y, z, u = map(Expr, 'ABCDEFGPQaxyzu')
+
 
 # ______________________________________________________________________________
 
@@ -504,9 +505,7 @@ def pl_resolve(ci, cj):
     for di in disjuncts(ci):
         for dj in disjuncts(cj):
             if di == ~dj or ~di == dj:
-                dnew = unique(removeall(di, disjuncts(ci)) +
-                              removeall(dj, disjuncts(cj)))
-                clauses.append(associate('|', dnew))
+                clauses.append(associate('|', unique(removeall(di, disjuncts(ci)) + removeall(dj, disjuncts(cj)))))
     return clauses
 
 
@@ -1102,8 +1101,7 @@ class WumpusPosition:
         self.orientation = orientation
 
     def __eq__(self, other):
-        if other.get_location() == self.get_location() and \
-                other.get_orientation() == self.get_orientation():
+        if other.get_location() == self.get_location() and other.get_orientation() == self.get_orientation():
             return True
         else:
             return False
@@ -1246,7 +1244,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
     """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
     [Figure 7.22]
     >>> transition = {'A': {'Left': 'A', 'Right': 'B'}, 'B': {'Left': 'A', 'Right': 'C'}, 'C': {'Left': 'B', 'Right': 'C'}}
-    >>> SAT_plan('A', transition, 'C', 2) is None
+    >>> SAT_plan('A', transition, 'C', 1) is None
     True
     """
 
@@ -1265,7 +1263,9 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
         clauses.append(state_sym[init, 0])
 
         # Add goal state axiom
-        clauses.append(state_sym[goal, time])
+        clauses.append(state_sym[first(clause[0] for clause in state_sym
+                                       if set(conjuncts(clause[0])).issuperset(conjuncts(goal))), time]) \
+            if isinstance(goal, Expr) else clauses.append(state_sym[goal, time])
 
         # All possible transitions
         transition_counter = itertools.count()
@@ -1274,8 +1274,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
                 s_ = transition[s][action]
                 for t in range(time):
                     # Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[s, action, t] = Expr(
-                        "Transition_{}".format(next(transition_counter)))
+                    action_sym[s, action, t] = Expr("Transition_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
                     clauses.append(action_sym[s, action, t] | '==>' | state_sym[s, t])
@@ -1314,7 +1313,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
         return [action for s, action, time in true_transitions]
 
     # Body of SAT_plan algorithm
-    for t in range(t_max):
+    for t in range(t_max + 1):
         # dictionaries to help extract the solution from model
         state_sym = {}
         action_sym = {}
@@ -1416,6 +1415,7 @@ def subst(s, x):
     else:
         return Expr(x.op, *[subst(s, arg) for arg in x.args])
 
+
 def cascade_substitution(s):
     """This method allows to return a correct unifier in normal form
     and perform a cascade substitution to s.
@@ -1426,23 +1426,24 @@ def cascade_substitution(s):
     This issue fix: https://github.com/aimacode/aima-python/issues/1053
     unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) 
     must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
-    
-    >>> s = {x: y, y: G(z)}
-    >>> cascade_substitution(s)
-    >>> print(s)
-    {x: G(z), y: G(z)}
-    
+
     Parameters
     ----------
     s : Dictionary
-        This contain a substution
+        This contain a substitution
+
+    >>> s = {x: y, y: G(z)}
+    >>> cascade_substitution(s)
+    >>> s == {x: G(z), y: G(z)}
+    True
     """
 
     for x in s:
         s[x] = subst(s, s.get(x))
         if isinstance(s.get(x), Expr) and not is_variable(s.get(x)):
-        # Ensure Function Terms are correct updates by passing over them again.
+            # Ensure Function Terms are correct updates by passing over them again.
             s[x] = subst(s, s.get(x))
+
 
 def standardize_variables(sentence, dic=None):
     """Replace all the variables in sentence with new variables."""

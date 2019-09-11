@@ -60,8 +60,8 @@ def test_PropKB():
     kb.tell(E | '==>' | C)
     assert kb.ask(C) == {}
     kb.retract(E)
-    assert kb.ask(E) is False
-    assert kb.ask(C) is False
+    assert not kb.ask(E)
+    assert not kb.ask(C)
 
 
 def test_wumpus_kb():
@@ -72,10 +72,10 @@ def test_wumpus_kb():
     assert wumpus_kb.ask(~P12) == {}
 
     # Statement: There is a pit in [2,2].
-    assert wumpus_kb.ask(P22) is False
+    assert not wumpus_kb.ask(P22)
 
     # Statement: There is a pit in [3,1].
-    assert wumpus_kb.ask(P31) is False
+    assert not wumpus_kb.ask(P31)
 
     # Statement: Neither [1,2] nor [2,1] contains a pit.
     assert wumpus_kb.ask(~P12 & ~P21) == {}
@@ -102,11 +102,11 @@ def test_parse_definite_clause():
 
 def test_pl_true():
     assert pl_true(P, {}) is None
-    assert pl_true(P, {P: False}) is False
+    assert not pl_true(P, {P: False})
     assert pl_true(P | Q, {P: True})
     assert pl_true((A | B) & (C | D), {A: False, B: True, D: True})
-    assert pl_true((A & B) & (C | D), {A: False, B: True, D: True}) is False
-    assert pl_true((A & B) | (A & C), {A: False, B: True, C: True}) is False
+    assert not pl_true((A & B) & (C | D), {A: False, B: True, D: True})
+    assert not pl_true((A & B) | (A & C), {A: False, B: True, C: True})
     assert pl_true((A | B) & (C | D), {A: True, D: False}) is None
     assert pl_true(P | P, {}) is None
 
@@ -130,7 +130,7 @@ def test_tt_true():
     assert tt_true('(A | (B & C)) <=> ((A | B) & (A | C))')
 
 
-def test_dpll():
+def test_dpll_satisfiable():
     assert (dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F)
                              & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D))
             == {B: False, C: True, A: True, F: False, D: True, E: False})
@@ -170,6 +170,7 @@ def test_unify():
     # must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
     assert unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) == {z: A, x: F(A), u: G(y)}
     assert unify(expr('P(x, A, F(G(y)))'), expr('P(F(z), z, F(u))')) == {x: F(A), z: A, u: G(y)}
+
 
 def test_pl_fc_entails():
     assert pl_fc_entails(horn_clauses_KB, expr('Q'))
@@ -255,7 +256,7 @@ def test_distribute_and_over_or():
 
 def test_to_cnf():
     assert (repr(to_cnf(wumpus_world_inference & ~expr('~P12'))) ==
-            "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)")
+            '((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)')
     assert repr(to_cnf((P & Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
     assert repr(to_cnf('A <=> B')) == '((A | ~B) & (B | ~A))'
     assert repr(to_cnf("B <=> (P1 | P2)")) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
@@ -320,9 +321,11 @@ def test_d():
 
 
 def test_WalkSAT():
-    def check_SAT(clauses, single_solution={}):
+    def check_SAT(clauses, single_solution=None):
         # Make sure the solution is correct if it is returned by WalkSat
         # Sometimes WalkSat may run out of flips before finding a solution
+        if single_solution is None:
+            single_solution = {}
         soln = WalkSAT(clauses)
         if soln:
             assert all(pl_true(x, soln) for x in clauses)
@@ -346,9 +349,9 @@ def test_SAT_plan():
     transition = {'A': {'Left': 'A', 'Right': 'B'},
                   'B': {'Left': 'A', 'Right': 'C'},
                   'C': {'Left': 'B', 'Right': 'C'}}
-    assert SAT_plan('A', transition, 'C', 2) is None
-    assert SAT_plan('A', transition, 'B', 3) == ['Right']
-    assert SAT_plan('C', transition, 'A', 3) == ['Left', 'Left']
+    assert SAT_plan('A', transition, 'C', 1) is None
+    assert SAT_plan('A', transition, 'B', 2) == ['Right']
+    assert SAT_plan('C', transition, 'A', 2) == ['Left', 'Left']
 
     transition = {(0, 0): {'Right': (0, 1), 'Down': (1, 0)},
                   (0, 1): {'Left': (1, 0), 'Down': (1, 1)},
