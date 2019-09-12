@@ -646,6 +646,10 @@ class BackwardPlan(search.Problem):
 
 
 def CSPlan(planning_problem, solution_length, CSP_solver=ac_solver, arc_heuristic=sat_up):
+    """
+        Planning as Constraint Satisfaction Problem [Section 10.4.3]
+    """
+
     def st(var, stage):
         """Returns a string for the var-stage pair that can be used as a variable"""
         return str(var) + "_" + str(stage)
