@@ -335,20 +335,23 @@ def test_CSPlan():
     assert expr('Eat(Cake)') in cake_solution
     assert expr('Bake(Cake)') in cake_solution
 
-    # TODO fix expand_actions
-    # air_cargo_solution = CSPlan(air_cargo(), 6)
-    # assert expr('Load(C1, P1, SFO)') in air_cargo_solution
-    # assert expr('Fly(P1, SFO, JFK)') in air_cargo_solution
-    # assert expr('Unload(C1, P1, JFK)') in air_cargo_solution
-    # assert expr('Load(C2, P2, JFK)') in air_cargo_solution
-    # assert expr('Fly(P2, JFK, SFO)') in air_cargo_solution
-    # assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
+    air_cargo_solution = CSPlan(air_cargo(), 6)
+    assert air_cargo_solution == [expr('Load(C1, P1, SFO)'),
+                                  expr('Fly(P1, SFO, JFK)'),
+                                  expr('Unload(C1, P1, JFK)'),
+                                  expr('Load(C2, P1, JFK)'),
+                                  expr('Fly(P1, JFK, SFO)'),
+                                  expr('Unload(C2, P1, SFO)')] or [expr('Load(C1, P1, SFO)'),
+                                                                   expr('Fly(P1, SFO, JFK)'),
+                                                                   expr('Unload(C1, P1, JFK)'),
+                                                                   expr('Load(C2, P2, JFK)'),
+                                                                   expr('Fly(P2, JFK, SFO)'),
+                                                                   expr('Unload(C2, P2, SFO)')]
 
-    # TODO fix expand_actions
-    # sussman_anomaly_solution = CSPlan(three_block_tower(), 3)
-    # assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
-    # assert expr('Move(B, Table, C)') in sussman_anomaly_solution
-    # assert expr('Move(A, Table, B)') in sussman_anomaly_solution
+    sussman_anomaly_solution = CSPlan(three_block_tower(), 3)
+    assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
+    assert expr('Move(B, Table, C)') in sussman_anomaly_solution
+    assert expr('Move(A, Table, B)') in sussman_anomaly_solution
 
     blocks_world_solution = CSPlan(simple_blocks_world(), 3)
     assert expr('ToTable(A, B)') in blocks_world_solution
@@ -376,6 +379,11 @@ def test_SATPlan():
     cake_solution = SATPlan(have_cake_and_eat_cake_too(), 2)
     assert expr('Eat(Cake)') in cake_solution
     assert expr('Bake(Cake)') in cake_solution
+
+    sussman_anomaly_solution = SATPlan(three_block_tower(), 3)
+    assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
+    assert expr('Move(B, Table, C)') in sussman_anomaly_solution
+    assert expr('Move(A, Table, B)') in sussman_anomaly_solution
 
     blocks_world_solution = SATPlan(simple_blocks_world(), 3)
     assert expr('ToTable(A, B)') in blocks_world_solution
@@ -430,12 +438,23 @@ def test_linearize_class():
 
 
 def test_expand_actions():
-    assert len(spare_tire().expand_actions()) == 16
-    assert len(air_cargo().expand_actions()) == 360
+    assert len(spare_tire().expand_actions()) == 9
+    assert len(air_cargo().expand_actions()) == 20
     assert len(have_cake_and_eat_cake_too().expand_actions()) == 2
     assert len(socks_and_shoes().expand_actions()) == 4
     assert len(simple_blocks_world().expand_actions()) == 12
-    assert len(three_block_tower().expand_actions()) == 36
+    assert len(three_block_tower().expand_actions()) == 18
+    assert len(shopping_problem().expand_actions()) == 12
+
+
+def test_expand_feats_values():
+    assert len(spare_tire().expand_fluents()) == 10
+    assert len(air_cargo().expand_fluents()) == 18
+    assert len(have_cake_and_eat_cake_too().expand_fluents()) == 2
+    assert len(socks_and_shoes().expand_fluents()) == 4
+    assert len(simple_blocks_world().expand_fluents()) == 12
+    assert len(three_block_tower().expand_fluents()) == 16
+    assert len(shopping_problem().expand_fluents()) == 20
 
 
 def test_find_open_precondition():
@@ -447,10 +466,10 @@ def test_find_open_precondition():
 
     ss = socks_and_shoes()
     pop = PartialOrderPlanner(ss)
-    assert (pop.find_open_precondition()[0] == expr('LeftShoeOn') and pop.find_open_precondition()[2][
-        0].name == 'LeftShoe') or (
-                   pop.find_open_precondition()[0] == expr('RightShoeOn') and pop.find_open_precondition()[2][
-               0].name == 'RightShoe')
+    assert (pop.find_open_precondition()[0] == expr('LeftShoeOn') and
+            pop.find_open_precondition()[2][0].name == 'LeftShoe') or (
+                   pop.find_open_precondition()[0] == expr('RightShoeOn') and
+                   pop.find_open_precondition()[2][0].name == 'RightShoe')
     assert pop.find_open_precondition()[1] == pop.finish
 
     cp = have_cake_and_eat_cake_too()
