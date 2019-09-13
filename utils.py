@@ -87,10 +87,7 @@ def powerset(iterable):
 
 
 def extend(s, var, val):
-    """Copy dict s and extend it by setting var to val; return copy.
-    >>> extend({x: 1}, y, 2) == {x: 1, y: 2}
-    True
-    """
+    """Copy dict s and extend it by setting var to val; return copy."""
     s2 = s.copy()
     s2[var] = val
     return s2
