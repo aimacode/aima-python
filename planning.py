@@ -7,8 +7,8 @@ from collections import deque, defaultdict
 from functools import reduce as _reduce
 
 import search
+from csp import sat_up, NaryCSP, Constraint, ac_search_solver
 from logic import FolKB, conjuncts, unify, associate, SAT_plan, dpll_satisfiable
-from csp import ac_solver, sat_up, NaryCSP, Constraint
 from search import Node
 from utils import Expr, expr, first
 
@@ -645,7 +645,7 @@ class BackwardPlan(search.Problem):
             return float('inf')
 
 
-def CSPlan(planning_problem, solution_length, CSP_solver=ac_solver, arc_heuristic=sat_up):
+def CSPlan(planning_problem, solution_length, CSP_solver=ac_search_solver, arc_heuristic=sat_up):
     """
         Planning as Constraint Satisfaction Problem [Section 10.4.3]
     """

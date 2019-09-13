@@ -422,8 +422,7 @@ def test_linearize_class():
         [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'),
          expr('Unload(C1, P1, JFK)'), expr('Unload(C2, P2, SFO)')],
         [expr('Load(C2, P2, JFK)'), expr('Fly(P2, JFK, SFO)'), expr('Load(C1, P1, SFO)'), expr('Fly(P1, SFO, JFK)'),
-         expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')]
-    ]
+         expr('Unload(C2, P2, SFO)'), expr('Unload(C1, P1, JFK)')]]
     assert Linearize(ac).execute() in possible_solutions
 
     ss = socks_and_shoes()
@@ -432,8 +431,7 @@ def test_linearize_class():
                           [expr('RightSock'), expr('LeftSock'), expr('LeftShoe'), expr('RightShoe')],
                           [expr('RightSock'), expr('LeftSock'), expr('RightShoe'), expr('LeftShoe')],
                           [expr('LeftSock'), expr('LeftShoe'), expr('RightSock'), expr('RightShoe')],
-                          [expr('RightSock'), expr('RightShoe'), expr('LeftSock'), expr('LeftShoe')]
-                          ]
+                          [expr('RightSock'), expr('RightShoe'), expr('LeftSock'), expr('LeftShoe')]]
     assert Linearize(ss).execute() in possible_solutions
 
 

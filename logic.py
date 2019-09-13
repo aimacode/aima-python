@@ -39,8 +39,8 @@ from csp import parse_neighbors, UniversalDict
 from search import astar_search, PlanRoute
 from utils import (
     removeall, unique, first, argmax, probability,
-    isnumber, issequence, Expr, expr, subexpressions
-)
+    isnumber, issequence, Expr, expr, subexpressions,
+    extend)
 
 
 # ______________________________________________________________________________
@@ -1387,16 +1387,6 @@ def occur_check(var, x, s):
         return first(e for e in x if occur_check(var, e, s))
     else:
         return False
-
-
-def extend(s, var, val):
-    """Copy the substitution s and extend it by setting var to val; return copy.
-    >>> extend({x: 1}, y, 2) == {x: 1, y: 2}
-    True
-    """
-    s2 = s.copy()
-    s2[var] = val
-    return s2
 
 
 def subst(s, x):

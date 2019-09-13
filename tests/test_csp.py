@@ -315,7 +315,6 @@ def test_forward_checking():
     assert csp.curr_domains['C'] == [1, 3]
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
-    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4, 7], 'C': [0, 1, 2, 3, 4]}
     csp.support_pruning()
 
     value = 7
@@ -429,9 +428,42 @@ def test_tree_csp_solver():
            (tcs['NT'] == 'B' and tcs['WA'] == 'R' and tcs['Q'] == 'R' and tcs['NSW'] == 'B' and tcs['V'] == 'R')
 
 
+def test_ac_solver():
+    assert ac_solver(csp_crossword) == {'one_across': 'has',
+                                        'one_down': 'hold',
+                                        'two_down': 'syntax',
+                                        'three_across': 'land',
+                                        'four_across': 'ant'} or {'one_across': 'bus',
+                                                                  'one_down': 'buys',
+                                                                  'two_down': 'search',
+                                                                  'three_across': 'year',
+                                                                  'four_across': 'car'}
+    assert ac_solver(two_two_four) == {'T': 7, 'F': 1, 'W': 6, 'O': 5, 'U': 3, 'R': 0, 'C1': 1, 'C2': 1, 'C3': 1} or \
+           {'T': 9, 'F': 1, 'W': 2, 'O': 8, 'U': 5, 'R': 6, 'C1': 1, 'C2': 0, 'C3': 1}
+    assert ac_solver(send_more_money) == {'S': 9, 'M': 1, 'E': 5, 'N': 6, 'D': 7, 'O': 0, 'R': 8, 'Y': 2,
+                                          'C1': 1, 'C2': 1, 'C3': 0, 'C4': 1}
+
+
+def test_ac_search_solver():
+    assert ac_search_solver(csp_crossword) == {'one_across': 'has',
+                                               'one_down': 'hold',
+                                               'two_down': 'syntax',
+                                               'three_across': 'land',
+                                               'four_across': 'ant'} or {'one_across': 'bus',
+                                                                         'one_down': 'buys',
+                                                                         'two_down': 'search',
+                                                                         'three_across': 'year',
+                                                                         'four_across': 'car'}
+    assert ac_search_solver(two_two_four) == {'T': 7, 'F': 1, 'W': 6, 'O': 5, 'U': 3, 'R': 0,
+                                              'C1': 1, 'C2': 1, 'C3': 1} or \
+           {'T': 9, 'F': 1, 'W': 2, 'O': 8, 'U': 5, 'R': 6, 'C1': 1, 'C2': 0, 'C3': 1}
+    assert ac_search_solver(send_more_money) == {'S': 9, 'M': 1, 'E': 5, 'N': 6, 'D': 7, 'O': 0, 'R': 8, 'Y': 2,
+                                                 'C1': 1, 'C2': 1, 'C3': 0, 'C4': 1}
+
+
 def test_different_values_constraint():
-    assert different_values_constraint('A', 1, 'B', 2) == True
-    assert different_values_constraint('A', 1, 'B', 1) == False
+    assert different_values_constraint('A', 1, 'B', 2)
+    assert not different_values_constraint('A', 1, 'B', 1)
 
 
 def test_flatten():
@@ -520,7 +552,7 @@ def test_mac():
     assignment = {'A': 0}
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
-    assert mac(csp, var, value, assignment, None) == True
+    assert mac(csp, var, value, assignment, None)
 
     neighbors = parse_neighbors('A: B; B: ')
     domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
@@ -530,11 +562,11 @@ def test_mac():
     assignment = {'A': 1}
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
-    assert mac(csp, var, value, assignment, None) == False
+    assert not mac(csp, var, value, assignment, None)
 
     constraints = lambda X, x, Y, y: x % 2 != 0 and (x + y) == 6 and y % 2 != 0
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
-    assert mac(csp, var, value, assignment, None) == True
+    assert mac(csp, var, value, assignment, None)
 
 
 def test_queen_constraint():

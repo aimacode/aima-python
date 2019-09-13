@@ -4,7 +4,7 @@ from operator import eq
 
 from sortedcontainers import SortedSet
 
-from utils import argmin_random_tie, count, first
+from utils import argmin_random_tie, count, first, extend
 import search
 
 from collections import defaultdict
@@ -286,11 +286,11 @@ def backtracking_search(csp,
 
 
 # ______________________________________________________________________________
-# Min-conflicts hillclimbing search for CSPs
+# Min-conflicts Hill Climbing search for CSPs
 
 
 def min_conflicts(csp, max_steps=100000):
-    """Solve a CSP by stochastic hillclimbing on the number of conflicts."""
+    """Solve a CSP by stochastic Hill Climbing on the number of conflicts."""
     # Generate a complete assignment for all variables (probably with conflicts)
     csp.current = current = {}
     for var in csp.variables:
@@ -750,7 +750,7 @@ def solve_zebra(algorithm=min_conflicts, **args):
 
 
 # ______________________________________________________________________________
-# Nary Constraint Satisfaction Problem
+# n-ary Constraint Satisfaction Problem
 
 class NaryCSP:
     """A nary-CSP consists of
@@ -892,7 +892,7 @@ class ACSolver:
         self.csp = csp
 
     def GAC(self, orig_domains=None, to_do=None, arc_heuristic=sat_up):
-        """Makes this CSP arc-consistent using generalized arc consistency
+        """Makes this CSP arc-consistent using Generalized Arc Consistency
         orig_domains is the original domains
         to_do is a set of (variable,constraint) pairs
         returns the reduced domains (an arc-consistent variable:domain dictionary)
@@ -917,7 +917,7 @@ class ACSolver:
                 new_domain = {val for val in domains[var]
                               if any(const.holds({var: val, other: other_val})
                                      for other_val in domains[other])}
-            else:  # general case
+            else:
                 new_domain = {val for val in domains[var]
                               if self.any_holds(domains, const, {var: val}, other_vars)}
             if new_domain != domains[var]:
@@ -970,8 +970,8 @@ class ACSolver:
             var = first(x for x in self.csp.variables if len(new_domains[x]) > 1)
             if var:
                 dom1, dom2 = partition_domain(new_domains[var])
-                new_doms1 = copy_with_assign(new_domains, var, dom1)
-                new_doms2 = copy_with_assign(new_domains, var, dom2)
+                new_doms1 = extend(new_domains, var, dom1)
+                new_doms2 = extend(new_domains, var, dom2)
                 to_do = self.new_to_do(var, None)
                 return self.domain_splitting(new_doms1, to_do, arc_heuristic) or \
                        self.domain_splitting(new_doms2, to_do, arc_heuristic)
@@ -983,18 +983,6 @@ def partition_domain(dom):
     dom1 = set(list(dom)[:split])
     dom2 = dom - dom1
     return dom1, dom2
-
-
-def copy_with_assign(domains, var=None, new_domain=None):
-    """create a copy of the domains with an assignment var=new_domain
-    if var == None then it is just a copy.
-    """
-    if new_domain is None:
-        new_domain = {True, False}
-    new_domains = domains.copy()
-    if var is not None:
-        new_domains[var] = new_domain
-    return new_domains
 
 
 class ACSearchSolver(search.Problem):
@@ -1015,18 +1003,19 @@ class ACSearchSolver(search.Problem):
 
     def actions(self, state):
         var = first(x for x in state if len(state[x]) > 1)
+        neighs = []
         if var:
             dom1, dom2 = partition_domain(state[var])
-            return [dom1, dom2]
+            to_do = self.cons.new_to_do(var, None)
+            for dom in [dom1, dom2]:
+                new_domains = extend(state, var, dom)
+                consistency, cons_doms = self.cons.GAC(new_domains, to_do, self.heuristic)
+                if consistency:
+                    neighs.append(cons_doms)
+        return neighs
 
     def result(self, state, action):
-        var = first(x for x in state if len(state[x]) > 1)
-        if var:
-            to_do = self.cons.new_to_do(var, None)
-            new_domains = copy_with_assign(state, var, action)
-            consistency, cons_doms = self.cons.GAC(new_domains, to_do, self.heuristic)
-            if consistency:
-                return cons_doms
+        return action
 
 
 def ac_solver(csp, arc_heuristic=sat_up):
@@ -1037,7 +1026,13 @@ def ac_solver(csp, arc_heuristic=sat_up):
 def ac_search_solver(csp, arc_heuristic=sat_up):
     """arc consistency (search interface)"""
     from search import depth_first_tree_search
-    return depth_first_tree_search(ACSearchSolver(csp, arc_heuristic=arc_heuristic)).state
+    solution = None
+    try:
+        solution = depth_first_tree_search(ACSearchSolver(csp, arc_heuristic=arc_heuristic)).state
+    except:
+        return solution
+    if solution:
+        return {var: first(solution[var]) for var in solution}
 
 
 # ______________________________________________________________________________
@@ -1104,18 +1099,18 @@ class Crossword(NaryCSP):
             puzzle = ""
             for j, element in enumerate(line):
                 if element == '*':
-                    puzzle += "[*]\t"
+                    puzzle += "[*] "
                 else:
                     var = "p" + str(j) + str(i)
                     if assignment is not None:
                         if isinstance(assignment[var], set) and len(assignment[var]) is 1:
-                            puzzle += "[" + str(first(assignment[var])).upper() + "]\t"
+                            puzzle += "[" + str(first(assignment[var])).upper() + "] "
                         elif isinstance(assignment[var], str):
-                            puzzle += "[" + str(assignment[var]).upper() + "]\t"
+                            puzzle += "[" + str(assignment[var]).upper() + "] "
                         else:
-                            puzzle += "[_]\t"
+                            puzzle += "[_] "
                     else:
-                        puzzle += "[_]\t"
+                        puzzle += "[_] "
             print(puzzle)
 
 
