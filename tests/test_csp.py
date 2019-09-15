@@ -190,14 +190,14 @@ def test_revise():
 def test_AC3():
     neighbors = parse_neighbors('A: B; B: ')
     domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
-    constraints = lambda X, x, Y, y: x % 2 == 0 and (x + y) == 4 and y % 2 != 0
+    constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4 and y % 2 != 0
     removals = []
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
     assert not AC3(csp, removals=removals)
 
-    constraints = lambda X, x, Y, y: (x % 2) == 0 and (x + y) == 4
+    constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4
     removals = []
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
@@ -206,11 +206,63 @@ def test_AC3():
             removals == [('B', 1), ('B', 3), ('A', 1), ('A', 3)])
 
     domains = {'A': [2, 4], 'B': [3, 5]}
-    constraints = lambda X, x, Y, y: int(x) > int(y)
+    constraints = lambda X, x, Y, y: (X == 'A' and Y == 'B') or (X == 'B' and Y == 'A') and x > y
     removals = []
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
     assert AC3(csp, removals=removals)
+
+
+def test_AC3b():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4 and y % 2 != 0
+    removals = []
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert not AC3b(csp, removals=removals)
+
+    constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4
+    removals = []
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert AC3b(csp, removals=removals)
+    assert (removals == [('A', 1), ('A', 3), ('B', 1), ('B', 3)] or
+            removals == [('B', 1), ('B', 3), ('A', 1), ('A', 3)])
+
+    domains = {'A': [2, 4], 'B': [3, 5]}
+    constraints = lambda X, x, Y, y: (X == 'A' and Y == 'B') or (X == 'B' and Y == 'A') and x > y
+    removals = []
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert AC3b(csp, removals=removals)
+
+
+def test_AC4():
+    neighbors = parse_neighbors('A: B; B: ')
+    domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
+    constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4 and y % 2 != 0
+    removals = []
+
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert not AC4(csp, removals=removals)
+
+    constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4
+    removals = []
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert AC4(csp, removals=removals)
+    assert (removals == [('A', 1), ('A', 3), ('B', 1), ('B', 3)] or
+            removals == [('B', 1), ('B', 3), ('A', 1), ('A', 3)])
+
+    domains = {'A': [2, 4], 'B': [3, 5]}
+    constraints = lambda X, x, Y, y: (X == 'A' and Y == 'B') or (X == 'B' and Y == 'A') and x > y
+    removals = []
+    csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
+
+    assert AC4(csp, removals=removals)
 
 
 def test_first_unassigned_variable():
@@ -241,7 +293,7 @@ def test_num_legal_values():
 def test_mrv():
     neighbors = parse_neighbors('A: B; B: C; C: ')
     domains = {'A': [0, 1, 2, 3, 4], 'B': [4], 'C': [0, 1, 2, 3, 4]}
-    constraints = lambda X, x, Y, y: x % 2 == 0 and (x + y) == 4
+    constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
     assignment = {'A': 0}
 
@@ -346,7 +398,7 @@ def test_min_conflicts():
     assert min_conflicts(NQueensCSP(3), 1000) is None
 
 
-def test_nqueens_csp():
+def test_nqueensCSP():
     csp = NQueensCSP(8)
 
     assignment = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4}

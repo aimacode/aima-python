@@ -1,13 +1,13 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
 import string
-from operator import eq
+from operator import eq, neg
 
 from sortedcontainers import SortedSet
 
 from utils import argmin_random_tie, count, first, extend
 import search
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from functools import reduce
 
 import itertools
@@ -163,11 +163,20 @@ class CSP(search.Problem):
 # Constraint Propagation with AC-3
 
 
-def AC3(csp, queue=None, removals=None):
+def no_arc_heuristic(csp, queue):
+    return queue
+
+
+def dom_j_up(csp, queue):
+    return SortedSet(queue, key=lambda t: neg(len(csp.curr_domains[t[1]])))
+
+
+def AC3(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
     """[Figure 6.3]"""
     if queue is None:
         queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
     csp.support_pruning()
+    queue = arc_heuristic(csp, queue)
     while queue:
         (Xi, Xj) = queue.pop()
         if revise(csp, Xi, Xj, removals):
@@ -188,6 +197,130 @@ def revise(csp, Xi, Xj, removals):
             csp.prune(Xi, x, removals)
             revised = True
     return revised
+
+
+# Constraint Propagation with AC-3b: an improved version of AC-3 with
+# double-support domain-heuristic
+
+def AC3b(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
+    if queue is None:
+        queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
+    csp.support_pruning()
+    queue = arc_heuristic(csp, queue)
+    while queue:
+        (Xi, Xj) = queue.pop()
+        # Si_p values are all known to be supported by Xj
+        # Sj_p values are all known to be supported by Xi
+        # Dj - Sj_p = Sj_u values are unknown, as yet, to be supported by Xi
+        Si_p, Sj_p, Sj_u = partition(csp, Xi, Xj)
+        if not Si_p:
+            return False
+        revised = False
+        for x in set(csp.curr_domains[Xi]) - Si_p:
+            csp.prune(Xi, x, removals)
+            revised = True
+        if revised:
+            for Xk in csp.neighbors[Xi]:
+                if Xk != Xj:
+                    queue.add((Xk, Xi))
+        if (Xj, Xi) in queue:
+            if isinstance(queue, set):
+                # or queue -= {(Xj, Xi)} or queue.remove((Xj, Xi))
+                queue.difference_update({(Xj, Xi)})
+            else:
+                queue.difference_update((Xj, Xi))
+            # the elements in D_j which are supported by Xi are given by the union of Sj_p with the set of those
+            # elements of Sj_u which further processing will show to be supported by some vi_p in Si_p
+            for vj_p in Sj_u:
+                for vi_p in Si_p:
+                    conflict = True
+                    if csp.constraints(Xj, vj_p, Xi, vi_p):
+                        conflict = False
+                        Sj_p.add(vj_p)
+                    if not conflict:
+                        break
+            revised = False
+            for x in set(csp.curr_domains[Xj]) - Sj_p:
+                csp.prune(Xj, x, removals)
+                revised = True
+            if revised:
+                for Xk in csp.neighbors[Xj]:
+                    if Xk != Xi:
+                        queue.add((Xk, Xj))
+    return True
+
+
+def partition(csp, Xi, Xj):
+    Si_p = set()
+    Sj_p = set()
+    Sj_u = set(csp.curr_domains[Xj])
+    for vi_u in csp.curr_domains[Xi]:
+        conflict = True
+        # now, in order to establish support for a value vi_u in Di it seems better to try to find a support among
+        # the values in Sj_u first, because for each vj_u in Sj_u the check (vi_u, vj_u) is a double-support check
+        # and it is just as likely that any vj_u in Sj_u supports vi_u than it is that any vj_p in Sj_p does...
+        for vj_u in Sj_u - Sj_p:
+            # double-support check
+            if csp.constraints(Xi, vi_u, Xj, vj_u):
+                conflict = False
+                Si_p.add(vi_u)
+                Sj_p.add(vj_u)
+            if not conflict:
+                break
+        # ... and only if no support can be found among the elements in Sj_u, should the elements vj_p in Sj_p be used
+        # for single-support checks (vi_u, vj_p)
+        if conflict:
+            for vj_p in Sj_p:
+                # single-support check
+                if csp.constraints(Xi, vi_u, Xj, vj_p):
+                    conflict = False
+                    Si_p.add(vi_u)
+                if not conflict:
+                    break
+    return Si_p, Sj_p, Sj_u - Sj_p
+
+
+# Constraint Propagation with AC-4
+
+def AC4(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
+    if queue is None:
+        queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
+    csp.support_pruning()
+    queue = arc_heuristic(csp, queue)
+    support_counter = Counter()
+    variable_value_pairs_supported = defaultdict(set)
+    unsupported_variable_value_pairs = []
+    # construction and initialization of support sets
+    while queue:
+        (Xi, Xj) = queue.pop()
+        revised = False
+        for x in csp.curr_domains[Xi][:]:
+            for y in csp.curr_domains[Xj]:
+                if csp.constraints(Xi, x, Xj, y):
+                    support_counter[(Xi, x, Xj)] += 1
+                    variable_value_pairs_supported[(Xj, y)].add((Xi, x))
+            if support_counter[(Xi, x, Xj)] == 0:
+                csp.prune(Xi, x, removals)
+                revised = True
+                unsupported_variable_value_pairs.append((Xi, x))
+        if revised:
+            if not csp.curr_domains[Xi]:
+                return False
+    # propagation of removed values
+    while unsupported_variable_value_pairs:
+        Xj, y = unsupported_variable_value_pairs.pop()
+        for Xi, x in variable_value_pairs_supported[(Xj, y)]:
+            revised = False
+            if x in csp.curr_domains[Xi][:]:
+                support_counter[(Xi, x, Xj)] -= 1
+                if support_counter[(Xi, x, Xj)] == 0:
+                    csp.prune(Xi, x, removals)
+                    revised = True
+                    unsupported_variable_value_pairs.append((Xi, x))
+            if revised:
+                if not csp.curr_domains[Xi]:
+                    return False
+    return True
 
 
 # ______________________________________________________________________________
@@ -250,9 +383,9 @@ def forward_checking(csp, var, value, assignment, removals):
     return True
 
 
-def mac(csp, var, value, assignment, removals):
+def mac(csp, var, value, assignment, removals, constraint_propagation=AC3b):
     """Maintain arc consistency."""
-    return AC3(csp, {(X, var) for X in csp.neighbors[var]}, removals)
+    return constraint_propagation(csp, {(X, var) for X in csp.neighbors[var]}, removals)
 
 
 # The search, proper

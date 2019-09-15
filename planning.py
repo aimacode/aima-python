@@ -7,7 +7,7 @@ from collections import deque, defaultdict
 from functools import reduce as _reduce
 
 import search
-from csp import sat_up, NaryCSP, Constraint, ac_search_solver
+from csp import sat_up, NaryCSP, Constraint, ac_search_solver, is_
 from logic import FolKB, conjuncts, unify, associate, SAT_plan, dpll_satisfiable
 from search import Node
 from utils import Expr, expr, first

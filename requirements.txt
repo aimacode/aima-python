@@ -1,3 +1,4 @@
+pytest
 sortedcontainers
 networkx==1.11
 jupyter
