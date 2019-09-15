@@ -814,64 +814,64 @@ class Constraint:
         """
         return self.condition(*tuple(assignment[v] for v in self.scope))
 
-    @staticmethod
-    def ne_(val):
-        """Returns a function that is True when x is not equal to val, False otherwise"""
 
-        def nev(x):
-            return val != x
+def all_diff(*values):
+    """Returns True if all values are different, False otherwise"""
+    return len(values) is len(set(values))
 
-        nev.__name__ = str(val) + "!="
-        return nev
 
-    @staticmethod
-    def is_(val):
-        """Returns a function that is True when x is equal to val, False otherwise"""
+def is_word(words):
+    """Returns True if the letters concatenated form a word in words, False otherwise"""
 
-        def isv(x):
-            return val == x
+    def isw(*letters):
+        return "".join(letters) in words
 
-        isv.__name__ = str(val) + "=="
-        return isv
+    return isw
 
-    @staticmethod
-    def sum_(n):
-        """Returns a function that is True when the the sum of all values is n, False otherwise"""
 
-        def sumv(*values):
-            return sum(values) is n
+def meet_at(p1, p2):
+    """Returns a function that is True when the words meet at the positions (p1, p2), False otherwise"""
 
-        sumv.__name__ = str(n) + "==sum"
-        return sumv
+    def meets(w1, w2):
+        return w1[p1] == w2[p2]
 
-    @staticmethod
-    def adjacent(x, y):
-        """Returns True if x and y are adjacent numbers, False otherwise"""
-        return abs(x - y) == 1
+    meets.__name__ = "meet_at(" + str(p1) + ',' + str(p2) + ')'
+    return meets
 
-    @staticmethod
-    def meet_at(p1, p2):
-        """Returns a function that is True when the words meet at the positions (p1, p2), False otherwise"""
 
-        def meets(w1, w2):
-            return w1[p1] == w2[p2]
+def adjacent(x, y):
+    """Returns True if x and y are adjacent numbers, False otherwise"""
+    return abs(x - y) == 1
 
-        meets.__name__ = "meet_at(" + str(p1) + ',' + str(p2) + ')'
-        return meets
 
-    @staticmethod
-    def is_word(words):
-        """Returns True if the letters concatenated form a word in words, False otherwise"""
+def sum_(n):
+    """Returns a function that is True when the the sum of all values is n, False otherwise"""
 
-        def isw(*letters):
-            return "".join(letters) in words
+    def sumv(*values):
+        return sum(values) is n
 
-        return isw
+    sumv.__name__ = str(n) + "==sum"
+    return sumv
 
-    @staticmethod
-    def all_diff(*values):
-        """Returns True if all values are different, False otherwise"""
-        return len(values) is len(set(values))
+
+def is_(val):
+    """Returns a function that is True when x is equal to val, False otherwise"""
+
+    def isv(x):
+        return val == x
+
+    isv.__name__ = str(val) + "=="
+    return isv
+
+
+def ne_(val):
+    """Returns a function that is True when x is not equal to val, False otherwise"""
+
+    def nev(x):
+        return val != x
+
+    nev.__name__ = str(val) + "!="
+    return nev
 
 
 def no_heuristic(to_do):
@@ -1044,11 +1044,11 @@ csp_crossword = NaryCSP({'one_across': {'ant', 'big', 'bus', 'car', 'has'},
                          'two_down': {'ginger', 'search', 'symbol', 'syntax'},
                          'three_across': {'book', 'buys', 'hold', 'land', 'year'},
                          'four_across': {'ant', 'big', 'bus', 'car', 'has'}},
-                        [Constraint(('one_across', 'one_down'), Constraint.meet_at(0, 0)),
-                         Constraint(('one_across', 'two_down'), Constraint.meet_at(2, 0)),
-                         Constraint(('three_across', 'two_down'), Constraint.meet_at(2, 2)),
-                         Constraint(('three_across', 'one_down'), Constraint.meet_at(0, 2)),
-                         Constraint(('four_across', 'two_down'), Constraint.meet_at(0, 4))])
+                        [Constraint(('one_across', 'one_down'), meet_at(0, 0)),
+                         Constraint(('one_across', 'two_down'), meet_at(2, 0)),
+                         Constraint(('three_across', 'two_down'), meet_at(2, 2)),
+                         Constraint(('three_across', 'one_down'), meet_at(0, 2)),
+                         Constraint(('four_across', 'two_down'), meet_at(0, 4))])
 
 crossword1 = [['_', '_', '_', '*', '*'],
               ['_', '*', '_', '*', '*'],
@@ -1075,10 +1075,10 @@ class Crossword(NaryCSP):
                     scope.append(var)
                 else:
                     if len(scope) > 1:
-                        constraints.append(Constraint(tuple(scope), Constraint.is_word(words)))
+                        constraints.append(Constraint(tuple(scope), is_word(words)))
                     scope.clear()
             if len(scope) > 1:
-                constraints.append(Constraint(tuple(scope), Constraint.is_word(words)))
+                constraints.append(Constraint(tuple(scope), is_word(words)))
         puzzle_t = list(map(list, zip(*puzzle)))
         for i, line in enumerate(puzzle_t):
             scope = []
@@ -1087,10 +1087,10 @@ class Crossword(NaryCSP):
                     scope.append("p" + str(i) + str(j))
                 else:
                     if len(scope) > 1:
-                        constraints.append(Constraint(tuple(scope), Constraint.is_word(words)))
+                        constraints.append(Constraint(tuple(scope), is_word(words)))
                     scope.clear()
             if len(scope) > 1:
-                constraints.append(Constraint(tuple(scope), Constraint.is_word(words)))
+                constraints.append(Constraint(tuple(scope), is_word(words)))
         super().__init__(domains, constraints)
         self.puzzle = puzzle
 
@@ -1196,8 +1196,8 @@ class Karuko(NaryCSP):
                             if len(var2) == 1:
                                 var2 = "0" + var2
                             x.append("X" + var1 + var2)
-                        constraints.append(Constraint(x, Constraint.sum_(element[0])))
-                        constraints.append(Constraint(x, Constraint.all_diff))
+                        constraints.append(Constraint(x, sum_(element[0])))
+                        constraints.append(Constraint(x, all_diff))
                     # right - line
                     if element[1] != '':
                         x = []
@@ -1211,8 +1211,8 @@ class Karuko(NaryCSP):
                             if len(var2) == 1:
                                 var2 = "0" + var2
                             x.append("X" + var1 + var2)
-                        constraints.append(Constraint(x, Constraint.sum_(element[1])))
-                        constraints.append(Constraint(x, Constraint.all_diff))
+                        constraints.append(Constraint(x, sum_(element[1])))
+                        constraints.append(Constraint(x, all_diff))
         super().__init__(domains, constraints)
         self.puzzle = puzzle
 
@@ -1252,7 +1252,7 @@ class Karuko(NaryCSP):
 two_two_four = NaryCSP({'T': set(range(1, 10)), 'F': set(range(1, 10)),
                         'W': set(range(0, 10)), 'O': set(range(0, 10)), 'U': set(range(0, 10)), 'R': set(range(0, 10)),
                         'C1': set(range(0, 2)), 'C2': set(range(0, 2)), 'C3': set(range(0, 2))},
-                       [Constraint(('T', 'F', 'W', 'O', 'U', 'R'), Constraint.all_diff),
+                       [Constraint(('T', 'F', 'W', 'O', 'U', 'R'), all_diff),
                         Constraint(('O', 'R', 'C1'), lambda o, r, c1: o + o == r + 10 * c1),
                         Constraint(('W', 'U', 'C1', 'C2'), lambda w, u, c1, c2: c1 + w + w == u + 10 * c2),
                         Constraint(('T', 'O', 'C2', 'C3'), lambda t, o, c2, c3: c2 + t + t == o + 10 * c3),
@@ -1264,7 +1264,7 @@ send_more_money = NaryCSP({'S': set(range(1, 10)), 'M': set(range(1, 10)),
                            'O': set(range(0, 10)), 'R': set(range(0, 10)), 'Y': set(range(0, 10)),
                            'C1': set(range(0, 2)), 'C2': set(range(0, 2)), 'C3': set(range(0, 2)),
                            'C4': set(range(0, 2))},
-                          [Constraint(('S', 'E', 'N', 'D', 'M', 'O', 'R', 'Y'), Constraint.all_diff),
+                          [Constraint(('S', 'E', 'N', 'D', 'M', 'O', 'R', 'Y'), all_diff),
                            Constraint(('D', 'E', 'Y', 'C1'), lambda d, e, y, c1: d + e == y + 10 * c1),
                            Constraint(('N', 'R', 'E', 'C1', 'C2'), lambda n, r, e, c1, c2: c1 + n + r == e + 10 * c2),
                            Constraint(('E', 'O', 'N', 'C2', 'C3'), lambda e, o, n, c2, c3: c2 + e + o == n + 10 * c3),

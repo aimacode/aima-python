@@ -679,15 +679,15 @@ def CSPlan(planning_problem, solution_length, CSP_solver=ac_search_solver, arc_h
         domains = {av: list(map(lambda action: expr(str(action)), expanded_actions)) for av in act_vars}
         domains.update({st(var, stage): {True, False} for var in fluent_values for stage in range(horizon + 2)})
         # initial state constraints
-        constraints = [Constraint((st(var, 0),), Constraint.is_(val))
+        constraints = [Constraint((st(var, 0),), is_(val))
                        for (var, val) in {expr(str(fluent).replace('Not', '')):
                                               True if fluent.op[:3] != 'Not' else False
                                           for fluent in planning_problem.initial}.items()]
-        constraints += [Constraint((st(var, 0),), Constraint.is_(False))
+        constraints += [Constraint((st(var, 0),), is_(False))
                         for var in {expr(str(fluent).replace('Not', ''))
                                     for fluent in fluent_values if fluent not in planning_problem.initial}]
         # goal state constraints
-        constraints += [Constraint((st(var, horizon + 1),), Constraint.is_(val))
+        constraints += [Constraint((st(var, horizon + 1),), is_(val))
                         for (var, val) in {expr(str(fluent).replace('Not', '')):
                                                True if fluent.op[:3] != 'Not' else False
                                            for fluent in planning_problem.goals}.items()]
