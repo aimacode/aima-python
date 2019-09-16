@@ -7,6 +7,7 @@ from collections import deque, defaultdict
 from functools import reduce as _reduce
 
 import search
+from csp import sat_up, NaryCSP, Constraint, ac_search_solver, is_
 from logic import FolKB, conjuncts, unify, associate, SAT_plan, dpll_satisfiable
 from search import Node
 from utils import Expr, expr, first
@@ -19,10 +20,11 @@ class PlanningProblem:
     The conjunction of these logical statements completely defines a state.
     """
 
-    def __init__(self, initial, goals, actions):
-        self.initial = self.convert(initial)
+    def __init__(self, initial, goals, actions, domain=None):
+        self.initial = self.convert(initial) if domain is None else self.convert(initial) + self.convert(domain)
         self.goals = self.convert(goals)
         self.actions = actions
+        self.domain = domain
 
     def convert(self, clauses):
         """Converts strings into exprs"""
@@ -44,8 +46,49 @@ class PlanningProblem:
                 new_clauses.append(clause)
         return new_clauses
 
+    def expand_fluents(self, name=None):
+
+        kb = None
+        if self.domain:
+            kb = FolKB(self.convert(self.domain))
+            for action in self.actions:
+                if action.precond:
+                    for fests in set(action.precond).union(action.effect).difference(self.convert(action.domain)):
+                        if fests.op[:3] != 'Not':
+                            kb.tell(expr(str(action.domain) + ' ==> ' + str(fests)))
+
+        objects = set(arg for clause in set(self.initial + self.goals) for arg in clause.args)
+        fluent_list = []
+        if name is not None:
+            for fluent in self.initial + self.goals:
+                if str(fluent) == name:
+                    fluent_list.append(fluent)
+                    break
+        else:
+            fluent_list = list(map(lambda fluent: Expr(fluent[0], *fluent[1]),
+                                   {fluent.op: fluent.args for fluent in self.initial + self.goals +
+                                    [clause for action in self.actions for clause in action.effect if
+                                     clause.op[:3] != 'Not']}.items()))
+
+        expansions = []
+        for fluent in fluent_list:
+            for permutation in itertools.permutations(objects, len(fluent.args)):
+                new_fluent = Expr(fluent.op, *permutation)
+                if (self.domain and kb.ask(new_fluent) is not False) or not self.domain:
+                    expansions.append(new_fluent)
+
+        return expansions
+
     def expand_actions(self, name=None):
         """Generate all possible actions with variable bindings for precondition selection heuristic"""
+
+        has_domains = all(action.domain for action in self.actions if action.precond)
+        kb = None
+        if has_domains:
+            kb = FolKB(self.initial)
+            for action in self.actions:
+                if action.precond:
+                    kb.tell(expr(str(action.domain) + ' ==> ' + str(action)))
 
         objects = set(arg for clause in self.initial for arg in clause.args)
         expansions = []
@@ -69,27 +112,29 @@ class PlanningProblem:
                         else:
                             new_args.append(arg)
                     new_expr = Expr(str(action.name), *new_args)
-                    new_preconds = []
-                    for precond in action.precond:
-                        new_precond_args = []
-                        for arg in precond.args:
-                            if arg in bindings:
-                                new_precond_args.append(bindings[arg])
-                            else:
-                                new_precond_args.append(arg)
-                        new_precond = Expr(str(precond.op), *new_precond_args)
-                        new_preconds.append(new_precond)
-                    new_effects = []
-                    for effect in action.effect:
-                        new_effect_args = []
-                        for arg in effect.args:
-                            if arg in bindings:
-                                new_effect_args.append(bindings[arg])
-                            else:
-                                new_effect_args.append(arg)
-                        new_effect = Expr(str(effect.op), *new_effect_args)
-                        new_effects.append(new_effect)
-                    expansions.append(Action(new_expr, new_preconds, new_effects))
+                    if (has_domains and kb.ask(new_expr) is not False) or (
+                            has_domains and not action.precond) or not has_domains:
+                        new_preconds = []
+                        for precond in action.precond:
+                            new_precond_args = []
+                            for arg in precond.args:
+                                if arg in bindings:
+                                    new_precond_args.append(bindings[arg])
+                                else:
+                                    new_precond_args.append(arg)
+                            new_precond = Expr(str(precond.op), *new_precond_args)
+                            new_preconds.append(new_precond)
+                        new_effects = []
+                        for effect in action.effect:
+                            new_effect_args = []
+                            for arg in effect.args:
+                                if arg in bindings:
+                                    new_effect_args.append(bindings[arg])
+                                else:
+                                    new_effect_args.append(arg)
+                            new_effect = Expr(str(effect.op), *new_effect_args)
+                            new_effects.append(new_effect)
+                        expansions.append(Action(new_expr, new_preconds, new_effects))
 
         return expansions
 
@@ -132,13 +177,14 @@ class Action:
     eat = Action(expr("Eat(person, food)"), precond, effect)
     """
 
-    def __init__(self, action, precond, effect):
+    def __init__(self, action, precond, effect, domain=None):
         if isinstance(action, str):
             action = expr(action)
         self.name = action.op
         self.args = action.args
-        self.precond = self.convert(precond)
+        self.precond = self.convert(precond) if domain is None else self.convert(precond) + self.convert(domain)
         self.effect = self.convert(effect)
+        self.domain = domain
 
     def __call__(self, kb, args):
         return self.act(kb, args)
@@ -252,19 +298,21 @@ def air_cargo():
     >>>
     """
 
-    return PlanningProblem(
-        initial='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & '
-                'Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)',
-        goals='At(C1, JFK) & At(C2, SFO)',
-        actions=[Action('Load(c, p, a)',
-                        precond='At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
-                        effect='In(c, p) & ~At(c, a)'),
-                 Action('Unload(c, p, a)',
-                        precond='In(c, p) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)',
-                        effect='At(c, a) & ~In(c, p)'),
-                 Action('Fly(p, f, to)',
-                        precond='At(p, f) & Plane(p) & Airport(f) & Airport(to)',
-                        effect='At(p, to) & ~At(p, f)')])
+    return PlanningProblem(initial='At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK)',
+                           goals='At(C1, JFK) & At(C2, SFO)',
+                           actions=[Action('Load(c, p, a)',
+                                           precond='At(c, a) & At(p, a)',
+                                           effect='In(c, p) & ~At(c, a)',
+                                           domain='Cargo(c) & Plane(p) & Airport(a)'),
+                                    Action('Unload(c, p, a)',
+                                           precond='In(c, p) & At(p, a)',
+                                           effect='At(c, a) & ~In(c, p)',
+                                           domain='Cargo(c) & Plane(p) & Airport(a)'),
+                                    Action('Fly(p, f, to)',
+                                           precond='At(p, f)',
+                                           effect='At(p, to) & ~At(p, f)',
+                                           domain='Plane(p) & Airport(f) & Airport(to)')],
+                           domain='Cargo(C1) & Cargo(C2) & Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)')
 
 
 def spare_tire():
@@ -288,18 +336,21 @@ def spare_tire():
     >>>
     """
 
-    return PlanningProblem(initial='Tire(Flat) & Tire(Spare) & At(Flat, Axle) & At(Spare, Trunk)',
+    return PlanningProblem(initial='At(Flat, Axle) & At(Spare, Trunk)',
                            goals='At(Spare, Axle) & At(Flat, Ground)',
                            actions=[Action('Remove(obj, loc)',
                                            precond='At(obj, loc)',
-                                           effect='At(obj, Ground) & ~At(obj, loc)'),
+                                           effect='At(obj, Ground) & ~At(obj, loc)',
+                                           domain='Tire(obj)'),
                                     Action('PutOn(t, Axle)',
-                                           precond='Tire(t) & At(t, Ground) & ~At(Flat, Axle)',
-                                           effect='At(t, Axle) & ~At(t, Ground)'),
+                                           precond='At(t, Ground) & ~At(Flat, Axle)',
+                                           effect='At(t, Axle) & ~At(t, Ground)',
+                                           domain='Tire(t)'),
                                     Action('LeaveOvernight',
                                            precond='',
                                            effect='~At(Spare, Ground) & ~At(Spare, Axle) & ~At(Spare, Trunk) & \
-                                        ~At(Flat, Ground) & ~At(Flat, Axle) & ~At(Flat, Trunk)')])
+                                        ~At(Flat, Ground) & ~At(Flat, Axle) & ~At(Flat, Trunk)')],
+                           domain='Tire(Flat) & Tire(Spare)')
 
 
 def three_block_tower():
@@ -323,16 +374,17 @@ def three_block_tower():
     True
     >>>
     """
-
-    return PlanningProblem(
-        initial='On(A, Table) & On(B, Table) & On(C, A) & Block(A) & Block(B) & Block(C) & Clear(B) & Clear(C)',
-        goals='On(A, B) & On(B, C)',
-        actions=[Action('Move(b, x, y)',
-                        precond='On(b, x) & Clear(b) & Clear(y) & Block(b) & Block(y)',
-                        effect='On(b, y) & Clear(x) & ~On(b, x) & ~Clear(y)'),
-                 Action('MoveToTable(b, x)',
-                        precond='On(b, x) & Clear(b) & Block(b)',
-                        effect='On(b, Table) & Clear(x) & ~On(b, x)')])
+    return PlanningProblem(initial='On(A, Table) & On(B, Table) & On(C, A) & Clear(B) & Clear(C)',
+                           goals='On(A, B) & On(B, C)',
+                           actions=[Action('Move(b, x, y)',
+                                           precond='On(b, x) & Clear(b) & Clear(y)',
+                                           effect='On(b, y) & Clear(x) & ~On(b, x) & ~Clear(y)',
+                                           domain='Block(b) & Block(y)'),
+                                    Action('MoveToTable(b, x)',
+                                           precond='On(b, x) & Clear(b)',
+                                           effect='On(b, Table) & Clear(x) & ~On(b, x)',
+                                           domain='Block(b) & Block(x)')],
+                           domain='Block(A) & Block(B) & Block(C)')
 
 
 def simple_blocks_world():
@@ -425,10 +477,14 @@ def shopping_problem():
                            goals='Have(Milk) & Have(Banana) & Have(Drill)',
                            actions=[Action('Buy(x, store)',
                                            precond='At(store) & Sells(store, x)',
-                                           effect='Have(x)'),
+                                           effect='Have(x)',
+                                           domain='Store(store) & Item(x)'),
                                     Action('Go(x, y)',
                                            precond='At(x)',
-                                           effect='At(y) & ~At(x)')])
+                                           effect='At(y) & ~At(x)',
+                                           domain='Place(x) & Place(y)')],
+                           domain='Place(Home) & Place(SM) & Place(HW) & Store(SM) & Store(HW) & '
+                                  'Item(Milk) & Item(Banana) & Item(Drill)')
 
 
 def socks_and_shoes():
@@ -587,6 +643,79 @@ class BackwardPlan(search.Problem):
             return len(linearize(GraphPlan(relaxed_planning_problem).execute()))
         except:
             return float('inf')
+
+
+def CSPlan(planning_problem, solution_length, CSP_solver=ac_search_solver, arc_heuristic=sat_up):
+    """
+        Planning as Constraint Satisfaction Problem [Section 10.4.3]
+    """
+
+    def st(var, stage):
+        """Returns a string for the var-stage pair that can be used as a variable"""
+        return str(var) + "_" + str(stage)
+
+    def if_(v1, v2):
+        """If the second argument is v2, the first argument must be v1"""
+
+        def if_fun(x1, x2):
+            return x1 == v1 if x2 == v2 else True
+
+        if_fun.__name__ = "if the second argument is " + str(v2) + " then the first argument is " + str(v1) + " "
+        return if_fun
+
+    def eq_if_not_in_(actset):
+        """First and third arguments are equal if action is not in actset"""
+
+        def eq_if_not_in(x1, a, x2):
+            return x1 == x2 if a not in actset else True
+
+        eq_if_not_in.__name__ = "first and third arguments are equal if action is not in " + str(actset) + " "
+        return eq_if_not_in
+
+    expanded_actions = planning_problem.expand_actions()
+    fluent_values = planning_problem.expand_fluents()
+    for horizon in range(solution_length):
+        act_vars = [st('action', stage) for stage in range(horizon + 1)]
+        domains = {av: list(map(lambda action: expr(str(action)), expanded_actions)) for av in act_vars}
+        domains.update({st(var, stage): {True, False} for var in fluent_values for stage in range(horizon + 2)})
+        # initial state constraints
+        constraints = [Constraint((st(var, 0),), is_(val))
+                       for (var, val) in {expr(str(fluent).replace('Not', '')):
+                                              True if fluent.op[:3] != 'Not' else False
+                                          for fluent in planning_problem.initial}.items()]
+        constraints += [Constraint((st(var, 0),), is_(False))
+                        for var in {expr(str(fluent).replace('Not', ''))
+                                    for fluent in fluent_values if fluent not in planning_problem.initial}]
+        # goal state constraints
+        constraints += [Constraint((st(var, horizon + 1),), is_(val))
+                        for (var, val) in {expr(str(fluent).replace('Not', '')):
+                                               True if fluent.op[:3] != 'Not' else False
+                                           for fluent in planning_problem.goals}.items()]
+        # precondition constraints
+        constraints += [Constraint((st(var, stage), st('action', stage)), if_(val, act))
+                        # st(var, stage) == val if st('action', stage) == act
+                        for act, strps in {expr(str(action)): action for action in expanded_actions}.items()
+                        for var, val in {expr(str(fluent).replace('Not', '')):
+                                             True if fluent.op[:3] != 'Not' else False
+                                         for fluent in strps.precond}.items()
+                        for stage in range(horizon + 1)]
+        # effect constraints
+        constraints += [Constraint((st(var, stage + 1), st('action', stage)), if_(val, act))
+                        # st(var, stage + 1) == val if st('action', stage) == act
+                        for act, strps in {expr(str(action)): action for action in expanded_actions}.items()
+                        for var, val in {expr(str(fluent).replace('Not', '')): True if fluent.op[:3] != 'Not' else False
+                                         for fluent in strps.effect}.items()
+                        for stage in range(horizon + 1)]
+        # frame constraints
+        constraints += [Constraint((st(var, stage), st('action', stage), st(var, stage + 1)),
+                                   eq_if_not_in_(set(map(lambda action: expr(str(action)),
+                                                         {act for act in expanded_actions if var in act.effect
+                                                          or Expr('Not' + var.op, *var.args) in act.effect}))))
+                        for var in fluent_values for stage in range(horizon + 1)]
+        csp = NaryCSP(domains, constraints)
+        sol = CSP_solver(csp, arc_heuristic=arc_heuristic)
+        if sol:
+            return [sol[a] for a in act_vars]
 
 
 def SATPlan(planning_problem, solution_length, SAT_solver=dpll_satisfiable):

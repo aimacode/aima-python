@@ -1,5 +1,3 @@
-import random
-
 import pytest
 
 from probability import *
@@ -12,7 +10,7 @@ def tests():
     assert cpt.p(True, event) == 0.95
     event = {'Burglary': False, 'Earthquake': True}
     assert cpt.p(False, event) == 0.71
-    # #enumeration_ask('Earthquake', {}, burglary)
+    # enumeration_ask('Earthquake', {}, burglary)
 
     s = {'A': True, 'B': False, 'C': True, 'D': False}
     assert consistent_with(s, {})
@@ -166,10 +164,10 @@ def test_elemination_ask():
 def test_prior_sample():
     random.seed(42)
     all_obs = [prior_sample(burglary) for x in range(1000)]
-    john_calls_true = [observation for observation in all_obs if observation['JohnCalls'] == True]
-    mary_calls_true = [observation for observation in all_obs if observation['MaryCalls'] == True]
-    burglary_and_john = [observation for observation in john_calls_true if observation['Burglary'] == True]
-    burglary_and_mary = [observation for observation in mary_calls_true if observation['Burglary'] == True]
+    john_calls_true = [observation for observation in all_obs if observation['JohnCalls']]
+    mary_calls_true = [observation for observation in all_obs if observation['MaryCalls']]
+    burglary_and_john = [observation for observation in john_calls_true if observation['Burglary']]
+    burglary_and_mary = [observation for observation in mary_calls_true if observation['Burglary']]
     assert len(john_calls_true) / 1000 == 46 / 1000
     assert len(mary_calls_true) / 1000 == 13 / 1000
     assert len(burglary_and_john) / len(john_calls_true) == 1 / 46
@@ -179,10 +177,10 @@ def test_prior_sample():
 def test_prior_sample2():
     random.seed(128)
     all_obs = [prior_sample(sprinkler) for x in range(1000)]
-    rain_true = [observation for observation in all_obs if observation['Rain'] == True]
-    sprinkler_true = [observation for observation in all_obs if observation['Sprinkler'] == True]
-    rain_and_cloudy = [observation for observation in rain_true if observation['Cloudy'] == True]
-    sprinkler_and_cloudy = [observation for observation in sprinkler_true if observation['Cloudy'] == True]
+    rain_true = [observation for observation in all_obs if observation['Rain']]
+    sprinkler_true = [observation for observation in all_obs if observation['Sprinkler']]
+    rain_and_cloudy = [observation for observation in rain_true if observation['Cloudy']]
+    sprinkler_and_cloudy = [observation for observation in sprinkler_true if observation['Cloudy']]
     assert len(rain_true) / 1000 == 0.476
     assert len(sprinkler_true) / 1000 == 0.291
     assert len(rain_and_cloudy) / len(rain_true) == 376 / 476
@@ -275,14 +273,12 @@ def test_forward_backward():
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     umbrella_evidence = [T, T, F, T, T]
-    assert (rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) ==
-            [[0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925],
-             [0.8204, 0.1796], [0.8673, 0.1327]])
+    assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [
+        [0.6469, 0.3531], [0.8673, 0.1327], [0.8204, 0.1796], [0.3075, 0.6925], [0.8204, 0.1796], [0.8673, 0.1327]]
 
     umbrella_evidence = [T, F, T, F, T]
     assert rounder(forward_backward(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [
-        [0.5871, 0.4129], [0.7177, 0.2823], [0.2324, 0.7676], [0.6072, 0.3928],
-        [0.2324, 0.7676], [0.7177, 0.2823]]
+        [0.5871, 0.4129], [0.7177, 0.2823], [0.2324, 0.7676], [0.6072, 0.3928], [0.2324, 0.7676], [0.7177, 0.2823]]
 
 
 def test_viterbi():
@@ -292,12 +288,10 @@ def test_viterbi():
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     umbrella_evidence = [T, T, F, T, T]
-    assert (rounder(viterbi(umbrellaHMM, umbrella_evidence, umbrella_prior)) ==
-            [0.8182, 0.5155, 0.1237, 0.0334, 0.0210])
+    assert rounder(viterbi(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [0.8182, 0.5155, 0.1237, 0.0334, 0.0210]
 
     umbrella_evidence = [T, F, T, F, T]
-    assert (rounder(viterbi(umbrellaHMM, umbrella_evidence, umbrella_prior)) ==
-            [0.8182, 0.1964, 0.053, 0.0154, 0.0042])
+    assert rounder(viterbi(umbrellaHMM, umbrella_evidence, umbrella_prior)) == [0.8182, 0.1964, 0.053, 0.0154, 0.0042]
 
 
 def test_fixed_lag_smoothing():
@@ -309,8 +303,7 @@ def test_fixed_lag_smoothing():
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     d = 2
-    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d,
-                                       umbrella_evidence, t)) == [0.1111, 0.8889]
+    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.1111, 0.8889]
     d = 5
     assert fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t) is None
 
@@ -319,8 +312,7 @@ def test_fixed_lag_smoothing():
     e_t = T
 
     d = 1
-    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM,
-                                       d, umbrella_evidence, t)) == [0.9939, 0.0061]
+    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.9939, 0.0061]
 
 
 def test_particle_filtering():
@@ -352,7 +344,7 @@ def test_monte_carlo_localization():
 
     def P_motion_sample(kin_state, v, w):
         """Sample from possible kinematic states.
-        Returns from a single element distribution (no uncertainity in motion)"""
+        Returns from a single element distribution (no uncertainty in motion)"""
         pos = kin_state[:2]
         orient = kin_state[2]
 
@@ -398,8 +390,7 @@ def test_monte_carlo_localization():
 
 
 def test_gibbs_ask():
-    possible_solutions = ['False: 0.16, True: 0.84', 'False: 0.17, True: 0.83',
-                          'False: 0.15, True: 0.85']
+    possible_solutions = ['False: 0.16, True: 0.84', 'False: 0.17, True: 0.83', 'False: 0.15, True: 0.85']
     g_solution = gibbs_ask('Cloudy', dict(Rain=True), sprinkler, 200).show_approx()
     assert g_solution in possible_solutions
 

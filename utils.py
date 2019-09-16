@@ -86,6 +86,13 @@ def powerset(iterable):
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))[1:]
 
 
+def extend(s, var, val):
+    """Copy dict s and extend it by setting var to val; return copy."""
+    s2 = s.copy()
+    s2[var] = val
+    return s2
+
+
 # ______________________________________________________________________________
 # argmin and argmax
 

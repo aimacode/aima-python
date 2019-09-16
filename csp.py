@@ -1,9 +1,13 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
+import string
+from operator import eq, neg
 
-from utils import argmin_random_tie, count, first
+from sortedcontainers import SortedSet
+
+from utils import argmin_random_tie, count, first, extend
 import search
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from functools import reduce
 
 import itertools
@@ -51,7 +55,6 @@ class CSP(search.Problem):
     def __init__(self, variables, domains, neighbors, constraints):
         """Construct a CSP problem. If variables is empty, it becomes domains.keys()."""
         variables = variables or list(domains.keys())
-
         self.variables = variables
         self.domains = domains
         self.neighbors = neighbors
@@ -160,11 +163,20 @@ class CSP(search.Problem):
 # Constraint Propagation with AC-3
 
 
-def AC3(csp, queue=None, removals=None):
+def no_arc_heuristic(csp, queue):
+    return queue
+
+
+def dom_j_up(csp, queue):
+    return SortedSet(queue, key=lambda t: neg(len(csp.curr_domains[t[1]])))
+
+
+def AC3(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
     """[Figure 6.3]"""
     if queue is None:
         queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
     csp.support_pruning()
+    queue = arc_heuristic(csp, queue)
     while queue:
         (Xi, Xj) = queue.pop()
         if revise(csp, Xi, Xj, removals):
@@ -185,6 +197,130 @@ def revise(csp, Xi, Xj, removals):
             csp.prune(Xi, x, removals)
             revised = True
     return revised
+
+
+# Constraint Propagation with AC-3b: an improved version of AC-3 with
+# double-support domain-heuristic
+
+def AC3b(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
+    if queue is None:
+        queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
+    csp.support_pruning()
+    queue = arc_heuristic(csp, queue)
+    while queue:
+        (Xi, Xj) = queue.pop()
+        # Si_p values are all known to be supported by Xj
+        # Sj_p values are all known to be supported by Xi
+        # Dj - Sj_p = Sj_u values are unknown, as yet, to be supported by Xi
+        Si_p, Sj_p, Sj_u = partition(csp, Xi, Xj)
+        if not Si_p:
+            return False
+        revised = False
+        for x in set(csp.curr_domains[Xi]) - Si_p:
+            csp.prune(Xi, x, removals)
+            revised = True
+        if revised:
+            for Xk in csp.neighbors[Xi]:
+                if Xk != Xj:
+                    queue.add((Xk, Xi))
+        if (Xj, Xi) in queue:
+            if isinstance(queue, set):
+                # or queue -= {(Xj, Xi)} or queue.remove((Xj, Xi))
+                queue.difference_update({(Xj, Xi)})
+            else:
+                queue.difference_update((Xj, Xi))
+            # the elements in D_j which are supported by Xi are given by the union of Sj_p with the set of those
+            # elements of Sj_u which further processing will show to be supported by some vi_p in Si_p
+            for vj_p in Sj_u:
+                for vi_p in Si_p:
+                    conflict = True
+                    if csp.constraints(Xj, vj_p, Xi, vi_p):
+                        conflict = False
+                        Sj_p.add(vj_p)
+                    if not conflict:
+                        break
+            revised = False
+            for x in set(csp.curr_domains[Xj]) - Sj_p:
+                csp.prune(Xj, x, removals)
+                revised = True
+            if revised:
+                for Xk in csp.neighbors[Xj]:
+                    if Xk != Xi:
+                        queue.add((Xk, Xj))
+    return True
+
+
+def partition(csp, Xi, Xj):
+    Si_p = set()
+    Sj_p = set()
+    Sj_u = set(csp.curr_domains[Xj])
+    for vi_u in csp.curr_domains[Xi]:
+        conflict = True
+        # now, in order to establish support for a value vi_u in Di it seems better to try to find a support among
+        # the values in Sj_u first, because for each vj_u in Sj_u the check (vi_u, vj_u) is a double-support check
+        # and it is just as likely that any vj_u in Sj_u supports vi_u than it is that any vj_p in Sj_p does...
+        for vj_u in Sj_u - Sj_p:
+            # double-support check
+            if csp.constraints(Xi, vi_u, Xj, vj_u):
+                conflict = False
+                Si_p.add(vi_u)
+                Sj_p.add(vj_u)
+            if not conflict:
+                break
+        # ... and only if no support can be found among the elements in Sj_u, should the elements vj_p in Sj_p be used
+        # for single-support checks (vi_u, vj_p)
+        if conflict:
+            for vj_p in Sj_p:
+                # single-support check
+                if csp.constraints(Xi, vi_u, Xj, vj_p):
+                    conflict = False
+                    Si_p.add(vi_u)
+                if not conflict:
+                    break
+    return Si_p, Sj_p, Sj_u - Sj_p
+
+
+# Constraint Propagation with AC-4
+
+def AC4(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
+    if queue is None:
+        queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
+    csp.support_pruning()
+    queue = arc_heuristic(csp, queue)
+    support_counter = Counter()
+    variable_value_pairs_supported = defaultdict(set)
+    unsupported_variable_value_pairs = []
+    # construction and initialization of support sets
+    while queue:
+        (Xi, Xj) = queue.pop()
+        revised = False
+        for x in csp.curr_domains[Xi][:]:
+            for y in csp.curr_domains[Xj]:
+                if csp.constraints(Xi, x, Xj, y):
+                    support_counter[(Xi, x, Xj)] += 1
+                    variable_value_pairs_supported[(Xj, y)].add((Xi, x))
+            if support_counter[(Xi, x, Xj)] == 0:
+                csp.prune(Xi, x, removals)
+                revised = True
+                unsupported_variable_value_pairs.append((Xi, x))
+        if revised:
+            if not csp.curr_domains[Xi]:
+                return False
+    # propagation of removed values
+    while unsupported_variable_value_pairs:
+        Xj, y = unsupported_variable_value_pairs.pop()
+        for Xi, x in variable_value_pairs_supported[(Xj, y)]:
+            revised = False
+            if x in csp.curr_domains[Xi][:]:
+                support_counter[(Xi, x, Xj)] -= 1
+                if support_counter[(Xi, x, Xj)] == 0:
+                    csp.prune(Xi, x, removals)
+                    revised = True
+                    unsupported_variable_value_pairs.append((Xi, x))
+            if revised:
+                if not csp.curr_domains[Xi]:
+                    return False
+    return True
 
 
 # ______________________________________________________________________________
@@ -247,9 +383,9 @@ def forward_checking(csp, var, value, assignment, removals):
     return True
 
 
-def mac(csp, var, value, assignment, removals):
+def mac(csp, var, value, assignment, removals, constraint_propagation=AC3b):
     """Maintain arc consistency."""
-    return AC3(csp, {(X, var) for X in csp.neighbors[var]}, removals)
+    return constraint_propagation(csp, {(X, var) for X in csp.neighbors[var]}, removals)
 
 
 # The search, proper
@@ -283,11 +419,11 @@ def backtracking_search(csp,
 
 
 # ______________________________________________________________________________
-# Min-conflicts hillclimbing search for CSPs
+# Min-conflicts Hill Climbing search for CSPs
 
 
 def min_conflicts(csp, max_steps=100000):
-    """Solve a CSP by stochastic hillclimbing on the number of conflicts."""
+    """Solve a CSP by stochastic Hill Climbing on the number of conflicts."""
     # Generate a complete assignment for all variables (probably with conflicts)
     csp.current = current = {}
     for var in csp.variables:
@@ -744,3 +880,526 @@ def solve_zebra(algorithm=min_conflicts, **args):
                 print(var, end=' ')
         print()
     return ans['Zebra'], ans['Water'], z.nassigns, ans
+
+
+# ______________________________________________________________________________
+# n-ary Constraint Satisfaction Problem
+
+class NaryCSP:
+    """A nary-CSP consists of
+    * domains, a dictionary that maps each variable to its domain
+    * constraints, a list of constraints
+    * variables, a set of variables
+    * var_to_const, a variable to set of constraints dictionary
+    """
+
+    def __init__(self, domains, constraints):
+        """domains is a variable:domain dictionary
+        constraints is a list of constraints
+        """
+        self.variables = set(domains)
+        self.domains = domains
+        self.constraints = constraints
+        self.var_to_const = {var: set() for var in self.variables}
+        for con in constraints:
+            for var in con.scope:
+                self.var_to_const[var].add(con)
+
+    def __str__(self):
+        """string representation of CSP"""
+        return str(self.domains)
+
+    def display(self, assignment=None):
+        """more detailed string representation of CSP"""
+        if assignment is None:
+            assignment = {}
+        print('CSP(' + str(self.domains) + ', ' + str([str(c) for c in self.constraints]) + ') with assignment: ' +
+              str(assignment))
+
+    def consistent(self, assignment):
+        """assignment is a variable:value dictionary
+        returns True if all of the constraints that can be evaluated
+                        evaluate to True given assignment.
+        """
+        return all(con.holds(assignment)
+                   for con in self.constraints
+                   if all(v in assignment for v in con.scope))
+
+
+class Constraint:
+    """A Constraint consists of
+    * scope: a tuple of variables
+    * condition: a function that can applied to a tuple of values
+    for the variables
+    """
+
+    def __init__(self, scope, condition):
+        self.scope = scope
+        self.condition = condition
+
+    def __repr__(self):
+        return self.condition.__name__ + str(self.scope)
+
+    def holds(self, assignment):
+        """Returns the value of Constraint con evaluated in assignment.
+
+        precondition: all variables are assigned in assignment
+        """
+        return self.condition(*tuple(assignment[v] for v in self.scope))
+
+
+def all_diff(*values):
+    """Returns True if all values are different, False otherwise"""
+    return len(values) is len(set(values))
+
+
+def is_word(words):
+    """Returns True if the letters concatenated form a word in words, False otherwise"""
+
+    def isw(*letters):
+        return "".join(letters) in words
+
+    return isw
+
+
+def meet_at(p1, p2):
+    """Returns a function that is True when the words meet at the positions (p1, p2), False otherwise"""
+
+    def meets(w1, w2):
+        return w1[p1] == w2[p2]
+
+    meets.__name__ = "meet_at(" + str(p1) + ',' + str(p2) + ')'
+    return meets
+
+
+def adjacent(x, y):
+    """Returns True if x and y are adjacent numbers, False otherwise"""
+    return abs(x - y) == 1
+
+
+def sum_(n):
+    """Returns a function that is True when the the sum of all values is n, False otherwise"""
+
+    def sumv(*values):
+        return sum(values) is n
+
+    sumv.__name__ = str(n) + "==sum"
+    return sumv
+
+
+def is_(val):
+    """Returns a function that is True when x is equal to val, False otherwise"""
+
+    def isv(x):
+        return val == x
+
+    isv.__name__ = str(val) + "=="
+    return isv
+
+
+def ne_(val):
+    """Returns a function that is True when x is not equal to val, False otherwise"""
+
+    def nev(x):
+        return val != x
+
+    nev.__name__ = str(val) + "!="
+    return nev
+
+
+def no_heuristic(to_do):
+    return to_do
+
+
+def sat_up(to_do):
+    return SortedSet(to_do, key=lambda t: 1 / len([var for var in t[1].scope]))
+
+
+class ACSolver:
+    """Solves a CSP with arc consistency and domain splitting"""
+
+    def __init__(self, csp):
+        """a CSP solver that uses arc consistency
+        * csp is the CSP to be solved
+        """
+        self.csp = csp
+
+    def GAC(self, orig_domains=None, to_do=None, arc_heuristic=sat_up):
+        """Makes this CSP arc-consistent using Generalized Arc Consistency
+        orig_domains is the original domains
+        to_do is a set of (variable,constraint) pairs
+        returns the reduced domains (an arc-consistent variable:domain dictionary)
+        """
+        if orig_domains is None:
+            orig_domains = self.csp.domains
+        if to_do is None:
+            to_do = {(var, const) for const in self.csp.constraints
+                     for var in const.scope}
+        else:
+            to_do = to_do.copy()
+        domains = orig_domains.copy()
+        to_do = arc_heuristic(to_do)
+        while to_do:
+            var, const = to_do.pop()
+            other_vars = [ov for ov in const.scope if ov != var]
+            if len(other_vars) == 0:
+                new_domain = {val for val in domains[var]
+                              if const.holds({var: val})}
+            elif len(other_vars) == 1:
+                other = other_vars[0]
+                new_domain = {val for val in domains[var]
+                              if any(const.holds({var: val, other: other_val})
+                                     for other_val in domains[other])}
+            else:
+                new_domain = {val for val in domains[var]
+                              if self.any_holds(domains, const, {var: val}, other_vars)}
+            if new_domain != domains[var]:
+                domains[var] = new_domain
+                if not new_domain:
+                    return False, domains
+                add_to_do = self.new_to_do(var, const).difference(to_do)
+                to_do |= add_to_do
+        return True, domains
+
+    def new_to_do(self, var, const):
+        """returns new elements to be added to to_do after assigning
+        variable var in constraint const.
+        """
+        return {(nvar, nconst) for nconst in self.csp.var_to_const[var]
+                if nconst != const
+                for nvar in nconst.scope
+                if nvar != var}
+
+    def any_holds(self, domains, const, env, other_vars, ind=0):
+        """returns True if Constraint const holds for an assignment
+        that extends env with the variables in other_vars[ind:]
+        env is a dictionary
+        Warning: this has side effects and changes the elements of env
+        """
+        if ind == len(other_vars):
+            return const.holds(env)
+        else:
+            var = other_vars[ind]
+            for val in domains[var]:
+                # env = dict_union(env,{var:val})  # no side effects!
+                env[var] = val
+                holds = self.any_holds(domains, const, env, other_vars, ind + 1)
+                if holds:
+                    return True
+            return False
+
+    def domain_splitting(self, domains=None, to_do=None, arc_heuristic=sat_up):
+        """return a solution to the current CSP or False if there are no solutions
+        to_do is the list of arcs to check
+        """
+        if domains is None:
+            domains = self.csp.domains
+        consistency, new_domains = self.GAC(domains, to_do, arc_heuristic)
+        if not consistency:
+            return False
+        elif all(len(new_domains[var]) == 1 for var in domains):
+            return {var: first(new_domains[var]) for var in domains}
+        else:
+            var = first(x for x in self.csp.variables if len(new_domains[x]) > 1)
+            if var:
+                dom1, dom2 = partition_domain(new_domains[var])
+                new_doms1 = extend(new_domains, var, dom1)
+                new_doms2 = extend(new_domains, var, dom2)
+                to_do = self.new_to_do(var, None)
+                return self.domain_splitting(new_doms1, to_do, arc_heuristic) or \
+                       self.domain_splitting(new_doms2, to_do, arc_heuristic)
+
+
+def partition_domain(dom):
+    """partitions domain dom into two"""
+    split = len(dom) // 2
+    dom1 = set(list(dom)[:split])
+    dom2 = dom - dom1
+    return dom1, dom2
+
+
+class ACSearchSolver(search.Problem):
+    """A search problem with arc consistency and domain splitting
+    A node is a CSP """
+
+    def __init__(self, csp, arc_heuristic=sat_up):
+        self.cons = ACSolver(csp)
+        consistency, self.domains = self.cons.GAC(arc_heuristic=arc_heuristic)
+        if not consistency:
+            raise Exception('CSP is inconsistent')
+        self.heuristic = arc_heuristic
+        super().__init__(self.domains)
+
+    def goal_test(self, node):
+        """node is a goal if all domains have 1 element"""
+        return all(len(node[var]) == 1 for var in node)
+
+    def actions(self, state):
+        var = first(x for x in state if len(state[x]) > 1)
+        neighs = []
+        if var:
+            dom1, dom2 = partition_domain(state[var])
+            to_do = self.cons.new_to_do(var, None)
+            for dom in [dom1, dom2]:
+                new_domains = extend(state, var, dom)
+                consistency, cons_doms = self.cons.GAC(new_domains, to_do, self.heuristic)
+                if consistency:
+                    neighs.append(cons_doms)
+        return neighs
+
+    def result(self, state, action):
+        return action
+
+
+def ac_solver(csp, arc_heuristic=sat_up):
+    """arc consistency (domain splitting)"""
+    return ACSolver(csp).domain_splitting(arc_heuristic=arc_heuristic)
+
+
+def ac_search_solver(csp, arc_heuristic=sat_up):
+    """arc consistency (search interface)"""
+    from search import depth_first_tree_search
+    solution = None
+    try:
+        solution = depth_first_tree_search(ACSearchSolver(csp, arc_heuristic=arc_heuristic)).state
+    except:
+        return solution
+    if solution:
+        return {var: first(solution[var]) for var in solution}
+
+
+# ______________________________________________________________________________
+# Crossword Problem
+
+
+csp_crossword = NaryCSP({'one_across': {'ant', 'big', 'bus', 'car', 'has'},
+                         'one_down': {'book', 'buys', 'hold', 'lane', 'year'},
+                         'two_down': {'ginger', 'search', 'symbol', 'syntax'},
+                         'three_across': {'book', 'buys', 'hold', 'land', 'year'},
+                         'four_across': {'ant', 'big', 'bus', 'car', 'has'}},
+                        [Constraint(('one_across', 'one_down'), meet_at(0, 0)),
+                         Constraint(('one_across', 'two_down'), meet_at(2, 0)),
+                         Constraint(('three_across', 'two_down'), meet_at(2, 2)),
+                         Constraint(('three_across', 'one_down'), meet_at(0, 2)),
+                         Constraint(('four_across', 'two_down'), meet_at(0, 4))])
+
+crossword1 = [['_', '_', '_', '*', '*'],
+              ['_', '*', '_', '*', '*'],
+              ['_', '_', '_', '_', '*'],
+              ['_', '*', '_', '*', '*'],
+              ['*', '*', '_', '_', '_'],
+              ['*', '*', '_', '*', '*']]
+
+words1 = {'ant', 'big', 'bus', 'car', 'has', 'book', 'buys', 'hold',
+          'lane', 'year', 'ginger', 'search', 'symbol', 'syntax'}
+
+
+class Crossword(NaryCSP):
+
+    def __init__(self, puzzle, words):
+        domains = {}
+        constraints = []
+        for i, line in enumerate(puzzle):
+            scope = []
+            for j, element in enumerate(line):
+                if element == '_':
+                    var = "p" + str(j) + str(i)
+                    domains[var] = list(string.ascii_lowercase)
+                    scope.append(var)
+                else:
+                    if len(scope) > 1:
+                        constraints.append(Constraint(tuple(scope), is_word(words)))
+                    scope.clear()
+            if len(scope) > 1:
+                constraints.append(Constraint(tuple(scope), is_word(words)))
+        puzzle_t = list(map(list, zip(*puzzle)))
+        for i, line in enumerate(puzzle_t):
+            scope = []
+            for j, element in enumerate(line):
+                if element == '_':
+                    scope.append("p" + str(i) + str(j))
+                else:
+                    if len(scope) > 1:
+                        constraints.append(Constraint(tuple(scope), is_word(words)))
+                    scope.clear()
+            if len(scope) > 1:
+                constraints.append(Constraint(tuple(scope), is_word(words)))
+        super().__init__(domains, constraints)
+        self.puzzle = puzzle
+
+    def display(self, assignment=None):
+        for i, line in enumerate(self.puzzle):
+            puzzle = ""
+            for j, element in enumerate(line):
+                if element == '*':
+                    puzzle += "[*] "
+                else:
+                    var = "p" + str(j) + str(i)
+                    if assignment is not None:
+                        if isinstance(assignment[var], set) and len(assignment[var]) is 1:
+                            puzzle += "[" + str(first(assignment[var])).upper() + "] "
+                        elif isinstance(assignment[var], str):
+                            puzzle += "[" + str(assignment[var]).upper() + "] "
+                        else:
+                            puzzle += "[_] "
+                    else:
+                        puzzle += "[_] "
+            print(puzzle)
+
+
+# ______________________________________________________________________________
+# Karuko Problem
+
+
+# difficulty 0
+karuko1 = [['*', '*', '*', [6, ''], [3, '']],
+           ['*', [4, ''], [3, 3], '_', '_'],
+           [['', 10], '_', '_', '_', '_'],
+           [['', 3], '_', '_', '*', '*']]
+
+# difficulty 0
+karuko2 = [
+    ['*', [10, ''], [13, ''], '*'],
+    [['', 3], '_', '_', [13, '']],
+    [['', 12], '_', '_', '_'],
+    [['', 21], '_', '_', '_']]
+
+# difficulty 1
+karuko3 = [
+    ['*', [17, ''], [28, ''], '*', [42, ''], [22, '']],
+    [['', 9], '_', '_', [31, 14], '_', '_'],
+    [['', 20], '_', '_', '_', '_', '_'],
+    ['*', ['', 30], '_', '_', '_', '_'],
+    ['*', [22, 24], '_', '_', '_', '*'],
+    [['', 25], '_', '_', '_', '_', [11, '']],
+    [['', 20], '_', '_', '_', '_', '_'],
+    [['', 14], '_', '_', ['', 17], '_', '_']]
+
+# difficulty 2
+karuko4 = [
+    ['*', '*', '*', '*', '*', [4, ''], [24, ''], [11, ''], '*', '*', '*', [11, ''], [17, ''], '*', '*'],
+    ['*', '*', '*', [17, ''], [11, 12], '_', '_', '_', '*', '*', [24, 10], '_', '_', [11, ''], '*'],
+    ['*', [4, ''], [16, 26], '_', '_', '_', '_', '_', '*', ['', 20], '_', '_', '_', '_', [16, '']],
+    [['', 20], '_', '_', '_', '_', [24, 13], '_', '_', [16, ''], ['', 12], '_', '_', [23, 10], '_', '_'],
+    [['', 10], '_', '_', [24, 12], '_', '_', [16, 5], '_', '_', [16, 30], '_', '_', '_', '_', '_'],
+    ['*', '*', [3, 26], '_', '_', '_', '_', ['', 12], '_', '_', [4, ''], [16, 14], '_', '_', '*'],
+    ['*', ['', 8], '_', '_', ['', 15], '_', '_', [34, 26], '_', '_', '_', '_', '_', '*', '*'],
+    ['*', ['', 11], '_', '_', [3, ''], [17, ''], ['', 14], '_', '_', ['', 8], '_', '_', [7, ''], [17, ''], '*'],
+    ['*', '*', '*', [23, 10], '_', '_', [3, 9], '_', '_', [4, ''], [23, ''], ['', 13], '_', '_', '*'],
+    ['*', '*', [10, 26], '_', '_', '_', '_', '_', ['', 7], '_', '_', [30, 9], '_', '_', '*'],
+    ['*', [17, 11], '_', '_', [11, ''], [24, 8], '_', '_', [11, 21], '_', '_', '_', '_', [16, ''], [17, '']],
+    [['', 29], '_', '_', '_', '_', '_', ['', 7], '_', '_', [23, 14], '_', '_', [3, 17], '_', '_'],
+    [['', 10], '_', '_', [3, 10], '_', '_', '*', ['', 8], '_', '_', [4, 25], '_', '_', '_', '_'],
+    ['*', ['', 16], '_', '_', '_', '_', '*', ['', 23], '_', '_', '_', '_', '_', '*', '*'],
+    ['*', '*', ['', 6], '_', '_', '*', '*', ['', 15], '_', '_', '_', '*', '*', '*', '*']]
+
+
+class Karuko(NaryCSP):
+
+    def __init__(self, puzzle):
+        variables = []
+        for i, line in enumerate(puzzle):
+            # print line
+            for j, element in enumerate(line):
+                if element == '_':
+                    var1 = str(i)
+                    if len(var1) == 1:
+                        var1 = "0" + var1
+                    var2 = str(j)
+                    if len(var2) == 1:
+                        var2 = "0" + var2
+                    variables.append("X" + var1 + var2)
+        domains = {}
+        for var in variables:
+            domains[var] = set(range(1, 10))
+        constraints = []
+        for i, line in enumerate(puzzle):
+            for j, element in enumerate(line):
+                if element != '_' and element != '*':
+                    # down - column
+                    if element[0] != '':
+                        x = []
+                        for k in range(i + 1, len(puzzle)):
+                            if puzzle[k][j] != '_':
+                                break
+                            var1 = str(k)
+                            if len(var1) == 1:
+                                var1 = "0" + var1
+                            var2 = str(j)
+                            if len(var2) == 1:
+                                var2 = "0" + var2
+                            x.append("X" + var1 + var2)
+                        constraints.append(Constraint(x, sum_(element[0])))
+                        constraints.append(Constraint(x, all_diff))
+                    # right - line
+                    if element[1] != '':
+                        x = []
+                        for k in range(j + 1, len(puzzle[i])):
+                            if puzzle[i][k] != '_':
+                                break
+                            var1 = str(i)
+                            if len(var1) == 1:
+                                var1 = "0" + var1
+                            var2 = str(k)
+                            if len(var2) == 1:
+                                var2 = "0" + var2
+                            x.append("X" + var1 + var2)
+                        constraints.append(Constraint(x, sum_(element[1])))
+                        constraints.append(Constraint(x, all_diff))
+        super().__init__(domains, constraints)
+        self.puzzle = puzzle
+
+    def display(self, assignment=None):
+        for i, line in enumerate(self.puzzle):
+            puzzle = ""
+            for j, element in enumerate(line):
+                if element == '*':
+                    puzzle += "[*]\t"
+                elif element == '_':
+                    var1 = str(i)
+                    if len(var1) == 1:
+                        var1 = "0" + var1
+                    var2 = str(j)
+                    if len(var2) == 1:
+                        var2 = "0" + var2
+                    var = "X" + var1 + var2
+                    if assignment is not None:
+                        if isinstance(assignment[var], set) and len(assignment[var]) is 1:
+                            puzzle += "[" + str(first(assignment[var])) + "]\t"
+                        elif isinstance(assignment[var], int):
+                            puzzle += "[" + str(assignment[var]) + "]\t"
+                        else:
+                            puzzle += "[_]\t"
+                    else:
+                        puzzle += "[_]\t"
+                else:
+                    puzzle += str(element[0]) + "\\" + str(element[1]) + "\t"
+            print(puzzle)
+
+
+# ______________________________________________________________________________
+# Cryptarithmetic Problem
+
+# [Figure 6.2]
+# T W O + T W O = F O U R
+two_two_four = NaryCSP({'T': set(range(1, 10)), 'F': set(range(1, 10)),
+                        'W': set(range(0, 10)), 'O': set(range(0, 10)), 'U': set(range(0, 10)), 'R': set(range(0, 10)),
+                        'C1': set(range(0, 2)), 'C2': set(range(0, 2)), 'C3': set(range(0, 2))},
+                       [Constraint(('T', 'F', 'W', 'O', 'U', 'R'), all_diff),
+                        Constraint(('O', 'R', 'C1'), lambda o, r, c1: o + o == r + 10 * c1),
+                        Constraint(('W', 'U', 'C1', 'C2'), lambda w, u, c1, c2: c1 + w + w == u + 10 * c2),
+                        Constraint(('T', 'O', 'C2', 'C3'), lambda t, o, c2, c3: c2 + t + t == o + 10 * c3),
+                        Constraint(('F', 'C3'), eq)])
+
+# S E N D + M O R E = M O N E Y
+send_more_money = NaryCSP({'S': set(range(1, 10)), 'M': set(range(1, 10)),
+                           'E': set(range(0, 10)), 'N': set(range(0, 10)), 'D': set(range(0, 10)),
+                           'O': set(range(0, 10)), 'R': set(range(0, 10)), 'Y': set(range(0, 10)),
+                           'C1': set(range(0, 2)), 'C2': set(range(0, 2)), 'C3': set(range(0, 2)),
+                           'C4': set(range(0, 2))},
+                          [Constraint(('S', 'E', 'N', 'D', 'M', 'O', 'R', 'Y'), all_diff),
+                           Constraint(('D', 'E', 'Y', 'C1'), lambda d, e, y, c1: d + e == y + 10 * c1),
+                           Constraint(('N', 'R', 'E', 'C1', 'C2'), lambda n, r, e, c1, c2: c1 + n + r == e + 10 * c2),
+                           Constraint(('E', 'O', 'N', 'C2', 'C3'), lambda e, o, n, c2, c3: c2 + e + o == n + 10 * c3),
+                           Constraint(('S', 'M', 'O', 'C3', 'C4'), lambda s, m, o, c3, c4: c3 + s + m == o + 10 * c4),
+                           Constraint(('M', 'C4'), eq)])

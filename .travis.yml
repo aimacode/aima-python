@@ -21,6 +21,7 @@ install:
   - pip install numpy
   - pip install tensorflow
   - pip install opencv-python
+  - pip install sortedcontainers
 
 
 script:
