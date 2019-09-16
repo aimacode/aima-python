@@ -587,7 +587,109 @@ for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '
 # DPLL-Satisfiable [Figure 7.17]
 
 
-def dpll_satisfiable(s):
+def no_branching_heuristic(symbols, clauses):
+    return first(symbols), True
+
+
+def min_clauses(clauses):
+    min_len = min(map(lambda c: len(c.args), clauses), default=2)
+    return filter(lambda c: len(c.args) == (min_len if min_len > 1 else 2), clauses)
+
+
+def moms(symbols, clauses):
+    """
+    MOMS (Maximum Occurrence in clauses of Minimum Size) heuristic
+    Returns the literal with the most occurrences in all clauses of minimum size
+    """
+    scores = Counter(l for c in min_clauses(clauses) for l in prop_symbols(c))
+    return max(symbols, key=lambda symbol: scores[symbol]), True
+
+
+def momsf(symbols, clauses, k=0):
+    """
+    MOMS alternative heuristic
+    If f(x) the number of occurrences of the variable x in clauses with minimum size,
+    we choose the variable maximizing [f(x) + f(-x)] * 2^k + f(x) * f(-x)
+    Returns x if f(x) >= f(-x) otherwise -x
+    """
+    scores = Counter(l for c in min_clauses(clauses) for l in disjuncts(c))
+    P = max(symbols,
+            key=lambda symbol: (scores[symbol] + scores[~symbol]) * pow(2, k) + scores[symbol] * scores[~symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def posit(symbols, clauses):
+    """
+    Freeman's POSIT version of MOMs
+    Counts the positive x and negative x for each variable x in clauses with minimum size
+    Returns x if f(x) >= f(-x) otherwise -x
+    """
+    scores = Counter(l for c in min_clauses(clauses) for l in disjuncts(c))
+    P = max(symbols, key=lambda symbol: scores[symbol] + scores[~symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def zm(symbols, clauses):
+    """
+    Zabih and McAllester's version of MOMs
+    Counts the negative occurrences only of each variable x in clauses with minimum size
+    """
+    scores = Counter(l for c in min_clauses(clauses) for l in disjuncts(c) if l.op == '~')
+    return max(symbols, key=lambda symbol: scores[~symbol]), True
+
+
+def dlis(symbols, clauses):
+    """
+    DLIS (Dynamic Largest Individual Sum) heuristic
+    Choose the variable and value that satisfies the maximum number of unsatisfied clauses
+    Like DLCS but we only consider the literal (thus Cp and Cn are individual)
+    """
+    scores = Counter(l for c in clauses for l in disjuncts(c))
+    P = max(symbols, key=lambda symbol: scores[symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def dlcs(symbols, clauses):
+    """
+    DLCS (Dynamic Largest Combined Sum) heuristic
+    Cp the number of clauses containing literal x
+    Cn the number of clauses containing literal -x
+    Here we select the variable maximizing Cp + Cn
+    Returns x if Cp >= Cn otherwise -x
+    """
+    scores = Counter(l for c in clauses for l in disjuncts(c))
+    P = max(symbols, key=lambda symbol: scores[symbol] + scores[~symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def jw(symbols, clauses):
+    """
+    Jeroslow-Wang heuristic
+    For each literal compute J(l) = \sum{l in clause c} 2^{-|c|}
+    Return the literal maximizing J
+    """
+    scores = Counter()
+    for c in clauses:
+        for l in prop_symbols(c):
+            scores[l] += pow(2, -len(c.args))
+    return max(symbols, key=lambda symbol: scores[symbol]), True
+
+
+def jw2(symbols, clauses):
+    """
+    Two Sided Jeroslow-Wang heuristic
+    Compute J(l) also counts the negation of l = J(x) + J(-x)
+    Returns x if J(x) >= J(-x) otherwise -x
+    """
+    scores = Counter()
+    for c in clauses:
+        for l in disjuncts(c):
+            scores[l] += pow(2, -len(c.args))
+    P = max(symbols, key=lambda symbol: scores[symbol] + scores[~symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def dpll_satisfiable(s, branching_heuristic=no_branching_heuristic):
     """Check satisfiability of a propositional sentence.
     This differs from the book code in two ways: (1) it returns a model
     rather than True when it succeeds; this is more useful. (2) The
@@ -596,33 +698,29 @@ def dpll_satisfiable(s):
     >>> dpll_satisfiable(A |'<=>'| B) == {A: True, B: True}
     True
     """
-    clauses = conjuncts(to_cnf(s))
-    symbols = list(prop_symbols(s))
-    return dpll(clauses, symbols, {})
+    return dpll(conjuncts(to_cnf(s)), prop_symbols(s), {}, branching_heuristic)
 
 
-def dpll(clauses, symbols, model):
+def dpll(clauses, symbols, model, branching_heuristic=no_branching_heuristic):
     """See if the clauses are true in a partial model."""
     unknown_clauses = []  # clauses with an unknown truth value
     for c in clauses:
         val = pl_true(c, model)
         if val is False:
             return False
-        if val is not True:
+        if val is None:
             unknown_clauses.append(c)
     if not unknown_clauses:
         return model
     P, value = find_pure_symbol(symbols, unknown_clauses)
     if P:
-        return dpll(clauses, removeall(P, symbols), extend(model, P, value))
+        return dpll(clauses, removeall(P, symbols), extend(model, P, value), branching_heuristic)
     P, value = find_unit_clause(clauses, model)
     if P:
-        return dpll(clauses, removeall(P, symbols), extend(model, P, value))
-    if not symbols:
-        raise TypeError("Argument should be of the type Expr.")
-    P, symbols = symbols[0], symbols[1:]
-    return (dpll(clauses, symbols, extend(model, P, True)) or
-            dpll(clauses, symbols, extend(model, P, False)))
+        return dpll(clauses, removeall(P, symbols), extend(model, P, value), branching_heuristic)
+    P, value = branching_heuristic(symbols, unknown_clauses)
+    return (dpll(clauses, removeall(P, symbols), extend(model, P, value), branching_heuristic) or
+            dpll(clauses, removeall(P, symbols), extend(model, P, not value), branching_heuristic))
 
 
 def find_pure_symbol(symbols, clauses):
@@ -723,9 +821,13 @@ def glucose(conflicts, restarts, queue_lbd, sum_lbd, x=100, k=0.7):
     return len(queue_lbd) >= x and sum(queue_lbd) / len(queue_lbd) * k > sum_lbd / conflicts
 
 
-def cdcl_satisfiable(clauses, vsids_decay=0.95, restart_strategy=glucose):
-    clauses = TwoWLClauseDatabase(clauses)
-    symbols = {l for c in clauses.get_clauses() for l in prop_symbols(c)}
+def cdcl_satisfiable(s, vsids_decay=0.95, restart_strategy=no_restart):
+    """
+    >>> cdcl_satisfiable(A |'<=>'| B) == {A: True, B: True}
+    True
+    """
+    clauses = TwoWLClauseDatabase(conjuncts(to_cnf(s)))
+    symbols = prop_symbols(s)
     scores = Counter()
     G = nx.DiGraph()
     model = {}
@@ -1506,7 +1608,7 @@ class HybridWumpusAgent(Agent):
 # ______________________________________________________________________________
 
 
-def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
+def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
     """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
     [Figure 7.22]
     >>> transition = {'A': {'Left': 'A', 'Right': 'B'}, 'B': {'Left': 'A', 'Right': 'C'}, 'C': {'Left': 'B', 'Right': 'C'}}

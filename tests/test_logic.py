@@ -131,14 +131,25 @@ def test_tt_true():
 
 
 def test_dpll_satisfiable():
-    assert (dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F)
-                             & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D))
-            == {B: False, C: True, A: True, F: False, D: True, E: False})
+    assert dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F) & (~D | ~F) &
+                            (B | ~C | D) & (A | ~E | F) & (~A | E | D)) == \
+           {B: False, C: True, A: True, F: False, D: True, E: False}
     assert dpll_satisfiable(A & B & ~C & D) == {C: False, A: True, D: True, B: True}
     assert dpll_satisfiable((A | (B & C)) | '<=>' | ((A | B) & (A | C))) == {C: True, A: True} or {C: True, B: True}
     assert dpll_satisfiable(A | '<=>' | B) == {A: True, B: True}
     assert dpll_satisfiable(A & ~B) == {A: True, B: False}
     assert dpll_satisfiable(P & ~P) is False
+
+
+def test_cdcl_satisfiable():
+    assert cdcl_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F) & (~D | ~F) &
+                            (B | ~C | D) & (A | ~E | F) & (~A | E | D)) == \
+           {B: False, C: True, A: True, F: False, D: True, E: False}
+    assert cdcl_satisfiable(A & B & ~C & D) == {C: False, A: True, D: True, B: True}
+    assert cdcl_satisfiable((A | (B & C)) | '<=>' | ((A | B) & (A | C))) == {C: True, A: True} or {C: True, B: True}
+    assert cdcl_satisfiable(A | '<=>' | B) == {A: True, B: True}
+    assert cdcl_satisfiable(A & ~B) == {A: True, B: False}
+    assert cdcl_satisfiable(P & ~P) is False
 
 
 def test_find_pure_symbol():
