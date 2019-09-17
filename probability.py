@@ -4,9 +4,8 @@
 from utils import (
     product, argmax, element_wise_product, matrix_multiplication,
     vector_to_diagonal, vector_add, scalar_vector_product, inverse_matrix,
-    weighted_sample_with_replacement, isclose, probability, normalize
-)
-from logic import extend
+    weighted_sample_with_replacement, isclose, probability, normalize,
+    extend)
 from agents import Agent
 
 import random
