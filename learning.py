@@ -102,7 +102,7 @@ class DataSet:
         else:
             self.examples = examples
 
-        # Attrs are the indices of examples, unless otherwise stated.   
+        # Attrs are the indices of examples, unless otherwise stated.
         if self.examples is not None and attrs is None:
             attrs = list(range(len(self.examples[0])))
 
@@ -652,7 +652,7 @@ def DecisionListLearner(dataset):
         for test, outcome in predict.decision_list:
             if passes(example, test):
                 return outcome
-    
+
     predict.decision_list = decision_list_learning(set(dataset.examples))
 
     return predict
@@ -1101,7 +1101,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
             dataset.examples = examples
         return fold_errT/k, fold_errV/k
 
-# TODO: The function cross_validation_wrapper needs to be fixed. (The while loop runs forever!)
+
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     """[Fig 18.8]
     Return the optimal value of size having minimum error
@@ -1115,22 +1115,14 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
 
     while True:
         errT, errV = cross_validation(learner, size, dataset, k)
-        # Check for convergence provided err_val is not empty
-        if (err_train and isclose(err_train[-1], errT, rel_tol=1e-6)):
-            best_size = 0
-            min_val = math.inf
-
-            i = 0
-            while i < size:
-                if err_val[i] < min_val:
-                    min_val = err_val[i]
-                    best_size = i
-                i += 1
         err_val.append(errV)
         err_train.append(errT)
-        print(err_val)
+        # Check for convergence provided err_val is not empty
+        if isclose(errT, 0, rel_tol=1e-6):
+            # find best size i.e. the one with minimum val error
+            best_size = min(zip(range(1, size+1), err_val), key=lambda i:i[1])[0]
+            return learner(dataset, best_size)
         size += 1
-
 
 
 def leave_one_out(learner, dataset, size=None):
