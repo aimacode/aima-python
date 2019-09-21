@@ -268,7 +268,7 @@ def vector_add(a, b):
         return a or b
     if hasattr(a, '__iter__') and hasattr(b, '__iter__'):
         assert len(a) == len(b)
-        return list(map(vector_add, a, b))
+        return tuple(map(vector_add, a, b))
     else:
         try:
             return a+b
@@ -399,6 +399,8 @@ def normalize(dist):
             assert 0 <= dist[key] <= 1, "Probabilities must be between 0 and 1."
         return dist
     total = sum(dist)
+    if total == 0:
+        return dist
     return [(n / total) for n in dist]
 
 
