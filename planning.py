@@ -8,7 +8,7 @@ from functools import reduce as _reduce
 
 import search
 from csp import sat_up, NaryCSP, Constraint, ac_search_solver, is_
-from logic import FolKB, conjuncts, unify, associate, SAT_plan, dpll_satisfiable
+from logic import FolKB, conjuncts, unify, associate, SAT_plan, cdcl_satisfiable
 from search import Node
 from utils import Expr, expr, first
 
@@ -718,7 +718,7 @@ def CSPlan(planning_problem, solution_length, CSP_solver=ac_search_solver, arc_h
             return [sol[a] for a in act_vars]
 
 
-def SATPlan(planning_problem, solution_length, SAT_solver=dpll_satisfiable):
+def SATPlan(planning_problem, solution_length, SAT_solver=cdcl_satisfiable):
     """
     Planning as Boolean satisfiability [Section 10.4.1]
     """

@@ -4,9 +4,8 @@
 from utils import (
     product, argmax, element_wise_product, matrix_multiplication,
     vector_to_diagonal, vector_add, scalar_vector_product, inverse_matrix,
-    weighted_sample_with_replacement, isclose, probability, normalize
-)
-from logic import extend
+    weighted_sample_with_replacement, isclose, probability, normalize,
+    extend)
 from agents import Agent
 
 import random
@@ -660,7 +659,7 @@ def backward(HMM, b, ev):
                                 scalar_vector_product(prediction[1], HMM.transition_model[1])))
 
 
-def forward_backward(HMM, ev, prior):
+def forward_backward(HMM, ev):
     """[Figure 15.4]
     Forward-Backward algorithm for smoothing. Computes posterior probabilities
     of a sequence of states given a sequence of observations."""
@@ -672,7 +671,7 @@ def forward_backward(HMM, ev, prior):
     bv = [b]  # we don't need bv; but we will have a list of all backward messages here
     sv = [[0, 0] for _ in range(len(ev))]
 
-    fv[0] = prior
+    fv[0] = HMM.prior
 
     for i in range(1, t + 1):
         fv[i] = forward(HMM, fv[i - 1], ev[i])
@@ -686,7 +685,7 @@ def forward_backward(HMM, ev, prior):
     return sv
 
 
-def viterbi(HMM, ev, prior):
+def viterbi(HMM, ev):
     """[Equation 15.11]
     Viterbi algorithm to find the most likely sequence. Computes the best path,
     given an HMM model and a sequence of observations."""
@@ -696,7 +695,7 @@ def viterbi(HMM, ev, prior):
     m = [[0.0, 0.0] for _ in range(len(ev) - 1)]
 
     # the recursion is initialized with m1 = forward(P(X0), e1)
-    m[0] = forward(HMM, prior, ev[1])
+    m[0] = forward(HMM, HMM.prior, ev[1])
 
     for i in range(1, t):
         m[i] = element_wise_product(HMM.sensor_dist(ev[i + 1]),

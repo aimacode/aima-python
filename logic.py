@@ -30,9 +30,12 @@ And a few other functions:
     unify            Do unification of two FOL sentences
     diff, simp       Symbolic differentiation and simplification
 """
+import heapq
 import itertools
 import random
-from collections import defaultdict
+from collections import defaultdict, Counter
+
+import networkx as nx
 
 from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
 from csp import parse_neighbors, UniversalDict
@@ -584,7 +587,109 @@ for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '
 # DPLL-Satisfiable [Figure 7.17]
 
 
-def dpll_satisfiable(s):
+def no_branching_heuristic(symbols, clauses):
+    return first(symbols), True
+
+
+def min_clauses(clauses):
+    min_len = min(map(lambda c: len(c.args), clauses), default=2)
+    return filter(lambda c: len(c.args) == (min_len if min_len > 1 else 2), clauses)
+
+
+def moms(symbols, clauses):
+    """
+    MOMS (Maximum Occurrence in clauses of Minimum Size) heuristic
+    Returns the literal with the most occurrences in all clauses of minimum size
+    """
+    scores = Counter(l for c in min_clauses(clauses) for l in prop_symbols(c))
+    return max(symbols, key=lambda symbol: scores[symbol]), True
+
+
+def momsf(symbols, clauses, k=0):
+    """
+    MOMS alternative heuristic
+    If f(x) the number of occurrences of the variable x in clauses with minimum size,
+    we choose the variable maximizing [f(x) + f(-x)] * 2^k + f(x) * f(-x)
+    Returns x if f(x) >= f(-x) otherwise -x
+    """
+    scores = Counter(l for c in min_clauses(clauses) for l in disjuncts(c))
+    P = max(symbols,
+            key=lambda symbol: (scores[symbol] + scores[~symbol]) * pow(2, k) + scores[symbol] * scores[~symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def posit(symbols, clauses):
+    """
+    Freeman's POSIT version of MOMs
+    Counts the positive x and negative x for each variable x in clauses with minimum size
+    Returns x if f(x) >= f(-x) otherwise -x
+    """
+    scores = Counter(l for c in min_clauses(clauses) for l in disjuncts(c))
+    P = max(symbols, key=lambda symbol: scores[symbol] + scores[~symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def zm(symbols, clauses):
+    """
+    Zabih and McAllester's version of MOMs
+    Counts the negative occurrences only of each variable x in clauses with minimum size
+    """
+    scores = Counter(l for c in min_clauses(clauses) for l in disjuncts(c) if l.op == '~')
+    return max(symbols, key=lambda symbol: scores[~symbol]), True
+
+
+def dlis(symbols, clauses):
+    """
+    DLIS (Dynamic Largest Individual Sum) heuristic
+    Choose the variable and value that satisfies the maximum number of unsatisfied clauses
+    Like DLCS but we only consider the literal (thus Cp and Cn are individual)
+    """
+    scores = Counter(l for c in clauses for l in disjuncts(c))
+    P = max(symbols, key=lambda symbol: scores[symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def dlcs(symbols, clauses):
+    """
+    DLCS (Dynamic Largest Combined Sum) heuristic
+    Cp the number of clauses containing literal x
+    Cn the number of clauses containing literal -x
+    Here we select the variable maximizing Cp + Cn
+    Returns x if Cp >= Cn otherwise -x
+    """
+    scores = Counter(l for c in clauses for l in disjuncts(c))
+    P = max(symbols, key=lambda symbol: scores[symbol] + scores[~symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def jw(symbols, clauses):
+    """
+    Jeroslow-Wang heuristic
+    For each literal compute J(l) = \sum{l in clause c} 2^{-|c|}
+    Return the literal maximizing J
+    """
+    scores = Counter()
+    for c in clauses:
+        for l in prop_symbols(c):
+            scores[l] += pow(2, -len(c.args))
+    return max(symbols, key=lambda symbol: scores[symbol]), True
+
+
+def jw2(symbols, clauses):
+    """
+    Two Sided Jeroslow-Wang heuristic
+    Compute J(l) also counts the negation of l = J(x) + J(-x)
+    Returns x if J(x) >= J(-x) otherwise -x
+    """
+    scores = Counter()
+    for c in clauses:
+        for l in disjuncts(c):
+            scores[l] += pow(2, -len(c.args))
+    P = max(symbols, key=lambda symbol: scores[symbol] + scores[~symbol])
+    return P, True if scores[P] >= scores[~P] else False
+
+
+def dpll_satisfiable(s, branching_heuristic=no_branching_heuristic):
     """Check satisfiability of a propositional sentence.
     This differs from the book code in two ways: (1) it returns a model
     rather than True when it succeeds; this is more useful. (2) The
@@ -593,33 +698,29 @@ def dpll_satisfiable(s):
     >>> dpll_satisfiable(A |'<=>'| B) == {A: True, B: True}
     True
     """
-    clauses = conjuncts(to_cnf(s))
-    symbols = list(prop_symbols(s))
-    return dpll(clauses, symbols, {})
+    return dpll(conjuncts(to_cnf(s)), prop_symbols(s), {}, branching_heuristic)
 
 
-def dpll(clauses, symbols, model):
+def dpll(clauses, symbols, model, branching_heuristic=no_branching_heuristic):
     """See if the clauses are true in a partial model."""
     unknown_clauses = []  # clauses with an unknown truth value
     for c in clauses:
         val = pl_true(c, model)
         if val is False:
             return False
-        if val is not True:
+        if val is None:
             unknown_clauses.append(c)
     if not unknown_clauses:
         return model
     P, value = find_pure_symbol(symbols, unknown_clauses)
     if P:
-        return dpll(clauses, removeall(P, symbols), extend(model, P, value))
+        return dpll(clauses, removeall(P, symbols), extend(model, P, value), branching_heuristic)
     P, value = find_unit_clause(clauses, model)
     if P:
-        return dpll(clauses, removeall(P, symbols), extend(model, P, value))
-    if not symbols:
-        raise TypeError("Argument should be of the type Expr.")
-    P, symbols = symbols[0], symbols[1:]
-    return (dpll(clauses, symbols, extend(model, P, True)) or
-            dpll(clauses, symbols, extend(model, P, False)))
+        return dpll(clauses, removeall(P, symbols), extend(model, P, value), branching_heuristic)
+    P, value = branching_heuristic(symbols, unknown_clauses)
+    return (dpll(clauses, removeall(P, symbols), extend(model, P, value), branching_heuristic) or
+            dpll(clauses, removeall(P, symbols), extend(model, P, not value), branching_heuristic))
 
 
 def find_pure_symbol(symbols, clauses):
@@ -688,6 +789,273 @@ def inspect_literal(literal):
         return literal.args[0], False
     else:
         return literal, True
+
+
+# ______________________________________________________________________________
+# CDCL - Conflict-Driven Clause Learning with 1UIP Learning Scheme,
+# 2WL Lazy Data Structure, VSIDS Branching Heuristic & Restarts
+
+
+def no_restart(conflicts, restarts, queue_lbd, sum_lbd):
+    return False
+
+
+def luby(conflicts, restarts, queue_lbd, sum_lbd, unit=512):
+    # in the state-of-art tested with unit value 1, 2, 4, 6, 8, 12, 16, 32, 64, 128, 256 and 512
+    def _luby(i):
+        k = 1
+        while True:
+            if i == (1 << k) - 1:
+                return 1 << (k - 1)
+            elif (1 << (k - 1)) <= i < (1 << k) - 1:
+                return _luby(i - (1 << (k - 1)) + 1)
+            k += 1
+
+    return unit * _luby(restarts) == len(queue_lbd)
+
+
+def glucose(conflicts, restarts, queue_lbd, sum_lbd, x=100, k=0.7):
+    # in the state-of-art tested with (x, k) as (50, 0.8) and (100, 0.7)
+    # if there were at least x conflicts since the last restart, and then the average LBD of the last
+    # x learnt clauses was at least k times higher than the average LBD of all learnt clauses
+    return len(queue_lbd) >= x and sum(queue_lbd) / len(queue_lbd) * k > sum_lbd / conflicts
+
+
+def cdcl_satisfiable(s, vsids_decay=0.95, restart_strategy=no_restart):
+    """
+    >>> cdcl_satisfiable(A |'<=>'| B) == {A: True, B: True}
+    True
+    """
+    clauses = TwoWLClauseDatabase(conjuncts(to_cnf(s)))
+    symbols = prop_symbols(s)
+    scores = Counter()
+    G = nx.DiGraph()
+    model = {}
+    dl = 0
+    conflicts = 0
+    restarts = 1
+    sum_lbd = 0
+    queue_lbd = []
+    while True:
+        conflict = unit_propagation(clauses, symbols, model, G, dl)
+        if conflict:
+            if dl == 0:
+                return False
+            conflicts += 1
+            dl, learn, lbd = conflict_analysis(G, dl)
+            queue_lbd.append(lbd)
+            sum_lbd += lbd
+            backjump(symbols, model, G, dl)
+            clauses.add(learn, model)
+            scores.update(l for l in disjuncts(learn))
+            for symbol in scores:
+                scores[symbol] *= vsids_decay
+            if restart_strategy(conflicts, restarts, queue_lbd, sum_lbd):
+                backjump(symbols, model, G)
+                queue_lbd.clear()
+                restarts += 1
+        else:
+            if not symbols:
+                return model
+            dl += 1
+            assign_decision_literal(symbols, model, scores, G, dl)
+
+
+def assign_decision_literal(symbols, model, scores, G, dl):
+    P = max(symbols, key=lambda symbol: scores[symbol] + scores[~symbol])
+    value = True if scores[P] >= scores[~P] else False
+    symbols.remove(P)
+    model[P] = value
+    G.add_node(P, val=value, dl=dl)
+
+
+def unit_propagation(clauses, symbols, model, G, dl):
+    def check(c):
+        if not model or clauses.get_first_watched(c) == clauses.get_second_watched(c):
+            return True
+        w1, _ = inspect_literal(clauses.get_first_watched(c))
+        if w1 in model:
+            return c in (clauses.get_neg_watched(w1) if model[w1] else clauses.get_pos_watched(w1))
+        w2, _ = inspect_literal(clauses.get_second_watched(c))
+        if w2 in model:
+            return c in (clauses.get_neg_watched(w2) if model[w2] else clauses.get_pos_watched(w2))
+
+    def unit_clause(watching):
+        w, p = inspect_literal(watching)
+        G.add_node(w, val=p, dl=dl)
+        G.add_edges_from(zip(prop_symbols(c) - {w}, itertools.cycle([w])), antecedent=c)
+        symbols.remove(w)
+        model[w] = p
+
+    def conflict_clause(c):
+        G.add_edges_from(zip(prop_symbols(c), itertools.cycle('K')), antecedent=c)
+
+    while True:
+        bcp = False
+        for c in filter(check, clauses.get_clauses()):
+            # we need only visit each clause when one of its two watched literals is assigned to 0 because, until
+            # this happens, we can guarantee that there cannot be more than n-2 literals in the clause assigned to 0
+            first_watched = pl_true(clauses.get_first_watched(c), model)
+            second_watched = pl_true(clauses.get_second_watched(c), model)
+            if first_watched is None and clauses.get_first_watched(c) == clauses.get_second_watched(c):
+                unit_clause(clauses.get_first_watched(c))
+                bcp = True
+                break
+            elif first_watched is False and second_watched is not True:
+                if clauses.update_second_watched(c, model):
+                    bcp = True
+                else:
+                    # if the only literal with a non-zero value is the other watched literal then
+                    if second_watched is None:  # if it is free, then the clause is a unit clause
+                        unit_clause(clauses.get_second_watched(c))
+                        bcp = True
+                        break
+                    else:  # else (it is False) the clause is a conflict clause
+                        conflict_clause(c)
+                        return True
+            elif second_watched is False and first_watched is not True:
+                if clauses.update_first_watched(c, model):
+                    bcp = True
+                else:
+                    # if the only literal with a non-zero value is the other watched literal then
+                    if first_watched is None:  # if it is free, then the clause is a unit clause
+                        unit_clause(clauses.get_first_watched(c))
+                        bcp = True
+                        break
+                    else:  # else (it is False) the clause is a conflict clause
+                        conflict_clause(c)
+                        return True
+        if not bcp:
+            return False
+
+
+def conflict_analysis(G, dl):
+    conflict_clause = next(G[p]['K']['antecedent'] for p in G.pred['K'])
+    P = next(node for node in G.nodes() - 'K' if G.nodes[node]['dl'] == dl and G.in_degree(node) == 0)
+    first_uip = nx.immediate_dominators(G, P)['K']
+    G.remove_node('K')
+    conflict_side = nx.descendants(G, first_uip)
+    while True:
+        for l in prop_symbols(conflict_clause).intersection(conflict_side):
+            antecedent = next(G[p][l]['antecedent'] for p in G.pred[l])
+            conflict_clause = pl_binary_resolution(conflict_clause, antecedent)
+            # the literal block distance is calculated by taking the decision levels from variables of all
+            # literals in the clause, and counting how many different decision levels were in this set
+            lbd = [G.nodes[l]['dl'] for l in prop_symbols(conflict_clause)]
+            if lbd.count(dl) == 1 and first_uip in prop_symbols(conflict_clause):
+                return 0 if len(lbd) == 1 else heapq.nlargest(2, lbd)[-1], conflict_clause, len(set(lbd))
+
+
+def pl_binary_resolution(ci, cj):
+    for di in disjuncts(ci):
+        for dj in disjuncts(cj):
+            if di == ~dj or ~di == dj:
+                return pl_binary_resolution(associate('|', removeall(di, disjuncts(ci))),
+                                            associate('|', removeall(dj, disjuncts(cj))))
+    return associate('|', unique(disjuncts(ci) + disjuncts(cj)))
+
+
+def backjump(symbols, model, G, dl=0):
+    delete = {node for node in G.nodes() if G.nodes[node]['dl'] > dl}
+    G.remove_nodes_from(delete)
+    for node in delete:
+        del model[node]
+    symbols |= delete
+
+
+class TwoWLClauseDatabase:
+
+    def __init__(self, clauses):
+        self.__twl = {}
+        self.__watch_list = defaultdict(lambda: [set(), set()])
+        for c in clauses:
+            self.add(c, None)
+
+    def get_clauses(self):
+        return self.__twl.keys()
+
+    def set_first_watched(self, clause, new_watching):
+        if len(clause.args) > 2:
+            self.__twl[clause][0] = new_watching
+
+    def set_second_watched(self, clause, new_watching):
+        if len(clause.args) > 2:
+            self.__twl[clause][1] = new_watching
+
+    def get_first_watched(self, clause):
+        if len(clause.args) == 2:
+            return clause.args[0]
+        if len(clause.args) > 2:
+            return self.__twl[clause][0]
+        return clause
+
+    def get_second_watched(self, clause):
+        if len(clause.args) == 2:
+            return clause.args[-1]
+        if len(clause.args) > 2:
+            return self.__twl[clause][1]
+        return clause
+
+    def get_pos_watched(self, l):
+        return self.__watch_list[l][0]
+
+    def get_neg_watched(self, l):
+        return self.__watch_list[l][1]
+
+    def add(self, clause, model):
+        self.__twl[clause] = self.__assign_watching_literals(clause, model)
+        w1, p1 = inspect_literal(self.get_first_watched(clause))
+        w2, p2 = inspect_literal(self.get_second_watched(clause))
+        self.__watch_list[w1][0].add(clause) if p1 else self.__watch_list[w1][1].add(clause)
+        if w1 != w2:
+            self.__watch_list[w2][0].add(clause) if p2 else self.__watch_list[w2][1].add(clause)
+
+    def remove(self, clause):
+        w1, p1 = inspect_literal(self.get_first_watched(clause))
+        w2, p2 = inspect_literal(self.get_second_watched(clause))
+        del self.__twl[clause]
+        self.__watch_list[w1][0].discard(clause) if p1 else self.__watch_list[w1][1].discard(clause)
+        if w1 != w2:
+            self.__watch_list[w2][0].discard(clause) if p2 else self.__watch_list[w2][1].discard(clause)
+
+    def update_first_watched(self, clause, model):
+        # if a non-zero literal different from the other watched literal is found
+        found, new_watching = self.__find_new_watching_literal(clause, self.get_first_watched(clause), model)
+        if found:  # then it will replace the watched literal
+            w, p = inspect_literal(self.get_second_watched(clause))
+            self.__watch_list[w][0].remove(clause) if p else self.__watch_list[w][1].remove(clause)
+            self.set_second_watched(clause, new_watching)
+            w, p = inspect_literal(new_watching)
+            self.__watch_list[w][0].add(clause) if p else self.__watch_list[w][1].add(clause)
+            return True
+
+    def update_second_watched(self, clause, model):
+        # if a non-zero literal different from the other watched literal is found
+        found, new_watching = self.__find_new_watching_literal(clause, self.get_second_watched(clause), model)
+        if found:  # then it will replace the watched literal
+            w, p = inspect_literal(self.get_first_watched(clause))
+            self.__watch_list[w][0].remove(clause) if p else self.__watch_list[w][1].remove(clause)
+            self.set_first_watched(clause, new_watching)
+            w, p = inspect_literal(new_watching)
+            self.__watch_list[w][0].add(clause) if p else self.__watch_list[w][1].add(clause)
+            return True
+
+    def __find_new_watching_literal(self, clause, other_watched, model):
+        # if a non-zero literal different from the other watched literal is found
+        if len(clause.args) > 2:
+            for l in disjuncts(clause):
+                if l != other_watched and pl_true(l, model) is not False:
+                    # then it is returned
+                    return True, l
+        return False, None
+
+    def __assign_watching_literals(self, clause, model=None):
+        if len(clause.args) > 2:
+            if model is None or not model:
+                return [clause.args[0], clause.args[-1]]
+            else:
+                return [next(l for l in disjuncts(clause) if pl_true(l, model) is None),
+                        next(l for l in disjuncts(clause) if pl_true(l, model) is False)]
 
 
 # ______________________________________________________________________________
@@ -1240,7 +1608,7 @@ class HybridWumpusAgent(Agent):
 # ______________________________________________________________________________
 
 
-def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
+def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
     """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
     [Figure 7.22]
     >>> transition = {'A': {'Left': 'A', 'Right': 'B'}, 'B': {'Left': 'A', 'Right': 'C'}, 'C': {'Left': 'B', 'Right': 'C'}}
