@@ -1072,7 +1072,8 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
     """Do k-fold cross_validate and return their mean.
     That is, keep out 1/k of the examples for testing on each of k runs.
     Shuffle the examples first; if trials>1, average over several shuffles.
-    Returns Training error, Validataion error"""
+    Returns Training error, Validataion error
+    """
     k = k or len(dataset.examples)
     if trials > 1:
         trial_errT = 0
@@ -1108,12 +1109,25 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     on validation set.
     err_train: A training error array, indexed by size
     err_val: A validation error array, indexed by size
+    Size : [extracted from the book] In this section we explain how to select among models that are parameterized by size.
+            For example, with polynomials we have size = 1 for linear functions, size = 2 for quadratics,
+            and so on. For decision trees, the size could be the number of nodes in the tree. In all cases
+            we want to find the value of the size parameter that best balances underfitting and overfitting
+            to give the best test set accuracy.
     """
     err_val = []
     err_train = []
     size = 1
 
-    while True:
+    """
+    [deviates from pseudocode]
+    Intuition: The size, i.e complexity of a function would never be physically greater than the 
+    number of total training data points. For example, if we have 3 data points, a polynomial of degree 
+    greater than 3 is more than just overfitting. So, instead of looping till infinity, can just add the 
+    length of the data set as a rough upper limit to it. 
+    """
+
+    while size < len(dataset):
         errT, errV = cross_validation(learner, size, dataset, k)
         # Check for convergence provided err_val is not empty
         if (err_train and isclose(err_train[-1], errT, rel_tol=1e-6)):
@@ -1137,16 +1151,30 @@ def leave_one_out(learner, dataset, size=None):
     """Leave one out cross-validation over the dataset."""
     return cross_validation(learner, size, dataset, k=len(dataset.examples))
 
-# TODO learningcurve needs to fixed
+
 def learningcurve(learner, dataset, trials=10, sizes=None):
+    """
+    Returns a list of tuples of size and it's corresponding mean train error and validation error
+
+    """
     if sizes is None:
         sizes = list(range(2, len(dataset.examples) - 10, 2))
 
+
     def score(learner, size):
         random.shuffle(dataset.examples)
-        return train_test_split(learner, dataset, 0, size)
-    return [(size, mean([score(learner, size) for t in range(trials)]))
-            for size in sizes]
+        return cross_validation(learner = learner, size = size, dataset = dataset, trials = trials)
+
+    #Broke down the code to enhance readabilty, can be merged to a direct return statement
+    all_scores = []
+    for curr_size in sizes:
+        train_error, validation_error = score(learner, size)
+        all_scores.append((curr_size, train_error, validation_error))
+
+    return all_scores
+
+
+    
 
 # ______________________________________________________________________________
 # The rest of this file gives datasets for machine learning problems.
