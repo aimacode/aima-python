@@ -298,6 +298,18 @@ class CountingProbDist:
             self.sampler = weighted_sampler(list(self.dictionary.keys()),
                                             list(self.dictionary.values()))
         return self.sampler()
+        
+    def remove_sparse(self, sparse_value):
+    	""" Keep items with probablity greater than sparse value 
+    	and remove all others, eg. if sparse_value=0.98 items with probablity
+    	0.02 would be removed"""
+    	prob_to_remove = 1-sparse_value
+    	tot = self.n_obs
+    	for (k, v) in self.dictionary.items():
+    		if v/tot < prob_to_remove:
+    			del self.dictionary[k]
+    			self.n_obs -= v
+
 
 # ______________________________________________________________________________
 
