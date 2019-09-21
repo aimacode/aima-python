@@ -18,6 +18,8 @@ class SearchNode:
             self.y = 10.0
 
         canvas.create_oval(self.x * 12, self.y * 12, self.x * 12, self.y * 12)
+        if self.parent is not None:
+            canvas.create_line(self.parent.x * 12 , self.parent.y * 12, self.x * 12, self.y * 12) 
 
         if self.children:
             middle_idx = len(self.children) // 2
@@ -105,12 +107,16 @@ def main():
     child6 = SearchNode("child6", parent2)
     child7 = SearchNode("child7", parent2)
     child8 = SearchNode('child8', parent2)
-    child9 = SearchNode('child9', parent2)
-    child10 = SearchNode('child10', parent1)
+    # child10 = SearchNode('child10', parent1)
 
+    grandchild1 = SearchNode("grandchild1", child6)
+    grandchild2 = SearchNode("grandchild2", child7)
+    # child9 = SearchNode('child9', parent3)
     root.children = [parent1, parent2]
     parent1.children = [child1, child2, child3]
     parent2.children = [child5, child6, child7, child8]
+    child6.children = [grandchild1]
+    child7.children = [grandchild2]
 
     print(root.horizontal_distance())
 
