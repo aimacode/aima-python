@@ -1112,9 +1112,11 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     err_val = []
     err_train = []
     size = 1
-
+    best_size = 0
+    min_val = math.inf
+    errT, errV = cross_validation(learner, size, dataset, k)   
     while True:
-        errT, errV = cross_validation(learner, size, dataset, k)
+        
         # Check for convergence provided err_val is not empty
         if (err_train and isclose(err_train[-1], errT, rel_tol=1e-6)):
             best_size = 0
@@ -1128,8 +1130,11 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
                 i += 1
         err_val.append(errV)
         err_train.append(errT)
-        print(err_val)
+        errT, errV = cross_validation(learner, size, dataset, k)
+        if errV > err_val[-1] :
+            break           
         size += 1
+    return learner(best_size , dataset)    
 
 
 
