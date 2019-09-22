@@ -15,11 +15,12 @@ class SearchNode:
     def draw_dots(self, canvas):
         if self.x is None and self.y is None:
             self.x = self.width / 2.0 + 10.0
-            self.y = 10.0
+            self.y = 5.0
 
-        canvas.create_oval(self.x * 12, self.y * 12, self.x * 12, self.y * 12)
+        canvas.create_oval(self.x * 20 + 20, self.y * 30 + 20, self.x * 20 - 20, self.y * 30 - 20, fill='orange')
+        canvas.create_text(self.x * 20, self.y * 30, text="m")
         if self.parent is not None:
-            canvas.create_line(self.parent.x * 12 , self.parent.y * 12, self.x * 12, self.y * 12) 
+            canvas.create_line(self.parent.x * 20, self.parent.y * 30 + 20, self.x * 20, self.y * 30 - 20) 
 
         if self.children:
             middle_idx = len(self.children) // 2
@@ -113,7 +114,7 @@ def main():
     grandchild2 = SearchNode("grandchild2", child7)
     # child9 = SearchNode('child9', parent3)
     root.children = [parent1, parent2]
-    parent1.children = [child1, child2, child3]
+    parent1.children = [child1, child2, child3, child4]
     parent2.children = [child5, child6, child7, child8]
     child6.children = [grandchild1]
     child7.children = [grandchild2]
@@ -121,8 +122,8 @@ def main():
     print(root.horizontal_distance())
 
     window = Tk()
-    window.geometry('600x600')
-    canvas = Canvas(window, width=500, height=500)
+    window.geometry('950x1100')
+    canvas = Canvas(window, width=950, height=1100)
     canvas.pack()
 
     root.draw_dots(canvas)
