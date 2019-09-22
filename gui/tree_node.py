@@ -2,12 +2,12 @@ from tkinter import Tk, Canvas
 from math import floor
 
 
-class SearchNode:
+class TreeNode:
     def __init__(self, data, parent, children=list()):
         self.data = data
         self.parent = parent
         self.children = children
-        self.status = 'frontier'
+        self.status = 'f'
         self.width = 2
         self.x = None
         self.y = None
@@ -18,7 +18,7 @@ class SearchNode:
             self.y = 5.0
 
         canvas.create_oval(self.x * 20 + 20, self.y * 30 + 20, self.x * 20 - 20, self.y * 30 - 20, fill='orange')
-        canvas.create_text(self.x * 20, self.y * 30, text="m")
+        canvas.create_text(self.x * 20, self.y * 30, text=self.data[0])
         if self.parent is not None:
             canvas.create_line(self.parent.x * 20, self.parent.y * 30 + 20, self.x * 20, self.y * 30 - 20) 
 
@@ -96,22 +96,22 @@ class SearchNode:
 
 
 def main():
-    root = SearchNode("a", None)
-    parent1 = SearchNode("parent1", root)
-    child1 = SearchNode("child1", parent1)
-    child2 = SearchNode("child2", parent1)
-    child3 = SearchNode("child3", parent1)
-    child4 = SearchNode("child4", parent1)
+    root = TreeNode("root", None)
+    parent1 = TreeNode("parent1", root)
+    child1 = TreeNode("child1", parent1)
+    child2 = TreeNode("child2", parent1)
+    child3 = TreeNode("child3", parent1)
+    child4 = TreeNode("child4", parent1)
 
-    parent2 = SearchNode("parent2", root)
-    child5 = SearchNode("child5", parent2)
-    child6 = SearchNode("child6", parent2)
-    child7 = SearchNode("child7", parent2)
-    child8 = SearchNode('child8', parent2)
+    parent2 = TreeNode("parent2", root)
+    child5 = TreeNode("child5", parent2)
+    child6 = TreeNode("child6", parent2)
+    child7 = TreeNode("child7", parent2)
+    child8 = TreeNode('child8', parent2)
     # child10 = SearchNode('child10', parent1)
 
-    grandchild1 = SearchNode("grandchild1", child6)
-    grandchild2 = SearchNode("grandchild2", child7)
+    grandchild1 = TreeNode("grandchild1", child6)
+    grandchild2 = TreeNode("grandchild2", child7)
     # child9 = SearchNode('child9', parent3)
     root.children = [parent1, parent2]
     parent1.children = [child1, child2, child3, child4]
