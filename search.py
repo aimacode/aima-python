@@ -184,50 +184,88 @@ def breadth_first_tree_search(problem):
     """Search the shallowest nodes in the search tree first.
         Search through the successors of a problem to find a goal.
         The argument frontier should be an empty queue.
-        Repeats infinitely in case of loops. [Figure 3.7]"""
-
-    frontier = deque([Node(problem.initial)])  # FIFO queue
+        Repeats infinitely in case of loops. [Figure 3.7]
+        Returns the complete path from the initial to the goal node and None in case of no path found"""
+    
+    # FIFO queue 
+    frontier = deque([Node(problem.initial)])
+    # Dictionary containing the path for each node(key) from initial node  
+    path_dict = {}
 
     while frontier:
         node = frontier.popleft()
-        if problem.goal_test(node.state):
-            return node
-        frontier.extend(node.expand(problem))
+        path = []
+        if node in path_dict.keys():
+            path = path_dict[node]
+        # If current node is the goal node then return the path from initial to the current node
+        if problem.goal_test(node.state): 
+            return "<Node {}>".format(tuple(path))
+        child_nodes = node.expand(problem)
+        for child in child_nodes:
+            # Extend the path by adding the child.action to the path from initial node to their parent node
+            path_dict[child] = (path + [child.action])
+            frontier.append(child)
     return None
-
 
 def depth_first_tree_search(problem):
     """Search the deepest nodes in the search tree first.
         Search through the successors of a problem to find a goal.
-        The argument frontier should be an empty queue.
-        Repeats infinitely in case of loops. [Figure 3.7]"""
-
-    frontier = [Node(problem.initial)]  # Stack
+        The argument frontier should be an empty stack.
+        Repeats infinitely in case of loops. [Figure 3.7]
+        Returns the complete path from the initial to the goal node and None in case of no path found"""
+    # Stack
+    frontier = [Node(problem.initial)]
+    # Dictionary containing the path for each node(key) from initial node    
+    path_dict = {}
 
     while frontier:
         node = frontier.pop()
-        if problem.goal_test(node.state):
-            return node
-        frontier.extend(node.expand(problem))
+        path = []
+        if node in path_dict.keys():
+        	path = path_dict[node]
+        # If current node is the goal node then return the path from initial to the current node
+        if problem.goal_test(node.state): 
+            return "<Node {}>".format(tuple(path))
+        child_nodes = node.expand(problem)
+        for child in child_nodes:
+        	# Extend the path by adding the child to the path from initial node to their parent node
+        	path_dict[child] = (path + [child.action])
+        	frontier.append(child)
     return None
 
 
 def depth_first_graph_search(problem):
     """Search the deepest nodes in the search tree first.
         Search through the successors of a problem to find a goal.
-        The argument frontier should be an empty queue.
+        The argument frontier should be an empty stack.
         Does not get trapped by loops.
-        If two paths reach a state, only use the first one. [Figure 3.7]"""
-    frontier = [(Node(problem.initial))]  # Stack
+        If two paths reach a state, only use the first one. [Figure 3.7]
+        Returns the complete path from the initial to the goal node and None in case of no path found"""
+
+
+    # Stack 
+    frontier = [(Node(problem.initial))]
+    # Dictionary containing the path for each node(key) from initial node    
+    path_dict = {}  
+    # Set containing nodes already visited
     explored = set()
     while frontier:
         node = frontier.pop()
-        if problem.goal_test(node.state):
-            return node
+        path = []
+        if node in path_dict.keys():
+        	path = path_dict[node]
+        # If current node is the goal node then return the path from initial to the current node
+        if problem.goal_test(node.state): 
+            return "<Node {}>".format(tuple(path))
         explored.add(node.state)
-        frontier.extend(child for child in node.expand(problem)
-                        if child.state not in explored and
-                        child not in frontier)
+        child_nodes = node.expand(problem)
+        for child in child_nodes:
+        	# Extend the path by adding the child to the path from initial node to their parent node
+        	new_path = (path+[child.action]) 
+        	# Add new_path only if encountered the current node for the first time to avoid infinite loop
+        	if child.state not in explored and child not in frontier: 
+        		path_dict[child] = new_path 
+        		frontier.append(child)
     return None
 
 
@@ -237,19 +275,38 @@ def breadth_first_graph_search(problem):
     single line as below:
     return graph_search(problem, FIFOQueue())
     """
+    """Search the shallowest nodes in the search tree first.
+    Search through the successors of a problem to find a goal.
+    The argument frontier should be an empty FIFO queue.
+    Does not get trapped by loops.
+    If two paths reach a state, only use the first one. [Figure 3.7]
+    Returns the complete path from the initial to the goal node and None in case of no path found"""
+    
     node = Node(problem.initial)
     if problem.goal_test(node.state):
-        return node
-    frontier = deque([node])
+        return "<Node {}>".format((node.action))
+    # FIFO queue 
+    frontier = deque([node]) 
+    # Set containing nodes already visited
     explored = set()
+    # Dictionary containing the path for each node(key) from initial node    
+    path_dict = {}
     while frontier:
         node = frontier.popleft()
+        path = []
+        if node in path_dict.keys():
+        	path = path_dict[node]
         explored.add(node.state)
+        # If current node is the goal node then return the path from initial to the current node
+        if problem.goal_test(node.state): 
+        	return "<Node {}>".format(tuple(path))
         for child in node.expand(problem):
-            if child.state not in explored and child not in frontier:
-                if problem.goal_test(child.state):
-                    return child
-                frontier.append(child)
+        	# Extend the path by adding the child to the path from initial node to their parent node
+        	new_path = path + [child.action] 
+        	# Add new_path only if encountered the current node for the first time to avoid infinite loop
+        	if child.state not in explored and child not in frontier: 
+        	    path_dict[child] = new_path
+        	    frontier.append(child)
     return None
 
 
@@ -260,25 +317,36 @@ def best_first_graph_search(problem, f):
     first search; if f is node.depth then we have breadth-first search.
     There is a subtlety: the line "f = memoize(f, 'f')" means that the f
     values will be cached on the nodes as they are computed. So after doing
-    a best first search you can examine the f values of the path returned."""
+    a best first search you can examine the f values of the path returned.
+    Returns the best path from initial to the goal node or None in case no path exists"""
     f = memoize(f, 'f')
     node = Node(problem.initial)
     frontier = PriorityQueue('min', f)
+    path_dict = {} # Dictionary containing the heuristic determined best path to reach the node(key) from the initial node 
     frontier.append(node)
     explored = set()
     while frontier:
         node = frontier.pop()
+        path = []
+        if node in path_dict.keys():
+        	path = path_dict[node]
+        # If current node is the goal node then return the path from initial to the current node
         if problem.goal_test(node.state):
-            return node
+            return ("<Node {}>".format(tuple(path)),node)
         explored.add(node.state)
         for child in node.expand(problem):
-            if child.state not in explored and child not in frontier:
-                frontier.append(child)
-            elif child in frontier:
-                if f(child) < frontier[child]:
-                    del frontier[child]
-                    frontier.append(child)
-    return None
+        	# Extend the path by adding the child to the path from initial node to their parent node
+        	new_path = path + [child.action]
+        	# Add new_path only if encountered the current node for the first time to avoid infinite loop or the calculated value for the node is less than the previous value
+        	if child.state not in explored and child not in frontier:
+        	    frontier.append(child)
+        	    path_dict[child] = new_path
+        	elif child in frontier:
+        		if f(child) < frontier[child]:
+        			del frontier[child]
+        			frontier.append(child)
+        			path_dict[child] = new_path
+    return (None,None)
 
 
 def uniform_cost_search(problem):

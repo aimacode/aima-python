@@ -16,43 +16,37 @@ def test_find_min_edge():
 
 def test_breadth_first_tree_search():
     assert breadth_first_tree_search(
-        romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
-    assert breadth_first_graph_search(nqueens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
+        romania_problem) == "<Node {}>".format(tuple(['Sibiu','Fagaras', 'Bucharest']))
+    assert breadth_first_graph_search(nqueens) == "<Node {}>".format(tuple([0, 4, 7, 5, 2, 6, 1, 3]))
 
 
 def test_breadth_first_graph_search():
-    assert breadth_first_graph_search(romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
+    assert breadth_first_graph_search(romania_problem) == "<Node {}>".format(tuple(['Sibiu', 'Fagaras' , 'Bucharest']))
 
 
 def test_best_first_graph_search():
     # uniform_cost_search and astar_search test it indirectly
     assert best_first_graph_search(
         romania_problem,
-        lambda node: node.state).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
+        lambda node: node.state)[0] == "<Node {}>".format(tuple(['Sibiu', 'Fagaras' , 'Bucharest']))
     assert best_first_graph_search(
         romania_problem,
-        lambda node: node.state[::-1]).solution() == ['Timisoara',
-                                                      'Lugoj',
-                                                      'Mehadia',
-                                                      'Drobeta',
-                                                      'Craiova',
-                                                      'Pitesti',
-                                                      'Bucharest']
+        lambda node: node.state[::-1])[0] == "<Node {}>".format(tuple(['Timisoara','Lugoj','Mehadia','Drobeta','Craiova','Pitesti','Bucharest']))
 
 
 def test_uniform_cost_search():
     assert uniform_cost_search(
-        romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
-    assert uniform_cost_search(nqueens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
+        romania_problem)[0] == "<Node {}>".format(tuple(['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']))
+    assert uniform_cost_search(nqueens)[0] == "<Node {}>".format(tuple([0, 4, 7, 5, 2, 6, 1, 3]))
 
 
 def test_depth_first_tree_search():
-    assert depth_first_tree_search(nqueens).solution() == [7, 3, 0, 2, 5, 1, 6, 4]
+    assert depth_first_tree_search(nqueens) == "<Node {}>".format(tuple([7, 3, 0, 2, 5, 1, 6, 4]))
 
 
 def test_depth_first_graph_search():
-    solution = depth_first_graph_search(romania_problem).solution()
-    assert solution[-1] == 'Bucharest'
+    solution = depth_first_graph_search(romania_problem)
+    assert solution[-12:-3] == 'Bucharest'
 
 
 def test_iterative_deepening_search():
@@ -73,10 +67,10 @@ def test_bidirectional_search():
 
 
 def test_astar_search():
-    assert astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
-    assert astar_search(eight_puzzle).solution() == ['LEFT', 'LEFT', 'UP', 'RIGHT', 'RIGHT', 'DOWN', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT']
-    assert astar_search(EightPuzzle((1, 2, 3, 4, 5, 6, 0, 7, 8))).solution() == ['RIGHT', 'RIGHT']
-    assert astar_search(nqueens).solution() == [7, 1, 3, 0, 6, 4, 2, 5]
+    assert astar_search(romania_problem)[0] == "<Node {}>".format(tuple(['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']))
+    assert astar_search(eight_puzzle)[0] == "<Node {}>".format(tuple(['LEFT', 'LEFT', 'UP', 'RIGHT', 'RIGHT', 'DOWN', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT']))
+    assert astar_search(EightPuzzle((1, 2, 3, 4, 5, 6, 0, 7, 8)))[0] == "<Node {}>".format(tuple(['RIGHT', 'RIGHT']))
+    assert astar_search(nqueens)[0] =="<Node {}>".format(tuple([7, 1, 3, 0, 6, 4, 2, 5])) 
 
 
 def test_find_blank_square():
