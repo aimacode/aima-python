@@ -1895,24 +1895,6 @@ def standardize_variables(sentence, dic=None):
         return Expr(sentence.op, *[standardize_variables(a, dic) for a in sentence.args])
 
 
-def standardize_variables(sentence, dic=None):
-    """Replace all the variables in sentence with new variables."""
-    if dic is None:
-        dic = {}
-    if not isinstance(sentence, Expr):
-        return sentence
-    elif is_var_symbol(sentence.op):
-        if sentence in dic:
-            return dic[sentence]
-        else:
-            v = Expr('v_{}'.format(next(standardize_variables.counter)))
-            dic[sentence] = v
-            return v
-    else:
-        return Expr(sentence.op,
-                    *[standardize_variables(a, dic) for a in sentence.args])
-
-
 standardize_variables.counter = itertools.count()
 
 
