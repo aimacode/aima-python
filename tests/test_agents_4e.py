@@ -1,12 +1,13 @@
 import random
 
+import pytest
+
 from agents_4e import Agent
 from agents_4e import Direction
 from agents_4e import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents, \
     RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram, \
     SimpleReflexAgentProgram, ModelBasedReflexAgentProgram
-from agents_4e import Wall, Gold, Explorer, Thing, Bump, Glitter, WumpusEnvironment, Pit, \
-    VacuumEnvironment, Dirt
+from agents_4e import Wall, VacuumEnvironment, Dirt
 
 random.seed("aima-python")
 
@@ -377,3 +378,7 @@ def test_VacuumEnvironment():
 #     assert not any(map(lambda x: isinstance(x, Explorer), w.things))
 #
 #     assert w.is_done()
+
+
+if __name__ == "__main__":
+    pytest.main()

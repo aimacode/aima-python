@@ -1,9 +1,13 @@
+import random
+
 import pytest
 
 from planning import *
 from search import astar_search
 from utils import expr
 from logic import FolKB, conjuncts
+
+random.seed("aima-python")
 
 
 def test_action():

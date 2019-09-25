@@ -3,6 +3,8 @@ import pytest
 from probability import *
 from utils import rounder
 
+random.seed("aima-python")
+
 
 def tests():
     cpt = burglary.variable_node('Alarm')

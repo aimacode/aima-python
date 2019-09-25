@@ -1,9 +1,13 @@
+import pytest
+
 from games4e import *
 
 # Creating the game instances
 f52 = Fig52Game()
 ttt = TicTacToe()
 con4 = ConnectFour()
+
+random.seed("aima-python")
 
 
 def gen_state(to_move='X', x_positions=[], o_positions=[], h=3, v=3, k=3):
@@ -13,7 +17,7 @@ def gen_state(to_move='X', x_positions=[], o_positions=[], h=3, v=3, k=3):
     game state"""
 
     moves = set([(x, y) for x in range(1, h + 1) for y in range(1, v + 1)]) \
-        - set(x_positions) - set(o_positions)
+            - set(x_positions) - set(o_positions)
     moves = list(moves)
     board = {}
     for pos in x_positions:
@@ -87,3 +91,7 @@ def test_random_tests():
 
     # The player 'X' (one who plays first) in TicTacToe never loses:
     assert ttt.play_game(alphabeta_player, random_player) >= 0
+
+
+if __name__ == "__main__":
+    pytest.main()

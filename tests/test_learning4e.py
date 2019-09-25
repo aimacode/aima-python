@@ -1,9 +1,6 @@
 import pytest
-import math
-import random
-from utils import open_data
-from learning import *
 
+from learning import *
 
 random.seed("aima-python")
 
@@ -74,7 +71,7 @@ def test_random_forest():
              ([6.1, 2.2, 3.5, 1.0], "versicolor"),
              ([7.5, 4.1, 6.2, 2.3], "virginica"),
              ([7.3, 3.7, 6.1, 2.5], "virginica")]
-    assert grade_learner(rF, tests) >= 1/3
+    assert grade_learner(rF, tests) >= 1 / 3
 
 
 def test_random_weights():
@@ -99,5 +96,9 @@ def test_adaboost():
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(adaboost, tests) > 4/6
+    assert grade_learner(adaboost, tests) > 4 / 6
     assert err_ratio(adaboost, iris) < 0.25
+
+
+if __name__ == "__main__":
+    pytest.main()

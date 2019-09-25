@@ -1,7 +1,11 @@
+import pytest
+
 from DeepNeuralNet4e import *
 from learning4e import DataSet, grade_learner, err_ratio
 from keras.datasets import imdb
 import numpy as np
+
+random.seed("aima-python")
 
 
 def test_neural_net():
@@ -26,14 +30,14 @@ def test_neural_net():
 
 
 def test_cross_entropy():
-    loss = cross_entropy_loss([1,0], [0.9, 0.3])
-    assert round(loss,2) == 0.23
+    loss = cross_entropy_loss([1, 0], [0.9, 0.3])
+    assert round(loss, 2) == 0.23
 
-    loss = cross_entropy_loss([1,0,0,1], [0.9,0.3,0.5,0.75])
-    assert round(loss,2) == 0.36
+    loss = cross_entropy_loss([1, 0, 0, 1], [0.9, 0.3, 0.5, 0.75])
+    assert round(loss, 2) == 0.36
 
-    loss = cross_entropy_loss([1,0,0,1,1,0,1,1], [0.9,0.3,0.5,0.75,0.85,0.14,0.93,0.79])
-    assert round(loss,2) == 0.26
+    loss = cross_entropy_loss([1, 0, 0, 1, 1, 0, 1, 1], [0.9, 0.3, 0.5, 0.75, 0.85, 0.14, 0.93, 0.79])
+    assert round(loss, 2) == 0.26
 
 
 def test_perceptron():
@@ -47,7 +51,7 @@ def test_perceptron():
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(perceptron, tests) > 1/2
+    assert grade_learner(perceptron, tests) > 1 / 2
     assert err_ratio(perceptron, iris) < 0.4
 
 
@@ -72,3 +76,6 @@ def test_auto_encoder():
     print(inputs[0])
     print(model.predict(inputs[:1]))
 
+
+if __name__ == "__main__":
+    pytest.main()

@@ -3,9 +3,16 @@ import pytest
 from logic import *
 from utils import expr_handle_infix_ops, count
 
+random.seed("aima-python")
+
 definite_clauses_KB = PropDefiniteKB()
-for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B',
-               'C']:
+for clause in ['(B & F)==>E',
+               '(A & E & F)==>G',
+               '(B & C)==>F',
+               '(A & B)==>D',
+               '(E & F)==>H',
+               '(H & I)==>J',
+               'A', 'B', 'C']:
     definite_clauses_KB.tell(expr(clause))
 
 
@@ -181,6 +188,21 @@ def test_unify():
     # must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
     assert unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) == {z: A, x: F(A), u: G(y)}
     assert unify(expr('P(x, A, F(G(y)))'), expr('P(F(z), z, F(u))')) == {x: F(A), z: A, u: G(y)}
+
+
+def test_unify_mm():
+    assert unify_mm(x, x) == {}
+    assert unify_mm(x, 3) == {x: 3}
+    assert unify_mm(x & 4 & y, 6 & y & 4) == {x: 6, y: 4}
+    assert unify_mm(expr('A(x)'), expr('A(B)')) == {x: B}
+    assert unify_mm(expr('American(x) & Weapon(B)'), expr('American(A) & Weapon(y)')) == {x: A, y: B}
+    assert unify_mm(expr('P(F(x,z), G(u, z))'), expr('P(F(y,a), y)')) == {x: G(u, a), z: a, y: G(u, a)}
+
+    # test for https://github.com/aimacode/aima-python/issues/1053
+    # unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))'))
+    # must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
+    assert unify_mm(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) == {z: A, x: F(A), u: G(y)}
+    assert unify_mm(expr('P(x, A, F(G(y)))'), expr('P(F(z), z, F(u))')) == {x: F(A), z: A, u: G(y)}
 
 
 def test_pl_fc_entails():

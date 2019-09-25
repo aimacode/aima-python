@@ -1,9 +1,6 @@
 import pytest
-import math
-import random
-from utils import open_data
-from learning import *
 
+from learning import *
 
 random.seed("aima-python")
 
@@ -18,30 +15,31 @@ def test_euclidean():
     distance = euclidean_distance([0, 0, 0], [0, 0, 0])
     assert distance == 0
 
+
 def test_cross_entropy():
-    loss = cross_entropy_loss([1,0], [0.9, 0.3])
-    assert round(loss,2) == 0.23
+    loss = cross_entropy_loss([1, 0], [0.9, 0.3])
+    assert round(loss, 2) == 0.23
 
-    loss = cross_entropy_loss([1,0,0,1], [0.9,0.3,0.5,0.75])
-    assert round(loss,2) == 0.36
+    loss = cross_entropy_loss([1, 0, 0, 1], [0.9, 0.3, 0.5, 0.75])
+    assert round(loss, 2) == 0.36
 
-    loss = cross_entropy_loss([1,0,0,1,1,0,1,1], [0.9,0.3,0.5,0.75,0.85,0.14,0.93,0.79])
-    assert round(loss,2) == 0.26
+    loss = cross_entropy_loss([1, 0, 0, 1, 1, 0, 1, 1], [0.9, 0.3, 0.5, 0.75, 0.85, 0.14, 0.93, 0.79])
+    assert round(loss, 2) == 0.26
 
 
 def test_rms_error():
     assert rms_error([2, 2], [2, 2]) == 0
     assert rms_error((0, 0), (0, 1)) == math.sqrt(0.5)
-    assert rms_error((1, 0), (0, 1)) ==  1
-    assert rms_error((0, 0), (0, -1)) ==  math.sqrt(0.5)
-    assert rms_error((0, 0.5), (0, -0.5)) ==  math.sqrt(0.5)
+    assert rms_error((1, 0), (0, 1)) == 1
+    assert rms_error((0, 0), (0, -1)) == math.sqrt(0.5)
+    assert rms_error((0, 0.5), (0, -0.5)) == math.sqrt(0.5)
 
 
 def test_manhattan_distance():
     assert manhattan_distance([2, 2], [2, 2]) == 0
     assert manhattan_distance([0, 0], [0, 1]) == 1
-    assert manhattan_distance([1, 0], [0, 1]) ==  2
-    assert manhattan_distance([0, 0], [0, -1]) ==  1
+    assert manhattan_distance([1, 0], [0, 1]) == 2
+    assert manhattan_distance([0, 0], [0, -1]) == 1
     assert manhattan_distance([0, 0.5], [0, -0.5]) == 1
 
 
@@ -56,8 +54,8 @@ def test_mean_boolean_error():
 def test_mean_error():
     assert mean_error([2, 2], [2, 2]) == 0
     assert mean_error([0, 0], [0, 1]) == 0.5
-    assert mean_error([1, 0], [0, 1]) ==  1
-    assert mean_error([0, 0], [0, -1]) ==  0.5
+    assert mean_error([1, 0], [0, 1]) == 1
+    assert mean_error([0, 0], [0, -1]) == 0.5
     assert mean_error([0, 0.5], [0, -0.5]) == 0.5
 
 
@@ -116,11 +114,11 @@ def test_naive_bayes():
     assert nBC([7, 3, 6.5, 2]) == "virginica"
 
     # Simple
-    data1 = 'a'*50 + 'b'*30 + 'c'*15
+    data1 = 'a' * 50 + 'b' * 30 + 'c' * 15
     dist1 = CountingProbDist(data1)
-    data2 = 'a'*30 + 'b'*45 + 'c'*20
+    data2 = 'a' * 30 + 'b' * 45 + 'c' * 20
     dist2 = CountingProbDist(data2)
-    data3 = 'a'*20 + 'b'*20 + 'c'*35
+    data3 = 'a' * 20 + 'b' * 20 + 'c' * 35
     dist3 = CountingProbDist(data3)
 
     dist = {('First', 0.5): dist1, ('Second', 0.3): dist2, ('Third', 0.2): dist3}
@@ -158,7 +156,7 @@ def test_truncated_svd():
                 [0, 2, 0, 0, 0]]
     _, _, eival = truncated_svd(test_mat)
     assert isclose(eival[0], 3)
-    assert isclose(eival[1], 5**0.5)
+    assert isclose(eival[1], 5 ** 0.5)
 
     test_mat = [[3, 2, 2],
                 [2, 3, -2]]
@@ -193,7 +191,7 @@ def test_random_forest():
              ([6.1, 2.2, 3.5, 1.0], "versicolor"),
              ([7.5, 4.1, 6.2, 2.3], "virginica"),
              ([7.3, 3.7, 6.1, 2.5], "virginica")]
-    assert grade_learner(rF, tests) >= 1/3
+    assert grade_learner(rF, tests) >= 1 / 3
 
 
 def test_neural_network_learner():
@@ -210,7 +208,7 @@ def test_neural_network_learner():
              ([7.5, 4.1, 6.2, 2.3], 2),
              ([7.3, 4.0, 6.1, 2.4], 2),
              ([7.0, 3.3, 6.1, 2.5], 2)]
-    assert grade_learner(nNL, tests) >= 1/3
+    assert grade_learner(nNL, tests) >= 1 / 3
     assert err_ratio(nNL, iris) < 0.21
 
 
@@ -225,7 +223,7 @@ def test_perceptron():
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(perceptron, tests) > 1/2
+    assert grade_learner(perceptron, tests) > 1 / 2
     assert err_ratio(perceptron, iris) < 0.4
 
 
@@ -251,5 +249,9 @@ def test_adaboost():
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(adaboost, tests) > 4/6
+    assert grade_learner(adaboost, tests) > 4 / 6
     assert err_ratio(adaboost, iris) < 0.25
+
+
+if __name__ == "__main__":
+    pytest.main()
