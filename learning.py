@@ -102,7 +102,7 @@ class DataSet:
         else:
             self.examples = examples
 
-        # Attrs are the indices of examples, unless otherwise stated.   
+        # Attrs are the indices of examples, unless otherwise stated.
         if self.examples is not None and attrs is None:
             attrs = list(range(len(self.examples[0])))
 
@@ -624,38 +624,114 @@ def RandomForest(dataset, n=5):
 
 # ______________________________________________________________________________
 
-# A decision list is implemented as a list of (test, value) pairs.
+
+class DLTest:
+    def __init__(self):
+        self.attr_values = {}
+
+    def add(self, attr, value):
+        """Add new attribute and value to the test"""
+        self.attr_values[attr] = value
+
+    def matches(self, example):
+        """Check if the given `example` passes the test of not"""
+        for attr in self.attr_values.keys():
+            if self.attr_values[attr] != example[attr]:
+                return False
+        return True
+
+    def matched_examples(self, examples):
+        """Returns a subset of `examples` which pass the test"""
+        matched_examples_list = []
+        for example in examples:
+            if self.matches(example):
+                matched_examples_list.append(example)
+        return matched_examples_list
+
+    def unmatched_examples(self, examples):
+        """Returns a subset of `examples` which do not pass the test"""
+        unmatched_examples_list = []
+        for example in examples:
+            if not self.matches(example):
+                unmatched_examples_list.append(example)
+        return unmatched_examples_list
 
 
-def DecisionListLearner(dataset):
+def create_DLTests(dataset, attribute_count=1):
+    """
+    Returns a list of all possible tests for the given dataset.
+    `attribute_count` (int): maximum number of literals/attributes to consider for each test
+    """
+    all_possible_tests = []
+    if (attribute_count != 1):
+        raise ValueError('For now DLTests with only 1 attribute can be created')
+    non_target_attributes = dataset.inputs
+    for attribute in non_target_attributes:
+        all_possible_attribute_values = dataset.values[attribute]
+        for attribute_value in all_possible_attribute_values:
+            test = DLTest()
+            test.add(attribute, attribute_value)
+            all_possible_tests.append(test)
+    return all_possible_tests
+
+
+class DecisionListLearner:
     """[Figure 18.11]"""
+    def __init__(self, dataset, positive="Yes", negative="No"):
+        """
+        dataset (`dataset` instance): on which the Decision list is to be created
+        positive (string): string representation of a positive example
+        negative (string): string representation of a negative example
+        """
+        self.dataset = dataset
+        self.positive = positive
+        self.negative = negative
+        self.possible_tests = create_DLTests(dataset, attribute_count=1)
+        self.decision_list = self.decision_list_learning(self.dataset.examples)
 
-    def decision_list_learning(examples):
+    def decision_list_learning(self, examples):
+        """Learning decision list for the given examples. refer: [Figure 18.11]"""
         if not examples:
-            return [(True, False)]
-        t, o, examples_t = find_examples(examples)
-        if not t:
-            raise Exception
-        return [(t, o)] + decision_list_learning(examples - examples_t)
+            return [None, self.negative]
+        t = self.get_valid_test(examples)
+        if t is None:
+            raise Exception("Failure")
+        examples_t = t.matched_examples(examples)
+        o = "Yes" if self.all_positive(examples_t) else "No"
+        unmatched_examples = t.unmatched_examples(examples)
+        return [(t, o)] + self.decision_list_learning(unmatched_examples)
 
-    def find_examples(examples):
-        """Find a set of examples that all have the same outcome under
-        some test. Return a tuple of the test, outcome, and examples."""
-        raise NotImplementedError
+    def all_positive(self, examples):
+        """Check wheather all `examples` are `positive` or not"""
+        target_index = self.dataset.target
+        return all(ex[target_index] == self.positive for ex in examples)
 
-    def passes(example, test):
-        """Does the example pass the test?"""
-        raise NotImplementedError
+    def get_valid_test(self, examples):
+        """Returns a test that matches a nonempty subset from `examples`
+        such that the members of examples t are all positive or all negative"""
+        for test in self.possible_tests:
+            matched_examples = test.matched_examples(examples)
+            if len(matched_examples) != 0:
+                if self.all_examples_have_same_target_value(test, matched_examples):
+                    return test
+        return None
 
-    def predict(example):
+    def all_examples_have_same_target_value(self, test, examples):
+        """Check wheather all examples have same target value or not"""
+        target_index = self.dataset.target
+        target_value = examples[0][target_index]
+        for example in examples:
+            if example[target_index] != target_value:
+                return False
+        return True
+
+    def predict(self, example):
         """Predict the outcome for the first passing test."""
-        for test, outcome in predict.decision_list:
-            if passes(example, test):
+        for test, outcome in self.decision_list:
+            if test is None:
+                return self.negative
+            elif test.matches(example):
                 return outcome
-    
-    predict.decision_list = decision_list_learning(set(dataset.examples))
-
-    return predict
 
 # ______________________________________________________________________________
 

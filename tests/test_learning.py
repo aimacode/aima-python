@@ -175,6 +175,14 @@ def test_decision_tree_learner():
     assert dTL([7.5, 4, 6, 2]) == "virginica"
 
 
+def test_decision_list_learner():
+    restaurant = DataSet(name="restaurant")
+    dTL = DecisionListLearner(restaurant)
+    assert dTL.predict(['Yes', 'No', 'No', 'Yes', 'Some', '$$$', 'No', 'Yes', 'French', '0-10']) == "Yes"
+    assert dTL.predict(['Yes', 'No', 'No', 'Yes', 'Full', '$', 'No', 'No', 'Thai', '30-60']) == "No"
+    assert dTL.predict(['No', 'Yes', 'No', 'No', 'Some', '$', 'No', 'No', 'Burger', '0-10']) == "Yes"
+
+
 def test_information_content():
     assert information_content([]) == 0
     assert information_content([4]) == 0
@@ -253,3 +261,4 @@ def test_adaboost():
              ([7, 3, 6, 2.5], 2)]
     assert grade_learner(adaboost, tests) > 4/6
     assert err_ratio(adaboost, iris) < 0.25
+
