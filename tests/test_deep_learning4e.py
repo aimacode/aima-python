@@ -71,7 +71,6 @@ def test_auto_encoder():
     classes = ["setosa", "versicolor", "virginica"]
     iris.classes_to_numbers(classes)
     inputs = np.asarray(iris.examples)
-    # print(inputs[0])
     model = auto_encoder_learner(inputs, 100)
     print(inputs[0])
     print(model.predict(inputs[:1]))

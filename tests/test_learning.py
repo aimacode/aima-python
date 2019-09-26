@@ -215,7 +215,6 @@ def test_neural_network_learner():
 def test_perceptron():
     iris = DataSet(name="iris")
     iris.classes_to_numbers()
-    classes_number = len(iris.values[iris.target])
     perceptron = PerceptronLearner(iris)
     tests = [([5, 3, 1, 0.1], 0),
              ([5, 3.5, 1, 0], 0),
@@ -234,7 +233,7 @@ def test_random_weights():
     test_weights = random_weights(min_value, max_value, num_weights)
     assert len(test_weights) == num_weights
     for weight in test_weights:
-        assert weight >= min_value and weight <= max_value
+        assert min_value <= weight <= max_value
 
 
 def test_adaboost():

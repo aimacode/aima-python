@@ -81,23 +81,23 @@ def test_random_weights():
     test_weights = random_weights(min_value, max_value, num_weights)
     assert len(test_weights) == num_weights
     for weight in test_weights:
-        assert weight >= min_value and weight <= max_value
+        assert min_value <= weight <= max_value
 
 
-def test_adaboost():
+def test_adaBoost():
     iris = DataSet(name="iris")
     iris.classes_to_numbers()
     WeightedPerceptron = WeightedLearner(PerceptronLearner)
-    AdaboostLearner = AdaBoost(WeightedPerceptron, 5)
-    adaboost = AdaboostLearner(iris)
+    AdaBoostLearner = AdaBoost(WeightedPerceptron, 5)
+    adaBoost = AdaBoostLearner(iris)
     tests = [([5, 3, 1, 0.1], 0),
              ([5, 3.5, 1, 0], 0),
              ([6, 3, 4, 1.1], 1),
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(adaboost, tests) > 4 / 6
-    assert err_ratio(adaboost, iris) < 0.25
+    assert grade_learner(adaBoost, tests) > 4 / 6
+    assert err_ratio(adaBoost, iris) < 0.25
 
 
 if __name__ == "__main__":

@@ -689,8 +689,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=[3], learning_rate=0.01, epochs
 
     # construct a network
     raw_net = network(i_units, hidden_layer_sizes, o_units, activation)
-    learned_net = BackPropagationLearner(dataset, raw_net,
-                                         learning_rate, epochs, activation)
+    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs, activation)
 
     def predict(example):
         # Input nodes
