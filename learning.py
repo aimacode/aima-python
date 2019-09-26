@@ -298,7 +298,8 @@ class CountingProbDist:
     def sample(self):
         """Return a random sample from the distribution."""
         if self.sampler is None:
-            self.sampler = weighted_sampler(list(self.dictionary.keys()), list(self.dictionary.values()))
+            self.sampler = weighted_sampler(list(self.dictionary.keys()),
+                                            list(self.dictionary.values()))
         return self.sampler()
 
 
@@ -521,8 +522,7 @@ class DecisionFork:
         print()  # newline
 
     def __repr__(self):
-        return ('DecisionFork({0!r}, {1!r}, {2!r})'
-                .format(self.attr, self.attrname, self.branches))
+        return ('DecisionFork({0!r}, {1!r}, {2!r})'.format(self.attr, self.attrname, self.branches))
 
 
 class DecisionLeaf:
@@ -560,8 +560,7 @@ def DecisionTreeLearner(dataset):
             A = choose_attribute(attrs, examples)
             tree = DecisionFork(A, dataset.attrnames[A], plurality_value(examples))
             for (v_k, exs) in split_by(A, examples):
-                subtree = decision_tree_learning(
-                    exs, removeall(A, attrs), examples)
+                subtree = decision_tree_learning(exs, removeall(A, attrs), examples)
                 tree.add(v_k, subtree)
             return tree
 
@@ -678,8 +677,7 @@ def DecisionListLearner(dataset):
 # ______________________________________________________________________________
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes=[3],
-                     learning_rate=0.01, epochs=100, activation=sigmoid):
+def NeuralNetLearner(dataset, hidden_layer_sizes=[3], learning_rate=0.01, epochs=100, activation=sigmoid):
     """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
     learning_rate: Learning rate of gradient descent
@@ -814,8 +812,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 units = len(layer)
                 for j in range(units):
                     layer[j].weights = vector_add(layer[j].weights,
-                                                  scalar_vector_product(
-                                                      learning_rate * delta[i][j], inc))
+                                                  scalar_vector_product(learning_rate * delta[i][j], inc))
 
     return net
 
@@ -915,7 +912,7 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     ones = [1 for _ in range(len(examples))]
     X_col = [ones] + X_col
 
-    # Initialize random weigts
+    # Initialize random weights
     num_weights = len(idx_i) + 1
     w = random_weights(min_value=-0.5, max_value=0.5, num_weights=num_weights)
 
@@ -1066,7 +1063,8 @@ def err_ratio(predict, dataset, examples=None, verbose=0):
             if verbose >= 2:
                 print('   OK: got {} for {}'.format(desired, example))
         elif verbose:
-            print('WRONG: got {}, expected {} for {}'.format(output, desired, example))
+            print('WRONG: got {}, expected {} for {}'.format(
+                output, desired, example))
     return 1 - (right / len(examples))
 
 
@@ -1080,8 +1078,8 @@ def train_test_split(dataset, start=None, end=None, test_split=None):
     """If you are giving 'start' and 'end' as parameters,
     then it will return the testing set from index 'start' to 'end'
     and the rest for training.
-    If you give 'test_split' as a parameter then it will return 
-    test_split * 100% as the testing set and the rest as 
+    If you give 'test_split' as a parameter then it will return
+    test_split * 100% as the testing set and the rest as
     training set.
     """
     examples = dataset.examples
@@ -1102,7 +1100,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
     """Do k-fold cross_validate and return their mean.
     That is, keep out 1/k of the examples for testing on each of k runs.
     Shuffle the examples first; if trials>1, average over several shuffles.
-    Returns Training error, Validataion error"""
+    Returns Training error, Validation error"""
     k = k or len(dataset.examples)
     if trials > 1:
         trial_errT = 0
@@ -1145,13 +1143,15 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     while True:
         errT, errV = cross_validation(learner, size, dataset, k)
         # Check for convergence provided err_val is not empty
-        if (err_train and isclose(err_train[-1], errT, rel_tol=1e-6)):
+        if err_train and isclose(err_train[-1], errT, rel_tol=1e-6):
+            best_size = 0
             min_val = math.inf
 
             i = 0
             while i < size:
                 if err_val[i] < min_val:
                     min_val = err_val[i]
+                    best_size = i
                 i += 1
         err_val.append(errV)
         err_train.append(errT)
@@ -1164,7 +1164,7 @@ def leave_one_out(learner, dataset, size=None):
     return cross_validation(learner, size, dataset, k=len(dataset.examples))
 
 
-# TODO learningcurve needs to fixed
+# TODO learning_curve needs to fixed
 def learning_curve(learner, dataset, trials=10, sizes=None):
     if sizes is None:
         sizes = list(range(2, len(dataset.examples) - 10, 2))
@@ -1281,7 +1281,7 @@ def Xor(n):
 
 
 def ContinuousXor(n):
-    "2 inputs are chosen uniformly from (0.0 .. 2.0]; output is xor of ints."
+    """2 inputs are chosen uniformly from (0.0 .. 2.0]; output is xor of ints."""
     examples = []
     for i in range(n):
         x, y = [random.uniform(0.0, 2.0) for i in '12']
