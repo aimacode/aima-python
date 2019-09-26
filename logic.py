@@ -1625,7 +1625,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
         state_counter = itertools.count()
         for s in states:
             for t in range(time + 1):
-                state_sym[s, t] = Expr("State_{}".format(next(state_counter)))
+                state_sym[s, t] = Expr("S{}".format(next(state_counter)))
 
         # Add initial state axiom
         clauses.append(state_sym[init, 0])
@@ -1642,7 +1642,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
                 s_ = transition[s][action]
                 for t in range(time):
                     # Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[s, action, t] = Expr("Transition_{}".format(next(transition_counter)))
+                    action_sym[s, action, t] = Expr("T{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
                     clauses.append(action_sym[s, action, t] | '==>' | state_sym[s, t])
@@ -1780,16 +1780,6 @@ def cascade_substitution(s):
     For every mapping in s perform a cascade substitution on s.get(x)
     and if it is replaced with a function ensure that all the function 
     terms are correct updates by passing over them again.
-
-    This issue fix: https://github.com/aimacode/aima-python/issues/1053
-    unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) 
-    must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
-
-    Parameters
-    ----------
-    s : Dictionary
-        This contain a substitution
-
     >>> s = {x: y, y: G(z)}
     >>> cascade_substitution(s)
     >>> s == {x: G(z), y: G(z)}
@@ -1815,8 +1805,7 @@ def unify_mm(x, y, s={}):
     set_eq = extend(s, x, y)
     s = set_eq.copy()
     while True:
-        exit = len(set_eq)
-        count = 0
+        trans = 0
         for x, y in set_eq.items():
             if x == y:
                 # if x = y this mapping is deleted (rule b)
@@ -1841,15 +1830,15 @@ def unify_mm(x, y, s={}):
             elif isinstance(y, Expr):
                 # in which case x is a variable and y is a function or a variable (e.g. F(z) or y),
                 # if y is a function, we must check if x occurs in y, then stop with failure, else
-                # try to apply variable elimination to y (rule d).
+                # try to apply variable elimination to y (rule d)
                 if occur_check(x, y, s):
                     return None
                 s[x] = vars_elimination(y, s)
                 if y == s.get(x):
-                    count += 1
+                    trans += 1
             else:
-                count += 1
-        if count == exit:
+                trans += 1
+        if trans == len(set_eq):
             # if no transformation has been applied, stop with success
             return s
         set_eq = s.copy()
