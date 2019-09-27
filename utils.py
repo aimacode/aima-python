@@ -9,6 +9,8 @@ import os.path
 import random
 import math
 import functools
+from statistics import mean
+
 import numpy as np
 from itertools import chain, combinations
 
@@ -275,6 +277,39 @@ def num_or_str(x):  # TODO: rename as `atom`
             return float(x)
         except ValueError:
             return str(x).strip()
+
+
+def euclidean_distance(X, Y):
+    return math.sqrt(sum((x - y) ** 2 for x, y in zip(X, Y)))
+
+
+def cross_entropy_loss(X, Y):
+    n = len(X)
+    return (-1.0 / n) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(X, Y))
+
+
+def rms_error(X, Y):
+    return math.sqrt(ms_error(X, Y))
+
+
+def ms_error(X, Y):
+    return mean((x - y) ** 2 for x, y in zip(X, Y))
+
+
+def mean_error(X, Y):
+    return mean(abs(x - y) for x, y in zip(X, Y))
+
+
+def manhattan_distance(X, Y):
+    return sum(abs(x - y) for x, y in zip(X, Y))
+
+
+def mean_boolean_error(X, Y):
+    return mean(int(x != y) for x, y in zip(X, Y))
+
+
+def hamming_distance(X, Y):
+    return sum(x != y for x, y in zip(X, Y))
 
 
 def normalize(dist):

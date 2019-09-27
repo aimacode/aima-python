@@ -1,6 +1,6 @@
 import pytest
 
-from rl import *
+from reinforcement_learning import *
 from mdp import sequential_decision_environment
 
 random.seed("aima-python")

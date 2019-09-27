@@ -12,47 +12,8 @@ from utils import (
     dotproduct, vector_add, scalar_vector_product, weighted_sample_with_replacement,
     weighted_sampler, num_or_str, normalize, clip, sigmoid, print_table,
     open_data, sigmoid_derivative, probability, norm, matrix_multiplication, relu, relu_derivative,
-    tanh, tanh_derivative, leaky_relu_derivative, elu, elu_derivative
-)
-
-
-# ______________________________________________________________________________
-
-
-def euclidean_distance(X, Y):
-    return math.sqrt(sum((x - y) ** 2 for x, y in zip(X, Y)))
-
-
-def cross_entropy_loss(X, Y):
-    n = len(X)
-    return (-1.0 / n) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(X, Y))
-
-
-def rms_error(X, Y):
-    return math.sqrt(ms_error(X, Y))
-
-
-def ms_error(X, Y):
-    return mean((x - y) ** 2 for x, y in zip(X, Y))
-
-
-def mean_error(X, Y):
-    return mean(abs(x - y) for x, y in zip(X, Y))
-
-
-def manhattan_distance(X, Y):
-    return sum(abs(x - y) for x, y in zip(X, Y))
-
-
-def mean_boolean_error(X, Y):
-    return mean(int(x != y) for x, y in zip(X, Y))
-
-
-def hamming_distance(X, Y):
-    return sum(x != y for x, y in zip(X, Y))
-
-
-# ______________________________________________________________________________
+    tanh, tanh_derivative, leaky_relu_derivative, elu, elu_derivative,
+    mean_boolean_error)
 
 
 class DataSet:
@@ -1127,7 +1088,7 @@ def cross_validation(learner, size, dataset, k=10, trials=1):
         return fold_errT / k, fold_errV / k
 
 
-# TODO: The function cross_validation_wrapper needs to be fixed. (The while loop runs forever!)
+# TODO: The function cross_validation_wrapper needs to be fixed (the while loop runs forever!)
 def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     """[Fig 18.8]
     Return the optimal value of size having minimum error
@@ -1163,7 +1124,7 @@ def leave_one_out(learner, dataset, size=None):
     return cross_validation(learner, size, dataset, k=len(dataset.examples))
 
 
-# TODO learning_curve needs to fixed
+# TODO learning_curve needs to be fixed
 def learning_curve(learner, dataset, trials=10, sizes=None):
     if sizes is None:
         sizes = list(range(2, len(dataset.examples) - 10, 2))

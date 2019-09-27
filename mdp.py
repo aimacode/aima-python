@@ -14,7 +14,6 @@ from collections import defaultdict
 
 
 class MDP:
-
     """A Markov Decision Process, defined by an initial state, transition model,
     and reward function. We also keep track of a gamma value, for use by
     algorithms. The transition model is represented somewhat differently from
@@ -29,9 +28,9 @@ class MDP:
 
         # collect states from transitions table if not passed.
         self.states = states or self.get_states_from_transitions(transitions)
-            
+
         self.init = init
-        
+
         if isinstance(actlist, list):
             # if actlist is a list, all states have the same actions
             self.actlist = actlist
@@ -39,7 +38,7 @@ class MDP:
         elif isinstance(actlist, dict):
             # if actlist is a dict, different actions for each state
             self.actlist = actlist
-        
+
         self.terminals = terminals
         self.transitions = transitions or {}
         if not self.transitions:
@@ -110,7 +109,6 @@ class MDP:
 
 
 class MDP2(MDP):
-
     """
     Inherits from MDP. Handles terminal states, and transitions to and from terminal states better.
     """
@@ -126,14 +124,13 @@ class MDP2(MDP):
 
 
 class GridMDP(MDP):
-
     """A two-dimensional grid MDP, as in [Figure 17.1]. All you have to do is
     specify the grid as a list of lists of rewards; use None for an obstacle
     (unreachable state). Also, you should specify the terminal states.
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
 
     def __init__(self, grid, terminals, init=(0, 0), gamma=.9):
-        grid.reverse()     # because we want row 0 on bottom, not on top
+        grid.reverse()  # because we want row 0 on bottom, not on top
         reward = {}
         states = set()
         self.rows = len(grid)
@@ -152,7 +149,7 @@ class GridMDP(MDP):
             for a in actlist:
                 transitions[s][a] = self.calculate_T(s, a)
         MDP.__init__(self, init, actlist=actlist,
-                     terminals=terminals, transitions=transitions, 
+                     terminals=terminals, transitions=transitions,
                      reward=reward, states=states, gamma=gamma)
 
     def calculate_T(self, state, action):
@@ -162,10 +159,10 @@ class GridMDP(MDP):
                     (0.1, self.go(state, turn_left(action)))]
         else:
             return [(0.0, state)]
-    
+
     def T(self, state, action):
         return self.transitions[state][action] if action else [(0.0, state)]
- 
+
     def go(self, state, direction):
         """Return the state that results from going in this direction."""
 
@@ -183,6 +180,7 @@ class GridMDP(MDP):
         chars = {(1, 0): '>', (0, 1): '^', (-1, 0): '<', (0, -1): 'v', None: '.'}
         return self.to_grid({s: chars[a] for (s, a) in policy.items()})
 
+
 # ______________________________________________________________________________
 
 
@@ -194,6 +192,7 @@ sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
                                            [-0.04, None, -0.04, -1],
                                            [-0.04, -0.04, -0.04, -0.04]],
                                           terminals=[(3, 2), (3, 1)])
+
 
 # ______________________________________________________________________________
 
@@ -207,10 +206,10 @@ def value_iteration(mdp, epsilon=0.001):
         U = U1.copy()
         delta = 0
         for s in mdp.states:
-            U1[s] = R(s) + gamma * max(sum(p*U[s1] for (p, s1) in T(s, a))
-                                                   for a in mdp.actions(s))
+            U1[s] = R(s) + gamma * max(sum(p * U[s1] for (p, s1) in T(s, a))
+                                       for a in mdp.actions(s))
             delta = max(delta, abs(U1[s] - U[s]))
-        if delta <= epsilon*(1 - gamma)/gamma:
+        if delta <= epsilon * (1 - gamma) / gamma:
             return U
 
 
@@ -227,7 +226,8 @@ def best_policy(mdp, U):
 def expected_utility(a, s, U, mdp):
     """The expected utility of doing a in state s, according to the MDP and U."""
 
-    return sum(p*U[s1] for (p, s1) in mdp.T(s, a))
+    return sum(p * U[s1] for (p, s1) in mdp.T(s, a))
+
 
 # ______________________________________________________________________________
 
@@ -256,12 +256,11 @@ def policy_evaluation(pi, U, mdp, k=20):
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
     for i in range(k):
         for s in mdp.states:
-            U[s] = R(s) + gamma*sum(p*U[s1] for (p, s1) in T(s, pi[s]))
+            U[s] = R(s) + gamma * sum(p * U[s1] for (p, s1) in T(s, pi[s]))
     return U
 
 
 class POMDP(MDP):
-
     """A Partially Observable Markov Decision Process, defined by
     a transition model P(s'|s,a), actions A(s), a reward function R(s),
     and a sensor model P(e|s). We also keep track of a gamma value,
@@ -282,12 +281,12 @@ class POMDP(MDP):
         self.t_prob = transitions or {}
         if not self.t_prob:
             print('Warning: Transition model is undefined')
-        
+
         # sensor model cannot be undefined
         self.e_prob = evidences or {}
         if not self.e_prob:
             print('Warning: Sensor model is undefined')
-        
+
         self.gamma = gamma
         self.rewards = rewards
 
@@ -372,7 +371,7 @@ class POMDP(MDP):
                 sum2 += sum(element)
         return abs(sum1 - sum2)
 
-        
+
 class Matrix:
     """Matrix operations class"""
 
@@ -414,19 +413,19 @@ class Matrix:
     def matmul(A, B):
         """Inner-product of two matrices"""
 
-        return [[sum(ele_a*ele_b for ele_a, ele_b in zip(row_a, col_b)) for col_b in list(zip(*B))] for row_a in A]
+        return [[sum(ele_a * ele_b for ele_a, ele_b in zip(row_a, col_b)) for col_b in list(zip(*B))] for row_a in A]
 
     @staticmethod
     def transpose(A):
         """Transpose a matrix"""
-        
+
         return [list(i) for i in zip(*A)]
 
 
 def pomdp_value_iteration(pomdp, epsilon=0.1):
     """Solving a POMDP by value iteration."""
 
-    U = {'':[[0]* len(pomdp.states)]}
+    U = {'': [[0] * len(pomdp.states)]}
     count = 0
     while True:
         count += 1
@@ -440,13 +439,15 @@ def pomdp_value_iteration(pomdp, epsilon=0.1):
         U1 = defaultdict(list)
         for action in pomdp.actions:
             for u in value_matxs:
-                u1 = Matrix.matmul(Matrix.matmul(pomdp.t_prob[int(action)], Matrix.multiply(pomdp.e_prob[int(action)], Matrix.transpose(u))), [[1], [1]])
+                u1 = Matrix.matmul(Matrix.matmul(pomdp.t_prob[int(action)],
+                                                 Matrix.multiply(pomdp.e_prob[int(action)], Matrix.transpose(u))),
+                                   [[1], [1]])
                 u1 = Matrix.add(Matrix.scalar_multiply(pomdp.gamma, Matrix.transpose(u1)), [pomdp.rewards[int(action)]])
                 U1[action].append(u1[0])
 
         U = pomdp.remove_dominated_plans_fast(U1)
         # replace with U = pomdp.remove_dominated_plans(U1) for accurate calculations
-        
+
         if count > 10:
             if pomdp.max_difference(U, prev_U) < epsilon * (1 - pomdp.gamma) / pomdp.gamma:
                 return U

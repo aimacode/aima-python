@@ -4,8 +4,8 @@ import pytest
 import nlp
 
 from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
-from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
-from nlp import getOutlinks, Page, determineInlinks, HITS
+from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInLinks
+from nlp import getOutLinks, Page, determineInlinks, HITS
 from nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
 from nlp import Chart, CYK_parse
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
@@ -252,12 +252,12 @@ def test_detectConvergence():
 
 
 def test_getInlinks():
-    inlnks = getInlinks(pageDict['A'])
+    inlnks = getInLinks(pageDict['A'])
     assert sorted(inlnks) == pageDict['A'].inlinks
 
 
 def test_getOutlinks():
-    outlnks = getOutlinks(pageDict['A'])
+    outlnks = getOutLinks(pageDict['A'])
     assert sorted(outlnks) == pageDict['A'].outlinks
 
 

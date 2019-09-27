@@ -6,6 +6,7 @@ from mdp import MDP, policy_evaluation
 
 import random
 
+
 # _________________________________________
 # 21.2 Passive Reinforcement Learning
 # 21.2.1 Direct utility estimation
@@ -21,7 +22,8 @@ class PassiveDUEAgent:
     south = (0,-1)
     west = (-1, 0)
     east = (1, 0)
-    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
+    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north,
+              (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     agent = PassiveDUEAgent(policy, sequential_decision_environment)
     for i in range(200):
         run_single_trial(agent,sequential_decision_environment)
@@ -76,15 +78,15 @@ class PassiveDUEAgent:
         return self.U
 
     def update_state(self, percept):
-        '''To be overridden in most cases. The default case
-        assumes the percept to be of type (state, reward)'''
+        """To be overridden in most cases. The default case
+        assumes the percept to be of type (state, reward)"""
         return percept
+
 
 # 21.2.2 Adaptive dynamic programming
 
 
 class PassiveADPAgent:
-
     """Passive (non-learning) agent that uses adaptive dynamic programming
     on a given MDP and policy. [Figure 21.2]
 
@@ -94,7 +96,8 @@ class PassiveADPAgent:
     south = (0,-1)
     west = (-1, 0)
     east = (1, 0)
-    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
+    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north,
+              (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     agent = PassiveADPAgent(policy, sequential_decision_environment)
     for i in range(100):
         run_single_trial(agent,sequential_decision_environment)
@@ -108,6 +111,7 @@ class PassiveADPAgent:
     class ModelMDP(MDP):
         """ Class for implementing modified Version of input MDP with
         an editable transition model P and a custom function T. """
+
         def __init__(self, init, actlist, terminals, gamma, states):
             super().__init__(init, actlist, terminals, states=states, gamma=gamma)
             nested_dict = lambda: defaultdict(nested_dict)
@@ -128,7 +132,7 @@ class PassiveADPAgent:
         self.Ns1_sa = defaultdict(int)
         self.s = None
         self.a = None
-        self.visited = set()        # keeping track of visited states
+        self.visited = set()  # keeping track of visited states
 
     def __call__(self, percept):
         s1, r1 = percept
@@ -162,6 +166,7 @@ class PassiveADPAgent:
         assumes the percept to be of type (state, reward)."""
         return percept
 
+
 # 21.2.3 Temporal-difference learning
 
 
@@ -177,7 +182,8 @@ class PassiveTDAgent:
     south = (0,-1)
     west = (-1, 0)
     east = (1, 0)
-    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
+    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north,
+              (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     agent = PassiveTDAgent(policy, sequential_decision_environment, alpha=lambda n: 60./(59+n))
     for i in range(200):
         run_single_trial(agent,sequential_decision_environment)
@@ -224,6 +230,7 @@ class PassiveTDAgent:
         assumes the percept to be of type (state, reward)."""
         return percept
 
+
 # __________________________________________
 # 21.3. Active Reinforcement Learning
 # 21.3.2 Learning an action-utility function
@@ -240,7 +247,8 @@ class QLearningAgent:
     south = (0,-1)
     west = (-1, 0)
     east = (1, 0)
-    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
+    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north,
+              (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     q_agent = QLearningAgent(sequential_decision_environment, Ne=5, Rplus=2, alpha=lambda n: 60./(59+n))
     for i in range(200):
         run_single_trial(q_agent,sequential_decision_environment)

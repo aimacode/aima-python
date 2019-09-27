@@ -7,9 +7,10 @@ from utils4e import gaussian_kernel_2d
 import keras
 from keras.datasets import mnist
 from keras.models import Sequential
-from keras.layers import Dense,  Activation, Flatten, InputLayer
+from keras.layers import Dense, Activation, Flatten, InputLayer
 from keras.layers import Conv2D, MaxPooling2D
 import cv2
+
 
 # ____________________________________________________
 # 24.3 Early Image Processing Operators
@@ -38,7 +39,7 @@ def gradient_edge_detector(image):
     # convolution between filter and image to get edges
     y_edges = scipy.signal.convolve2d(image, x_filter, 'same')
     x_edges = scipy.signal.convolve2d(image, y_filter, 'same')
-    edges = array_normalization(x_edges+y_edges, 0, 255)
+    edges = array_normalization(x_edges + y_edges, 0, 255)
     return edges
 
 
@@ -53,7 +54,7 @@ def gaussian_derivative_edge_detector(image):
     # extract edges using convolution
     y_edges = scipy.signal.convolve2d(image, x_filter, 'same')
     x_edges = scipy.signal.convolve2d(image, y_filter, 'same')
-    edges = array_normalization(x_edges+y_edges, 0, 255)
+    edges = array_normalization(x_edges + y_edges, 0, 255)
     return edges
 
 
@@ -74,6 +75,7 @@ def show_edges(edges):
     plt.imshow(edges, cmap='gray', vmin=0, vmax=255)
     plt.axis('off')
     plt.show()
+
 
 # __________________________________________________
 # 24.3.3 Optical flow
@@ -120,7 +122,7 @@ def gen_gray_scale_picture(size, level=3):
     # draw a square on the left upper corner of the image
     for x in range(size):
         for y in range(size):
-            image[x,y] += (250//(level-1)) * (max(x, y)*level//size)
+            image[x, y] += (250 // (level - 1)) * (max(x, y) * level // size)
     return image
 
 
@@ -138,18 +140,18 @@ def probability_contour_detection(image, discs, threshold=0):
     # init an empty output image
     res = np.zeros(image.shape)
     step = discs[0].shape[0]
-    for x_i in range(0, image.shape[0]-step+1,1):
-        for y_i in range(0, image.shape[1]-step+1, 1):
+    for x_i in range(0, image.shape[0] - step + 1, 1):
+        for y_i in range(0, image.shape[1] - step + 1, 1):
             diff = []
             # apply each pair of discs and calculate the difference
-            for d in range(0, len(discs),2):
-                disc1, disc2 = discs[d], discs[d+1]
+            for d in range(0, len(discs), 2):
+                disc1, disc2 = discs[d], discs[d + 1]
                 # crop the region of interest
-                region = image[x_i: x_i+step, y_i: y_i+step]
+                region = image[x_i: x_i + step, y_i: y_i + step]
                 diff.append(np.sum(np.multiply(region, disc1)) - np.sum(np.multiply(region, disc2)))
             if max(diff) > threshold:
                 # change color of the center of region
-                res[x_i + step//2, y_i + step//2] = 255
+                res[x_i + step // 2, y_i + step // 2] = 255
     return res
 
 
@@ -182,7 +184,8 @@ def image_to_graph(image):
     graph_dict = {}
     for x in range(image.shape[0]):
         for y in range(image.shape[1]):
-            graph_dict[(x, y)] = [(x+1, y) if x+1 < image.shape[0] else None, (x, y+1) if y+1 < image.shape[1] else None]
+            graph_dict[(x, y)] = [(x + 1, y) if x + 1 < image.shape[0] else None,
+                                  (x, y + 1) if y + 1 < image.shape[1] else None]
     return graph_dict
 
 
@@ -193,11 +196,12 @@ def generate_edge_weight(image, v1, v2):
     :param v1, v2: verticles in the image in form of (x index, y index)
     """
     diff = abs(image[v1[0], v1[1]] - image[v2[0], v2[1]])
-    return 255-diff
+    return 255 - diff
 
 
 class Graph:
     """graph in adjacent matrix to represent an image"""
+
     def __init__(self, image):
         """image: ndarray"""
         self.graph = image_to_graph(image)
@@ -225,7 +229,7 @@ class Graph:
             u = queue.pop(0)
             for node in self.graph[u]:
                 # only select edge with positive flow
-                if node not in visited and node and self.flow[u][node]>0:
+                if node not in visited and node and self.flow[u][node] > 0:
                     queue.append(node)
                     visited.append(node)
                     parent.append((u, node))
@@ -253,8 +257,8 @@ class Graph:
         res = []
         for i in self.flow:
             for j in self.flow[i]:
-                if self.flow[i][j] == 0 and generate_edge_weight(self.image, i,j) > 0:
-                    res.append((i,j))
+                if self.flow[i][j] == 0 and generate_edge_weight(self.image, i, j) > 0:
+                    res.append((i, j))
         return res
 
 
@@ -267,23 +271,24 @@ def gen_discs(init_scale, scales=1):
     """
     discs = []
     for m in range(scales):
-        scale = init_scale * (m+1)
+        scale = init_scale * (m + 1)
         disc = []
         # make the full empty dist
         white = np.zeros((scale, scale))
-        center = (scale-1)/2
+        center = (scale - 1) / 2
         for i in range(scale):
             for j in range(scale):
-                if (i-center)**2 + (j-center)**2 <= (center ** 2):
+                if (i - center) ** 2 + (j - center) ** 2 <= (center ** 2):
                     white[i, j] = 255
         # generate lower half and upper half
         lower_half = np.copy(white)
-        lower_half[:(scale-1)//2, :] = 0
+        lower_half[:(scale - 1) // 2, :] = 0
         upper_half = lower_half[::-1, ::-1]
         # generate left half and right half
         disc += [lower_half, upper_half, np.transpose(lower_half), np.transpose(upper_half)]
         # generate upper-left, lower-right, upper-right, lower-left half discs
-        disc += [np.tril(white, 0), np.triu(white, 0), np.flip(np.tril(white, 0), axis=0), np.flip(np.triu(white, 0), axis=0)]
+        disc += [np.tril(white, 0), np.triu(white, 0), np.flip(np.tril(white, 0), axis=0),
+                 np.flip(np.triu(white, 0), axis=0)]
         discs.append(disc)
     return discs
 
@@ -307,7 +312,7 @@ def load_MINST(train_size, val_size, test_size):
     y_train = keras.utils.to_categorical(y_train, 10)
     y_test = keras.utils.to_categorical(y_test, 10)
     return (x_train[:train_size], y_train[:train_size]), \
-           (x_train[train_size:train_size+val_size], y_train[train_size:train_size+val_size]), \
+           (x_train[train_size:train_size + val_size], y_train[train_size:train_size + val_size]), \
            (x_test[:test_size], y_test[:test_size])
 
 
@@ -373,7 +378,7 @@ def selective_search(image):
     elif isinstance(image, str):
         im = cv2.imread(image)
     else:
-        im =np.stack((image)*3, axis=-1)
+        im = np.stack((image) * 3, axis=-1)
 
     # use opencv python to extract bounding box with selective search
     ss = cv2.ximgproc.segmentation.createSelectiveSearchSegmentation()
@@ -439,8 +444,7 @@ def pool_roi(feature_map, roi, pooled_height, pooled_width):
         i * h_step,
         j * w_step,
         (i + 1) * h_step if i + 1 < pooled_height else region_height,
-        (j + 1) * w_step if j + 1 < pooled_width else region_width
-    )
+        (j + 1) * w_step if j + 1 < pooled_width else region_width)
         for j in range(pooled_width)]
         for i in range(pooled_height)]
 
@@ -450,7 +454,6 @@ def pool_roi(feature_map, roi, pooled_height, pooled_width):
 
     pooled_features = np.stack([[pool_area(x) for x in row] for row in areas])
     return pooled_features
-
 
 # faster rcnn demo can be installed and shown in jupyter notebook
 # def faster_rcnn_demo(directory):
@@ -464,11 +467,11 @@ def pool_roi(feature_map, roi, pooled_height, pooled_width):
 #     Year = {2015}}
 #     :param directory: the directory where the faster rcnn model is installed
 #     """
-    # os.chdir(directory + '/lib')
-    # # make file
-    # os.system("make clean")
-    # os.system("make")
-    # # run demo
-    # os.chdir(directory)
-    # os.system("./tools/demo.py")
-    # return 0
+# os.chdir(directory + '/lib')
+# # make file
+# os.system("make clean")
+# os.system("make")
+# # run demo
+# os.chdir(directory)
+# os.system("./tools/demo.py")
+# return 0

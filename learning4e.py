@@ -7,18 +7,14 @@ from statistics import mean, stdev
 
 from utils4e import (
     removeall, unique, mode, argmax_random_tie, isclose, dotproduct, weighted_sample_with_replacement,
-    num_or_str, normalize, clip, print_table, open_data, probability, random_weights
-)
+    num_or_str, normalize, clip, print_table, open_data, probability, random_weights,
+    mean_boolean_error)
 
 
 # Learn to estimate functions from examples. (Chapters 18)
 # ______________________________________________________________________________
 # 18.2 Supervised learning.
 # define supervised learning dataset and utility functions/
-
-
-def mean_boolean_error(X, Y):
-    return mean(int(x != y) for x, y in zip(X, Y))
 
 
 class DataSet:

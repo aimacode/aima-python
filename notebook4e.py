@@ -1,14 +1,21 @@
+import time
 from collections import defaultdict
 from inspect import getsource
 
+import ipywidgets as widgets
+import matplotlib.pyplot as plt
+import networkx as nx
 import numpy as np
 from IPython.display import HTML
+from IPython.display import display
 from PIL import Image
+from matplotlib import lines
 from matplotlib.colors import ListedColormap
 
-from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, infinity
+from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, inf
 from learning import DataSet
 from logic import parse_definite_clause, standardize_variables, unify_mm, subst
+from search import GraphProblem, romania_map
 from utils import argmax, argmin
 
 
@@ -672,7 +679,7 @@ class Canvas_alphabeta(Canvas):
                 self.change_list.append(('h',))
                 self.change_list.append(('p',))
                 return game.utility(node, player)
-            v = -infinity
+            v = -inf
             self.change_list.append(('a', node))
             self.change_list.append(('ab', node, v, beta))
             self.change_list.append(('h',))
@@ -701,7 +708,7 @@ class Canvas_alphabeta(Canvas):
                 self.change_list.append(('h',))
                 self.change_list.append(('p',))
                 return game.utility(node, player)
-            v = infinity
+            v = inf
             self.change_list.append(('a', node))
             self.change_list.append(('ab', node, alpha, v))
             self.change_list.append(('h',))
@@ -724,7 +731,7 @@ class Canvas_alphabeta(Canvas):
             self.change_list.append(('h',))
             return v
 
-        return max_value(node, -infinity, infinity)
+        return max_value(node, -inf, inf)
 
     def stack_manager_gen(self):
         self.alphabeta_search(0)
@@ -933,14 +940,6 @@ class Canvas_fol_bc_ask(Canvas):
 #####################           Functions to assist plotting in search.ipynb            ####################
 
 ############################################################################################################
-import networkx as nx
-import matplotlib.pyplot as plt
-from matplotlib import lines
-
-import ipywidgets as widgets
-from IPython.display import display
-import time
-from search import GraphProblem, romania_map
 
 
 def show_map(graph_data, node_colors=None):
