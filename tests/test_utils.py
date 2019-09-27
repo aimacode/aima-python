@@ -104,6 +104,60 @@ def test_histogram():
                                                             (7, 1), (5, 1)]
 
 
+def test_euclidean():
+    distance = euclidean_distance([1, 2], [3, 4])
+    assert round(distance, 2) == 2.83
+
+    distance = euclidean_distance([1, 2, 3], [4, 5, 6])
+    assert round(distance, 2) == 5.2
+
+    distance = euclidean_distance([0, 0, 0], [0, 0, 0])
+    assert distance == 0
+
+
+def test_cross_entropy():
+    loss = cross_entropy_loss([1, 0], [0.9, 0.3])
+    assert round(loss, 2) == 0.23
+
+    loss = cross_entropy_loss([1, 0, 0, 1], [0.9, 0.3, 0.5, 0.75])
+    assert round(loss, 2) == 0.36
+
+    loss = cross_entropy_loss([1, 0, 0, 1, 1, 0, 1, 1], [0.9, 0.3, 0.5, 0.75, 0.85, 0.14, 0.93, 0.79])
+    assert round(loss, 2) == 0.26
+
+
+def test_rms_error():
+    assert rms_error([2, 2], [2, 2]) == 0
+    assert rms_error((0, 0), (0, 1)) == math.sqrt(0.5)
+    assert rms_error((1, 0), (0, 1)) == 1
+    assert rms_error((0, 0), (0, -1)) == math.sqrt(0.5)
+    assert rms_error((0, 0.5), (0, -0.5)) == math.sqrt(0.5)
+
+
+def test_manhattan_distance():
+    assert manhattan_distance([2, 2], [2, 2]) == 0
+    assert manhattan_distance([0, 0], [0, 1]) == 1
+    assert manhattan_distance([1, 0], [0, 1]) == 2
+    assert manhattan_distance([0, 0], [0, -1]) == 1
+    assert manhattan_distance([0, 0.5], [0, -0.5]) == 1
+
+
+def test_mean_boolean_error():
+    assert mean_boolean_error([1, 1], [0, 0]) == 1
+    assert mean_boolean_error([0, 1], [1, 0]) == 1
+    assert mean_boolean_error([1, 1], [0, 1]) == 0.5
+    assert mean_boolean_error([0, 0], [0, 0]) == 0
+    assert mean_boolean_error([1, 1], [1, 1]) == 0
+
+
+def test_mean_error():
+    assert mean_error([2, 2], [2, 2]) == 0
+    assert mean_error([0, 0], [0, 1]) == 0.5
+    assert mean_error([1, 0], [0, 1]) == 1
+    assert mean_error([0, 0], [0, -1]) == 0.5
+    assert mean_error([0, 0.5], [0, -0.5]) == 0.5
+
+
 def test_dotproduct():
     assert dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
     assert dotproduct([1, 2, 3], [0, 0, 0]) == 0

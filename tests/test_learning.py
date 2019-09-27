@@ -5,60 +5,6 @@ from learning import *
 random.seed("aima-python")
 
 
-def test_euclidean():
-    distance = euclidean_distance([1, 2], [3, 4])
-    assert round(distance, 2) == 2.83
-
-    distance = euclidean_distance([1, 2, 3], [4, 5, 6])
-    assert round(distance, 2) == 5.2
-
-    distance = euclidean_distance([0, 0, 0], [0, 0, 0])
-    assert distance == 0
-
-
-def test_cross_entropy():
-    loss = cross_entropy_loss([1, 0], [0.9, 0.3])
-    assert round(loss, 2) == 0.23
-
-    loss = cross_entropy_loss([1, 0, 0, 1], [0.9, 0.3, 0.5, 0.75])
-    assert round(loss, 2) == 0.36
-
-    loss = cross_entropy_loss([1, 0, 0, 1, 1, 0, 1, 1], [0.9, 0.3, 0.5, 0.75, 0.85, 0.14, 0.93, 0.79])
-    assert round(loss, 2) == 0.26
-
-
-def test_rms_error():
-    assert rms_error([2, 2], [2, 2]) == 0
-    assert rms_error((0, 0), (0, 1)) == math.sqrt(0.5)
-    assert rms_error((1, 0), (0, 1)) == 1
-    assert rms_error((0, 0), (0, -1)) == math.sqrt(0.5)
-    assert rms_error((0, 0.5), (0, -0.5)) == math.sqrt(0.5)
-
-
-def test_manhattan_distance():
-    assert manhattan_distance([2, 2], [2, 2]) == 0
-    assert manhattan_distance([0, 0], [0, 1]) == 1
-    assert manhattan_distance([1, 0], [0, 1]) == 2
-    assert manhattan_distance([0, 0], [0, -1]) == 1
-    assert manhattan_distance([0, 0.5], [0, -0.5]) == 1
-
-
-def test_mean_boolean_error():
-    assert mean_boolean_error([1, 1], [0, 0]) == 1
-    assert mean_boolean_error([0, 1], [1, 0]) == 1
-    assert mean_boolean_error([1, 1], [0, 1]) == 0.5
-    assert mean_boolean_error([0, 0], [0, 0]) == 0
-    assert mean_boolean_error([1, 1], [1, 1]) == 0
-
-
-def test_mean_error():
-    assert mean_error([2, 2], [2, 2]) == 0
-    assert mean_error([0, 0], [0, 1]) == 0.5
-    assert mean_error([1, 0], [0, 1]) == 1
-    assert mean_error([0, 0], [0, -1]) == 0.5
-    assert mean_error([0, 0.5], [0, -0.5]) == 0.5
-
-
 def test_exclude():
     iris = DataSet(name='iris', exclude=[3])
     assert iris.inputs == [0, 1, 2]
@@ -236,20 +182,20 @@ def test_random_weights():
         assert min_value <= weight <= max_value
 
 
-def test_adaboost():
+def test_adaBoost():
     iris = DataSet(name="iris")
     iris.classes_to_numbers()
     WeightedPerceptron = WeightedLearner(PerceptronLearner)
-    AdaboostLearner = AdaBoost(WeightedPerceptron, 5)
-    adaboost = AdaboostLearner(iris)
+    AdaBoostLearner = AdaBoost(WeightedPerceptron, 5)
+    adaBoost = AdaBoostLearner(iris)
     tests = [([5, 3, 1, 0.1], 0),
              ([5, 3.5, 1, 0], 0),
              ([6, 3, 4, 1.1], 1),
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(adaboost, tests) > 4 / 6
-    assert err_ratio(adaboost, iris) < 0.25
+    assert grade_learner(adaBoost, tests) > 4 / 6
+    assert err_ratio(adaBoost, iris) < 0.25
 
 
 if __name__ == "__main__":

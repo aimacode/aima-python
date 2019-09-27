@@ -5,14 +5,6 @@ from learning import *
 random.seed("aima-python")
 
 
-def test_mean_boolean_error():
-    assert mean_boolean_error([1, 1], [0, 0]) == 1
-    assert mean_boolean_error([0, 1], [1, 0]) == 1
-    assert mean_boolean_error([1, 1], [0, 1]) == 0.5
-    assert mean_boolean_error([0, 0], [0, 0]) == 0
-    assert mean_boolean_error([1, 1], [1, 1]) == 0
-
-
 def test_exclude():
     iris = DataSet(name='iris', exclude=[3])
     assert iris.inputs == [0, 1, 2]
