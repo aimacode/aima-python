@@ -517,7 +517,7 @@ class XYEnvironment(Environment):
     def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items=False):
         """Add things to the world. If (exclude_duplicate_class_items) then the item won't be
         added if the location has at least one item of the same class."""
-        if (self.is_inbounds(location)):
+        if self.is_inbounds(location):
             if (exclude_duplicate_class_items and
                     any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):
                 return
@@ -533,7 +533,7 @@ class XYEnvironment(Environment):
         location = (random.randint(self.x_start, self.x_end),
                     random.randint(self.y_start, self.y_end))
         if exclude is not None:
-            while (location == exclude):
+            while location == exclude:
                 location = (random.randint(self.x_start, self.x_end),
                             random.randint(self.y_start, self.y_end))
         return location
@@ -964,7 +964,7 @@ class WumpusEnvironment(XYEnvironment):
             """The arrow travels straight down the path the agent is facing"""
             if agent.has_arrow:
                 arrow_travel = agent.direction.move_forward(agent.location)
-                while (self.is_inbounds(arrow_travel)):
+                while self.is_inbounds(arrow_travel):
                     wumpus = [thing for thing in self.list_things_at(arrow_travel)
                               if isinstance(thing, Wumpus)]
                     if len(wumpus):
