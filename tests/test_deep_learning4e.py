@@ -29,17 +29,6 @@ def test_neural_net():
     assert err_ratio(nn_gd, iris) < 0.21
 
 
-def test_cross_entropy():
-    loss = cross_entropy_loss([1, 0], [0.9, 0.3])
-    assert round(loss, 2) == 0.23
-
-    loss = cross_entropy_loss([1, 0, 0, 1], [0.9, 0.3, 0.5, 0.75])
-    assert round(loss, 2) == 0.36
-
-    loss = cross_entropy_loss([1, 0, 0, 1, 1, 0, 1, 1], [0.9, 0.3, 0.5, 0.75, 0.85, 0.14, 0.93, 0.79])
-    assert round(loss, 2) == 0.26
-
-
 def test_perceptron():
     iris = DataSet(name="iris")
     classes = ["setosa", "versicolor", "virginica"]

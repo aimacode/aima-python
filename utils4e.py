@@ -388,6 +388,21 @@ def hamming_distance(X, Y):
     return sum(x != y for x, y in zip(X, Y))
 
 
+# 19.2 Common Loss Functions
+
+
+def cross_entropy_loss(X, Y):
+    """Example of cross entropy loss. X and Y are 1D iterable objects"""
+    n = len(X)
+    return (-1.0 / n) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(X, Y))
+
+
+def mse_loss(X, Y):
+    """Example of min square loss. X and Y are 1D iterable objects"""
+    n = len(X)
+    return (1.0 / n) * sum((x - y) ** 2 for x, y in zip(X, Y))
+
+
 # part3. Neural network util functions
 # ______________________________________________________________________________
 
@@ -689,7 +704,7 @@ def failure_test(algorithm, tests):
 # See https://docs.python.org/3/reference/expressions.html#operator-precedence
 # See https://docs.python.org/3/reference/datamodel.html#special-method-names
 
-class Expr(object):
+class Expr:
     """A mathematical expression with an operator and 0 or more arguments.
     op is a str like '+' or 'sin'; args are Expressions.
     Expr('x') or Symbol('x') creates a symbol (a nullary Expr).

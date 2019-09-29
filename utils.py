@@ -524,13 +524,10 @@ def print_table(table, header=None, sep='   ', numfmt='{}'):
     table = [[numfmt.format(x) if isnumber(x) else x for x in row]
              for row in table]
 
-    sizes = list(
-        map(lambda seq: max(map(len, seq)),
-            list(zip(*[map(str, row) for row in table]))))
+    sizes = list(map(lambda seq: max(map(len, seq)), list(zip(*[map(str, row) for row in table]))))
 
     for row in table:
-        print(sep.join(getattr(
-            str(x), j)(size) for (j, size, x) in zip(justs, sizes, row)))
+        print(sep.join(getattr(str(x), j)(size) for (j, size, x) in zip(justs, sizes, row)))
 
 
 def open_data(name, mode='r'):
@@ -556,7 +553,7 @@ def failure_test(algorithm, tests):
 # See https://docs.python.org/3/reference/expressions.html#operator-precedence
 # See https://docs.python.org/3/reference/datamodel.html#special-method-names
 
-class Expr(object):
+class Expr:
     """A mathematical expression with an operator and 0 or more arguments.
     op is a str like '+' or 'sin'; args are Expressions.
     Expr('x') or Symbol('x') creates a symbol (a nullary Expr).

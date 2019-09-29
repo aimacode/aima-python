@@ -9,26 +9,10 @@ from keras.models import Sequential
 from keras.preprocessing import sequence
 
 from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, \
-    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector
+    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss
 
 
 # DEEP NEURAL NETWORKS. (Chapter 19)
-# ________________________________________________
-# 19.2 Common Loss Functions
-
-
-def cross_entropy_loss(X, Y):
-    """Example of cross entropy loss. X and Y are 1D iterable objects"""
-    n = len(X)
-    return (-1.0 / n) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(X, Y))
-
-
-def mse_loss(X, Y):
-    """Example of min square loss. X and Y are 1D iterable objects"""
-    n = len(X)
-    return (1.0 / n) * sum((x - y) ** 2 for x, y in zip(X, Y))
-
-
 # ________________________________________________
 # 19.3 Models
 # 19.3.1 Computational Graphs and Layers
