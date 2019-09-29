@@ -79,26 +79,22 @@ def test_policy_iteration():
 
 
 def test_best_policy():
-    pi = best_policy(sequential_decision_environment,
-                     value_iteration(sequential_decision_environment, .01))
+    pi = best_policy(sequential_decision_environment, value_iteration(sequential_decision_environment, .01))
     assert sequential_decision_environment.to_arrows(pi) == [['>', '>', '>', '.'],
                                                              ['^', None, '^', '.'],
                                                              ['^', '>', '^', '<']]
 
-    pi_1 = best_policy(sequential_decision_environment_1,
-                       value_iteration(sequential_decision_environment_1, .01))
+    pi_1 = best_policy(sequential_decision_environment_1, value_iteration(sequential_decision_environment_1, .01))
     assert sequential_decision_environment_1.to_arrows(pi_1) == [['>', '>', '>', '.'],
                                                                  ['^', None, '^', '.'],
                                                                  ['^', '>', '^', '<']]
 
-    pi_2 = best_policy(sequential_decision_environment_2,
-                       value_iteration(sequential_decision_environment_2, .01))
+    pi_2 = best_policy(sequential_decision_environment_2, value_iteration(sequential_decision_environment_2, .01))
     assert sequential_decision_environment_2.to_arrows(pi_2) == [['>', '>', '>', '.'],
                                                                  ['^', None, '>', '.'],
                                                                  ['>', '>', '>', '^']]
 
-    pi_3 = best_policy(sequential_decision_environment_3,
-                       value_iteration(sequential_decision_environment_3, .01))
+    pi_3 = best_policy(sequential_decision_environment_3, value_iteration(sequential_decision_environment_3, .01))
     assert sequential_decision_environment_3.to_arrows(pi_3) == [['.', '>', '>', '>', '>', '>'],
                                                                  ['v', None, None, '>', '>', '^'],
                                                                  ['v', None, '.', '.', None, '^'],
@@ -118,8 +114,7 @@ def test_transition_model():
                         'c': {'plan1': [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')],
                               'plan2': [(0.5, 'a'), (0.3, 'b'), (0.1, 'c'), (0.1, 'd')],
                               'plan3': [(0.1, 'a'), (0.3, 'b'), (0.1, 'c'), (0.5, 'd')],
-                              },
-                        }
+                              }}
 
     mdp = MDP(init="a", actlist={"plan1", "plan2", "plan3"}, terminals={"d"}, states={"a", "b", "c", "d"},
               transitions=transition_model)

@@ -122,8 +122,7 @@ def test_transition_model():
                         'c': {'plan1': [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')],
                               'plan2': [(0.5, 'a'), (0.3, 'b'), (0.1, 'c'), (0.1, 'd')],
                               'plan3': [(0.1, 'a'), (0.3, 'b'), (0.1, 'c'), (0.5, 'd')],
-                              },
-                        }
+                              }}
 
     mdp = MDP(init="a", actlist={"plan1", "plan2", "plan3"}, terminals={"d"}, states={"a", "b", "c", "d"},
               transitions=transition_model)

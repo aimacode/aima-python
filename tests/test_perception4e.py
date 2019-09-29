@@ -1,5 +1,7 @@
 import random
 
+import pytest
+
 from perception4e import *
 from PIL import Image
 import numpy as np
@@ -77,3 +79,7 @@ def test_ROIPoolingLayer():
                                                                [1, 1, 1, 1, 1, 1, 1]]
     assert pool_rois(feature_map, roiss, 3, 7)[1].tolist() == [[1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1],
                                                                [1, 1, 1, 1, 1, 1, 50]]
+
+
+if __name__ == '__main__':
+    pytest.main()

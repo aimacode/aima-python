@@ -91,8 +91,7 @@ def test_prob_generation():
 
     rules = ProbRules(
         S="Verb [0.5] | More [0.3] | Pronoun [0.1] | nobody is here [0.1]",
-        More="Pronoun Verb [0.7] | Pronoun Pronoun [0.3]"
-    )
+        More="Pronoun Verb [0.7] | Pronoun Pronoun [0.3]")
 
     grammar = ProbGrammar("Simplegram", rules, lexicon)
 

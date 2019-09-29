@@ -11,7 +11,7 @@ def tests():
     assert cpt.p(True, event) == 0.95
     event = {'Burglary': False, 'Earthquake': True}
     assert cpt.p(False, event) == 0.71
-    # #enumeration_ask('Earthquake', {}, burglary)
+    # enumeration_ask('Earthquake', {}, burglary)
 
     s = {'A': True, 'B': False, 'C': True, 'D': False}
     assert consistent_with(s, {})
