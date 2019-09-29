@@ -1,12 +1,18 @@
+import random
+
+import pytest
+
 from perception4e import *
 from PIL import Image
 import numpy as np
 import os
 
+random.seed("aima-python")
+
 
 def test_array_normalization():
-    assert list(array_normalization([1,2,3,4,5], 0,1)) == [0, 0.25, 0.5, 0.75, 1]
-    assert list(array_normalization([1,2,3,4,5], 1,2)) == [1, 1.25, 1.5, 1.75, 2]
+    assert list(array_normalization([1, 2, 3, 4, 5], 0, 1)) == [0, 0.25, 0.5, 0.75, 1]
+    assert list(array_normalization([1, 2, 3, 4, 5], 1, 2)) == [1, 1.25, 1.5, 1.75, 2]
 
 
 def test_sum_squared_difference():
@@ -23,30 +29,30 @@ def test_gen_gray_scale_picture():
     assert list(gen_gray_scale_picture(size=3, level=3)[0]) == [0, 125, 250]
     assert list(gen_gray_scale_picture(size=3, level=3)[1]) == [125, 125, 250]
     assert list(gen_gray_scale_picture(size=3, level=3)[2]) == [250, 250, 250]
-    assert list(gen_gray_scale_picture(2,level=2)[0]) == [0, 250]
-    assert list(gen_gray_scale_picture(2,level=2)[1]) == [250, 250]
+    assert list(gen_gray_scale_picture(2, level=2)[0]) == [0, 250]
+    assert list(gen_gray_scale_picture(2, level=2)[1]) == [250, 250]
 
 
 def test_generate_edge_weight():
     assert generate_edge_weight(gray_scale_image, (0, 0), (2, 2)) == 5
-    assert generate_edge_weight(gray_scale_image, (1,0), (0,1)) == 255
+    assert generate_edge_weight(gray_scale_image, (1, 0), (0, 1)) == 255
 
 
 def test_graph_bfs():
     graph = Graph(gray_scale_image)
-    assert graph.bfs((1,1), (0,0), []) == False
+    assert graph.bfs((1, 1), (0, 0), []) == False
     parents = []
-    assert graph.bfs((0,0), (2,2), parents)
+    assert graph.bfs((0, 0), (2, 2), parents)
     assert len(parents) == 8
 
 
 def test_graph_min_cut():
     image = gen_gray_scale_picture(size=3, level=2)
     graph = Graph(image)
-    assert len(graph.min_cut((0,0), (2,2))) == 4
+    assert len(graph.min_cut((0, 0), (2, 2))) == 4
     image = gen_gray_scale_picture(size=10, level=2)
     graph = Graph(image)
-    assert len(graph.min_cut((0,0), (9,9))) == 10
+    assert len(graph.min_cut((0, 0), (9, 9))) == 10
 
 
 def test_gen_discs():
@@ -69,10 +75,11 @@ def test_ROIPoolingLayer():
     feature_map = np.ones(feature_maps_shape, dtype='float32')
     feature_map[200 - 1, 100 - 3, 0] = 50
     roiss = np.asarray([[0.5, 0.2, 0.7, 0.4], [0.0, 0.0, 1.0, 1.0]])
-    assert pool_rois(feature_map, roiss, 3, 7)[0].tolist() == [[1, 1, 1, 1, 1, 1,1], [1, 1, 1, 1, 1, 1,1], [1, 1, 1, 1, 1, 1,1]]
+    assert pool_rois(feature_map, roiss, 3, 7)[0].tolist() == [[1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1],
+                                                               [1, 1, 1, 1, 1, 1, 1]]
     assert pool_rois(feature_map, roiss, 3, 7)[1].tolist() == [[1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1],
-                                                      [1, 1, 1, 1, 1, 1, 50]]
+                                                               [1, 1, 1, 1, 1, 1, 50]]
 
 
-
-
+if __name__ == '__main__':
+    pytest.main()

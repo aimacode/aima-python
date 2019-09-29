@@ -16,7 +16,6 @@ import os
 
 
 class UnigramWordModel(CountingProbDist):
-
     """This is a discrete probability distribution over words, so you
     can add, sample, or get P[word], just like with CountingProbDist. You can
     also generate a random text, n words long, with P.samples(n)."""
@@ -32,7 +31,6 @@ class UnigramWordModel(CountingProbDist):
 
 
 class NgramWordModel(CountingProbDist):
-
     """This is a discrete probability distribution over n-tuples of words.
     You can add, sample or get P[(word1, ..., wordn)]. The method P.samples(n)
     builds up an n-word sequence; P.add_cond_prob and P.add_sequence add data."""
@@ -73,7 +71,7 @@ class NgramWordModel(CountingProbDist):
         output = list(self.sample())
 
         for i in range(n, nwords):
-            last = output[-n+1:]
+            last = output[-n + 1:]
             next_word = self.cond_prob[tuple(last)].sample()
             output.append(next_word)
 
@@ -99,6 +97,7 @@ class UnigramCharModel(NgramCharModel):
             for char in word:
                 self.add(char)
 
+
 # ______________________________________________________________________________
 
 
@@ -111,7 +110,7 @@ def viterbi_segment(text, P):
     words = [''] + list(text)
     best = [1.0] + [0.0] * n
     # Fill in the vectors best words via dynamic programming
-    for i in range(n+1):
+    for i in range(n + 1):
         for j in range(0, i):
             w = text[j:i]
             curr_score = P[w] * best[i - len(w)]
@@ -133,7 +132,6 @@ def viterbi_segment(text, P):
 
 # TODO(tmrts): Expose raw index
 class IRSystem:
-
     """A very simple Information Retrieval System, as discussed in Sect. 23.2.
     The constructor s = IRSystem('the a') builds an empty system with two
     stopwords. Next, index several documents with s.index_document(text, url).
@@ -205,7 +203,6 @@ class IRSystem:
 
 
 class UnixConsultant(IRSystem):
-
     """A trivial IR system over a small collection of Unix man pages."""
 
     def __init__(self):
@@ -221,7 +218,6 @@ class UnixConsultant(IRSystem):
 
 
 class Document:
-
     """Metadata for a document: title and url; maybe add others later."""
 
     def __init__(self, title, url, nwords):
@@ -255,6 +251,7 @@ def canonicalize(text):
 # such as the famous rot13, which maps A to N, B to M, etc.
 
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
+
 
 # Encoding
 
@@ -310,11 +307,11 @@ def bigrams(text):
     """
     return [text[i:i + 2] for i in range(len(text) - 1)]
 
+
 # Decoding a Shift (or Caesar) Cipher
 
 
 class ShiftDecoder:
-
     """There are only 26 possible encodings, so we can try all of them,
     and return the one with the highest probability, according to a
     bigram probability distribution."""
@@ -343,11 +340,11 @@ def all_shifts(text):
 
     yield from (shift_encode(text, i) for i, _ in enumerate(alphabet))
 
+
 # Decoding a General Permutation Cipher
 
 
 class PermutationDecoder:
-
     """This is a much harder problem than the shift decoder. There are 26!
     permutations, so we can't try them all. Instead we have to search.
     We want to search well, but there are many things to consider:

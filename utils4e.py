@@ -3,16 +3,16 @@
 import bisect
 import collections
 import collections.abc
+import functools
 import heapq
-import operator
+import math
 import os.path
 import random
-import math
-import functools
-import numpy as np
 from itertools import chain, combinations
 from statistics import mean
-import warnings
+
+import numpy as np
+
 
 # part1. General data structures and their functions
 # ______________________________________________________________________________
@@ -78,6 +78,7 @@ class PriorityQueue:
         except ValueError:
             raise KeyError(str(key) + " is not in the priority queue")
         heapq.heapify(self.heap)
+
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -214,9 +215,9 @@ def element_wise_product_2D(X, Y):
 def element_wise_product(X, Y):
     if hasattr(X, '__iter__') and hasattr(Y, '__iter__'):
         assert len(X) == len(Y)
-        return [element_wise_product(x,y) for x,y in zip(X,Y)]
+        return [element_wise_product(x, y) for x, y in zip(X, Y)]
     elif hasattr(X, '__iter__') == hasattr(Y, '__iter__'):
-        return X*Y
+        return X * Y
     else:
         raise Exception("Inputs must be in the same size!")
 
@@ -271,14 +272,14 @@ def vector_add(a, b):
         return list(map(vector_add, a, b))
     else:
         try:
-            return a+b
+            return a + b
         except TypeError:
             raise Exception("Inputs must be in the same size!")
 
 
 def scalar_vector_product(X, Y):
     """Return vector as a product of a scalar and a vector recursively"""
-    return [scalar_vector_product(X, y) for y in Y] if hasattr(Y, '__iter__') else X*Y
+    return [scalar_vector_product(X, y) for y in Y] if hasattr(Y, '__iter__') else X * Y
 
 
 def map_vector(f, X):
@@ -347,7 +348,7 @@ def rounder(numbers, d=4):
         return constructor(rounder(n, d) for n in numbers)
 
 
-def num_or_str(x): # TODO: rename as `atom`
+def num_or_str(x):  # TODO: rename as `atom`
     """The argument is a string; convert to a number if
        possible, or strip it."""
     try:
@@ -360,7 +361,7 @@ def num_or_str(x): # TODO: rename as `atom`
 
 
 def euclidean_distance(X, Y):
-    return math.sqrt(sum((x - y)**2 for x, y in zip(X, Y) if x and y))
+    return math.sqrt(sum((x - y) ** 2 for x, y in zip(X, Y) if x and y))
 
 
 def rms_error(X, Y):
@@ -368,7 +369,7 @@ def rms_error(X, Y):
 
 
 def ms_error(X, Y):
-    return mean((x - y)**2 for x, y in zip(X, Y))
+    return mean((x - y) ** 2 for x, y in zip(X, Y))
 
 
 def mean_error(X, Y):
@@ -385,6 +386,22 @@ def mean_boolean_error(X, Y):
 
 def hamming_distance(X, Y):
     return sum(x != y for x, y in zip(X, Y))
+
+
+# 19.2 Common Loss Functions
+
+
+def cross_entropy_loss(X, Y):
+    """Example of cross entropy loss. X and Y are 1D iterable objects"""
+    n = len(X)
+    return (-1.0 / n) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(X, Y))
+
+
+def mse_loss(X, Y):
+    """Example of min square loss. X and Y are 1D iterable objects"""
+    n = len(X)
+    return (1.0 / n) * sum((x - y) ** 2 for x, y in zip(X, Y))
+
 
 # part3. Neural network util functions
 # ______________________________________________________________________________
@@ -415,19 +432,20 @@ def conv1D(X, K):
     """1D convolution. X: input vector; K: kernel vector"""
     return np.convolve(X, K, mode='same')
 
+
 def GaussianKernel(size=3):
-    mean = (size-1)/2
+    mean = (size - 1) / 2
     stdev = 0.1
     return [gaussian(mean, stdev, x) for x in range(size)]
 
 
 def gaussian_kernel_1d(size=3, sigma=0.5):
-    mean = (size-1)/2
+    mean = (size - 1) / 2
     return [gaussian(mean, sigma, x) for x in range(size)]
 
 
 def gaussian_kernel_2d(size=3, sigma=0.5):
-    x, y = np.mgrid[-size//2 + 1:size//2 + 1, -size//2 + 1:size//2 + 1]
+    x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
     g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
     return g / g.sum()
 
@@ -441,6 +459,7 @@ class Activation:
     def derivative(self, value):
         pass
 
+
 def clip(x, lowest, highest):
     """Return x clipped to the range [lowest..highest]."""
     return max(lowest, min(x, highest))
@@ -450,15 +469,15 @@ def softmax1D(Z):
     """Return the softmax vector of input vector Z"""
     exps = [math.exp(z) for z in Z]
     sum_exps = sum(exps)
-    return [exp/sum_exps for exp in exps]
+    return [exp / sum_exps for exp in exps]
 
 
 class sigmoid(Activation):
 
     def f(self, x):
-        if x>=100:
+        if x >= 100:
             return 1
-        if x<= -100:
+        if x <= -100:
             return 0
         return 1 / (1 + math.exp(-x))
 
@@ -468,7 +487,7 @@ class sigmoid(Activation):
 
 class relu(Activation):
 
-    def f(self,x):
+    def f(self, x):
         return max(0, x)
 
     def derivative(self, value):
@@ -486,7 +505,7 @@ class elu(Activation):
         else:
             return alpha * (math.exp(x) - 1)
 
-    def derivative(self, value, alpha = 0.01):
+    def derivative(self, value, alpha=0.01):
         if value > 0:
             return 1
         else:
@@ -504,7 +523,7 @@ class tanh(Activation):
 
 class leaky_relu(Activation):
 
-    def f(self, x, alpha = 0.01):
+    def f(self, x, alpha=0.01):
         if x > 0:
             return x
         else:
@@ -533,7 +552,7 @@ def gaussian_2D(means, sigma, point):
     assert det != 0
     x_u = vector_add(point, scalar_vector_product(-1, means))
     buff = matrix_multiplication(matrix_multiplication([x_u], inverse), transpose2D([x_u]))
-    return 1/(math.sqrt(det)*2*math.pi) * math.exp(-0.5 * buff[0][0])
+    return 1 / (math.sqrt(det) * 2 * math.pi) * math.exp(-0.5 * buff[0][0])
 
 
 try:  # math.isclose was added in Python 3.5; but we might be in 3.4
@@ -685,7 +704,7 @@ def failure_test(algorithm, tests):
 # See https://docs.python.org/3/reference/expressions.html#operator-precedence
 # See https://docs.python.org/3/reference/datamodel.html#special-method-names
 
-class Expr(object):
+class Expr:
     """A mathematical expression with an operator and 0 or more arguments.
     op is a str like '+' or 'sin'; args are Expressions.
     Expr('x') or Symbol('x') creates a symbol (a nullary Expr).
@@ -915,6 +934,7 @@ class hashabledict(dict):
 
     def __hash__(self):
         return 1
+
 
 # ______________________________________________________________________________
 # Useful Shorthands

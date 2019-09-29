@@ -6,7 +6,6 @@ import json
 import copy
 import __main__
 
-
 # ______________________________________________________________________________
 # Continuous environment
 

@@ -9,6 +9,7 @@ from logic import (FolKB, constant_symbols, predicate_symbols, standardize_varia
                    variables, is_definite_clause, subst, expr, Expr)
 from functools import partial
 
+
 # ______________________________________________________________________________
 
 
@@ -116,6 +117,7 @@ def add_or(examples_so_far, h):
 
     return ors
 
+
 # ______________________________________________________________________________
 
 
@@ -181,7 +183,7 @@ def build_attr_combinations(s, values):
 
     h = []
     for i, a in enumerate(s):
-        rest = build_attr_combinations(s[i+1:], values)
+        rest = build_attr_combinations(s[i + 1:], values)
         for v in values[a]:
             o = {a: v}
             for r in rest:
@@ -207,6 +209,7 @@ def build_h_combinations(hypotheses):
 
     return h
 
+
 # ______________________________________________________________________________
 
 
@@ -231,6 +234,7 @@ def consistent_det(A, E):
         H[attr_values] = e['GOAL']
 
     return True
+
 
 # ______________________________________________________________________________
 
@@ -305,14 +309,12 @@ class FOIL_container(FolKB):
                     if not Expr(pred, args) in clause[1]:
                         yield Expr(pred, *[var for var in args])
 
-
-    def choose_literal(self, literals, examples): 
+    def choose_literal(self, literals, examples):
         """Choose the best literal based on the information gain."""
 
-        return max(literals, key = partial(self.gain , examples = examples))
+        return max(literals, key=partial(self.gain, examples=examples))
 
-
-    def gain(self, l ,examples):
+    def gain(self, l, examples):
         """
         Find the utility of each literal when added to the body of the clause. 
         Utility function is: 
@@ -330,9 +332,9 @@ class FOIL_container(FolKB):
         """
         pre_pos = len(examples[0])
         pre_neg = len(examples[1])
-        post_pos = sum([list(self.extend_example(example, l)) for example in examples[0]], [])           
-        post_neg = sum([list(self.extend_example(example, l)) for example in examples[1]], []) 
-        if pre_pos + pre_neg ==0 or len(post_pos) + len(post_neg)==0:
+        post_pos = sum([list(self.extend_example(example, l)) for example in examples[0]], [])
+        post_neg = sum([list(self.extend_example(example, l)) for example in examples[1]], [])
+        if pre_pos + pre_neg == 0 or len(post_pos) + len(post_neg) == 0:
             return -1
         # number of positive example that are represented in extended_examples
         T = 0
@@ -340,9 +342,10 @@ class FOIL_container(FolKB):
             represents = lambda d: all(d[x] == example[x] for x in example)
             if any(represents(l_) for l_ in post_pos):
                 T += 1
-        value = T * (log(len(post_pos) / (len(post_pos) + len(post_neg)) + 1e-12,2) - log(pre_pos / (pre_pos + pre_neg),2))
+        value = T * (
+                log(len(post_pos) / (len(post_pos) + len(post_neg)) + 1e-12, 2) - log(pre_pos / (pre_pos + pre_neg),
+                                                                                      2))
         return value
-
 
     def update_examples(self, target, examples, extended_examples):
         """Add to the kb those examples what are represented in extended_examples
@@ -415,8 +418,3 @@ def false_positive(e, h):
 
 def false_negative(e, h):
     return e["GOAL"] and not guess_value(e, h)
-
-
-    
-
-

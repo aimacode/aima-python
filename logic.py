@@ -1625,7 +1625,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
         state_counter = itertools.count()
         for s in states:
             for t in range(time + 1):
-                state_sym[s, t] = Expr("State_{}".format(next(state_counter)))
+                state_sym[s, t] = Expr("S{}".format(next(state_counter)))
 
         # Add initial state axiom
         clauses.append(state_sym[init, 0])
@@ -1642,7 +1642,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
                 s_ = transition[s][action]
                 for t in range(time):
                     # Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[s, action, t] = Expr("Transition_{}".format(next(transition_counter)))
+                    action_sym[s, action, t] = Expr("T{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
                     clauses.append(action_sym[s, action, t] | '==>' | state_sym[s, t])
@@ -1780,16 +1780,6 @@ def cascade_substitution(s):
     For every mapping in s perform a cascade substitution on s.get(x)
     and if it is replaced with a function ensure that all the function 
     terms are correct updates by passing over them again.
-
-    This issue fix: https://github.com/aimacode/aima-python/issues/1053
-    unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) 
-    must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
-
-    Parameters
-    ----------
-    s : Dictionary
-        This contain a substitution
-
     >>> s = {x: y, y: G(z)}
     >>> cascade_substitution(s)
     >>> s == {x: G(z), y: G(z)}
@@ -1817,8 +1807,7 @@ def standardize_variables(sentence, dic=None):
             dic[sentence] = v
             return v
     else:
-        return Expr(sentence.op,
-                    *[standardize_variables(a, dic) for a in sentence.args])
+        return Expr(sentence.op, *[standardize_variables(a, dic) for a in sentence.args])
 
 
 standardize_variables.counter = itertools.count()
@@ -1874,7 +1863,7 @@ def fol_fc_ask(KB, alpha):
 
     # check if we can answer without new inferences
     for q in KB.clauses:
-        phi = unify(q, alpha, {})
+        phi = unify(q, alpha)
         if phi is not None:
             yield phi
 
@@ -1885,9 +1874,9 @@ def fol_fc_ask(KB, alpha):
             for theta in enum_subst(p):
                 if set(subst(theta, p)).issubset(set(KB.clauses)):
                     q_ = subst(theta, q)
-                    if all([unify(x, q_, {}) is None for x in KB.clauses + new]):
+                    if all([unify(x, q_) is None for x in KB.clauses + new]):
                         new.append(q_)
-                        phi = unify(q_, alpha, {})
+                        phi = unify(q_, alpha)
                         if phi is not None:
                             yield phi
         if not new:

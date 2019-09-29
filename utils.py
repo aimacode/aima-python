@@ -9,6 +9,8 @@ import os.path
 import random
 import math
 import functools
+from statistics import mean
+
 import numpy as np
 from itertools import chain, combinations
 
@@ -277,6 +279,39 @@ def num_or_str(x):  # TODO: rename as `atom`
             return str(x).strip()
 
 
+def euclidean_distance(X, Y):
+    return math.sqrt(sum((x - y) ** 2 for x, y in zip(X, Y)))
+
+
+def cross_entropy_loss(X, Y):
+    n = len(X)
+    return (-1.0 / n) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(X, Y))
+
+
+def rms_error(X, Y):
+    return math.sqrt(ms_error(X, Y))
+
+
+def ms_error(X, Y):
+    return mean((x - y) ** 2 for x, y in zip(X, Y))
+
+
+def mean_error(X, Y):
+    return mean(abs(x - y) for x, y in zip(X, Y))
+
+
+def manhattan_distance(X, Y):
+    return sum(abs(x - y) for x, y in zip(X, Y))
+
+
+def mean_boolean_error(X, Y):
+    return mean(int(x != y) for x, y in zip(X, Y))
+
+
+def hamming_distance(X, Y):
+    return sum(x != y for x, y in zip(X, Y))
+
+
 def normalize(dist):
     """Multiply each number by a constant such that the sum is 1.0"""
     if isinstance(dist, dict):
@@ -489,13 +524,10 @@ def print_table(table, header=None, sep='   ', numfmt='{}'):
     table = [[numfmt.format(x) if isnumber(x) else x for x in row]
              for row in table]
 
-    sizes = list(
-        map(lambda seq: max(map(len, seq)),
-            list(zip(*[map(str, row) for row in table]))))
+    sizes = list(map(lambda seq: max(map(len, seq)), list(zip(*[map(str, row) for row in table]))))
 
     for row in table:
-        print(sep.join(getattr(
-            str(x), j)(size) for (j, size, x) in zip(justs, sizes, row)))
+        print(sep.join(getattr(str(x), j)(size) for (j, size, x) in zip(justs, sizes, row)))
 
 
 def open_data(name, mode='r'):
@@ -521,7 +553,7 @@ def failure_test(algorithm, tests):
 # See https://docs.python.org/3/reference/expressions.html#operator-precedence
 # See https://docs.python.org/3/reference/datamodel.html#special-method-names
 
-class Expr(object):
+class Expr:
     """A mathematical expression with an operator and 0 or more arguments.
     op is a str like '+' or 'sin'; args are Expressions.
     Expr('x') or Symbol('x') creates a symbol (a nullary Expr).

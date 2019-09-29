@@ -1,10 +1,15 @@
+import random
+
 import pytest
 import nlp
 
 from nlp4e import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar, E0
 from nlp4e import Chart, CYK_parse, subspan, astar_search_parsing, beam_search_parsing
+
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by functions within nlp.py
+
+random.seed("aima-python")
 
 
 def test_rules():
@@ -33,7 +38,7 @@ def test_grammar():
 
 def test_generation():
     lexicon = Lexicon(Article="the | a | an",
-                          Pronoun="i | you | he")
+                      Pronoun="i | you | he")
 
     rules = Rules(
         S="Article | More | Pronoun",
@@ -86,8 +91,7 @@ def test_prob_generation():
 
     rules = ProbRules(
         S="Verb [0.5] | More [0.3] | Pronoun [0.1] | nobody is here [0.1]",
-        More="Pronoun Verb [0.7] | Pronoun Pronoun [0.3]"
-    )
+        More="Pronoun Verb [0.7] | Pronoun Pronoun [0.3]")
 
     grammar = ProbGrammar("Simplegram", rules, lexicon)
 
@@ -115,10 +119,10 @@ def test_CYK_parse():
 
 def test_subspan():
     spans = subspan(3)
-    assert spans.__next__() == (1,1,2)
-    assert spans.__next__() == (2,2,3)
-    assert spans.__next__() == (1,1,3)
-    assert spans.__next__() == (1,2,3)
+    assert spans.__next__() == (1, 1, 2)
+    assert spans.__next__() == (2, 2, 3)
+    assert spans.__next__() == (1, 1, 3)
+    assert spans.__next__() == (1, 2, 3)
 
 
 def test_text_parsing():

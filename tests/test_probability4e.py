@@ -1,4 +1,8 @@
+import pytest
+
 from probability4e import *
+
+random.seed("aima-python")
 
 
 def tests():
@@ -7,7 +11,7 @@ def tests():
     assert cpt.p(True, event) == 0.95
     event = {'Burglary': False, 'Earthquake': True}
     assert cpt.p(False, event) == 0.71
-    # #enumeration_ask('Earthquake', {}, burglary)
+    # enumeration_ask('Earthquake', {}, burglary)
 
     s = {'A': True, 'B': False, 'C': True, 'D': False}
     assert consistent_with(s, {})
@@ -22,6 +26,7 @@ def tests():
     random.seed(71)
     p = likelihood_weighting('Earthquake', {}, burglary, 1000)
     assert p[True], p[False] == (0.002, 0.998)
+
 
 # test ProbDist
 
@@ -47,7 +52,7 @@ def test_probdist_frequency():
 
     P = ProbDist('Pascal-5', {'x1': 1, 'x2': 5, 'x3': 10, 'x4': 10, 'x5': 5, 'x6': 1})
     assert (P['x1'], P['x2'], P['x3'], P['x4'], P['x5'], P['x6']) == (
-            0.03125, 0.15625, 0.3125, 0.3125, 0.15625, 0.03125)
+        0.03125, 0.15625, 0.3125, 0.3125, 0.15625, 0.03125)
 
 
 def test_probdist_normalize():
@@ -60,7 +65,8 @@ def test_probdist_normalize():
     P['1'], P['2'], P['3'], P['4'], P['5'], P['6'] = 10, 15, 25, 30, 40, 80
     P = P.normalize()
     assert (P.prob['1'], P.prob['2'], P.prob['3'], P.prob['4'], P.prob['5'], P.prob['6']) == (
-                                                    0.05, 0.075, 0.125, 0.15, 0.2, 0.4)
+        0.05, 0.075, 0.125, 0.15, 0.2, 0.4)
+
 
 # test JoinProbDist
 
@@ -108,15 +114,16 @@ def test_enumerate_joint_ask():
     P[0, 1] = 0.5
     P[1, 1] = P[2, 1] = 0.125
     assert enumerate_joint_ask(
-            'X', dict(Y=1), P).show_approx() == '0: 0.667, 1: 0.167, 2: 0.167'
+        'X', dict(Y=1), P).show_approx() == '0: 0.667, 1: 0.167, 2: 0.167'
 
 
 def test_is_independent():
     P = JointProbDist(['X', 'Y'])
-    P[0, 0] = P[0,1] = P[1, 1] = P[1, 0] = 0.25
+    P[0, 0] = P[0, 1] = P[1, 1] = P[1, 0] = 0.25
     assert enumerate_joint_ask(
         'X', dict(Y=1), P).show_approx() == '0: 0.5, 1: 0.5'
-    assert is_independent(['X','Y'], P)
+    assert is_independent(['X', 'Y'], P)
+
 
 # test BayesNode
 
@@ -134,6 +141,7 @@ def test_bayesnode_sample():
     Z = BayesNode('Z', 'P Q', {(True, True): 0.2, (True, False): 0.3,
                                (False, True): 0.5, (False, False): 0.7})
     assert Z.sample({'P': True, 'Q': False}) in [True, False]
+
 
 # test continuous variable bayesian net
 
@@ -153,38 +161,38 @@ def test_logistic_probability():
 
 def test_enumeration_ask():
     assert enumeration_ask(
-            'Burglary', dict(JohnCalls=T, MaryCalls=T),
-            burglary).show_approx() == 'False: 0.716, True: 0.284'
+        'Burglary', dict(JohnCalls=T, MaryCalls=T),
+        burglary).show_approx() == 'False: 0.716, True: 0.284'
     assert enumeration_ask(
-            'Burglary', dict(JohnCalls=T, MaryCalls=F),
-            burglary).show_approx() == 'False: 0.995, True: 0.00513'
+        'Burglary', dict(JohnCalls=T, MaryCalls=F),
+        burglary).show_approx() == 'False: 0.995, True: 0.00513'
     assert enumeration_ask(
-            'Burglary', dict(JohnCalls=F, MaryCalls=T),
-            burglary).show_approx() == 'False: 0.993, True: 0.00688'
+        'Burglary', dict(JohnCalls=F, MaryCalls=T),
+        burglary).show_approx() == 'False: 0.993, True: 0.00688'
     assert enumeration_ask(
-            'Burglary', dict(JohnCalls=T),
-            burglary).show_approx() == 'False: 0.984, True: 0.0163'
+        'Burglary', dict(JohnCalls=T),
+        burglary).show_approx() == 'False: 0.984, True: 0.0163'
     assert enumeration_ask(
-            'Burglary', dict(MaryCalls=T),
-            burglary).show_approx() == 'False: 0.944, True: 0.0561'
+        'Burglary', dict(MaryCalls=T),
+        burglary).show_approx() == 'False: 0.944, True: 0.0561'
 
 
 def test_elimination_ask():
     assert elimination_ask(
-            'Burglary', dict(JohnCalls=T, MaryCalls=T),
-            burglary).show_approx() == 'False: 0.716, True: 0.284'
+        'Burglary', dict(JohnCalls=T, MaryCalls=T),
+        burglary).show_approx() == 'False: 0.716, True: 0.284'
     assert elimination_ask(
-            'Burglary', dict(JohnCalls=T, MaryCalls=F),
-            burglary).show_approx() == 'False: 0.995, True: 0.00513'
+        'Burglary', dict(JohnCalls=T, MaryCalls=F),
+        burglary).show_approx() == 'False: 0.995, True: 0.00513'
     assert elimination_ask(
-            'Burglary', dict(JohnCalls=F, MaryCalls=T),
-            burglary).show_approx() == 'False: 0.993, True: 0.00688'
+        'Burglary', dict(JohnCalls=F, MaryCalls=T),
+        burglary).show_approx() == 'False: 0.993, True: 0.00688'
     assert elimination_ask(
-            'Burglary', dict(JohnCalls=T),
-            burglary).show_approx() == 'False: 0.984, True: 0.0163'
+        'Burglary', dict(JohnCalls=T),
+        burglary).show_approx() == 'False: 0.984, True: 0.0163'
     assert elimination_ask(
-            'Burglary', dict(MaryCalls=T),
-            burglary).show_approx() == 'False: 0.944, True: 0.0561'
+        'Burglary', dict(MaryCalls=T),
+        burglary).show_approx() == 'False: 0.944, True: 0.0561'
 
 
 # test sampling
@@ -219,87 +227,86 @@ def test_prior_sample2():
 def test_rejection_sampling():
     random.seed(47)
     assert rejection_sampling(
-            'Burglary', dict(JohnCalls=T, MaryCalls=T),
-            burglary, 10000).show_approx() == 'False: 0.7, True: 0.3'
+        'Burglary', dict(JohnCalls=T, MaryCalls=T),
+        burglary, 10000).show_approx() == 'False: 0.7, True: 0.3'
     assert rejection_sampling(
-            'Burglary', dict(JohnCalls=T, MaryCalls=F),
-            burglary, 10000).show_approx() == 'False: 1, True: 0'
+        'Burglary', dict(JohnCalls=T, MaryCalls=F),
+        burglary, 10000).show_approx() == 'False: 1, True: 0'
     assert rejection_sampling(
-            'Burglary', dict(JohnCalls=F, MaryCalls=T),
-            burglary, 10000).show_approx() == 'False: 0.987, True: 0.0128'
+        'Burglary', dict(JohnCalls=F, MaryCalls=T),
+        burglary, 10000).show_approx() == 'False: 0.987, True: 0.0128'
     assert rejection_sampling(
-            'Burglary', dict(JohnCalls=T),
-            burglary, 10000).show_approx() == 'False: 0.982, True: 0.0183'
+        'Burglary', dict(JohnCalls=T),
+        burglary, 10000).show_approx() == 'False: 0.982, True: 0.0183'
     assert rejection_sampling(
-            'Burglary', dict(MaryCalls=T),
-            burglary, 10000).show_approx() == 'False: 0.965, True: 0.0348'
+        'Burglary', dict(MaryCalls=T),
+        burglary, 10000).show_approx() == 'False: 0.965, True: 0.0348'
 
 
 def test_rejection_sampling2():
     random.seed(42)
     assert rejection_sampling(
-            'Cloudy', dict(Rain=T, Sprinkler=T),
-            sprinkler, 10000).show_approx() == 'False: 0.56, True: 0.44'
+        'Cloudy', dict(Rain=T, Sprinkler=T),
+        sprinkler, 10000).show_approx() == 'False: 0.56, True: 0.44'
     assert rejection_sampling(
-            'Cloudy', dict(Rain=T, Sprinkler=F),
-            sprinkler, 10000).show_approx() == 'False: 0.119, True: 0.881'
+        'Cloudy', dict(Rain=T, Sprinkler=F),
+        sprinkler, 10000).show_approx() == 'False: 0.119, True: 0.881'
     assert rejection_sampling(
-            'Cloudy', dict(Rain=F, Sprinkler=T),
-            sprinkler, 10000).show_approx() == 'False: 0.951, True: 0.049'
+        'Cloudy', dict(Rain=F, Sprinkler=T),
+        sprinkler, 10000).show_approx() == 'False: 0.951, True: 0.049'
     assert rejection_sampling(
-            'Cloudy', dict(Rain=T),
-            sprinkler, 10000).show_approx() == 'False: 0.205, True: 0.795'
+        'Cloudy', dict(Rain=T),
+        sprinkler, 10000).show_approx() == 'False: 0.205, True: 0.795'
     assert rejection_sampling(
-            'Cloudy', dict(Sprinkler=T),
-            sprinkler, 10000).show_approx() == 'False: 0.835, True: 0.165'
+        'Cloudy', dict(Sprinkler=T),
+        sprinkler, 10000).show_approx() == 'False: 0.835, True: 0.165'
 
 
 def test_likelihood_weighting():
     random.seed(1017)
     assert likelihood_weighting(
-            'Burglary', dict(JohnCalls=T, MaryCalls=T),
-            burglary, 10000).show_approx() == 'False: 0.702, True: 0.298'
+        'Burglary', dict(JohnCalls=T, MaryCalls=T),
+        burglary, 10000).show_approx() == 'False: 0.702, True: 0.298'
     assert likelihood_weighting(
-            'Burglary', dict(JohnCalls=T, MaryCalls=F),
-            burglary, 10000).show_approx() == 'False: 0.993, True: 0.00656'
+        'Burglary', dict(JohnCalls=T, MaryCalls=F),
+        burglary, 10000).show_approx() == 'False: 0.993, True: 0.00656'
     assert likelihood_weighting(
-            'Burglary', dict(JohnCalls=F, MaryCalls=T),
-            burglary, 10000).show_approx() == 'False: 0.996, True: 0.00363'
+        'Burglary', dict(JohnCalls=F, MaryCalls=T),
+        burglary, 10000).show_approx() == 'False: 0.996, True: 0.00363'
     assert likelihood_weighting(
-            'Burglary', dict(JohnCalls=F, MaryCalls=F),
-            burglary, 10000).show_approx() == 'False: 1, True: 0.000126'
+        'Burglary', dict(JohnCalls=F, MaryCalls=F),
+        burglary, 10000).show_approx() == 'False: 1, True: 0.000126'
     assert likelihood_weighting(
-            'Burglary', dict(JohnCalls=T),
-            burglary, 10000).show_approx() == 'False: 0.979, True: 0.0205'
+        'Burglary', dict(JohnCalls=T),
+        burglary, 10000).show_approx() == 'False: 0.979, True: 0.0205'
     assert likelihood_weighting(
-            'Burglary', dict(MaryCalls=T),
-            burglary, 10000).show_approx() == 'False: 0.94, True: 0.0601'
+        'Burglary', dict(MaryCalls=T),
+        burglary, 10000).show_approx() == 'False: 0.94, True: 0.0601'
 
 
 def test_likelihood_weighting2():
     random.seed(42)
     assert likelihood_weighting(
-            'Cloudy', dict(Rain=T, Sprinkler=T),
-            sprinkler, 10000).show_approx() == 'False: 0.559, True: 0.441'
+        'Cloudy', dict(Rain=T, Sprinkler=T),
+        sprinkler, 10000).show_approx() == 'False: 0.559, True: 0.441'
     assert likelihood_weighting(
-            'Cloudy', dict(Rain=T, Sprinkler=F),
-            sprinkler, 10000).show_approx() == 'False: 0.12, True: 0.88'
+        'Cloudy', dict(Rain=T, Sprinkler=F),
+        sprinkler, 10000).show_approx() == 'False: 0.12, True: 0.88'
     assert likelihood_weighting(
-            'Cloudy', dict(Rain=F, Sprinkler=T),
-            sprinkler, 10000).show_approx() == 'False: 0.951, True: 0.0486'
+        'Cloudy', dict(Rain=F, Sprinkler=T),
+        sprinkler, 10000).show_approx() == 'False: 0.951, True: 0.0486'
     assert likelihood_weighting(
-            'Cloudy', dict(Rain=T),
-            sprinkler, 10000).show_approx() == 'False: 0.198, True: 0.802'
+        'Cloudy', dict(Rain=T),
+        sprinkler, 10000).show_approx() == 'False: 0.198, True: 0.802'
     assert likelihood_weighting(
-            'Cloudy', dict(Sprinkler=T),
-            sprinkler, 10000).show_approx() == 'False: 0.833, True: 0.167'
+        'Cloudy', dict(Sprinkler=T),
+        sprinkler, 10000).show_approx() == 'False: 0.833, True: 0.167'
 
 
 def test_gibbs_ask():
-
     g_solution = gibbs_ask('Cloudy', dict(Rain=True), sprinkler, 1000)
-    assert abs(g_solution.prob[False]-0.2) < 0.05
-    assert abs(g_solution.prob[True]-0.8) < 0.05
+    assert abs(g_solution.prob[False] - 0.2) < 0.05
+    assert abs(g_solution.prob[True] - 0.8) < 0.05
 
 
 # The following should probably go in .ipynb:

@@ -8,6 +8,7 @@ import random
 from collections import defaultdict
 from functools import reduce
 
+
 # ______________________________________________________________________________
 # Chapter 12 Qualifying Uncertainty
 # 12.1 Acting Under Uncertainty
@@ -15,13 +16,15 @@ from functools import reduce
 
 def DTAgentProgram(belief_state):
     """A decision-theoretic agent. [Figure 12.1]"""
+
     def program(percept):
         belief_state.observe(program.action, percept)
-        program.action = argmax(belief_state.actions(),
-                                key=belief_state.expected_outcome_utility)
+        program.action = argmax(belief_state.actions(), key=belief_state.expected_outcome_utility)
         return program.action
+
     program.action = None
     return program
+
 
 # ______________________________________________________________________________
 # 12.2 Basic Probability Notation
@@ -79,6 +82,7 @@ class ProbDist:
 
     def __repr__(self):
         return "P({})".format(self.varname)
+
 
 # ______________________________________________________________________________
 # 12.3 Inference Using Full Joint Distributions
@@ -159,6 +163,7 @@ def enumerate_joint(variables, e, P):
     return sum([enumerate_joint(rest, extend(e, Y, y), P)
                 for y in P.values(Y)])
 
+
 # ______________________________________________________________________________
 # 12.4 Independence
 
@@ -197,8 +202,10 @@ def gen_possible_events(vars, P):
         for val in P.values(var):
             temp[var] = val
             backtrack([v for v in vars if v != var], P, copy.copy(temp))
+
     backtrack(vars, P, {})
     return events
+
 
 # ______________________________________________________________________________
 # Chapter 13 Probabilistic Reasoning
@@ -227,7 +234,7 @@ class BayesNet:
         net, and its variable must not.
         Initialize Bayes nodes by detecting the length of input node specs
         """
-        if len(node_spec)>=5:
+        if len(node_spec) >= 5:
             node = ContinuousBayesNode(*node_spec)
         else:
             node = BayesNode(*node_spec)
@@ -266,7 +273,7 @@ class BayesNode:
     def __init__(self, X, parents, cpt):
         """
         :param X: variable name,
-        :param parents: a sequence of variable names or a space-separated string. Representing the names of parent nodes.
+        :param parents: a sequence of variable names or a space-separated string. Representing the names of parent nodes
         :param cpt: the conditional probability table, takes one of these forms:
 
         * A number, the unconditional probability P(X=true). You can
@@ -336,6 +343,7 @@ class BayesNode:
     def __repr__(self):
         return repr((self.variable, ' '.join(self.parents)))
 
+
 # Burglary example [Figure 13 .2]
 
 
@@ -349,6 +357,7 @@ burglary = BayesNet([
     ('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
     ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})
 ])
+
 
 # ______________________________________________________________________________
 # Section 13.2. The Semantics of Bayesian Networks
@@ -376,7 +385,7 @@ def gaussian_probability(param, event, value):
     for k, v in event.items():
         # buffer varianle to calculate h1*a_h1 + h2*a_h2
         buff += param['a'][k] * v
-    res = 1/(param['sigma']*sqrt(2*pi)) * exp(-0.5*((value-buff-param['b'])/param['sigma'])**2)
+    res = 1 / (param['sigma'] * sqrt(2 * pi)) * exp(-0.5 * ((value - buff - param['b']) / param['sigma']) ** 2)
     return res
 
 
@@ -390,12 +399,12 @@ def logistic_probability(param, event, value):
     """
 
     buff = 1
-    for _,v in event.items():
+    for _, v in event.items():
         # buffer variable to calculate (value-mu)/sigma
 
-        buff *= (v-param['mu'])/param['sigma']
-    p = 1 - 1/(1+exp(-4/sqrt(2*pi)*buff))
-    return p if value else 1-p
+        buff *= (v - param['mu']) / param['sigma']
+    p = 1 - 1 / (1 + exp(-4 / sqrt(2 * pi) * buff))
+    return p if value else 1 - p
 
 
 class ContinuousBayesNode:
@@ -437,6 +446,7 @@ class ContinuousBayesNode:
             p = logistic_probability(param, c_event, value)
         return p
 
+
 # harvest-buy example. Figure 13.5
 
 
@@ -446,7 +456,7 @@ harvest_buy = BayesNet([
     ('Cost', 'Subsidy', 'Harvest',
      {True: {'sigma': 0.5, 'b': 1, 'a': {'Harvest': 0.5}},
       False: {'sigma': 0.6, 'b': 1, 'a': {'Harvest': 0.5}}}, 'c'),
-    ('Buys', '', 'Cost', {T: {'mu':0.5, 'sigma':0.5}, F: {'mu': 0.6, 'sigma':0.6}}, 'd'),
+    ('Buys', '', 'Cost', {T: {'mu': 0.5, 'sigma': 0.5}, F: {'mu': 0.6, 'sigma': 0.6}}, 'd'),
 ])
 
 
@@ -488,6 +498,7 @@ def enumerate_all(variables, e, bn):
     else:
         return sum(Ynode.p(y, e) * enumerate_all(rest, extend(e, Y, y), bn)
                    for y in bn.variable_values(Y))
+
 
 # ______________________________________________________________________________
 # 13.3.2 The variable elimination algorithm
@@ -583,6 +594,7 @@ def all_events(variables, bn, e):
             for x in bn.variable_values(X):
                 yield extend(e1, X, x)
 
+
 # ______________________________________________________________________________
 # 13.3.4 Clustering algorithms
 # [Figure 13.14a]: sprinkler network
@@ -594,6 +606,7 @@ sprinkler = BayesNet([
     ('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
     ('WetGrass', 'Sprinkler Rain',
      {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
+
 
 # ______________________________________________________________________________
 # 13.4 Approximate Inference for Bayesian Networks
@@ -609,6 +622,7 @@ def prior_sample(bn):
     for node in bn.nodes:
         event[node.variable] = node.sample(event)
     return event
+
 
 # _________________________________________________________________________
 
@@ -636,6 +650,7 @@ def consistent_with(event, evidence):
     """Is event consistent with the given evidence?"""
     return all(evidence.get(k, v) == v
                for k, v in event.items())
+
 
 # _________________________________________________________________________
 
@@ -674,6 +689,7 @@ def weighted_sample(bn, e):
             event[Xi] = node.sample(event)
     return event, w
 
+
 # _________________________________________________________________________
 # 13.4.2 Inference by Markov chain simulation
 
@@ -709,6 +725,7 @@ def markov_blanket_sample(X, e, bn):
                                          for Yj in Xnode.children)
     # (assuming a Boolean variable here)
     return probability(Q.normalize()[True])
+
 
 # _________________________________________________________________________
 # 13.4.3 Compiling approximate inference

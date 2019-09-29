@@ -3,9 +3,16 @@ import pytest
 from logic import *
 from utils import expr_handle_infix_ops, count
 
+random.seed("aima-python")
+
 definite_clauses_KB = PropDefiniteKB()
-for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B',
-               'C']:
+for clause in ['(B & F)==>E',
+               '(A & E & F)==>G',
+               '(B & C)==>F',
+               '(A & B)==>D',
+               '(E & F)==>H',
+               '(H & I)==>J',
+               'A', 'B', 'C']:
     definite_clauses_KB.tell(expr(clause))
 
 

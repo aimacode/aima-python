@@ -1,32 +1,18 @@
 import math
+import random
 import statistics
 
-from utils4e import sigmoid, dotproduct, softmax1D, conv1D, gaussian_kernel_2d, GaussianKernel, element_wise_product, \
-    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector
-import random
-
 from keras import optimizers
-from keras.models import Sequential
 from keras.layers import Dense, SimpleRNN
 from keras.layers.embeddings import Embedding
+from keras.models import Sequential
 from keras.preprocessing import sequence
 
+from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, \
+    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss
+
+
 # DEEP NEURAL NETWORKS. (Chapter 19)
-# ________________________________________________
-# 19.2 Common Loss Functions
-
-
-def cross_entropy_loss(X, Y):
-    """Example of cross entropy loss. X and Y are 1D iterable objects"""
-    n = len(X)
-    return (-1.0/n)*sum(x*math.log(y) + (1-x)*math.log(1-y) for x, y in zip(X, Y))
-
-
-def mse_loss(X, Y):
-    """Example of min square loss. X and Y are 1D iterable objects"""
-    n = len(X)
-    return (1.0/n)*sum((x-y)**2 for x, y in zip(X, Y))
-
 # ________________________________________________
 # 19.3 Models
 # 19.3.1 Computational Graphs and Layers
@@ -78,6 +64,7 @@ class Layer:
 
 class OutputLayer(Layer):
     """Example of a 1D softmax output layer in 19.3.2"""
+
     def __init__(self, size=3):
         super(OutputLayer, self).__init__(size)
 
@@ -91,6 +78,7 @@ class OutputLayer(Layer):
 
 class InputLayer(Layer):
     """Example of a 1D input layer. Layer size is the same as input vector size."""
+
     def __init__(self, size=3):
         super(InputLayer, self).__init__(size)
 
@@ -100,6 +88,7 @@ class InputLayer(Layer):
         for node, inp in zip(self.nodes, inputs):
             node.val = inp
         return inputs
+
 
 # 19.3.3 Hidden Layers
 
@@ -131,6 +120,7 @@ class DenseLayer(Layer):
             res.append(val)
         return res
 
+
 # 19.3.4 Convolutional networks
 
 
@@ -157,6 +147,7 @@ class ConvLayer1D(Layer):
             node.val = out
         return res
 
+
 # 19.3.5 Pooling and Downsampling
 
 
@@ -177,10 +168,11 @@ class MaxPoolingLayer1D(Layer):
         for i in range(len(self.nodes)):
             feature = features[i]
             # get the max value in a kernel_size * kernel_size area
-            out = [max(feature[i:i+self.kernel_size]) for i in range(len(feature)-self.kernel_size+1)]
+            out = [max(feature[i:i + self.kernel_size]) for i in range(len(feature) - self.kernel_size + 1)]
             res.append(out)
             self.nodes[i].val = out
         return res
+
 
 # ____________________________________________________________________
 # 19.4 optimization algorithms
@@ -206,10 +198,11 @@ def init_examples(examples, idx_i, idx_t, o_units):
 
     return inputs, targets
 
+
 # 19.4.1 Stochastic gradient descent
 
 
-def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01,  batch_size=1, verbose=None):
+def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1, verbose=None):
     """
     gradient descent algorithm to update the learnable parameters of a network.
     :return: the updated network.
@@ -236,15 +229,16 @@ def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01,  batch_size=1
                     for j in range(len(weights[i])):
                         net[i].nodes[j].weights = weights[i][j]
 
-        if verbose and (e+1) % verbose == 0:
-            print("epoch:{}, total_loss:{}".format(e+1,total_loss))
+        if verbose and (e + 1) % verbose == 0:
+            print("epoch:{}, total_loss:{}".format(e + 1, total_loss))
     return net
 
 
 # 19.4.2 Other gradient-based optimization algorithms
 
 
-def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/10**8, l_rate=0.001, batch_size=1, verbose=None):
+def adam_optimizer(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8, l_rate=0.001, batch_size=1,
+                   verbose=None):
     """
     Adam optimizer in Figure 19.6 to update the learnable parameters of a network.
     Required parameters are similar to gradient descent.
@@ -277,7 +271,7 @@ def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/1
             s_hat = scalar_vector_product(1 / (1 - rho[0] ** t), s)
             r_hat = scalar_vector_product(1 / (1 - rho[1] ** t), r)
             # rescale r_hat
-            r_hat = map_vector(lambda x: 1/(math.sqrt(x)+delta), r_hat)
+            r_hat = map_vector(lambda x: 1 / (math.sqrt(x) + delta), r_hat)
             # delta weights
             delta_theta = scalar_vector_product(-l_rate, element_wise_product(s_hat, r_hat))
             weights = vector_add(weights, delta_theta)
@@ -288,9 +282,10 @@ def adam_optimizer(dataset, net,  loss, epochs=1000, rho=(0.9, 0.999), delta=1/1
                     for j in range(len(weights[i])):
                         net[i].nodes[j].weights = weights[i][j]
 
-        if verbose and (e+1) % verbose == 0:
-            print("epoch:{}, total_loss:{}".format(e+1,total_loss))
+        if verbose and (e + 1) % verbose == 0:
+            print("epoch:{}, total_loss:{}".format(e + 1, total_loss))
     return net
+
 
 # 19.4.3 Back-propagation
 
@@ -312,7 +307,7 @@ def BackPropagation(inputs, targets, theta, net, loss):
     batch_size = len(inputs)
 
     gradients = [[[] for _ in layer.nodes] for layer in net]
-    total_gradients = [[[0]*len(node.weights) for node in layer.nodes] for layer in net]
+    total_gradients = [[[0] * len(node.weights) for node in layer.nodes] for layer in net]
 
     batch_loss = 0
 
@@ -330,7 +325,7 @@ def BackPropagation(inputs, targets, theta, net, loss):
         # Initialize delta
         delta = [[] for _ in range(n_layers)]
 
-        previous = [layer_out[i]-t_val[i] for i in range(o_units)]
+        previous = [layer_out[i] - t_val[i] for i in range(o_units)]
         h_layers = n_layers - 1
         # Backward pass
         for i in range(h_layers, 0, -1):
@@ -347,11 +342,13 @@ def BackPropagation(inputs, targets, theta, net, loss):
 
     return total_gradients, batch_loss
 
+
 # 19.4.5 Batch normalization
 
 
 class BatchNormalizationLayer(Layer):
     """Example of a batch normalization layer."""
+
     def __init__(self, size, epsilon=0.001):
         super(BatchNormalizationLayer, self).__init__(size)
         self.epsilon = epsilon
@@ -368,7 +365,7 @@ class BatchNormalizationLayer(Layer):
         res = []
         # get normalized value of each input
         for i in range(len(self.nodes)):
-            val = [(inputs[i] - mu)*self.weights[0]/math.sqrt(self.epsilon + stderr**2)+self.weights[1]]
+            val = [(inputs[i] - mu) * self.weights[0] / math.sqrt(self.epsilon + stderr ** 2) + self.weights[1]]
             res.append(val)
             self.nodes[i].val = val
         return res
@@ -377,12 +374,14 @@ class BatchNormalizationLayer(Layer):
 def get_batch(examples, batch_size=1):
     """split examples into multiple batches"""
     for i in range(0, len(examples), batch_size):
-        yield examples[i: i+batch_size]
+        yield examples[i: i + batch_size]
+
 
 # example of NNs
 
 
-def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epochs=100, optimizer=gradient_descent, batch_size=1, verbose=None):
+def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epochs=100, optimizer=gradient_descent,
+                       batch_size=1, verbose=None):
     """Example of a simple dense multilayer neural network.
     :param hidden_layer_sizes: size of hidden layers in the form of a list"""
 
@@ -399,7 +398,8 @@ def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epoc
     raw_net.append(DenseLayer(hidden_input_size, output_size))
 
     # update parameters of the network
-    learned_net = optimizer(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate, batch_size=batch_size, verbose=verbose)
+    learned_net = optimizer(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate, batch_size=batch_size,
+                            verbose=verbose)
 
     def predict(example):
         n_layers = len(learned_net)
@@ -430,11 +430,11 @@ def perceptron_learner(dataset, learning_rate=0.01, epochs=100, verbose=None):
     learned_net = gradient_descent(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate, verbose=verbose)
 
     def predict(example):
-
         layer_out = learned_net[1].forward(example)
         return layer_out.index(max(layer_out))
 
     return predict
+
 
 # ____________________________________________________________________
 # 19.6 Recurrent neural networks
@@ -494,7 +494,8 @@ def auto_encoder_learner(inputs, encoding_size, epochs=200):
 
     # init model
     model = Sequential()
-    model.add(Dense(encoding_size, input_dim=input_size, activation='relu', kernel_initializer='random_uniform',bias_initializer='ones'))
+    model.add(Dense(encoding_size, input_dim=input_size, activation='relu', kernel_initializer='random_uniform',
+                    bias_initializer='ones'))
     model.add(Dense(input_size, activation='relu', kernel_initializer='random_uniform', bias_initializer='ones'))
     # update model with sgd
     sgd = optimizers.SGD(lr=0.01)

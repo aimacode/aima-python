@@ -92,7 +92,7 @@ def ProbRules(**rules):
         rules[lhs] = []
         rhs_separate = [alt.strip().split() for alt in rhs.split('|')]
         for r in rhs_separate:
-            prob = float(r[-1][1:-1]) # remove brackets, convert to float
+            prob = float(r[-1][1:-1])  # remove brackets, convert to float
             rhs_rule = (r[:-1], prob)
             rules[lhs].append(rhs_rule)
 
@@ -109,7 +109,7 @@ def ProbLexicon(**rules):
         rules[lhs] = []
         rhs_separate = [word.strip().split() for word in rhs.split('|')]
         for r in rhs_separate:
-            prob = float(r[-1][1:-1]) # remove brackets, convert to float
+            prob = float(r[-1][1:-1])  # remove brackets, convert to float
             word = r[:-1][0]
             rhs_rule = (word, prob)
             rules[lhs].append(rhs_rule)
@@ -214,7 +214,7 @@ E_NP_ = Grammar('E_NP_',  # Another Trivial Grammar for testing
                 Lexicon(Adj='happy | handsome | hairy',
                         N='man'))
 
-E_Prob = ProbGrammar('E_Prob', # The Probabilistic Grammar from the notebook
+E_Prob = ProbGrammar('E_Prob',  # The Probabilistic Grammar from the notebook
                      ProbRules(
                          S="NP VP [0.6] | S Conjunction S [0.4]",
                          NP="Pronoun [0.2] | Name [0.05] | Noun [0.2] | Article Noun [0.15] \
@@ -238,51 +238,50 @@ E_Prob = ProbGrammar('E_Prob', # The Probabilistic Grammar from the notebook
                          Digit="0 [0.35] | 1 [0.35] | 2 [0.3]"
                      ))
 
-
-E_Chomsky = Grammar('E_Prob_Chomsky', # A Grammar in Chomsky Normal Form
+E_Chomsky = Grammar('E_Prob_Chomsky',  # A Grammar in Chomsky Normal Form
                     Rules(
-                       S='NP VP',
-                       NP='Article Noun | Adjective Noun',
-                       VP='Verb NP | Verb Adjective',
+                        S='NP VP',
+                        NP='Article Noun | Adjective Noun',
+                        VP='Verb NP | Verb Adjective',
                     ),
                     Lexicon(
-                       Article='the | a | an',
-                       Noun='robot | sheep | fence',
-                       Adjective='good | new | sad',
-                       Verb='is | say | are'
+                        Article='the | a | an',
+                        Noun='robot | sheep | fence',
+                        Adjective='good | new | sad',
+                        Verb='is | say | are'
                     ))
 
-E_Prob_Chomsky = ProbGrammar('E_Prob_Chomsky', # A Probabilistic Grammar in CNF
+E_Prob_Chomsky = ProbGrammar('E_Prob_Chomsky',  # A Probabilistic Grammar in CNF
                              ProbRules(
-                                S='NP VP [1]',
-                                NP='Article Noun [0.6] | Adjective Noun [0.4]',
-                                VP='Verb NP [0.5] | Verb Adjective [0.5]',
+                                 S='NP VP [1]',
+                                 NP='Article Noun [0.6] | Adjective Noun [0.4]',
+                                 VP='Verb NP [0.5] | Verb Adjective [0.5]',
                              ),
                              ProbLexicon(
-                                Article='the [0.5] | a [0.25] | an [0.25]',
-                                Noun='robot [0.4] | sheep [0.4] | fence [0.2]',
-                                Adjective='good [0.5] | new [0.2] | sad [0.3]',
-                                Verb='is [0.5] | say [0.3] | are [0.2]'
+                                 Article='the [0.5] | a [0.25] | an [0.25]',
+                                 Noun='robot [0.4] | sheep [0.4] | fence [0.2]',
+                                 Adjective='good [0.5] | new [0.2] | sad [0.3]',
+                                 Verb='is [0.5] | say [0.3] | are [0.2]'
                              ))
 E_Prob_Chomsky_ = ProbGrammar('E_Prob_Chomsky_',
-                             ProbRules(
-                                S='NP VP [1]',
-                                NP='NP PP [0.4] | Noun Verb [0.6]',
-                                PP='Preposition NP [1]',
-                                VP='Verb NP [0.7] | VP PP [0.3]',
-                                ),
-                             ProbLexicon(
-                                Noun='astronomers [0.18] | eyes [0.32] | stars [0.32] | telescopes [0.18]',
-                                Verb='saw [0.5] | \'\' [0.5]',
-                                Preposition='with [1]'
-                                ))
+                              ProbRules(
+                                  S='NP VP [1]',
+                                  NP='NP PP [0.4] | Noun Verb [0.6]',
+                                  PP='Preposition NP [1]',
+                                  VP='Verb NP [0.7] | VP PP [0.3]',
+                              ),
+                              ProbLexicon(
+                                  Noun='astronomers [0.18] | eyes [0.32] | stars [0.32] | telescopes [0.18]',
+                                  Verb='saw [0.5] | \'\' [0.5]',
+                                  Preposition='with [1]'
+                              ))
+
 
 # ______________________________________________________________________________
 # 22.3 Parsing
 
 
 class Chart:
-
     """Class for parsing sentences using a chart data structure.
     >>> chart = Chart(E0)
     >>> len(chart.parses('the stench is in 2 2'))
@@ -311,7 +310,7 @@ class Chart:
     def parse(self, words, S='S'):
         """Parse a list of words; according to the grammar.
         Leave results in the chart."""
-        self.chart = [[] for i in range(len(words)+1)]
+        self.chart = [[] for i in range(len(words) + 1)]
         self.add_edge([0, 0, 'S_', [], [S]])
         for i in range(len(words)):
             self.scanner(i, words[i])
@@ -333,7 +332,7 @@ class Chart:
         """For each edge expecting a word of this category here, extend the edge."""
         for (i, j, A, alpha, Bb) in self.chart[j]:
             if Bb and self.grammar.isa(word, Bb[0]):
-                self.add_edge([i, j+1, A, alpha + [(Bb[0], word)], Bb[1:]])
+                self.add_edge([i, j + 1, A, alpha + [(Bb[0], word)], Bb[1:]])
 
     def predictor(self, edge):
         """Add to chart any rules for B that could help extend this edge."""
@@ -376,21 +375,22 @@ def CYK_parse(words, grammar):
     # Construct X(i:k) from Y(i:j) and Z(j+1:k), shortest span first
     for i, j, k in subspan(len(words)):
         for (X, Y, Z, p) in grammar.cnf_rules():
-            PYZ = P[Y, i, j] * P[Z, j+1, k] * p
+            PYZ = P[Y, i, j] * P[Z, j + 1, k] * p
             if PYZ > P[X, i, k]:
                 P[X, i, k] = PYZ
-                T[X, i, k] = Tree(X, T[Y, i, j], T[Z, j+1, k])
+                T[X, i, k] = Tree(X, T[Y, i, j], T[Z, j + 1, k])
 
     return T
 
 
 def subspan(N):
     """returns all tuple(i, j, k) covering a span (i, k) with i <= j < k"""
-    for length in range(2, N+1):
-        for i in range(1, N+2-length):
+    for length in range(2, N + 1):
+        for i in range(1, N + 2 - length):
             k = i + length - 1
             for j in range(i, k):
                 yield (i, j, k)
+
 
 # using search algorithms in the searching part
 
@@ -424,7 +424,7 @@ class TextParsingProblem(Problem):
         # if all words are replaced by articles, replace combinations of articles by inferring rules.
         if not actions:
             for start in range(len(state)):
-                for end in range(start, len(state)+1):
+                for end in range(start, len(state) + 1):
                     # try combinations between (start, end)
                     articles = ' '.join(state[start:end])
                     for c in self.combinations[articles]:
@@ -445,7 +445,7 @@ def astar_search_parsing(words, gramma):
     problem = TextParsingProblem(words, gramma, 'S')
     state = problem.initial
     # init the searching frontier
-    frontier = [(len(state)+problem.h(state), state)]
+    frontier = [(len(state) + problem.h(state), state)]
     heapq.heapify(frontier)
 
     while frontier:
@@ -458,7 +458,7 @@ def astar_search_parsing(words, gramma):
             if new_state == [problem.goal]:
                 return problem.goal
             if new_state != state:
-                heapq.heappush(frontier, (len(new_state)+problem.h(new_state), new_state))
+                heapq.heappush(frontier, (len(new_state) + problem.h(new_state), new_state))
     return False
 
 
@@ -493,31 +493,31 @@ def beam_search_parsing(words, gramma, b=3):
             return frontier
     return False
 
+
 # ______________________________________________________________________________
 # 22.4 Augmented Grammar
 
 
 g = Grammar("arithmetic_expression",  # A Grammar of Arithmetic Expression
-                    rules={
-                        'Number_0': 'Digit_0', 'Number_1': 'Digit_1', 'Number_2': 'Digit_2',
-                        'Number_10': 'Number_1 Digit_0', 'Number_11': 'Number_1 Digit_1',
-                        'Number_100': 'Number_10 Digit_0',
-                        'Exp_5': ['Number_5', '( Exp_5 )', 'Exp_1, Operator_+ Exp_4', 'Exp_2, Operator_+ Exp_3',
-                                  'Exp_0, Operator_+ Exp_5', 'Exp_3, Operator_+ Exp_2', 'Exp_4, Operator_+ Exp_1',
-                                  'Exp_5, Operator_+ Exp_0', 'Exp_1, Operator_* Exp_5'],  # more possible combinations
-                        'Operator_+': operator.add, 'Operator_-': operator.sub, 'Operator_*':operator.mul, 'Operator_/': operator.truediv,
-                        'Digit_0': 0, 'Digit_1': 1, 'Digit_2': 2, 'Digit_3': 3, 'Digit_4': 4
-                    },
-                    lexicon={})
+            rules={
+                'Number_0': 'Digit_0', 'Number_1': 'Digit_1', 'Number_2': 'Digit_2',
+                'Number_10': 'Number_1 Digit_0', 'Number_11': 'Number_1 Digit_1',
+                'Number_100': 'Number_10 Digit_0',
+                'Exp_5': ['Number_5', '( Exp_5 )', 'Exp_1, Operator_+ Exp_4', 'Exp_2, Operator_+ Exp_3',
+                          'Exp_0, Operator_+ Exp_5', 'Exp_3, Operator_+ Exp_2', 'Exp_4, Operator_+ Exp_1',
+                          'Exp_5, Operator_+ Exp_0', 'Exp_1, Operator_* Exp_5'],  # more possible combinations
+                'Operator_+': operator.add, 'Operator_-': operator.sub, 'Operator_*': operator.mul,
+                'Operator_/': operator.truediv,
+                'Digit_0': 0, 'Digit_1': 1, 'Digit_2': 2, 'Digit_3': 3, 'Digit_4': 4
+            },
+            lexicon={})
 
 g = Grammar("Ali loves Bob",  # A example grammer of Ali loves Bob example
-                  rules={
-                      "S_loves_ali_bob": "NP_ali, VP_x_loves_x_bob", "S_loves_bob_ali": "NP_bob, VP_x_loves_x_ali",
-                      "VP_x_loves_x_bob": "Verb_xy_loves_xy NP_bob", "VP_x_loves_x_ali": "Verb_xy_loves_xy NP_ali",
-                      "NP_bob": "Name_bob", "NP_ali": "Name_ali"
-                  },
-                  lexicon={
-                      "Name_ali":"Ali", "Name_bob": "Bob", "Verb_xy_loves_xy": "loves"
-                  })
-
-
+            rules={
+                "S_loves_ali_bob": "NP_ali, VP_x_loves_x_bob", "S_loves_bob_ali": "NP_bob, VP_x_loves_x_ali",
+                "VP_x_loves_x_bob": "Verb_xy_loves_xy NP_bob", "VP_x_loves_x_ali": "Verb_xy_loves_xy NP_ali",
+                "NP_bob": "Name_bob", "NP_ali": "Name_ali"
+            },
+            lexicon={
+                "Name_ali": "Ali", "Name_bob": "Bob", "Verb_xy_loves_xy": "loves"
+            })

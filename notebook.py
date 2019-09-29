@@ -1,22 +1,24 @@
+import time
+from collections import defaultdict
 from inspect import getsource
 
-from utils import argmax, argmin
-from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, infinity
-from logic import parse_definite_clause, standardize_variables, unify, subst
-from learning import DataSet
-from IPython.display import HTML, display
-from collections import Counter, defaultdict
-
+import ipywidgets as widgets
 import matplotlib.pyplot as plt
+import networkx as nx
 import numpy as np
+from IPython.display import HTML
+from IPython.display import display
 from PIL import Image
+from matplotlib import lines
 
-import os, struct
-import array
-import time
+from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, inf
+from learning import DataSet
+from logic import parse_definite_clause, standardize_variables, unify, subst
+from search import GraphProblem, romania_map
+from utils import argmax, argmin
 
 
-#______________________________________________________________________________
+# ______________________________________________________________________________
 # Magic Words
 
 
@@ -47,6 +49,7 @@ def psource(*functions):
     except ImportError:
         print(source_code)
 
+
 # ______________________________________________________________________________
 # Iris Visualization
 
@@ -55,7 +58,6 @@ def show_iris(i=0, j=1, k=2):
     """Plots the iris dataset in a 3D plot.
     The three axes are given by i, j and k,
     which correspond to three of the four iris features."""
-    from mpl_toolkits.mplot3d import Axes3D
 
     plt.rcParams.update(plt.rcParamsDefault)
 
@@ -80,7 +82,6 @@ def show_iris(i=0, j=1, k=2):
     b_versicolor = [v[j] for v in buckets["versicolor"]]
     c_versicolor = [v[k] for v in buckets["versicolor"]]
 
-
     for c, m, sl, sw, pl in [('b', 's', a_setosa, b_setosa, c_setosa),
                              ('g', '^', a_virginica, b_virginica, c_virginica),
                              ('r', 'o', a_versicolor, b_versicolor, c_versicolor)]:
@@ -92,6 +93,7 @@ def show_iris(i=0, j=1, k=2):
 
     plt.show()
 
+
 # ______________________________________________________________________________
 # MNIST
 
@@ -100,7 +102,6 @@ def load_MNIST(path="aima-data/MNIST/Digits", fashion=False):
     import os, struct
     import array
     import numpy as np
-    from collections import Counter
 
     if fashion:
         path = "aima-data/MNIST/Fashion"
@@ -129,22 +130,22 @@ def load_MNIST(path="aima-data/MNIST/Digits", fashion=False):
     te_lbl = array.array("b", test_lbl_file.read())
     test_lbl_file.close()
 
-     #print(len(tr_img), len(tr_lbl), tr_size)
-     #print(len(te_img), len(te_lbl), te_size)
+    # print(len(tr_img), len(tr_lbl), tr_size)
+    # print(len(te_img), len(te_lbl), te_size)
 
-    train_img = np.zeros((tr_size, tr_rows*tr_cols), dtype=np.int16)
+    train_img = np.zeros((tr_size, tr_rows * tr_cols), dtype=np.int16)
     train_lbl = np.zeros((tr_size,), dtype=np.int8)
     for i in range(tr_size):
-        train_img[i] = np.array(tr_img[i*tr_rows*tr_cols : (i+1)*tr_rows*tr_cols]).reshape((tr_rows*te_cols))
+        train_img[i] = np.array(tr_img[i * tr_rows * tr_cols: (i + 1) * tr_rows * tr_cols]).reshape((tr_rows * te_cols))
         train_lbl[i] = tr_lbl[i]
 
-    test_img = np.zeros((te_size, te_rows*te_cols), dtype=np.int16)
+    test_img = np.zeros((te_size, te_rows * te_cols), dtype=np.int16)
     test_lbl = np.zeros((te_size,), dtype=np.int8)
     for i in range(te_size):
-        test_img[i] = np.array(te_img[i*te_rows*te_cols : (i+1)*te_rows*te_cols]).reshape((te_rows*te_cols))
+        test_img[i] = np.array(te_img[i * te_rows * te_cols: (i + 1) * te_rows * te_cols]).reshape((te_rows * te_cols))
         test_lbl[i] = te_lbl[i]
 
-    return(train_img, train_lbl, test_img, test_lbl)
+    return (train_img, train_lbl, test_img, test_lbl)
 
 
 digit_classes = [str(i) for i in range(10)]
@@ -163,7 +164,7 @@ def show_MNIST(labels, images, samples=8, fashion=False):
     for y, cls in enumerate(classes):
         idxs = np.nonzero([i == y for i in labels])
         idxs = np.random.choice(idxs[0], samples, replace=False)
-        for i , idx in enumerate(idxs):
+        for i, idx in enumerate(idxs):
             plt_idx = i * num_classes + y + 1
             plt.subplot(samples, num_classes, plt_idx)
             plt.imshow(images[idx].reshape((28, 28)))
@@ -188,15 +189,16 @@ def show_ave_MNIST(labels, images, fashion=False):
         idxs = np.nonzero([i == y for i in labels])
         print(item_type, y, ":", len(idxs[0]), "images.")
 
-        ave_img = np.mean(np.vstack([images[i] for i in idxs[0]]), axis = 0)
-        #print(ave_img.shape)
+        ave_img = np.mean(np.vstack([images[i] for i in idxs[0]]), axis=0)
+        # print(ave_img.shape)
 
-        plt.subplot(1, num_classes, y+1)
+        plt.subplot(1, num_classes, y + 1)
         plt.imshow(ave_img.reshape((28, 28)))
         plt.axis("off")
         plt.title(cls)
 
     plt.show()
+
 
 # ______________________________________________________________________________
 # MDP
@@ -216,7 +218,7 @@ def make_plot_grid_step_function(columns, rows, U_over_time):
             for column in range(columns):
                 current_row.append(data[(column, row)])
             grid.append(current_row)
-        grid.reverse() # output like book
+        grid.reverse()  # output like book
         fig = plt.imshow(grid, cmap=plt.cm.bwr, interpolation='nearest')
 
         plt.axis('off')
@@ -232,6 +234,7 @@ def make_plot_grid_step_function(columns, rows, U_over_time):
 
     return plot_grid_step
 
+
 def make_visualize(slider):
     """Takes an input a sliderand returns callback function
     for timer and animation."""
@@ -243,6 +246,7 @@ def make_visualize(slider):
                 time.sleep(float(time_step))
 
     return visualize_callback
+
 
 # ______________________________________________________________________________
 
@@ -377,6 +381,7 @@ def display_html(html_string):
 
 class Canvas_TicTacToe(Canvas):
     """Play a 3x3 TicTacToe game on HTML canvas"""
+
     def __init__(self, varname, player_1='human', player_2='random',
                  width=300, height=350, cid=None):
         valid_players = ('human', 'random', 'alphabeta')
@@ -394,14 +399,14 @@ class Canvas_TicTacToe(Canvas):
     def mouse_click(self, x, y):
         player = self.players[self.turn]
         if self.ttt.terminal_test(self.state):
-            if 0.55 <= x/self.width <= 0.95 and 6/7 <= y/self.height <= 6/7+1/8:
+            if 0.55 <= x / self.width <= 0.95 and 6 / 7 <= y / self.height <= 6 / 7 + 1 / 8:
                 self.state = self.ttt.initial
                 self.turn = 0
                 self.draw_board()
             return
 
         if player == 'human':
-            x, y = int(3*x/self.width) + 1, int(3*y/(self.height*6/7)) + 1
+            x, y = int(3 * x / self.width) + 1, int(3 * y / (self.height * 6 / 7)) + 1
             if (x, y) not in self.ttt.actions(self.state):
                 # Invalid move
                 return
@@ -417,11 +422,11 @@ class Canvas_TicTacToe(Canvas):
     def draw_board(self):
         self.clear()
         self.stroke(0, 0, 0)
-        offset = 1/20
-        self.line_n(0 + offset, (1/3)*6/7, 1 - offset, (1/3)*6/7)
-        self.line_n(0 + offset, (2/3)*6/7, 1 - offset, (2/3)*6/7)
-        self.line_n(1/3, (0 + offset)*6/7, 1/3, (1 - offset)*6/7)
-        self.line_n(2/3, (0 + offset)*6/7, 2/3, (1 - offset)*6/7)
+        offset = 1 / 20
+        self.line_n(0 + offset, (1 / 3) * 6 / 7, 1 - offset, (1 / 3) * 6 / 7)
+        self.line_n(0 + offset, (2 / 3) * 6 / 7, 1 - offset, (2 / 3) * 6 / 7)
+        self.line_n(1 / 3, (0 + offset) * 6 / 7, 1 / 3, (1 - offset) * 6 / 7)
+        self.line_n(2 / 3, (0 + offset) * 6 / 7, 2 / 3, (1 - offset) * 6 / 7)
 
         board = self.state.board
         for mark in board:
@@ -433,64 +438,65 @@ class Canvas_TicTacToe(Canvas):
             # End game message
             utility = self.ttt.utility(self.state, self.ttt.to_move(self.ttt.initial))
             if utility == 0:
-                self.text_n('Game Draw!', offset, 6/7 + offset)
+                self.text_n('Game Draw!', offset, 6 / 7 + offset)
             else:
-                self.text_n('Player {} wins!'.format("XO"[utility < 0]), offset, 6/7 + offset)
+                self.text_n('Player {} wins!'.format("XO"[utility < 0]), offset, 6 / 7 + offset)
                 # Find the 3 and draw a line
                 self.stroke([255, 0][self.turn], [0, 255][self.turn], 0)
                 for i in range(3):
                     if all([(i + 1, j + 1) in self.state.board for j in range(3)]) and \
-                       len({self.state.board[(i + 1, j + 1)] for j in range(3)}) == 1:
-                        self.line_n(i/3 + 1/6, offset*6/7, i/3 + 1/6, (1 - offset)*6/7)
+                            len({self.state.board[(i + 1, j + 1)] for j in range(3)}) == 1:
+                        self.line_n(i / 3 + 1 / 6, offset * 6 / 7, i / 3 + 1 / 6, (1 - offset) * 6 / 7)
                     if all([(j + 1, i + 1) in self.state.board for j in range(3)]) and \
-                       len({self.state.board[(j + 1, i + 1)] for j in range(3)}) == 1:
-                        self.line_n(offset, (i/3 + 1/6)*6/7, 1 - offset, (i/3 + 1/6)*6/7)
+                            len({self.state.board[(j + 1, i + 1)] for j in range(3)}) == 1:
+                        self.line_n(offset, (i / 3 + 1 / 6) * 6 / 7, 1 - offset, (i / 3 + 1 / 6) * 6 / 7)
                 if all([(i + 1, i + 1) in self.state.board for i in range(3)]) and \
-                   len({self.state.board[(i + 1, i + 1)] for i in range(3)}) == 1:
-                        self.line_n(offset, offset*6/7, 1 - offset, (1 - offset)*6/7)
+                        len({self.state.board[(i + 1, i + 1)] for i in range(3)}) == 1:
+                    self.line_n(offset, offset * 6 / 7, 1 - offset, (1 - offset) * 6 / 7)
                 if all([(i + 1, 3 - i) in self.state.board for i in range(3)]) and \
-                   len({self.state.board[(i + 1, 3 - i)] for i in range(3)}) == 1:
-                        self.line_n(offset, (1 - offset)*6/7, 1 - offset, offset*6/7)
+                        len({self.state.board[(i + 1, 3 - i)] for i in range(3)}) == 1:
+                    self.line_n(offset, (1 - offset) * 6 / 7, 1 - offset, offset * 6 / 7)
             # restart button
             self.fill(0, 0, 255)
-            self.rect_n(0.5 + offset, 6/7, 0.4, 1/8)
+            self.rect_n(0.5 + offset, 6 / 7, 0.4, 1 / 8)
             self.fill(0, 0, 0)
-            self.text_n('Restart', 0.5 + 2*offset, 13/14)
+            self.text_n('Restart', 0.5 + 2 * offset, 13 / 14)
         else:  # Print which player's turn it is
             self.text_n("Player {}'s move({})".format("XO"[self.turn], self.players[self.turn]),
-                        offset, 6/7 + offset)
+                        offset, 6 / 7 + offset)
 
         self.update()
 
     def draw_x(self, position):
         self.stroke(0, 255, 0)
-        x, y = [i-1 for i in position]
-        offset = 1/15
-        self.line_n(x/3 + offset, (y/3 + offset)*6/7, x/3 + 1/3 - offset, (y/3 + 1/3 - offset)*6/7)
-        self.line_n(x/3 + 1/3 - offset, (y/3 + offset)*6/7, x/3 + offset, (y/3 + 1/3 - offset)*6/7)
+        x, y = [i - 1 for i in position]
+        offset = 1 / 15
+        self.line_n(x / 3 + offset, (y / 3 + offset) * 6 / 7, x / 3 + 1 / 3 - offset, (y / 3 + 1 / 3 - offset) * 6 / 7)
+        self.line_n(x / 3 + 1 / 3 - offset, (y / 3 + offset) * 6 / 7, x / 3 + offset, (y / 3 + 1 / 3 - offset) * 6 / 7)
 
     def draw_o(self, position):
         self.stroke(255, 0, 0)
-        x, y = [i-1 for i in position]
-        self.arc_n(x/3 + 1/6, (y/3 + 1/6)*6/7, 1/9, 0, 360)
+        x, y = [i - 1 for i in position]
+        self.arc_n(x / 3 + 1 / 6, (y / 3 + 1 / 6) * 6 / 7, 1 / 9, 0, 360)
 
 
 class Canvas_minimax(Canvas):
     """Minimax for Fig52Extended on HTML canvas"""
+
     def __init__(self, varname, util_list, width=800, height=600, cid=None):
         Canvas.__init__(self, varname, width, height, cid)
-        self.utils = {node:util for node, util in zip(range(13, 40), util_list)}
+        self.utils = {node: util for node, util in zip(range(13, 40), util_list)}
         self.game = Fig52Extended()
         self.game.utils = self.utils
         self.nodes = list(range(40))
-        self.l = 1/40
+        self.l = 1 / 40
         self.node_pos = {}
         for i in range(4):
             base = len(self.node_pos)
-            row_size = 3**i
+            row_size = 3 ** i
             for node in [base + j for j in range(row_size)]:
-                self.node_pos[node] = ((node - base)/row_size + 1/(2*row_size) - self.l/2,
-                                       self.l/2 + (self.l + (1 - 5*self.l)/3)*i)
+                self.node_pos[node] = ((node - base) / row_size + 1 / (2 * row_size) - self.l / 2,
+                                       self.l / 2 + (self.l + (1 - 5 * self.l) / 3) * i)
         self.font("12px Arial")
         self.node_stack = []
         self.explored = {node for node in self.utils}
@@ -502,6 +508,7 @@ class Canvas_minimax(Canvas):
     def minimax(self, node):
         game = self.game
         player = game.to_move(node)
+
         def max_value(node):
             if game.terminal_test(node):
                 return game.utility(node, player)
@@ -512,7 +519,7 @@ class Canvas_minimax(Canvas):
             self.utils[node] = self.utils[max_node]
             x1, y1 = self.node_pos[node]
             x2, y2 = self.node_pos[max_node]
-            self.change_list.append(('l', (node, max_node - 3*node - 1)))
+            self.change_list.append(('l', (node, max_node - 3 * node - 1)))
             self.change_list.append(('e', node))
             self.change_list.append(('p',))
             self.change_list.append(('h',))
@@ -528,7 +535,7 @@ class Canvas_minimax(Canvas):
             self.utils[node] = self.utils[min_node]
             x1, y1 = self.node_pos[node]
             x2, y2 = self.node_pos[min_node]
-            self.change_list.append(('l', (node, min_node - 3*node - 1)))
+            self.change_list.append(('l', (node, min_node - 3 * node - 1)))
             self.change_list.append(('e', node))
             self.change_list.append(('p',))
             self.change_list.append(('h',))
@@ -566,7 +573,7 @@ class Canvas_minimax(Canvas):
         for node in self.node_stack:
             x, y = self.node_pos[node]
             self.fill(200, 200, 0)
-            self.rect_n(x - self.l/5, y - self.l/5, self.l*7/5, self.l*7/5)
+            self.rect_n(x - self.l / 5, y - self.l / 5, self.l * 7 / 5, self.l * 7 / 5)
         for node in self.nodes:
             x, y = self.node_pos[node]
             if node in self.explored:
@@ -580,12 +587,12 @@ class Canvas_minimax(Canvas):
             self.line_n(x + self.l, y + self.l, x, y + self.l)
             self.fill(0, 0, 0)
             if node in self.explored:
-                self.text_n(self.utils[node], x + self.l/10, y + self.l*9/10)
+                self.text_n(self.utils[node], x + self.l / 10, y + self.l * 9 / 10)
         # draw edges
         for i in range(13):
-            x1, y1 = self.node_pos[i][0] + self.l/2, self.node_pos[i][1] + self.l
+            x1, y1 = self.node_pos[i][0] + self.l / 2, self.node_pos[i][1] + self.l
             for j in range(3):
-                x2, y2 = self.node_pos[i*3 + j + 1][0] + self.l/2, self.node_pos[i*3 + j + 1][1]
+                x2, y2 = self.node_pos[i * 3 + j + 1][0] + self.l / 2, self.node_pos[i * 3 + j + 1][1]
                 if i in [1, 2, 3]:
                     self.stroke(200, 0, 0)
                 else:
@@ -600,20 +607,21 @@ class Canvas_minimax(Canvas):
 
 class Canvas_alphabeta(Canvas):
     """Alpha-beta pruning for Fig52Extended on HTML canvas"""
+
     def __init__(self, varname, util_list, width=800, height=600, cid=None):
         Canvas.__init__(self, varname, width, height, cid)
-        self.utils = {node:util for node, util in zip(range(13, 40), util_list)}
+        self.utils = {node: util for node, util in zip(range(13, 40), util_list)}
         self.game = Fig52Extended()
         self.game.utils = self.utils
         self.nodes = list(range(40))
-        self.l = 1/40
+        self.l = 1 / 40
         self.node_pos = {}
         for i in range(4):
             base = len(self.node_pos)
-            row_size = 3**i
+            row_size = 3 ** i
             for node in [base + j for j in range(row_size)]:
-                self.node_pos[node] = ((node - base)/row_size + 1/(2*row_size) - self.l/2,
-                                       3*self.l/2 + (self.l + (1 - 6*self.l)/3)*i)
+                self.node_pos[node] = ((node - base) / row_size + 1 / (2 * row_size) - self.l / 2,
+                                       3 * self.l / 2 + (self.l + (1 - 6 * self.l) / 3) * i)
         self.font("12px Arial")
         self.node_stack = []
         self.explored = {node for node in self.utils}
@@ -635,16 +643,16 @@ class Canvas_alphabeta(Canvas):
                 self.change_list.append(('h',))
                 self.change_list.append(('p',))
                 return game.utility(node, player)
-            v = -infinity
+            v = -inf
             self.change_list.append(('a', node))
-            self.change_list.append(('ab',node, v, beta))
+            self.change_list.append(('ab', node, v, beta))
             self.change_list.append(('h',))
             for a in game.actions(node):
                 min_val = min_value(game.result(node, a), alpha, beta)
                 if v < min_val:
                     v = min_val
                     max_node = game.result(node, a)
-                    self.change_list.append(('ab',node, v, beta))
+                    self.change_list.append(('ab', node, v, beta))
                 if v >= beta:
                     self.change_list.append(('h',))
                     self.pruned.add(node)
@@ -652,8 +660,8 @@ class Canvas_alphabeta(Canvas):
                 alpha = max(alpha, v)
             self.utils[node] = v
             if node not in self.pruned:
-                self.change_list.append(('l', (node, max_node - 3*node - 1)))
-            self.change_list.append(('e',node))
+                self.change_list.append(('l', (node, max_node - 3 * node - 1)))
+            self.change_list.append(('e', node))
             self.change_list.append(('p',))
             self.change_list.append(('h',))
             return v
@@ -664,16 +672,16 @@ class Canvas_alphabeta(Canvas):
                 self.change_list.append(('h',))
                 self.change_list.append(('p',))
                 return game.utility(node, player)
-            v = infinity
+            v = inf
             self.change_list.append(('a', node))
-            self.change_list.append(('ab',node, alpha, v))
+            self.change_list.append(('ab', node, alpha, v))
             self.change_list.append(('h',))
             for a in game.actions(node):
                 max_val = max_value(game.result(node, a), alpha, beta)
                 if v > max_val:
                     v = max_val
                     min_node = game.result(node, a)
-                    self.change_list.append(('ab',node, alpha, v))
+                    self.change_list.append(('ab', node, alpha, v))
                 if v <= alpha:
                     self.change_list.append(('h',))
                     self.pruned.add(node)
@@ -681,13 +689,13 @@ class Canvas_alphabeta(Canvas):
                 beta = min(beta, v)
             self.utils[node] = v
             if node not in self.pruned:
-                self.change_list.append(('l', (node, min_node - 3*node - 1)))
-            self.change_list.append(('e',node))
+                self.change_list.append(('l', (node, min_node - 3 * node - 1)))
+            self.change_list.append(('e', node))
             self.change_list.append(('p',))
             self.change_list.append(('h',))
             return v
 
-        return max_value(node, -infinity, infinity)
+        return max_value(node, -inf, inf)
 
     def stack_manager_gen(self):
         self.alphabeta_search(0)
@@ -725,7 +733,7 @@ class Canvas_alphabeta(Canvas):
                 self.fill(200, 100, 100)
             else:
                 self.fill(200, 200, 0)
-            self.rect_n(x - self.l/5, y - self.l/5, self.l*7/5, self.l*7/5)
+            self.rect_n(x - self.l / 5, y - self.l / 5, self.l * 7 / 5, self.l * 7 / 5)
         for node in self.nodes:
             x, y = self.node_pos[node]
             if node in self.explored:
@@ -742,12 +750,12 @@ class Canvas_alphabeta(Canvas):
             self.line_n(x + self.l, y + self.l, x, y + self.l)
             self.fill(0, 0, 0)
             if node in self.explored and node not in self.pruned:
-                self.text_n(self.utils[node], x + self.l/10, y + self.l*9/10)
+                self.text_n(self.utils[node], x + self.l / 10, y + self.l * 9 / 10)
         # draw edges
         for i in range(13):
-            x1, y1 = self.node_pos[i][0] + self.l/2, self.node_pos[i][1] + self.l
+            x1, y1 = self.node_pos[i][0] + self.l / 2, self.node_pos[i][1] + self.l
             for j in range(3):
-                x2, y2 = self.node_pos[i*3 + j + 1][0] + self.l/2, self.node_pos[i*3 + j + 1][1]
+                x2, y2 = self.node_pos[i * 3 + j + 1][0] + self.l / 2, self.node_pos[i * 3 + j + 1][1]
                 if i in [1, 2, 3]:
                     self.stroke(200, 0, 0)
                 else:
@@ -762,19 +770,20 @@ class Canvas_alphabeta(Canvas):
             if node not in self.explored:
                 x, y = self.node_pos[node]
                 alpha, beta = self.ab[node]
-                self.text_n(alpha, x - self.l/2, y - self.l/10)
-                self.text_n(beta, x + self.l, y - self.l/10)
+                self.text_n(alpha, x - self.l / 2, y - self.l / 10)
+                self.text_n(beta, x + self.l, y - self.l / 10)
         self.update()
 
 
 class Canvas_fol_bc_ask(Canvas):
     """fol_bc_ask() on HTML canvas"""
+
     def __init__(self, varname, kb, query, width=800, height=600, cid=None):
         Canvas.__init__(self, varname, width, height, cid)
         self.kb = kb
         self.query = query
-        self.l = 1/20
-        self.b = 3*self.l
+        self.l = 1 / 20
+        self.b = 3 * self.l
         bc_out = list(self.fol_bc_ask())
         if len(bc_out) is 0:
             self.valid = False
@@ -794,6 +803,7 @@ class Canvas_fol_bc_ask(Canvas):
     def fol_bc_ask(self):
         KB = self.kb
         query = self.query
+
         def fol_bc_or(KB, goal, theta):
             for rule in KB.fetch_rules_for_goal(goal):
                 lhs, rhs = parse_definite_clause(standardize_variables(rule))
@@ -830,22 +840,22 @@ class Canvas_fol_bc_ask(Canvas):
             return (depth, pos)
 
         dfs(graph, 0)
-        y_off = 0.85/len(table)
+        y_off = 0.85 / len(table)
         for i, row in enumerate(table):
-            x_off = 0.95/len(row)
+            x_off = 0.95 / len(row)
             for j, node in enumerate(row):
-                pos[(i, j)] = (0.025 + j*x_off + (x_off - self.b)/2, 0.025 + i*y_off + (y_off - self.l)/2)
+                pos[(i, j)] = (0.025 + j * x_off + (x_off - self.b) / 2, 0.025 + i * y_off + (y_off - self.l) / 2)
         for p, c in links:
             x1, y1 = pos[p]
             x2, y2 = pos[c]
-            edges.add((x1 + self.b/2, y1 + self.l, x2 + self.b/2, y2))
+            edges.add((x1 + self.b / 2, y1 + self.l, x2 + self.b / 2, y2))
 
         self.table = table
         self.pos = pos
         self.edges = edges
 
     def mouse_click(self, x, y):
-        x, y = x/self.width, y/self.height
+        x, y = x / self.width, y / self.height
         for node in self.pos:
             xs, ys = self.pos[node]
             xe, ye = xs + self.b, ys + self.l
@@ -871,7 +881,7 @@ class Canvas_fol_bc_ask(Canvas):
                 self.line_n(x, y + self.l, x + self.b, y + self.l)
                 self.fill(0, 0, 0)
                 self.text_n(self.table[i][j], x + 0.01, y + self.l - 0.01)
-            #draw edges
+            # draw edges
             for x1, y1, x2, y2 in self.edges:
                 self.line_n(x1, y1, x2, y2)
         else:
@@ -894,38 +904,30 @@ class Canvas_fol_bc_ask(Canvas):
 #####################           Functions to assist plotting in search.ipynb            ####################
 
 ############################################################################################################
-import networkx as nx
-import matplotlib.pyplot as plt
-from matplotlib import lines
 
-from ipywidgets import interact
-import ipywidgets as widgets
-from IPython.display import display
-import time
-from search import GraphProblem, romania_map
 
-def show_map(graph_data, node_colors = None):
+def show_map(graph_data, node_colors=None):
     G = nx.Graph(graph_data['graph_dict'])
     node_colors = node_colors or graph_data['node_colors']
     node_positions = graph_data['node_positions']
     node_label_pos = graph_data['node_label_positions']
-    edge_weights= graph_data['edge_weights']
-    
+    edge_weights = graph_data['edge_weights']
+
     # set the size of the plot
-    plt.figure(figsize=(18,13))
+    plt.figure(figsize=(18, 13))
     # draw the graph (both nodes and edges) with locations from romania_locations
     nx.draw(G, pos={k: node_positions[k] for k in G.nodes()},
             node_color=[node_colors[node] for node in G.nodes()], linewidths=0.3, edgecolors='k')
 
     # draw labels for nodes
     node_label_handles = nx.draw_networkx_labels(G, pos=node_label_pos, font_size=14)
-    
+
     # add a white bounding box behind the node labels
     [label.set_bbox(dict(facecolor='white', edgecolor='none')) for label in node_label_handles.values()]
 
     # add edge lables to the graph
     nx.draw_networkx_edge_labels(G, pos=node_positions, edge_labels=edge_weights, font_size=14)
-    
+
     # add a legend
     white_circle = lines.Line2D([], [], color="white", marker='o', markersize=15, markerfacecolor="white")
     orange_circle = lines.Line2D([], [], color="orange", marker='o', markersize=15, markerfacecolor="orange")
@@ -934,23 +936,25 @@ def show_map(graph_data, node_colors = None):
     green_circle = lines.Line2D([], [], color="green", marker='o', markersize=15, markerfacecolor="green")
     plt.legend((white_circle, orange_circle, red_circle, gray_circle, green_circle),
                ('Un-explored', 'Frontier', 'Currently Exploring', 'Explored', 'Final Solution'),
-               numpoints=1, prop={'size':16}, loc=(.8,.75))
-    
+               numpoints=1, prop={'size': 16}, loc=(.8, .75))
+
     # show the plot. No need to use in notebooks. nx.draw will show the graph itself.
     plt.show()
-    
-## helper functions for visualisations
-   
+
+
+# helper functions for visualisations
+
 def final_path_colors(initial_node_colors, problem, solution):
     "Return a node_colors dict of the final path provided the problem and solution."
-    
+
     # get initial node colors
     final_colors = dict(initial_node_colors)
     # color all the nodes in solution and starting node to green
     final_colors[problem.initial] = "green"
     for node in solution:
-        final_colors[node] = "green"  
+        final_colors[node] = "green"
     return final_colors
+
 
 def display_visual(graph_data, user_input, algorithm=None, problem=None):
     initial_node_colors = graph_data['node_colors']
@@ -961,22 +965,23 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
                 show_map(graph_data, node_colors=all_node_colors[iteration])
             except:
                 pass
+
         def visualize_callback(Visualize):
             if Visualize is True:
                 button.value = False
-                
+
                 global all_node_colors
-                
+
                 iterations, all_node_colors, node = algorithm(problem)
                 solution = node.solution()
                 all_node_colors.append(final_path_colors(all_node_colors[0], problem, solution))
-                
+
                 slider.max = len(all_node_colors) - 1
-                
+
                 for i in range(slider.max + 1):
                     slider.value = i
-                     #time.sleep(.5)
-        
+                    # time.sleep(.5)
+
         slider = widgets.IntSlider(min=0, max=1, step=1, value=0)
         slider_visual = widgets.interactive(slider_callback, iteration=slider)
         display(slider_visual)
@@ -984,21 +989,21 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
         button = widgets.ToggleButton(value=False)
         button_visual = widgets.interactive(visualize_callback, Visualize=button)
         display(button_visual)
-    
+
     if user_input == True:
         node_colors = dict(initial_node_colors)
         if isinstance(algorithm, dict):
             assert set(algorithm.keys()).issubset({"Breadth First Tree Search",
-                                                       "Depth First Tree Search", 
-                                                       "Breadth First Search", 
-                                                       "Depth First Graph Search", 
-                                                       "Best First Graph Search",
-                                                       "Uniform Cost Search", 
-                                                       "Depth Limited Search",
-                                                       "Iterative Deepening Search",
-                                                       "Greedy Best First Search",
-                                                       "A-star Search",
-                                                       "Recursive Best First Search"})
+                                                   "Depth First Tree Search",
+                                                   "Breadth First Search",
+                                                   "Depth First Graph Search",
+                                                   "Best First Graph Search",
+                                                   "Uniform Cost Search",
+                                                   "Depth Limited Search",
+                                                   "Iterative Deepening Search",
+                                                   "Greedy Best First Search",
+                                                   "A-star Search",
+                                                   "Recursive Best First Search"})
 
             algo_dropdown = widgets.Dropdown(description="Search algorithm: ",
                                              options=sorted(list(algorithm.keys())),
@@ -1007,33 +1012,33 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
         elif algorithm is None:
             print("No algorithm to run.")
             return 0
-        
+
         def slider_callback(iteration):
             # don't show graph for the first time running the cell calling this function
             try:
                 show_map(graph_data, node_colors=all_node_colors[iteration])
             except:
                 pass
-            
+
         def visualize_callback(Visualize):
             if Visualize is True:
                 button.value = False
-                
+
                 problem = GraphProblem(start_dropdown.value, end_dropdown.value, romania_map)
                 global all_node_colors
-                
+
                 user_algorithm = algorithm[algo_dropdown.value]
-                
+
                 iterations, all_node_colors, node = user_algorithm(problem)
                 solution = node.solution()
                 all_node_colors.append(final_path_colors(all_node_colors[0], problem, solution))
 
                 slider.max = len(all_node_colors) - 1
-                
+
                 for i in range(slider.max + 1):
                     slider.value = i
-                    #time.sleep(.5)
-                         
+                    # time.sleep(.5)
+
         start_dropdown = widgets.Dropdown(description="Start city: ",
                                           options=sorted(list(node_colors.keys())), value="Arad")
         display(start_dropdown)
@@ -1041,11 +1046,11 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
         end_dropdown = widgets.Dropdown(description="Goal city: ",
                                         options=sorted(list(node_colors.keys())), value="Fagaras")
         display(end_dropdown)
-        
+
         button = widgets.ToggleButton(value=False)
         button_visual = widgets.interactive(visualize_callback, Visualize=button)
         display(button_visual)
-        
+
         slider = widgets.IntSlider(min=0, max=1, step=1, value=0)
         slider_visual = widgets.interactive(slider_callback, iteration=slider)
         display(slider_visual)
@@ -1054,7 +1059,7 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
 # Function to plot NQueensCSP in csp.py and NQueensProblem in search.py
 def plot_NQueens(solution):
     n = len(solution)
-    board = np.array([2 * int((i + j) % 2) for j in range(n) for i in range(n)]).reshape((n, n))        
+    board = np.array([2 * int((i + j) % 2) for j in range(n) for i in range(n)]).reshape((n, n))
     im = Image.open('images/queen_s.png')
     height = im.size[1]
     im = np.array(im).astype(np.float) / 255
@@ -1077,6 +1082,7 @@ def plot_NQueens(solution):
     fig.tight_layout()
     plt.show()
 
+
 # Function to plot a heatmap, given a grid
 def heatmap(grid, cmap='binary', interpolation='nearest'):
     fig = plt.figure(figsize=(7, 7))
@@ -1086,12 +1092,14 @@ def heatmap(grid, cmap='binary', interpolation='nearest'):
     fig.tight_layout()
     plt.show()
 
+
 # Generates a gaussian kernel
 def gaussian_kernel(l=5, sig=1.0):
     ax = np.arange(-l // 2 + 1., l // 2 + 1.)
     xx, yy = np.meshgrid(ax, ax)
-    kernel = np.exp(-(xx**2 + yy**2) / (2. * sig**2))
+    kernel = np.exp(-(xx ** 2 + yy ** 2) / (2. * sig ** 2))
     return kernel
+
 
 # Plots utility function for a POMDP
 def plot_pomdp_utility(utility):
@@ -1109,7 +1117,7 @@ def plot_pomdp_utility(utility):
     plt.vlines([left, right], -20, 10, linestyles='dashed', colors='c')
     plt.ylim(-20, 13)
     plt.xlim(0, 1)
-    plt.text(left/2 - 0.05, 10, 'Save')
-    plt.text((right + left)/2 - 0.02, 10, 'Ask')
-    plt.text((right + 1)/2 - 0.07, 10, 'Delete')
+    plt.text(left / 2 - 0.05, 10, 'Save')
+    plt.text((right + left) / 2 - 0.02, 10, 'Ask')
+    plt.text((right + 1) / 2 - 0.07, 10, 'Delete')
     plt.show()

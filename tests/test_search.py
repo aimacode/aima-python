@@ -1,6 +1,7 @@
 import pytest
 from search import *
 
+random.seed("aima-python")
 
 romania_problem = GraphProblem('Arad', 'Bucharest', romania_map)
 vacuum_world = GraphProblemStochastic('State_1', ['State_7', 'State_8'], vacuum_world)
@@ -74,7 +75,8 @@ def test_bidirectional_search():
 
 def test_astar_search():
     assert astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
-    assert astar_search(eight_puzzle).solution() == ['LEFT', 'LEFT', 'UP', 'RIGHT', 'RIGHT', 'DOWN', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT']
+    assert astar_search(eight_puzzle).solution() == ['LEFT', 'LEFT', 'UP', 'RIGHT', 'RIGHT', 'DOWN', 'LEFT', 'UP',
+                                                     'LEFT', 'DOWN', 'RIGHT', 'RIGHT']
     assert astar_search(EightPuzzle((1, 2, 3, 4, 5, 6, 0, 7, 8))).solution() == ['RIGHT', 'RIGHT']
     assert astar_search(nqueens).solution() == [7, 1, 3, 0, 6, 4, 2, 5]
 
@@ -154,35 +156,36 @@ def test_recursive_best_first_search():
         romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
     assert recursive_best_first_search(
         EightPuzzle((2, 4, 3, 1, 5, 6, 7, 8, 0))).solution() == [
-            'UP', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT', 'DOWN'
-        ]
+               'UP', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT', 'DOWN'
+           ]
 
     def manhattan(node):
         state = node.state
-        index_goal = {0:[2,2], 1:[0,0], 2:[0,1], 3:[0,2], 4:[1,0], 5:[1,1], 6:[1,2], 7:[2,0], 8:[2,1]}
+        index_goal = {0: [2, 2], 1: [0, 0], 2: [0, 1], 3: [0, 2], 4: [1, 0], 5: [1, 1], 6: [1, 2], 7: [2, 0], 8: [2, 1]}
         index_state = {}
-        index = [[0,0], [0,1], [0,2], [1,0], [1,1], [1,2], [2,0], [2,1], [2,2]]
+        index = [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
         x, y = 0, 0
-        
+
         for i in range(len(state)):
             index_state[state[i]] = index[i]
-        
+
         mhd = 0
-        
+
         for i in range(8):
             for j in range(2):
                 mhd = abs(index_goal[i][j] - index_state[i][j]) + mhd
-        
+
         return mhd
 
     assert recursive_best_first_search(
         EightPuzzle((2, 4, 3, 1, 5, 6, 7, 8, 0)), h=manhattan).solution() == [
-            'LEFT', 'UP', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'DOWN', 'UP', 'DOWN', 'RIGHT'
-        ]
+               'LEFT', 'UP', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'DOWN', 'UP', 'DOWN', 'RIGHT'
+           ]
+
 
 def test_hill_climbing():
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 20],
-                                           [-3, 7, 11, 5]])
+                                       [-3, 7, 11, 5]])
     assert hill_climbing(prob) == (0, 3)
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 8],
                                        [-3, 7, 9, 999],
@@ -227,6 +230,7 @@ def test_and_or_graph_search():
             return False
         predicate = lambda x: run_plan(x, problem, plan[1][x])
         return all(predicate(r) for r in problem.result(state, plan[0]))
+
     plan = and_or_graph_search(vacuum_world)
     assert run_plan('State_1', vacuum_world, plan)
 
@@ -282,7 +286,7 @@ def test_genetic_algorithm():
     def fitness(q):
         non_attacking = 0
         for row1 in range(len(q)):
-            for row2 in range(row1+1, len(q)):
+            for row2 in range(row1 + 1, len(q)):
                 col1 = int(q[row1])
                 col2 = int(q[row2])
                 row_diff = row1 - row2
@@ -292,7 +296,6 @@ def test_genetic_algorithm():
                     non_attacking += 1
 
         return non_attacking
-
 
     solution = genetic_algorithm(population, fitness, gene_pool=gene_pool, f_thres=25)
     assert fitness(solution) >= 25
@@ -325,12 +328,12 @@ def test_simpleProblemSolvingAgent():
 
         def formulate_goal(self, state):
             goal = [state7, state8]
-            return goal  
+            return goal
 
         def formulate_problem(self, state, goal):
             problem = state
-            return problem   
-    
+            return problem
+
         def search(self, problem):
             if problem == state1:
                 seq = ["Suck", "Right", "Suck"]
@@ -360,7 +363,6 @@ def test_simpleProblemSolvingAgent():
     assert a(state6) == "Left"
     assert a(state1) == "Suck"
     assert a(state3) == "Right"
-    
 
 
 # TODO: for .ipynb:
