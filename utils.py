@@ -305,7 +305,7 @@ def manhattan_distance(X, Y):
 
 
 def mean_boolean_error(X, Y):
-    return mean(int(x != y) for x, y in zip(X, Y))
+    return mean(x != y for x, y in zip(X, Y))
 
 
 def hamming_distance(X, Y):

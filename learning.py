@@ -22,31 +22,30 @@ class DataSet:
     d.examples   A list of examples. Each one is a list of attribute values.
     d.attrs      A list of integers to index into an example, so example[attr]
                  gives a value. Normally the same as range(len(d.examples[0])).
-    d.attrnames  Optional list of mnemonic names for corresponding attrs.
+    d.attr_names Optional list of mnemonic names for corresponding attrs.
     d.target     The attribute that a learning algorithm will try to predict.
                  By default the final attribute.
     d.inputs     The list of attrs without the target.
     d.values     A list of lists: each sublist is the set of possible
                  values for the corresponding attribute. If initially None,
-                 it is computed from the known examples by self.setproblem.
+                 it is computed from the known examples by self.set_problem.
                  If not None, an erroneous value raises ValueError.
-    d.distance   A function from a pair of examples to a nonnegative number.
+    d.distance   A function from a pair of examples to a non-negative number.
                  Should be symmetric, etc. Defaults to mean_boolean_error
                  since that can handle any field types.
     d.name       Name of the data set (for output display only).
     d.source     URL or other source where the data came from.
     d.exclude    A list of attribute indexes to exclude from d.inputs. Elements
-                 of this list can either be integers (attrs) or attrnames.
+                 of this list can either be integers (attrs) or attr_names.
 
     Normally, you call the constructor and you're done; then you just
     access fields like d.examples and d.target and d.inputs."""
 
-    def __init__(self, examples=None, attrs=None, attrnames=None, target=-1,
-                 inputs=None, values=None, distance=mean_boolean_error,
-                 name='', source='', exclude=()):
+    def __init__(self, examples=None, attrs=None, attr_names=None, target=-1, inputs=None,
+                 values=None, distance=mean_boolean_error, name='', source='', exclude=()):
         """Accepts any of DataSet's fields. Examples can also be a
         string or file from which to parse examples using parse_csv.
-        Optional parameter: exclude, as documented in .setproblem().
+        Optional parameter: exclude, as documented in .set_problem().
         >>> DataSet(examples='1, 2, 3')
         <DataSet(): 1 examples, 3 attributes>
         """
@@ -64,39 +63,38 @@ class DataSet:
         else:
             self.examples = examples
 
-        # Attrs are the indices of examples, unless otherwise stated.   
+        # Attrs are the indices of examples, unless otherwise stated.
         if self.examples is not None and attrs is None:
             attrs = list(range(len(self.examples[0])))
 
         self.attrs = attrs
 
-        # Initialize .attrnames from string, list, or by default
-        if isinstance(attrnames, str):
-            self.attrnames = attrnames.split()
+        # Initialize .attr_names from string, list, or by default
+        if isinstance(attr_names, str):
+            self.attr_names = attr_names.split()
         else:
-            self.attrnames = attrnames or attrs
-        self.setproblem(target, inputs=inputs, exclude=exclude)
+            self.attr_names = attr_names or attrs
+        self.set_problem(target, inputs=inputs, exclude=exclude)
 
-    def setproblem(self, target, inputs=None, exclude=()):
+    def set_problem(self, target, inputs=None, exclude=()):
         """Set (or change) the target and/or inputs.
         This way, one DataSet can be used multiple ways. inputs, if specified,
         is a list of attributes, or specify exclude as a list of attributes
-        to not use in inputs. Attributes can be -n .. n, or an attrname.
+        to not use in inputs. Attributes can be -n .. n, or an attr_name.
         Also computes the list of possible values, if that wasn't done yet."""
-        self.target = self.attrnum(target)
-        exclude = list(map(self.attrnum, exclude))
+        self.target = self.attr_num(target)
+        exclude = list(map(self.attr_num, exclude))
         if inputs:
             self.inputs = removeall(self.target, inputs)
         else:
-            self.inputs = [a for a in self.attrs
-                           if a != self.target and a not in exclude]
+            self.inputs = [a for a in self.attrs if a != self.target and a not in exclude]
         if not self.values:
             self.update_values()
         self.check_me()
 
     def check_me(self):
         """Check that my fields make sense."""
-        assert len(self.attrnames) == len(self.attrs)
+        assert len(self.attr_names) == len(self.attrs)
         assert self.target in self.attrs
         assert self.target not in self.inputs
         assert set(self.inputs).issubset(set(self.attrs))
@@ -115,12 +113,12 @@ class DataSet:
             for a in self.attrs:
                 if example[a] not in self.values[a]:
                     raise ValueError('Bad value {} for attribute {} in {}'
-                                     .format(example[a], self.attrnames[a], example))
+                                     .format(example[a], self.attr_names[a], example))
 
-    def attrnum(self, attr):
+    def attr_num(self, attr):
         """Returns the number used for attr, which can be a name, or -n .. n-1."""
         if isinstance(attr, str):
-            return self.attrnames.index(attr)
+            return self.attr_names.index(attr)
         elif attr < 0:
             return len(self.attrs) + attr
         else:
@@ -174,7 +172,7 @@ class DataSet:
 
         for t in target_names:
             # Find all the item feature values for item in class t
-            features = [[] for i in range(feature_numbers)]
+            features = [[] for _ in range(feature_numbers)]
             for item in item_buckets[t]:
                 for i in range(feature_numbers):
                     features[i].append(item[i])
@@ -259,8 +257,7 @@ class CountingProbDist:
     def sample(self):
         """Return a random sample from the distribution."""
         if self.sampler is None:
-            self.sampler = weighted_sampler(list(self.dictionary.keys()),
-                                            list(self.dictionary.values()))
+            self.sampler = weighted_sampler(list(self.dictionary.keys()), list(self.dictionary.values()))
         return self.sampler()
 
 
@@ -269,7 +266,7 @@ class CountingProbDist:
 
 def PluralityLearner(dataset):
     """A very dumb algorithm: always pick the result that was most popular
-    in the training data.  Makes a baseline for comparison."""
+    in the training data. Makes a baseline for comparison."""
     most_popular = mode([e[dataset.target] for e in dataset.examples])
 
     def predict(example):
@@ -303,9 +300,9 @@ def NaiveBayesSimple(distribution):
         """Predict the target value for example. Calculate probabilities for each
         class and pick the max."""
 
-        def class_probability(targetval):
-            attr_dist = attr_dists[targetval]
-            return target_dist[targetval] * product(attr_dist[a] for a in example)
+        def class_probability(target_val):
+            attr_dist = attr_dists[target_val]
+            return target_dist[target_val] * product(attr_dist[a] for a in example)
 
         return argmax(target_dist.keys(), key=class_probability)
 
@@ -323,19 +320,18 @@ def NaiveBayesDiscrete(dataset):
                   for gv in target_vals
                   for attr in dataset.inputs}
     for example in dataset.examples:
-        targetval = example[dataset.target]
-        target_dist.add(targetval)
+        target_val = example[dataset.target]
+        target_dist.add(target_val)
         for attr in dataset.inputs:
-            attr_dists[targetval, attr].add(example[attr])
+            attr_dists[target_val, attr].add(example[attr])
 
     def predict(example):
         """Predict the target value for example. Consider each possible value,
         and pick the most likely by looking at each attribute independently."""
 
-        def class_probability(targetval):
-            return (target_dist[targetval] *
-                    product(attr_dists[targetval, attr][example[attr]]
-                            for attr in dataset.inputs))
+        def class_probability(target_val):
+            return (target_dist[target_val] *
+                    product(attr_dists[target_val, attr][example[attr]] for attr in dataset.inputs))
 
         return argmax(target_vals, key=class_probability)
 
@@ -354,10 +350,10 @@ def NaiveBayesContinuous(dataset):
         """Predict the target value for example. Consider each possible value,
         and pick the most likely by looking at each attribute independently."""
 
-        def class_probability(targetval):
-            prob = target_dist[targetval]
+        def class_probability(target_val):
+            prob = target_dist[target_val]
             for attr in dataset.inputs:
-                prob *= gaussian(means[targetval][attr], deviations[targetval][attr], example[attr])
+                prob *= gaussian(means[target_val][attr], deviations[target_val][attr], example[attr])
             return prob
 
         return argmax(target_vals, key=class_probability)
@@ -444,7 +440,7 @@ def truncated_svd(X, num_val=2, max_iter=1000):
         eivals.append(new_eigenvalue)
         eivec_m.append(ev_m)
         eivec_n.append(ev_n)
-    return (eivec_m, eivec_n, eivals)
+    return eivec_m, eivec_n, eivals
 
 
 # ______________________________________________________________________________
@@ -454,18 +450,18 @@ class DecisionFork:
     """A fork of a decision tree holds an attribute to test, and a dict
     of branches, one for each of the attribute's values."""
 
-    def __init__(self, attr, attrname=None, default_child=None, branches=None):
+    def __init__(self, attr, attr_name=None, default_child=None, branches=None):
         """Initialize by saying what attribute this node tests."""
         self.attr = attr
-        self.attrname = attrname or attr
+        self.attr_name = attr_name or attr
         self.default_child = default_child
         self.branches = branches or {}
 
     def __call__(self, example):
         """Given an example, classify it using the attribute and the branches."""
-        attrvalue = example[self.attr]
-        if attrvalue in self.branches:
-            return self.branches[attrvalue](example)
+        attr_val = example[self.attr]
+        if attr_val in self.branches:
+            return self.branches[attr_val](example)
         else:
             # return default class when attribute is unknown
             return self.default_child(example)
@@ -475,7 +471,7 @@ class DecisionFork:
         self.branches[val] = subtree
 
     def display(self, indent=0):
-        name = self.attrname
+        name = self.attr_name
         print('Test', name)
         for (val, subtree) in self.branches.items():
             print(' ' * 4 * indent, name, '=', val, '==>', end=' ')
@@ -483,7 +479,7 @@ class DecisionFork:
         print()  # newline
 
     def __repr__(self):
-        return ('DecisionFork({0!r}, {1!r}, {2!r})'.format(self.attr, self.attrname, self.branches))
+        return 'DecisionFork({0!r}, {1!r}, {2!r})'.format(self.attr, self.attr_name, self.branches)
 
 
 class DecisionLeaf:
@@ -519,7 +515,7 @@ def DecisionTreeLearner(dataset):
             return plurality_value(examples)
         else:
             A = choose_attribute(attrs, examples)
-            tree = DecisionFork(A, dataset.attrnames[A], plurality_value(examples))
+            tree = DecisionFork(A, dataset.attr_names[A], plurality_value(examples))
             for (v_k, exs) in split_by(A, examples):
                 subtree = decision_tree_learning(exs, removeall(A, attrs), examples)
                 tree.add(v_k, subtree)
@@ -548,18 +544,15 @@ def DecisionTreeLearner(dataset):
         """Return the expected reduction in entropy from splitting by attr."""
 
         def I(examples):
-            return information_content([count(target, v, examples)
-                                        for v in values[target]])
+            return information_content([count(target, v, examples) for v in values[target]])
 
         N = len(examples)
-        remainder = sum((len(examples_i) / N) * I(examples_i)
-                        for (v, examples_i) in split_by(attr, examples))
+        remainder = sum((len(examples_i) / N) * I(examples_i) for (v, examples_i) in split_by(attr, examples))
         return I(examples) - remainder
 
     def split_by(attr, examples):
         """Return a list of (val, examples) pairs for each val of attr."""
-        return [(v, [e for e in examples if e[attr] == v])
-                for v in values[attr]]
+        return [(v, [e for e in examples if e[attr] == v]) for v in values[attr]]
 
     return decision_tree_learning(dataset.examples, dataset.inputs)
 
@@ -592,7 +585,7 @@ def RandomForest(dataset, n=5):
 
     predictors = [DecisionTreeLearner(DataSet(examples=data_bagging(dataset),
                                               attrs=dataset.attrs,
-                                              attrnames=dataset.attrnames,
+                                              attr_names=dataset.attr_names,
                                               target=dataset.target,
                                               inputs=feature_bagging(dataset))) for _ in range(n)]
 
@@ -638,13 +631,15 @@ def DecisionListLearner(dataset):
 # ______________________________________________________________________________
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes=[3], learning_rate=0.01, epochs=100, activation=sigmoid):
+def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epochs=100, activation=sigmoid):
     """Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
     learning_rate: Learning rate of gradient descent
     epochs: Number of passes over the dataset
     """
 
+    if hidden_layer_sizes is None:
+        hidden_layer_sizes = [3]
     i_units = len(dataset.inputs)
     o_units = len(dataset.values[dataset.target])
 
@@ -684,8 +679,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
     # Initialise weights
     for layer in net:
         for node in layer:
-            node.weights = random_weights(min_value=-0.5, max_value=0.5,
-                                          num_weights=len(node.weights))
+            node.weights = random_weights(min_value=-0.5, max_value=0.5, num_weights=len(node.weights))
 
     examples = dataset.examples
     '''
@@ -819,7 +813,7 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
     """
     layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
 
-    net = [[NNUnit(activation) for n in range(size)]
+    net = [[NNUnit(activation) for _ in range(size)]
            for size in layers_sizes]
     n_layers = len(net)
 
@@ -947,8 +941,7 @@ def WeightedMajority(predictors, weights):
     """Return a predictor that takes a weighted vote."""
 
     def predict(example):
-        return weighted_mode((predictor(example) for predictor in predictors),
-                             weights)
+        return weighted_mode((predictor(example) for predictor in predictors), weights)
 
     return predict
 
@@ -1001,7 +994,8 @@ def weighted_replicate(seq, weights, n):
             weighted_sample_with_replacement(n - sum(wholes), seq, fractions))
 
 
-def flatten(seqs): return sum(seqs, [])
+def flatten(seqs):
+    return sum(seqs, [])
 
 
 # _____________________________________________________________________________
@@ -1023,8 +1017,7 @@ def err_ratio(predict, dataset, examples=None, verbose=0):
             if verbose >= 2:
                 print('   OK: got {} for {}'.format(desired, example))
         elif verbose:
-            print('WRONG: got {}, expected {} for {}'.format(
-                output, desired, example))
+            print('WRONG: got {}, expected {} for {}'.format(output, desired, example))
     return 1 - (right / len(examples))
 
 
@@ -1138,19 +1131,16 @@ def learning_curve(learner, dataset, trials=10, sizes=None):
 
 
 # ______________________________________________________________________________
-# The rest of this file gives datasets for machine learning problems.
+# The rest of this file gives datasets for machine learning problems
 
 
-orings = DataSet(name='orings', target='Distressed',
-                 attrnames="Rings Distressed Temp Pressure Flightnum")
+orings = DataSet(name='orings', target='Distressed', attr_names='Rings Distressed Temp Pressure Flightnum')
 
 zoo = DataSet(name='zoo', target='type', exclude=['name'],
-              attrnames="name hair feathers eggs milk airborne aquatic " +
-                        "predator toothed backbone breathes venomous fins legs tail " +
-                        "domestic catsize type")
+              attr_names='name hair feathers eggs milk airborne aquatic predator toothed backbone '
+                         'breathes venomous fins legs tail domestic catsize type')
 
-iris = DataSet(name="iris", target="class",
-               attrnames="sepal-len sepal-width petal-len petal-width class")
+iris = DataSet(name='iris', target='class', attr_names='sepal-len sepal-width petal-len petal-width class')
 
 
 # ______________________________________________________________________________
@@ -1160,21 +1150,20 @@ iris = DataSet(name="iris", target="class",
 def RestaurantDataSet(examples=None):
     """Build a DataSet of Restaurant waiting examples. [Figure 18.3]"""
     return DataSet(name='restaurant', target='Wait', examples=examples,
-                   attrnames='Alternate Bar Fri/Sat Hungry Patrons Price ' +
-                             'Raining Reservation Type WaitEstimate Wait')
+                   attr_names='Alternate Bar Fri/Sat Hungry Patrons Price Raining Reservation Type WaitEstimate Wait')
 
 
 restaurant = RestaurantDataSet()
 
 
-def T(attrname, branches):
-    branches = {value: (child if isinstance(child, DecisionFork)
-                        else DecisionLeaf(child))
+def T(attr_name, branches):
+    branches = {value: (child if isinstance(child, DecisionFork) else DecisionLeaf(child))
                 for value, child in branches.items()}
-    return DecisionFork(restaurant.attrnum(attrname), attrname, print, branches)
+    return DecisionFork(restaurant.attr_num(attr_name), attr_name, print, branches)
 
 
-""" [Figure 18.2]
+""" 
+[Figure 18.2]
 A decision tree for deciding whether to wait for a table at a hotel.
 """
 
@@ -1187,8 +1176,7 @@ waiting_decision_tree = T('Patrons',
                                                           {'Yes': 'Yes',
                                                            'No': T('Bar', {'No': 'No',
                                                                            'Yes': 'Yes'})}),
-                                                  'Yes': T('Fri/Sat', {'No': 'No', 'Yes': 'Yes'})}
-                                                 ),
+                                                  'Yes': T('Fri/Sat', {'No': 'No', 'Yes': 'Yes'})}),
                                       '10-30': T('Hungry',
                                                  {'No': 'Yes',
                                                   'Yes': T('Alternate',
@@ -1206,7 +1194,7 @@ def SyntheticRestaurant(n=20):
         example[restaurant.target] = waiting_decision_tree(example)
         return example
 
-    return RestaurantDataSet([gen() for i in range(n)])
+    return RestaurantDataSet([gen() for _ in range(n)])
 
 
 # ______________________________________________________________________________
@@ -1218,18 +1206,18 @@ def Majority(k, n):
     k random bits followed by a 1 if more than half the bits are 1, else 0."""
     examples = []
     for i in range(n):
-        bits = [random.choice([0, 1]) for i in range(k)]
+        bits = [random.choice([0, 1]) for _ in range(k)]
         bits.append(int(sum(bits) > k / 2))
         examples.append(bits)
-    return DataSet(name="majority", examples=examples)
+    return DataSet(name='majority', examples=examples)
 
 
-def Parity(k, n, name="parity"):
+def Parity(k, n, name='parity'):
     """Return a DataSet with n k-bit examples of the parity problem:
     k random bits followed by a 1 if an odd number of bits are 1, else 0."""
     examples = []
     for i in range(n):
-        bits = [random.choice([0, 1]) for i in range(k)]
+        bits = [random.choice([0, 1]) for _ in range(k)]
         bits.append(sum(bits) % 2)
         examples.append(bits)
     return DataSet(name=name, examples=examples)
@@ -1237,16 +1225,16 @@ def Parity(k, n, name="parity"):
 
 def Xor(n):
     """Return a DataSet with n examples of 2-input xor."""
-    return Parity(2, n, name="xor")
+    return Parity(2, n, name='xor')
 
 
 def ContinuousXor(n):
     """2 inputs are chosen uniformly from (0.0 .. 2.0]; output is xor of ints."""
     examples = []
     for i in range(n):
-        x, y = [random.uniform(0.0, 2.0) for i in '12']
-        examples.append([x, y, int(x) != int(y)])
-    return DataSet(name="continuous xor", examples=examples)
+        x, y = [random.uniform(0.0, 2.0) for _ in '12']
+        examples.append([x, y, x != y])
+    return DataSet(name='continuous xor', examples=examples)
 
 
 # ______________________________________________________________________________
@@ -1255,13 +1243,12 @@ def ContinuousXor(n):
 def compare(algorithms=None, datasets=None, k=10, trials=1):
     """Compare various learners on various datasets using cross-validation.
     Print results as a table."""
-    algorithms = algorithms or [PluralityLearner, NaiveBayesLearner,  # default list
-                                NearestNeighborLearner, DecisionTreeLearner]  # of algorithms
+    # default list of algorithms
+    algorithms = algorithms or [PluralityLearner, NaiveBayesLearner, NearestNeighborLearner, DecisionTreeLearner]
 
-    datasets = datasets or [iris, orings, zoo, restaurant, SyntheticRestaurant(20),  # default list
-                            Majority(7, 100), Parity(7, 100), Xor(100)]  # of datasets
+    # default list of datasets
+    datasets = datasets or [iris, orings, zoo, restaurant, SyntheticRestaurant(20),
+                            Majority(7, 100), Parity(7, 100), Xor(100)]
 
-    print_table([[a.__name__.replace('Learner', '')] +
-                 [cross_validation(a, d, k, trials) for d in datasets]
-                 for a in algorithms],
-                header=[''] + [d.name[0:7] for d in datasets], numfmt='%.2f')
+    print_table([[a.__name__.replace('Learner', '')] + [cross_validation(a, d, k, trials) for d in datasets]
+                 for a in algorithms], header=[''] + [d.name[0:7] for d in datasets], numfmt='%.2f')
