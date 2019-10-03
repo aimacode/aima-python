@@ -1,13 +1,6 @@
-import random
-
 import pytest
 
-from agents4e import Agent, WumpusEnvironment, Explorer, Thing, Gold, Pit, Bump, Glitter
-from agents4e import Direction
-from agents4e import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents, \
-    RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram, \
-    SimpleReflexAgentProgram, ModelBasedReflexAgentProgram
-from agents4e import Wall, VacuumEnvironment, Dirt
+from agents4e import *
 
 random.seed("aima-python")
 
@@ -101,8 +94,7 @@ def test_TableDrivenAgent():
              ((loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck',
              ((loc_B, 'Dirty'), (loc_B, 'Clean')): 'Left',
              ((loc_A, 'Dirty'), (loc_A, 'Clean'), (loc_B, 'Dirty')): 'Suck',
-             ((loc_B, 'Dirty'), (loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck'
-             }
+             ((loc_B, 'Dirty'), (loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck'}
 
     # create an program and then an object of the TableDrivenAgent
     program = TableDrivenAgentProgram(table)
@@ -234,8 +226,8 @@ def test_compare_agents():
     agents = [ModelBasedVacuumAgent, ReflexVacuumAgent]
 
     result = compare_agents(environment, agents)
-    performance_ModelBasedVacummAgent = result[0][1]
-    performance_ReflexVacummAgent = result[1][1]
+    performance_ModelBasedVacuumAgent = result[0][1]
+    performance_ReflexVacuumAgent = result[1][1]
 
     # The performance of ModelBasedVacuumAgent will be at least as good as that of
     # ReflexVacuumAgent, since ModelBasedVacuumAgent can identify when it has
@@ -243,7 +235,7 @@ def test_compare_agents():
     # NoOp leading to 0 performance change, whereas ReflexVacuumAgent cannot
     # identify the terminal state and thus will keep moving, leading to worse
     # performance compared to ModelBasedVacuumAgent.
-    assert performance_ReflexVacummAgent <= performance_ModelBasedVacummAgent
+    assert performance_ReflexVacuumAgent <= performance_ModelBasedVacuumAgent
 
 
 def test_TableDrivenAgentProgram():
@@ -252,12 +244,11 @@ def test_TableDrivenAgentProgram():
              (('bar', 1),): 'action3',
              (('bar', 2),): 'action1',
              (('foo', 1), ('foo', 1),): 'action2',
-             (('foo', 1), ('foo', 2),): 'action3',
-             }
+             (('foo', 1), ('foo', 2),): 'action3'}
     agent_program = TableDrivenAgentProgram(table)
     assert agent_program(('foo', 1)) == 'action1'
     assert agent_program(('foo', 2)) == 'action3'
-    assert agent_program(('invalid percept',)) == None
+    assert agent_program(('invalid percept',)) is None
 
 
 def test_Agent():

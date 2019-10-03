@@ -1,14 +1,6 @@
-import random
-
 import pytest
 
-from agents import Agent
-from agents import Direction
-from agents import ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents, \
-    RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram, \
-    SimpleReflexAgentProgram, ModelBasedReflexAgentProgram
-from agents import Wall, Gold, Explorer, Thing, Bump, Glitter, WumpusEnvironment, Pit, \
-    VacuumEnvironment, Dirt
+from agents import *
 
 random.seed("aima-python")
 
@@ -102,8 +94,7 @@ def test_TableDrivenAgent():
              ((loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck',
              ((loc_B, 'Dirty'), (loc_B, 'Clean')): 'Left',
              ((loc_A, 'Dirty'), (loc_A, 'Clean'), (loc_B, 'Dirty')): 'Suck',
-             ((loc_B, 'Dirty'), (loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck'
-             }
+             ((loc_B, 'Dirty'), (loc_B, 'Clean'), (loc_A, 'Dirty')): 'Suck'}
 
     # create an program and then an object of the TableDrivenAgent
     program = TableDrivenAgentProgram(table)
@@ -254,8 +245,7 @@ def test_TableDrivenAgentProgram():
              (('bar', 1),): 'action3',
              (('bar', 2),): 'action1',
              (('foo', 1), ('foo', 1),): 'action2',
-             (('foo', 1), ('foo', 2),): 'action3',
-             }
+             (('foo', 1), ('foo', 2),): 'action3'}
     agent_program = TableDrivenAgentProgram(table)
     assert agent_program(('foo', 1)) == 'action1'
     assert agent_program(('foo', 2)) == 'action3'
@@ -312,8 +302,7 @@ def test_WumpusEnvironment():
     assert not any(map(lambda x: not isinstance(x, Thing), w.things))
 
     # Check that gold and wumpus are not present on (1,1)
-    assert not any(map(lambda x: isinstance(x, Gold) or isinstance(x, WumpusEnvironment),
-                       w.list_things_at((1, 1))))
+    assert not any(map(lambda x: isinstance(x, Gold) or isinstance(x, WumpusEnvironment), w.list_things_at((1, 1))))
 
     # Check if w.get_world() segments objects correctly
     assert len(w.get_world()) == 6

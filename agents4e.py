@@ -1012,9 +1012,9 @@ def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
     >>> environment = TrivialVacuumEnvironment
     >>> agents = [ModelBasedVacuumAgent, ReflexVacuumAgent]
     >>> result = compare_agents(environment, agents)
-    >>> performance_ModelBasedVacummAgent = result[0][1]
-    >>> performance_ReflexVacummAgent = result[1][1]
-    >>> performance_ReflexVacummAgent <= performance_ModelBasedVacummAgent
+    >>> performance_ModelBasedVacuumAgent = result[0][1]
+    >>> performance_ReflexVacuumAgent = result[1][1]
+    >>> performance_ReflexVacuumAgent <= performance_ModelBasedVacuumAgent
     True
     """
     envs = [EnvFactory() for i in range(n)]
