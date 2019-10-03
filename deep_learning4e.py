@@ -16,7 +16,7 @@ from utils4e import (sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, ele
 
 class Node:
     """
-    A node in computational graph, It contains the pointer to all its parents.
+    A node in a computational graph contains the pointer to all its parents.
     :param val: value of current node.
     :param parents: a container of all parents of current node.
     """
@@ -33,7 +33,7 @@ class Node:
 
 class NNUnit(Node):
     """
-    A single unit of a Layer in a Neural Network
+    A single unit of a layer in a neural network
     :param weights: weights between parent nodes and current node
     :param value: value of current node
     """
@@ -45,7 +45,7 @@ class NNUnit(Node):
 
 class Layer:
     """
-    A layer in a neural network based on computational graph.
+    A layer in a neural network based on a computational graph.
     :param size: number of units in the current layer
     """
 
@@ -58,7 +58,7 @@ class Layer:
 
 
 class OutputLayer(Layer):
-    """Example of a 1D softmax output layer in 19.3.2"""
+    """1D softmax output layer in 19.3.2"""
 
     def __init__(self, size=3):
         super(OutputLayer, self).__init__(size)
@@ -72,7 +72,7 @@ class OutputLayer(Layer):
 
 
 class InputLayer(Layer):
-    """Example of a 1D input layer. Layer size is the same as input vector size."""
+    """1D input layer. Layer size is the same as input vector size."""
 
     def __init__(self, size=3):
         super(InputLayer, self).__init__(size)
@@ -166,7 +166,6 @@ def init_examples(examples, idx_i, idx_t, o_units):
     """Init examples from dataset.examples."""
 
     inputs, targets = {}, {}
-    # random.shuffle(examples)
     for i, e in enumerate(examples):
         # input values of e
         inputs[i] = [e[i] for i in idx_i]
@@ -320,7 +319,7 @@ def BackPropagation(inputs, targets, theta, net, loss):
 
 
 class BatchNormalizationLayer(Layer):
-    """Example of a batch normalization layer."""
+    """Batch normalization layer."""
 
     def __init__(self, size, epsilon=0.001):
         super(BatchNormalizationLayer, self).__init__(size)
@@ -353,7 +352,7 @@ def get_batch(examples, batch_size=1):
 def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epochs=100,
                      optimizer=gradient_descent, batch_size=1, verbose=None):
     """
-    Example of a simple dense multilayer neural network.
+    Simple dense multilayer neural network.
     :param hidden_layer_sizes: size of hidden layers in the form of a list
     """
 
