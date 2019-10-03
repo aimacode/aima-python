@@ -7,6 +7,7 @@ import random
 from collections import defaultdict
 from statistics import mean, stdev
 
+from probabilistic_learning import NaiveBayesLearner
 from utils import sigmoid, sigmoid_derivative
 from utils4e import (
     remove_all, unique, mode, argmax_random_tie, isclose, dotproduct, weighted_sample_with_replacement, num_or_str,
@@ -14,7 +15,8 @@ from utils4e import (
 
 
 class DataSet:
-    """A data set for a machine learning problem. It has the following fields:
+    """
+    A data set for a machine learning problem. It has the following fields:
 
     d.examples   A list of examples. Each one is a list of attribute values.
     d.attrs      A list of integers to index into an example, so example[attr]
@@ -36,7 +38,8 @@ class DataSet:
                  of this list can either be integers (attrs) or attr_names.
 
     Normally, you call the constructor and you're done; then you just
-    access fields like d.examples and d.target and d.inputs."""
+    access fields like d.examples and d.target and d.inputs.
+    """
 
     def __init__(self, examples=None, attrs=None, attr_names=None, target=-1, inputs=None,
                  values=None, distance=mean_boolean_error, name='', source='', exclude=()):
@@ -162,7 +165,7 @@ class DataSet:
                     of the features for the class.
         deviations: a dictionary for each class/target. Holds a list of the sample
                     standard deviations of the features for the class.
-                    """
+        """
         target_names = self.values[self.target]
         feature_numbers = len(self.inputs)
 
@@ -191,7 +194,6 @@ class DataSet:
 
 # ______________________________________________________________________________
 
-
 def parse_csv(input, delim=','):
     r"""
     Input is a string consisting of lines, each line has comma-delimited
@@ -206,8 +208,147 @@ def parse_csv(input, delim=','):
 
 
 # ______________________________________________________________________________
-# 18.3 Learning decision trees
 
+def err_ratio(predict, dataset, examples=None, verbose=0):
+    """
+    Return the proportion of the examples that are NOT correctly predicted.
+    verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct
+    """
+    examples = examples or dataset.examples
+    if len(examples) == 0:
+        return 0.0
+    right = 0
+    for example in examples:
+        desired = example[dataset.target]
+        output = predict(dataset.sanitize(example))
+        if output == desired:
+            right += 1
+            if verbose >= 2:
+                print('   OK: got {} for {}'.format(desired, example))
+        elif verbose:
+            print('WRONG: got {}, expected {} for {}'.format(output, desired, example))
+    return 1 - (right / len(examples))
+
+
+def grade_learner(predict, tests):
+    """
+    Grades the given learner based on how many tests it passes.
+    tests is a list with each element in the form: (values, output).
+    """
+    return mean(int(predict(X) == y) for X, y in tests)
+
+
+def train_test_split(dataset, start=None, end=None, test_split=None):
+    """
+    If you are giving 'start' and 'end' as parameters,
+    then it will return the testing set from index 'start' to 'end'
+    and the rest for training.
+    If you give 'test_split' as a parameter then it will return
+    test_split * 100% as the testing set and the rest as
+    training set.
+    """
+    examples = dataset.examples
+    if test_split is None:
+        train = examples[:start] + examples[end:]
+        val = examples[start:end]
+    else:
+        total_size = len(examples)
+        val_size = int(total_size * test_split)
+        train_size = total_size - val_size
+        train = examples[:train_size]
+        val = examples[train_size:total_size]
+
+    return train, val
+
+
+def model_selection(learner, dataset, k=10, trials=1):
+    """
+    [Figure 18.8]
+    Return the optimal value of size having minimum error on validation set.
+    err: a validation error array, indexed by size
+    """
+    errs = []
+    size = 1
+    while True:
+        err = cross_validation(learner, dataset, size, k, trials)
+        # check for convergence provided err_val is not empty
+        if err and not isclose(err[-1], err, rel_tol=1e-6):
+            best_size = 0
+            min_val = math.inf
+            i = 0
+            while i < size:
+                if errs[i] < min_val:
+                    min_val = errs[i]
+                    best_size = i
+                i += 1
+            return learner(dataset, best_size)
+        errs.append(err)
+        size += 1
+
+
+def cross_validation(learner, dataset, size=None, k=10, trials=1):
+    """
+    Do k-fold cross_validate and return their mean.
+    That is, keep out 1/k of the examples for testing on each of k runs.
+    Shuffle the examples first; if trials>1, average over several shuffles.
+    Returns Training error
+    """
+    k = k or len(dataset.examples)
+    if trials > 1:
+        trial_errs = 0
+        for t in range(trials):
+            errs = cross_validation(learner, dataset, size, k, trials)
+            trial_errs += errs
+        return trial_errs / trials
+    else:
+        fold_errs = 0
+        n = len(dataset.examples)
+        examples = dataset.examples
+        random.shuffle(dataset.examples)
+        for fold in range(k):
+            train_data, val_data = train_test_split(dataset, fold * (n // k), (fold + 1) * (n // k))
+            dataset.examples = train_data
+            h = learner(dataset, size)
+            fold_errs += err_ratio(h, dataset, train_data)
+            # reverting back to original once test is completed
+            dataset.examples = examples
+        return fold_errs / k
+
+
+def leave_one_out(learner, dataset, size=None):
+    """Leave one out cross-validation over the dataset."""
+    return cross_validation(learner, dataset, size, len(dataset.examples))
+
+
+# TODO learning_curve needs to be fixed
+def learning_curve(learner, dataset, trials=10, sizes=None):
+    if sizes is None:
+        sizes = list(range(2, len(dataset.examples) - 10, 2))
+
+    def score(learner, size):
+        random.shuffle(dataset.examples)
+        return train_test_split(learner, dataset, 0, size)
+
+    return [(size, mean([score(learner, size) for _ in range(trials)])) for size in sizes]
+
+
+# ______________________________________________________________________________
+
+def PluralityLearner(dataset):
+    """
+    A very dumb algorithm: always pick the result that was most popular
+    in the training data. Makes a baseline for comparison.
+    """
+    most_popular = mode([e[dataset.target] for e in dataset.examples])
+
+    def predict(example):
+        """Always return same result: the most popular from the training set."""
+        return most_popular
+
+    return predict
+
+
+# ______________________________________________________________________________
 
 class DecisionFork:
     """
@@ -283,8 +424,10 @@ def DecisionTreeLearner(dataset):
             return tree
 
     def plurality_value(examples):
-        """Return the most popular target value for this set of examples.
-        (If target is binary, this is the majority; otherwise plurality)."""
+        """
+        Return the most popular target value for this set of examples.
+        (If target is binary, this is the majority; otherwise plurality).
+        """
         popular = argmax_random_tie(values[target], key=lambda v: count(target, v, examples))
         return DecisionLeaf(popular)
 
@@ -325,135 +468,11 @@ def information_content(values):
 
 
 # ______________________________________________________________________________
-# 18.4 Model selection and optimization
-
-
-def model_selection(learner, dataset, k=10, trials=1):
-    """
-    [Figure 18.8]
-    Return the optimal value of size having minimum error on validation set.
-    err: a validation error array, indexed by size
-    """
-    errs = []
-    size = 1
-    while True:
-        err = cross_validation(learner, dataset, size, k, trials)
-        # check for convergence provided err_val is not empty
-        if err and not isclose(err[-1], err, rel_tol=1e-6):
-            best_size = 0
-            min_val = math.inf
-            i = 0
-            while i < size:
-                if errs[i] < min_val:
-                    min_val = errs[i]
-                    best_size = i
-                i += 1
-            return learner(dataset, best_size)
-        errs.append(err)
-        size += 1
-
-
-def cross_validation(learner, dataset, size=None, k=10, trials=1):
-    """Do k-fold cross_validate and return their mean.
-    That is, keep out 1/k of the examples for testing on each of k runs.
-    Shuffle the examples first; if trials>1, average over several shuffles.
-    Returns Training error"""
-    k = k or len(dataset.examples)
-    if trials > 1:
-        trial_errs = 0
-        for t in range(trials):
-            errs = cross_validation(learner, dataset, size, k, trials)
-            trial_errs += errs
-        return trial_errs / trials
-    else:
-        fold_errs = 0
-        n = len(dataset.examples)
-        examples = dataset.examples
-        random.shuffle(dataset.examples)
-        for fold in range(k):
-            train_data, val_data = train_test_split(dataset, fold * (n // k), (fold + 1) * (n // k))
-            dataset.examples = train_data
-            h = learner(dataset, size)
-            fold_errs += err_ratio(h, dataset, train_data)
-            # reverting back to original once test is completed
-            dataset.examples = examples
-        return fold_errs / k
-
-
-def err_ratio(predict, dataset, examples=None, verbose=0):
-    """Return the proportion of the examples that are NOT correctly predicted.
-    verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct"""
-    examples = examples or dataset.examples
-    if len(examples) == 0:
-        return 0.0
-    right = 0
-    for example in examples:
-        desired = example[dataset.target]
-        output = predict(dataset.sanitize(example))
-        if output == desired:
-            right += 1
-            if verbose >= 2:
-                print('   OK: got {} for {}'.format(desired, example))
-        elif verbose:
-            print('WRONG: got {}, expected {} for {}'.format(
-                output, desired, example))
-    return 1 - (right / len(examples))
-
-
-def train_test_split(dataset, start=None, end=None, test_split=None):
-    """If you are giving 'start' and 'end' as parameters,
-    then it will return the testing set from index 'start' to 'end'
-    and the rest for training.
-    If you give 'test_split' as a parameter then it will return
-    test_split * 100% as the testing set and the rest as
-    training set.
-    """
-    examples = dataset.examples
-    if test_split is None:
-        train = examples[:start] + examples[end:]
-        val = examples[start:end]
-    else:
-        total_size = len(examples)
-        val_size = int(total_size * test_split)
-        train_size = total_size - val_size
-        train = examples[:train_size]
-        val = examples[train_size:total_size]
-
-    return train, val
-
-
-def grade_learner(predict, tests):
-    """Grades the given learner based on how many tests it passes.
-    tests is a list with each element in the form: (values, output)."""
-    return mean(int(predict(X) == y) for X, y in tests)
-
-
-def leave_one_out(learner, dataset, size=None):
-    """Leave one out cross-validation over the dataset."""
-    return cross_validation(learner, dataset, size, len(dataset.examples))
-
-
-# TODO learning_curve needs to fixed
-def learning_curve(learner, dataset, trials=10, sizes=None):
-    if sizes is None:
-        sizes = list(range(2, len(dataset.examples) - 10, 2))
-
-    def score(learner, size):
-        random.shuffle(dataset.examples)
-        return train_test_split(learner, dataset, 0, size)
-
-    return [(size, mean([score(learner, size) for t in range(trials)]))
-            for size in sizes]
-
-
-# ______________________________________________________________________________
-# 18.5 The theory Of learning
-
 
 def DecisionListLearner(dataset):
     """
     [Figure 18.11]
-    A decision list is implemented as a list of (test, value) pairs.
+    A decision list implemented as a list of (test, value) pairs.
     """
 
     def decision_list_learning(examples):
@@ -465,8 +484,10 @@ def DecisionListLearner(dataset):
         return [(t, o)] + decision_list_learning(examples - examples_t)
 
     def find_examples(examples):
-        """Find a set of examples that all have the same outcome under
-        some test. Return a tuple of the test, outcome, and examples."""
+        """
+        Find a set of examples that all have the same outcome under
+        some test. Return a tuple of the test, outcome, and examples.
+        """
         raise NotImplementedError
 
     def passes(example, test):
@@ -485,8 +506,19 @@ def DecisionListLearner(dataset):
 
 
 # ______________________________________________________________________________
-# 18.6 Linear regression and classification
 
+def NearestNeighborLearner(dataset, k=1):
+    """k-NearestNeighbor: the k nearest neighbors vote."""
+
+    def predict(example):
+        """Find the k closest items, and have them vote for the best."""
+        best = heapq.nsmallest(k, ((dataset.distance(e, example), e) for e in dataset.examples))
+        return mode(e[dataset.target] for (d, e) in best)
+
+    return predict
+
+
+# ______________________________________________________________________________
 
 def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     """
@@ -531,7 +563,7 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
 
 def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
     """
-    Section [18.6.5]
+    [Section 18.6.5]
     Linear classifier with logistic regression.
     """
     idx_i = dataset.inputs
@@ -574,25 +606,6 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
 
 
 # ______________________________________________________________________________
-# 18.7 Nonparametric models
-
-
-def NearestNeighborLearner(dataset, k=1):
-    """k-NearestNeighbor: the k nearest neighbors vote."""
-
-    def predict(example):
-        """Find the k closest items, and have them vote for the best."""
-        example.pop(dataset.target)
-        best = heapq.nsmallest(k, ((dataset.distance(e, example), e)
-                                   for e in dataset.examples))
-        return mode(e[dataset.target] for (d, e) in best)
-
-    return predict
-
-
-# ______________________________________________________________________________
-# 18.8 Ensemble learning
-
 
 def EnsembleLearner(learners):
     """Given a list of learning algorithms, have them vote."""
@@ -608,30 +621,6 @@ def EnsembleLearner(learners):
     return train
 
 
-def RandomForest(dataset, n=5):
-    """An ensemble of Decision Trees trained using bagging and feature bagging."""
-
-    def data_bagging(dataset, m=0):
-        """Sample m examples with replacement"""
-        n = len(dataset.examples)
-        return weighted_sample_with_replacement(m or n, dataset.examples, [1] * n)
-
-    def feature_bagging(dataset, p=0.7):
-        """Feature bagging with probability p to retain an attribute"""
-        inputs = [i for i in dataset.inputs if probability(p)]
-        return inputs or dataset.inputs
-
-    def predict(example):
-        print([predictor(example) for predictor in predictors])
-        return mode(predictor(example) for predictor in predictors)
-
-    predictors = [DecisionTreeLearner(DataSet(examples=data_bagging(dataset), attrs=dataset.attrs,
-                                              attr_names=dataset.attr_names, target=dataset.target,
-                                              inputs=feature_bagging(dataset))) for _ in range(n)]
-
-    return predict
-
-
 def ada_boost(dataset, L, K):
     """[Figure 18.34]"""
 
@@ -644,7 +633,7 @@ def ada_boost(dataset, L, K):
         h_k = L(dataset, w)
         h.append(h_k)
         error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k(example))
-        # Avoid divide-by-0 from either 0% or 100% error rates:
+        # avoid divide-by-0 from either 0% or 100% error rates:
         error = clip(error, epsilon, 1 - epsilon)
         for j, example in enumerate(examples):
             if example[target] == h_k(example):
@@ -675,14 +664,40 @@ def weighted_mode(values, weights):
     return max(totals, key=totals.__getitem__)
 
 
+# ______________________________________________________________________________
+
+def RandomForest(dataset, n=5):
+    """An ensemble of Decision Trees trained using bagging and feature bagging."""
+
+    def data_bagging(dataset, m=0):
+        """Sample m examples with replacement"""
+        n = len(dataset.examples)
+        return weighted_sample_with_replacement(m or n, dataset.examples, [1] * n)
+
+    def feature_bagging(dataset, p=0.7):
+        """Feature bagging with probability p to retain an attribute"""
+        inputs = [i for i in dataset.inputs if probability(p)]
+        return inputs or dataset.inputs
+
+    def predict(example):
+        print([predictor(example) for predictor in predictors])
+        return mode(predictor(example) for predictor in predictors)
+
+    predictors = [DecisionTreeLearner(DataSet(examples=data_bagging(dataset), attrs=dataset.attrs,
+                                              attr_names=dataset.attr_names, target=dataset.target,
+                                              inputs=feature_bagging(dataset))) for _ in range(n)]
+
+    return predict
+
+
 # _____________________________________________________________________________
-# Adapting an unweighted learner for AdaBoost
 
 
 def WeightedLearner(unweighted_learner):
     """
+    [Page 749 footnote 14]
     Given a learner that takes just an unweighted dataset, return
-    one that takes also a weight for each example. [page 749 footnote 14]
+    one that takes also a weight for each example.
     """
 
     def train(dataset, weights):
@@ -719,13 +734,7 @@ def flatten(seqs):
     return sum(seqs, [])
 
 
-# _____________________________________________________________________________
-# Functions for testing learners on examples
-
-
-# _____________________________________________________________________________
-# The rest of this file gives datasets for machine learning problems
-
+# ______________________________________________________________________________
 
 orings = DataSet(name='orings', target='Distressed', attr_names='Rings Distressed Temp Pressure Flightnum')
 
@@ -737,8 +746,6 @@ iris = DataSet(name='iris', target='class', attr_names='sepal-len sepal-width pe
 
 
 # ______________________________________________________________________________
-# The Restaurant example from [Figure 18.2]
-
 
 def RestaurantDataSet(examples=None):
     """
@@ -794,12 +801,12 @@ def SyntheticRestaurant(n=20):
 
 
 # ______________________________________________________________________________
-# Artificial generated datasets.
-
 
 def Majority(k, n):
-    """Return a DataSet with n k-bit examples of the majority problem:
-    k random bits followed by a 1 if more than half the bits are 1, else 0."""
+    """
+    Return a DataSet with n k-bit examples of the majority problem:
+    k random bits followed by a 1 if more than half the bits are 1, else 0.
+    """
     examples = []
     for i in range(n):
         bits = [random.choice([0, 1]) for _ in range(k)]
@@ -809,8 +816,10 @@ def Majority(k, n):
 
 
 def Parity(k, n, name='parity'):
-    """Return a DataSet with n k-bit examples of the parity problem:
-    k random bits followed by a 1 if an odd number of bits are 1, else 0."""
+    """
+    Return a DataSet with n k-bit examples of the parity problem:
+    k random bits followed by a 1 if an odd number of bits are 1, else 0.
+    """
     examples = []
     for i in range(n):
         bits = [random.choice([0, 1]) for _ in range(k)]
@@ -835,14 +844,13 @@ def ContinuousXor(n):
 
 # ______________________________________________________________________________
 
-
 def compare(algorithms=None, datasets=None, k=10, trials=1):
     """
     Compare various learners on various datasets using cross-validation.
     Print results as a table.
     """
     # default list of algorithms
-    algorithms = algorithms or [NearestNeighborLearner, DecisionTreeLearner]
+    algorithms = algorithms or [PluralityLearner, NaiveBayesLearner, NearestNeighborLearner, DecisionTreeLearner]
 
     # default list of datasets
     datasets = datasets or [iris, orings, zoo, restaurant, SyntheticRestaurant(20),

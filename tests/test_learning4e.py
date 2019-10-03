@@ -35,6 +35,21 @@ def test_means_and_deviation():
     assert round(deviations["virginica"][0], 3) == 0.636
 
 
+def test_plurality_learner():
+    zoo = DataSet(name="zoo")
+    pl = PluralityLearner(zoo)
+    assert pl([1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 4, 1, 0, 1]) == "mammal"
+
+
+def test_k_nearest_neighbors():
+    iris = DataSet(name="iris")
+    knn = NearestNeighborLearner(iris, k=3)
+    assert knn([5, 3, 1, 0.1]) == "setosa"
+    assert knn([5, 3, 1, 0.1]) == "setosa"
+    assert knn([6, 5, 3, 1.5]) == "versicolor"
+    assert knn([7.5, 4, 6, 2]) == "virginica"
+
+
 def test_decision_tree_learner():
     iris = DataSet(name="iris")
     dtl = DecisionTreeLearner(iris)

@@ -44,7 +44,8 @@ class DataSet:
 
     def __init__(self, examples=None, attrs=None, attr_names=None, target=-1, inputs=None,
                  values=None, distance=mean_boolean_error, name='', source='', exclude=()):
-        """Accepts any of DataSet's fields. Examples can also be a
+        """
+        Accepts any of DataSet's fields. Examples can also be a
         string or file from which to parse examples using parse_csv.
         Optional parameter: exclude, as documented in .set_problem().
         >>> DataSet(examples='1, 2, 3')
@@ -194,7 +195,6 @@ class DataSet:
 
 # ______________________________________________________________________________
 
-
 def parse_csv(input, delim=','):
     r"""
     Input is a string consisting of lines, each line has comma-delimited
@@ -210,6 +210,135 @@ def parse_csv(input, delim=','):
 
 # ______________________________________________________________________________
 
+def err_ratio(predict, dataset, examples=None, verbose=0):
+    """
+    Return the proportion of the examples that are NOT correctly predicted.
+    verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct
+    """
+    examples = examples or dataset.examples
+    if len(examples) == 0:
+        return 0.0
+    right = 0
+    for example in examples:
+        desired = example[dataset.target]
+        output = predict(dataset.sanitize(example))
+        if output == desired:
+            right += 1
+            if verbose >= 2:
+                print('   OK: got {} for {}'.format(desired, example))
+        elif verbose:
+            print('WRONG: got {}, expected {} for {}'.format(output, desired, example))
+    return 1 - (right / len(examples))
+
+
+def grade_learner(predict, tests):
+    """
+    Grades the given learner based on how many tests it passes.
+    tests is a list with each element in the form: (values, output).
+    """
+    return mean(int(predict(X) == y) for X, y in tests)
+
+
+def train_test_split(dataset, start=None, end=None, test_split=None):
+    """
+    If you are giving 'start' and 'end' as parameters,
+    then it will return the testing set from index 'start' to 'end'
+    and the rest for training.
+    If you give 'test_split' as a parameter then it will return
+    test_split * 100% as the testing set and the rest as
+    training set.
+    """
+    examples = dataset.examples
+    if test_split is None:
+        train = examples[:start] + examples[end:]
+        val = examples[start:end]
+    else:
+        total_size = len(examples)
+        val_size = int(total_size * test_split)
+        train_size = total_size - val_size
+        train = examples[:train_size]
+        val = examples[train_size:total_size]
+
+    return train, val
+
+
+def cross_validation_wrapper(learner, dataset, k=10, trials=1):
+    """
+    [Figure 18.8]
+    Return the optimal value of size having minimum error on validation set.
+    errT: a training error array, indexed by size
+    errV: a validation error array, indexed by size
+    """
+    errs = []
+    size = 1
+    while True:
+        errT, errV = cross_validation(learner, dataset, size, k, trials)
+        # check for convergence provided err_val is not empty
+        if errT and not isclose(errT[-1], errT, rel_tol=1e-6):
+            best_size = 0
+            min_val = math.inf
+            i = 0
+            while i < size:
+                if errs[i] < min_val:
+                    min_val = errs[i]
+                    best_size = i
+                i += 1
+            return learner(dataset, best_size)
+        errs.append(errV)
+        size += 1
+
+
+def cross_validation(learner, dataset, size=None, k=10, trials=1):
+    """
+    Do k-fold cross_validate and return their mean.
+    That is, keep out 1/k of the examples for testing on each of k runs.
+    Shuffle the examples first; if trials>1, average over several shuffles.
+    Returns Training error, Validation error
+    """
+    k = k or len(dataset.examples)
+    if trials > 1:
+        trial_errT = 0
+        trial_errV = 0
+        for t in range(trials):
+            errT, errV = cross_validation(learner, dataset, size, k, trials)
+            trial_errT += errT
+            trial_errV += errV
+        return trial_errT / trials, trial_errV / trials
+    else:
+        fold_errT = 0
+        fold_errV = 0
+        n = len(dataset.examples)
+        examples = dataset.examples
+        random.shuffle(dataset.examples)
+        for fold in range(k):
+            train_data, val_data = train_test_split(dataset, fold * (n // k), (fold + 1) * (n // k))
+            dataset.examples = train_data
+            h = learner(dataset, size)
+            fold_errT += err_ratio(h, dataset, train_data)
+            fold_errV += err_ratio(h, dataset, val_data)
+            # reverting back to original once test is completed
+            dataset.examples = examples
+        return fold_errT / k, fold_errV / k
+
+
+def leave_one_out(learner, dataset, size=None):
+    """Leave one out cross-validation over the dataset."""
+    return cross_validation(learner, dataset, size, len(dataset.examples))
+
+
+# TODO learning_curve needs to be fixed
+def learning_curve(learner, dataset, trials=10, sizes=None):
+    if sizes is None:
+        sizes = list(range(2, len(dataset.examples) - 10, 2))
+
+    def score(learner, size):
+        random.shuffle(dataset.examples)
+        return train_test_split(learner, dataset, 0, size)
+
+    return [(size, mean([score(learner, size) for _ in range(trials)])) for size in sizes]
+
+
+# ______________________________________________________________________________
 
 def PluralityLearner(dataset):
     """
@@ -226,22 +355,6 @@ def PluralityLearner(dataset):
 
 
 # ______________________________________________________________________________
-
-
-def NearestNeighborLearner(dataset, k=1):
-    """k-NearestNeighbor: the k nearest neighbors vote."""
-
-    def predict(example):
-        """Find the k closest items, and have them vote for the best."""
-        best = heapq.nsmallest(k, ((dataset.distance(e, example), e) for e in dataset.examples))
-        return mode(e[dataset.target] for (d, e) in best)
-
-    return predict
-
-
-# ______________________________________________________________________________
-# 18.3 Learning Decision Trees
-
 
 class DecisionFork:
     """
@@ -362,38 +475,11 @@ def information_content(values):
 
 # ______________________________________________________________________________
 
-
-def RandomForest(dataset, n=5):
-    """An ensemble of Decision Trees trained using bagging and feature bagging."""
-
-    def data_bagging(dataset, m=0):
-        """Sample m examples with replacement"""
-        n = len(dataset.examples)
-        return weighted_sample_with_replacement(m or n, dataset.examples, [1] * n)
-
-    def feature_bagging(dataset, p=0.7):
-        """Feature bagging with probability p to retain an attribute"""
-        inputs = [i for i in dataset.inputs if probability(p)]
-        return inputs or dataset.inputs
-
-    def predict(example):
-        print([predictor(example) for predictor in predictors])
-        return mode(predictor(example) for predictor in predictors)
-
-    predictors = [DecisionTreeLearner(DataSet(examples=data_bagging(dataset), attrs=dataset.attrs,
-                                              attr_names=dataset.attr_names, target=dataset.target,
-                                              inputs=feature_bagging(dataset))) for _ in range(n)]
-
-    return predict
-
-
-# ______________________________________________________________________________
-
-# A decision list is implemented as a list of (test, value) pairs.
-
-
 def DecisionListLearner(dataset):
-    """[Figure 18.11]"""
+    """
+    [Figure 18.11]
+    A decision list implemented as a list of (test, value) pairs.
+    """
 
     def decision_list_learning(examples):
         if not examples:
@@ -427,229 +513,18 @@ def DecisionListLearner(dataset):
 
 # ______________________________________________________________________________
 
-
-def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epochs=100, activation=sigmoid):
-    """
-    Layered feed-forward network.
-    hidden_layer_sizes: List of number of hidden units per hidden layer
-    learning_rate: Learning rate of gradient descent
-    epochs: Number of passes over the dataset
-    """
-
-    if hidden_layer_sizes is None:
-        hidden_layer_sizes = [3]
-    i_units = len(dataset.inputs)
-    o_units = len(dataset.values[dataset.target])
-
-    # construct a network
-    raw_net = network(i_units, hidden_layer_sizes, o_units, activation)
-    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs, activation)
+def NearestNeighborLearner(dataset, k=1):
+    """k-NearestNeighbor: the k nearest neighbors vote."""
 
     def predict(example):
-        # Input nodes
-        i_nodes = learned_net[0]
-
-        # Activate input layer
-        for v, n in zip(example, i_nodes):
-            n.value = v
-
-        # Forward pass
-        for layer in learned_net[1:]:
-            for node in layer:
-                inc = [n.value for n in node.inputs]
-                in_val = dotproduct(inc, node.weights)
-                node.value = node.activation(in_val)
-
-        # Hypothesis
-        o_nodes = learned_net[-1]
-        prediction = find_max_node(o_nodes)
-        return prediction
+        """Find the k closest items, and have them vote for the best."""
+        best = heapq.nsmallest(k, ((dataset.distance(e, example), e) for e in dataset.examples))
+        return mode(e[dataset.target] for (d, e) in best)
 
     return predict
-
-
-def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmoid):
-    """
-    [Figure 18.23]
-    The back-propagation algorithm for multilayer networks.
-    """
-    # Initialise weights
-    for layer in net:
-        for node in layer:
-            node.weights = random_weights(min_value=-0.5, max_value=0.5, num_weights=len(node.weights))
-
-    examples = dataset.examples
-    '''
-    As of now dataset.target gives an int instead of list,
-    Changing dataset class will have effect on all the learners.
-    Will be taken care of later.
-    '''
-    o_nodes = net[-1]
-    i_nodes = net[0]
-    o_units = len(o_nodes)
-    idx_t = dataset.target
-    idx_i = dataset.inputs
-    n_layers = len(net)
-
-    inputs, targets = init_examples(examples, idx_i, idx_t, o_units)
-
-    for epoch in range(epochs):
-        # Iterate over each example
-        for e in range(len(examples)):
-            i_val = inputs[e]
-            t_val = targets[e]
-
-            # Activate input layer
-            for v, n in zip(i_val, i_nodes):
-                n.value = v
-
-            # Forward pass
-            for layer in net[1:]:
-                for node in layer:
-                    inc = [n.value for n in node.inputs]
-                    in_val = dotproduct(inc, node.weights)
-                    node.value = node.activation(in_val)
-
-            # Initialize delta
-            delta = [[] for _ in range(n_layers)]
-
-            # Compute outer layer delta
-
-            # Error for the MSE cost function
-            err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
-
-            # Calculate delta at output
-            if node.activation == sigmoid:
-                delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
-            elif node.activation == relu:
-                delta[-1] = [relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
-            elif node.activation == tanh:
-                delta[-1] = [tanh_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
-            elif node.activation == elu:
-                delta[-1] = [elu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
-            else:
-                delta[-1] = [leaky_relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
-
-            # Backward pass
-            h_layers = n_layers - 2
-            for i in range(h_layers, 0, -1):
-                layer = net[i]
-                h_units = len(layer)
-                nx_layer = net[i + 1]
-
-                # weights from each ith layer node to each i + 1th layer node
-                w = [[node.weights[k] for node in nx_layer] for k in range(h_units)]
-
-                if activation == sigmoid:
-                    delta[i] = [sigmoid_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
-                                for j in range(h_units)]
-                elif activation == relu:
-                    delta[i] = [relu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
-                                for j in range(h_units)]
-                elif activation == tanh:
-                    delta[i] = [tanh_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
-                                for j in range(h_units)]
-                elif activation == elu:
-                    delta[i] = [elu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
-                                for j in range(h_units)]
-                else:
-                    delta[i] = [leaky_relu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
-                                for j in range(h_units)]
-
-            #  Update weights
-            for i in range(1, n_layers):
-                layer = net[i]
-                inc = [node.value for node in net[i - 1]]
-                units = len(layer)
-                for j in range(units):
-                    layer[j].weights = vector_add(layer[j].weights,
-                                                  scalar_vector_product(learning_rate * delta[i][j], inc))
-
-    return net
-
-
-def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
-    """Logistic Regression, NO hidden layer"""
-    i_units = len(dataset.inputs)
-    o_units = len(dataset.values[dataset.target])
-    hidden_layer_sizes = []
-    raw_net = network(i_units, hidden_layer_sizes, o_units)
-    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs)
-
-    def predict(example):
-        o_nodes = learned_net[1]
-
-        # Forward pass
-        for node in o_nodes:
-            in_val = dotproduct(example, node.weights)
-            node.value = node.activation(in_val)
-
-        # Hypothesis
-        return find_max_node(o_nodes)
-
-    return predict
-
-
-class NNUnit:
-    """
-    Single Unit of Multiple Layer Neural Network
-    inputs: Incoming connections
-    weights: Weights to incoming connections
-    """
-
-    def __init__(self, activation=sigmoid, weights=None, inputs=None):
-        self.weights = weights or []
-        self.inputs = inputs or []
-        self.value = None
-        self.activation = activation
-
-
-def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
-    """
-    Create Directed Acyclic Network of given number layers.
-    hidden_layers_sizes : List number of neuron units in each hidden layer
-    excluding input and output layers
-    """
-    layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
-
-    net = [[NNUnit(activation) for _ in range(size)]
-           for size in layers_sizes]
-    n_layers = len(net)
-
-    # Make Connection
-    for i in range(1, n_layers):
-        for n in net[i]:
-            for k in net[i - 1]:
-                n.inputs.append(k)
-                n.weights.append(0)
-    return net
-
-
-def init_examples(examples, idx_i, idx_t, o_units):
-    inputs, targets = {}, {}
-
-    for i, e in enumerate(examples):
-        # Input values of e
-        inputs[i] = [e[i] for i in idx_i]
-
-        if o_units > 1:
-            # One-Hot representation of e's target
-            t = [0 for i in range(o_units)]
-            t[e[idx_t]] = 1
-            targets[i] = t
-        else:
-            # Target value of e
-            targets[i] = [e[idx_t]]
-
-    return inputs, targets
-
-
-def find_max_node(nodes):
-    return nodes.index(argmax(nodes, key=lambda node: node.value))
 
 
 # ______________________________________________________________________________
-
 
 def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     """
@@ -738,6 +613,225 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
 
 # ______________________________________________________________________________
 
+def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epochs=100, activation=sigmoid):
+    """
+    Layered feed-forward network.
+    hidden_layer_sizes: List of number of hidden units per hidden layer
+    learning_rate: Learning rate of gradient descent
+    epochs: Number of passes over the dataset
+    """
+
+    if hidden_layer_sizes is None:
+        hidden_layer_sizes = [3]
+    i_units = len(dataset.inputs)
+    o_units = len(dataset.values[dataset.target])
+
+    # construct a network
+    raw_net = network(i_units, hidden_layer_sizes, o_units, activation)
+    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs, activation)
+
+    def predict(example):
+        # input nodes
+        i_nodes = learned_net[0]
+
+        # activate input layer
+        for v, n in zip(example, i_nodes):
+            n.value = v
+
+        # forward pass
+        for layer in learned_net[1:]:
+            for node in layer:
+                inc = [n.value for n in node.inputs]
+                in_val = dotproduct(inc, node.weights)
+                node.value = node.activation(in_val)
+
+        # hypothesis
+        o_nodes = learned_net[-1]
+        prediction = find_max_node(o_nodes)
+        return prediction
+
+    return predict
+
+
+def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmoid):
+    """
+    [Figure 18.23]
+    The back-propagation algorithm for multilayer networks.
+    """
+    # initialise weights
+    for layer in net:
+        for node in layer:
+            node.weights = random_weights(min_value=-0.5, max_value=0.5, num_weights=len(node.weights))
+
+    examples = dataset.examples
+    # As of now dataset.target gives an int instead of list,
+    # Changing dataset class will have effect on all the learners.
+    # Will be taken care of later.
+    o_nodes = net[-1]
+    i_nodes = net[0]
+    o_units = len(o_nodes)
+    idx_t = dataset.target
+    idx_i = dataset.inputs
+    n_layers = len(net)
+
+    inputs, targets = init_examples(examples, idx_i, idx_t, o_units)
+
+    for epoch in range(epochs):
+        # iterate over each example
+        for e in range(len(examples)):
+            i_val = inputs[e]
+            t_val = targets[e]
+
+            # activate input layer
+            for v, n in zip(i_val, i_nodes):
+                n.value = v
+
+            # forward pass
+            for layer in net[1:]:
+                for node in layer:
+                    inc = [n.value for n in node.inputs]
+                    in_val = dotproduct(inc, node.weights)
+                    node.value = node.activation(in_val)
+
+            # initialize delta
+            delta = [[] for _ in range(n_layers)]
+
+            # compute outer layer delta
+
+            # error for the MSE cost function
+            err = [t_val[i] - o_nodes[i].value for i in range(o_units)]
+
+            # calculate delta at output
+            if node.activation == sigmoid:
+                delta[-1] = [sigmoid_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            elif node.activation == relu:
+                delta[-1] = [relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            elif node.activation == tanh:
+                delta[-1] = [tanh_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            elif node.activation == elu:
+                delta[-1] = [elu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            else:
+                delta[-1] = [leaky_relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+
+            # backward pass
+            h_layers = n_layers - 2
+            for i in range(h_layers, 0, -1):
+                layer = net[i]
+                h_units = len(layer)
+                nx_layer = net[i + 1]
+
+                # weights from each ith layer node to each i + 1th layer node
+                w = [[node.weights[k] for node in nx_layer] for k in range(h_units)]
+
+                if activation == sigmoid:
+                    delta[i] = [sigmoid_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                                for j in range(h_units)]
+                elif activation == relu:
+                    delta[i] = [relu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                                for j in range(h_units)]
+                elif activation == tanh:
+                    delta[i] = [tanh_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                                for j in range(h_units)]
+                elif activation == elu:
+                    delta[i] = [elu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                                for j in range(h_units)]
+                else:
+                    delta[i] = [leaky_relu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                                for j in range(h_units)]
+
+            #  update weights
+            for i in range(1, n_layers):
+                layer = net[i]
+                inc = [node.value for node in net[i - 1]]
+                units = len(layer)
+                for j in range(units):
+                    layer[j].weights = vector_add(layer[j].weights,
+                                                  scalar_vector_product(learning_rate * delta[i][j], inc))
+
+    return net
+
+
+def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
+    """Logistic Regression, NO hidden layer"""
+    i_units = len(dataset.inputs)
+    o_units = len(dataset.values[dataset.target])
+    hidden_layer_sizes = []
+    raw_net = network(i_units, hidden_layer_sizes, o_units)
+    learned_net = BackPropagationLearner(dataset, raw_net, learning_rate, epochs)
+
+    def predict(example):
+        o_nodes = learned_net[1]
+
+        # forward pass
+        for node in o_nodes:
+            in_val = dotproduct(example, node.weights)
+            node.value = node.activation(in_val)
+
+        # hypothesis
+        return find_max_node(o_nodes)
+
+    return predict
+
+
+class NNUnit:
+    """
+    Single Unit of Multiple Layer Neural Network
+    inputs: Incoming connections
+    weights: Weights to incoming connections
+    """
+
+    def __init__(self, activation=sigmoid, weights=None, inputs=None):
+        self.weights = weights or []
+        self.inputs = inputs or []
+        self.value = None
+        self.activation = activation
+
+
+def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
+    """
+    Create Directed Acyclic Network of given number layers.
+    hidden_layers_sizes : List number of neuron units in each hidden layer
+    excluding input and output layers
+    """
+    layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
+
+    net = [[NNUnit(activation) for _ in range(size)]
+           for size in layers_sizes]
+    n_layers = len(net)
+
+    # make Connection
+    for i in range(1, n_layers):
+        for n in net[i]:
+            for k in net[i - 1]:
+                n.inputs.append(k)
+                n.weights.append(0)
+    return net
+
+
+def init_examples(examples, idx_i, idx_t, o_units):
+    inputs, targets = {}, {}
+
+    for i, e in enumerate(examples):
+        # input values of e
+        inputs[i] = [e[i] for i in idx_i]
+
+        if o_units > 1:
+            # one-Hot representation of e's target
+            t = [0 for i in range(o_units)]
+            t[e[idx_t]] = 1
+            targets[i] = t
+        else:
+            # target value of e
+            targets[i] = [e[idx_t]]
+
+    return inputs, targets
+
+
+def find_max_node(nodes):
+    return nodes.index(argmax(nodes, key=lambda node: node.value))
+
+
+# ______________________________________________________________________________
 
 def EnsembleLearner(learners):
     """Given a list of learning algorithms, have them vote."""
@@ -753,9 +847,6 @@ def EnsembleLearner(learners):
     return train
 
 
-# ______________________________________________________________________________
-
-
 def ada_boost(dataset, L, K):
     """[Figure 18.34]"""
 
@@ -768,7 +859,7 @@ def ada_boost(dataset, L, K):
         h_k = L(dataset, w)
         h.append(h_k)
         error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k(example))
-        # Avoid divide-by-0 from either 0% or 100% error rates:
+        # avoid divide-by-0 from either 0% or 100% error rates:
         error = clip(error, epsilon, 1 - epsilon)
         for j, example in enumerate(examples):
             if example[target] == h_k(example):
@@ -788,7 +879,8 @@ def weighted_majority(predictors, weights):
 
 
 def weighted_mode(values, weights):
-    """Return the value with the greatest total weight.
+    """
+    Return the value with the greatest total weight.
     >>> weighted_mode('abbaa', [1, 2, 3, 1, 2])
     'b'
     """
@@ -798,8 +890,33 @@ def weighted_mode(values, weights):
     return max(totals, key=totals.__getitem__)
 
 
+# ______________________________________________________________________________
+
+def RandomForest(dataset, n=5):
+    """An ensemble of Decision Trees trained using bagging and feature bagging."""
+
+    def data_bagging(dataset, m=0):
+        """Sample m examples with replacement"""
+        n = len(dataset.examples)
+        return weighted_sample_with_replacement(m or n, dataset.examples, [1] * n)
+
+    def feature_bagging(dataset, p=0.7):
+        """Feature bagging with probability p to retain an attribute"""
+        inputs = [i for i in dataset.inputs if probability(p)]
+        return inputs or dataset.inputs
+
+    def predict(example):
+        print([predictor(example) for predictor in predictors])
+        return mode(predictor(example) for predictor in predictors)
+
+    predictors = [DecisionTreeLearner(DataSet(examples=data_bagging(dataset), attrs=dataset.attrs,
+                                              attr_names=dataset.attr_names, target=dataset.target,
+                                              inputs=feature_bagging(dataset))) for _ in range(n)]
+
+    return predict
+
+
 # _____________________________________________________________________________
-# Adapting an unweighted learner for AdaBoost
 
 
 def WeightedLearner(unweighted_learner):
@@ -843,142 +960,7 @@ def flatten(seqs):
     return sum(seqs, [])
 
 
-# _____________________________________________________________________________
-# Functions for testing learners on examples
-
-
-def err_ratio(predict, dataset, examples=None, verbose=0):
-    """
-    Return the proportion of the examples that are NOT correctly predicted.
-    verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct
-    """
-    examples = examples or dataset.examples
-    if len(examples) == 0:
-        return 0.0
-    right = 0
-    for example in examples:
-        desired = example[dataset.target]
-        output = predict(dataset.sanitize(example))
-        if output == desired:
-            right += 1
-            if verbose >= 2:
-                print('   OK: got {} for {}'.format(desired, example))
-        elif verbose:
-            print('WRONG: got {}, expected {} for {}'.format(output, desired, example))
-    return 1 - (right / len(examples))
-
-
-def grade_learner(predict, tests):
-    """
-    Grades the given learner based on how many tests it passes.
-    tests is a list with each element in the form: (values, output).
-    """
-    return mean(int(predict(X) == y) for X, y in tests)
-
-
-def train_test_split(dataset, start=None, end=None, test_split=None):
-    """
-    If you are giving 'start' and 'end' as parameters,
-    then it will return the testing set from index 'start' to 'end'
-    and the rest for training.
-    If you give 'test_split' as a parameter then it will return
-    test_split * 100% as the testing set and the rest as
-    training set.
-    """
-    examples = dataset.examples
-    if test_split is None:
-        train = examples[:start] + examples[end:]
-        val = examples[start:end]
-    else:
-        total_size = len(examples)
-        val_size = int(total_size * test_split)
-        train_size = total_size - val_size
-        train = examples[:train_size]
-        val = examples[train_size:total_size]
-
-    return train, val
-
-
-def cross_validation(learner, dataset, size=None, k=10, trials=1):
-    """
-    Do k-fold cross_validate and return their mean.
-    That is, keep out 1/k of the examples for testing on each of k runs.
-    Shuffle the examples first; if trials>1, average over several shuffles.
-    Returns Training error, Validation error
-    """
-    k = k or len(dataset.examples)
-    if trials > 1:
-        trial_errT = 0
-        trial_errV = 0
-        for t in range(trials):
-            errT, errV = cross_validation(learner, size, dataset, k=10, trials=1)
-            trial_errT += errT
-            trial_errV += errV
-        return trial_errT / trials, trial_errV / trials
-    else:
-        fold_errT = 0
-        fold_errV = 0
-        n = len(dataset.examples)
-        examples = dataset.examples
-        random.shuffle(dataset.examples)
-        for fold in range(k):
-            train_data, val_data = train_test_split(dataset, fold * (n / k), (fold + 1) * (n / k))
-            dataset.examples = train_data
-            h = learner(dataset, size)
-            fold_errT += err_ratio(h, dataset, train_data)
-            fold_errV += err_ratio(h, dataset, val_data)
-
-            # Reverting back to original once test is completed
-            dataset.examples = examples
-        return fold_errT / k, fold_errV / k
-
-
-def cross_validation_wrapper(learner, dataset, k=10, trials=1):
-    """
-    [Figure 18.8]
-    Return the optimal value of size having minimum error on validation set.
-    errT: a training error array, indexed by size
-    errV: a validation error array, indexed by size
-    """
-    errs = []
-    size = 1
-    while True:
-        errT, errV = cross_validation(learner, dataset, size, k, trials)
-        # check for convergence provided err_val is not empty
-        if errT and not isclose(errT[-1], errT, rel_tol=1e-6):
-            best_size = 0
-            min_val = math.inf
-            i = 0
-            while i < size:
-                if errs[i] < min_val:
-                    min_val = errs[i]
-                    best_size = i
-                i += 1
-            return learner(dataset, best_size)
-        errs.append(errV)
-        size += 1
-
-
-def leave_one_out(learner, dataset, size=None):
-    """Leave one out cross-validation over the dataset."""
-    return cross_validation(learner, dataset, size, len(dataset.examples))
-
-
-# TODO learning_curve needs to be fixed
-def learning_curve(learner, dataset, trials=10, sizes=None):
-    if sizes is None:
-        sizes = list(range(2, len(dataset.examples) - 10, 2))
-
-    def score(learner, size):
-        random.shuffle(dataset.examples)
-        return train_test_split(learner, dataset, 0, size)
-
-    return [(size, mean([score(learner, size) for _ in range(trials)])) for size in sizes]
-
-
 # ______________________________________________________________________________
-# The rest of this file gives datasets for machine learning problems
-
 
 orings = DataSet(name='orings', target='Distressed', attr_names='Rings Distressed Temp Pressure Flightnum')
 
@@ -990,8 +972,6 @@ iris = DataSet(name='iris', target='class', attr_names='sepal-len sepal-width pe
 
 
 # ______________________________________________________________________________
-# The Restaurant example from [Figure 18.2]
-
 
 def RestaurantDataSet(examples=None):
     """
@@ -1047,8 +1027,6 @@ def SyntheticRestaurant(n=20):
 
 
 # ______________________________________________________________________________
-# Artificial generated datasets.
-
 
 def Majority(k, n):
     """
@@ -1091,7 +1069,6 @@ def ContinuousXor(n):
 
 
 # ______________________________________________________________________________
-
 
 def compare(algorithms=None, datasets=None, k=10, trials=1):
     """
