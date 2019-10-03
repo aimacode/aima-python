@@ -1,3 +1,5 @@
+"""Deep learning (Chapters 20)"""
+
 import math
 import random
 import statistics
@@ -8,14 +10,8 @@ from keras.layers.embeddings import Embedding
 from keras.models import Sequential
 from keras.preprocessing import sequence
 
-from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, \
-    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss
-
-
-# DEEP NEURAL NETWORKS. (Chapter 19)
-# ________________________________________________
-# 19.3 Models
-# 19.3.1 Computational Graphs and Layers
+from utils4e import (sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, vector_add,
+                     random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss)
 
 
 class Node:
@@ -25,7 +21,9 @@ class Node:
     :param parents: a container of all parents of current node.
     """
 
-    def __init__(self, val=None, parents=[]):
+    def __init__(self, val=None, parents=None):
+        if parents is None:
+            parents = []
         self.val = val
         self.parents = parents
 
@@ -59,9 +57,6 @@ class Layer:
         raise NotImplementedError
 
 
-# 19.3.2 Output Layers
-
-
 class OutputLayer(Layer):
     """Example of a 1D softmax output layer in 19.3.2"""
 
@@ -88,9 +83,6 @@ class InputLayer(Layer):
         for node, inp in zip(self.nodes, inputs):
             node.val = inp
         return inputs
-
-
-# 19.3.3 Hidden Layers
 
 
 class DenseLayer(Layer):
@@ -121,9 +113,6 @@ class DenseLayer(Layer):
         return res
 
 
-# 19.3.4 Convolutional networks
-
-
 class ConvLayer1D(Layer):
     """
     1D convolution layer of in neural network.
@@ -146,9 +135,6 @@ class ConvLayer1D(Layer):
             res.append(out)
             node.val = out
         return res
-
-
-# 19.3.5 Pooling and Downsampling
 
 
 class MaxPoolingLayer1D(Layer):
@@ -237,8 +223,8 @@ def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1,
 # 19.4.2 Other gradient-based optimization algorithms
 
 
-def adam_optimizer(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8, l_rate=0.001, batch_size=1,
-                   verbose=None):
+def adam_optimizer(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8,
+                   l_rate=0.001, batch_size=1, verbose=None):
     """
     Adam optimizer in Figure 19.6 to update the learnable parameters of a network.
     Required parameters are similar to gradient descent.
@@ -380,11 +366,13 @@ def get_batch(examples, batch_size=1):
 # example of NNs
 
 
-def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epochs=100, optimizer=gradient_descent,
-                       batch_size=1, verbose=None):
+def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epochs=100,
+                     optimizer=gradient_descent, batch_size=1, verbose=None):
     """Example of a simple dense multilayer neural network.
     :param hidden_layer_sizes: size of hidden layers in the form of a list"""
 
+    if hidden_layer_sizes is None:
+        hidden_layer_sizes = [4]
     input_size = len(dataset.inputs)
     output_size = len(dataset.values[dataset.target])
 
@@ -398,8 +386,8 @@ def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epoc
     raw_net.append(DenseLayer(hidden_input_size, output_size))
 
     # update parameters of the network
-    learned_net = optimizer(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate, batch_size=batch_size,
-                            verbose=verbose)
+    learned_net = optimizer(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate,
+                            batch_size=batch_size, verbose=verbose)
 
     def predict(example):
         n_layers = len(learned_net)
@@ -417,9 +405,9 @@ def neural_net_learner(dataset, hidden_layer_sizes=[4], learning_rate=0.01, epoc
     return predict
 
 
-def perceptron_learner(dataset, learning_rate=0.01, epochs=100, verbose=None):
+def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, verbose=None):
     """
-    Example of a simple perceptron neural network.
+    Simple perceptron neural network.
     """
     input_size = len(dataset.inputs)
     output_size = len(dataset.values[dataset.target])
@@ -440,13 +428,14 @@ def perceptron_learner(dataset, learning_rate=0.01, epochs=100, verbose=None):
 # 19.6 Recurrent neural networks
 
 
-def simple_rnn_learner(train_data, val_data, epochs=2):
+def SimpleRNNLearner(train_data, val_data, epochs=2):
     """
     rnn example for text sentimental analysis
     :param train_data: a tuple of (training data, targets)
             Training data: ndarray taking training examples, while each example is coded by embedding
             Targets: ndarry taking targets of each example. Each target is mapped to an integer.
     :param val_data: a tuple of (validation data, targets)
+    :param epochs: number of epochs
     :return: a keras model
     """
 
@@ -472,7 +461,7 @@ def simple_rnn_learner(train_data, val_data, epochs=2):
 
 def keras_dataset_loader(dataset, max_length=500):
     """
-    helper function to load keras datasets
+    Helper function to load keras datasets.
     :param dataset: keras data set type
     :param max_length: max length of each input sequence
     """
@@ -484,10 +473,14 @@ def keras_dataset_loader(dataset, max_length=500):
     return (X_train[10:], y_train[10:]), (X_val, y_val), (X_train[:10], y_train[:10])
 
 
-def auto_encoder_learner(inputs, encoding_size, epochs=200):
-    """simple example of linear auto encoder learning producing the input itself.
+def AutoencoderLearner(inputs, encoding_size, epochs=200):
+    """
+    Simple example of linear auto encoder learning producing the input itself.
     :param inputs: a batch of input data in np.ndarray type
-    :param encoding_size: int, the size of encoding layer"""
+    :param encoding_size: int, the size of encoding layer
+    :param epochs: number of epochs
+    :return: a keras model
+    """
 
     # init data
     input_size = len(inputs[0])

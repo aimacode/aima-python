@@ -15,17 +15,17 @@ def test_sequence():
     assert sequence(([1, 2], [3, 4], [5, 6])) == ([1, 2], [3, 4], [5, 6])
 
 
-def test_removeall_list():
-    assert removeall(4, []) == []
-    assert removeall(4, [1, 2, 3, 4]) == [1, 2, 3]
-    assert removeall(4, [4, 1, 4, 2, 3, 4, 4]) == [1, 2, 3]
-    assert removeall(1, [2, 3, 4, 5, 6]) == [2, 3, 4, 5, 6]
+def test_remove_all_list():
+    assert remove_all(4, []) == []
+    assert remove_all(4, [1, 2, 3, 4]) == [1, 2, 3]
+    assert remove_all(4, [4, 1, 4, 2, 3, 4, 4]) == [1, 2, 3]
+    assert remove_all(1, [2, 3, 4, 5, 6]) == [2, 3, 4, 5, 6]
 
 
-def test_removeall_string():
-    assert removeall('s', '') == ''
-    assert removeall('s', 'This is a test. Was a test.') == 'Thi i a tet. Wa a tet.'
-    assert removeall('a', 'artificial intelligence: a modern approach') == 'rtificil intelligence:  modern pproch'
+def test_remove_all_string():
+    assert remove_all('s', '') == ''
+    assert remove_all('s', 'This is a test. Was a test.') == 'Thi i a tet. Wa a tet.'
+    assert remove_all('a', 'artificial intelligence: a modern approach') == 'rtificil intelligence:  modern pproch'
 
 
 def test_unique():
@@ -261,6 +261,34 @@ def test_sigmoid_derivative():
     assert sigmoid_derivative(value) == -6
 
 
+def test_truncated_svd():
+    test_mat = [[17, 0],
+                [0, 11]]
+    _, _, eival = truncated_svd(test_mat)
+    assert isclose(eival[0], 17)
+    assert isclose(eival[1], 11)
+
+    test_mat = [[17, 0],
+                [0, -34]]
+    _, _, eival = truncated_svd(test_mat)
+    assert isclose(eival[0], 34)
+    assert isclose(eival[1], 17)
+
+    test_mat = [[1, 0, 0, 0, 2],
+                [0, 0, 3, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 2, 0, 0, 0]]
+    _, _, eival = truncated_svd(test_mat)
+    assert isclose(eival[0], 3)
+    assert isclose(eival[1], 5 ** 0.5)
+
+    test_mat = [[3, 2, 2],
+                [2, 3, -2]]
+    _, _, eival = truncated_svd(test_mat)
+    assert isclose(eival[0], 5)
+    assert isclose(eival[1], 3)
+
+
 def test_weighted_choice():
     choices = [('a', 0.5), ('b', 0.3), ('c', 0.2)]
     choice = weighted_choice(choices)
@@ -340,11 +368,10 @@ def test_expr():
     assert expr('P & Q <=> Q & P') == Expr('<=>', (P & Q), (Q & P))
     assert expr('P(x) | P(y) & Q(z)') == (P(x) | (P(y) & Q(z)))
     # x is grandparent of z if x is parent of y and y is parent of z:
-    assert (expr('GP(x, z) <== P(x, y) & P(y, z)')
-            == Expr('<==', GP(x, z), P(x, y) & P(y, z)))
+    assert (expr('GP(x, z) <== P(x, y) & P(y, z)') == Expr('<==', GP(x, z), P(x, y) & P(y, z)))
 
 
-def test_min_priorityqueue():
+def test_min_priority_queue():
     queue = PriorityQueue(f=lambda x: x[1])
     queue.append((1, 100))
     queue.append((2, 30))
@@ -360,7 +387,7 @@ def test_min_priorityqueue():
     assert len(queue) == 2
 
 
-def test_max_priorityqueue():
+def test_max_priority_queue():
     queue = PriorityQueue(order='max', f=lambda x: x[1])
     queue.append((1, 100))
     queue.append((2, 30))
@@ -368,7 +395,7 @@ def test_max_priorityqueue():
     assert queue.pop() == (1, 100)
 
 
-def test_priorityqueue_with_objects():
+def test_priority_queue_with_objects():
     class Test:
         def __init__(self, a, b):
             self.a = a

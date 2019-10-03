@@ -40,10 +40,8 @@ import networkx as nx
 from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
 from csp import parse_neighbors, UniversalDict
 from search import astar_search, PlanRoute
-from utils import (
-    removeall, unique, first, argmax, probability,
-    isnumber, issequence, Expr, expr, subexpressions,
-    extend)
+from utils import (remove_all, unique, first, argmax, probability, isnumber,
+                   issequence, Expr, expr, subexpressions, extend)
 
 
 # ______________________________________________________________________________
@@ -508,7 +506,7 @@ def pl_resolve(ci, cj):
     for di in disjuncts(ci):
         for dj in disjuncts(cj):
             if di == ~dj or ~di == dj:
-                clauses.append(associate('|', unique(removeall(di, disjuncts(ci)) + removeall(dj, disjuncts(cj)))))
+                clauses.append(associate('|', unique(remove_all(di, disjuncts(ci)) + remove_all(dj, disjuncts(cj)))))
     return clauses
 
 
@@ -714,13 +712,13 @@ def dpll(clauses, symbols, model, branching_heuristic=no_branching_heuristic):
         return model
     P, value = find_pure_symbol(symbols, unknown_clauses)
     if P:
-        return dpll(clauses, removeall(P, symbols), extend(model, P, value), branching_heuristic)
+        return dpll(clauses, remove_all(P, symbols), extend(model, P, value), branching_heuristic)
     P, value = find_unit_clause(clauses, model)
     if P:
-        return dpll(clauses, removeall(P, symbols), extend(model, P, value), branching_heuristic)
+        return dpll(clauses, remove_all(P, symbols), extend(model, P, value), branching_heuristic)
     P, value = branching_heuristic(symbols, unknown_clauses)
-    return (dpll(clauses, removeall(P, symbols), extend(model, P, value), branching_heuristic) or
-            dpll(clauses, removeall(P, symbols), extend(model, P, not value), branching_heuristic))
+    return (dpll(clauses, remove_all(P, symbols), extend(model, P, value), branching_heuristic) or
+            dpll(clauses, remove_all(P, symbols), extend(model, P, not value), branching_heuristic))
 
 
 def find_pure_symbol(symbols, clauses):
@@ -950,8 +948,8 @@ def pl_binary_resolution(ci, cj):
     for di in disjuncts(ci):
         for dj in disjuncts(cj):
             if di == ~dj or ~di == dj:
-                return pl_binary_resolution(associate('|', removeall(di, disjuncts(ci))),
-                                            associate('|', removeall(dj, disjuncts(cj))))
+                return pl_binary_resolution(associate('|', remove_all(di, disjuncts(ci))),
+                                            associate('|', remove_all(dj, disjuncts(cj))))
     return associate('|', unique(disjuncts(ci) + disjuncts(cj)))
 
 

@@ -5,7 +5,7 @@ Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
 from utils import argmin, argmax, hashabledict
-from learning import CountingProbDist
+from probabilistic_learning import CountingProbDist
 import search
 
 from math import log, exp

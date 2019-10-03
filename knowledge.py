@@ -1,4 +1,4 @@
-"""Knowledge in learning, Chapter 19"""
+"""Knowledge in learning (Chapter 19)"""
 
 from random import shuffle
 from math import log
@@ -13,10 +13,12 @@ from functools import partial
 # ______________________________________________________________________________
 
 
-def current_best_learning(examples, h, examples_so_far=[]):
+def current_best_learning(examples, h, examples_so_far=None):
     """ [Figure 19.2]
     The hypothesis is a list of dictionaries, with each dictionary representing
     a disjunction."""
+    if examples_so_far is None:
+        examples_so_far = []
     if not examples:
         return h
 
