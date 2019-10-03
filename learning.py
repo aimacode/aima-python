@@ -57,7 +57,7 @@ class DataSet:
         self.distance = distance
         self.got_values_flag = bool(values)
 
-        # Initialize .examples from string or list or data directory
+        # initialize .examples from string or list or data directory
         if isinstance(examples, str):
             self.examples = parse_csv(examples)
         elif examples is None:
@@ -65,13 +65,13 @@ class DataSet:
         else:
             self.examples = examples
 
-        # Attrs are the indices of examples, unless otherwise stated.
+        # attrs are the indices of examples, unless otherwise stated.
         if self.examples is not None and attrs is None:
             attrs = list(range(len(self.examples[0])))
 
         self.attrs = attrs
 
-        # Initialize .attr_names from string, list, or by default
+        # initialize .attr_names from string, list, or by default
         if isinstance(attr_names, str):
             self.attr_names = attr_names.split()
         else:
@@ -138,7 +138,7 @@ class DataSet:
     def classes_to_numbers(self, classes=None):
         """Converts class names to numbers."""
         if not classes:
-            # If classes were not given, extract them from values
+            # if classes were not given, extract them from values
             classes = sorted(self.values[self.target])
         for item in self.examples:
             item[self.target] = classes.index(item[self.target])
@@ -154,8 +154,8 @@ class DataSet:
         target_names = self.values[self.target]
 
         for v in self.examples:
-            item = [a for a in v if a not in target_names]  # Remove target from item
-            buckets[v[self.target]].append(item)  # Add item to bucket of its class
+            item = [a for a in v if a not in target_names]  # remove target from item
+            buckets[v[self.target]].append(item)  # add item to bucket of its class
 
         return buckets
 
@@ -176,13 +176,13 @@ class DataSet:
         deviations = defaultdict(lambda: [0] * feature_numbers)
 
         for t in target_names:
-            # Find all the item feature values for item in class t
+            # find all the item feature values for item in class t
             features = [[] for _ in range(feature_numbers)]
             for item in item_buckets[t]:
                 for i in range(feature_numbers):
                     features[i].append(item[i])
 
-            # Calculate means and deviations fo the class
+            # calculate means and deviations fo the class
             for i in range(feature_numbers):
                 means[t][i] = mean(features[i])
                 deviations[t][i] = stdev(features[i])
@@ -192,8 +192,6 @@ class DataSet:
     def __repr__(self):
         return '<DataSet({}): {:d} examples, {:d} attributes>'.format(self.name, len(self.examples), len(self.attrs))
 
-
-# ______________________________________________________________________________
 
 def parse_csv(input, delim=','):
     r"""
@@ -207,8 +205,6 @@ def parse_csv(input, delim=','):
     lines = [line for line in input.splitlines() if line.strip()]
     return [list(map(num_or_str, line.split(delim))) for line in lines]
 
-
-# ______________________________________________________________________________
 
 def err_ratio(predict, dataset, examples=None, verbose=0):
     """
@@ -338,8 +334,6 @@ def learning_curve(learner, dataset, trials=10, sizes=None):
     return [(size, mean([score(learner, size) for _ in range(trials)])) for size in sizes]
 
 
-# ______________________________________________________________________________
-
 def PluralityLearner(dataset):
     """
     A very dumb algorithm: always pick the result that was most popular
@@ -353,8 +347,6 @@ def PluralityLearner(dataset):
 
     return predict
 
-
-# ______________________________________________________________________________
 
 class DecisionFork:
     """
@@ -473,8 +465,6 @@ def information_content(values):
     return sum(-p * math.log2(p) for p in probabilities)
 
 
-# ______________________________________________________________________________
-
 def DecisionListLearner(dataset):
     """
     [Figure 18.11]
@@ -511,8 +501,6 @@ def DecisionListLearner(dataset):
     return predict
 
 
-# ______________________________________________________________________________
-
 def NearestNeighborLearner(dataset, k=1):
     """k-NearestNeighbor: the k nearest neighbors vote."""
 
@@ -523,8 +511,6 @@ def NearestNeighborLearner(dataset, k=1):
 
     return predict
 
-
-# ______________________________________________________________________________
 
 def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     """
@@ -610,8 +596,6 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
 
     return predict
 
-
-# ______________________________________________________________________________
 
 def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epochs=100, activation=sigmoid):
     """
@@ -739,7 +723,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                     delta[i] = [leaky_relu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
                                 for j in range(h_units)]
 
-            #  update weights
+            # update weights
             for i in range(1, n_layers):
                 layer = net[i]
                 inc = [node.value for node in net[i - 1]]
@@ -799,7 +783,7 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
            for size in layers_sizes]
     n_layers = len(net)
 
-    # make Connection
+    # make connection
     for i in range(1, n_layers):
         for n in net[i]:
             for k in net[i - 1]:
@@ -816,7 +800,7 @@ def init_examples(examples, idx_i, idx_t, o_units):
         inputs[i] = [e[i] for i in idx_i]
 
         if o_units > 1:
-            # one-Hot representation of e's target
+            # one-hot representation of e's target
             t = [0 for i in range(o_units)]
             t[e[idx_t]] = 1
             targets[i] = t
@@ -830,8 +814,6 @@ def init_examples(examples, idx_i, idx_t, o_units):
 def find_max_node(nodes):
     return nodes.index(argmax(nodes, key=lambda node: node.value))
 
-
-# ______________________________________________________________________________
 
 def EnsembleLearner(learners):
     """Given a list of learning algorithms, have them vote."""
@@ -889,8 +871,6 @@ def weighted_mode(values, weights):
         totals[v] += w
     return max(totals, key=totals.__getitem__)
 
-
-# ______________________________________________________________________________
 
 def RandomForest(dataset, n=5):
     """An ensemble of Decision Trees trained using bagging and feature bagging."""
@@ -960,8 +940,6 @@ def flatten(seqs):
     return sum(seqs, [])
 
 
-# ______________________________________________________________________________
-
 orings = DataSet(name='orings', target='Distressed', attr_names='Rings Distressed Temp Pressure Flightnum')
 
 zoo = DataSet(name='zoo', target='type', exclude=['name'],
@@ -970,8 +948,6 @@ zoo = DataSet(name='zoo', target='type', exclude=['name'],
 
 iris = DataSet(name='iris', target='class', attr_names='sepal-len sepal-width petal-len petal-width class')
 
-
-# ______________________________________________________________________________
 
 def RestaurantDataSet(examples=None):
     """
@@ -1026,8 +1002,6 @@ def SyntheticRestaurant(n=20):
     return RestaurantDataSet([gen() for _ in range(n)])
 
 
-# ______________________________________________________________________________
-
 def Majority(k, n):
     """
     Return a DataSet with n k-bit examples of the majority problem:
@@ -1067,8 +1041,6 @@ def ContinuousXor(n):
         examples.append([x, y, x != y])
     return DataSet(name='continuous xor', examples=examples)
 
-
-# ______________________________________________________________________________
 
 def compare(algorithms=None, datasets=None, k=10, trials=1):
     """

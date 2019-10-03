@@ -6,17 +6,21 @@ from utils import weighted_sampler, argmax, product, gaussian
 
 
 class CountingProbDist:
-    """A probability distribution formed by observing and counting examples.
+    """
+    A probability distribution formed by observing and counting examples.
     If p is an instance of this class and o is an observed value, then
     there are 3 main operations:
     p.add(o) increments the count for observation o by 1.
     p.sample() returns a random element from the distribution.
-    p[o] returns the probability for o (as in a regular ProbDist)."""
+    p[o] returns the probability for o (as in a regular ProbDist).
+    """
 
     def __init__(self, observations=None, default=0):
-        """Create a distribution, and optionally add in some observations.
+        """
+        Create a distribution, and optionally add in some observations.
         By default this is an unsmoothed distribution, but saying default=1,
-        for example, gives you add-one smoothing."""
+        for example, gives you add-one smoothing.
+        """
         if observations is None:
             observations = []
         self.dictionary = {}
@@ -35,8 +39,10 @@ class CountingProbDist:
         self.sampler = None
 
     def smooth_for(self, o):
-        """Include o among the possible observations, whether or not
-        it's been observed yet."""
+        """
+        Include o among the possible observations, whether or not
+        it's been observed yet.
+        """
         if o not in self.dictionary:
             self.dictionary[o] = self.default
             self.n_obs += self.default
@@ -60,9 +66,6 @@ class CountingProbDist:
         return self.sampler()
 
 
-# ______________________________________________________________________________
-
-
 def NaiveBayesLearner(dataset, continuous=True, simple=False):
     if simple:
         return NaiveBayesSimple(dataset)
@@ -73,10 +76,12 @@ def NaiveBayesLearner(dataset, continuous=True, simple=False):
 
 
 def NaiveBayesSimple(distribution):
-    """A simple naive bayes classifier that takes as input a dictionary of
+    """
+    A simple naive bayes classifier that takes as input a dictionary of
     CountingProbDist objects and classifies items according to these distributions.
     The input dictionary is in the following form:
-        (ClassName, ClassProb): CountingProbDist"""
+        (ClassName, ClassProb): CountingProbDist
+    """
     target_dist = {c_name: prob for c_name, prob in distribution.keys()}
     attr_dists = {c_name: count_prob for (c_name, _), count_prob in distribution.items()}
 
@@ -94,9 +99,11 @@ def NaiveBayesSimple(distribution):
 
 
 def NaiveBayesDiscrete(dataset):
-    """Just count how many times each value of each input attribute
+    """
+    Just count how many times each value of each input attribute
     occurs, conditional on the target value. Count the different
-    target values too."""
+    target values too.
+    """
 
     target_vals = dataset.values[dataset.target]
     target_dist = CountingProbDist(target_vals)
@@ -108,8 +115,10 @@ def NaiveBayesDiscrete(dataset):
             attr_dists[target_val, attr].add(example[attr])
 
     def predict(example):
-        """Predict the target value for example. Consider each possible value,
-        and pick the most likely by looking at each attribute independently."""
+        """
+        Predict the target value for example. Consider each possible value,
+        and pick the most likely by looking at each attribute independently.
+        """
 
         def class_probability(target_val):
             return (target_dist[target_val] * product(attr_dists[target_val, attr][example[attr]]
@@ -121,8 +130,10 @@ def NaiveBayesDiscrete(dataset):
 
 
 def NaiveBayesContinuous(dataset):
-    """Count how many times each target value occurs.
-    Also, find the means and deviations of input attribute values for each target value."""
+    """
+    Count how many times each target value occurs.
+    Also, find the means and deviations of input attribute values for each target value.
+    """
     means, deviations = dataset.find_means_and_deviations()
 
     target_vals = dataset.values[dataset.target]
