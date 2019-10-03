@@ -24,37 +24,37 @@ def test_weighted_replicate():
 
 
 def test_means_and_deviation():
-    iris = DataSet(name="iris")
+    iris = DataSet(name='iris')
     means, deviations = iris.find_means_and_deviations()
-    assert round(means["setosa"][0], 3) == 5.006
-    assert round(means["versicolor"][0], 3) == 5.936
-    assert round(means["virginica"][0], 3) == 6.588
-    assert round(deviations["setosa"][0], 3) == 0.352
-    assert round(deviations["versicolor"][0], 3) == 0.516
-    assert round(deviations["virginica"][0], 3) == 0.636
+    assert round(means['setosa'][0], 3) == 5.006
+    assert round(means['versicolor'][0], 3) == 5.936
+    assert round(means['virginica'][0], 3) == 6.588
+    assert round(deviations['setosa'][0], 3) == 0.352
+    assert round(deviations['versicolor'][0], 3) == 0.516
+    assert round(deviations['virginica'][0], 3) == 0.636
 
 
 def test_plurality_learner():
-    zoo = DataSet(name="zoo")
+    zoo = DataSet(name='zoo')
     pl = PluralityLearner(zoo)
-    assert pl([1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 4, 1, 0, 1]) == "mammal"
+    assert pl([1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 4, 1, 0, 1]) == 'mammal'
 
 
 def test_k_nearest_neighbors():
-    iris = DataSet(name="iris")
+    iris = DataSet(name='iris')
     knn = NearestNeighborLearner(iris, k=3)
-    assert knn([5, 3, 1, 0.1]) == "setosa"
-    assert knn([5, 3, 1, 0.1]) == "setosa"
-    assert knn([6, 5, 3, 1.5]) == "versicolor"
-    assert knn([7.5, 4, 6, 2]) == "virginica"
+    assert knn([5, 3, 1, 0.1]) == 'setosa'
+    assert knn([5, 3, 1, 0.1]) == 'setosa'
+    assert knn([6, 5, 3, 1.5]) == 'versicolor'
+    assert knn([7.5, 4, 6, 2]) == 'virginica'
 
 
 def test_decision_tree_learner():
-    iris = DataSet(name="iris")
+    iris = DataSet(name='iris')
     dtl = DecisionTreeLearner(iris)
-    assert dtl([5, 3, 1, 0.1]) == "setosa"
-    assert dtl([6, 5, 3, 1.5]) == "versicolor"
-    assert dtl([7.5, 4, 6, 2]) == "virginica"
+    assert dtl([5, 3, 1, 0.1]) == 'setosa'
+    assert dtl([6, 5, 3, 1.5]) == 'versicolor'
+    assert dtl([7.5, 4, 6, 2]) == 'virginica'
 
 
 def test_information_content():
@@ -67,20 +67,20 @@ def test_information_content():
 
 
 def test_random_forest():
-    iris = DataSet(name="iris")
+    iris = DataSet(name='iris')
     rf = RandomForest(iris)
-    tests = [([5.0, 3.0, 1.0, 0.1], "setosa"),
-             ([5.1, 3.3, 1.1, 0.1], "setosa"),
-             ([6.0, 5.0, 3.0, 1.0], "versicolor"),
-             ([6.1, 2.2, 3.5, 1.0], "versicolor"),
-             ([7.5, 4.1, 6.2, 2.3], "virginica"),
-             ([7.3, 3.7, 6.1, 2.5], "virginica")]
+    tests = [([5.0, 3.0, 1.0, 0.1], 'setosa'),
+             ([5.1, 3.3, 1.1, 0.1], 'setosa'),
+             ([6.0, 5.0, 3.0, 1.0], 'versicolor'),
+             ([6.1, 2.2, 3.5, 1.0], 'versicolor'),
+             ([7.5, 4.1, 6.2, 2.3], 'virginica'),
+             ([7.3, 3.7, 6.1, 2.5], 'virginica')]
     assert grade_learner(rf, tests) >= 1 / 3
 
 
 def test_neural_network_learner():
-    iris = DataSet(name="iris")
-    classes = ["setosa", "versicolor", "virginica"]
+    iris = DataSet(name='iris')
+    classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
     nnl = NeuralNetLearner(iris, [5], 0.15, 75)
     tests = [([5.0, 3.1, 0.9, 0.1], 0),
@@ -97,7 +97,7 @@ def test_neural_network_learner():
 
 
 def test_perceptron():
-    iris = DataSet(name="iris")
+    iris = DataSet(name='iris')
     iris.classes_to_numbers()
     pl = PerceptronLearner(iris)
     tests = [([5, 3, 1, 0.1], 0),
@@ -121,7 +121,7 @@ def test_random_weights():
 
 
 def test_ada_boost():
-    iris = DataSet(name="iris")
+    iris = DataSet(name='iris')
     iris.classes_to_numbers()
     wl = WeightedLearner(PerceptronLearner)
     ab = ada_boost(iris, wl, 5)

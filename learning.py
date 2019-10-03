@@ -8,11 +8,10 @@ from collections import defaultdict
 from statistics import mean, stdev
 
 from probabilistic_learning import NaiveBayesLearner
-from utils import (
-    remove_all, unique, mode, argmax, argmax_random_tie, isclose, dotproduct, vector_add, scalar_vector_product,
-    weighted_sample_with_replacement, num_or_str, normalize, clip, sigmoid, print_table, open_data, sigmoid_derivative,
-    probability, relu, relu_derivative, tanh, tanh_derivative, leaky_relu_derivative, elu, elu_derivative,
-    mean_boolean_error, random_weights)
+from utils import (remove_all, unique, mode, argmax, argmax_random_tie, isclose, dotproduct, vector_add,
+                   scalar_vector_product, weighted_sample_with_replacement, num_or_str, normalize, clip, sigmoid,
+                   print_table, open_data, sigmoid_derivative, probability, relu, relu_derivative, tanh,
+                   tanh_derivative, leaky_relu_derivative, elu, elu_derivative, mean_boolean_error, random_weights)
 
 
 class DataSet:

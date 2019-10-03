@@ -9,17 +9,17 @@ random.seed("aima-python")
 
 
 def test_naive_bayes():
-    iris = DataSet(name="iris")
+    iris = DataSet(name='iris')
     # discrete
     nbd = NaiveBayesLearner(iris, continuous=False)
-    assert nbd([5, 3, 1, 0.1]) == "setosa"
-    assert nbd([6, 3, 4, 1.1]) == "versicolor"
-    assert nbd([7.7, 3, 6, 2]) == "virginica"
+    assert nbd([5, 3, 1, 0.1]) == 'setosa'
+    assert nbd([6, 3, 4, 1.1]) == 'versicolor'
+    assert nbd([7.7, 3, 6, 2]) == 'virginica'
     # continuous
     nbc = NaiveBayesLearner(iris, continuous=True)
-    assert nbc([5, 3, 1, 0.1]) == "setosa"
-    assert nbc([6, 5, 3, 1.5]) == "versicolor"
-    assert nbc([7, 3, 6.5, 2]) == "virginica"
+    assert nbc([5, 3, 1, 0.1]) == 'setosa'
+    assert nbc([6, 5, 3, 1.5]) == 'versicolor'
+    assert nbc([7, 3, 6.5, 2]) == 'virginica'
     # simple
     data1 = 'a' * 50 + 'b' * 30 + 'c' * 15
     dist1 = CountingProbDist(data1)

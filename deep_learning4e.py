@@ -1,4 +1,4 @@
-"""Deep learning (Chapters 20)"""
+"""Deep learning. (Chapters 20)"""
 
 import math
 import random

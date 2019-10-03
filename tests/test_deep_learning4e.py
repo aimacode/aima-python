@@ -9,8 +9,8 @@ random.seed("aima-python")
 
 
 def test_neural_net():
-    iris = DataSet(name="iris")
-    classes = ["setosa", "versicolor", "virginica"]
+    iris = DataSet(name='iris')
+    classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
     nnl_adam = NeuralNetLearner(iris, [4], learning_rate=0.001, epochs=200, optimizer=adam_optimizer)
     nnl_gd = NeuralNetLearner(iris, [4], learning_rate=0.15, epochs=100, optimizer=gradient_descent)
@@ -30,8 +30,8 @@ def test_neural_net():
 
 
 def test_perceptron():
-    iris = DataSet(name="iris")
-    classes = ["setosa", "versicolor", "virginica"]
+    iris = DataSet(name='iris')
+    classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
     pl = PerceptronLearner(iris, learning_rate=0.01, epochs=100)
     tests = [([5, 3, 1, 0.1], 0),
@@ -55,8 +55,8 @@ def test_rnn():
 
 
 def test_auto_encoder():
-    iris = DataSet(name="iris")
-    classes = ["setosa", "versicolor", "virginica"]
+    iris = DataSet(name='iris')
+    classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
     inputs = np.asarray(iris.examples)
     al = AutoencoderLearner(inputs, 100)
