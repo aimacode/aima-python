@@ -174,7 +174,7 @@ Here is a table of the implemented data structures, the figure, name of the impl
 
 # Acknowledgements
 
-Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially @darius, @SnShine, @reachtarunhere, @antmarakis, @Chipe1, @ad71 and @MariannaSpyrakou.
+Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially [@darius](https://github.com/darius), [@SnShine](https://github.com/SnShine), [@reachtarunhere](https://github.com/reachtarunhere), [@antmarakis](https://github.com/antmarakis), [@Chipe1](https://github.com/Chipe1), [@ad71](https://github.com/ad71) and [@MariannaSpyrakou](https://github.com/MariannaSpyrakou).
 
 <!---Reference Links-->
 [agents]:../master/agents.py
