@@ -992,9 +992,8 @@ class WumpusEnvironment(XYEnvironment):
             else:
                 print("Death by {} [-1000].".format(explorer[0].killed_by))
         else:
-            print("Explorer climbed out {}."
-                .format(
-                "with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"))
+            print("Explorer climbed out {}.".format("with Gold [+1000]!"
+                                                    if Gold() not in self.things else "without Gold [+0]"))
         return True
 
     # TODO: Arrow needs to be implemented

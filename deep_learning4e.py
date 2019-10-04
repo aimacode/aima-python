@@ -302,6 +302,7 @@ def BackPropagation(inputs, targets, theta, net, loss):
 
         previous = [layer_out[i] - t_val[i] for i in range(o_units)]
         h_layers = n_layers - 1
+
         # backward pass
         for i in range(h_layers, 0, -1):
             layer = net[i]
