@@ -388,7 +388,7 @@ class DecisionLeaf:
     def __call__(self, example):
         return self.result
 
-    def display(self, indent=0):
+    def display(self):
         print('RESULT =', self.result)
 
     def __repr__(self):
@@ -403,17 +403,16 @@ def DecisionTreeLearner(dataset):
     def decision_tree_learning(examples, attrs, parent_examples=()):
         if len(examples) == 0:
             return plurality_value(parent_examples)
-        elif all_same_class(examples):
+        if all_same_class(examples):
             return DecisionLeaf(examples[0][target])
-        elif len(attrs) == 0:
+        if len(attrs) == 0:
             return plurality_value(examples)
-        else:
-            A = choose_attribute(attrs, examples)
-            tree = DecisionFork(A, dataset.attr_names[A], plurality_value(examples))
-            for (v_k, exs) in split_by(A, examples):
-                subtree = decision_tree_learning(exs, remove_all(A, attrs), examples)
-                tree.add(v_k, subtree)
-            return tree
+        A = choose_attribute(attrs, examples)
+        tree = DecisionFork(A, dataset.attr_names[A], plurality_value(examples))
+        for (v_k, exs) in split_by(A, examples):
+            subtree = decision_tree_learning(exs, remove_all(A, attrs), examples)
+            tree.add(v_k, subtree)
+        return tree
 
     def plurality_value(examples):
         """
@@ -617,7 +616,7 @@ def ada_boost(dataset, L, K):
         h_k = L(dataset, w)
         h.append(h_k)
         error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k(example))
-        # avoid divide-by-0 from either 0% or 100% error rates:
+        # avoid divide-by-0 from either 0% or 100% error rates
         error = clip(error, epsilon, 1 - epsilon)
         for j, example in enumerate(examples):
             if example[target] == h_k(example):
