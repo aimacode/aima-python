@@ -1,6 +1,12 @@
+import random
+
 import pytest
 
-from agents4e import *
+from agents4e import Agent, WumpusEnvironment, Explorer, Thing, Gold, Pit, Bump, Glitter
+from agents4e import Direction
+from agents4e import (ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,
+                      RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram,
+                      SimpleReflexAgentProgram, ModelBasedReflexAgentProgram, Wall, VacuumEnvironment, Dirt)
 
 random.seed("aima-python")
 
