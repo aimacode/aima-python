@@ -9,7 +9,7 @@ from keras.models import Sequential
 from keras.preprocessing import sequence
 
 from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, \
-    vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss
+     vector_add, random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss
 
 
 # DEEP NEURAL NETWORKS. (Chapter 19)
@@ -20,7 +20,7 @@ from utils4e import sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, elem
 
 class Node:
     """
-    A node in computational graph, It contains the pointer to all its parents.
+    A node in a computational graph. Contains the pointer to all its parents.
     :param val: value of current node.
     :param parents: a container of all parents of current node.
     """
@@ -35,7 +35,7 @@ class Node:
 
 class NNUnit(Node):
     """
-    A single unit of a Layer in a Neural Network
+    A single unit of a layer in a Neural Network
     :param weights: weights between parent nodes and current node
     :param value: value of current node
     """
@@ -47,7 +47,7 @@ class NNUnit(Node):
 
 class Layer:
     """
-    A layer in a neural network based on computational graph.
+    A layer in a neural network based on a computational graph.
     :param size: number of units in the current layer
     """
 
@@ -207,8 +207,7 @@ def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1,
     gradient descent algorithm to update the learnable parameters of a network.
     :return: the updated network.
     """
-    # init data
-    examples = dataset.examples
+    examples = dataset.examples # init data
 
     for e in range(epochs):
         total_loss = 0
@@ -216,7 +215,6 @@ def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1,
         weights = [[node.weights for node in layer.nodes] for layer in net]
 
         for batch in get_batch(examples, batch_size):
-
             inputs, targets = init_examples(batch, dataset.inputs, dataset.target, len(net[-1].nodes))
             # compute gradients of weights
             gs, batch_loss = BackPropagation(inputs, targets, weights, net, loss)
@@ -231,6 +229,7 @@ def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1,
 
         if verbose and (e + 1) % verbose == 0:
             print("epoch:{}, total_loss:{}".format(e + 1, total_loss))
+    
     return net
 
 
@@ -261,8 +260,10 @@ def adam_optimizer(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 
         for batch in get_batch(examples, batch_size):
             t += 1
             inputs, targets = init_examples(batch, dataset.inputs, dataset.target, len(net[-1].nodes))
+            
             # compute gradients of weights
             gs, batch_loss = BackPropagation(inputs, targets, weights, net, loss)
+            
             # update s,r,s_hat and r_gat
             s = vector_add(scalar_vector_product(rho[0], s),
                            scalar_vector_product((1 - rho[0]), gs))
@@ -270,12 +271,15 @@ def adam_optimizer(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 
                            scalar_vector_product((1 - rho[1]), element_wise_product(gs, gs)))
             s_hat = scalar_vector_product(1 / (1 - rho[0] ** t), s)
             r_hat = scalar_vector_product(1 / (1 - rho[1] ** t), r)
+            
             # rescale r_hat
             r_hat = map_vector(lambda x: 1 / (math.sqrt(x) + delta), r_hat)
+            
             # delta weights
             delta_theta = scalar_vector_product(-l_rate, element_wise_product(s_hat, r_hat))
             weights = vector_add(weights, delta_theta)
             total_loss += batch_loss
+            
             # update the weights of network each batch
             for i in range(len(net)):
                 if weights[i]:
@@ -284,6 +288,7 @@ def adam_optimizer(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 
 
         if verbose and (e + 1) % verbose == 0:
             print("epoch:{}, total_loss:{}".format(e + 1, total_loss))
+    
     return net
 
 
@@ -327,6 +332,7 @@ def BackPropagation(inputs, targets, theta, net, loss):
 
         previous = [layer_out[i] - t_val[i] for i in range(o_units)]
         h_layers = n_layers - 1
+        
         # Backward pass
         for i in range(h_layers, 0, -1):
             layer = net[i]
@@ -426,6 +432,7 @@ def perceptron_learner(dataset, learning_rate=0.01, epochs=100, verbose=None):
 
     # initialize the network, add dense layer
     raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
+    
     # update the network
     learned_net = gradient_descent(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate, verbose=verbose)
 
@@ -497,6 +504,7 @@ def auto_encoder_learner(inputs, encoding_size, epochs=200):
     model.add(Dense(encoding_size, input_dim=input_size, activation='relu', kernel_initializer='random_uniform',
                     bias_initializer='ones'))
     model.add(Dense(input_size, activation='relu', kernel_initializer='random_uniform', bias_initializer='ones'))
+    
     # update model with sgd
     sgd = optimizers.SGD(lr=0.01)
     model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy'])
