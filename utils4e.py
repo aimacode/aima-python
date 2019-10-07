@@ -90,7 +90,7 @@ def sequence(iterable):
             else tuple([iterable]))
 
 
-def removeall(item, seq):
+def remove_all(item, seq):
     """Return a copy of seq (or string) with all occurrences of item removed."""
     if isinstance(seq, str):
         return seq.replace(item, '')

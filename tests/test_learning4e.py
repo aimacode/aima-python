@@ -1,6 +1,7 @@
 import pytest
 
-from learning import *
+from deep_learning4e import PerceptronLearner
+from learning4e import *
 
 random.seed("aima-python")
 
@@ -11,8 +12,8 @@ def test_exclude():
 
 
 def test_parse_csv():
-    Iris = open_data('iris.csv').read()
-    assert parse_csv(Iris)[0] == [5.1, 3.5, 1.4, 0.2, 'setosa']
+    iris = open_data('iris.csv').read()
+    assert parse_csv(iris)[0] == [5.1, 3.5, 1.4, 0.2, 'setosa']
 
 
 def test_weighted_mode():
@@ -24,25 +25,37 @@ def test_weighted_replicate():
 
 
 def test_means_and_deviation():
-    iris = DataSet(name="iris")
-
+    iris = DataSet(name='iris')
     means, deviations = iris.find_means_and_deviations()
+    assert round(means['setosa'][0], 3) == 5.006
+    assert round(means['versicolor'][0], 3) == 5.936
+    assert round(means['virginica'][0], 3) == 6.588
+    assert round(deviations['setosa'][0], 3) == 0.352
+    assert round(deviations['versicolor'][0], 3) == 0.516
+    assert round(deviations['virginica'][0], 3) == 0.636
 
-    assert round(means["setosa"][0], 3) == 5.006
-    assert round(means["versicolor"][0], 3) == 5.936
-    assert round(means["virginica"][0], 3) == 6.588
 
-    assert round(deviations["setosa"][0], 3) == 0.352
-    assert round(deviations["versicolor"][0], 3) == 0.516
-    assert round(deviations["virginica"][0], 3) == 0.636
+def test_plurality_learner():
+    zoo = DataSet(name='zoo')
+    pl = PluralityLearner(zoo)
+    assert pl([1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 4, 1, 0, 1]) == 'mammal'
+
+
+def test_k_nearest_neighbors():
+    iris = DataSet(name='iris')
+    knn = NearestNeighborLearner(iris, k=3)
+    assert knn([5, 3, 1, 0.1]) == 'setosa'
+    assert knn([5, 3, 1, 0.1]) == 'setosa'
+    assert knn([6, 5, 3, 1.5]) == 'versicolor'
+    assert knn([7.5, 4, 6, 2]) == 'virginica'
 
 
 def test_decision_tree_learner():
-    iris = DataSet(name="iris")
-    dTL = DecisionTreeLearner(iris)
-    assert dTL([5, 3, 1, 0.1]) == "setosa"
-    assert dTL([6, 5, 3, 1.5]) == "versicolor"
-    assert dTL([7.5, 4, 6, 2]) == "virginica"
+    iris = DataSet(name='iris')
+    dtl = DecisionTreeLearner(iris)
+    assert dtl([5, 3, 1, 0.1]) == 'setosa'
+    assert dtl([6, 5, 3, 1.5]) == 'versicolor'
+    assert dtl([7.5, 4, 6, 2]) == 'virginica'
 
 
 def test_information_content():
@@ -55,15 +68,15 @@ def test_information_content():
 
 
 def test_random_forest():
-    iris = DataSet(name="iris")
-    rF = RandomForest(iris)
-    tests = [([5.0, 3.0, 1.0, 0.1], "setosa"),
-             ([5.1, 3.3, 1.1, 0.1], "setosa"),
-             ([6.0, 5.0, 3.0, 1.0], "versicolor"),
-             ([6.1, 2.2, 3.5, 1.0], "versicolor"),
-             ([7.5, 4.1, 6.2, 2.3], "virginica"),
-             ([7.3, 3.7, 6.1, 2.5], "virginica")]
-    assert grade_learner(rF, tests) >= 1 / 3
+    iris = DataSet(name='iris')
+    rf = RandomForest(iris)
+    tests = [([5.0, 3.0, 1.0, 0.1], 'setosa'),
+             ([5.1, 3.3, 1.1, 0.1], 'setosa'),
+             ([6.0, 5.0, 3.0, 1.0], 'versicolor'),
+             ([6.1, 2.2, 3.5, 1.0], 'versicolor'),
+             ([7.5, 4.1, 6.2, 2.3], 'virginica'),
+             ([7.3, 3.7, 6.1, 2.5], 'virginica')]
+    assert grade_learner(rf, tests) >= 1 / 3
 
 
 def test_random_weights():
@@ -76,20 +89,19 @@ def test_random_weights():
         assert min_value <= weight <= max_value
 
 
-def test_adaBoost():
-    iris = DataSet(name="iris")
+def test_ada_boost():
+    iris = DataSet(name='iris')
     iris.classes_to_numbers()
-    WeightedPerceptron = WeightedLearner(PerceptronLearner)
-    AdaBoostLearner = AdaBoost(WeightedPerceptron, 5)
-    adaBoost = AdaBoostLearner(iris)
+    wl = WeightedLearner(PerceptronLearner)
+    ab = ada_boost(iris, wl, 5)
     tests = [([5, 3, 1, 0.1], 0),
              ([5, 3.5, 1, 0], 0),
              ([6, 3, 4, 1.1], 1),
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(adaBoost, tests) > 4 / 6
-    assert err_ratio(adaBoost, iris) < 0.25
+    assert grade_learner(ab, tests) > 4 / 6
+    assert err_ratio(ab, iris) < 0.25
 
 
 if __name__ == "__main__":

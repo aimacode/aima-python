@@ -25,7 +25,7 @@ def sequence(iterable):
             else tuple([iterable]))
 
 
-def removeall(item, seq):
+def remove_all(item, seq):
     """Return a copy of seq (or string) with all occurrences of item removed."""
     if isinstance(seq, str):
         return seq.replace(item, '')
@@ -305,7 +305,7 @@ def manhattan_distance(X, Y):
 
 
 def mean_boolean_error(X, Y):
-    return mean(int(x != y) for x, y in zip(X, Y))
+    return mean(x != y for x, y in zip(X, Y))
 
 
 def hamming_distance(X, Y):
@@ -327,6 +327,10 @@ def normalize(dist):
 def norm(X, n=2):
     """Return the n-norm of vector X"""
     return sum([x ** n for x in X]) ** (1 / n)
+
+
+def random_weights(min_value, max_value, num_weights):
+    return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
 def clip(x, lowest, highest):
@@ -413,6 +417,71 @@ except ImportError:
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
         """Return true if numbers a and b are close to each other."""
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+
+def truncated_svd(X, num_val=2, max_iter=1000):
+    """Compute the first component of SVD."""
+
+    def normalize_vec(X, n=2):
+        """Normalize two parts (:m and m:) of the vector."""
+        X_m = X[:m]
+        X_n = X[m:]
+        norm_X_m = norm(X_m, n)
+        Y_m = [x / norm_X_m for x in X_m]
+        norm_X_n = norm(X_n, n)
+        Y_n = [x / norm_X_n for x in X_n]
+        return Y_m + Y_n
+
+    def remove_component(X):
+        """Remove components of already obtained eigen vectors from X."""
+        X_m = X[:m]
+        X_n = X[m:]
+        for eivec in eivec_m:
+            coeff = dotproduct(X_m, eivec)
+            X_m = [x1 - coeff * x2 for x1, x2 in zip(X_m, eivec)]
+        for eivec in eivec_n:
+            coeff = dotproduct(X_n, eivec)
+            X_n = [x1 - coeff * x2 for x1, x2 in zip(X_n, eivec)]
+        return X_m + X_n
+
+    m, n = len(X), len(X[0])
+    A = [[0] * (n + m) for _ in range(n + m)]
+    for i in range(m):
+        for j in range(n):
+            A[i][m + j] = A[m + j][i] = X[i][j]
+
+    eivec_m = []
+    eivec_n = []
+    eivals = []
+
+    for _ in range(num_val):
+        X = [random.random() for _ in range(m + n)]
+        X = remove_component(X)
+        X = normalize_vec(X)
+
+        for i in range(max_iter):
+            old_X = X
+            X = matrix_multiplication(A, [[x] for x in X])
+            X = [x[0] for x in X]
+            X = remove_component(X)
+            X = normalize_vec(X)
+            # check for convergence
+            if norm([x1 - x2 for x1, x2 in zip(old_X, X)]) <= 1e-10:
+                break
+
+        projected_X = matrix_multiplication(A, [[x] for x in X])
+        projected_X = [x[0] for x in projected_X]
+        new_eigenvalue = norm(projected_X, 1) / norm(X, 1)
+        ev_m = X[:m]
+        ev_n = X[m:]
+        if new_eigenvalue < 0:
+            new_eigenvalue = -new_eigenvalue
+            ev_m = [-ev_m_i for ev_m_i in ev_m]
+        eivals.append(new_eigenvalue)
+        eivec_m.append(ev_m)
+        eivec_n.append(ev_n)
+    return eivec_m, eivec_n, eivals
+
 
 # ______________________________________________________________________________
 # Grid Functions

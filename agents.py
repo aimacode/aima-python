@@ -333,8 +333,7 @@ class Environment:
 
     def list_things_at(self, location, tclass=Thing):
         """Return all things exactly at a given location."""
-        return [thing for thing in self.things
-                if thing.location == location and isinstance(thing, tclass)]
+        return [thing for thing in self.things if thing.location == location and isinstance(thing, tclass)]
 
     def some_things_at(self, location, tclass=Thing):
         """Return true if at least one of the things at location
@@ -993,9 +992,8 @@ class WumpusEnvironment(XYEnvironment):
             else:
                 print("Death by {} [-1000].".format(explorer[0].killed_by))
         else:
-            print("Explorer climbed out {}."
-                .format(
-                "with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"))
+            print("Explorer climbed out {}.".format("with Gold [+1000]!"
+                                                    if Gold() not in self.things else "without Gold [+0]"))
         return True
 
     # TODO: Arrow needs to be implemented
@@ -1012,9 +1010,9 @@ def compare_agents(EnvFactory, AgentFactories, n=10, steps=1000):
     >>> environment = TrivialVacuumEnvironment
     >>> agents = [ModelBasedVacuumAgent, ReflexVacuumAgent]
     >>> result = compare_agents(environment, agents)
-    >>> performance_ModelBasedVacummAgent = result[0][1]
-    >>> performance_ReflexVacummAgent = result[1][1]
-    >>> performance_ReflexVacummAgent <= performance_ModelBasedVacummAgent
+    >>> performance_ModelBasedVacuumAgent = result[0][1]
+    >>> performance_ReflexVacuumAgent = result[1][1]
+    >>> performance_ReflexVacuumAgent <= performance_ModelBasedVacuumAgent
     True
     """
     envs = [EnvFactory() for i in range(n)]
