@@ -288,10 +288,12 @@ def test_viterbi():
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     umbrella_evidence = [T, T, F, T, T]
-    assert rounder(viterbi(umbrellaHMM, umbrella_evidence)) == [0.8182, 0.5155, 0.1237, 0.0334, 0.0210]
+    assert viterbi(umbrellaHMM, umbrella_evidence)[0] == [T, T, F, T, T]
+    assert rounder(viterbi(umbrellaHMM, umbrella_evidence)[1]) == [0.8182, 0.5155, 0.1237, 0.0334, 0.0210]
 
     umbrella_evidence = [T, F, T, F, T]
-    assert rounder(viterbi(umbrellaHMM, umbrella_evidence)) == [0.8182, 0.1964, 0.053, 0.0154, 0.0042]
+    assert viterbi(umbrellaHMM, umbrella_evidence)[0] == [T, F, F, F, T]
+    assert rounder(viterbi(umbrellaHMM, umbrella_evidence)[1]) == [0.8182, 0.1964, 0.0275, 0.0154, 0.0042]
 
 
 def test_fixed_lag_smoothing():
