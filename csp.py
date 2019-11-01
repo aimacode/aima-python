@@ -586,8 +586,7 @@ def MapColoringCSP(colors, neighbors):
     specified as a string of the form defined by parse_neighbors."""
     if isinstance(neighbors, str):
         neighbors = parse_neighbors(neighbors)
-    return CSP(list(neighbors.keys()), UniversalDict(colors), neighbors,
-               different_values_constraint)
+    return CSP(list(neighbors.keys()), UniversalDict(colors), neighbors, different_values_constraint)
 
 
 def parse_neighbors(neighbors, variables=None):
