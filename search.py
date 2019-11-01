@@ -252,7 +252,7 @@ def breadth_first_graph_search(problem):
     return None
 
 
-def best_first_graph_search(problem, f):
+def best_first_graph_search(problem, f, display=False):
     """Search the nodes with the lowest f scores first.
     You specify the function f(node) that you want to minimize; for example,
     if f is a heuristic estimate to the goal, then we have greedy best
@@ -268,6 +268,8 @@ def best_first_graph_search(problem, f):
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
+            if display:
+                print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
             return node
         explored.add(node.state)
         for child in node.expand(problem):
@@ -280,9 +282,9 @@ def best_first_graph_search(problem, f):
     return None
 
 
-def uniform_cost_search(problem):
+def uniform_cost_search(problem, display=False):
     """[Figure 3.14]"""
-    return best_first_graph_search(problem, lambda node: node.path_cost)
+    return best_first_graph_search(problem, lambda node: node.path_cost, display)
 
 
 def depth_limited_search(problem, limit=50):
@@ -401,12 +403,12 @@ greedy_best_first_graph_search = best_first_graph_search
 # Greedy best-first search is accomplished by specifying f(n) = h(n).
 
 
-def astar_search(problem, h=None):
+def astar_search(problem, h=None, display=False):
     """A* search is best-first graph search with f(n) = g(n)+h(n).
     You need to specify the h function when you call astar_search, or
     else in your Problem subclass."""
     h = memoize(h or problem.h, 'h')
-    return best_first_graph_search(problem, lambda n: n.path_cost + h(n))
+    return best_first_graph_search(problem, lambda n: n.path_cost + h(n), display)
 
 
 # ______________________________________________________________________________

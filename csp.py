@@ -1,4 +1,4 @@
-"""CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)."""
+"""CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)"""
 import string
 from operator import eq, neg
 
@@ -28,9 +28,9 @@ class CSP(search.Problem):
     In the textbook and in most mathematical definitions, the
     constraints are specified as explicit pairs of allowable values,
     but the formulation here is easier to express and more compact for
-    most cases. (For example, the n-Queens problem can be represented
-    in O(n) space using this notation, instead of O(N^4) for the
-    explicit representation.) In terms of describing the CSP as a
+    most cases (for example, the n-Queens problem can be represented
+    in O(n) space using this notation, instead of O(n^4) for the
+    explicit representation). In terms of describing the CSP as a
     problem, that's all there is.
 
     However, the class also supports data structures and methods that help you
@@ -93,7 +93,7 @@ class CSP(search.Problem):
     # These methods are for the tree and graph-search interface:
 
     def actions(self, state):
-        """Return a list of applicable actions: nonconflicting
+        """Return a list of applicable actions: non conflicting
         assignments to an unassigned variable."""
         if len(state) == len(self.variables):
             return []
@@ -352,17 +352,15 @@ def first_unassigned_variable(assignment, csp):
 
 def mrv(assignment, csp):
     """Minimum-remaining-values heuristic."""
-    return argmin_random_tie(
-        [v for v in csp.variables if v not in assignment],
-        key=lambda var: num_legal_values(csp, var, assignment))
+    return argmin_random_tie([v for v in csp.variables if v not in assignment],
+                             key=lambda var: num_legal_values(csp, var, assignment))
 
 
 def num_legal_values(csp, var, assignment):
     if csp.curr_domains:
         return len(csp.curr_domains[var])
     else:
-        return count(csp.nconflicts(var, val, assignment) == 0
-                     for val in csp.domains[var])
+        return count(csp.nconflicts(var, val, assignment) == 0 for val in csp.domains[var])
 
 
 # Value ordering
@@ -375,8 +373,7 @@ def unordered_domain_values(var, assignment, csp):
 
 def lcv(var, assignment, csp):
     """Least-constraining-values heuristic."""
-    return sorted(csp.choices(var),
-                  key=lambda val: csp.nconflicts(var, val, assignment))
+    return sorted(csp.choices(var), key=lambda val: csp.nconflicts(var, val, assignment))
 
 
 # Inference
@@ -459,8 +456,7 @@ def min_conflicts(csp, max_steps=100000):
 def min_conflicts_value(csp, var, current):
     """Return the value that will give var the least number of conflicts.
     If there is a tie, choose at random."""
-    return argmin_random_tie(csp.domains[var],
-                             key=lambda val: csp.nconflicts(var, val, current))
+    return argmin_random_tie(csp.domains[var], key=lambda val: csp.nconflicts(var, val, current))
 
 
 # ______________________________________________________________________________
@@ -765,7 +761,7 @@ class Sudoku(CSP):
     8 . . | 2 . 3 | . . 9
     . . 5 | . 1 . | 3 . .
     >>> AC3(e); e.display(e.infer_assignment())
-    True
+    (True, 6925)
     4 8 3 | 9 2 1 | 6 5 7
     9 6 7 | 3 4 5 | 8 2 1
     2 5 1 | 8 7 6 | 4 9 3
