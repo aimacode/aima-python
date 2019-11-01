@@ -1,11 +1,10 @@
-"""Probability models. (Chapter 13-15)
+"""
+Probability models. (Chapter 13-15)
 """
 
-from utils import (
-    product, argmax, element_wise_product, matrix_multiplication,
-    vector_to_diagonal, vector_add, scalar_vector_product, inverse_matrix,
-    weighted_sample_with_replacement, isclose, probability, normalize,
-    extend)
+from utils import (product, argmax, element_wise_product, matrix_multiplication, vector_to_diagonal, vector_add,
+                   scalar_vector_product, inverse_matrix, weighted_sample_with_replacement, isclose, probability,
+                   normalize, extend)
 from agents import Agent
 
 import random
@@ -18,12 +17,13 @@ import numpy as np
 
 
 def DTAgentProgram(belief_state):
-    """A decision-theoretic agent. [Figure 13.1]"""
+    """
+    [Figure 13.1]
+    A decision-theoretic agent."""
 
     def program(percept):
         belief_state.observe(program.action, percept)
-        program.action = argmax(belief_state.actions(),
-                                key=belief_state.expected_outcome_utility)
+        program.action = argmax(belief_state.actions(), key=belief_state.expected_outcome_utility)
         return program.action
 
     program.action = None
@@ -43,11 +43,11 @@ class ProbDist:
     (0.125, 0.375, 0.5)
     """
 
-    def __init__(self, varname='?', freqs=None):
+    def __init__(self, var_name='?', freqs=None):
         """If freqs is given, it is a dictionary of values - frequency pairs,
         then ProbDist is normalized."""
         self.prob = {}
-        self.varname = varname
+        self.var_name = var_name
         self.values = []
         if freqs:
             for (v, p) in freqs.items():
@@ -80,11 +80,10 @@ class ProbDist:
     def show_approx(self, numfmt='{:.3g}'):
         """Show the probabilities rounded and sorted by key, for the
         sake of portable doctests."""
-        return ', '.join([('{}: ' + numfmt).format(v, p)
-                          for (v, p) in sorted(self.prob.items())])
+        return ', '.join([('{}: ' + numfmt).format(v, p) for (v, p) in sorted(self.prob.items())])
 
     def __repr__(self):
-        return "P({})".format(self.varname)
+        return "P({})".format(self.var_name)
 
 
 class JointProbDist(ProbDist):
@@ -141,8 +140,10 @@ def event_values(event, variables):
 
 
 def enumerate_joint_ask(X, e, P):
-    """Return a probability distribution over the values of the variable X,
-    given the {var:val} observations e, in the JointProbDist P. [Section 13.3]
+    """
+    [Section 13.3]
+    Return a probability distribution over the values of the variable X,
+    given the {var:val} observations e, in the JointProbDist P.
     >>> P = JointProbDist(['X', 'Y'])
     >>> P[0,0] = 0.25; P[0,1] = 0.5; P[1,1] = P[2,1] = 0.125
     >>> enumerate_joint_ask('X', dict(Y=1), P).show_approx()
@@ -239,9 +240,11 @@ class DecisionNetwork(BayesNet):
 
 
 class InformationGatheringAgent(Agent):
-    """A simple information gathering agent. The agent works by repeatedly selecting
+    """
+    [Figure 16.9]
+    A simple information gathering agent. The agent works by repeatedly selecting
     the observation with the highest information value, until the cost of the next
-    observation is greater than its expected benefit. [Figure 16.9]"""
+    observation is greater than its expected benefit."""
 
     def __init__(self, decnet, infer, initial_evidence=None):
         """decnet: a decision network
@@ -381,16 +384,17 @@ burglary = BayesNet([
     ('Alarm', 'Burglary Earthquake',
      {(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001}),
     ('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
-    ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})
-])
+    ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})])
 
 
 # ______________________________________________________________________________
 
 
 def enumeration_ask(X, e, bn):
-    """Return the conditional probability distribution of variable X
-    given evidence e, from BayesNet bn. [Figure 14.9]
+    """
+    [Figure 14.9]
+    Return the conditional probability distribution of variable X
+    given evidence e, from BayesNet bn.
     >>> enumeration_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary
     ...  ).show_approx()
     'False: 0.716, True: 0.284'"""
@@ -421,7 +425,9 @@ def enumerate_all(variables, e, bn):
 
 
 def elimination_ask(X, e, bn):
-    """Compute bn's P(X|e) by variable elimination. [Figure 14.11]
+    """
+    [Figure 14.11]
+    Compute bn's P(X|e) by variable elimination.
     >>> elimination_ask('Burglary', dict(JohnCalls=T, MaryCalls=T), burglary
     ...  ).show_approx()
     'False: 0.716, True: 0.284'"""
@@ -473,23 +479,20 @@ class Factor:
     def pointwise_product(self, other, bn):
         """Multiply two factors, combining their variables."""
         variables = list(set(self.variables) | set(other.variables))
-        cpt = {event_values(e, variables): self.p(e) * other.p(e)
-               for e in all_events(variables, bn, {})}
+        cpt = {event_values(e, variables): self.p(e) * other.p(e) for e in all_events(variables, bn, {})}
         return Factor(variables, cpt)
 
     def sum_out(self, var, bn):
         """Make a factor eliminating var by summing over its values."""
         variables = [X for X in self.variables if X != var]
-        cpt = {event_values(e, variables): sum(self.p(extend(e, var, val))
-                                               for val in bn.variable_values(var))
+        cpt = {event_values(e, variables): sum(self.p(extend(e, var, val)) for val in bn.variable_values(var))
                for e in all_events(variables, bn, {})}
         return Factor(variables, cpt)
 
     def normalize(self):
         """Return my probabilities; must be down to one variable."""
         assert len(self.variables) == 1
-        return ProbDist(self.variables[0],
-                        {k: v for ((k,), v) in self.cpt.items()})
+        return ProbDist(self.variables[0], {k: v for ((k,), v) in self.cpt.items()})
 
     def p(self, e):
         """Look up my value tabulated for e."""
@@ -524,8 +527,10 @@ sprinkler = BayesNet([
 
 
 def prior_sample(bn):
-    """Randomly sample from bn's full joint distribution. The result
-    is a {variable: value} dict. [Figure 14.13]"""
+    """
+    [Figure 14.13]
+    Randomly sample from bn's full joint distribution. The result
+    is a {variable: value} dict."""
     event = {}
     for node in bn.nodes:
         event[node.variable] = node.sample(event)
@@ -555,16 +560,17 @@ def rejection_sampling(X, e, bn, N=10000):
 
 def consistent_with(event, evidence):
     """Is event consistent with the given evidence?"""
-    return all(evidence.get(k, v) == v
-               for k, v in event.items())
+    return all(evidence.get(k, v) == v for k, v in event.items())
 
 
 # _________________________________________________________________________
 
 
 def likelihood_weighting(X, e, bn, N=10000):
-    """Estimate the probability distribution of variable X given
-    evidence e in BayesNet bn.  [Figure 14.15]
+    """
+    [Figure 14.15]
+    Estimate the probability distribution of variable X given
+    evidence e in BayesNet bn.
     >>> random.seed(1017)
     >>> likelihood_weighting('Burglary', dict(JohnCalls=T, MaryCalls=T),
     ...   burglary, 10000).show_approx()
@@ -619,9 +625,8 @@ def markov_blanket_sample(X, e, bn):
     Q = ProbDist(X)
     for xi in bn.variable_values(X):
         ei = extend(e, X, xi)
-        # [Equation 14.12:]
-        Q[xi] = Xnode.p(xi, e) * product(Yj.p(ei[Yj.variable], ei)
-                                         for Yj in Xnode.children)
+        # [Equation 14.12]
+        Q[xi] = Xnode.p(xi, e) * product(Yj.p(ei[Yj.variable], ei) for Yj in Xnode.children)
     # (assuming a Boolean variable here)
     return probability(Q.normalize()[True])
 
@@ -661,7 +666,8 @@ def backward(HMM, b, ev):
 
 
 def forward_backward(HMM, ev):
-    """[Figure 15.4]
+    """
+    [Figure 15.4]
     Forward-Backward algorithm for smoothing. Computes posterior probabilities
     of a sequence of states given a sequence of observations."""
     t = len(ev)
@@ -687,9 +693,10 @@ def forward_backward(HMM, ev):
 
 
 def viterbi(HMM, ev):
-    """[Equation 15.11]
-    Viterbi algorithm to find the most likely sequence. Computes the best path and the corresponding probabilities,
-    given an HMM model and a sequence of observations."""
+    """
+    [Equation 15.11]
+    Viterbi algorithm to find the most likely sequence. Computes the best path and the
+    corresponding probabilities, given an HMM model and a sequence of observations."""
     t = len(ev)
     ev = ev.copy()
     ev.insert(0, None)
@@ -713,8 +720,8 @@ def viterbi(HMM, ev):
     # most likely sequence
     ml_path = [True] * (len(ev) - 1)
 
-    # the construction of the most likely sequence starts in the final state with the largest probability,
-    # and runs backwards; the algorithm needs to store for each xt its predecessor xt-1 maximizing its probability
+    # the construction of the most likely sequence starts in the final state with the largest probability, and
+    # runs backwards; the algorithm needs to store for each xt its predecessor xt-1 maximizing its probability
     i_max = np.argmax(m[-1])
 
     for i in range(t - 1, -1, -1):
@@ -730,7 +737,8 @@ def viterbi(HMM, ev):
 
 
 def fixed_lag_smoothing(e_t, HMM, d, ev, t):
-    """[Figure 15.6]
+    """
+    [Figure 15.6]
     Smoothing algorithm with a fixed time lag of 'd' steps.
     Online algorithm that outputs the new smoothed estimate if observation
     for new time step is given."""
@@ -842,7 +850,9 @@ class MCLmap:
 
 
 def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
-    """Monte Carlo localization algorithm from Fig 25.9"""
+    """
+    [Figure 25.9]
+    Monte Carlo localization algorithm"""
 
     def ray_cast(sensor_num, kin_state, m):
         return m.ray_cast(sensor_num, kin_state)

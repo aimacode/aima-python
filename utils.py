@@ -141,8 +141,7 @@ def histogram(values, mode=0, bin_function=None):
         bins[val] = bins.get(val, 0) + 1
 
     if mode:
-        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]),
-                      reverse=True)
+        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]), reverse=True)
     else:
         return sorted(bins.items())
 
@@ -172,7 +171,7 @@ def matrix_multiplication(X_M, *Y_M):
         """
         assert len(X_M[0]) == len(Y_M)
 
-        result = [[0 for i in range(len(Y_M[0]))] for j in range(len(X_M))]
+        result = [[0 for i in range(len(Y_M[0]))] for _ in range(len(X_M))]
         for i in range(len(X_M)):
             for j in range(len(Y_M[0])):
                 for k in range(len(Y_M)):
@@ -189,7 +188,7 @@ def matrix_multiplication(X_M, *Y_M):
 def vector_to_diagonal(v):
     """Converts a vector to a diagonal matrix with vector elements
     as the diagonal elements of the matrix"""
-    diag_matrix = [[0 for i in range(len(v))] for j in range(len(v))]
+    diag_matrix = [[0 for i in range(len(v))] for _ in range(len(v))]
     for i in range(len(v)):
         diag_matrix[i][i] = v[i]
 
@@ -247,7 +246,7 @@ def weighted_sampler(seq, weights):
 
 def weighted_choice(choices):
     """A weighted version of random.choice"""
-    # NOTE: Shoule be replaced by random.choices if we port to Python 3.6
+    # NOTE: Should be replaced by random.choices if we port to Python 3.6
 
     total = sum(w for _, w in choices)
     r = random.uniform(0, total)
@@ -373,7 +372,7 @@ def tanh(x):
 
 
 def tanh_derivative(value):
-    return (1 - (value ** 2))
+    return 1 - (value ** 2)
 
 
 def leaky_relu(x, alpha=0.01):
@@ -527,7 +526,7 @@ def vector_clip(vector, lowest, highest):
 # ______________________________________________________________________________
 # Misc Functions
 
-class injection():
+class injection:
     """Dependency injection of temporary values for global functions/classes/etc.
     E.g., `with injection(DataBase=MockDataBase): ...`"""
 

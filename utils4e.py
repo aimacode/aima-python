@@ -1,4 +1,4 @@
-"""Provides some utilities widely used by other modules"""
+"""Provides some utilities widely used by other modules."""
 
 import bisect
 import collections
@@ -22,8 +22,7 @@ import numpy as np
 
 
 class PriorityQueue:
-    """A Queue in which the minimum (or maximum) element (as determined by f and
-    order) is returned first.
+    """A Queue in which the minimum (or maximum) element (as determined by f and order) is returned first.
     If order is 'min', the item with minimum f(x) is
     returned first; if order is 'max', then it is the item with maximum f(x).
     Also supports dict-like lookup."""

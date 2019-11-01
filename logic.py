@@ -1,4 +1,5 @@
-"""Representations and Inference for Logic (Chapters 7-9, 12)
+"""
+Representations and Inference for Logic (Chapters 7-9, 12)
 
 Covers both Propositional and First-Order Logic. First we have four
 important data types:
@@ -177,8 +178,7 @@ def is_definite_clause(s):
         return True
     elif s.op == '==>':
         antecedent, consequent = s.args
-        return (is_symbol(consequent.op) and
-                all(is_symbol(arg.op) for arg in conjuncts(antecedent)))
+        return is_symbol(consequent.op) and all(is_symbol(arg.op) for arg in conjuncts(antecedent))
     else:
         return False
 
@@ -560,12 +560,14 @@ def pl_fc_entails(KB, q):
     return False
 
 
-""" [Figure 7.13]
+"""
+[Figure 7.13]
 Simple inference in a wumpus world example
 """
 wumpus_world_inference = expr("(B11 <=> (P12 | P21))  &  ~B11")
 
-""" [Figure 7.16]
+"""
+[Figure 7.16]
 Propositional Logic Forward Chaining example
 """
 horn_clauses_KB = PropDefiniteKB()
@@ -576,8 +578,13 @@ for s in "P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B".split(';'):
 Definite clauses KB example
 """
 definite_clauses_KB = PropDefiniteKB()
-for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B',
-               'C']:
+for clause in ['(B & F)==>E',
+               '(A & E & F)==>G',
+               '(B & C)==>F',
+               '(A & B)==>D',
+               '(E & F)==>H',
+               '(H & I)==>J',
+               'A', 'B', 'C']:
     definite_clauses_KB.tell(expr(clause))
 
 

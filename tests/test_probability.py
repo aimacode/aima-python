@@ -145,7 +145,7 @@ def test_enumeration_ask():
         burglary).show_approx() == 'False: 0.944, True: 0.0561'
 
 
-def test_elemination_ask():
+def test_elimination_ask():
     assert elimination_ask(
         'Burglary', dict(JohnCalls=T, MaryCalls=T),
         burglary).show_approx() == 'False: 0.716, True: 0.284'
