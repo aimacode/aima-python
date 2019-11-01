@@ -88,7 +88,7 @@ class CSP(search.Problem):
     def display(self, assignment):
         """Show a human-readable representation of the CSP."""
         # Subclasses can print in a prettier way, or display with a GUI
-        print('CSP:', self, 'with assignment:', assignment)
+        print(assignment)
 
     # These methods are for the tree and graph-search interface:
 
@@ -928,8 +928,7 @@ class NaryCSP:
         """more detailed string representation of CSP"""
         if assignment is None:
             assignment = {}
-        print('CSP(' + str(self.domains) + ', ' + str([str(c) for c in self.constraints]) + ') with assignment: ' +
-              str(assignment))
+        print(assignment)
 
     def consistent(self, assignment):
         """assignment is a variable:value dictionary
