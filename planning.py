@@ -11,7 +11,7 @@ import search
 from csp import sat_up, NaryCSP, Constraint, ac_search_solver, is_
 from logic import FolKB, conjuncts, unify, associate, SAT_plan, cdcl_satisfiable
 from search import Node
-from utils import Expr, expr, first
+from utils import Expr, expr, first, inf
 
 
 class PlanningProblem:
@@ -593,7 +593,7 @@ class ForwardPlan(search.Problem):
         try:
             return len(linearize(GraphPlan(relaxed_planning_problem).execute()))
         except:
-            return float('inf')
+            return inf
 
 
 class BackwardPlan(search.Problem):
@@ -646,7 +646,7 @@ class BackwardPlan(search.Problem):
         try:
             return len(linearize(GraphPlan(relaxed_planning_problem).execute()))
         except:
-            return float('inf')
+            return inf
 
 
 def CSPlan(planning_problem, solution_length, CSP_solver=ac_search_solver, arc_heuristic=sat_up):

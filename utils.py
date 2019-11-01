@@ -14,6 +14,8 @@ from statistics import mean
 import numpy as np
 from itertools import chain, combinations
 
+inf = float('inf')
+
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables

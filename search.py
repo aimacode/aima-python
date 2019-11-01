@@ -13,9 +13,7 @@ import sys
 from collections import deque
 
 from utils import (is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler, memoize, print_table,
-                   open_data, PriorityQueue, name, distance, vector_add)
-
-infinity = float('inf')
+                   open_data, PriorityQueue, name, distance, vector_add, inf)
 
 
 # ______________________________________________________________________________
@@ -326,7 +324,7 @@ def bidirectional_search(problem):
     gF, gB = {problem.initial: 0}, {problem.goal: 0}
     openF, openB = [problem.initial], [problem.goal]
     closedF, closedB = [], []
-    U = infinity
+    U = inf
 
     def extend(U, open_dir, open_other, g_dir, g_other, closed_dir):
         """Extend search in given direction"""
@@ -352,7 +350,7 @@ def bidirectional_search(problem):
 
     def find_min(open_dir, g):
         """Finds minimum priority, g and f values in open_dir"""
-        m, m_f = infinity, infinity
+        m, m_f = inf, inf
         for n in open_dir:
             f = g[n] + problem.h(n)
             pr = max(f, 2 * g[n])
@@ -364,7 +362,7 @@ def bidirectional_search(problem):
     def find_key(pr_min, open_dir, g):
         """Finds key in open_dir with value equal to pr_min
         and minimum g value."""
-        m = infinity
+        m = inf
         state = -1
         for n in open_dir:
             pr = max(g[n] + problem.h(n), 2 * g[n])
@@ -390,7 +388,7 @@ def bidirectional_search(problem):
             # Extend backward
             U, openB, closedB, gB = extend(U, openB, openF, gB, gF, closedB)
 
-    return infinity
+    return inf
 
 
 # ______________________________________________________________________________
@@ -603,7 +601,7 @@ def recursive_best_first_search(problem, h=None):
             return node, 0  # (The second value is immaterial)
         successors = node.expand(problem)
         if len(successors) == 0:
-            return None, infinity
+            return None, inf
         for s in successors:
             s.f = max(s.path_cost + h(s), node.f)
         while True:
@@ -615,14 +613,14 @@ def recursive_best_first_search(problem, h=None):
             if len(successors) > 1:
                 alternative = successors[1].f
             else:
-                alternative = infinity
+                alternative = inf
             result, best.f = RBFS(problem, best, min(flimit, alternative))
             if result is not None:
                 return result, best.f
 
     node = Node(problem.initial)
     node.f = h(node)
-    result, bestf = RBFS(problem, node, infinity)
+    result, bestf = RBFS(problem, node, inf)
     return result
 
 
@@ -1073,7 +1071,7 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
 
                 def distance_to_node(n):
                     if n is node or g.get(node, n):
-                        return infinity
+                        return inf
                     return distance(g.locations[n], here)
 
                 neighbor = argmin(nodes, key=distance_to_node)
@@ -1181,11 +1179,11 @@ class GraphProblem(Problem):
         return action
 
     def path_cost(self, cost_so_far, A, action, B):
-        return cost_so_far + (self.graph.get(A, B) or infinity)
+        return cost_so_far + (self.graph.get(A, B) or inf)
 
     def find_min_edge(self):
         """Find minimum value of edges."""
-        m = infinity
+        m = inf
         for d in self.graph.graph_dict.values():
             local_min = min(d.values())
             m = min(m, local_min)
@@ -1201,7 +1199,7 @@ class GraphProblem(Problem):
 
             return int(distance(locs[node.state], locs[self.goal]))
         else:
-            return infinity
+            return inf
 
 
 class GraphProblemStochastic(GraphProblem):
