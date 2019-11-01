@@ -1093,7 +1093,8 @@ class ACSolver:
         return True, domains, checks
 
     def new_to_do(self, var, const):
-        """returns new elements to be added to to_do after assigning
+        """
+        Returns new elements to be added to to_do after assigning
         variable var in constraint const.
         """
         return {(nvar, nconst) for nconst in self.csp.var_to_const[var]
@@ -1102,7 +1103,8 @@ class ACSolver:
                 if nvar != var}
 
     def any_holds(self, domains, const, env, other_vars, ind=0, checks=0):
-        """returns True if Constraint const holds for an assignment
+        """
+        Returns True if Constraint const holds for an assignment
         that extends env with the variables in other_vars[ind:]
         env is a dictionary
         Warning: this has side effects and changes the elements of env
@@ -1112,7 +1114,7 @@ class ACSolver:
         else:
             var = other_vars[ind]
             for val in domains[var]:
-                # env = dict_union(env,{var:val})  # no side effects
+                # env = dict_union(env, {var:val})  # no side effects
                 env[var] = val
                 holds, checks = self.any_holds(domains, const, env, other_vars, ind + 1, checks)
                 if holds:
@@ -1120,7 +1122,8 @@ class ACSolver:
             return False, checks
 
     def domain_splitting(self, domains=None, to_do=None, arc_heuristic=sat_up):
-        """return a solution to the current CSP or False if there are no solutions
+        """
+        Return a solution to the current CSP or False if there are no solutions
         to_do is the list of arcs to check
         """
         if domains is None:
@@ -1151,7 +1154,7 @@ def partition_domain(dom):
 
 class ACSearchSolver(search.Problem):
     """A search problem with arc consistency and domain splitting
-    A node is a CSP """
+    A node is a CSP"""
 
     def __init__(self, csp, arc_heuristic=sat_up):
         self.cons = ACSolver(csp)
