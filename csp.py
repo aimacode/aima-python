@@ -160,7 +160,7 @@ class CSP(search.Problem):
 
 
 # ______________________________________________________________________________
-# Constraint Propagation with AC-3
+# Constraint Propagation with AC3
 
 
 def no_arc_heuristic(csp, queue):
@@ -177,44 +177,55 @@ def AC3(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
         queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
     csp.support_pruning()
     queue = arc_heuristic(csp, queue)
+    checks = 0
     while queue:
         (Xi, Xj) = queue.pop()
-        if revise(csp, Xi, Xj, removals):
+        revised, checks = revise(csp, Xi, Xj, removals, checks)
+        if revised:
             if not csp.curr_domains[Xi]:
-                return False
+                return False, checks  # CSP is inconsistent
             for Xk in csp.neighbors[Xi]:
                 if Xk != Xj:
                     queue.add((Xk, Xi))
-    return True
+    return True, checks  # CSP is satisfiable
 
 
-def revise(csp, Xi, Xj, removals):
+def revise(csp, Xi, Xj, removals, checks=0):
     """Return true if we remove a value."""
     revised = False
     for x in csp.curr_domains[Xi][:]:
         # If Xi=x conflicts with Xj=y for every possible y, eliminate Xi=x
-        if all(not csp.constraints(Xi, x, Xj, y) for y in csp.curr_domains[Xj]):
+        # if all(not csp.constraints(Xi, x, Xj, y) for y in csp.curr_domains[Xj]):
+        conflict = True
+        for y in csp.curr_domains[Xj]:
+            if csp.constraints(Xi, x, Xj, y):
+                conflict = False
+            checks += 1
+            if not conflict:
+                break
+        if conflict:
             csp.prune(Xi, x, removals)
             revised = True
-    return revised
+    return revised, checks
 
 
-# Constraint Propagation with AC-3b: an improved version of AC-3 with
-# double-support domain-heuristic
+# Constraint Propagation with AC3b: an improved version
+# of AC3 with double-support domain-heuristic
 
 def AC3b(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
     if queue is None:
         queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
     csp.support_pruning()
     queue = arc_heuristic(csp, queue)
+    checks = 0
     while queue:
         (Xi, Xj) = queue.pop()
         # Si_p values are all known to be supported by Xj
         # Sj_p values are all known to be supported by Xi
         # Dj - Sj_p = Sj_u values are unknown, as yet, to be supported by Xi
-        Si_p, Sj_p, Sj_u = partition(csp, Xi, Xj)
+        Si_p, Sj_p, Sj_u, checks = partition(csp, Xi, Xj, checks)
         if not Si_p:
-            return False
+            return False, checks  # CSP is inconsistent
         revised = False
         for x in set(csp.curr_domains[Xi]) - Si_p:
             csp.prune(Xi, x, removals)
@@ -237,6 +248,7 @@ def AC3b(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
                     if csp.constraints(Xj, vj_p, Xi, vi_p):
                         conflict = False
                         Sj_p.add(vj_p)
+                    checks += 1
                     if not conflict:
                         break
             revised = False
@@ -247,10 +259,10 @@ def AC3b(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
                 for Xk in csp.neighbors[Xj]:
                     if Xk != Xi:
                         queue.add((Xk, Xj))
-    return True
+    return True, checks  # CSP is satisfiable
 
 
-def partition(csp, Xi, Xj):
+def partition(csp, Xi, Xj, checks=0):
     Si_p = set()
     Sj_p = set()
     Sj_u = set(csp.curr_domains[Xj])
@@ -265,6 +277,7 @@ def partition(csp, Xi, Xj):
                 conflict = False
                 Si_p.add(vi_u)
                 Sj_p.add(vj_u)
+            checks += 1
             if not conflict:
                 break
         # ... and only if no support can be found among the elements in Sj_u, should the elements vj_p in Sj_p be used
@@ -275,12 +288,13 @@ def partition(csp, Xi, Xj):
                 if csp.constraints(Xi, vi_u, Xj, vj_p):
                     conflict = False
                     Si_p.add(vi_u)
+                checks += 1
                 if not conflict:
                     break
-    return Si_p, Sj_p, Sj_u - Sj_p
+    return Si_p, Sj_p, Sj_u - Sj_p, checks
 
 
-# Constraint Propagation with AC-4
+# Constraint Propagation with AC4
 
 def AC4(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
     if queue is None:
@@ -290,6 +304,7 @@ def AC4(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
     support_counter = Counter()
     variable_value_pairs_supported = defaultdict(set)
     unsupported_variable_value_pairs = []
+    checks = 0
     # construction and initialization of support sets
     while queue:
         (Xi, Xj) = queue.pop()
@@ -299,13 +314,14 @@ def AC4(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
                 if csp.constraints(Xi, x, Xj, y):
                     support_counter[(Xi, x, Xj)] += 1
                     variable_value_pairs_supported[(Xj, y)].add((Xi, x))
+                checks += 1
             if support_counter[(Xi, x, Xj)] == 0:
                 csp.prune(Xi, x, removals)
                 revised = True
                 unsupported_variable_value_pairs.append((Xi, x))
         if revised:
             if not csp.curr_domains[Xi]:
-                return False
+                return False, checks  # CSP is inconsistent
     # propagation of removed values
     while unsupported_variable_value_pairs:
         Xj, y = unsupported_variable_value_pairs.pop()
@@ -319,8 +335,8 @@ def AC4(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
                     unsupported_variable_value_pairs.append((Xi, x))
             if revised:
                 if not csp.curr_domains[Xi]:
-                    return False
-    return True
+                    return False, checks  # CSP is inconsistent
+    return True, checks  # CSP is satisfiable
 
 
 # ______________________________________________________________________________
@@ -1033,33 +1049,48 @@ class ACSolver:
         if orig_domains is None:
             orig_domains = self.csp.domains
         if to_do is None:
-            to_do = {(var, const) for const in self.csp.constraints
-                     for var in const.scope}
+            to_do = {(var, const) for const in self.csp.constraints for var in const.scope}
         else:
             to_do = to_do.copy()
         domains = orig_domains.copy()
         to_do = arc_heuristic(to_do)
+        checks = 0
         while to_do:
             var, const = to_do.pop()
             other_vars = [ov for ov in const.scope if ov != var]
+            new_domain = set()
             if len(other_vars) == 0:
-                new_domain = {val for val in domains[var]
-                              if const.holds({var: val})}
+                for val in domains[var]:
+                    if const.holds({var: val}):
+                        new_domain.add(val)
+                    checks += 1
+                # new_domain = {val for val in domains[var]
+                #               if const.holds({var: val})}
             elif len(other_vars) == 1:
                 other = other_vars[0]
-                new_domain = {val for val in domains[var]
-                              if any(const.holds({var: val, other: other_val})
-                                     for other_val in domains[other])}
-            else:
-                new_domain = {val for val in domains[var]
-                              if self.any_holds(domains, const, {var: val}, other_vars)}
+                for val in domains[var]:
+                    for other_val in domains[other]:
+                        checks += 1
+                        if const.holds({var: val, other: other_val}):
+                            new_domain.add(val)
+                            break
+                # new_domain = {val for val in domains[var]
+                #               if any(const.holds({var: val, other: other_val})
+                #                      for other_val in domains[other])}
+            else:  # general case
+                for val in domains[var]:
+                    holds, checks = self.any_holds(domains, const, {var: val}, other_vars, checks=checks)
+                    if holds:
+                        new_domain.add(val)
+                # new_domain = {val for val in domains[var]
+                #               if self.any_holds(domains, const, {var: val}, other_vars)}
             if new_domain != domains[var]:
                 domains[var] = new_domain
                 if not new_domain:
-                    return False, domains
+                    return False, domains, checks
                 add_to_do = self.new_to_do(var, const).difference(to_do)
                 to_do |= add_to_do
-        return True, domains
+        return True, domains, checks
 
     def new_to_do(self, var, const):
         """returns new elements to be added to to_do after assigning
@@ -1070,23 +1101,23 @@ class ACSolver:
                 for nvar in nconst.scope
                 if nvar != var}
 
-    def any_holds(self, domains, const, env, other_vars, ind=0):
+    def any_holds(self, domains, const, env, other_vars, ind=0, checks=0):
         """returns True if Constraint const holds for an assignment
         that extends env with the variables in other_vars[ind:]
         env is a dictionary
         Warning: this has side effects and changes the elements of env
         """
         if ind == len(other_vars):
-            return const.holds(env)
+            return const.holds(env), checks + 1
         else:
             var = other_vars[ind]
             for val in domains[var]:
-                # env = dict_union(env,{var:val})  # no side effects!
+                # env = dict_union(env,{var:val})  # no side effects
                 env[var] = val
-                holds = self.any_holds(domains, const, env, other_vars, ind + 1)
+                holds, checks = self.any_holds(domains, const, env, other_vars, ind + 1, checks)
                 if holds:
-                    return True
-            return False
+                    return True, checks
+            return False, checks
 
     def domain_splitting(self, domains=None, to_do=None, arc_heuristic=sat_up):
         """return a solution to the current CSP or False if there are no solutions
@@ -1094,7 +1125,7 @@ class ACSolver:
         """
         if domains is None:
             domains = self.csp.domains
-        consistency, new_domains = self.GAC(domains, to_do, arc_heuristic)
+        consistency, new_domains, _ = self.GAC(domains, to_do, arc_heuristic)
         if not consistency:
             return False
         elif all(len(new_domains[var]) == 1 for var in domains):
@@ -1124,7 +1155,7 @@ class ACSearchSolver(search.Problem):
 
     def __init__(self, csp, arc_heuristic=sat_up):
         self.cons = ACSolver(csp)
-        consistency, self.domains = self.cons.GAC(arc_heuristic=arc_heuristic)
+        consistency, self.domains, _ = self.cons.GAC(arc_heuristic=arc_heuristic)
         if not consistency:
             raise Exception('CSP is inconsistent')
         self.heuristic = arc_heuristic
@@ -1142,7 +1173,7 @@ class ACSearchSolver(search.Problem):
             to_do = self.cons.new_to_do(var, None)
             for dom in [dom1, dom2]:
                 new_domains = extend(state, var, dom)
-                consistency, cons_doms = self.cons.GAC(new_domains, to_do, self.heuristic)
+                consistency, cons_doms, _ = self.cons.GAC(new_domains, to_do, self.heuristic)
                 if consistency:
                     neighs.append(cons_doms)
         return neighs
