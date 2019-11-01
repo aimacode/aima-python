@@ -1821,6 +1821,19 @@ standardize_variables.counter = itertools.count()
 # ______________________________________________________________________________
 
 
+def parse_clauses_from_dimacs(dimacs_cnf):
+    """Converts a string into CNF clauses according to the DIMACS format used in SAT competitions"""
+    return map(lambda c: associate('|', c),
+               map(lambda c: [expr('~X' + str(abs(l))) if l < 0 else expr('X' + str(l)) for l in c],
+                   map(lambda line: map(int, line.split()),
+                       filter(None, ' '.join(
+                           filter(lambda line: line[0] not in ('c', 'p'),
+                                  filter(None, dimacs_cnf.strip().replace('\t', ' ').split('\n')))).split(' 0')))))
+
+
+# ______________________________________________________________________________
+
+
 class FolKB(KB):
     """A knowledge base consisting of first-order definite clauses.
     >>> kb0 = FolKB([expr('Farmer(Mac)'), expr('Rabbit(Pete)'),
@@ -1939,8 +1952,7 @@ test_kb = FolKB(
                # Note that this order of conjuncts
                # would result in infinite recursion:
                # '(Human(h) & Mother(m, h)) ==> Human(m)'
-               '(Mother(m, h) & Human(h)) ==> Human(m)'
-               ]))
+               '(Mother(m, h) & Human(h)) ==> Human(m)']))
 
 crime_kb = FolKB(
     map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
@@ -1950,8 +1962,7 @@ crime_kb = FolKB(
                'Missile(x) ==> Weapon(x)',
                'Enemy(x, America) ==> Hostile(x)',
                'American(West)',
-               'Enemy(Nono, America)'
-               ]))
+               'Enemy(Nono, America)']))
 
 
 # ______________________________________________________________________________
