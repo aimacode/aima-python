@@ -14,7 +14,8 @@ from functools import partial
 
 
 def current_best_learning(examples, h, examples_so_far=None):
-    """ [Figure 19.2]
+    """
+    [Figure 19.2]
     The hypothesis is a list of dictionaries, with each dictionary representing
     a disjunction."""
     if examples_so_far is None:
@@ -124,7 +125,8 @@ def add_or(examples_so_far, h):
 
 
 def version_space_learning(examples):
-    """ [Figure 19.3]
+    """
+    [Figure 19.3]
     The version space is a list of hypotheses, which in turn are a list
     of dictionaries/disjunctions."""
     V = all_hypotheses(examples)

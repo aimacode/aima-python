@@ -113,7 +113,7 @@ class PropKB(KB):
 # ______________________________________________________________________________
 
 
-def KBAgentProgram(KB):
+def KBAgentProgram(kb):
     """
     [Figure 7.1]
     A generic logical knowledge-based agent program.
@@ -122,9 +122,9 @@ def KBAgentProgram(KB):
 
     def program(percept):
         t = next(steps)
-        KB.tell(make_percept_sentence(percept, t))
-        action = KB.ask(make_action_query(t))
-        KB.tell(make_action_sentence(action, t))
+        kb.tell(make_percept_sentence(percept, t))
+        action = kb.ask(make_action_query(t))
+        kb.tell(make_action_sentence(action, t))
         return action
 
     def make_percept_sentence(percept, t):
@@ -485,14 +485,14 @@ def disjuncts(s):
 # ______________________________________________________________________________
 
 
-def pl_resolution(KB, alpha):
+def pl_resolution(kb, alpha):
     """
     [Figure 7.12]
     Propositional-logic resolution: say if alpha follows from KB.
     >>> pl_resolution(horn_clauses_KB, A)
     True
     """
-    clauses = KB.clauses + conjuncts(to_cnf(~alpha))
+    clauses = kb.clauses + conjuncts(to_cnf(~alpha))
     new = set()
     while True:
         n = len(clauses)
@@ -542,26 +542,26 @@ class PropDefiniteKB(PropKB):
     def clauses_with_premise(self, p):
         """Return a list of the clauses in KB that have p in their premise.
         This could be cached away for O(1) speed, but we'll recompute it."""
-        return [c for c in self.clauses
-                if c.op == '==>' and p in conjuncts(c.args[0])]
+        return [c for c in self.clauses if c.op == '==>' and p in conjuncts(c.args[0])]
 
 
-def pl_fc_entails(KB, q):
-    """Use forward chaining to see if a PropDefiniteKB entails symbol q.
+def pl_fc_entails(kb, q):
+    """
     [Figure 7.15]
+    Use forward chaining to see if a PropDefiniteKB entails symbol q.
     >>> pl_fc_entails(horn_clauses_KB, expr('Q'))
     True
     """
-    count = {c: len(conjuncts(c.args[0])) for c in KB.clauses if c.op == '==>'}
+    count = {c: len(conjuncts(c.args[0])) for c in kb.clauses if c.op == '==>'}
     inferred = defaultdict(bool)
-    agenda = [s for s in KB.clauses if is_prop_symbol(s.op)]
+    agenda = [s for s in kb.clauses if is_prop_symbol(s.op)]
     while agenda:
         p = agenda.pop()
         if p == q:
             return True
         if not inferred[p]:
             inferred[p] = True
-            for c in KB.clauses_with_premise(p):
+            for c in kb.clauses_with_premise(p):
                 count[c] -= 1
                 if count[c] == 0:
                     agenda.append(c.args[1])
@@ -579,8 +579,13 @@ wumpus_world_inference = expr('(B11 <=> (P12 | P21))  &  ~B11')
 Propositional Logic Forward Chaining example
 """
 horn_clauses_KB = PropDefiniteKB()
-for s in 'P ==> Q; (L & M) ==> P; (B & L) ==> M; (A & P) ==> L; (A & B) ==> L; A; B'.split(';'):
-    horn_clauses_KB.tell(expr(s))
+for clause in ['P ==> Q',
+               '(L & M) ==> P',
+               '(B & L) ==> M',
+               '(A & P) ==> L',
+               '(A & B) ==> L',
+               'A', 'B']:
+    horn_clauses_KB.tell(expr(clause))
 
 """
 Definite clauses KB example
@@ -1615,8 +1620,9 @@ class HybridWumpusAgent(Agent):
 
 
 def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
-    """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
+    """
     [Figure 7.22]
+    Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
     >>> transition = {'A': {'Left': 'A', 'Right': 'B'}, 'B': {'Left': 'A', 'Right': 'C'}, 'C': {'Left': 'B', 'Right': 'C'}}
     >>> SAT_plan('A', transition, 'C', 1) is None
     True
@@ -1945,13 +1951,13 @@ class FolKB(KB):
         return self.clauses
 
 
-def fol_fc_ask(KB, alpha):
+def fol_fc_ask(kb, alpha):
     """
     [Figure 9.3]
     A simple forward-chaining algorithm.
     """
     # TODO: Improve efficiency
-    kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
+    kb_consts = list({c for clause in kb.clauses for c in constant_symbols(clause)})
 
     def enum_subst(p):
         query_vars = list({v for clause in p for v in variables(clause)})
@@ -1960,19 +1966,19 @@ def fol_fc_ask(KB, alpha):
             yield theta
 
     # check if we can answer without new inferences
-    for q in KB.clauses:
+    for q in kb.clauses:
         phi = unify(q, alpha)
         if phi is not None:
             yield phi
 
     while True:
         new = []
-        for rule in KB.clauses:
+        for rule in kb.clauses:
             p, q = parse_definite_clause(rule)
             for theta in enum_subst(p):
-                if set(subst(theta, p)).issubset(set(KB.clauses)):
+                if set(subst(theta, p)).issubset(set(kb.clauses)):
                     q_ = subst(theta, q)
-                    if all([unify(x, q_) is None for x in KB.clauses + new]):
+                    if all([unify(x, q_) is None for x in kb.clauses + new]):
                         new.append(q_)
                         phi = unify(q_, alpha)
                         if phi is not None:
@@ -1980,35 +1986,35 @@ def fol_fc_ask(KB, alpha):
         if not new:
             break
         for clause in new:
-            KB.tell(clause)
+            kb.tell(clause)
     return None
 
 
-def fol_bc_ask(KB, query):
+def fol_bc_ask(kb, query):
     """
     [Figure 9.6]
     A simple backward-chaining algorithm for first-order logic.
     KB should be an instance of FolKB, and query an atomic sentence.
     """
-    return fol_bc_or(KB, query, {})
+    return fol_bc_or(kb, query, {})
 
 
-def fol_bc_or(KB, goal, theta):
-    for rule in KB.fetch_rules_for_goal(goal):
+def fol_bc_or(kb, goal, theta):
+    for rule in kb.fetch_rules_for_goal(goal):
         lhs, rhs = parse_definite_clause(standardize_variables(rule))
-        for theta1 in fol_bc_and(KB, lhs, unify(rhs, goal, theta)):
+        for theta1 in fol_bc_and(kb, lhs, unify(rhs, goal, theta)):
             yield theta1
 
 
-def fol_bc_and(KB, goals, theta):
+def fol_bc_and(kb, goals, theta):
     if theta is None:
         pass
     elif not goals:
         yield theta
     else:
         first, rest = goals[0], goals[1:]
-        for theta1 in fol_bc_or(KB, subst(theta, first), theta):
-            for theta2 in fol_bc_and(KB, rest, theta1):
+        for theta1 in fol_bc_or(kb, subst(theta, first), theta):
+            for theta2 in fol_bc_and(kb, rest, theta1):
                 yield theta2
 
 
