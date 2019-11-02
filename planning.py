@@ -173,9 +173,9 @@ class Action:
     Precondition and effect are both lists with positive and negative literals.
     Negative preconditions and effects are defined by adding a 'Not' before the name of the clause
     Example:
-    precond = [expr("Human(person)"), expr("Hungry(Person)"), expr("NotEaten(food)")]
-    effect = [expr("Eaten(food)"), expr("Hungry(person)")]
-    eat = Action(expr("Eat(person, food)"), precond, effect)
+    precond = [expr('Human(person)'), expr('Hungry(Person)'), expr('NotEaten(food)')]
+    effect = [expr('Eaten(food)'), expr('Hungry(person)')]
+    eat = Action(expr('Eat(person, food)'), precond, effect)
     """
 
     def __init__(self, action, precond, effect, domain=None):
@@ -1371,7 +1371,12 @@ class PartialOrderPlanner:
                 self.constraints = self.protect((act0, G, act1), action, self.constraints)
 
             if step > 200:
-                print("Couldn't find a solution")
+                print('Couldn'
+                t
+                find
+                a
+                solution
+                ')
                 return None, None
 
         if display:
@@ -1450,12 +1455,18 @@ class HLA(Action):
         if not self.has_consumable_resource(available_resources):
             raise Exception('Not enough consumable resources to execute {}'.format(self.name))
         if not self.inorder(job_order):
-            raise Exception("Can't execute {} - execute prerequisite actions first".
-                            format(self.name))
-        kb = super().act(kb, args)  # update knowledge base
-        for resource in self.consumes:  # remove consumed resources
-            available_resources[resource] -= self.consumes[resource]
-        self.completed = True  # set the task status to complete
+            raise Exception('Can'
+            t
+            execute
+            {} - execute
+            prerequisite
+            actions
+            first
+            '.format(self.name))
+            kb = super().act(kb, args)  # update knowledge base
+            for resource in self.consumes:  # remove consumed resources
+                available_resources[resource] -= self.consumes[resource]
+            self.completed = True  # set the task status to complete
         return kb
 
     def has_consumable_resource(self, available_resources):

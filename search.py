@@ -1412,7 +1412,7 @@ class BoggleFinder:
 
     def __init__(self, board=None):
         if BoggleFinder.wordlist is None:
-            BoggleFinder.wordlist = Wordlist(open_data("EN-text/wordlist.txt"))
+            BoggleFinder.wordlist = Wordlist(open_data('EN-text/wordlist.txt'))
         self.found = {}
         if board:
             self.set_board(board)

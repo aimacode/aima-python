@@ -128,13 +128,13 @@ def KBAgentProgram(KB):
         return action
 
     def make_percept_sentence(percept, t):
-        return Expr("Percept")(percept, t)
+        return Expr('Percept')(percept, t)
 
     def make_action_query(t):
-        return expr("ShouldDo(action, {})".format(t))
+        return expr('ShouldDo(action, {})'.format(t))
 
     def make_action_sentence(action, t):
-        return Expr("Did")(action[expr('action')], t)
+        return Expr('Did')(action[expr('action')], t)
 
     return program
 
@@ -325,7 +325,7 @@ def pl_true(exp, model={}):
     elif op == '^':  # xor or 'not equivalent'
         return pt != qt
     else:
-        raise ValueError("illegal operator in logic expression" + str(exp))
+        raise ValueError('Illegal operator in logic expression' + str(exp))
 
 
 # ______________________________________________________________________________
@@ -1933,7 +1933,7 @@ class FolKB(KB):
         if is_definite_clause(sentence):
             self.clauses.append(sentence)
         else:
-            raise Exception("Not a definite clause: {}".format(sentence))
+            raise Exception('Not a definite clause: {}'.format(sentence))
 
     def ask_generator(self, query):
         return fol_bc_ask(self, query)
@@ -2085,7 +2085,7 @@ def diff(y, x):
         elif op == 'log':
             return diff(u, x) / u
         else:
-            raise ValueError("Unknown op: {} in diff({}, {})".format(op, y, x))
+            raise ValueError('Unknown op: {} in diff({}, {})'.format(op, y, x))
 
 
 def simp(x):
@@ -2146,7 +2146,7 @@ def simp(x):
         if u == 1:
             return 0
     else:
-        raise ValueError("Unknown op: " + op)
+        raise ValueError('Unknown op: ' + op)
     # If we fall through to here, we can not simplify further
     return Expr(op, *args)
 
