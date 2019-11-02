@@ -14,9 +14,11 @@ from statistics import mean
 import numpy as np
 from itertools import chain, combinations
 
+inf = float('inf')
+
+
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
-from numpy.linalg import linalg
 
 
 def sequence(iterable):
@@ -141,13 +143,12 @@ def histogram(values, mode=0, bin_function=None):
         bins[val] = bins.get(val, 0) + 1
 
     if mode:
-        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]),
-                      reverse=True)
+        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]), reverse=True)
     else:
         return sorted(bins.items())
 
 
-def dotproduct(X, Y):
+def dot_product(X, Y):
     """Return the sum of the element-wise product of vectors X and Y."""
     return sum(x * y for x, y in zip(X, Y))
 
@@ -163,16 +164,12 @@ def matrix_multiplication(X_M, *Y_M):
 
     def _mat_mult(X_M, Y_M):
         """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
-        >>> matrix_multiplication([[1, 2, 3],
-                                   [2, 3, 4]],
-                                   [[3, 4],
-                                    [1, 2],
-                                    [1, 0]])
+        >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
         [[8, 8],[13, 14]]
         """
         assert len(X_M[0]) == len(Y_M)
 
-        result = [[0 for i in range(len(Y_M[0]))] for j in range(len(X_M))]
+        result = [[0 for i in range(len(Y_M[0]))] for _ in range(len(X_M))]
         for i in range(len(X_M)):
             for j in range(len(Y_M[0])):
                 for k in range(len(Y_M)):
@@ -189,7 +186,7 @@ def matrix_multiplication(X_M, *Y_M):
 def vector_to_diagonal(v):
     """Converts a vector to a diagonal matrix with vector elements
     as the diagonal elements of the matrix"""
-    diag_matrix = [[0 for i in range(len(v))] for j in range(len(v))]
+    diag_matrix = [[0 for i in range(len(v))] for _ in range(len(v))]
     for i in range(len(v)):
         diag_matrix[i][i] = v[i]
 
@@ -247,7 +244,7 @@ def weighted_sampler(seq, weights):
 
 def weighted_choice(choices):
     """A weighted version of random.choice"""
-    # NOTE: Shoule be replaced by random.choices if we port to Python 3.6
+    # NOTE: Should be replaced by random.choices if we port to Python 3.6
 
     total = sum(w for _, w in choices)
     r = random.uniform(0, total)
@@ -373,7 +370,7 @@ def tanh(x):
 
 
 def tanh_derivative(value):
-    return (1 - (value ** 2))
+    return 1 - (value ** 2)
 
 
 def leaky_relu(x, alpha=0.01):
@@ -420,7 +417,7 @@ def polynomial_kernel(x, y, p=3):
 
 
 def gaussian_kernel(x, y, sigma=5.0):
-    return np.exp(-linalg.norm(x - y) ** 2 / (2 * (sigma ** 2)))
+    return np.exp(-norm(x - y) ** 2 / (2 * (sigma ** 2)))
 
 
 try:  # math.isclose was added in Python 3.5; but we might be in 3.4
@@ -449,10 +446,10 @@ def truncated_svd(X, num_val=2, max_iter=1000):
         X_m = X[:m]
         X_n = X[m:]
         for eivec in eivec_m:
-            coeff = dotproduct(X_m, eivec)
+            coeff = dot_product(X_m, eivec)
             X_m = [x1 - coeff * x2 for x1, x2 in zip(X_m, eivec)]
         for eivec in eivec_n:
-            coeff = dotproduct(X_n, eivec)
+            coeff = dot_product(X_n, eivec)
             X_n = [x1 - coeff * x2 for x1, x2 in zip(X_n, eivec)]
         return X_m + X_n
 
@@ -539,7 +536,7 @@ def vector_clip(vector, lowest, highest):
 # ______________________________________________________________________________
 # Misc Functions
 
-class injection():
+class injection:
     """Dependency injection of temporary values for global functions/classes/etc.
     E.g., `with injection(DataBase=MockDataBase): ...`"""
 

@@ -560,8 +560,7 @@ library_2 = {
                 ['At(MetroStop)'], ['At(Home) & Have(Cash)']],
     'effect': [['At(SFO) & ~At(Home)'], ['At(SFO) & ~At(Home) & ~Have(Cash)'], ['At(MetroStop) & ~At(Home)'],
                ['At(SFO) & ~At(MetroStop)'], ['At(SFO) & ~At(MetroStop)'], ['At(SFO) & ~At(MetroStop)'],
-               ['At(SFO) & ~At(MetroStop)'], ['At(SFO) & ~At(Home) & ~Have(Cash)']]
-}
+               ['At(SFO) & ~At(MetroStop)'], ['At(SFO) & ~At(Home) & ~Have(Cash)']]}
 
 # HLA's
 go_SFO = HLA('Go(Home,SFO)', precond='At(Home)', effect='At(SFO) & ~At(Home)')

@@ -1,4 +1,4 @@
-"""Provides some utilities widely used by other modules"""
+"""Provides some utilities widely used by other modules."""
 
 import bisect
 import collections
@@ -22,8 +22,7 @@ import numpy as np
 
 
 class PriorityQueue:
-    """A Queue in which the minimum (or maximum) element (as determined by f and
-    order) is returned first.
+    """A Queue in which the minimum (or maximum) element (as determined by f and order) is returned first.
     If order is 'min', the item with minimum f(x) is
     returned first; if order is 'max', then it is the item with maximum f(x).
     Also supports dict-like lookup."""
@@ -201,7 +200,7 @@ def histogram(values, mode=0, bin_function=None):
         return sorted(bins.items())
 
 
-def dotproduct(X, Y):
+def dot_product(X, Y):
     """Return the sum of the element-wise product of vectors X and Y."""
     return sum(x * y for x, y in zip(X, Y))
 
@@ -231,11 +230,7 @@ def matrix_multiplication(X_M, *Y_M):
 
     def _mat_mult(X_M, Y_M):
         """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
-        >>> matrix_multiplication([[1, 2, 3],
-                                   [2, 3, 4]],
-                                   [[3, 4],
-                                    [1, 2],
-                                    [1, 0]])
+        >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
         [[8, 8],[13, 14]]
         """
         assert len(X_M[0]) == len(Y_M)
@@ -607,7 +602,7 @@ def vector_clip(vector, lowest, highest):
 # ______________________________________________________________________________
 # Misc Functions
 
-class injection():
+class injection:
     """Dependency injection of temporary values for global functions/classes/etc.
     E.g., `with injection(DataBase=MockDataBase): ...`"""
 

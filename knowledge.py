@@ -14,7 +14,8 @@ from functools import partial
 
 
 def current_best_learning(examples, h, examples_so_far=None):
-    """ [Figure 19.2]
+    """
+    [Figure 19.2]
     The hypothesis is a list of dictionaries, with each dictionary representing
     a disjunction."""
     if examples_so_far is None:
@@ -124,7 +125,8 @@ def add_or(examples_so_far, h):
 
 
 def version_space_learning(examples):
-    """ [Figure 19.3]
+    """
+    [Figure 19.3]
     The version space is a list of hypotheses, which in turn are a list
     of dictionaries/disjunctions."""
     V = all_hypotheses(examples)
@@ -241,7 +243,7 @@ def consistent_det(A, E):
 # ______________________________________________________________________________
 
 
-class FOIL_container(FolKB):
+class FOILContainer(FolKB):
     """Hold the kb and other necessary elements required by FOIL."""
 
     def __init__(self, clauses=None):
@@ -255,7 +257,7 @@ class FOIL_container(FolKB):
             self.const_syms.update(constant_symbols(sentence))
             self.pred_syms.update(predicate_symbols(sentence))
         else:
-            raise Exception("Not a definite clause: {}".format(sentence))
+            raise Exception('Not a definite clause: {}'.format(sentence))
 
     def foil(self, examples, target):
         """Learn a list of first-order horn clauses
@@ -280,7 +282,6 @@ class FOIL_container(FolKB):
         The horn clause is specified as [consequent, list of antecedents]
         Return value is the tuple (horn_clause, extended_positive_examples)."""
         clause = [target, []]
-        # [positive_examples, negative_examples]
         extended_examples = examples
         while extended_examples[1]:
             l = self.choose_literal(self.new_literals(clause), extended_examples)
@@ -288,7 +289,7 @@ class FOIL_container(FolKB):
             extended_examples = [sum([list(self.extend_example(example, l)) for example in
                                       extended_examples[i]], []) for i in range(2)]
 
-        return (clause, extended_examples[0])
+        return clause, extended_examples[0]
 
     def extend_example(self, example, literal):
         """Generate extended examples which satisfy the literal."""
@@ -344,9 +345,8 @@ class FOIL_container(FolKB):
             represents = lambda d: all(d[x] == example[x] for x in example)
             if any(represents(l_) for l_ in post_pos):
                 T += 1
-        value = T * (
-                log(len(post_pos) / (len(post_pos) + len(post_neg)) + 1e-12, 2) - log(pre_pos / (pre_pos + pre_neg),
-                                                                                      2))
+        value = T * (log(len(post_pos) / (len(post_pos) + len(post_neg)) + 1e-12, 2) -
+                     log(pre_pos / (pre_pos + pre_neg), 2))
         return value
 
     def update_examples(self, target, examples, extended_examples):
@@ -411,12 +411,12 @@ def guess_value(e, h):
 
 
 def is_consistent(e, h):
-    return e["GOAL"] == guess_value(e, h)
+    return e['GOAL'] == guess_value(e, h)
 
 
 def false_positive(e, h):
-    return guess_value(e, h) and not e["GOAL"]
+    return guess_value(e, h) and not e['GOAL']
 
 
 def false_negative(e, h):
-    return e["GOAL"] and not guess_value(e, h)
+    return e['GOAL'] and not guess_value(e, h)

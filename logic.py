@@ -1,4 +1,5 @@
-"""Representations and Inference for Logic (Chapters 7-9, 12)
+"""
+Representations and Inference for Logic (Chapters 7-9, 12)
 
 Covers both Propositional and First-Order Logic. First we have four
 important data types:
@@ -30,6 +31,7 @@ And a few other functions:
     unify            Do unification of two FOL sentences
     diff, simp       Symbolic differentiation and simplification
 """
+
 import heapq
 import itertools
 import random
@@ -111,25 +113,28 @@ class PropKB(KB):
 # ______________________________________________________________________________
 
 
-def KB_AgentProgram(KB):
-    """A generic logical knowledge-based agent program. [Figure 7.1]"""
+def KBAgentProgram(kb):
+    """
+    [Figure 7.1]
+    A generic logical knowledge-based agent program.
+    """
     steps = itertools.count()
 
     def program(percept):
         t = next(steps)
-        KB.tell(make_percept_sentence(percept, t))
-        action = KB.ask(make_action_query(t))
-        KB.tell(make_action_sentence(action, t))
+        kb.tell(make_percept_sentence(percept, t))
+        action = kb.ask(make_action_query(t))
+        kb.tell(make_action_sentence(action, t))
         return action
 
     def make_percept_sentence(percept, t):
-        return Expr("Percept")(percept, t)
+        return Expr('Percept')(percept, t)
 
     def make_action_query(t):
-        return expr("ShouldDo(action, {})".format(t))
+        return expr('ShouldDo(action, {})'.format(t))
 
     def make_action_sentence(action, t):
-        return Expr("Did")(action[expr('action')], t)
+        return Expr('Did')(action[expr('action')], t)
 
     return program
 
@@ -177,8 +182,7 @@ def is_definite_clause(s):
         return True
     elif s.op == '==>':
         antecedent, consequent = s.args
-        return (is_symbol(consequent.op) and
-                all(is_symbol(arg.op) for arg in conjuncts(antecedent)))
+        return is_symbol(consequent.op) and all(is_symbol(arg.op) for arg in conjuncts(antecedent))
     else:
         return False
 
@@ -201,9 +205,11 @@ A, B, C, D, E, F, G, P, Q, a, x, y, z, u = map(Expr, 'ABCDEFGPQaxyzu')
 
 
 def tt_entails(kb, alpha):
-    """Does kb entail the sentence alpha? Use truth tables. For propositional
-    kb's and sentences. [Figure 7.10]. Note that the 'kb' should be an
-    Expr which is a conjunction of clauses.
+    """
+    [Figure 7.10]
+    Does kb entail the sentence alpha? Use truth tables. For propositional
+    kb's and sentences. Note that the 'kb' should be an Expr which is a
+    conjunction of clauses.
     >>> tt_entails(expr('P & Q'), expr('Q'))
     True
     """
@@ -319,7 +325,7 @@ def pl_true(exp, model={}):
     elif op == '^':  # xor or 'not equivalent'
         return pt != qt
     else:
-        raise ValueError("illegal operator in logic expression" + str(exp))
+        raise ValueError('Illegal operator in logic expression' + str(exp))
 
 
 # ______________________________________________________________________________
@@ -328,8 +334,10 @@ def pl_true(exp, model={}):
 
 
 def to_cnf(s):
-    """Convert a propositional logical sentence to conjunctive normal form.
-    That is, to the form ((A | ~B | ...) & (B | C | ...) & ...) [p. 253]
+    """
+    [Page 253]
+    Convert a propositional logical sentence to conjunctive normal form.
+    That is, to the form ((A | ~B | ...) & (B | C | ...) & ...)
     >>> to_cnf('~(B | C)')
     (~B & ~C)
     """
@@ -477,12 +485,14 @@ def disjuncts(s):
 # ______________________________________________________________________________
 
 
-def pl_resolution(KB, alpha):
-    """Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]
+def pl_resolution(kb, alpha):
+    """
+    [Figure 7.12]
+    Propositional-logic resolution: say if alpha follows from KB.
     >>> pl_resolution(horn_clauses_KB, A)
     True
     """
-    clauses = KB.clauses + conjuncts(to_cnf(~alpha))
+    clauses = kb.clauses + conjuncts(to_cnf(~alpha))
     new = set()
     while True:
         n = len(clauses)
@@ -532,52 +542,62 @@ class PropDefiniteKB(PropKB):
     def clauses_with_premise(self, p):
         """Return a list of the clauses in KB that have p in their premise.
         This could be cached away for O(1) speed, but we'll recompute it."""
-        return [c for c in self.clauses
-                if c.op == '==>' and p in conjuncts(c.args[0])]
+        return [c for c in self.clauses if c.op == '==>' and p in conjuncts(c.args[0])]
 
 
-def pl_fc_entails(KB, q):
-    """Use forward chaining to see if a PropDefiniteKB entails symbol q.
+def pl_fc_entails(kb, q):
+    """
     [Figure 7.15]
+    Use forward chaining to see if a PropDefiniteKB entails symbol q.
     >>> pl_fc_entails(horn_clauses_KB, expr('Q'))
     True
     """
-    count = {c: len(conjuncts(c.args[0]))
-             for c in KB.clauses
-             if c.op == '==>'}
+    count = {c: len(conjuncts(c.args[0])) for c in kb.clauses if c.op == '==>'}
     inferred = defaultdict(bool)
-    agenda = [s for s in KB.clauses if is_prop_symbol(s.op)]
+    agenda = [s for s in kb.clauses if is_prop_symbol(s.op)]
     while agenda:
         p = agenda.pop()
         if p == q:
             return True
         if not inferred[p]:
             inferred[p] = True
-            for c in KB.clauses_with_premise(p):
+            for c in kb.clauses_with_premise(p):
                 count[c] -= 1
                 if count[c] == 0:
                     agenda.append(c.args[1])
     return False
 
 
-""" [Figure 7.13]
+"""
+[Figure 7.13]
 Simple inference in a wumpus world example
 """
-wumpus_world_inference = expr("(B11 <=> (P12 | P21))  &  ~B11")
+wumpus_world_inference = expr('(B11 <=> (P12 | P21))  &  ~B11')
 
-""" [Figure 7.16]
+"""
+[Figure 7.16]
 Propositional Logic Forward Chaining example
 """
 horn_clauses_KB = PropDefiniteKB()
-for s in "P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B".split(';'):
-    horn_clauses_KB.tell(expr(s))
+for clause in ['P ==> Q',
+               '(L & M) ==> P',
+               '(B & L) ==> M',
+               '(A & P) ==> L',
+               '(A & B) ==> L',
+               'A', 'B']:
+    horn_clauses_KB.tell(expr(clause))
 
 """
 Definite clauses KB example
 """
 definite_clauses_KB = PropDefiniteKB()
-for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B',
-               'C']:
+for clause in ['(B & F) ==> E',
+               '(A & E & F) ==> G',
+               '(B & C) ==> F',
+               '(A & B) ==> D',
+               '(E & F) ==> H',
+               '(H & I) ==>J',
+               'A', 'B', 'C']:
     definite_clauses_KB.tell(expr(clause))
 
 
@@ -1378,22 +1398,14 @@ class WumpusKB(PropKB):
             for j in range(1, self.dimrow + 1):
                 self.tell(implies(location(i, j, time), equiv(percept_breeze(time), breeze(i, j))))
                 self.tell(implies(location(i, j, time), equiv(percept_stench(time), stench(i, j))))
-
                 s = list()
-
-                s.append(
-                    equiv(
-                        location(i, j, time), location(i, j, time) & ~move_forward(time) | percept_bump(time)))
-
+                s.append(equiv(location(i, j, time), location(i, j, time) & ~move_forward(time) | percept_bump(time)))
                 if i != 1:
                     s.append(location(i - 1, j, t) & facing_east(t) & move_forward(t))
-
                 if i != self.dimrow:
                     s.append(location(i + 1, j, t) & facing_west(t) & move_forward(t))
-
                 if j != 1:
                     s.append(location(i, j - 1, t) & facing_north(t) & move_forward(t))
-
                 if j != self.dimrow:
                     s.append(location(i, j + 1, t) & facing_south(t) & move_forward(t))
 
@@ -1401,9 +1413,7 @@ class WumpusKB(PropKB):
                 self.tell(new_disjunction(s))
 
                 # add sentence about safety of location i,j
-                self.tell(
-                    equiv(ok_to_move(i, j, time), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(time))
-                )
+                self.tell(equiv(ok_to_move(i, j, time), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(time)))
 
         # Rules about current orientation
 
@@ -1477,7 +1487,10 @@ class WumpusPosition:
 
 
 class HybridWumpusAgent(Agent):
-    """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
+    """
+    [Figure 7.20]
+    An agent for the wumpus world that does logical inference.
+    """
 
     def __init__(self, dimentions):
         self.dimrow = dimentions
@@ -1607,8 +1620,9 @@ class HybridWumpusAgent(Agent):
 
 
 def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
-    """Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
+    """
     [Figure 7.22]
+    Converts a planning problem to Satisfaction problem by translating it to a cnf sentence.
     >>> transition = {'A': {'Left': 'A', 'Right': 'B'}, 'B': {'Left': 'A', 'Right': 'C'}, 'C': {'Left': 'B', 'Right': 'C'}}
     >>> SAT_plan('A', transition, 'C', 1) is None
     True
@@ -1623,7 +1637,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
         state_counter = itertools.count()
         for s in states:
             for t in range(time + 1):
-                state_sym[s, t] = Expr("S{}".format(next(state_counter)))
+                state_sym[s, t] = Expr('S_{}'.format(next(state_counter)))
 
         # Add initial state axiom
         clauses.append(state_sym[init, 0])
@@ -1640,7 +1654,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
                 s_ = transition[s][action]
                 for t in range(time):
                     # Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[s, action, t] = Expr("T{}".format(next(transition_counter)))
+                    action_sym[s, action, t] = Expr('T_{}'.format(next(transition_counter)))
 
                     # Change the state from s to s_
                     clauses.append(action_sym[s, action, t] | '==>' | state_sym[s, t])
@@ -1695,9 +1709,11 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
 
 
 def unify(x, y, s={}):
-    """Unify expressions x,y with substitution s; return a substitution that
+    """
+    [Figure 9.1]
+    Unify expressions x,y with substitution s; return a substitution that
     would make x,y equal, or None if x,y can not unify. x and y can be
-    variables (e.g. Expr('x')), constants, lists, or Exprs. [Figure 9.1]
+    variables (e.g. Expr('x')), constants, lists, or Exprs.
     >>> unify(x, 3, {})
     {x: 3}
     """
@@ -1791,6 +1807,80 @@ def cascade_substitution(s):
             s[x] = subst(s, s.get(x))
 
 
+def unify_mm(x, y, s={}):
+    """Unify expressions x,y with substitution s using an efficient rule-based
+    unification algorithm by Martelli & Montanari; return a substitution that
+    would make x,y equal, or None if x,y can not unify. x and y can be
+    variables (e.g. Expr('x')), constants, lists, or Exprs.
+    >>> unify_mm(x, 3, {})
+    {x: 3}
+    """
+
+    set_eq = extend(s, x, y)
+    s = set_eq.copy()
+    while True:
+        trans = 0
+        for x, y in set_eq.items():
+            if x == y:
+                # if x = y this mapping is deleted (rule b)
+                del s[x]
+            elif not is_variable(x) and is_variable(y):
+                # if x is not a variable and y is a variable, rewrite it as y = x in s (rule a)
+                if s.get(y, None) is None:
+                    s[y] = x
+                    del s[x]
+                else:
+                    # if a mapping already exist for variable y then apply
+                    # variable elimination (there is a chance to apply rule d)
+                    s[x] = vars_elimination(y, s)
+            elif not is_variable(x) and not is_variable(y):
+                # in which case x and y are not variables, if the two root function symbols
+                # are different, stop with failure, else apply term reduction (rule c)
+                if x.op is y.op and len(x.args) == len(y.args):
+                    term_reduction(x, y, s)
+                    del s[x]
+                else:
+                    return None
+            elif isinstance(y, Expr):
+                # in which case x is a variable and y is a function or a variable (e.g. F(z) or y),
+                # if y is a function, we must check if x occurs in y, then stop with failure, else
+                # try to apply variable elimination to y (rule d)
+                if occur_check(x, y, s):
+                    return None
+                s[x] = vars_elimination(y, s)
+                if y == s.get(x):
+                    trans += 1
+            else:
+                trans += 1
+        if trans == len(set_eq):
+            # if no transformation has been applied, stop with success
+            return s
+        set_eq = s.copy()
+
+
+def term_reduction(x, y, s):
+    """Apply term reduction to x and y if both are functions and the two root function
+    symbols are equals (e.g. F(x1, x2, ..., xn) and F(x1', x2', ..., xn')) by returning
+    a new mapping obtained by replacing x: y with {x1: x1', x2: x2', ..., xn: xn'}
+    """
+    for i in range(len(x.args)):
+        if x.args[i] in s:
+            s[s.get(x.args[i])] = y.args[i]
+        else:
+            s[x.args[i]] = y.args[i]
+
+
+def vars_elimination(x, s):
+    """Apply variable elimination to x: if x is a variable and occurs in s, return
+    the term mapped by x, else if x is a function recursively applies variable
+    elimination to each term of the function."""
+    if not isinstance(x, Expr):
+        return x
+    if is_variable(x):
+        return s.get(x, x)
+    return Expr(x.op, *[vars_elimination(arg, s) for arg in x.args])
+
+
 def standardize_variables(sentence, dic=None):
     """Replace all the variables in sentence with new variables."""
     if dic is None:
@@ -1809,6 +1899,19 @@ def standardize_variables(sentence, dic=None):
 
 
 standardize_variables.counter = itertools.count()
+
+
+# ______________________________________________________________________________
+
+
+def parse_clauses_from_dimacs(dimacs_cnf):
+    """Converts a string into CNF clauses according to the DIMACS format used in SAT competitions"""
+    return map(lambda c: associate('|', c),
+               map(lambda c: [expr('~X' + str(abs(l))) if l < 0 else expr('X' + str(l)) for l in c],
+                   map(lambda line: map(int, line.split()),
+                       filter(None, ' '.join(
+                           filter(lambda line: line[0] not in ('c', 'p'),
+                                  filter(None, dimacs_cnf.strip().replace('\t', ' ').split('\n')))).split(' 0')))))
 
 
 # ______________________________________________________________________________
@@ -1836,7 +1939,7 @@ class FolKB(KB):
         if is_definite_clause(sentence):
             self.clauses.append(sentence)
         else:
-            raise Exception("Not a definite clause: {}".format(sentence))
+            raise Exception('Not a definite clause: {}'.format(sentence))
 
     def ask_generator(self, query):
         return fol_bc_ask(self, query)
@@ -1848,10 +1951,13 @@ class FolKB(KB):
         return self.clauses
 
 
-def fol_fc_ask(KB, alpha):
-    """A simple forward-chaining algorithm. [Figure 9.3]"""
+def fol_fc_ask(kb, alpha):
+    """
+    [Figure 9.3]
+    A simple forward-chaining algorithm.
+    """
     # TODO: Improve efficiency
-    kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
+    kb_consts = list({c for clause in kb.clauses for c in constant_symbols(clause)})
 
     def enum_subst(p):
         query_vars = list({v for clause in p for v in variables(clause)})
@@ -1860,19 +1966,19 @@ def fol_fc_ask(KB, alpha):
             yield theta
 
     # check if we can answer without new inferences
-    for q in KB.clauses:
+    for q in kb.clauses:
         phi = unify(q, alpha)
         if phi is not None:
             yield phi
 
     while True:
         new = []
-        for rule in KB.clauses:
+        for rule in kb.clauses:
             p, q = parse_definite_clause(rule)
             for theta in enum_subst(p):
-                if set(subst(theta, p)).issubset(set(KB.clauses)):
+                if set(subst(theta, p)).issubset(set(kb.clauses)):
                     q_ = subst(theta, q)
-                    if all([unify(x, q_) is None for x in KB.clauses + new]):
+                    if all([unify(x, q_) is None for x in kb.clauses + new]):
                         new.append(q_)
                         phi = unify(q_, alpha)
                         if phi is not None:
@@ -1880,32 +1986,35 @@ def fol_fc_ask(KB, alpha):
         if not new:
             break
         for clause in new:
-            KB.tell(clause)
+            kb.tell(clause)
     return None
 
 
-def fol_bc_ask(KB, query):
-    """A simple backward-chaining algorithm for first-order logic. [Figure 9.6]
-    KB should be an instance of FolKB, and query an atomic sentence."""
-    return fol_bc_or(KB, query, {})
+def fol_bc_ask(kb, query):
+    """
+    [Figure 9.6]
+    A simple backward-chaining algorithm for first-order logic.
+    KB should be an instance of FolKB, and query an atomic sentence.
+    """
+    return fol_bc_or(kb, query, {})
 
 
-def fol_bc_or(KB, goal, theta):
-    for rule in KB.fetch_rules_for_goal(goal):
+def fol_bc_or(kb, goal, theta):
+    for rule in kb.fetch_rules_for_goal(goal):
         lhs, rhs = parse_definite_clause(standardize_variables(rule))
-        for theta1 in fol_bc_and(KB, lhs, unify(rhs, goal, theta)):
+        for theta1 in fol_bc_and(kb, lhs, unify(rhs, goal, theta)):
             yield theta1
 
 
-def fol_bc_and(KB, goals, theta):
+def fol_bc_and(kb, goals, theta):
     if theta is None:
         pass
     elif not goals:
         yield theta
     else:
         first, rest = goals[0], goals[1:]
-        for theta1 in fol_bc_or(KB, subst(theta, first), theta):
-            for theta2 in fol_bc_and(KB, rest, theta1):
+        for theta1 in fol_bc_or(kb, subst(theta, first), theta):
+            for theta2 in fol_bc_and(kb, rest, theta1):
                 yield theta2
 
 
@@ -1920,31 +2029,27 @@ wumpus_kb.tell(B21 | '<=>' | (P11 | P22 | P31))
 wumpus_kb.tell(~B11)
 wumpus_kb.tell(B21)
 
-test_kb = FolKB(
-    map(expr, ['Farmer(Mac)',
-               'Rabbit(Pete)',
-               'Mother(MrsMac, Mac)',
-               'Mother(MrsRabbit, Pete)',
-               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
-               '(Mother(m, c)) ==> Loves(m, c)',
-               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
-               '(Farmer(f)) ==> Human(f)',
-               # Note that this order of conjuncts
-               # would result in infinite recursion:
-               # '(Human(h) & Mother(m, h)) ==> Human(m)'
-               '(Mother(m, h) & Human(h)) ==> Human(m)'
-               ]))
+test_kb = FolKB(map(expr, ['Farmer(Mac)',
+                           'Rabbit(Pete)',
+                           'Mother(MrsMac, Mac)',
+                           'Mother(MrsRabbit, Pete)',
+                           '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
+                           '(Mother(m, c)) ==> Loves(m, c)',
+                           '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
+                           '(Farmer(f)) ==> Human(f)',
+                           # Note that this order of conjuncts
+                           # would result in infinite recursion:
+                           # '(Human(h) & Mother(m, h)) ==> Human(m)'
+                           '(Mother(m, h) & Human(h)) ==> Human(m)']))
 
-crime_kb = FolKB(
-    map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
-               'Owns(Nono, M1)',
-               'Missile(M1)',
-               '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-               'Missile(x) ==> Weapon(x)',
-               'Enemy(x, America) ==> Hostile(x)',
-               'American(West)',
-               'Enemy(Nono, America)'
-               ]))
+crime_kb = FolKB(map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+                            'Owns(Nono, M1)',
+                            'Missile(M1)',
+                            '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+                            'Missile(x) ==> Weapon(x)',
+                            'Enemy(x, America) ==> Hostile(x)',
+                            'American(West)',
+                            'Enemy(Nono, America)']))
 
 
 # ______________________________________________________________________________
@@ -1984,7 +2089,7 @@ def diff(y, x):
         elif op == 'log':
             return diff(u, x) / u
         else:
-            raise ValueError("Unknown op: {} in diff({}, {})".format(op, y, x))
+            raise ValueError('Unknown op: {} in diff({}, {})'.format(op, y, x))
 
 
 def simp(x):
@@ -2045,7 +2150,7 @@ def simp(x):
         if u == 1:
             return 0
     else:
-        raise ValueError("Unknown op: " + op)
+        raise ValueError('Unknown op: ' + op)
     # If we fall through to here, we can not simplify further
     return Expr(op, *args)
 

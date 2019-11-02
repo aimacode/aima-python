@@ -176,7 +176,8 @@ def test_revise():
     Xj = 'B'
     removals = []
 
-    assert not revise(csp, Xi, Xj, removals)
+    consistency, _ = revise(csp, Xi, Xj, removals)
+    assert not consistency
     assert len(removals) == 0
 
     domains = {'A': [0, 1, 2, 3, 4], 'B': [0, 1, 2, 3, 4]}
@@ -195,7 +196,8 @@ def test_AC3():
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
-    assert not AC3(csp, removals=removals)
+    consistency, _ = AC3(csp, removals=removals)
+    assert not consistency
 
     constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4
     removals = []
@@ -221,7 +223,8 @@ def test_AC3b():
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
-    assert not AC3b(csp, removals=removals)
+    consistency, _ = AC3b(csp, removals=removals)
+    assert not consistency
 
     constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4
     removals = []
@@ -247,7 +250,8 @@ def test_AC4():
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
-    assert not AC4(csp, removals=removals)
+    consistency, _ = AC4(csp, removals=removals)
+    assert not consistency
 
     constraints = lambda X, x, Y, y: x % 2 == 0 and x + y == 4
     removals = []
@@ -492,8 +496,8 @@ def test_ac_solver():
                                                                   'four_across': 'car'}
     assert ac_solver(two_two_four) == {'T': 7, 'F': 1, 'W': 6, 'O': 5, 'U': 3, 'R': 0, 'C1': 1, 'C2': 1, 'C3': 1} or \
            {'T': 9, 'F': 1, 'W': 2, 'O': 8, 'U': 5, 'R': 6, 'C1': 1, 'C2': 0, 'C3': 1}
-    assert ac_solver(send_more_money) == {'S': 9, 'M': 1, 'E': 5, 'N': 6, 'D': 7, 'O': 0, 'R': 8, 'Y': 2,
-                                          'C1': 1, 'C2': 1, 'C3': 0, 'C4': 1}
+    assert ac_solver(send_more_money) == \
+           {'S': 9, 'M': 1, 'E': 5, 'N': 6, 'D': 7, 'O': 0, 'R': 8, 'Y': 2, 'C1': 1, 'C2': 1, 'C3': 0, 'C4': 1}
 
 
 def test_ac_search_solver():
@@ -614,11 +618,13 @@ def test_mac():
     assignment = {'A': 1}
 
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
-    assert not mac(csp, var, value, assignment, None)
+    consistency, _ = mac(csp, var, value, assignment, None)
+    assert not consistency
 
     constraints = lambda X, x, Y, y: x % 2 != 0 and (x + y) == 6 and y % 2 != 0
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
-    assert mac(csp, var, value, assignment, None)
+    _, consistency = mac(csp, var, value, assignment, None)
+    assert consistency
 
 
 def test_queen_constraint():
