@@ -1371,7 +1371,12 @@ class PartialOrderPlanner:
                 self.constraints = self.protect((act0, G, act1), action, self.constraints)
 
             if step > 200:
-                print("Couldn't find a solution")
+                print('Couldn'
+                t
+                find
+                a
+                solution
+                ')
                 return None, None
 
         if display:
@@ -1444,12 +1449,20 @@ class HLA(Action):
         An HLA based version of act - along with knowledge base updation, it handles
         resource checks, and ensures the actions are executed in the correct order.
         """
+        # print(self.name)
         if not self.has_usable_resource(available_resources):
             raise Exception('Not enough usable resources to execute {}'.format(self.name))
         if not self.has_consumable_resource(available_resources):
             raise Exception('Not enough consumable resources to execute {}'.format(self.name))
         if not self.inorder(job_order):
-            raise Exception("Can't execute {} - execute prerequisite actions first".format(self.name))
+            raise Exception('Can'
+            t
+            execute
+            {} - execute
+            prerequisite
+            actions
+            first
+            '.format(self.name))
             kb = super().act(kb, args)  # update knowledge base
             for resource in self.consumes:  # remove consumed resources
                 available_resources[resource] -= self.consumes[resource]
