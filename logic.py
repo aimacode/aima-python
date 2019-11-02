@@ -1631,7 +1631,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
         state_counter = itertools.count()
         for s in states:
             for t in range(time + 1):
-                state_sym[s, t] = Expr("S{}".format(next(state_counter)))
+                state_sym[s, t] = Expr("S_{}".format(next(state_counter)))
 
         # Add initial state axiom
         clauses.append(state_sym[init, 0])
@@ -1648,7 +1648,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
                 s_ = transition[s][action]
                 for t in range(time):
                     # Action 'action' taken from state 's' at time 't' to reach 's_'
-                    action_sym[s, action, t] = Expr("T{}".format(next(transition_counter)))
+                    action_sym[s, action, t] = Expr("T_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
                     clauses.append(action_sym[s, action, t] | '==>' | state_sym[s, t])
@@ -1799,6 +1799,80 @@ def cascade_substitution(s):
         if isinstance(s.get(x), Expr) and not is_variable(s.get(x)):
             # Ensure Function Terms are correct updates by passing over them again.
             s[x] = subst(s, s.get(x))
+
+
+def unify_mm(x, y, s={}):
+    """Unify expressions x,y with substitution s using an efficient rule-based
+    unification algorithm by Martelli & Montanari; return a substitution that
+    would make x,y equal, or None if x,y can not unify. x and y can be
+    variables (e.g. Expr('x')), constants, lists, or Exprs.
+    >>> unify_mm(x, 3, {})
+    {x: 3}
+    """
+
+    set_eq = extend(s, x, y)
+    s = set_eq.copy()
+    while True:
+        trans = 0
+        for x, y in set_eq.items():
+            if x == y:
+                # if x = y this mapping is deleted (rule b)
+                del s[x]
+            elif not is_variable(x) and is_variable(y):
+                # if x is not a variable and y is a variable, rewrite it as y = x in s (rule a)
+                if s.get(y, None) is None:
+                    s[y] = x
+                    del s[x]
+                else:
+                    # if a mapping already exist for variable y then apply
+                    # variable elimination (there is a chance to apply rule d)
+                    s[x] = vars_elimination(y, s)
+            elif not is_variable(x) and not is_variable(y):
+                # in which case x and y are not variables, if the two root function symbols
+                # are different, stop with failure, else apply term reduction (rule c)
+                if x.op is y.op and len(x.args) == len(y.args):
+                    term_reduction(x, y, s)
+                    del s[x]
+                else:
+                    return None
+            elif isinstance(y, Expr):
+                # in which case x is a variable and y is a function or a variable (e.g. F(z) or y),
+                # if y is a function, we must check if x occurs in y, then stop with failure, else
+                # try to apply variable elimination to y (rule d)
+                if occur_check(x, y, s):
+                    return None
+                s[x] = vars_elimination(y, s)
+                if y == s.get(x):
+                    trans += 1
+            else:
+                trans += 1
+        if trans == len(set_eq):
+            # if no transformation has been applied, stop with success
+            return s
+        set_eq = s.copy()
+
+
+def term_reduction(x, y, s):
+    """Apply term reduction to x and y if both are functions and the two root function
+    symbols are equals (e.g. F(x1, x2, ..., xn) and F(x1', x2', ..., xn')) by returning
+    a new mapping obtained by replacing x: y with {x1: x1', x2: x2', ..., xn: xn'}
+    """
+    for i in range(len(x.args)):
+        if x.args[i] in s:
+            s[s.get(x.args[i])] = y.args[i]
+        else:
+            s[x.args[i]] = y.args[i]
+
+
+def vars_elimination(x, s):
+    """Apply variable elimination to x: if x is a variable and occurs in s, return
+    the term mapped by x, else if x is a function recursively applies variable
+    elimination to each term of the function."""
+    if not isinstance(x, Expr):
+        return x
+    if is_variable(x):
+        return s.get(x, x)
+    return Expr(x.op, *[vars_elimination(arg, s) for arg in x.args])
 
 
 def standardize_variables(sentence, dic=None):
