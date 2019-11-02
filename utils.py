@@ -148,7 +148,7 @@ def histogram(values, mode=0, bin_function=None):
         return sorted(bins.items())
 
 
-def dotproduct(X, Y):
+def dot_product(X, Y):
     """Return the sum of the element-wise product of vectors X and Y."""
     return sum(x * y for x, y in zip(X, Y))
 
@@ -164,11 +164,7 @@ def matrix_multiplication(X_M, *Y_M):
 
     def _mat_mult(X_M, Y_M):
         """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
-        >>> matrix_multiplication([[1, 2, 3],
-                                   [2, 3, 4]],
-                                   [[3, 4],
-                                    [1, 2],
-                                    [1, 0]])
+        >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
         [[8, 8],[13, 14]]
         """
         assert len(X_M[0]) == len(Y_M)
@@ -438,10 +434,10 @@ def truncated_svd(X, num_val=2, max_iter=1000):
         X_m = X[:m]
         X_n = X[m:]
         for eivec in eivec_m:
-            coeff = dotproduct(X_m, eivec)
+            coeff = dot_product(X_m, eivec)
             X_m = [x1 - coeff * x2 for x1, x2 in zip(X_m, eivec)]
         for eivec in eivec_n:
-            coeff = dotproduct(X_n, eivec)
+            coeff = dot_product(X_n, eivec)
             X_n = [x1 - coeff * x2 for x1, x2 in zip(X_n, eivec)]
         return X_m + X_n
 

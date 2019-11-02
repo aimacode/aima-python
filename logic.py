@@ -31,6 +31,7 @@ And a few other functions:
     unify            Do unification of two FOL sentences
     diff, simp       Symbolic differentiation and simplification
 """
+
 import heapq
 import itertools
 import random
@@ -112,8 +113,11 @@ class PropKB(KB):
 # ______________________________________________________________________________
 
 
-def KB_AgentProgram(KB):
-    """A generic logical knowledge-based agent program. [Figure 7.1]"""
+def KBAgentProgram(KB):
+    """
+    [Figure 7.1]
+    A generic logical knowledge-based agent program.
+    """
     steps = itertools.count()
 
     def program(percept):
@@ -201,9 +205,11 @@ A, B, C, D, E, F, G, P, Q, a, x, y, z, u = map(Expr, 'ABCDEFGPQaxyzu')
 
 
 def tt_entails(kb, alpha):
-    """Does kb entail the sentence alpha? Use truth tables. For propositional
-    kb's and sentences. [Figure 7.10]. Note that the 'kb' should be an
-    Expr which is a conjunction of clauses.
+    """
+    [Figure 7.10]
+    Does kb entail the sentence alpha? Use truth tables. For propositional
+    kb's and sentences. Note that the 'kb' should be an Expr which is a
+    conjunction of clauses.
     >>> tt_entails(expr('P & Q'), expr('Q'))
     True
     """
@@ -328,8 +334,10 @@ def pl_true(exp, model={}):
 
 
 def to_cnf(s):
-    """Convert a propositional logical sentence to conjunctive normal form.
-    That is, to the form ((A | ~B | ...) & (B | C | ...) & ...) [p. 253]
+    """
+    [Page 253]
+    Convert a propositional logical sentence to conjunctive normal form.
+    That is, to the form ((A | ~B | ...) & (B | C | ...) & ...)
     >>> to_cnf('~(B | C)')
     (~B & ~C)
     """
@@ -478,7 +486,9 @@ def disjuncts(s):
 
 
 def pl_resolution(KB, alpha):
-    """Propositional-logic resolution: say if alpha follows from KB. [Figure 7.12]
+    """
+    [Figure 7.12]
+    Propositional-logic resolution: say if alpha follows from KB.
     >>> pl_resolution(horn_clauses_KB, A)
     True
     """
@@ -542,9 +552,7 @@ def pl_fc_entails(KB, q):
     >>> pl_fc_entails(horn_clauses_KB, expr('Q'))
     True
     """
-    count = {c: len(conjuncts(c.args[0]))
-             for c in KB.clauses
-             if c.op == '==>'}
+    count = {c: len(conjuncts(c.args[0])) for c in KB.clauses if c.op == '==>'}
     inferred = defaultdict(bool)
     agenda = [s for s in KB.clauses if is_prop_symbol(s.op)]
     while agenda:
@@ -564,14 +572,14 @@ def pl_fc_entails(KB, q):
 [Figure 7.13]
 Simple inference in a wumpus world example
 """
-wumpus_world_inference = expr("(B11 <=> (P12 | P21))  &  ~B11")
+wumpus_world_inference = expr('(B11 <=> (P12 | P21))  &  ~B11')
 
 """
 [Figure 7.16]
 Propositional Logic Forward Chaining example
 """
 horn_clauses_KB = PropDefiniteKB()
-for s in "P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B".split(';'):
+for s in 'P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B'.split(';'):
     horn_clauses_KB.tell(expr(s))
 
 """
@@ -1385,22 +1393,14 @@ class WumpusKB(PropKB):
             for j in range(1, self.dimrow + 1):
                 self.tell(implies(location(i, j, time), equiv(percept_breeze(time), breeze(i, j))))
                 self.tell(implies(location(i, j, time), equiv(percept_stench(time), stench(i, j))))
-
                 s = list()
-
-                s.append(
-                    equiv(
-                        location(i, j, time), location(i, j, time) & ~move_forward(time) | percept_bump(time)))
-
+                s.append(equiv(location(i, j, time), location(i, j, time) & ~move_forward(time) | percept_bump(time)))
                 if i != 1:
                     s.append(location(i - 1, j, t) & facing_east(t) & move_forward(t))
-
                 if i != self.dimrow:
                     s.append(location(i + 1, j, t) & facing_west(t) & move_forward(t))
-
                 if j != 1:
                     s.append(location(i, j - 1, t) & facing_north(t) & move_forward(t))
-
                 if j != self.dimrow:
                     s.append(location(i, j + 1, t) & facing_south(t) & move_forward(t))
 
@@ -1408,9 +1408,7 @@ class WumpusKB(PropKB):
                 self.tell(new_disjunction(s))
 
                 # add sentence about safety of location i,j
-                self.tell(
-                    equiv(ok_to_move(i, j, time), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(time))
-                )
+                self.tell(equiv(ok_to_move(i, j, time), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(time)))
 
         # Rules about current orientation
 
@@ -1484,7 +1482,10 @@ class WumpusPosition:
 
 
 class HybridWumpusAgent(Agent):
-    """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
+    """
+    [Figure 7.20]
+    An agent for the wumpus world that does logical inference.
+    """
 
     def __init__(self, dimentions):
         self.dimrow = dimentions
@@ -1702,9 +1703,11 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=cdcl_satisfiable):
 
 
 def unify(x, y, s={}):
-    """Unify expressions x,y with substitution s; return a substitution that
+    """
+    [Figure 9.1]
+    Unify expressions x,y with substitution s; return a substitution that
     would make x,y equal, or None if x,y can not unify. x and y can be
-    variables (e.g. Expr('x')), constants, lists, or Exprs. [Figure 9.1]
+    variables (e.g. Expr('x')), constants, lists, or Exprs.
     >>> unify(x, 3, {})
     {x: 3}
     """
@@ -1869,7 +1872,10 @@ class FolKB(KB):
 
 
 def fol_fc_ask(KB, alpha):
-    """A simple forward-chaining algorithm. [Figure 9.3]"""
+    """
+    [Figure 9.3]
+    A simple forward-chaining algorithm.
+    """
     # TODO: Improve efficiency
     kb_consts = list({c for clause in KB.clauses for c in constant_symbols(clause)})
 
@@ -1905,8 +1911,11 @@ def fol_fc_ask(KB, alpha):
 
 
 def fol_bc_ask(KB, query):
-    """A simple backward-chaining algorithm for first-order logic. [Figure 9.6]
-    KB should be an instance of FolKB, and query an atomic sentence."""
+    """
+    [Figure 9.6]
+    A simple backward-chaining algorithm for first-order logic.
+    KB should be an instance of FolKB, and query an atomic sentence.
+    """
     return fol_bc_or(KB, query, {})
 
 

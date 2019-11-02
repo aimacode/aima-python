@@ -12,14 +12,14 @@ import random
 import sys
 from collections import deque
 
-from utils import (is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler, memoize, print_table,
-                   open_data, PriorityQueue, name, distance, vector_add, inf)
+from utils import (is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler, memoize,
+                   print_table, open_data, PriorityQueue, name, distance, vector_add, inf)
 
 
 # ______________________________________________________________________________
 
 
-class Problem(object):
+class Problem:
     """The abstract class for a formal problem. You should subclass
     this and implement the methods actions and result, and possibly
     __init__, goal_test, and path_cost. Then you will create instances
@@ -106,9 +106,7 @@ class Node:
     def child_node(self, problem, action):
         """[Figure 3.10]"""
         next_state = problem.result(self.state, action)
-        next_node = Node(next_state, self, action,
-                         problem.path_cost(self.path_cost, self.state,
-                                           action, next_state))
+        next_node = Node(next_state, self, action, problem.path_cost(self.path_cost, self.state, action, next_state))
         return next_node
 
     def solution(self):
@@ -216,6 +214,7 @@ def depth_first_graph_search(problem):
         Does not get trapped by loops.
         If two paths reach a state, only use the first one. [Figure 3.7]"""
     frontier = [(Node(problem.initial))]  # Stack
+
     explored = set()
     while frontier:
         node = frontier.pop()
@@ -223,8 +222,7 @@ def depth_first_graph_search(problem):
             return node
         explored.add(node.state)
         frontier.extend(child for child in node.expand(problem)
-                        if child.state not in explored and
-                        child not in frontier)
+                        if child.state not in explored and child not in frontier)
     return None
 
 
@@ -413,9 +411,9 @@ def astar_search(problem, h=None, display=False):
 # A* heuristics 
 
 class EightPuzzle(Problem):
-    """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board,
-    where one of the squares is a blank. A state is represented as a tuple of length 9,
-    where element at index i represents the tile number  at index i (0 if it's an empty square) """
+    """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board, where one of the
+    squares is a blank. A state is represented as a tuple of length 9, where  element at
+    index i represents the tile number  at index i (0 if it's an empty square) """
 
     def __init__(self, initial, goal=(1, 2, 3, 4, 5, 6, 7, 8, 0)):
         """ Define goal state and initialize a problem """

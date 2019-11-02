@@ -10,7 +10,7 @@ from keras.layers.embeddings import Embedding
 from keras.models import Sequential
 from keras.preprocessing import sequence
 
-from utils4e import (sigmoid, dotproduct, softmax1D, conv1D, GaussianKernel, element_wise_product, vector_add,
+from utils4e import (sigmoid, dot_product, softmax1D, conv1D, GaussianKernel, element_wise_product, vector_add,
                      random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss)
 
 
@@ -107,7 +107,7 @@ class DenseLayer(Layer):
         res = []
         # get the output value of each unit
         for unit in self.nodes:
-            val = self.activation.f(dotproduct(unit.weights, inputs))
+            val = self.activation.f(dot_product(unit.weights, inputs))
             unit.val = val
             res.append(val)
         return res

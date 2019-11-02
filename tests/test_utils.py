@@ -158,9 +158,9 @@ def test_mean_error():
     assert mean_error([0, 0.5], [0, -0.5]) == 0.5
 
 
-def test_dotproduct():
-    assert dotproduct([1, 2, 3], [1000, 100, 10]) == 1230
-    assert dotproduct([1, 2, 3], [0, 0, 0]) == 0
+def test_dot_product():
+    assert dot_product([1, 2, 3], [1000, 100, 10]) == 1230
+    assert dot_product([1, 2, 3], [0, 0, 0]) == 0
 
 
 def test_element_wise_product():
@@ -202,8 +202,7 @@ def test_scalar_vector_product():
 
 
 def test_scalar_matrix_product():
-    assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20],
-                                                                            [0, -30]]
+    assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20], [0, -30]]
     assert rounder(scalar_matrix_product(0.2, [[1, 2], [2, 3]])) == [[0.2, 0.4], [0.4, 0.6]]
 
 

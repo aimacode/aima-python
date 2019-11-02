@@ -1302,7 +1302,9 @@ class PartialOrderPlanner:
             if not ordered:
                 break
             yield ordered
-            graph = {element: (dependency - ordered) for element, dependency in graph.items() if element not in ordered}
+            graph = {element: (dependency - ordered)
+                     for element, dependency in graph.items()
+                     if element not in ordered}
         if len(graph) != 0:
             raise ValueError('The graph is not acyclic and cannot be linearly ordered')
 
@@ -1420,8 +1422,7 @@ class HLA(Action):
     """
     unique_group = 1
 
-    def __init__(self, action, precond=None, effect=None, duration=0,
-                 consume=None, use=None):
+    def __init__(self, action, precond=None, effect=None, duration=0, consume=None, use=None):
         """
         As opposed to actions, to define HLA, we have added constraints.
         duration holds the amount of time required to execute the task
@@ -1649,8 +1650,9 @@ class RealWorldPlanningProblem(PlanningProblem):
         """
         Find the intersection of the reachable states and the goal
         """
-        return [y for x in list(reachable_set.keys()) for y in reachable_set[x] if
-                all(goal in y for goal in self.goals)]
+        return [y for x in list(reachable_set.keys())
+                for y in reachable_set[x]
+                if all(goal in y for goal in self.goals)]
 
     def is_primitive(plan, library):
         """
