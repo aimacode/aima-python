@@ -13,6 +13,8 @@ from statistics import mean
 
 import numpy as np
 
+inf = float('inf')
+
 
 # part1. General data structures and their functions
 # ______________________________________________________________________________
@@ -150,6 +152,13 @@ def powerset(iterable):
     """powerset([1,2,3]) --> (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
     s = list(iterable)
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))[1:]
+
+
+def extend(s, var, val):
+    """Copy dict s and extend it by setting var to val; return copy."""
+    s2 = s.copy()
+    s2[var] = val
+    return s2
 
 
 # ______________________________________________________________________________
@@ -929,6 +938,21 @@ class hashabledict(dict):
 
     def __hash__(self):
         return 1
+
+
+# ______________________________________________________________________________
+# Monte Carlo tree node and ucb function
+class MCT_Node:
+    """Node in the Monte Carlo search tree, keeps track of the children states"""
+
+    def __init__(self, parent=None, state=None, U=0, N=0):
+        self.__dict__.update(parent=parent, state=state, U=U, N=N)
+        self.children = {}
+        self.actions = None
+
+
+def ucb(n, C=1.4):
+    return inf if n.N == 0 else n.U / n.N + C * math.sqrt(math.log(n.parent.N) / n.N)
 
 
 # ______________________________________________________________________________
