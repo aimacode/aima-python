@@ -579,19 +579,19 @@ wumpus_world_inference = expr('(B11 <=> (P12 | P21))  &  ~B11')
 Propositional Logic Forward Chaining example
 """
 horn_clauses_KB = PropDefiniteKB()
-for s in 'P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B'.split(';'):
+for s in 'P ==> Q; (L & M) ==> P; (B & L) ==> M; (A & P) ==> L; (A & B) ==> L; A; B'.split(';'):
     horn_clauses_KB.tell(expr(s))
 
 """
 Definite clauses KB example
 """
 definite_clauses_KB = PropDefiniteKB()
-for clause in ['(B & F)==>E',
-               '(A & E & F)==>G',
-               '(B & C)==>F',
-               '(A & B)==>D',
-               '(E & F)==>H',
-               '(H & I)==>J',
+for clause in ['(B & F) ==> E',
+               '(A & E & F) ==> G',
+               '(B & C) ==> F',
+               '(A & B) ==> D',
+               '(E & F) ==> H',
+               '(H & I) ==>J',
                'A', 'B', 'C']:
     definite_clauses_KB.tell(expr(clause))
 
@@ -2023,29 +2023,27 @@ wumpus_kb.tell(B21 | '<=>' | (P11 | P22 | P31))
 wumpus_kb.tell(~B11)
 wumpus_kb.tell(B21)
 
-test_kb = FolKB(
-    map(expr, ['Farmer(Mac)',
-               'Rabbit(Pete)',
-               'Mother(MrsMac, Mac)',
-               'Mother(MrsRabbit, Pete)',
-               '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
-               '(Mother(m, c)) ==> Loves(m, c)',
-               '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
-               '(Farmer(f)) ==> Human(f)',
-               # Note that this order of conjuncts
-               # would result in infinite recursion:
-               # '(Human(h) & Mother(m, h)) ==> Human(m)'
-               '(Mother(m, h) & Human(h)) ==> Human(m)']))
+test_kb = FolKB(map(expr, ['Farmer(Mac)',
+                           'Rabbit(Pete)',
+                           'Mother(MrsMac, Mac)',
+                           'Mother(MrsRabbit, Pete)',
+                           '(Rabbit(r) & Farmer(f)) ==> Hates(f, r)',
+                           '(Mother(m, c)) ==> Loves(m, c)',
+                           '(Mother(m, r) & Rabbit(r)) ==> Rabbit(m)',
+                           '(Farmer(f)) ==> Human(f)',
+                           # Note that this order of conjuncts
+                           # would result in infinite recursion:
+                           # '(Human(h) & Mother(m, h)) ==> Human(m)'
+                           '(Mother(m, h) & Human(h)) ==> Human(m)']))
 
-crime_kb = FolKB(
-    map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
-               'Owns(Nono, M1)',
-               'Missile(M1)',
-               '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
-               'Missile(x) ==> Weapon(x)',
-               'Enemy(x, America) ==> Hostile(x)',
-               'American(West)',
-               'Enemy(Nono, America)']))
+crime_kb = FolKB(map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
+                            'Owns(Nono, M1)',
+                            'Missile(M1)',
+                            '(Missile(x) & Owns(Nono, x)) ==> Sells(West, x, Nono)',
+                            'Missile(x) ==> Weapon(x)',
+                            'Enemy(x, America) ==> Hostile(x)',
+                            'American(West)',
+                            'Enemy(Nono, America)']))
 
 
 # ______________________________________________________________________________
