@@ -1754,8 +1754,8 @@ class RealWorldPlanningProblem(PlanningProblem):
         """
         s_i = reachable_set[i - 1][0]
         for state in reachable_set[i - 1]:
-            if s_f in [x for x in
-                       RealWorldPlanningProblem.reach_pes(state, AngelicNode(state, None, [action], [action]))[1]]:
+            if s_f in [x for x in RealWorldPlanningProblem.reach_pes(
+                    state, AngelicNode(state, None, [action], [action]))[1]]:
                 s_i = state
                 break
         return s_i
@@ -1850,8 +1850,7 @@ def go_to_sfo():
             ['At(SFO) & ~At(Home)'],
             ['At(SFOLongTermParking) & ~At(Home)'],
             ['At(SFO) & ~At(SFOLongTermParking)'],
-            ['At(SFO) & ~At(Home)']
-        ]}
+            ['At(SFO) & ~At(Home)']]}
 
     return RealWorldPlanningProblem(initial='At(Home)', goals='At(SFO)', actions=actions), library
 
