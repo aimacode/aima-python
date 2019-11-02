@@ -1444,7 +1444,6 @@ class HLA(Action):
         An HLA based version of act - along with knowledge base updation, it handles
         resource checks, and ensures the actions are executed in the correct order.
         """
-        # print(self.name)
         if not self.has_usable_resource(available_resources):
             raise Exception('Not enough usable resources to execute {}'.format(self.name))
         if not self.has_consumable_resource(available_resources):
@@ -1967,7 +1966,6 @@ class AngelicHLA(HLA):
                         effects[i] = expr(clause.op[w:])  # make changes in the ith part of effects
                         if n == 3:
                             effects[i + len(effects) // 3] = expr(clause.op[6:])
-            # print('effects',  effects)
 
         return [HLA(Expr(self.name, self.args), self.precond, effects[i]) for i in range(len(effects))]
 
