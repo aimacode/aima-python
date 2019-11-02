@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.signal
 import matplotlib.pyplot as plt
-from utils4e import gaussian_kernel_2d
+from utils4e import gaussian_kernel_2d, inf
 import keras
 from keras.datasets import mnist
 from keras.models import Sequential
@@ -86,8 +86,8 @@ def sum_squared_difference(pic1, pic2):
     pic1 = np.asarray(pic1)
     pic2 = np.asarray(pic2)
     assert pic1.shape == pic2.shape
-    min_ssd = float('inf')
-    min_dxy = (float('inf'), float('inf'))
+    min_ssd = inf
+    min_dxy = (inf, inf)
 
     # consider picture shift from -30 to 30
     for Dx in range(-30, 31):
@@ -241,7 +241,7 @@ class Graph:
         max_flow = 0
 
         while self.bfs(source, sink, parent):
-            path_flow = float('inf')
+            path_flow = inf
             # find the minimum flow of s-t path
             for s, t in parent:
                 path_flow = min(path_flow, self.flow[s][t])

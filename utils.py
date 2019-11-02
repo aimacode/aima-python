@@ -1,4 +1,4 @@
-"""Provides some utilities widely used by other modules"""
+"""Provides some utilities widely used by other modules."""
 
 import bisect
 import collections
@@ -23,8 +23,7 @@ inf = float('inf')
 
 def sequence(iterable):
     """Converts iterable to sequence, if it is not already one."""
-    return (iterable if isinstance(iterable, collections.abc.Sequence)
-            else tuple([iterable]))
+    return iterable if isinstance(iterable, collections.abc.Sequence) else tuple([iterable])
 
 
 def remove_all(item, seq):
@@ -215,7 +214,6 @@ def inverse_matrix(X):
     det = X[0][0] * X[1][1] - X[0][1] * X[1][0]
     assert det != 0
     inv_mat = scalar_matrix_product(1.0 / det, [[X[1][1], -X[0][1]], [-X[1][0], X[0][0]]])
-
     return inv_mat
 
 
@@ -229,7 +227,6 @@ def weighted_sample_with_replacement(n, seq, weights):
     probability of each element in proportion to its corresponding
     weight."""
     sample = weighted_sampler(seq, weights)
-
     return [sample() for _ in range(n)]
 
 
@@ -238,13 +235,12 @@ def weighted_sampler(seq, weights):
     totals = []
     for w in weights:
         totals.append(w + totals[-1] if totals else w)
-
     return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
 
 
 def weighted_choice(choices):
     """A weighted version of random.choice"""
-    # NOTE: Should be replaced by random.choices if we port to Python 3.6
+    # NOTE: should be replaced by random.choices if we port to Python 3.6
 
     total = sum(w for _, w in choices)
     r = random.uniform(0, total)
@@ -265,8 +261,7 @@ def rounder(numbers, d=4):
 
 
 def num_or_str(x):  # TODO: rename as `atom`
-    """The argument is a string; convert to a number if
-       possible, or strip it."""
+    """The argument is a string; convert to a number if possible, or strip it."""
     try:
         return int(x)
     except ValueError:
@@ -315,7 +310,7 @@ def normalize(dist):
         total = sum(dist.values())
         for key in dist:
             dist[key] = dist[key] / total
-            assert 0 <= dist[key] <= 1, "Probabilities must be between 0 and 1."
+            assert 0 <= dist[key] <= 1  # Probabilities must be between 0 and 1
         return dist
     total = sum(dist)
     return [(n / total) for n in dist]
@@ -352,17 +347,11 @@ def relu_derivative(value):
 
 
 def elu(x, alpha=0.01):
-    if x > 0:
-        return x
-    else:
-        return alpha * (math.exp(x) - 1)
+    return x if x > 0 else alpha * (math.exp(x) - 1)
 
 
 def elu_derivative(value, alpha=0.01):
-    if value > 0:
-        return 1
-    else:
-        return alpha * math.exp(value)
+    return 1 if value > 0 else alpha * math.exp(value)
 
 
 def tanh(x):
@@ -374,17 +363,11 @@ def tanh_derivative(value):
 
 
 def leaky_relu(x, alpha=0.01):
-    if x > 0:
-        return x
-    else:
-        return alpha * x
+    return x if x > 0 else alpha * x
 
 
 def leaky_relu_derivative(value, alpha=0.01):
-    if value > 0:
-        return 1
-    else:
-        return alpha
+    return 1 if value > 0 else alpha
 
 
 def relu(x):
@@ -392,10 +375,7 @@ def relu(x):
 
 
 def relu_derivative(value):
-    if value > 0:
-        return 1
-    else:
-        return 0
+    return 1 if value > 0 else 0
 
 
 def step(x):
@@ -816,10 +796,7 @@ def expr(x):
     >>> expr('P & Q ==> Q')
     ((P & Q) ==> Q)
     """
-    if isinstance(x, str):
-        return eval(expr_handle_infix_ops(x), defaultkeydict(Symbol))
-    else:
-        return x
+    return eval(expr_handle_infix_ops(x), defaultkeydict(Symbol)) if isinstance(x, str) else x
 
 
 infix_ops = '==> <== <=>'.split()
@@ -870,7 +847,6 @@ class PriorityQueue:
 
     def __init__(self, order='min', f=lambda x: x):
         self.heap = []
-
         if order == 'min':
             self.f = f
         elif order == 'max':  # now item with max f(x)
@@ -918,22 +894,6 @@ class PriorityQueue:
         except ValueError:
             raise KeyError(str(key) + " is not in the priority queue")
         heapq.heapify(self.heap)
-
-
-# ______________________________________________________________________________
-# Monte Carlo tree node and ucb function
-class MCT_Node:
-    """Node in the Monte Carlo search tree, keeps track of the children states"""
-
-    def __init__(self, parent=None, state=None, U=0, N=0):
-        self.__dict__.update(parent=parent, state=state, U=U, N=N)
-        self.children = {}
-        self.actions = None
-
-
-def ucb(n, C=1.4):
-    return (float('inf') if n.N == 0 else
-            n.U / n.N + C * math.sqrt(math.log(n.parent.N) / n.N))
 
 
 # ______________________________________________________________________________
