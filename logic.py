@@ -46,13 +46,10 @@ from utils import (remove_all, unique, first, argmax, probability, isnumber,
                    issequence, Expr, expr, subexpressions, extend)
 
 
-# ______________________________________________________________________________
-
-
 class KB:
     """A knowledge base to which you can tell and ask sentences.
     To create a KB, first subclass this class and implement
-    tell, ask_generator, and retract.  Why ask_generator instead of ask?
+    tell, ask_generator, and retract. Why ask_generator instead of ask?
     The book is a bit vague on what ask means --
     For a Propositional Logic KB, ask(P & Q) returns True or False, but for an
     FOL KB, something like ask(Brother(x, y)) might return many substitutions
@@ -173,7 +170,7 @@ def variables(s):
 
 def is_definite_clause(s):
     """Returns True for exprs s of the form A & B & ... & C ==> D,
-    where all literals are positive.  In clause form, this is
+    where all literals are positive. In clause form, this is
     ~A | ~B | ... | ~C | D, where exactly one clause is positive.
     >>> is_definite_clause(expr('Farmer(Mac)'))
     True
@@ -602,7 +599,7 @@ for clause in ['(B & F) ==> E',
 
 
 # ______________________________________________________________________________
-# DPLL-Satisfiable [Figure 7.17]
+# Heuristics for SAT Solvers
 
 
 def no_branching_heuristic(symbols, clauses):
@@ -705,6 +702,10 @@ def jw2(symbols, clauses):
             scores[l] += pow(2, -len(c.args))
     P = max(symbols, key=lambda symbol: scores[symbol] + scores[~symbol])
     return P, True if scores[P] >= scores[~P] else False
+
+
+# ______________________________________________________________________________
+# DPLL-Satisfiable [Figure 7.17]
 
 
 def dpll_satisfiable(s, branching_heuristic=no_branching_heuristic):
@@ -1114,7 +1115,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
 
 
 # ______________________________________________________________________________
-# Map Coloring Problems
+# Map Coloring SAT Problems
 
 
 def MapColoringSAT(colors, neighbors):
@@ -1803,7 +1804,7 @@ def cascade_substitution(s):
     for x in s:
         s[x] = subst(s, s.get(x))
         if isinstance(s.get(x), Expr) and not is_variable(s.get(x)):
-            # Ensure Function Terms are correct updates by passing over them again.
+            # Ensure Function Terms are correct updates by passing over them again
             s[x] = subst(s, s.get(x))
 
 
@@ -2055,7 +2056,7 @@ crime_kb = FolKB(map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile
 # ______________________________________________________________________________
 
 # Example application (not in the book).
-# You can use the Expr class to do symbolic differentiation.  This used to be
+# You can use the Expr class to do symbolic differentiation. This used to be
 # a part of AI; now it is considered a separate field, Symbolic Algebra.
 
 

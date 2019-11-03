@@ -1,11 +1,9 @@
-from utils4e import (
-    argmax, element_wise_product, matrix_multiplication,
-    vector_to_diagonal, vector_add, scalar_vector_product, inverse_matrix,
-    weighted_sample_with_replacement, probability, normalize
-)
+import random
+
 from agents import Agent
 from probability import BayesNet
-import random
+from utils4e import argmax, vector_add, weighted_sample_with_replacement
+
 
 # Making Simple Decisions (Chapter 15)
 
@@ -108,6 +106,7 @@ class InformationGatheringAgent(Agent):
 class MCLmap:
     """Map which provides probability distributions and sensor readings.
     Consists of discrete cells which are either an obstacle or empty"""
+
     def __init__(self, m):
         self.m = m
         self.nrows = len(m)
@@ -131,7 +130,7 @@ class MCLmap:
         #  0
         # 3R1
         #  2
-        delta = ((sensor_num % 2 == 0)*(sensor_num - 1), (sensor_num % 2 == 1)*(2 - sensor_num))
+        delta = ((sensor_num % 2 == 0) * (sensor_num - 1), (sensor_num % 2 == 1) * (2 - sensor_num))
         # sensor direction changes based on orientation
         for _ in range(orient):
             delta = (delta[1], -delta[0])
@@ -149,9 +148,9 @@ def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
         return m.ray_cast(sensor_num, kin_state)
 
     M = len(z)
-    W = [0]*N
-    S_ = [0]*N
-    W_ = [0]*N
+    W = [0] * N
+    S_ = [0] * N
+    W_ = [0] * N
     v = a['v']
     w = a['w']
 
@@ -167,4 +166,3 @@ def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
 
     S = weighted_sample_with_replacement(N, S_, W_)
     return S
-

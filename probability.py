@@ -2,18 +2,16 @@
 Probability models. (Chapter 13-15)
 """
 
-from utils import (product, argmax, element_wise_product, matrix_multiplication, vector_to_diagonal, vector_add,
-                   scalar_vector_product, inverse_matrix, weighted_sample_with_replacement, isclose, probability,
-                   normalize, extend)
-from agents import Agent
-
 import random
 from collections import defaultdict
 from functools import reduce
+
 import numpy as np
 
-
-# ______________________________________________________________________________
+from agents import Agent
+from utils import (product, argmax, element_wise_product, matrix_multiplication, vector_to_diagonal, vector_add,
+                   scalar_vector_product, inverse_matrix, weighted_sample_with_replacement, isclose, probability,
+                   normalize, extend)
 
 
 def DTAgentProgram(belief_state):
@@ -106,7 +104,7 @@ class JointProbDist(ProbDist):
         return ProbDist.__getitem__(self, values)
 
     def __setitem__(self, values, p):
-        """Set P(values) = p.  Values can be a tuple or a dict; it must
+        """Set P(values) = p. Values can be a tuple or a dict; it must
         have a value for each of the variables in the joint. Also keep track
         of the values we have seen so far for each variable."""
         values = event_values(values, self.variables)
@@ -307,7 +305,7 @@ class BayesNode:
 
     def __init__(self, X, parents, cpt):
         """X is a variable name, and parents a sequence of variable
-        names or a space-separated string.  cpt, the conditional
+        names or a space-separated string. cpt, the conditional
         probability table, takes one of these forms:
 
         * A number, the unconditional probability P(X=true). You can
@@ -541,8 +539,10 @@ def prior_sample(bn):
 
 
 def rejection_sampling(X, e, bn, N=10000):
-    """Estimate the probability distribution of variable X given
-    evidence e in BayesNet bn, using N samples.  [Figure 14.14]
+    """
+    [Figure 14.14]
+    Estimate the probability distribution of variable X given
+    evidence e in BayesNet bn, using N samples.
     Raises a ZeroDivisionError if all the N samples are rejected,
     i.e., inconsistent with e.
     >>> random.seed(47)

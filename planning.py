@@ -1047,8 +1047,8 @@ class Linearize:
     def execute(self):
         """Finds total-order solution for a planning graph"""
 
-        graphplan_solution = GraphPlan(self.planning_problem).execute()
-        filtered_solution = self.filter(graphplan_solution)
+        graphPlan_solution = GraphPlan(self.planning_problem).execute()
+        filtered_solution = self.filter(graphPlan_solution)
         ordered_solution = []
         planning_problem = self.planning_problem
         for level in filtered_solution:
@@ -1635,7 +1635,7 @@ class RealWorldPlanningProblem(PlanningProblem):
                 if guaranteed and RealWorldPlanningProblem.making_progress(plan, initial_plan):
                     final_state = guaranteed[0]  # any element of guaranteed
                     return RealWorldPlanningProblem.decompose(hierarchy, final_state, pes_reachable_set)
-                # there should be at least one HLA/Angelic_HLA, otherwise plan would be primitive
+                # there should be at least one HLA/AngelicHLA, otherwise plan would be primitive
                 hla, index = RealWorldPlanningProblem.find_hla(plan, hierarchy)
                 prefix = plan.action[:index]
                 suffix = plan.action[index + 1:]
