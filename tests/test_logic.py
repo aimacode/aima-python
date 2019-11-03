@@ -183,11 +183,26 @@ def test_unify():
     assert unify(expr('American(x) & Weapon(B)'), expr('American(A) & Weapon(y)')) == {x: A, y: B}
     assert unify(expr('P(F(x,z), G(u, z))'), expr('P(F(y,a), y)')) == {x: G(u, a), z: a, y: G(u, a)}
 
-    # test for https://github.com/aimacode/aima-python/issues/1053
+    # tests for https://github.com/aimacode/aima-python/issues/1053
     # unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) 
     # must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
     assert unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) == {z: A, x: F(A), u: G(y)}
     assert unify(expr('P(x, A, F(G(y)))'), expr('P(F(z), z, F(u))')) == {x: F(A), z: A, u: G(y)}
+
+
+def test_unify_mm():
+    assert unify_mm(x, x) == {}
+    assert unify_mm(x, 3) == {x: 3}
+    assert unify_mm(x & 4 & y, 6 & y & 4) == {x: 6, y: 4}
+    assert unify_mm(expr('A(x)'), expr('A(B)')) == {x: B}
+    assert unify_mm(expr('American(x) & Weapon(B)'), expr('American(A) & Weapon(y)')) == {x: A, y: B}
+    assert unify_mm(expr('P(F(x,z), G(u, z))'), expr('P(F(y,a), y)')) == {x: G(u, a), z: a, y: G(u, a)}
+
+    # tests for https://github.com/aimacode/aima-python/issues/1053
+    # unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))'))
+    # must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
+    assert unify_mm(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) == {z: A, x: F(A), u: G(y)}
+    assert unify_mm(expr('P(x, A, F(G(y)))'), expr('P(F(z), z, F(u))')) == {x: F(A), z: A, u: G(y)}
 
 
 def test_pl_fc_entails():

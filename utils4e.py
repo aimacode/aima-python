@@ -1,4 +1,4 @@
-"""Provides some utilities widely used by other modules"""
+"""Provides some utilities widely used by other modules."""
 
 import bisect
 import collections
@@ -13,6 +13,8 @@ from statistics import mean
 
 import numpy as np
 
+inf = float('inf')
+
 
 # part1. General data structures and their functions
 # ______________________________________________________________________________
@@ -22,8 +24,7 @@ import numpy as np
 
 
 class PriorityQueue:
-    """A Queue in which the minimum (or maximum) element (as determined by f and
-    order) is returned first.
+    """A Queue in which the minimum (or maximum) element (as determined by f and order) is returned first.
     If order is 'min', the item with minimum f(x) is
     returned first; if order is 'max', then it is the item with maximum f(x).
     Also supports dict-like lookup."""
@@ -153,6 +154,13 @@ def powerset(iterable):
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))[1:]
 
 
+def extend(s, var, val):
+    """Copy dict s and extend it by setting var to val; return copy."""
+    s2 = s.copy()
+    s2[var] = val
+    return s2
+
+
 # ______________________________________________________________________________
 # argmin and argmax
 
@@ -201,7 +209,7 @@ def histogram(values, mode=0, bin_function=None):
         return sorted(bins.items())
 
 
-def dotproduct(X, Y):
+def dot_product(X, Y):
     """Return the sum of the element-wise product of vectors X and Y."""
     return sum(x * y for x, y in zip(X, Y))
 
@@ -231,11 +239,7 @@ def matrix_multiplication(X_M, *Y_M):
 
     def _mat_mult(X_M, Y_M):
         """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
-        >>> matrix_multiplication([[1, 2, 3],
-                                   [2, 3, 4]],
-                                   [[3, 4],
-                                    [1, 2],
-                                    [1, 0]])
+        >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
         [[8, 8],[13, 14]]
         """
         assert len(X_M[0]) == len(Y_M)
@@ -607,7 +611,7 @@ def vector_clip(vector, lowest, highest):
 # ______________________________________________________________________________
 # Misc Functions
 
-class injection():
+class injection:
     """Dependency injection of temporary values for global functions/classes/etc.
     E.g., `with injection(DataBase=MockDataBase): ...`"""
 
@@ -934,6 +938,21 @@ class hashabledict(dict):
 
     def __hash__(self):
         return 1
+
+
+# ______________________________________________________________________________
+# Monte Carlo tree node and ucb function
+class MCT_Node:
+    """Node in the Monte Carlo search tree, keeps track of the children states"""
+
+    def __init__(self, parent=None, state=None, U=0, N=0):
+        self.__dict__.update(parent=parent, state=state, U=U, N=N)
+        self.children = {}
+        self.actions = None
+
+
+def ucb(n, C=1.4):
+    return inf if n.N == 0 else n.U / n.N + C * math.sqrt(math.log(n.parent.N) / n.N)
 
 
 # ______________________________________________________________________________

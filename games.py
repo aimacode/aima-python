@@ -4,9 +4,8 @@ from collections import namedtuple
 import random
 import itertools
 import copy
-from utils import argmax, vector_add
+from utils import argmax, vector_add, inf
 
-inf = float('inf')
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 StochasticGameState = namedtuple('StochasticGameState', 'to_move, utility, board, moves, chance')
 

@@ -75,9 +75,11 @@ def test_ROIPoolingLayer():
     feature_map = np.ones(feature_maps_shape, dtype='float32')
     feature_map[200 - 1, 100 - 3, 0] = 50
     roiss = np.asarray([[0.5, 0.2, 0.7, 0.4], [0.0, 0.0, 1.0, 1.0]])
-    assert pool_rois(feature_map, roiss, 3, 7)[0].tolist() == [[1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1],
+    assert pool_rois(feature_map, roiss, 3, 7)[0].tolist() == [[1, 1, 1, 1, 1, 1, 1],
+                                                               [1, 1, 1, 1, 1, 1, 1],
                                                                [1, 1, 1, 1, 1, 1, 1]]
-    assert pool_rois(feature_map, roiss, 3, 7)[1].tolist() == [[1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1],
+    assert pool_rois(feature_map, roiss, 3, 7)[1].tolist() == [[1, 1, 1, 1, 1, 1, 1],
+                                                               [1, 1, 1, 1, 1, 1, 1],
                                                                [1, 1, 1, 1, 1, 1, 50]]
 
 

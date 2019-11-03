@@ -1,4 +1,4 @@
-"""Learning from examples. (Chapters 18)"""
+"""Learning from examples (Chapters 18)"""
 
 import copy
 import heapq
@@ -9,9 +9,9 @@ from statistics import mean, stdev
 
 from probabilistic_learning import NaiveBayesLearner
 from utils import sigmoid, sigmoid_derivative
-from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dotproduct, weighted_sample_with_replacement,
-                     num_or_str, normalize, clip, print_table, open_data, probability, random_weights,
-                     mean_boolean_error)
+from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product,
+                     weighted_sample_with_replacement, num_or_str, normalize, clip, print_table, open_data, probability,
+                     random_weights, mean_boolean_error)
 
 
 class DataSet:
@@ -531,17 +531,17 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = dotproduct(w, x)
+            y = dot_product(w, x)
             t = example[idx_t]
             err.append(t - y)
 
         # update weights
         for i in range(len(w)):
-            w[i] = w[i] + learning_rate * (dotproduct(err, X_col[i]) / num_examples)
+            w[i] = w[i] + learning_rate * (dot_product(err, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
-        return dotproduct(w, x)
+        return dot_product(w, x)
 
     return predict
 
@@ -573,7 +573,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = sigmoid(dotproduct(w, x))
+            y = sigmoid(dot_product(w, x))
             h.append(sigmoid_derivative(y))
             t = example[idx_t]
             err.append(t - y)
@@ -581,11 +581,11 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # update weights
         for i in range(len(w)):
             buffer = [x * y for x, y in zip(err, h)]
-            w[i] = w[i] + learning_rate * (dotproduct(buffer, X_col[i]) / num_examples)
+            w[i] = w[i] + learning_rate * (dot_product(buffer, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
-        return sigmoid(dotproduct(w, x))
+        return sigmoid(dot_product(w, x))
 
     return predict
 

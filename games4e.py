@@ -4,9 +4,8 @@ from collections import namedtuple
 import random
 import itertools
 import copy
-from utils import argmax, vector_add, MCT_Node, ucb
+from utils4e import argmax, vector_add, MCT_Node, ucb, inf
 
-inf = float('inf')
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 StochasticGameState = namedtuple('StochasticGameState', 'to_move, utility, board, moves, chance')
 
@@ -187,8 +186,8 @@ def monte_carlo_tree_search(state, game, N=1000):
     def expand(n):
         """expand the leaf node by adding all its children states"""
         if not n.children and not game.terminal_test(n.state):
-            n.children = {MCT_Node(state=game.result(n.state, action), parent=n): action for action in
-                          game.actions(n.state)}
+            n.children = {MCT_Node(state=game.result(n.state, action), parent=n): action
+                          for action in game.actions(n.state)}
         return select(n)
 
     def simulate(game, state):

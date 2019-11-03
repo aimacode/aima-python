@@ -1,8 +1,10 @@
-"""Search (Chapters 3-4)
+"""
+Search (Chapters 3-4)
 
 The way to use this code is to subclass Problem to create a class of problems,
 then create problem instances and solve them with calls to the various search
-functions."""
+functions.
+"""
 
 import bisect
 import math
@@ -10,19 +12,14 @@ import random
 import sys
 from collections import deque
 
-from utils import (
-    is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler,
-    memoize, print_table, open_data, PriorityQueue, name,
-    distance, vector_add
-)
-
-infinity = float('inf')
+from utils import (is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler, memoize,
+                   print_table, open_data, PriorityQueue, name, distance, vector_add, inf)
 
 
 # ______________________________________________________________________________
 
 
-class Problem(object):
+class Problem:
     """The abstract class for a formal problem. You should subclass
     this and implement the methods actions and result, and possibly
     __init__, goal_test, and path_cost. Then you will create instances
@@ -109,9 +106,7 @@ class Node:
     def child_node(self, problem, action):
         """[Figure 3.10]"""
         next_state = problem.result(self.state, action)
-        next_node = Node(next_state, self, action,
-                         problem.path_cost(self.path_cost, self.state,
-                                           action, next_state))
+        next_node = Node(next_state, self, action, problem.path_cost(self.path_cost, self.state, action, next_state))
         return next_node
 
     def solution(self):
@@ -219,6 +214,7 @@ def depth_first_graph_search(problem):
         Does not get trapped by loops.
         If two paths reach a state, only use the first one. [Figure 3.7]"""
     frontier = [(Node(problem.initial))]  # Stack
+
     explored = set()
     while frontier:
         node = frontier.pop()
@@ -226,8 +222,7 @@ def depth_first_graph_search(problem):
             return node
         explored.add(node.state)
         frontier.extend(child for child in node.expand(problem)
-                        if child.state not in explored and
-                        child not in frontier)
+                        if child.state not in explored and child not in frontier)
     return None
 
 
@@ -253,7 +248,7 @@ def breadth_first_graph_search(problem):
     return None
 
 
-def best_first_graph_search(problem, f):
+def best_first_graph_search(problem, f, display=False):
     """Search the nodes with the lowest f scores first.
     You specify the function f(node) that you want to minimize; for example,
     if f is a heuristic estimate to the goal, then we have greedy best
@@ -269,6 +264,8 @@ def best_first_graph_search(problem, f):
     while frontier:
         node = frontier.pop()
         if problem.goal_test(node.state):
+            if display:
+                print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
             return node
         explored.add(node.state)
         for child in node.expand(problem):
@@ -281,9 +278,9 @@ def best_first_graph_search(problem, f):
     return None
 
 
-def uniform_cost_search(problem):
+def uniform_cost_search(problem, display=False):
     """[Figure 3.14]"""
-    return best_first_graph_search(problem, lambda node: node.path_cost)
+    return best_first_graph_search(problem, lambda node: node.path_cost, display)
 
 
 def depth_limited_search(problem, limit=50):
@@ -325,7 +322,7 @@ def bidirectional_search(problem):
     gF, gB = {problem.initial: 0}, {problem.goal: 0}
     openF, openB = [problem.initial], [problem.goal]
     closedF, closedB = [], []
-    U = infinity
+    U = inf
 
     def extend(U, open_dir, open_other, g_dir, g_other, closed_dir):
         """Extend search in given direction"""
@@ -351,7 +348,7 @@ def bidirectional_search(problem):
 
     def find_min(open_dir, g):
         """Finds minimum priority, g and f values in open_dir"""
-        m, m_f = infinity, infinity
+        m, m_f = inf, inf
         for n in open_dir:
             f = g[n] + problem.h(n)
             pr = max(f, 2 * g[n])
@@ -363,7 +360,7 @@ def bidirectional_search(problem):
     def find_key(pr_min, open_dir, g):
         """Finds key in open_dir with value equal to pr_min
         and minimum g value."""
-        m = infinity
+        m = inf
         state = -1
         for n in open_dir:
             pr = max(g[n] + problem.h(n), 2 * g[n])
@@ -389,7 +386,7 @@ def bidirectional_search(problem):
             # Extend backward
             U, openB, closedB, gB = extend(U, openB, openF, gB, gF, closedB)
 
-    return infinity
+    return inf
 
 
 # ______________________________________________________________________________
@@ -402,21 +399,21 @@ greedy_best_first_graph_search = best_first_graph_search
 # Greedy best-first search is accomplished by specifying f(n) = h(n).
 
 
-def astar_search(problem, h=None):
+def astar_search(problem, h=None, display=False):
     """A* search is best-first graph search with f(n) = g(n)+h(n).
     You need to specify the h function when you call astar_search, or
     else in your Problem subclass."""
     h = memoize(h or problem.h, 'h')
-    return best_first_graph_search(problem, lambda n: n.path_cost + h(n))
+    return best_first_graph_search(problem, lambda n: n.path_cost + h(n), display)
 
 
 # ______________________________________________________________________________
 # A* heuristics 
 
 class EightPuzzle(Problem):
-    """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board,
-    where one of the squares is a blank. A state is represented as a tuple of length 9,
-    where element at index i represents the tile number  at index i (0 if it's an empty square) """
+    """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board, where one of the
+    squares is a blank. A state is represented as a tuple of length 9, where  element at
+    index i represents the tile number  at index i (0 if it's an empty square) """
 
     def __init__(self, initial, goal=(1, 2, 3, 4, 5, 6, 7, 8, 0)):
         """ Define goal state and initialize a problem """
@@ -602,7 +599,7 @@ def recursive_best_first_search(problem, h=None):
             return node, 0  # (The second value is immaterial)
         successors = node.expand(problem)
         if len(successors) == 0:
-            return None, infinity
+            return None, inf
         for s in successors:
             s.f = max(s.path_cost + h(s), node.f)
         while True:
@@ -614,14 +611,14 @@ def recursive_best_first_search(problem, h=None):
             if len(successors) > 1:
                 alternative = successors[1].f
             else:
-                alternative = infinity
+                alternative = inf
             result, best.f = RBFS(problem, best, min(flimit, alternative))
             if result is not None:
                 return result, best.f
 
     node = Node(problem.initial)
     node.f = h(node)
-    result, bestf = RBFS(problem, node, infinity)
+    result, bestf = RBFS(problem, node, inf)
     return result
 
 
@@ -1072,7 +1069,7 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
 
                 def distance_to_node(n):
                     if n is node or g.get(node, n):
-                        return infinity
+                        return inf
                     return distance(g.locations[n], here)
 
                 neighbor = argmin(nodes, key=distance_to_node)
@@ -1180,11 +1177,11 @@ class GraphProblem(Problem):
         return action
 
     def path_cost(self, cost_so_far, A, action, B):
-        return cost_so_far + (self.graph.get(A, B) or infinity)
+        return cost_so_far + (self.graph.get(A, B) or inf)
 
     def find_min_edge(self):
         """Find minimum value of edges."""
-        m = infinity
+        m = inf
         for d in self.graph.graph_dict.values():
             local_min = min(d.values())
             m = min(m, local_min)
@@ -1200,7 +1197,7 @@ class GraphProblem(Problem):
 
             return int(distance(locs[node.state], locs[self.goal]))
         else:
-            return infinity
+            return inf
 
 
 class GraphProblemStochastic(GraphProblem):

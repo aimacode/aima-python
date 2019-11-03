@@ -1,7 +1,7 @@
 """Reinforcement Learning (Chapter 21)"""
 
 from collections import defaultdict
-from utils import argmax
+from utils4e import argmax
 from mdp import MDP, policy_evaluation
 
 import random

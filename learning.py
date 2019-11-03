@@ -8,7 +8,7 @@ from collections import defaultdict
 from statistics import mean, stdev
 
 from probabilistic_learning import NaiveBayesLearner
-from utils import (remove_all, unique, mode, argmax, argmax_random_tie, isclose, dotproduct, vector_add,
+from utils import (remove_all, unique, mode, argmax, argmax_random_tie, isclose, dot_product, vector_add,
                    scalar_vector_product, weighted_sample_with_replacement, num_or_str, normalize, clip, sigmoid,
                    print_table, open_data, sigmoid_derivative, probability, relu, relu_derivative, tanh,
                    tanh_derivative, leaky_relu_derivative, elu, elu_derivative, mean_boolean_error, random_weights)
@@ -536,17 +536,17 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = dotproduct(w, x)
+            y = dot_product(w, x)
             t = example[idx_t]
             err.append(t - y)
 
         # update weights
         for i in range(len(w)):
-            w[i] = w[i] + learning_rate * (dotproduct(err, X_col[i]) / num_examples)
+            w[i] = w[i] + learning_rate * (dot_product(err, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
-        return dotproduct(w, x)
+        return dot_product(w, x)
 
     return predict
 
@@ -578,7 +578,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = sigmoid(dotproduct(w, x))
+            y = sigmoid(dot_product(w, x))
             h.append(sigmoid_derivative(y))
             t = example[idx_t]
             err.append(t - y)
@@ -586,11 +586,11 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # update weights
         for i in range(len(w)):
             buffer = [x * y for x, y in zip(err, h)]
-            w[i] = w[i] + learning_rate * (dotproduct(buffer, X_col[i]) / num_examples)
+            w[i] = w[i] + learning_rate * (dot_product(buffer, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
-        return sigmoid(dotproduct(w, x))
+        return sigmoid(dot_product(w, x))
 
     return predict
 
@@ -624,7 +624,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epoch
         for layer in learned_net[1:]:
             for node in layer:
                 inc = [n.value for n in node.inputs]
-                in_val = dotproduct(inc, node.weights)
+                in_val = dot_product(inc, node.weights)
                 node.value = node.activation(in_val)
 
         # hypothesis
@@ -672,7 +672,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
             for layer in net[1:]:
                 for node in layer:
                     inc = [n.value for n in node.inputs]
-                    in_val = dotproduct(inc, node.weights)
+                    in_val = dot_product(inc, node.weights)
                     node.value = node.activation(in_val)
 
             # initialize delta
@@ -706,19 +706,19 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 w = [[node.weights[k] for node in nx_layer] for k in range(h_units)]
 
                 if activation == sigmoid:
-                    delta[i] = [sigmoid_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                    delta[i] = [sigmoid_derivative(layer[j].value) * dot_product(w[j], delta[i + 1])
                                 for j in range(h_units)]
                 elif activation == relu:
-                    delta[i] = [relu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                    delta[i] = [relu_derivative(layer[j].value) * dot_product(w[j], delta[i + 1])
                                 for j in range(h_units)]
                 elif activation == tanh:
-                    delta[i] = [tanh_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                    delta[i] = [tanh_derivative(layer[j].value) * dot_product(w[j], delta[i + 1])
                                 for j in range(h_units)]
                 elif activation == elu:
-                    delta[i] = [elu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                    delta[i] = [elu_derivative(layer[j].value) * dot_product(w[j], delta[i + 1])
                                 for j in range(h_units)]
                 else:
-                    delta[i] = [leaky_relu_derivative(layer[j].value) * dotproduct(w[j], delta[i + 1])
+                    delta[i] = [leaky_relu_derivative(layer[j].value) * dot_product(w[j], delta[i + 1])
                                 for j in range(h_units)]
 
             # update weights
@@ -746,7 +746,7 @@ def PerceptronLearner(dataset, learning_rate=0.01, epochs=100):
 
         # forward pass
         for node in o_nodes:
-            in_val = dotproduct(example, node.weights)
+            in_val = dot_product(example, node.weights)
             node.value = node.activation(in_val)
 
         # hypothesis

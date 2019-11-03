@@ -1,7 +1,6 @@
-"""Probability models.
-"""
+"""Probability models."""
 
-from utils import product, argmax, isclose, probability, extend
+from utils4e import product, argmax, isclose, probability, extend
 from math import sqrt, pi, exp
 import copy
 import random

@@ -1,4 +1,4 @@
-"""Provides some utilities widely used by other modules"""
+"""Provides some utilities widely used by other modules."""
 
 import bisect
 import collections
@@ -14,6 +14,8 @@ from statistics import mean
 import numpy as np
 from itertools import chain, combinations
 
+inf = float('inf')
+
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -21,8 +23,7 @@ from itertools import chain, combinations
 
 def sequence(iterable):
     """Converts iterable to sequence, if it is not already one."""
-    return (iterable if isinstance(iterable, collections.abc.Sequence)
-            else tuple([iterable]))
+    return iterable if isinstance(iterable, collections.abc.Sequence) else tuple([iterable])
 
 
 def remove_all(item, seq):
@@ -141,13 +142,12 @@ def histogram(values, mode=0, bin_function=None):
         bins[val] = bins.get(val, 0) + 1
 
     if mode:
-        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]),
-                      reverse=True)
+        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]), reverse=True)
     else:
         return sorted(bins.items())
 
 
-def dotproduct(X, Y):
+def dot_product(X, Y):
     """Return the sum of the element-wise product of vectors X and Y."""
     return sum(x * y for x, y in zip(X, Y))
 
@@ -163,16 +163,12 @@ def matrix_multiplication(X_M, *Y_M):
 
     def _mat_mult(X_M, Y_M):
         """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
-        >>> matrix_multiplication([[1, 2, 3],
-                                   [2, 3, 4]],
-                                   [[3, 4],
-                                    [1, 2],
-                                    [1, 0]])
+        >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
         [[8, 8],[13, 14]]
         """
         assert len(X_M[0]) == len(Y_M)
 
-        result = [[0 for i in range(len(Y_M[0]))] for j in range(len(X_M))]
+        result = [[0 for i in range(len(Y_M[0]))] for _ in range(len(X_M))]
         for i in range(len(X_M)):
             for j in range(len(Y_M[0])):
                 for k in range(len(Y_M)):
@@ -189,7 +185,7 @@ def matrix_multiplication(X_M, *Y_M):
 def vector_to_diagonal(v):
     """Converts a vector to a diagonal matrix with vector elements
     as the diagonal elements of the matrix"""
-    diag_matrix = [[0 for i in range(len(v))] for j in range(len(v))]
+    diag_matrix = [[0 for i in range(len(v))] for _ in range(len(v))]
     for i in range(len(v)):
         diag_matrix[i][i] = v[i]
 
@@ -218,7 +214,6 @@ def inverse_matrix(X):
     det = X[0][0] * X[1][1] - X[0][1] * X[1][0]
     assert det != 0
     inv_mat = scalar_matrix_product(1.0 / det, [[X[1][1], -X[0][1]], [-X[1][0], X[0][0]]])
-
     return inv_mat
 
 
@@ -232,7 +227,6 @@ def weighted_sample_with_replacement(n, seq, weights):
     probability of each element in proportion to its corresponding
     weight."""
     sample = weighted_sampler(seq, weights)
-
     return [sample() for _ in range(n)]
 
 
@@ -241,13 +235,12 @@ def weighted_sampler(seq, weights):
     totals = []
     for w in weights:
         totals.append(w + totals[-1] if totals else w)
-
     return lambda: seq[bisect.bisect(totals, random.uniform(0, totals[-1]))]
 
 
 def weighted_choice(choices):
     """A weighted version of random.choice"""
-    # NOTE: Shoule be replaced by random.choices if we port to Python 3.6
+    # NOTE: should be replaced by random.choices if we port to Python 3.6
 
     total = sum(w for _, w in choices)
     r = random.uniform(0, total)
@@ -268,8 +261,7 @@ def rounder(numbers, d=4):
 
 
 def num_or_str(x):  # TODO: rename as `atom`
-    """The argument is a string; convert to a number if
-       possible, or strip it."""
+    """The argument is a string; convert to a number if possible, or strip it."""
     try:
         return int(x)
     except ValueError:
@@ -318,7 +310,7 @@ def normalize(dist):
         total = sum(dist.values())
         for key in dist:
             dist[key] = dist[key] / total
-            assert 0 <= dist[key] <= 1, "Probabilities must be between 0 and 1."
+            assert 0 <= dist[key] <= 1  # Probabilities must be between 0 and 1
         return dist
     total = sum(dist)
     return [(n / total) for n in dist]
@@ -355,17 +347,11 @@ def relu_derivative(value):
 
 
 def elu(x, alpha=0.01):
-    if x > 0:
-        return x
-    else:
-        return alpha * (math.exp(x) - 1)
+    return x if x > 0 else alpha * (math.exp(x) - 1)
 
 
 def elu_derivative(value, alpha=0.01):
-    if value > 0:
-        return 1
-    else:
-        return alpha * math.exp(value)
+    return 1 if value > 0 else alpha * math.exp(value)
 
 
 def tanh(x):
@@ -373,21 +359,15 @@ def tanh(x):
 
 
 def tanh_derivative(value):
-    return (1 - (value ** 2))
+    return 1 - (value ** 2)
 
 
 def leaky_relu(x, alpha=0.01):
-    if x > 0:
-        return x
-    else:
-        return alpha * x
+    return x if x > 0 else alpha * x
 
 
 def leaky_relu_derivative(value, alpha=0.01):
-    if value > 0:
-        return 1
-    else:
-        return alpha
+    return 1 if value > 0 else alpha
 
 
 def relu(x):
@@ -395,10 +375,7 @@ def relu(x):
 
 
 def relu_derivative(value):
-    if value > 0:
-        return 1
-    else:
-        return 0
+    return 1 if value > 0 else 0
 
 
 def step(x):
@@ -437,10 +414,10 @@ def truncated_svd(X, num_val=2, max_iter=1000):
         X_m = X[:m]
         X_n = X[m:]
         for eivec in eivec_m:
-            coeff = dotproduct(X_m, eivec)
+            coeff = dot_product(X_m, eivec)
             X_m = [x1 - coeff * x2 for x1, x2 in zip(X_m, eivec)]
         for eivec in eivec_n:
-            coeff = dotproduct(X_n, eivec)
+            coeff = dot_product(X_n, eivec)
             X_n = [x1 - coeff * x2 for x1, x2 in zip(X_n, eivec)]
         return X_m + X_n
 
@@ -527,7 +504,7 @@ def vector_clip(vector, lowest, highest):
 # ______________________________________________________________________________
 # Misc Functions
 
-class injection():
+class injection:
     """Dependency injection of temporary values for global functions/classes/etc.
     E.g., `with injection(DataBase=MockDataBase): ...`"""
 
@@ -819,10 +796,7 @@ def expr(x):
     >>> expr('P & Q ==> Q')
     ((P & Q) ==> Q)
     """
-    if isinstance(x, str):
-        return eval(expr_handle_infix_ops(x), defaultkeydict(Symbol))
-    else:
-        return x
+    return eval(expr_handle_infix_ops(x), defaultkeydict(Symbol)) if isinstance(x, str) else x
 
 
 infix_ops = '==> <== <=>'.split()
@@ -873,7 +847,6 @@ class PriorityQueue:
 
     def __init__(self, order='min', f=lambda x: x):
         self.heap = []
-
         if order == 'min':
             self.f = f
         elif order == 'max':  # now item with max f(x)
@@ -921,22 +894,6 @@ class PriorityQueue:
         except ValueError:
             raise KeyError(str(key) + " is not in the priority queue")
         heapq.heapify(self.heap)
-
-
-# ______________________________________________________________________________
-# Monte Carlo tree node and ucb function
-class MCT_Node:
-    """Node in the Monte Carlo search tree, keeps track of the children states"""
-
-    def __init__(self, parent=None, state=None, U=0, N=0):
-        self.__dict__.update(parent=parent, state=state, U=U, N=N)
-        self.children = {}
-        self.actions = None
-
-
-def ucb(n, C=1.4):
-    return (float('inf') if n.N == 0 else
-            n.U / n.N + C * math.sqrt(math.log(n.parent.N) / n.N))
 
 
 # ______________________________________________________________________________
