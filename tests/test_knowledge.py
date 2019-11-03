@@ -33,9 +33,8 @@ conductance = [
 
 
 def r_example(Alt, Bar, Fri, Hun, Pat, Price, Rain, Res, Type, Est, GOAL):
-    return {'Alt': Alt, 'Bar': Bar, 'Fri': Fri, 'Hun': Hun, 'Pat': Pat,
-            'Price': Price, 'Rain': Rain, 'Res': Res, 'Type': Type, 'Est': Est,
-            'GOAL': GOAL}
+    return {'Alt': Alt, 'Bar': Bar, 'Fri': Fri, 'Hun': Hun, 'Pat': Pat, 'Price': Price,
+            'Rain': Rain, 'Res': Res, 'Type': Type, 'Est': Est, 'GOAL': GOAL}
 
 
 restaurant = [

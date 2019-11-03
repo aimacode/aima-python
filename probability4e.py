@@ -1,11 +1,12 @@
 """Probability models."""
 
-from utils4e import product, argmax, isclose, probability, extend
-from math import sqrt, pi, exp
 import copy
 import random
 from collections import defaultdict
 from functools import reduce
+from math import sqrt, pi, exp
+
+from utils4e import product, argmax, isclose, probability, extend
 
 
 # ______________________________________________________________________________
@@ -107,7 +108,7 @@ class JointProbDist(ProbDist):
         return ProbDist.__getitem__(self, values)
 
     def __setitem__(self, values, p):
-        """Set P(values) = p.  Values can be a tuple or a dict; it must
+        """Set P(values) = p. Values can be a tuple or a dict; it must
         have a value for each of the variables in the joint. Also keep track
         of the values we have seen so far for each variable."""
         values = event_values(values, self.variables)
@@ -628,8 +629,9 @@ def prior_sample(bn):
 
 def rejection_sampling(X, e, bn, N=10000):
     """
+    [Figure 13.16]
     Estimate the probability distribution of variable X given
-    evidence e in BayesNet bn, using N samples.  [Figure 13.16]
+    evidence e in BayesNet bn, using N samples.
     Raises a ZeroDivisionError if all the N samples are rejected,
     i.e., inconsistent with e.
     >>> random.seed(47)
@@ -656,8 +658,9 @@ def consistent_with(event, evidence):
 
 def likelihood_weighting(X, e, bn, N=10000):
     """
+    [Figure 13.17]
     Estimate the probability distribution of variable X given
-    evidence e in BayesNet bn.  [Figure 13.17]
+    evidence e in BayesNet bn.
     >>> random.seed(1017)
     >>> likelihood_weighting('Burglary', dict(JohnCalls=T, MaryCalls=T),
     ...   burglary, 10000).show_approx()
