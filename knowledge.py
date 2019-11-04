@@ -249,7 +249,7 @@ class FOILContainer(FolKB):
     def __init__(self, clauses=None):
         self.const_syms = set()
         self.pred_syms = set()
-        FolKB.__init__(self, clauses)
+        super().__init__(clauses)
 
     def tell(self, sentence):
         if is_definite_clause(sentence):

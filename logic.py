@@ -58,7 +58,8 @@ class KB:
     first one or returns False."""
 
     def __init__(self, sentence=None):
-        raise NotImplementedError
+        if sentence:
+            self.tell(sentence)
 
     def tell(self, sentence):
         """Add the sentence to the KB."""
@@ -81,9 +82,8 @@ class PropKB(KB):
     """A KB for propositional logic. Inefficient, with no indexing."""
 
     def __init__(self, sentence=None):
+        super().__init__(sentence)
         self.clauses = []
-        if sentence:
-            self.tell(sentence)
 
     def tell(self, sentence):
         """Add the sentence's clauses to the KB."""
@@ -1930,10 +1930,11 @@ class FolKB(KB):
     False
     """
 
-    def __init__(self, initial_clauses=None):
+    def __init__(self, clauses=None):
+        super().__init__()
         self.clauses = []  # inefficient: no indexing
-        if initial_clauses:
-            for clause in initial_clauses:
+        if clauses:
+            for clause in clauses:
                 self.tell(clause)
 
     def tell(self, sentence):
@@ -1957,7 +1958,7 @@ def fol_fc_ask(kb, alpha):
     [Figure 9.3]
     A simple forward-chaining algorithm.
     """
-    # TODO: Improve efficiency
+    # TODO: improve efficiency
     kb_consts = list({c for clause in kb.clauses for c in constant_symbols(clause)})
 
     def enum_subst(p):
@@ -2019,7 +2020,7 @@ def fol_bc_and(kb, goals, theta):
                 yield theta2
 
 
-# A simple KB that defines the relevant conditions of the Wumpus World as in Fig 7.4.
+# A simple KB that defines the relevant conditions of the Wumpus World as in Figure 7.4.
 # See Sec. 7.4.3
 wumpus_kb = PropKB()
 
