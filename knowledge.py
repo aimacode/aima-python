@@ -300,7 +300,7 @@ class FOILContainer(FolKB):
 
     def new_literals(self, clause):
         """Generate new literals based on known predicate symbols.
-        Generated literal must share atleast one variable with clause"""
+        Generated literal must share at least one variable with clause"""
         share_vars = variables(clause[0])
         for l in clause[1]:
             share_vars.update(variables(l))

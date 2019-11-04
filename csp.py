@@ -1,18 +1,17 @@
 """CSP (Constraint Satisfaction Problems) problems and solvers. (Chapter 6)"""
+
+import itertools
+import random
+import re
 import string
+from collections import defaultdict, Counter
+from functools import reduce
 from operator import eq, neg
 
 from sortedcontainers import SortedSet
 
-from utils import argmin_random_tie, count, first, extend
 import search
-
-from collections import defaultdict, Counter
-from functools import reduce
-
-import itertools
-import re
-import random
+from utils import argmin_random_tie, count, first, extend
 
 
 class CSP(search.Problem):
@@ -54,12 +53,12 @@ class CSP(search.Problem):
 
     def __init__(self, variables, domains, neighbors, constraints):
         """Construct a CSP problem. If variables is empty, it becomes domains.keys()."""
+        super().__init__(())
         variables = variables or list(domains.keys())
         self.variables = variables
         self.domains = domains
         self.neighbors = neighbors
         self.constraints = constraints
-        self.initial = ()
         self.curr_domains = None
         self.nassigns = 0
 
@@ -80,8 +79,7 @@ class CSP(search.Problem):
 
         # Subclasses may implement this more efficiently
         def conflict(var2):
-            return (var2 in assignment and
-                    not self.constraints(var, val, var2, assignment[var2]))
+            return var2 in assignment and not self.constraints(var, val, var2, assignment[var2])
 
         return count(conflict(v) for v in self.neighbors[var])
 
@@ -552,7 +550,7 @@ def assign_value(Xj, Xk, csp, assignment):
 
 
 # ______________________________________________________________________________
-# Map Coloring Problems
+# Map Coloring CSP Problems
 
 
 class UniversalDict:
@@ -585,7 +583,7 @@ def MapColoringCSP(colors, neighbors):
     return CSP(list(neighbors.keys()), UniversalDict(colors), neighbors, different_values_constraint)
 
 
-def parse_neighbors(neighbors, variables=None):
+def parse_neighbors(neighbors):
     """Convert a string of the form 'X: Y Z; Y: Z' into a dict mapping
     regions to neighbors. The syntax is a region name followed by a ':'
     followed by zero or more region names, followed by ';', repeated for
@@ -676,10 +674,10 @@ class NQueensCSP(CSP):
 
     def assign(self, var, val, assignment):
         """Assign var, and keep track of conflicts."""
-        oldval = assignment.get(var, None)
-        if val != oldval:
-            if oldval is not None:  # Remove old val if there was one
-                self.record_conflict(assignment, var, oldval, -1)
+        old_val = assignment.get(var, None)
+        if val != old_val:
+            if old_val is not None:  # Remove old val if there was one
+                self.record_conflict(assignment, var, old_val, -1)
             self.record_conflict(assignment, var, val, +1)
             CSP.assign(self, var, val, assignment)
 
@@ -776,7 +774,7 @@ class Sudoku(CSP):
     >>> h = Sudoku(harder1)
     >>> backtracking_search(h, select_unassigned_variable=mrv, inference=forward_checking) is not None
     True
-    """  # noqa
+    """
 
     R3 = _R3
     Cell = _CELL
@@ -831,7 +829,7 @@ def Zebra():
                 Spaniard: Dog; Kools: Yellow; Chesterfields: Fox;
                 Norwegian: Blue; Winston: Snails; LuckyStrike: OJ;
                 Ukranian: Tea; Japanese: Parliaments; Kools: Horse;
-                Coffee: Green; Green: Ivory""", variables)
+                Coffee: Green; Green: Ivory""")
     for type in [Colors, Pets, Drinks, Countries, Smokes]:
         for A in type:
             for B in type:

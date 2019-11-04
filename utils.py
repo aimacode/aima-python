@@ -715,13 +715,10 @@ class Expr:
     # Equality and repr
     def __eq__(self, other):
         """x == y' evaluates to True or False; does not build an Expr."""
-        return (isinstance(other, Expr)
-                and self.op == other.op
-                and self.args == other.args)
+        return isinstance(other, Expr) and self.op == other.op and self.args == other.args
 
     def __lt__(self, other):
-        return (isinstance(other, Expr)
-                and str(self) < str(other))
+        return isinstance(other, Expr) and str(self) < str(other)
 
     def __hash__(self):
         return hash(self.op) ^ hash(self.args)

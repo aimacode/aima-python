@@ -292,11 +292,11 @@ def test_to_cnf():
             '((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)')
     assert repr(to_cnf((P & Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
     assert repr(to_cnf('A <=> B')) == '((A | ~B) & (B | ~A))'
-    assert repr(to_cnf("B <=> (P1 | P2)")) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
+    assert repr(to_cnf('B <=> (P1 | P2)')) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
     assert repr(to_cnf('A <=> (B & C)')) == '((A | ~B | ~C) & (B | ~A) & (C | ~A))'
-    assert repr(to_cnf("a | (b & c) | d")) == '((b | a | d) & (c | a | d))'
-    assert repr(to_cnf("A & (B | (D & E))")) == '(A & (D | B) & (E | B))'
-    assert repr(to_cnf("A | (B | (C | (D & E)))")) == '((D | A | B | C) & (E | A | B | C))'
+    assert repr(to_cnf('a | (b & c) | d')) == '((b | a | d) & (c | a | d))'
+    assert repr(to_cnf('A & (B | (D & E))')) == '(A & (D | B) & (E | B))'
+    assert repr(to_cnf('A | (B | (C | (D & E)))')) == '((D | A | B | C) & (E | A | B | C))'
     assert repr(to_cnf(
         '(A <=> ~B) ==> (C | ~D)')) == '((B | ~A | C | ~D) & (A | ~A | C | ~D) & (B | ~B | C | ~D) & (A | ~B | C | ~D))'
 

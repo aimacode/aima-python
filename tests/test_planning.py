@@ -7,34 +7,34 @@ from search import astar_search
 from utils import expr
 from logic import FolKB, conjuncts
 
-random.seed("aima-python")
+random.seed('aima-python')
 
 
 def test_action():
     precond = 'At(c, a) & At(p, a) & Cargo(c) & Plane(p) & Airport(a)'
     effect = 'In(c, p) & ~At(c, a)'
     a = Action('Load(c, p, a)', precond, effect)
-    args = [expr("C1"), expr("P1"), expr("SFO")]
-    assert a.substitute(expr("Load(c, p, a)"), args) == expr("Load(C1, P1, SFO)")
+    args = [expr('C1'), expr('P1'), expr('SFO')]
+    assert a.substitute(expr('Load(c, p, a)'), args) == expr('Load(C1, P1, SFO)')
     test_kb = FolKB(conjuncts(expr('At(C1, SFO) & At(C2, JFK) & At(P1, SFO) & At(P2, JFK) & Cargo(C1) & Cargo(C2) & '
                                    'Plane(P1) & Plane(P2) & Airport(SFO) & Airport(JFK)')))
     assert a.check_precond(test_kb, args)
     a.act(test_kb, args)
-    assert test_kb.ask(expr("In(C1, P2)")) is False
-    assert test_kb.ask(expr("In(C1, P1)")) is not False
-    assert test_kb.ask(expr("Plane(P2)")) is not False
+    assert test_kb.ask(expr('In(C1, P2)')) is False
+    assert test_kb.ask(expr('In(C1, P1)')) is not False
+    assert test_kb.ask(expr('Plane(P2)')) is not False
     assert not a.check_precond(test_kb, args)
 
 
 def test_air_cargo_1():
     p = air_cargo()
     assert p.goal_test() is False
-    solution_1 = [expr("Load(C1 , P1, SFO)"),
-                  expr("Fly(P1, SFO, JFK)"),
-                  expr("Unload(C1, P1, JFK)"),
-                  expr("Load(C2, P2, JFK)"),
-                  expr("Fly(P2, JFK, SFO)"),
-                  expr("Unload(C2, P2, SFO)")]
+    solution_1 = [expr('Load(C1 , P1, SFO)'),
+                  expr('Fly(P1, SFO, JFK)'),
+                  expr('Unload(C1, P1, JFK)'),
+                  expr('Load(C2, P2, JFK)'),
+                  expr('Fly(P2, JFK, SFO)'),
+                  expr('Unload(C2, P2, SFO)')]
 
     for action in solution_1:
         p.act(action)
@@ -45,12 +45,12 @@ def test_air_cargo_1():
 def test_air_cargo_2():
     p = air_cargo()
     assert p.goal_test() is False
-    solution_2 = [expr("Load(C1 , P1, SFO)"),
-                  expr("Fly(P1, SFO, JFK)"),
-                  expr("Unload(C1, P1, JFK)"),
-                  expr("Load(C2, P1, JFK)"),
-                  expr("Fly(P1, JFK, SFO)"),
-                  expr("Unload(C2, P1, SFO)")]
+    solution_2 = [expr('Load(C1 , P1, SFO)'),
+                  expr('Fly(P1, SFO, JFK)'),
+                  expr('Unload(C1, P1, JFK)'),
+                  expr('Load(C2, P1, JFK)'),
+                  expr('Fly(P1, JFK, SFO)'),
+                  expr('Unload(C2, P1, SFO)')]
 
     for action in solution_2:
         p.act(action)
@@ -61,12 +61,12 @@ def test_air_cargo_2():
 def test_air_cargo_3():
     p = air_cargo()
     assert p.goal_test() is False
-    solution_3 = [expr("Load(C2, P2, JFK)"),
-                  expr("Fly(P2, JFK, SFO)"),
-                  expr("Unload(C2, P2, SFO)"),
-                  expr("Load(C1 , P1, SFO)"),
-                  expr("Fly(P1, SFO, JFK)"),
-                  expr("Unload(C1, P1, JFK)")]
+    solution_3 = [expr('Load(C2, P2, JFK)'),
+                  expr('Fly(P2, JFK, SFO)'),
+                  expr('Unload(C2, P2, SFO)'),
+                  expr('Load(C1 , P1, SFO)'),
+                  expr('Fly(P1, SFO, JFK)'),
+                  expr('Unload(C1, P1, JFK)')]
 
     for action in solution_3:
         p.act(action)
@@ -77,12 +77,12 @@ def test_air_cargo_3():
 def test_air_cargo_4():
     p = air_cargo()
     assert p.goal_test() is False
-    solution_4 = [expr("Load(C2, P2, JFK)"),
-                  expr("Fly(P2, JFK, SFO)"),
-                  expr("Unload(C2, P2, SFO)"),
-                  expr("Load(C1, P2, SFO)"),
-                  expr("Fly(P2, SFO, JFK)"),
-                  expr("Unload(C1, P2, JFK)")]
+    solution_4 = [expr('Load(C2, P2, JFK)'),
+                  expr('Fly(P2, JFK, SFO)'),
+                  expr('Unload(C2, P2, SFO)'),
+                  expr('Load(C1, P2, SFO)'),
+                  expr('Fly(P2, SFO, JFK)'),
+                  expr('Unload(C1, P2, JFK)')]
 
     for action in solution_4:
         p.act(action)
@@ -93,9 +93,9 @@ def test_air_cargo_4():
 def test_spare_tire_1():
     p = spare_tire()
     assert p.goal_test() is False
-    solution_1 = [expr("Remove(Flat, Axle)"),
-                  expr("Remove(Spare, Trunk)"),
-                  expr("PutOn(Spare, Axle)")]
+    solution_1 = [expr('Remove(Flat, Axle)'),
+                  expr('Remove(Spare, Trunk)'),
+                  expr('PutOn(Spare, Axle)')]
 
     for action in solution_1:
         p.act(action)
@@ -119,9 +119,9 @@ def test_spare_tire_2():
 def test_three_block_tower():
     p = three_block_tower()
     assert p.goal_test() is False
-    solution = [expr("MoveToTable(C, A)"),
-                expr("Move(B, Table, C)"),
-                expr("Move(A, Table, B)")]
+    solution = [expr('MoveToTable(C, A)'),
+                expr('Move(B, Table, C)'),
+                expr('Move(A, Table, B)')]
 
     for action in solution:
         p.act(action)
@@ -145,8 +145,8 @@ def test_simple_blocks_world():
 def test_have_cake_and_eat_cake_too():
     p = have_cake_and_eat_cake_too()
     assert p.goal_test() is False
-    solution = [expr("Eat(Cake)"),
-                expr("Bake(Cake)")]
+    solution = [expr('Eat(Cake)'),
+                expr('Bake(Cake)')]
 
     for action in solution:
         p.act(action)
@@ -514,9 +514,9 @@ def test_double_tennis():
     p = double_tennis_problem()
     assert not goal_test(p.goals, p.initial)
 
-    solution = [expr("Go(A, RightBaseLine, LeftBaseLine)"),
-                expr("Hit(A, Ball, RightBaseLine)"),
-                expr("Go(A, LeftNet, RightBaseLine)")]
+    solution = [expr('Go(A, RightBaseLine, LeftBaseLine)'),
+                expr('Hit(A, Ball, RightBaseLine)'),
+                expr('Go(A, LeftNet, RightBaseLine)')]
 
     for action in solution:
         p.act(action)

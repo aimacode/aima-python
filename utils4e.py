@@ -203,8 +203,7 @@ def histogram(values, mode=0, bin_function=None):
         bins[val] = bins.get(val, 0) + 1
 
     if mode:
-        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]),
-                      reverse=True)
+        return sorted(list(bins.items()), key=lambda x: (x[1], x[0]), reverse=True)
     else:
         return sorted(bins.items())
 
@@ -495,25 +494,16 @@ class relu(Activation):
         return max(0, x)
 
     def derivative(self, value):
-        if value > 0:
-            return 1
-        else:
-            return 0
+        return 1 if value > 0 else 0
 
 
 class elu(Activation):
 
     def f(self, x, alpha=0.01):
-        if x > 0:
-            return x
-        else:
-            return alpha * (math.exp(x) - 1)
+        return x if x > 0 else alpha * (math.exp(x) - 1)
 
     def derivative(self, value, alpha=0.01):
-        if value > 0:
-            return 1
-        else:
-            return alpha * math.exp(value)
+        return 1 if value > 0 else alpha * math.exp(value)
 
 
 class tanh(Activation):
@@ -522,22 +512,16 @@ class tanh(Activation):
         return np.tanh(x)
 
     def derivative(self, value):
-        return (1 - (value ** 2))
+        return 1 - (value ** 2)
 
 
 class leaky_relu(Activation):
 
     def f(self, x, alpha=0.01):
-        if x > 0:
-            return x
-        else:
-            return alpha * x
+        return x if x > 0 else alpha * x
 
     def derivative(self, value, alpha=0.01):
-        if value > 0:
-            return 1
-        else:
-            return alpha
+        return 1 if value > 0 else alpha
 
 
 def step(x):
@@ -815,7 +799,7 @@ class Expr:
         return Expr('@', lhs, self)
 
     def __call__(self, *args):
-        "Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."
+        """Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."""
         if self.args:
             raise ValueError('can only do a call for a Symbol, not an Expr')
         else:
@@ -823,10 +807,11 @@ class Expr:
 
     # Equality and repr
     def __eq__(self, other):
-        "'x == y' evaluates to True or False; does not build an Expr."
-        return (isinstance(other, Expr)
-                and self.op == other.op
-                and self.args == other.args)
+        """'x == y' evaluates to True or False; does not build an Expr."""
+        return isinstance(other, Expr) and self.op == other.op and self.args == other.args
+
+    def __lt__(self, other):
+        return isinstance(other, Expr) and str(self) < str(other)
 
     def __hash__(self):
         return hash(self.op) ^ hash(self.args)
