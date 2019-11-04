@@ -17,7 +17,8 @@ from utils import (product, argmax, element_wise_product, matrix_multiplication,
 def DTAgentProgram(belief_state):
     """
     [Figure 13.1]
-    A decision-theoretic agent."""
+    A decision-theoretic agent.
+    """
 
     def program(percept):
         belief_state.observe(program.action, percept)
@@ -41,14 +42,14 @@ class ProbDist:
     (0.125, 0.375, 0.5)
     """
 
-    def __init__(self, var_name='?', freqs=None):
-        """If freqs is given, it is a dictionary of values - frequency pairs,
+    def __init__(self, var_name='?', freq=None):
+        """If freq is given, it is a dictionary of values - frequency pairs,
         then ProbDist is normalized."""
         self.prob = {}
         self.var_name = var_name
         self.values = []
-        if freqs:
-            for (v, p) in freqs.items():
+        if freq:
+            for (v, p) in freq.items():
                 self[v] = p
             self.normalize()
 
@@ -669,13 +670,13 @@ def forward_backward(HMM, ev):
     """
     [Figure 15.4]
     Forward-Backward algorithm for smoothing. Computes posterior probabilities
-    of a sequence of states given a sequence of observations."""
+    of a sequence of states given a sequence of observations.
+    """
     t = len(ev)
     ev.insert(0, None)  # to make the code look similar to pseudo code
 
     fv = [[0.0, 0.0] for _ in range(len(ev))]
     b = [1.0, 1.0]
-    bv = [b]  # we don't need bv; but we will have a list of all backward messages here
     sv = [[0, 0] for _ in range(len(ev))]
 
     fv[0] = HMM.prior
@@ -685,7 +686,6 @@ def forward_backward(HMM, ev):
     for i in range(t, -1, -1):
         sv[i - 1] = normalize(element_wise_product(fv[i], b))
         b = backward(HMM, b, ev[i])
-        bv.append(b)
 
     sv = sv[::-1]
 
@@ -696,7 +696,8 @@ def viterbi(HMM, ev):
     """
     [Equation 15.11]
     Viterbi algorithm to find the most likely sequence. Computes the best path and the
-    corresponding probabilities, given an HMM model and a sequence of observations."""
+    corresponding probabilities, given an HMM model and a sequence of observations.
+    """
     t = len(ev)
     ev = ev.copy()
     ev.insert(0, None)
@@ -741,15 +742,14 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
     [Figure 15.6]
     Smoothing algorithm with a fixed time lag of 'd' steps.
     Online algorithm that outputs the new smoothed estimate if observation
-    for new time step is given."""
+    for new time step is given.
+    """
     ev.insert(0, None)
 
     T_model = HMM.transition_model
     f = HMM.prior
     B = [[1, 0], [0, 1]]
-    evidence = []
 
-    evidence.append(e_t)
     O_t = vector_to_diagonal(HMM.sensor_dist(e_t))
     if t > d:
         f = forward(HMM, f, e_t)
@@ -831,7 +831,7 @@ class MCLmap:
         return kin_state
 
     def ray_cast(self, sensor_num, kin_state):
-        """Returns distace to nearest obstacle or map boundary in the direction of sensor"""
+        """Returns distance to nearest obstacle or map boundary in the direction of sensor"""
         pos = kin_state[:2]
         orient = kin_state[2]
         # sensor layout when orientation is 0 (towards North)
@@ -852,13 +852,13 @@ class MCLmap:
 def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
     """
     [Figure 25.9]
-    Monte Carlo localization algorithm"""
+    Monte Carlo localization algorithm
+    """
 
     def ray_cast(sensor_num, kin_state, m):
         return m.ray_cast(sensor_num, kin_state)
 
     M = len(z)
-    W = [0] * N
     S_ = [0] * N
     W_ = [0] * N
     v = a['v']
