@@ -195,7 +195,7 @@ class DataSet:
 def parse_csv(input, delim=','):
     r"""
     Input is a string consisting of lines, each line has comma-delimited
-    fields.  Convert this into a list of lists. Blank lines are skipped.
+    fields. Convert this into a list of lists. Blank lines are skipped.
     Fields that look like numbers are converted to numbers.
     The delim defaults to ',' but '\t' and None are also reasonable values.
     >>> parse_csv('1, 2, 3 \n 0, 2, na')
@@ -286,7 +286,7 @@ def cross_validation(learner, dataset, size=None, k=10, trials=1):
     """
     Do k-fold cross_validate and return their mean.
     That is, keep out 1/k of the examples for testing on each of k runs.
-    Shuffle the examples first; if trials>1, average over several shuffles.
+    Shuffle the examples first; if trials > 1, average over several shuffles.
     Returns Training error
     """
     k = k or len(dataset.examples)
@@ -365,7 +365,7 @@ class DecisionFork:
             return self.default_child(example)
 
     def add(self, val, subtree):
-        """Add a branch.  If self.attr = val, go to the given subtree."""
+        """Add a branch. If self.attr = val, go to the given subtree."""
         self.branches[val] = subtree
 
     def display(self, indent=0):
