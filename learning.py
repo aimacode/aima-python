@@ -14,8 +14,7 @@ from probabilistic_learning import NaiveBayesLearner
 from utils import (remove_all, unique, mode, argmax, argmax_random_tie, isclose, dot_product, vector_add,
                    scalar_vector_product, weighted_sample_with_replacement, num_or_str, normalize, clip, sigmoid,
                    print_table, open_data, sigmoid_derivative, probability, relu, relu_derivative, tanh,
-                   tanh_derivative, leaky_relu_derivative, elu, elu_derivative, mean_boolean_error, random_weights,
-                   linear_kernel)
+                   tanh_derivative, leaky_relu_derivative, elu, elu_derivative, mean_boolean_error, random_weights, inf)
 
 
 class DataSet:
@@ -275,7 +274,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
         # check for convergence provided err_val is not empty
         if errT and not isclose(errT[-1], errT, rel_tol=1e-6):
             best_size = 0
-            min_val = math.inf
+            min_val = inf
             i = 0
             while i < size:
                 if errs[i] < min_val:

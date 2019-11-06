@@ -1,4 +1,4 @@
-"""Learning from examples (Chapters 18)"""
+"""Learning from examples. (Chapters 18)"""
 
 import copy
 import heapq
@@ -11,7 +11,7 @@ from probabilistic_learning import NaiveBayesLearner
 from utils import sigmoid, sigmoid_derivative
 from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product,
                      weighted_sample_with_replacement, num_or_str, normalize, clip, print_table, open_data, probability,
-                     random_weights, mean_boolean_error)
+                     random_weights, mean_boolean_error, inf)
 
 
 class DataSet:
@@ -270,7 +270,7 @@ def model_selection(learner, dataset, k=10, trials=1):
         # check for convergence provided err_val is not empty
         if err and not isclose(err[-1], err, rel_tol=1e-6):
             best_size = 0
-            min_val = math.inf
+            min_val = inf
             i = 0
             while i < size:
                 if errs[i] < min_val:

@@ -1,4 +1,5 @@
-"""Implement Agents and Environments (Chapters 1-2).
+"""
+Implement Agents and Environments. (Chapters 1-2)
 
 The class hierarchies are as follows:
 
@@ -23,16 +24,14 @@ EnvGUI ## A window with a graphical representation of the Environment
 EnvToolbar ## contains buttons for controlling EnvGUI
 
 EnvCanvas ## Canvas to display the environment of an EnvGUI
-
 """
 
-# TO DO:
+# TODO
 # Implement grabbing correctly.
 # When an object is grabbed, does it still have a location?
 # What if it is released?
 # What if the grabbed or the grabber is deleted?
 # What if the grabber moves?
-#
 # Speed control in GUI does not have any effect -- fix it.
 
 from utils import distance_squared, turn_heading
@@ -122,10 +121,13 @@ def TraceAgent(agent):
 
 
 def TableDrivenAgentProgram(table):
-    """This agent selects an action based on the percept sequence.
+    """
+    [Figure 2.7]
+    This agent selects an action based on the percept sequence.
     It is practical only for tiny domains.
     To customize it, provide as table a dictionary of all
-    {percept_sequence:action} pairs. [Figure 2.7]"""
+    {percept_sequence:action} pairs.
+    """
     percepts = []
 
     def program(percept):
@@ -154,7 +156,10 @@ def RandomAgentProgram(actions):
 
 
 def SimpleReflexAgentProgram(rules, interpret_input):
-    """This agent takes action based solely on the percept. [Figure 2.10]"""
+    """
+    [Figure 2.10]
+    This agent takes action based solely on the percept.
+    """
 
     def program(percept):
         state = interpret_input(percept)
@@ -166,7 +171,10 @@ def SimpleReflexAgentProgram(rules, interpret_input):
 
 
 def ModelBasedReflexAgentProgram(rules, update_state, model):
-    """This agent takes action based on the percept and state. [Figure 2.12]"""
+    """
+    [Figure 2.12]
+    This agent takes action based on the percept and state.
+    """
 
     def program(percept):
         program.state = update_state(program.state, program.action, percept, model)
@@ -219,7 +227,9 @@ def TableDrivenVacuumAgent():
 
 
 def ReflexVacuumAgent():
-    """A reflex agent for the two-state vacuum environment. [Figure 2.8]
+    """
+    [Figure 2.8]
+    A reflex agent for the two-state vacuum environment.
     >>> agent = ReflexVacuumAgent()
     >>> environment = TrivialVacuumEnvironment()
     >>> environment.add_thing(agent)
