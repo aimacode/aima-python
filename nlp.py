@@ -1,4 +1,4 @@
-"""Natural Language Processing; Chart Parsing and PageRanking (Chapter 22-23)"""
+"""Natural Language Processing; Chart Parsing and PageRanking. (Chapter 22-23)"""
 
 from collections import defaultdict
 from utils import weighted_choice

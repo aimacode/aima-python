@@ -1,11 +1,10 @@
+"""Making Simple Decisions. (Chapter 15)"""
+
 import random
 
 from agents import Agent
 from probability import BayesNet
 from utils4e import argmax, vector_add, weighted_sample_with_replacement
-
-
-# Making Simple Decisions (Chapter 15)
 
 
 class DecisionNetwork(BayesNet):

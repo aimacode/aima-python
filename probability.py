@@ -1,6 +1,4 @@
-"""
-Probability models. (Chapter 13-15)
-"""
+"""Probability models. (Chapter 13-15)"""
 
 import random
 from collections import defaultdict
@@ -162,8 +160,7 @@ def enumerate_joint(variables, e, P):
     if not variables:
         return P[e]
     Y, rest = variables[0], variables[1:]
-    return sum([enumerate_joint(rest, extend(e, Y, y), P)
-                for y in P.values(Y)])
+    return sum([enumerate_joint(rest, extend(e, Y, y), P) for y in P.values(Y)])
 
 
 # ______________________________________________________________________________
@@ -377,13 +374,12 @@ class BayesNode:
 
 T, F = True, False
 
-burglary = BayesNet([
-    ('Burglary', '', 0.001),
-    ('Earthquake', '', 0.002),
-    ('Alarm', 'Burglary Earthquake',
-     {(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001}),
-    ('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
-    ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})])
+burglary = BayesNet([('Burglary', '', 0.001),
+                     ('Earthquake', '', 0.002),
+                     ('Alarm', 'Burglary Earthquake',
+                      {(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001}),
+                     ('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
+                     ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})])
 
 
 # ______________________________________________________________________________
@@ -514,12 +510,11 @@ def all_events(variables, bn, e):
 # [Figure 14.12a]: sprinkler network
 
 
-sprinkler = BayesNet([
-    ('Cloudy', '', 0.5),
-    ('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
-    ('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
-    ('WetGrass', 'Sprinkler Rain',
-     {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
+sprinkler = BayesNet([('Cloudy', '', 0.5),
+                      ('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
+                      ('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
+                      ('WetGrass', 'Sprinkler Rain',
+                       {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
 
 
 # ______________________________________________________________________________
@@ -528,8 +523,9 @@ sprinkler = BayesNet([
 def prior_sample(bn):
     """
     [Figure 14.13]
-    Randomly sample from bn's full joint distribution. The result
-    is a {variable: value} dict."""
+    Randomly sample from bn's full joint distribution.
+    The result is a {variable: value} dict.
+    """
     event = {}
     for node in bn.nodes:
         event[node.variable] = node.sample(event)
@@ -585,9 +581,11 @@ def likelihood_weighting(X, e, bn, N=10000):
 
 
 def weighted_sample(bn, e):
-    """Sample an event from bn that's consistent with the evidence e;
+    """
+    Sample an event from bn that's consistent with the evidence e;
     return the event and its weight, the likelihood that the event
-    accords to the evidence."""
+    accords to the evidence.
+    """
     w = 1
     event = dict(e)  # boldface x in [Figure 14.15]
     for node in bn.nodes:
@@ -801,7 +799,6 @@ def particle_filtering(e, N, HMM):
         w[i] = float("{0:.4f}".format(w[i]))
 
     # STEP 2
-
     s = weighted_sample_with_replacement(N, s, w)
 
     return s
@@ -843,7 +840,7 @@ class MCLmap:
         for _ in range(orient):
             delta = (delta[1], -delta[0])
         range_count = 0
-        while (0 <= pos[0] < self.nrows) and (0 <= pos[1] < self.nrows) and (not self.m[pos[0]][pos[1]]):
+        while 0 <= pos[0] < self.nrows and 0 <= pos[1] < self.nrows and not self.m[pos[0]][pos[1]]:
             pos = vector_add(pos, delta)
             range_count += 1
         return range_count

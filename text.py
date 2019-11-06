@@ -1,6 +1,6 @@
 """Statistical Language Processing tools.  (Chapter 22)
 We define Unigram and Ngram text models, use them to generate random text,
-and show the Viterbi algorithm for segmentatioon of letters into words.
+and show the Viterbi algorithm for segmentation of letters into words.
 Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages."""
 
@@ -152,8 +152,7 @@ class IRSystem:
         """Index a whole collection of files."""
         prefix = os.path.dirname(__file__)
         for filename in filenames:
-            self.index_document(open(filename).read(),
-                                os.path.relpath(filename, prefix))
+            self.index_document(open(filename).read(), os.path.relpath(filename, prefix))
 
     def index_document(self, text, url):
         """Index the text of a document."""
@@ -182,8 +181,7 @@ class IRSystem:
     def score(self, word, docid):
         """Compute a score for this word on the document with this docid."""
         # There are many options; here we take a very simple approach
-        return (log(1 + self.index[word][docid]) /
-                log(1 + self.documents[docid].nwords))
+        return log(1 + self.index[word][docid]) / log(1 + self.documents[docid].nwords)
 
     def total_score(self, words, docid):
         """Compute the sum of the scores of these words on the document with this docid."""
@@ -193,9 +191,7 @@ class IRSystem:
         """Present the results as a list."""
         for (score, docid) in results:
             doc = self.documents[docid]
-            print(
-                ("{:5.2}|{:25} | {}".format(100 * score, doc.url,
-                                            doc.title[:45].expandtabs())))
+            print("{:5.2}|{:25} | {}".format(100 * score, doc.url, doc.title[:45].expandtabs()))
 
     def present_results(self, query_text, n=10):
         """Get results for the query and present them."""
@@ -211,8 +207,7 @@ class UnixConsultant(IRSystem):
         import os
         aima_root = os.path.dirname(__file__)
         mandir = os.path.join(aima_root, 'aima-data/MAN/')
-        man_files = [mandir + f for f in os.listdir(mandir)
-                     if f.endswith('.txt')]
+        man_files = [mandir + f for f in os.listdir(mandir) if f.endswith('.txt')]
 
         self.index_collection(man_files)
 
@@ -396,13 +391,13 @@ class PermutationDecoder:
 class PermutationDecoderProblem(search.Problem):
 
     def __init__(self, initial=None, goal=None, decoder=None):
-        self.initial = initial or hashabledict()
+        super().__init__(initial or hashabledict(), goal)
         self.decoder = decoder
 
     def actions(self, state):
         search_list = [c for c in self.decoder.chardomain if c not in state]
         target_list = [c for c in alphabet if c not in state.values()]
-        # Find the best charater to replace
+        # Find the best character to replace
         plainchar = argmax(search_list, key=lambda c: self.decoder.P1[c])
         for cipherchar in target_list:
             yield (plainchar, cipherchar)
