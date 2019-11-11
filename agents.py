@@ -89,8 +89,7 @@ class Agent(Thing):
         self.holding = []
         self.performance = 0
         if program is None or not isinstance(program, collections.Callable):
-            print("Can't find a valid program for {}, falling back to default.".format(
-                self.__class__.__name__))
+            print("Can't find a valid program for {}, falling back to default.".format(self.__class__.__name__))
 
             def program(percept):
                 return eval(input('Percept={}; action? '.format(percept)))
@@ -446,13 +445,13 @@ class Direction:
         """
         x, y = from_location
         if self.direction == self.R:
-            return (x + 1, y)
+            return x + 1, y
         elif self.direction == self.L:
-            return (x - 1, y)
+            return x - 1, y
         elif self.direction == self.U:
-            return (x, y - 1)
+            return x, y - 1
         elif self.direction == self.D:
-            return (x, y + 1)
+            return x, y + 1
 
 
 class XYEnvironment(Environment):
@@ -507,7 +506,7 @@ class XYEnvironment(Environment):
                 agent.holding.pop()
 
     def default_location(self, thing):
-        return (random.choice(self.width), random.choice(self.height))
+        return random.choice(self.width), random.choice(self.height)
 
     def move_to(self, thing, destination):
         """Move a thing to a new location. Returns True on success or False if there is an Obstacle.
@@ -535,7 +534,7 @@ class XYEnvironment(Environment):
     def is_inbounds(self, location):
         """Checks to make sure that the location is inbounds (within walls if we have walls)"""
         x, y = location
-        return not (x < self.x_start or x >= self.x_end or y < self.y_start or y >= self.y_end)
+        return not (x < self.x_start or x > self.x_end or y < self.y_start or y > self.y_end)
 
     def random_location_inbounds(self, exclude=None):
         """Returns a random location that is inbounds (within walls if we have walls)"""
@@ -733,7 +732,7 @@ class VacuumEnvironment(XYEnvironment):
         status = ('Dirty' if self.some_things_at(
             agent.location, Dirt) else 'Clean')
         bump = ('Bump' if agent.bump else 'None')
-        return (status, bump)
+        return status, bump
 
     def execute_action(self, agent, action):
         agent.bump = False
@@ -762,12 +761,11 @@ class TrivialVacuumEnvironment(Environment):
                        loc_B: random.choice(['Clean', 'Dirty'])}
 
     def thing_classes(self):
-        return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent,
-                TableDrivenVacuumAgent, ModelBasedVacuumAgent]
+        return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent, TableDrivenVacuumAgent, ModelBasedVacuumAgent]
 
     def percept(self, agent):
         """Returns the agent's location, and the location status (Dirty/Clean)."""
-        return (agent.location, self.status[agent.location])
+        return agent.location, self.status[agent.location]
 
     def execute_action(self, agent, action):
         """Change agent's location and/or location's status; track performance.
@@ -1002,8 +1000,8 @@ class WumpusEnvironment(XYEnvironment):
             else:
                 print("Death by {} [-1000].".format(explorer[0].killed_by))
         else:
-            print("Explorer climbed out {}.".format("with Gold [+1000]!"
-                                                    if Gold() not in self.things else "without Gold [+0]"))
+            print("Explorer climbed out {}."
+                  .format("with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"))
         return True
 
     # TODO: Arrow needs to be implemented
