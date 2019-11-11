@@ -8,15 +8,12 @@ dictionary of {state: number} pairs. We then define the value_iteration
 and policy_iteration algorithms.
 """
 
-from utils4e import argmax, vector_add, orientations, turn_right, turn_left
-from planning import *
 import random
-import numpy as np
 from collections import defaultdict
 
+import numpy as np
 
-# _____________________________________________________________
-# 16.1 Sequential Detection Problems
+from utils4e import argmax, vector_add, orientations, turn_right, turn_left
 
 
 class MDP:
@@ -517,38 +514,3 @@ s = { 'a' : {	'plan1' : [(0.2, 'a'), (0.3, 'b'), (0.3, 'c'), (0.2, 'd')],
                 },
     }
 """
-
-
-# __________________________________________________________________________
-# Chapter 17 Multiagent Planning
-
-
-def double_tennis_problem():
-    """
-    [Figure 17.1] DOUBLE-TENNIS-PROBLEM
-    A multiagent planning problem involving two partner tennis players
-    trying to return an approaching ball and repositioning around in the court.
-
-    Example:
-        >>> from planning import *
-        >>> dtp = double_tennis_problem()
-        >>> goal_test(dtp.goals, dtp.initial)
-        False
-        >>> dtp.act(expr('Go(A, RightBaseLine, LeftBaseLine)'))
-        >>> dtp.act(expr('Hit(A, Ball, RightBaseLine)'))
-        >>> goal_test(dtp.goals, dtp.initial)
-        False
-        >>> dtp.act(expr('Go(A, LeftNet, RightBaseLine)'))
-        >>> goal_test(dtp.goals, dtp.initial)
-        True
-    """
-
-    return PlanningProblem(
-        initial='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
-        goals='Returned(Ball) & At(a, LeftNet) & At(a, RightNet)',
-        actions=[Action('Hit(actor, Ball, loc)',
-                        precond='Approaching(Ball, loc) & At(actor, loc)',
-                        effect='Returned(Ball)'),
-                 Action('Go(actor, to, loc)',
-                        precond='At(actor, loc)',
-                        effect='At(actor, to) & ~At(actor, loc)')])

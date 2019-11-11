@@ -1,16 +1,19 @@
-"""Markov Decision Processes (Chapter 17)
+"""
+Markov Decision Processes. (Chapter 17)
 
 First we define an MDP, and the special case of a GridMDP, in which
 states are laid out in a 2-dimensional grid. We also represent a policy
 as a dictionary of {state: action} pairs, and a Utility function as a
 dictionary of {state: number} pairs. We then define the value_iteration
-and policy_iteration algorithms."""
-
-from utils import argmax, vector_add, orientations, turn_right, turn_left
+and policy_iteration algorithms.
+"""
 
 import random
-import numpy as np
 from collections import defaultdict
+
+import numpy as np
+
+from utils import argmax, vector_add, orientations, turn_right, turn_left
 
 
 class MDP:

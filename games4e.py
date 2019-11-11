@@ -1,4 +1,4 @@
-"""Games, or Adversarial Search (Chapter 5)"""
+"""Games, or Adversarial Search. (Chapter 5)"""
 
 from collections import namedtuple
 import random
@@ -328,7 +328,7 @@ class StochasticGame(Game):
         raise NotImplementedError
 
     def probability(self, chance):
-        """Return the probability of occurence of a chance."""
+        """Return the probability of occurrence of a chance."""
         raise NotImplementedError
 
     def play_game(self, *players):
@@ -631,5 +631,5 @@ class Backgammon(StochasticGame):
                                    moves=state.moves, chance=dice)
 
     def probability(self, chance):
-        """Return the probability of occurence of a dice roll."""
+        """Return the probability of occurrence of a dice roll."""
         return 1 / 36 if chance[0] == chance[1] else 1 / 18
