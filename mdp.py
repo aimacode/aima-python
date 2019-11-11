@@ -218,7 +218,7 @@ def value_iteration(mdp, epsilon=0.001):
 
 def best_policy(mdp, U):
     """Given an MDP and a utility function U, determine the best policy,
-    as a mapping from state to action. (Equation 17.4)"""
+    as a mapping from state to action. [Equation 17.4]"""
 
     pi = {}
     for s in mdp.states:
