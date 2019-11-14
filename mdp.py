@@ -23,7 +23,7 @@ class MDP:
     the text. Instead of P(s' | s, a) being a probability number for each
     state/state/action triplet, we instead have T(s, a) return a
     list of (p, s') pairs. We also keep track of the possible states,
-    terminal states, and actions for each state. [page 646]"""
+    terminal states, and actions for each state. [Page 646]"""
 
     def __init__(self, init, actlist, terminals, transitions=None, reward=None, states=None, gamma=0.9):
         if not (0 < gamma <= 1):
@@ -269,7 +269,7 @@ class POMDP(MDP):
     and a sensor model P(e|s). We also keep track of a gamma value,
     for use by algorithms. The transition and the sensor models
     are defined as matrices. We also keep track of the possible states
-    and actions for each state. [page 659]."""
+    and actions for each state. [Page 659]."""
 
     def __init__(self, actions, transitions=None, evidences=None, rewards=None, states=None, gamma=0.95):
         """Initialize variables of the pomdp"""
