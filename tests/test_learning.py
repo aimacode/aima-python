@@ -44,7 +44,6 @@ def test_k_nearest_neighbors():
     iris = DataSet(name='iris')
     knn = NearestNeighborLearner(iris, k=3)
     assert knn([5, 3, 1, 0.1]) == 'setosa'
-    assert knn([5, 3, 1, 0.1]) == 'setosa'
     assert knn([6, 5, 3, 1.5]) == 'versicolor'
     assert knn([7.5, 4, 6, 2]) == 'virginica'
 
@@ -55,6 +54,16 @@ def test_decision_tree_learner():
     assert dtl([5, 3, 1, 0.1]) == 'setosa'
     assert dtl([6, 5, 3, 1.5]) == 'versicolor'
     assert dtl([7.5, 4, 6, 2]) == 'virginica'
+
+
+def test_svm():
+    iris = DataSet(name='iris')
+    classes = ['setosa', 'versicolor', 'virginica']
+    iris.classes_to_numbers(classes)
+    svm = SVM(iris)
+    assert svm([5, 3, 1, 0.1]) == 0
+    assert svm([6, 5, 3, 1.5]) == 1
+    assert svm([7.5, 4, 6, 2]) == 2
 
 
 def test_information_content():

@@ -45,7 +45,6 @@ def test_k_nearest_neighbors():
     iris = DataSet(name='iris')
     knn = NearestNeighborLearner(iris, k=3)
     assert knn([5, 3, 1, 0.1]) == 'setosa'
-    assert knn([5, 3, 1, 0.1]) == 'setosa'
     assert knn([6, 5, 3, 1.5]) == 'versicolor'
     assert knn([7.5, 4, 6, 2]) == 'virginica'
 

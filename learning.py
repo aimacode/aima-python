@@ -820,7 +820,8 @@ def find_max_node(nodes):
 def SVM(dataset, kernel=linear_kernel, C=None):
     n_samples, n_features = len(dataset.examples), dataset.target
 
-    X, y = [x[:n_features] for x in dataset.examples], [x[n_features:] for x in dataset.examples]
+    X, y = np.array([x[:n_features] for x in dataset.examples]), \
+           np.array([x[n_features:] for x in dataset.examples], dtype='float')
 
     # gram matrix
     K = np.zeros((n_samples, n_samples))
