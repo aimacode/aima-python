@@ -389,14 +389,14 @@ def gaussian(mean, st_dev, x):
 
 
 def linear_kernel(x1, x2):
-    return np.dot(x1, x2)
+    return dot_product(x1, x2)
 
 
 def polynomial_kernel(x, y, p=3):
-    return (1 + np.dot(x, y)) * p
+    return (1 + dot_product(x, y)) * p
 
 
-def gaussian_kernel(x, y, sigma=5.0):
+def gaussian_kernel(x, y, sigma=0.5):
     return np.exp(-norm(x - y) ** 2 / (2 * (sigma ** 2)))
 
 

@@ -817,82 +817,75 @@ def find_max_node(nodes):
     return nodes.index(argmax(nodes, key=lambda node: node.value))
 
 
-class SVM:
+def SVM(dataset, kernel=linear_kernel, C=None):
+    n_samples, n_features = len(dataset.examples), dataset.target
 
-    def __init__(self, kernel=linear_kernel, C=None):
-        self.kernel = kernel
-        self.C = C
-        if self.C is not None:
-            self.C = float(self.C)
+    X, y = [x[:n_features] for x in dataset.examples], [x[n_features:] for x in dataset.examples]
 
-    def fit(self, X, y):
-        n_samples, n_features = X.shape
+    # gram matrix
+    K = np.zeros((n_samples, n_samples))
+    for i in range(n_samples):
+        for j in range(n_samples):
+            K[i, j] = kernel(X[i], X[j])
 
-        # gram matrix
-        K = np.zeros((n_samples, n_samples))
-        for i in range(n_samples):
-            for j in range(n_samples):
-                K[i, j] = self.kernel(X[i], X[j])
+    P = cvxopt.matrix(np.outer(y, y) * K)
+    q = cvxopt.matrix(np.ones(n_samples) * -1)
+    A = cvxopt.matrix(y, (1, n_samples))
+    b = cvxopt.matrix(0.0)
 
-        P = cvxopt.matrix(np.outer(y, y) * K)
-        q = cvxopt.matrix(np.ones(n_samples) * -1)
-        A = cvxopt.matrix(y, (1, n_samples))
-        b = cvxopt.matrix(0.0)
+    if C is None:
+        G = cvxopt.matrix(np.diag(np.ones(n_samples) * -1))
+        h = cvxopt.matrix(np.zeros(n_samples))
+    else:
+        tmp1 = np.diag(np.ones(n_samples) * -1)
+        tmp2 = np.identity(n_samples)
+        G = cvxopt.matrix(np.vstack((tmp1, tmp2)))
+        tmp1 = np.zeros(n_samples)
+        tmp2 = np.ones(n_samples) * float(C)
+        h = cvxopt.matrix(np.hstack((tmp1, tmp2)))
 
-        if self.C is None:
-            G = cvxopt.matrix(np.diag(np.ones(n_samples) * -1))
-            h = cvxopt.matrix(np.zeros(n_samples))
+    # solve QP problem
+    solution = cvxopt.solvers.qp(P, q, G, h, A, b)
+
+    # Lagrange multipliers
+    a = np.ravel(solution['x'])
+
+    # support vectors are non zero Lagrange multipliers
+    sv = a > 1e-5
+    ind = np.arange(len(a))[sv]
+    a = a[sv]
+    sv = X[sv]
+    sv_y = y[sv]
+    print('%d support vectors out of %d points' % (len(a), n_samples))
+
+    # intercept
+    b = 0
+    for n in range(len(a)):
+        b += sv_y[n]
+        b -= np.sum(a * sv_y * K[ind[n], sv])
+    b /= len(a)
+
+    # weight vector
+    if kernel == linear_kernel:
+        w = np.zeros(n_features)
+        for n in range(len(a)):
+            w += a[n] * sv_y[n] * sv[n]
+    else:
+        w = None
+
+    def predict(example):
+        if w is not None:
+            return dot_product(example, w) + b
         else:
-            tmp1 = np.diag(np.ones(n_samples) * -1)
-            tmp2 = np.identity(n_samples)
-            G = cvxopt.matrix(np.vstack((tmp1, tmp2)))
-            tmp1 = np.zeros(n_samples)
-            tmp2 = np.ones(n_samples) * self.C
-            h = cvxopt.matrix(np.hstack((tmp1, tmp2)))
-
-        # solve QP problem
-        solution = cvxopt.solvers.qp(P, q, G, h, A, b)
-
-        # Lagrange multipliers
-        a = np.ravel(solution['x'])
-
-        # support vectors are non zero lagrange multipliers
-        sv = a > 1e-5
-        ind = np.arange(len(a))[sv]
-        self.a = a[sv]
-        self.sv = X[sv]
-        self.sv_y = y[sv]
-        print('%d support vectors out of %d points' % (len(self.a), n_samples))
-
-        # intercept
-        self.b = 0
-        for n in range(len(self.a)):
-            self.b += self.sv_y[n]
-            self.b -= np.sum(self.a * self.sv_y * K[ind[n], sv])
-        self.b /= len(self.a)
-
-        # weight vector
-        if self.kernel == linear_kernel:
-            self.w = np.zeros(n_features)
-            for n in range(len(self.a)):
-                self.w += self.a[n] * self.sv_y[n] * self.sv[n]
-        else:
-            self.w = None
-
-    def project(self, X):
-        if self.w is not None:
-            return np.dot(X, self.w) + self.b
-        else:
-            y_predict = np.zeros(len(X))
-            for i in range(len(X)):
+            y_predict = np.zeros(len(example))
+            for i in range(len(example)):
                 s = 0
-                for a, sv_y, sv in zip(self.a, self.sv_y, self.sv):
-                    s += a * sv_y * self.kernel(X[i], sv)
+                for a, sv_y, sv in zip(a, sv_y, sv):
+                    s += a * sv_y * kernel(X[i], sv)
                 y_predict[i] = s
-            return y_predict + self.b
+            return y_predict + b
 
-    def predict(self, X):
-        return np.sign(self.project(X))
+    return predict
 
 
 def EnsembleLearner(learners):

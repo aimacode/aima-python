@@ -10,7 +10,7 @@ from keras.layers.embeddings import Embedding
 from keras.models import Sequential
 from keras.preprocessing import sequence
 
-from utils4e import (sigmoid, dot_product, softmax1D, conv1D, GaussianKernel, element_wise_product, vector_add,
+from utils4e import (sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
                      random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss)
 
 
@@ -123,7 +123,7 @@ class ConvLayer1D(Layer):
         super(ConvLayer1D, self).__init__(size)
         # init convolution kernel as gaussian kernel
         for node in self.nodes:
-            node.weights = GaussianKernel(kernel_size)
+            node.weights = gaussian_kernel(kernel_size)
 
     def forward(self, features):
         # each node in layer takes a channel in the features.

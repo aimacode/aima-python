@@ -436,7 +436,7 @@ def conv1D(X, K):
     return np.convolve(X, K, mode='same')
 
 
-def GaussianKernel(size=3):
+def gaussian_kernel(size=3):
     mean = (size - 1) / 2
     stdev = 0.1
     return [gaussian(mean, stdev, x) for x in range(size)]
