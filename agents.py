@@ -204,7 +204,14 @@ def RandomVacuumAgent():
 
 
 def TableDrivenVacuumAgent():
-    """[Figure 2.3]"""
+    """Tabular approach towards vacuum world as mentioned in [Figure 2.3]
+    >>> agent = TableDrivenVacuumAgent()
+    >>> environment = TrivialVacuumEnvironment()
+    >>> environment.add_thing(agent)
+    >>> environment.run()
+    >>> environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+    True
+    """
     table = {((loc_A, 'Clean'),): 'Right',
              ((loc_A, 'Dirty'),): 'Suck',
              ((loc_B, 'Clean'),): 'Left',
