@@ -7,9 +7,8 @@ from functools import reduce
 import numpy as np
 
 from agents import Agent
-from utils import (product, argmax, element_wise_product, matrix_multiplication, vector_to_diagonal, vector_add,
-                   scalar_vector_product, inverse_matrix, weighted_sample_with_replacement, isclose, probability,
-                   normalize, extend)
+from utils import (product, argmax, element_wise_product, matrix_multiplication, vector_add, scalar_vector_product,
+                   weighted_sample_with_replacement, isclose, probability, normalize, extend)
 
 
 def DTAgentProgram(belief_state):
@@ -748,11 +747,11 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
     f = HMM.prior
     B = [[1, 0], [0, 1]]
 
-    O_t = vector_to_diagonal(HMM.sensor_dist(e_t))
+    O_t = np.diag(HMM.sensor_dist(e_t))
     if t > d:
         f = forward(HMM, f, e_t)
-        O_tmd = vector_to_diagonal(HMM.sensor_dist(ev[t - d]))
-        B = matrix_multiplication(inverse_matrix(O_tmd), inverse_matrix(T_model), B, T_model, O_t)
+        O_tmd = np.diag(HMM.sensor_dist(ev[t - d]))
+        B = matrix_multiplication(np.linalg.inv(O_tmd), np.linalg.inv(T_model), B, T_model, O_t)
     else:
         B = matrix_multiplication(B, T_model, O_t)
     t += 1

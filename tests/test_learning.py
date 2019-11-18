@@ -60,10 +60,19 @@ def test_svm():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    svm = SVM(iris)
-    assert svm([5, 3, 1, 0.1]) == 0
-    assert svm([6, 5, 3, 1.5]) == 1
-    assert svm([7.5, 4, 6, 2]) == 2
+    svm = MultiSVM()
+    n_samples, n_features = len(iris.examples), iris.target
+    X, y = np.array([x[:n_features] for x in iris.examples]), np.array([x[n_features:] for x in iris.examples])
+    svm.fit(X, y)
+    assert svm.predict(np.array([[5.0, 3.1, 0.9, 0.1]])) is 0
+    assert svm.predict(np.array([[5.1, 3.5, 1.0, 0.0]])) is 0
+    assert svm.predict(np.array([[4.9, 3.3, 1.1, 0.1]])) is 0
+    assert svm.predict(np.array([[6.0, 3.0, 4.0, 1.1]])) is 1
+    assert svm.predict(np.array([[6.1, 2.2, 3.5, 1.0]])) is 1
+    assert svm.predict(np.array([[5.9, 2.5, 3.3, 1.1]])) is 1
+    assert svm.predict(np.array([[7.5, 4.1, 6.2, 2.3]])) is 2
+    assert svm.predict(np.array([[7.3, 4.0, 6.1, 2.4]])) is 2
+    assert svm.predict(np.array([[7.0, 3.3, 6.1, 2.5]])) is 2
 
 
 def test_information_content():

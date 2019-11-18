@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.signal
 import matplotlib.pyplot as plt
-from utils4e import gaussian_kernel_2d, inf
+from utils4e import gaussian_kernel_2D, inf
 import keras
 from keras.datasets import mnist
 from keras.models import Sequential
@@ -47,7 +47,7 @@ def gaussian_derivative_edge_detector(image):
     """Image edge detector using derivative of gaussian kernels"""
     if not isinstance(image, np.ndarray):
         image = np.asarray(image)
-    gaussian_filter = gaussian_kernel_2d()
+    gaussian_filter = gaussian_kernel_2D()
     # init derivative of gaussian filters
     x_filter = scipy.signal.convolve2d(gaussian_filter, np.asarray([[1, -1]]), 'same')
     y_filter = scipy.signal.convolve2d(gaussian_filter, np.asarray([[1], [-1]]), 'same')

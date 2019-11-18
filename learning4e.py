@@ -9,9 +9,9 @@ from statistics import mean, stdev
 
 from probabilistic_learning import NaiveBayesLearner
 from utils import sigmoid, sigmoid_derivative
-from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product,
-                     weighted_sample_with_replacement, num_or_str, normalize, clip, print_table, open_data, probability,
-                     random_weights, mean_boolean_error, inf)
+from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, num_or_str, normalize, clip,
+                     weighted_sample_with_replacement, print_table, open_data, probability, random_weights,
+                     mean_boolean_error, inf)
 
 
 class DataSet:

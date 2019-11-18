@@ -37,7 +37,7 @@ class PriorityQueue:
         elif order == 'max':  # now item with max f(x)
             self.f = lambda x: -f(x)  # will be popped first
         else:
-            raise ValueError("order must be either 'min' or 'max'.")
+            raise ValueError("Order must be either 'min' or 'max'.")
 
     def append(self, item):
         """Insert item at its correct position."""
@@ -208,23 +208,17 @@ def histogram(values, mode=0, bin_function=None):
         return sorted(bins.items())
 
 
-def dot_product(X, Y):
+def dot_product(x, y):
     """Return the sum of the element-wise product of vectors X and Y."""
-    return sum(x * y for x, y in zip(X, Y))
+    return sum(_x * _y for _x, _y in zip(x, y))
 
 
-def element_wise_product_2D(X, Y):
-    """Return vector as an element-wise product of vectors X and Y"""
-    assert len(X) == len(Y)
-    return [x * y for x, y in zip(X, Y)]
-
-
-def element_wise_product(X, Y):
-    if hasattr(X, '__iter__') and hasattr(Y, '__iter__'):
-        assert len(X) == len(Y)
-        return [element_wise_product(x, y) for x, y in zip(X, Y)]
-    elif hasattr(X, '__iter__') == hasattr(Y, '__iter__'):
-        return X * Y
+def element_wise_product(x, y):
+    if hasattr(x, '__iter__') and hasattr(y, '__iter__'):
+        assert len(x) == len(y)
+        return [element_wise_product(_x, _y) for _x, _y in zip(x, y)]
+    elif hasattr(x, '__iter__') == hasattr(y, '__iter__'):
+        return x * y
     else:
         raise Exception("Inputs must be in the same size!")
 
@@ -242,7 +236,7 @@ def matrix_multiplication(X_M, *Y_M):
         [[8, 8],[13, 14]]
         """
         assert len(X_M[0]) == len(Y_M)
-        result = [[0 for i in range(len(Y_M[0]))] for j in range(len(X_M))]
+        result = [[0 for _ in range(len(Y_M[0]))] for _ in range(len(X_M))]
         for i in range(len(X_M)):
             for j in range(len(Y_M[0])):
                 for k in range(len(Y_M)):
@@ -254,16 +248,6 @@ def matrix_multiplication(X_M, *Y_M):
         result = _mat_mult(result, Y)
 
     return result
-
-
-def vector_to_diagonal(v):
-    """Converts a vector to a diagonal matrix with vector elements
-    as the diagonal elements of the matrix"""
-    diag_matrix = [[0 for i in range(len(v))] for j in range(len(v))]
-    for i in range(len(v)):
-        diag_matrix[i][i] = v[i]
-
-    return diag_matrix
 
 
 def vector_add(a, b):
@@ -280,30 +264,14 @@ def vector_add(a, b):
             raise Exception("Inputs must be in the same size!")
 
 
-def scalar_vector_product(X, Y):
+def scalar_vector_product(x, y):
     """Return vector as a product of a scalar and a vector recursively"""
-    return [scalar_vector_product(X, y) for y in Y] if hasattr(Y, '__iter__') else X * Y
+    return [scalar_vector_product(x, _y) for _y in y] if hasattr(y, '__iter__') else x * y
 
 
-def map_vector(f, X):
-    """apply function f to iterable X"""
-    return [map_vector(f, x) for x in X] if hasattr(X, '__iter__') else list(map(f, [X]))[0]
-
-
-def scalar_matrix_product(X, Y):
-    """Return matrix as a product of a scalar and a matrix"""
-    return [scalar_vector_product(X, y) for y in Y]
-
-
-def inverse_matrix(X):
-    """Inverse a given square matrix of size 2x2"""
-    assert len(X) == 2
-    assert len(X[0]) == 2
-    det = X[0][0] * X[1][1] - X[0][1] * X[1][0]
-    assert det != 0
-    inv_mat = scalar_matrix_product(1.0 / det, [[X[1][1], -X[0][1]], [-X[1][0], X[0][0]]])
-
-    return inv_mat
+def map_vector(f, x):
+    """Apply function f to iterable X"""
+    return [map_vector(f, _x) for _x in x] if hasattr(x, '__iter__') else list(map(f, [x]))[0]
 
 
 def probability(p):
@@ -363,47 +331,45 @@ def num_or_str(x):  # TODO: rename as `atom`
             return str(x).strip()
 
 
-def euclidean_distance(X, Y):
-    return math.sqrt(sum((x - y) ** 2 for x, y in zip(X, Y) if x and y))
+def euclidean_distance(x, y):
+    return math.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
-def rms_error(X, Y):
-    return math.sqrt(ms_error(X, Y))
+def rms_error(x, y):
+    return math.sqrt(ms_error(x, y))
 
 
-def ms_error(X, Y):
-    return mean((x - y) ** 2 for x, y in zip(X, Y))
+def ms_error(x, y):
+    return mean((x - y) ** 2 for x, y in zip(x, y))
 
 
-def mean_error(X, Y):
-    return mean(abs(x - y) for x, y in zip(X, Y))
+def mean_error(x, y):
+    return mean(abs(x - y) for x, y in zip(x, y))
 
 
-def manhattan_distance(X, Y):
-    return sum(abs(x - y) for x, y in zip(X, Y))
+def manhattan_distance(x, y):
+    return sum(abs(_x - _y) for _x, _y in zip(x, y))
 
 
-def mean_boolean_error(X, Y):
-    return mean(int(x != y) for x, y in zip(X, Y))
+def mean_boolean_error(x, y):
+    return mean(_x != _y for _x, _y in zip(x, y))
 
 
-def hamming_distance(X, Y):
-    return sum(x != y for x, y in zip(X, Y))
+def hamming_distance(x, y):
+    return sum(_x != _y for _x, _y in zip(x, y))
 
 
 # 19.2 Common Loss Functions
 
 
-def cross_entropy_loss(X, Y):
+def cross_entropy_loss(x, y):
     """Example of cross entropy loss. X and Y are 1D iterable objects"""
-    n = len(X)
-    return (-1.0 / n) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(X, Y))
+    return (-1.0 / len(x)) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(x, y))
 
 
-def mse_loss(X, Y):
+def mse_loss(x, y):
     """Example of min square loss. X and Y are 1D iterable objects"""
-    n = len(X)
-    return (1.0 / n) * sum((x - y) ** 2 for x, y in zip(X, Y))
+    return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
 # part3. Neural network util functions
@@ -422,9 +388,9 @@ def normalize(dist):
     return [(n / total) for n in dist]
 
 
-def norm(X, n=2):
+def norm(x, ord=2):
     """Return the n-norm of vector X"""
-    return sum([x ** n for x in X]) ** (1 / n)
+    return np.linalg.norm(x, ord)
 
 
 def random_weights(min_value, max_value, num_weights):
@@ -442,12 +408,12 @@ def gaussian_kernel(size=3):
     return [gaussian(mean, stdev, x) for x in range(size)]
 
 
-def gaussian_kernel_1d(size=3, sigma=0.5):
+def gaussian_kernel_1D(size=3, sigma=0.5):
     mean = (size - 1) / 2
     return [gaussian(mean, sigma, x) for x in range(size)]
 
 
-def gaussian_kernel_2d(size=3, sigma=0.5):
+def gaussian_kernel_2D(size=3, sigma=0.5):
     x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
     g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
     return g / g.sum()
@@ -536,7 +502,7 @@ def gaussian(mean, st_dev, x):
 
 def gaussian_2D(means, sigma, point):
     det = sigma[0][0] * sigma[1][1] - sigma[0][1] * sigma[1][0]
-    inverse = inverse_matrix(sigma)
+    inverse = np.linalg.inv(sigma)
     assert det != 0
     x_u = vector_add(point, scalar_vector_product(-1, means))
     buff = matrix_multiplication(matrix_multiplication([x_u], inverse), transpose2D([x_u]))
@@ -801,7 +767,7 @@ class Expr:
     def __call__(self, *args):
         """Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."""
         if self.args:
-            raise ValueError('can only do a call for a Symbol, not an Expr')
+            raise ValueError('Can only do a call for a Symbol, not an Expr')
         else:
             return Expr(self.op, *args)
 

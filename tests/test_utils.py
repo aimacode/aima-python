@@ -186,11 +186,6 @@ def test_matrix_multiplication():
                                   [1, 2]]) == [[132, 176], [224, 296]]
 
 
-def test_vector_to_diagonal():
-    assert vector_to_diagonal([1, 2, 3]) == [[1, 0, 0], [0, 2, 0], [0, 0, 3]]
-    assert vector_to_diagonal([0, 3, 6]) == [[0, 0, 0], [0, 3, 0], [0, 0, 6]]
-
-
 def test_vector_add():
     assert vector_add((0, 1), (8, 9)) == (8, 10)
     assert vector_add((1, 1, 1), (2, 2, 2)) == (3, 3, 3)
@@ -199,17 +194,6 @@ def test_vector_add():
 def test_scalar_vector_product():
     assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
     assert scalar_vector_product(0, [9, 9, 9]) == [0, 0, 0]
-
-
-def test_scalar_matrix_product():
-    assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20], [0, -30]]
-    assert rounder(scalar_matrix_product(0.2, [[1, 2], [2, 3]])) == [[0.2, 0.4], [0.4, 0.6]]
-
-
-def test_inverse_matrix():
-    assert rounder(inverse_matrix([[1, 0], [0, 1]])) == [[1, 0], [0, 1]]
-    assert rounder(inverse_matrix([[2, 1], [4, 3]])) == [[1.5, -0.5], [-2.0, 1.0]]
-    assert rounder(inverse_matrix([[4, 7], [2, 6]])) == [[0.6, -0.7], [-0.2, 0.4]]
 
 
 def test_rounder():
@@ -258,34 +242,6 @@ def test_sigmoid_derivative():
 
     value = 3
     assert sigmoid_derivative(value) == -6
-
-
-def test_truncated_svd():
-    test_mat = [[17, 0],
-                [0, 11]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(eival[0], 17)
-    assert isclose(eival[1], 11)
-
-    test_mat = [[17, 0],
-                [0, -34]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(eival[0], 34)
-    assert isclose(eival[1], 17)
-
-    test_mat = [[1, 0, 0, 0, 2],
-                [0, 0, 3, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 2, 0, 0, 0]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(eival[0], 3)
-    assert isclose(eival[1], 5 ** 0.5)
-
-    test_mat = [[3, 2, 2],
-                [2, 3, -2]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(eival[0], 5)
-    assert isclose(eival[1], 3)
 
 
 def test_weighted_choice():

@@ -54,7 +54,7 @@ def test_rnn():
     assert score[1] >= 0.3
 
 
-def test_auto_encoder():
+def test_autoencoder():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
