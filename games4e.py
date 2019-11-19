@@ -4,9 +4,8 @@ import copy
 import itertools
 import random
 from collections import namedtuple
-from math import inf
 
-from utils4e import vector_add, MCT_Node, ucb
+from utils4e import vector_add, MCT_Node, ucb, inf
 
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 StochasticGameState = namedtuple('StochasticGameState', 'to_move, utility, board, moves, chance')

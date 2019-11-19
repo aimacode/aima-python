@@ -1,5 +1,4 @@
-language:
-  - python
+language: python
 
 python:
   - "3.4"
@@ -22,7 +21,6 @@ install:
   - pip install tensorflow
   - pip install opencv-python
   - pip install sortedcontainers
-
 
 script:
   - py.test --cov=./

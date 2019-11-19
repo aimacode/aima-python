@@ -11,10 +11,9 @@ import math
 import random
 import sys
 from collections import deque
-from math import inf
 
 from utils import (is_in, argmax_random_tie, probability, weighted_sampler, memoize, print_table, open_data,
-                   PriorityQueue, name, distance, vector_add)
+                   PriorityQueue, name, distance, vector_add, inf)
 
 
 class Problem:

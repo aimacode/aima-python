@@ -14,6 +14,8 @@ from statistics import mean
 
 import numpy as np
 
+inf = float('inf')
+
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables

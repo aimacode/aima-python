@@ -9,10 +9,11 @@ import math
 import os.path
 import random
 from itertools import chain, combinations
-from math import inf
 from statistics import mean
 
 import numpy as np
+
+inf = float('inf')
 
 
 # part1. General data structures and their functions
