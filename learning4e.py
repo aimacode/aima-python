@@ -8,11 +8,14 @@ from collections import defaultdict
 from math import inf
 from statistics import mean, stdev
 
+import cvxopt
+import numpy as np
+
 from probabilistic_learning import NaiveBayesLearner
 from utils import sigmoid, sigmoid_derivative
 from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, num_or_str, normalize, clip,
                      weighted_sample_with_replacement, print_table, open_data, probability, random_weights,
-                     mean_boolean_error)
+                     mean_boolean_error, linear_kernel)
 
 
 class DataSet:
@@ -589,6 +592,114 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         return sigmoid(dot_product(w, x))
 
     return predict
+
+
+class BinarySVM:
+    def __init__(self, kernel=linear_kernel, C=1.0):
+        self.kernel = kernel
+        self.C = C
+        self.eps = 1e-6
+        self.n_sv = -1
+        self.sv_x, self.sv_y, = np.zeros(0), np.zeros(0)
+        self.alphas = np.zeros(0)
+        self.w = None
+        self.b = 0.0  # intercept
+
+    def fit(self, X, y):
+        # In QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
+        self.QP(X, y)
+        sv_indices = list(filter(lambda i: self.alphas[i] > self.eps, range(len(y))))
+        self.sv_x, self.sv_y, self.alphas = X[sv_indices], y[sv_indices], self.alphas[sv_indices]
+        self.n_sv = len(sv_indices)
+        if self.kernel == linear_kernel:
+            self.w = np.dot(self.alphas * self.sv_y, self.sv_x)
+        # calculate b: average over all support vectors
+        sv_boundary = self.alphas < self.C - self.eps
+        self.b = np.mean(self.sv_y[sv_boundary] - np.dot(self.alphas * self.sv_y,
+                                                         self.kernel(self.sv_x, self.sv_x[sv_boundary])))
+
+    def QP(self, X, y):
+        cvxopt.solvers.options['show_progress'] = False
+        # in QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
+        m = len(y)  # m = n_samples
+        K = self.kernel(X)  # gram matrix
+        P = cvxopt.matrix(K * np.outer(y, y))
+        q = cvxopt.matrix(-np.ones((m, 1)))
+        if self.C is 1.0:
+            G = cvxopt.matrix(-np.diag(np.ones(m)))
+            h = cvxopt.matrix(np.zeros(m))
+        else:
+            G = cvxopt.matrix(np.vstack((-np.diag(np.ones(m)), np.identity(m))))
+            h = cvxopt.matrix(np.hstack((np.zeros(m), np.ones(m) * self.C)))
+        A = cvxopt.matrix(y.reshape((1, -1)), tc='d')
+        b = cvxopt.matrix(0.0)
+        # solve quadratic programming problem
+        solution = cvxopt.solvers.qp(P, q, G, h, A, b)
+        self.alphas = np.array(solution['x']).squeeze()
+
+    def project(self, x):
+        if self.w is None:
+            return np.dot(self.alphas * self.sv_y, self.kernel(self.sv_x, x)) + self.b
+        return np.dot(x, self.w) + self.b  # if kernel is linear
+
+    def predict(self, x):
+        return np.sign(self.project(x))
+
+
+class MultiSVM:
+    def __init__(self, kernel=linear_kernel, decision_function='ovr', C=1.0):
+        self.kernel = kernel
+        self.decision_function = decision_function
+        self.C = C
+        self.n_class, self.classifiers = 0, []
+
+    def fit(self, X, y):
+        labels = np.unique(y)
+        self.n_class = len(labels)
+        if self.decision_function == 'ovr':  # one-vs-rest method
+            for label in labels:
+                y1 = np.array(y)
+                y1[y1 != label] = -1.0
+                y1[y1 == label] = 1.0
+                clf = BinarySVM(self.kernel, self.C)
+                clf.fit(X, y1)
+                self.classifiers.append(copy.deepcopy(clf))
+        elif self.decision_function == 'ovo':  # use one-vs-one method
+            n_labels = len(labels)
+            for i in range(n_labels):
+                for j in range(i + 1, n_labels):
+                    neg_id, pos_id = y == labels[i], y == labels[j]
+                    x1, y1 = np.r_[X[neg_id], X[pos_id]], np.r_[y[neg_id], y[pos_id]]
+                    y1[y1 == labels[i]] = -1.0
+                    y1[y1 == labels[j]] = 1.0
+                    clf = BinarySVM(self.kernel, self.C)
+                    clf.fit(x1, y1)
+                    self.classifiers.append(copy.deepcopy(clf))
+        else:
+            return ValueError("Decision function must be either 'ovr' or 'ovo'.")
+
+    def predict(self, X):
+        n_samples = len(X)
+        if self.decision_function == 'ovr':  # one-vs-rest method: n classifiers
+            assert len(self.classifiers) == self.n_class
+            score = np.zeros((n_samples, self.n_class))
+            for i in range(self.n_class):
+                clf = self.classifiers[i]
+                score[:, i] = clf.project(X)
+            return np.argmax(score, axis=1)
+        elif self.decision_function == 'ovo':  # use one-vs-one method: n*(n-1)/2 classifiers
+            assert len(self.classifiers) == self.n_class * (self.n_class - 1) / 2
+            vote = np.zeros((n_samples, self.n_class))
+            clf_id = 0
+            for i in range(self.n_class):
+                for j in range(i + 1, self.n_class):
+                    res = self.classifiers[clf_id].predict(X)
+                    vote[res < 0, i] += 1.0  # negative sample: class i
+                    vote[res > 0, j] += 1.0  # positive sample: class j
+                    clf_id += 1
+            return np.argmax(vote, axis=1)
+        else:
+            return ValueError("Decision function must be either 'ovr' or 'ovo'.")
 
 
 def EnsembleLearner(learners):

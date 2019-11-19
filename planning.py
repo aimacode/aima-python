@@ -10,7 +10,7 @@ from math import inf
 
 import search
 from csp import sat_up, NaryCSP, Constraint, ac_search_solver, is_constraint
-from logic import FolKB, conjuncts, unify, associate, SAT_plan, cdcl_satisfiable
+from logic import FolKB, conjuncts, unify_mm, associate, SAT_plan, cdcl_satisfiable
 from search import Node
 from utils import Expr, expr, first
 
@@ -105,7 +105,7 @@ class PlanningProblem:
 
         for action in action_list:
             for permutation in itertools.permutations(objects, len(action.args)):
-                bindings = unify(Expr(action.name, *action.args), Expr(action.name, *permutation))
+                bindings = unify_mm(Expr(action.name, *action.args), Expr(action.name, *permutation))
                 if bindings is not None:
                     new_args = []
                     for arg in action.args:
@@ -1161,7 +1161,7 @@ class PartialOrderPlanner:
         for action in self.planning_problem.actions:
             for effect in action.effect:
                 if effect.op == oprec.op:
-                    bindings = unify(effect, oprec)
+                    bindings = unify_mm(effect, oprec)
                     if bindings is None:
                         break
                     return action, bindings

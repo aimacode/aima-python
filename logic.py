@@ -1968,7 +1968,7 @@ def fol_fc_ask(kb, alpha):
 
     # check if we can answer without new inferences
     for q in kb.clauses:
-        phi = unify(q, alpha)
+        phi = unify_mm(q, alpha)
         if phi is not None:
             yield phi
 
@@ -1979,9 +1979,9 @@ def fol_fc_ask(kb, alpha):
             for theta in enum_subst(p):
                 if set(subst(theta, p)).issubset(set(kb.clauses)):
                     q_ = subst(theta, q)
-                    if all([unify(x, q_) is None for x in kb.clauses + new]):
+                    if all([unify_mm(x, q_) is None for x in kb.clauses + new]):
                         new.append(q_)
-                        phi = unify(q_, alpha)
+                        phi = unify_mm(q_, alpha)
                         if phi is not None:
                             yield phi
         if not new:
@@ -2003,7 +2003,7 @@ def fol_bc_ask(kb, query):
 def fol_bc_or(kb, goal, theta):
     for rule in kb.fetch_rules_for_goal(goal):
         lhs, rhs = parse_definite_clause(standardize_variables(rule))
-        for theta1 in fol_bc_and(kb, lhs, unify(rhs, goal, theta)):
+        for theta1 in fol_bc_and(kb, lhs, unify_mm(rhs, goal, theta)):
             yield theta1
 
 

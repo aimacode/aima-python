@@ -505,6 +505,28 @@ def gaussian_2D(means, sigma, point):
     return 1 / (math.sqrt(det) * 2 * math.pi) * math.exp(-0.5 * buff[0][0])
 
 
+def linear_kernel(x, y=None):
+    if y is None:
+        y = x
+    return np.dot(x, y.T)
+
+
+def polynomial_kernel(x, y=None, degree=2):
+    if y is None:
+        y = x
+    return (1.0 + np.dot(x, y.T)) ** degree
+
+
+def rbf_kernel(x, y=None, gamma=None):
+    """Radial-basis function kernel (aka squared-exponential kernel)."""
+    if y is None:
+        y = x
+    if gamma is None:
+        gamma = 1.0 / x.shape[1]  # 1.0 / n_features
+    return np.exp(-gamma * (-2.0 * np.dot(x, y.T) +
+                            np.sum(x * x, axis=1).reshape((-1, 1)) + np.sum(y * y, axis=1).reshape((1, -1))))
+
+
 try:  # math.isclose was added in Python 3.5; but we might be in 3.4
     from math import isclose
 except ImportError:

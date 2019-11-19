@@ -14,9 +14,8 @@ from matplotlib.colors import ListedColormap
 
 from games import TicTacToe, alpha_beta_player, random_player, Fig52Extended, inf
 from learning import DataSet
-from logic import parse_definite_clause, standardize_variables, unify, subst
+from logic import parse_definite_clause, standardize_variables, unify_mm, subst
 from search import GraphProblem, romania_map
-from utils import argmax, argmin
 
 
 # ______________________________________________________________________________
@@ -550,7 +549,7 @@ class Canvas_minimax(Canvas):
                 return game.utility(node, player)
             self.change_list.append(('a', node))
             self.change_list.append(('h',))
-            max_a = argmax(game.actions(node), key=lambda x: min_value(game.result(node, x)))
+            max_a = max(game.actions(node), key=lambda x: min_value(game.result(node, x)))
             max_node = game.result(node, max_a)
             self.utils[node] = self.utils[max_node]
             x1, y1 = self.node_pos[node]
@@ -566,7 +565,7 @@ class Canvas_minimax(Canvas):
                 return game.utility(node, player)
             self.change_list.append(('a', node))
             self.change_list.append(('h',))
-            min_a = argmin(game.actions(node), key=lambda x: max_value(game.result(node, x)))
+            min_a = min(game.actions(node), key=lambda x: max_value(game.result(node, x)))
             min_node = game.result(node, min_a)
             self.utils[node] = self.utils[min_node]
             x1, y1 = self.node_pos[node]
@@ -843,7 +842,7 @@ class Canvas_fol_bc_ask(Canvas):
         def fol_bc_or(KB, goal, theta):
             for rule in KB.fetch_rules_for_goal(goal):
                 lhs, rhs = parse_definite_clause(standardize_variables(rule))
-                for theta1 in fol_bc_and(KB, lhs, unify(rhs, goal, theta)):
+                for theta1 in fol_bc_and(KB, lhs, unify_mm(rhs, goal, theta)):
                     yield ([(goal, theta1[0])], theta1[1])
 
         def fol_bc_and(KB, goals, theta):
