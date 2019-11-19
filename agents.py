@@ -619,7 +619,7 @@ class GraphicEnvironment(XYEnvironment):
         for x in range(x_start, x_end):
             row = []
             for y in range(y_start, y_end):
-                row.append(self.list_things_at([x, y]))
+                row.append(self.list_things_at((x, y)))
             result.append(row)
         return result
 
