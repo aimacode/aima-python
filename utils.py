@@ -366,7 +366,7 @@ def linear_kernel(x, y=None):
 def polynomial_kernel(x, y=None, degree=2):
     if y is None:
         y = x
-    return (1 + np.dot(x, y.T)) ** degree
+    return (1.0 + np.dot(x, y.T)) ** degree
 
 
 def rbf_kernel(x, y=None, gamma=None):
@@ -374,8 +374,8 @@ def rbf_kernel(x, y=None, gamma=None):
     if y is None:
         y = x
     if gamma is None:
-        gamma = 1 / x.shape[1]  # 1.0 / n_features
-    return np.exp(-gamma * (-2 * np.dot(x, y.T) +
+        gamma = 1.0 / x.shape[1]  # 1.0 / n_features
+    return np.exp(-gamma * (-2.0 * np.dot(x, y.T) +
                             np.sum(x * x, axis=1).reshape((-1, 1)) + np.sum(y * y, axis=1).reshape((1, -1))))
 
 

@@ -442,8 +442,8 @@ def DecisionTreeLearner(dataset):
         def I(examples):
             return information_content([count(target, v, examples) for v in values[target]])
 
-        N = len(examples)
-        remainder = sum((len(examples_i) / N) * I(examples_i) for (v, examples_i) in split_by(attr, examples))
+        n = len(examples)
+        remainder = sum((len(examples_i) / n) * I(examples_i) for (v, examples_i) in split_by(attr, examples))
         return I(examples) - remainder
 
     def split_by(attr, examples):
@@ -609,9 +609,9 @@ def ada_boost(dataset, L, K):
     """[Figure 18.34]"""
 
     examples, target = dataset.examples, dataset.target
-    N = len(examples)
-    epsilon = 1 / (2 * N)
-    w = [1 / N] * N
+    n = len(examples)
+    epsilon = 1 / (2 * n)
+    w = [1 / n] * n
     h, z = [], []
     for k in range(K):
         h_k = L(dataset, w)

@@ -781,8 +781,7 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
     """
     layers_sizes = [input_units] + hidden_layer_sizes + [output_units]
 
-    net = [[NNUnit(activation) for _ in range(size)]
-           for size in layers_sizes]
+    net = [[NNUnit(activation) for _ in range(size)] for size in layers_sizes]
     n_layers = len(net)
 
     # make connection
@@ -818,80 +817,62 @@ def find_max_node(nodes):
 
 
 class BinarySVM:
-
-    def __init__(self, kernel=linear_kernel, C=1.0, eps=1e-6):
+    def __init__(self, kernel=linear_kernel, C=1.0):
         self.kernel = kernel
         self.C = C
-        self.eps = eps
+        self.eps = 1e-6
         self.n_sv = -1
-        self.sv_x, self.sv_y = np.zeros(0), np.zeros(0)
+        self.sv_x, self.sv_y, = np.zeros(0), np.zeros(0)
         self.alphas = np.zeros(0)
-        self.w = None  # if kernel is linear
+        self.w = None
         self.b = 0.0  # intercept
 
     def fit(self, X, y):
-
-        # gram matrix
-        K = self.kernel(X)
-
-        # Lagrange multipliers
-        alphas = self.QP(K, y)
-
-        # support vectors have non zero lagrange multipliers
-        sv_idx = alphas > self.eps
-        ind = np.arange(len(alphas))[sv_idx]
-        self.sv_x, self.sv_y, self.alphas = X[sv_idx], y[sv_idx], alphas[sv_idx]
-        self.n_sv = len(self.alphas)
-
-        # calculate b: average over all support vectors
-        for n in range(len(self.alphas)):
-            self.b += self.sv_y[n]
-            self.b -= np.sum(self.alphas * self.sv_y * K[ind[n], sv_idx])
-        self.b /= len(self.alphas)
-
-        # weight vector
+        # In QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
+        self.QP(X, y)
+        sv_indices = list(filter(lambda i: self.alphas[i] > self.eps, range(len(y))))
+        self.sv_x, self.sv_y, self.alphas = X[sv_indices], y[sv_indices], self.alphas[sv_indices]
+        self.n_sv = len(sv_indices)
         if self.kernel == linear_kernel:
             self.w = np.dot(self.alphas * self.sv_y, self.sv_x)
+        # calculate b: average over all support vectors
+        sv_boundary = self.alphas < self.C - self.eps
+        self.b = np.mean(self.sv_y[sv_boundary] - np.dot(self.alphas * self.sv_y,
+                                                         self.kernel(self.sv_x, self.sv_x[sv_boundary])))
 
-    def QP(self, K, y):
+    def QP(self, X, y):
         cvxopt.solvers.options['show_progress'] = False
         # in QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
         m = len(y)  # m = n_samples
-
+        K = self.kernel(X)  # gram matrix
         P = cvxopt.matrix(K * np.outer(y, y))
         q = cvxopt.matrix(-np.ones((m, 1)))
-
         if self.C is 1.0:
-            G = cvxopt.matrix(np.diag(np.ones(m) * -1))
+            G = cvxopt.matrix(-np.diag(np.ones(m)))
             h = cvxopt.matrix(np.zeros(m))
         else:
-            G = cvxopt.matrix(np.vstack((np.diag(np.ones(m) * -1), np.identity(m))))
+            G = cvxopt.matrix(np.vstack((-np.diag(np.ones(m)), np.identity(m))))
             h = cvxopt.matrix(np.hstack((np.zeros(m), np.ones(m) * self.C)))
-
-        A = cvxopt.matrix(y.reshape(1, -1), tc='d')
+        A = cvxopt.matrix(y.reshape((1, -1)), tc='d')
         b = cvxopt.matrix(0.0)
-
         # solve quadratic programming problem
         solution = cvxopt.solvers.qp(P, q, G, h, A, b)
-
-        return np.ravel(solution['x'])
+        self.alphas = np.array(solution['x']).squeeze()
 
     def project(self, x):
-        if self.w is None:  # if kernel is not linear
+        if self.w is None:
             return np.dot(self.alphas * self.sv_y, self.kernel(self.sv_x, x)) + self.b
-        return np.dot(x, self.w) + self.b
+        return np.dot(x, self.w) + self.b  # if kernel is linear
 
     def predict(self, x):
         return np.sign(self.project(x))
 
 
 class MultiSVM:
-
-    def __init__(self, kernel=linear_kernel, decision_function='ovr', C=1.0, eps=1e-6):
+    def __init__(self, kernel=linear_kernel, decision_function='ovr', C=1.0):
         self.kernel = kernel
         self.decision_function = decision_function
         self.C = C
-        self.eps = eps
         self.n_class, self.classifiers = 0, []
 
     def fit(self, X, y):
@@ -902,9 +883,9 @@ class MultiSVM:
                 y1 = np.array(y)
                 y1[y1 != label] = -1.0
                 y1[y1 == label] = 1.0
-                svm = BinarySVM(self.kernel, self.C, self.eps)
-                svm.fit(X, y1)
-                self.classifiers.append(copy.deepcopy(svm))
+                clf = BinarySVM(self.kernel, self.C)
+                clf.fit(X, y1)
+                self.classifiers.append(copy.deepcopy(clf))
         elif self.decision_function == 'ovo':  # use one-vs-one method
             n_labels = len(labels)
             for i in range(n_labels):
@@ -913,21 +894,22 @@ class MultiSVM:
                     x1, y1 = np.r_[X[neg_id], X[pos_id]], np.r_[y[neg_id], y[pos_id]]
                     y1[y1 == labels[i]] = -1.0
                     y1[y1 == labels[j]] = 1.0
-                    svm = BinarySVM(self.kernel, self.C, self.eps)
-                    svm.fit(x1, y1)
-                    self.classifiers.append(copy.deepcopy(svm))
+                    clf = BinarySVM(self.kernel, self.C)
+                    clf.fit(x1, y1)
+                    self.classifiers.append(copy.deepcopy(clf))
         else:
             return ValueError("Decision function must be either 'ovr' or 'ovo'.")
 
     def predict(self, X):
-        n_samples = X.shape[0]
-        if self.decision_function == 'ovr':  # one-vs-rest method
+        n_samples = len(X)
+        if self.decision_function == 'ovr':  # one-vs-rest method: n classifiers
+            assert len(self.classifiers) == self.n_class
             score = np.zeros((n_samples, self.n_class))
             for i in range(self.n_class):
                 clf = self.classifiers[i]
-                score[:, i] = clf.predict(X)
+                score[:, i] = clf.project(X)
             return np.argmax(score, axis=1)
-        elif self.decision_function == 'ovo':  # use one-vs-one method
+        elif self.decision_function == 'ovo':  # use one-vs-one method: n*(n-1)/2 classifiers
             assert len(self.classifiers) == self.n_class * (self.n_class - 1) / 2
             vote = np.zeros((n_samples, self.n_class))
             clf_id = 0
