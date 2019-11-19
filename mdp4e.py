@@ -13,7 +13,7 @@ from collections import defaultdict
 
 import numpy as np
 
-from utils4e import argmax, vector_add, orientations, turn_right, turn_left
+from utils4e import vector_add, orientations, turn_right, turn_left
 
 
 class MDP:
@@ -244,7 +244,7 @@ def best_policy(mdp, U):
 
     pi = {}
     for s in mdp.states:
-        pi[s] = argmax(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
+        pi[s] = max(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
     return pi
 
 
@@ -263,8 +263,8 @@ def policy_iteration(mdp):
         U = policy_evaluation(pi, U, mdp)
         unchanged = True
         for s in mdp.states:
-            a_star = argmax(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
-            # a = argmax(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
+            a_star = max(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
+            # a = max(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
             if q_value(mdp, s, a_star, U) > q_value(mdp, s, pi[s], U):
                 pi[s] = a_star
                 unchanged = False

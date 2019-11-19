@@ -11,11 +11,10 @@ from IPython.display import display
 from PIL import Image
 from matplotlib import lines
 
-from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, inf
+from games import TicTacToe, alpha_beta_player, random_player, Fig52Extended, inf
 from learning import DataSet
 from logic import parse_definite_clause, standardize_variables, unify, subst
 from search import GraphProblem, romania_map
-from utils import argmax, argmin
 
 
 # ______________________________________________________________________________
@@ -412,7 +411,7 @@ class Canvas_TicTacToe(Canvas):
                 return
             move = (x, y)
         elif player == 'alphabeta':
-            move = alphabeta_player(self.ttt, self.state)
+            move = alpha_beta_player(self.ttt, self.state)
         else:
             move = random_player(self.ttt, self.state)
         self.state = self.ttt.result(self.state, move)
@@ -514,7 +513,7 @@ class Canvas_minimax(Canvas):
                 return game.utility(node, player)
             self.change_list.append(('a', node))
             self.change_list.append(('h',))
-            max_a = argmax(game.actions(node), key=lambda x: min_value(game.result(node, x)))
+            max_a = max(game.actions(node), key=lambda x: min_value(game.result(node, x)))
             max_node = game.result(node, max_a)
             self.utils[node] = self.utils[max_node]
             x1, y1 = self.node_pos[node]
@@ -530,7 +529,7 @@ class Canvas_minimax(Canvas):
                 return game.utility(node, player)
             self.change_list.append(('a', node))
             self.change_list.append(('h',))
-            min_a = argmin(game.actions(node), key=lambda x: max_value(game.result(node, x)))
+            min_a = min(game.actions(node), key=lambda x: max_value(game.result(node, x)))
             min_node = game.result(node, min_a)
             self.utils[node] = self.utils[min_node]
             x1, y1 = self.node_pos[node]

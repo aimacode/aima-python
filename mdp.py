@@ -13,7 +13,7 @@ from collections import defaultdict
 
 import numpy as np
 
-from utils import argmax, vector_add, orientations, turn_right, turn_left
+from utils import vector_add, orientations, turn_right, turn_left
 
 
 class MDP:
@@ -222,7 +222,7 @@ def best_policy(mdp, U):
 
     pi = {}
     for s in mdp.states:
-        pi[s] = argmax(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
+        pi[s] = max(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
     return pi
 
 
@@ -244,7 +244,7 @@ def policy_iteration(mdp):
         U = policy_evaluation(pi, U, mdp)
         unchanged = True
         for s in mdp.states:
-            a = argmax(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
+            a = max(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
             if a != pi[s]:
                 pi[s] = a
                 unchanged = False

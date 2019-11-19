@@ -12,7 +12,7 @@ from PIL import Image
 from matplotlib import lines
 from matplotlib.colors import ListedColormap
 
-from games import TicTacToe, alphabeta_player, random_player, Fig52Extended, inf
+from games import TicTacToe, alpha_beta_player, random_player, Fig52Extended, inf
 from learning import DataSet
 from logic import parse_definite_clause, standardize_variables, unify, subst
 from search import GraphProblem, romania_map
@@ -448,7 +448,7 @@ class Canvas_TicTacToe(Canvas):
                 return
             move = (x, y)
         elif player == 'alphabeta':
-            move = alphabeta_player(self.ttt, self.state)
+            move = alpha_beta_player(self.ttt, self.state)
         else:
             move = random_player(self.ttt, self.state)
         self.state = self.ttt.result(self.state, move)

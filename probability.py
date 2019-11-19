@@ -7,7 +7,7 @@ from functools import reduce
 import numpy as np
 
 from agents import Agent
-from utils import (product, argmax, element_wise_product, matrix_multiplication, vector_add, scalar_vector_product,
+from utils import (product, element_wise_product, matrix_multiplication, vector_add, scalar_vector_product,
                    weighted_sample_with_replacement, isclose, probability, normalize, extend)
 
 
@@ -19,7 +19,7 @@ def DTAgentProgram(belief_state):
 
     def program(percept):
         belief_state.observe(program.action, percept)
-        program.action = argmax(belief_state.actions(), key=belief_state.expected_outcome_utility)
+        program.action = max(belief_state.actions(), key=belief_state.expected_outcome_utility)
         return program.action
 
     program.action = None
@@ -258,7 +258,7 @@ class InformationGatheringAgent(Agent):
         """Execute the information gathering algorithm"""
         self.observation = self.integrate_percept(percept)
         vpis = self.vpi_cost_ratio(self.variables)
-        j = argmax(vpis)
+        j = max(vpis)
         variable = self.variables[j]
 
         if self.vpi(variable) > self.cost(variable):

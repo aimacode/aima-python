@@ -5,17 +5,17 @@ import heapq
 import math
 import random
 from collections import defaultdict
+from math import inf
 from statistics import mean, stdev
 
 import cvxopt
 import numpy as np
 
 from probabilistic_learning import NaiveBayesLearner
-from utils import (remove_all, unique, mode, argmax, argmax_random_tie, isclose, dot_product, vector_add,
-                   scalar_vector_product, weighted_sample_with_replacement, num_or_str, normalize, clip, sigmoid,
-                   print_table, open_data, sigmoid_derivative, probability, relu, relu_derivative, tanh,
-                   tanh_derivative, leaky_relu_derivative, elu, elu_derivative, mean_boolean_error, random_weights, inf,
-                   linear_kernel)
+from utils import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, vector_add, clip, sigmoid,
+                   scalar_vector_product, weighted_sample_with_replacement, num_or_str, normalize, print_table,
+                   open_data, sigmoid_derivative, probability, relu, relu_derivative, tanh, tanh_derivative,
+                   leaky_relu_derivative, elu, elu_derivative, mean_boolean_error, random_weights, linear_kernel)
 
 
 class DataSet:
@@ -450,8 +450,8 @@ def DecisionTreeLearner(dataset):
         def I(examples):
             return information_content([count(target, v, examples) for v in values[target]])
 
-        N = len(examples)
-        remainder = sum((len(examples_i) / N) * I(examples_i) for (v, examples_i) in split_by(attr, examples))
+        n = len(examples)
+        remainder = sum((len(examples_i) / n) * I(examples_i) for (v, examples_i) in split_by(attr, examples))
         return I(examples) - remainder
 
     def split_by(attr, examples):
@@ -814,7 +814,7 @@ def init_examples(examples, idx_i, idx_t, o_units):
 
 
 def find_max_node(nodes):
-    return nodes.index(argmax(nodes, key=lambda node: node.value))
+    return nodes.index(max(nodes, key=lambda node: node.value))
 
 
 class BinarySVM:
@@ -960,9 +960,9 @@ def ada_boost(dataset, L, K):
     """[Figure 18.34]"""
 
     examples, target = dataset.examples, dataset.target
-    N = len(examples)
-    epsilon = 1 / (2 * N)
-    w = [1 / N] * N
+    n = len(examples)
+    epsilon = 1 / (2 * n)
+    w = [1 / n] * n
     h, z = [], []
     for k in range(K):
         h_k = L(dataset, w)

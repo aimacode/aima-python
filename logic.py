@@ -1,5 +1,5 @@
 """
-Representations and Inference for Logic (Chapters 7-9, 12)
+Representations and Inference for Logic. (Chapters 7-9, 12)
 
 Covers both Propositional and First-Order Logic. First we have four
 important data types:
@@ -42,8 +42,7 @@ import networkx as nx
 from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
 from csp import parse_neighbors, UniversalDict
 from search import astar_search, PlanRoute
-from utils import (remove_all, unique, first, argmax, probability, isnumber,
-                   issequence, Expr, expr, subexpressions, extend)
+from utils import remove_all, unique, first, probability, isnumber, issequence, Expr, expr, subexpressions, extend
 
 
 class KB:
@@ -1108,7 +1107,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
                 model[sym] = not model[sym]
                 return count
 
-            sym = argmax(prop_symbols(clause), key=sat_count)
+            sym = max(prop_symbols(clause), key=sat_count)
         model[sym] = not model[sym]
     # If no solution is found within the flip limit, we return failure
     return None

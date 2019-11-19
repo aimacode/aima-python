@@ -5,13 +5,14 @@ import heapq
 import math
 import random
 from collections import defaultdict
+from math import inf
 from statistics import mean, stdev
 
 from probabilistic_learning import NaiveBayesLearner
 from utils import sigmoid, sigmoid_derivative
 from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, num_or_str, normalize, clip,
                      weighted_sample_with_replacement, print_table, open_data, probability, random_weights,
-                     mean_boolean_error, inf)
+                     mean_boolean_error)
 
 
 class DataSet:

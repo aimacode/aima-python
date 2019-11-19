@@ -1,10 +1,13 @@
-"""Statistical Language Processing tools.  (Chapter 22)
+"""
+Statistical Language Processing tools. (Chapter 22)
+
 We define Unigram and Ngram text models, use them to generate random text,
 and show the Viterbi algorithm for segmentation of letters into words.
 Then we show a very simple Information Retrieval system, and an example
-working on a tiny sample of Unix manual pages."""
+working on a tiny sample of Unix manual pages.
+"""
 
-from utils import argmin, argmax, hashabledict
+from utils import hashabledict
 from probabilistic_learning import CountingProbDist
 import search
 
@@ -174,7 +177,7 @@ class IRSystem:
             return []
 
         qwords = [w for w in words(query_text) if w not in self.stopwords]
-        shortest = argmin(qwords, key=lambda w: len(self.index[w]))
+        shortest = min(qwords, key=lambda w: len(self.index[w]))
         docids = self.index[shortest]
         return heapq.nlargest(n, ((self.total_score(qwords, docid), docid) for docid in docids))
 
@@ -327,7 +330,7 @@ class ShiftDecoder:
     def decode(self, ciphertext):
         """Return the shift decoding of text with the best score."""
 
-        return argmax(all_shifts(ciphertext), key=lambda shift: self.score(shift))
+        return max(all_shifts(ciphertext), key=lambda shift: self.score(shift))
 
 
 def all_shifts(text):
@@ -398,9 +401,9 @@ class PermutationDecoderProblem(search.Problem):
         search_list = [c for c in self.decoder.chardomain if c not in state]
         target_list = [c for c in alphabet if c not in state.values()]
         # Find the best character to replace
-        plainchar = argmax(search_list, key=lambda c: self.decoder.P1[c])
-        for cipherchar in target_list:
-            yield (plainchar, cipherchar)
+        plain_char = max(search_list, key=lambda c: self.decoder.P1[c])
+        for cipher_char in target_list:
+            yield (plain_char, cipher_char)
 
     def result(self, state, action):
         new_state = hashabledict(state)  # copy to prevent hash issues

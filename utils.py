@@ -3,18 +3,16 @@
 import bisect
 import collections
 import collections.abc
+import functools
 import heapq
+import math
 import operator
 import os.path
 import random
-import math
-import functools
+from itertools import chain, combinations
 from statistics import mean
 
 import numpy as np
-from itertools import chain, combinations
-
-inf = float('inf')
 
 
 # ______________________________________________________________________________
@@ -105,18 +103,15 @@ def extend(s, var, val):
 
 identity = lambda x: x
 
-argmin = min
-argmax = max
-
 
 def argmin_random_tie(seq, key=identity):
     """Return a minimum element of seq; break ties at random."""
-    return argmin(shuffled(seq), key=key)
+    return min(shuffled(seq), key=key)
 
 
 def argmax_random_tie(seq, key=identity):
     """Return an element with highest fn(seq[i]) score; break ties at random."""
-    return argmax(shuffled(seq), key=key)
+    return max(shuffled(seq), key=key)
 
 
 def shuffled(iterable):

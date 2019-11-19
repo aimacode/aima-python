@@ -59,7 +59,7 @@ def test_first():
     assert first('') is None
     assert first('', 'empty') == 'empty'
     assert first([1, 2, 3, 4, 5]) == 1
-    assert first([]) == None
+    assert first([]) is None
     assert first(range(10)) == 0
     assert first(x for x in range(10) if x > 3) == 4
     assert first(x for x in range(10) if x > 100) is None
@@ -83,13 +83,6 @@ def test_mode():
 
 def test_powerset():
     assert powerset([1, 2, 3]) == [(1,), (2,), (3,), (1, 2), (1, 3), (2, 3), (1, 2, 3)]
-
-
-def test_argminmax():
-    assert argmin([-2, 1], key=abs) == 1
-    assert argmin(['one', 'to', 'three'], key=len) == 'to'
-    assert argmax([-2, 1], key=abs) == -2
-    assert argmax(['one', 'to', 'three'], key=len) == 'three'
 
 
 def test_histogram():

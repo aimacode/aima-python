@@ -11,9 +11,10 @@ import math
 import random
 import sys
 from collections import deque
+from math import inf
 
-from utils import (is_in, argmin, argmax, argmax_random_tie, probability, weighted_sampler, memoize,
-                   print_table, open_data, PriorityQueue, name, distance, vector_add, inf)
+from utils import (is_in, argmax_random_tie, probability, weighted_sampler, memoize, print_table, open_data,
+                   PriorityQueue, name, distance, vector_add)
 
 
 class Problem:
@@ -879,8 +880,8 @@ class LRTAStarAgent:
                                                     self.H) for b in self.problem.actions(self.s))
 
             # an action b in problem.actions(s1) that minimizes costs
-            self.a = argmin(self.problem.actions(s1),
-                            key=lambda b: self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H))
+            self.a = min(self.problem.actions(s1),
+                         key=lambda b: self.LRTA_cost(s1, b, self.problem.output(s1, b), self.H))
 
             self.s = s1
             return self.a
@@ -928,14 +929,14 @@ def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ng
         if fittest_individual:
             return fittest_individual
 
-    return argmax(population, key=fitness_fn)
+    return max(population, key=fitness_fn)
 
 
 def fitness_threshold(fitness_fn, f_thres, population):
     if not f_thres:
         return None
 
-    fittest_individual = argmax(population, key=fitness_fn)
+    fittest_individual = max(population, key=fitness_fn)
     if fitness_fn(fittest_individual) >= f_thres:
         return fittest_individual
 
@@ -1083,7 +1084,7 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
                         return inf
                     return distance(g.locations[n], here)
 
-                neighbor = argmin(nodes, key=distance_to_node)
+                neighbor = min(nodes, key=distance_to_node)
                 d = distance(g.locations[neighbor], here) * curvature()
                 g.connect(node, neighbor, int(d))
     return g
