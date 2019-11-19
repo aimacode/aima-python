@@ -21,6 +21,7 @@ install:
   - pip install tensorflow
   - pip install opencv-python
   - pip install sortedcontainers
+  - pip install cvxopt
 
 script:
   - py.test --cov=./
