@@ -14,7 +14,10 @@ from statistics import mean
 
 import numpy as np
 
-inf = float('inf')
+try:
+    from math import inf
+except ImportError:
+    inf = float('inf')
 
 
 # ______________________________________________________________________________

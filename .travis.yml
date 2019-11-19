@@ -1,6 +1,10 @@
 language: python
 
-python: "3.5"
+python:
+  - 3.4
+  - 3.5
+  - 3.6
+  - 3.7
 
 before_install:
   - git submodule update --remote
@@ -20,7 +24,7 @@ install:
   - pip install tensorflow
   - pip install opencv-python
   - pip install sortedcontainers
-  - pip install cvxopt
+  - pip install --no-binary cvxopt
 
 script:
   - py.test --cov=./

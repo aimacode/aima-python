@@ -13,7 +13,10 @@ from statistics import mean
 
 import numpy as np
 
-inf = float('inf')
+try:
+    from math import inf
+except ImportError:
+    inf = float('inf')
 
 
 # part1. General data structures and their functions
