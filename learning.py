@@ -844,12 +844,12 @@ class BinarySVM:
         m = len(y)  # m = n_samples
         K = self.kernel(X)  # gram matrix
         P = K * np.outer(y, y)
-        q = -np.ones((m,))
+        q = -np.ones(m)
         if self.C is 1.0:
             G = -np.identity(m)
             h = np.zeros(m)
         else:
-            G = np.vstack((-np.diag(np.ones(m)), np.identity(m)))
+            G = np.vstack((-np.identity(m), np.identity(m)))
             h = np.hstack((np.zeros(m), np.ones(m) * self.C))
         A = y.reshape((1, -1))
         b = np.zeros(1)
@@ -859,7 +859,7 @@ class BinarySVM:
     def project(self, x):
         if self.w is None:
             return np.dot(self.alphas * self.sv_y, self.kernel(self.sv_x, x)) + self.b
-        return np.dot(x, self.w) + self.b  # if kernel is linear
+        return np.dot(x, self.w) + self.b
 
     def predict(self, x):
         return np.sign(self.project(x))
