@@ -11,6 +11,7 @@ opencv-python
 pandas
 pillow
 pytest
+qpsolvers
 quadprog
 scipy
 sortedcontainers

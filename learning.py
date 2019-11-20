@@ -8,7 +8,7 @@ from collections import defaultdict
 from statistics import mean, stdev
 
 import numpy as np
-from quadprog import solve_qp
+from qpsolvers import solve_qp
 
 from probabilistic_learning import NaiveBayesLearner
 from utils import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, vector_add, clip, sigmoid,
@@ -854,7 +854,7 @@ class BinarySVM:
         A = y.reshape((1, -1))
         b = np.zeros(1)
         P = 0.5 * (P + P.T) + np.eye(P.shape[0]).__mul__(1e-3)
-        self.alphas = solve_qp(G=P, a=-q, C=-np.vstack((A, G)).T, b=-np.hstack((b, h)), meq=A.shape[0])[0]
+        self.alphas = solve_qp(P, q, G, h, A, b)
 
     def project(self, x):
         if self.w is None:

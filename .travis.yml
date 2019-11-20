@@ -21,6 +21,7 @@ install:
   - pip install opencv-python
   - pip install Pillow
   - pip install pytest-cov
+  - pip install qpsolvers
   - pip install quadprog
   - pip install six
   - pip install sortedcontainers

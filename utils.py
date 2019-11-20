@@ -98,6 +98,7 @@ def power_set(iterable):
 
 def extend(s, var, val):
     """Copy dict s and extend it by setting var to val; return copy."""
+    return {**s, var: val}
     s2 = s.copy()
     s2[var] = val
     return s2
