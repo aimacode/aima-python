@@ -44,6 +44,7 @@ from time import sleep
 import random
 import copy
 import collections
+import numbers
 
 
 # ______________________________________________________________________________
@@ -340,8 +341,12 @@ class Environment:
 
     def list_things_at(self, location, tclass=Thing):
         """Return all things exactly at a given location."""
+        if isinstance(location, numbers.Number):
+            return [thing for thing in self.things
+                    if thing.location == location and isinstance(thing, tclass)]
         return [thing for thing in self.things
-                if thing.location == location and isinstance(thing, tclass)]
+                if all(x==y for x,y in zip(thing.location, location))
+                    and isinstance(thing, tclass)]
 
     def some_things_at(self, location, tclass=Thing):
         """Return true if at least one of the things at location
