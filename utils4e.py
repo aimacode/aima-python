@@ -13,7 +13,7 @@ from statistics import mean
 
 import numpy as np
 
-try:  # Python 3.5 and later
+try:  # math.inf was added in Python 3.5
     from math import inf
 except ImportError:  # Python 3.4
     inf = float('inf')
@@ -159,10 +159,12 @@ def power_set(iterable):
 
 def extend(s, var, val):
     """Copy dict s and extend it by setting var to val; return copy."""
-    return {**s, var: val}
-    s2 = s.copy()
-    s2[var] = val
-    return s2
+    try:  # Python 3.5 and later
+        return {**s, var: val}
+    except:  # Python 3.4
+        s2 = s.copy()
+        s2[var] = val
+        return s2
 
 
 # ______________________________________________________________________________
