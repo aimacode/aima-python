@@ -7,8 +7,8 @@ import random
 from collections import defaultdict
 from statistics import mean, stdev
 
-import cvxopt
 import numpy as np
+from qpsolvers import solve_qp
 
 from probabilistic_learning import NaiveBayesLearner
 from utils import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, vector_add, clip, sigmoid,
@@ -840,23 +840,21 @@ class BinarySVM:
                                                          self.kernel(self.sv_x, self.sv_x[sv_boundary])))
 
     def QP(self, X, y):
-        cvxopt.solvers.options['show_progress'] = False
         # in QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
         m = len(y)  # m = n_samples
         K = self.kernel(X)  # gram matrix
-        P = cvxopt.matrix(K * np.outer(y, y))
-        q = cvxopt.matrix(-np.ones((m, 1)))
+        P = K * np.outer(y, y)  # symmetric matrix
+        q = -np.ones((m, 1))
         if self.C is 1.0:
-            G = cvxopt.matrix(-np.diag(np.ones(m)))
-            h = cvxopt.matrix(np.zeros(m))
+            G = -np.identity(m)
+            h = np.zeros(m)
         else:
-            G = cvxopt.matrix(np.vstack((-np.diag(np.ones(m)), np.identity(m))))
-            h = cvxopt.matrix(np.hstack((np.zeros(m), np.ones(m) * self.C)))
-        A = cvxopt.matrix(y.reshape((1, -1)), tc='d')
-        b = cvxopt.matrix(0.0)
+            G = np.vstack((-np.diag(np.ones(m)), np.identity(m)))
+            h = np.hstack((np.zeros(m), np.ones(m) * self.C))
+        A = y.astype(float).reshape((1, -1))
+        b = np.zeros(1)
         # solve quadratic programming problem
-        solution = cvxopt.solvers.qp(P, q, G, h, A, b)
-        self.alphas = np.array(solution['x']).squeeze()
+        self.alphas = solve_qp(P, q, G, h, A, b, solver='cvxopt')
 
     def project(self, x):
         if self.w is None:
