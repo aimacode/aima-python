@@ -13,9 +13,9 @@ from statistics import mean
 
 import numpy as np
 
-try:
+try:  # Python 3.5 and later
     from math import inf
-except ImportError:
+except ImportError:  # Python 3.4
     inf = float('inf')
 
 
@@ -151,8 +151,8 @@ def mode(data):
     return item
 
 
-def powerset(iterable):
-    """powerset([1,2,3]) --> (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
+def power_set(iterable):
+    """power_set([1,2,3]) --> (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
     s = list(iterable)
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))[1:]
 
@@ -515,7 +515,7 @@ def linear_kernel(x, y=None):
     return np.dot(x, y.T)
 
 
-def polynomial_kernel(x, y=None, degree=2):
+def polynomial_kernel(x, y=None, degree=2.0):
     if y is None:
         y = x
     return (1.0 + np.dot(x, y.T)) ** degree
@@ -531,9 +531,9 @@ def rbf_kernel(x, y=None, gamma=None):
                             np.sum(x * x, axis=1).reshape((-1, 1)) + np.sum(y * y, axis=1).reshape((1, -1))))
 
 
-try:  # math.isclose was added in Python 3.5; but we might be in 3.4
+try:  # math.isclose was added in Python 3.5
     from math import isclose
-except ImportError:
+except ImportError:  # Python 3.4
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
         """Return true if numbers a and b are close to each other."""
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)

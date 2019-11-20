@@ -81,8 +81,8 @@ def test_mode():
     assert mode("artificialintelligence") == 'i'
 
 
-def test_powerset():
-    assert powerset([1, 2, 3]) == [(1,), (2,), (3,), (1, 2), (1, 3), (2, 3), (1, 2, 3)]
+def test_power_set():
+    assert power_set([1, 2, 3]) == [(1,), (2,), (3,), (1, 2), (1, 3), (2, 3), (1, 2, 3)]
 
 
 def test_histogram():
@@ -205,12 +205,6 @@ def test_num_or_str():
 
 def test_normalize():
     assert normalize([1, 2, 1]) == [0.25, 0.5, 0.25]
-
-
-def test_norm():
-    assert isclose(norm([1, 2, 1], 1), 4)
-    assert isclose(norm([3, 4], 2), 5)
-    assert isclose(norm([-1, 1, 2], 4), 18 ** 0.25)
 
 
 def test_clip():
