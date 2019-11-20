@@ -100,7 +100,7 @@ def extend(s, var, val):
     """Copy dict s and extend it by setting var to val; return copy."""
     try:  # Python 3.5 and later
         return {**s, var: val}
-    except:  # Python 3.4
+    except SyntaxError:  # Python 3.4
         s2 = s.copy()
         s2[var] = val
         return s2
