@@ -857,6 +857,7 @@ class BinarySVM:
             h = np.hstack((np.zeros(m), np.ones(m) * self.C))
         A = y.reshape((1, -1))
         b = np.zeros(1)
+        # make sure P is symmetric and positive definite
         P = 0.5 * (P + P.T) + np.eye(P.shape[0]).__mul__(1e-3)
         self.alphas = solve_qp(P, q, G, h, A, b)
 
