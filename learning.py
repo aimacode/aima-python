@@ -722,7 +722,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 elif activation == elu:
                     delta[i] = [elu_derivative(layer[j].value) * dot_product(w[j], delta[i + 1])
                                 for j in range(h_units)]
-                elif node.activation == leaky_relu:
+                elif activation == leaky_relu:
                     delta[i] = [leaky_relu_derivative(layer[j].value) * dot_product(w[j], delta[i + 1])
                                 for j in range(h_units)]
                 else:
