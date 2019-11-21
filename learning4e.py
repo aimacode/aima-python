@@ -623,12 +623,8 @@ class BinarySVM:
         K = self.kernel(X)  # gram matrix
         P = K * np.outer(y, y)
         q = -np.ones(m)
-        if self.C is 1.0:
-            G = -np.identity(m)
-            h = np.zeros(m)
-        else:
-            G = np.vstack((-np.identity(m), np.identity(m)))
-            h = np.hstack((np.zeros(m), np.ones(m) * self.C))
+        G = np.vstack((-np.identity(m), np.identity(m)))
+        h = np.hstack((np.zeros(m), np.ones(m) * self.C))
         A = y.reshape((1, -1))
         b = np.zeros(1)
         # make sure P is symmetric and positive definite
