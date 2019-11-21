@@ -162,11 +162,7 @@ def element_wise_product(x, y):
 
 
 def matrix_multiplication(x, *y):
-    """
-    Return a matrix as a matrix-multiplication of x and arbitrary number of matrices *y
-    >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
-    [[8, 8], [13, 14]]
-    """
+    """Return a matrix as a matrix-multiplication of x and arbitrary number of matrices *y."""
 
     result = x
     for _y in y:
