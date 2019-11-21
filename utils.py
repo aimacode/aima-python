@@ -151,36 +151,26 @@ def histogram(values, mode=0, bin_function=None):
 
 
 def dot_product(x, y):
-    """Return the sum of the element-wise product of vectors X and Y."""
+    """Return the sum of the element-wise product of vectors x and y."""
     return sum(_x * _y for _x, _y in zip(x, y))
 
 
 def element_wise_product(x, y):
-    """Return vector as an element-wise product of vectors X and Y"""
+    """Return vector as an element-wise product of vectors x and y."""
     assert len(x) == len(y)
-    return [x * y for x, y in zip(x, y)]
+    return np.multiply(x, y)
 
 
-def matrix_multiplication(X_M, *Y_M):
-    """Return a matrix as a matrix-multiplication of X_M and arbitrary number of matrices *Y_M"""
+def matrix_multiplication(x, *y):
+    """
+    Return a matrix as a matrix-multiplication of x and arbitrary number of matrices *y
+    >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
+    [[8, 8], [13, 14]]
+    """
 
-    def _mat_mult(X_M, Y_M):
-        """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
-        >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
-        [[8, 8],[13, 14]]
-        """
-        assert len(X_M[0]) == len(Y_M)
-
-        result = [[0 for _ in range(len(Y_M[0]))] for _ in range(len(X_M))]
-        for i in range(len(X_M)):
-            for j in range(len(Y_M[0])):
-                for k in range(len(Y_M)):
-                    result[i][j] += X_M[i][k] * Y_M[k][j]
-        return result
-
-    result = X_M
-    for Y in Y_M:
-        result = _mat_mult(result, Y)
+    result = x
+    for _y in y:
+        result = np.matmul(result, _y)
 
     return result
 
@@ -192,7 +182,7 @@ def vector_add(a, b):
 
 def scalar_vector_product(x, y):
     """Return vector as a product of a scalar and a vector"""
-    return [x * _y for _y in y]
+    return np.multiply(x, y)
 
 
 def probability(p):
@@ -287,14 +277,14 @@ def normalize(dist):
         total = sum(dist.values())
         for key in dist:
             dist[key] = dist[key] / total
-            assert 0 <= dist[key] <= 1  # Probabilities must be between 0 and 1
+            assert 0 <= dist[key] <= 1  # probabilities must be between 0 and 1
         return dist
     total = sum(dist)
     return [(n / total) for n in dist]
 
 
 def norm(x, ord=2):
-    """Return the n-norm of vector X"""
+    """Return the n-norm of vector x."""
     return np.linalg.norm(x, ord)
 
 
@@ -312,15 +302,8 @@ def sigmoid_derivative(value):
 
 
 def sigmoid(x):
-    """Return activation value of x with sigmoid function"""
+    """Return activation value of x with sigmoid function."""
     return 1 / (1 + math.exp(-x))
-
-
-def relu_derivative(value):
-    if value > 0:
-        return 1
-    else:
-        return 0
 
 
 def elu(x, alpha=0.01):
@@ -755,9 +738,8 @@ class defaultkeydict(collections.defaultdict):
 
 
 class hashabledict(dict):
-    """Allows hashing by representing a dictionary as tuple of key:value pairs
-       May cause problems as the hash value may change during runtime
-    """
+    """Allows hashing by representing a dictionary as tuple of key:value pairs.
+    May cause problems as the hash value may change during runtime."""
 
     def __hash__(self):
         return 1
@@ -832,7 +814,7 @@ class PriorityQueue:
 
 
 class Bool(int):
-    """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'"""
+    """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'."""
     __str__ = __repr__ = lambda self: 'T' if self else 'F'
 
 

@@ -212,7 +212,7 @@ def histogram(values, mode=0, bin_function=None):
 
 
 def dot_product(x, y):
-    """Return the sum of the element-wise product of vectors X and Y."""
+    """Return the sum of the element-wise product of vectors x and y."""
     return sum(_x * _y for _x, _y in zip(x, y))
 
 
@@ -223,32 +223,18 @@ def element_wise_product(x, y):
     elif hasattr(x, '__iter__') == hasattr(y, '__iter__'):
         return x * y
     else:
-        raise Exception("Inputs must be in the same size!")
+        raise Exception('Inputs must be in the same size!')
 
 
-def transpose2D(M):
-    return list(map(list, zip(*M)))
+def matrix_multiplication(x, *y):
+    """Return a matrix as a matrix-multiplication of x and arbitrary number of matrices *y
+    >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
+    [[8, 8], [13, 14]]
+    """
 
-
-def matrix_multiplication(X_M, *Y_M):
-    """Return a matrix as a matrix-multiplication of X_M and arbitrary number of matrices *Y_M"""
-
-    def _mat_mult(X_M, Y_M):
-        """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
-        >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
-        [[8, 8],[13, 14]]
-        """
-        assert len(X_M[0]) == len(Y_M)
-        result = [[0 for _ in range(len(Y_M[0]))] for _ in range(len(X_M))]
-        for i in range(len(X_M)):
-            for j in range(len(Y_M[0])):
-                for k in range(len(Y_M)):
-                    result[i][j] += X_M[i][k] * Y_M[k][j]
-        return result
-
-    result = X_M
-    for Y in Y_M:
-        result = _mat_mult(result, Y)
+    result = x
+    for _y in y:
+        result = np.matmul(result, _y)
 
     return result
 
@@ -264,16 +250,16 @@ def vector_add(a, b):
         try:
             return a + b
         except TypeError:
-            raise Exception("Inputs must be in the same size!")
+            raise Exception('Inputs must be in the same size!')
 
 
 def scalar_vector_product(x, y):
-    """Return vector as a product of a scalar and a vector recursively"""
+    """Return vector as a product of a scalar and a vector recursively."""
     return [scalar_vector_product(x, _y) for _y in y] if hasattr(y, '__iter__') else x * y
 
 
 def map_vector(f, x):
-    """Apply function f to iterable X"""
+    """Apply function f to iterable x."""
     return [map_vector(f, _x) for _x in x] if hasattr(x, '__iter__') else list(map(f, [x]))[0]
 
 
@@ -366,12 +352,12 @@ def hamming_distance(x, y):
 
 
 def cross_entropy_loss(x, y):
-    """Example of cross entropy loss. X and Y are 1D iterable objects"""
+    """Example of cross entropy loss. x and y are 1D iterable objects."""
     return (-1.0 / len(x)) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(x, y))
 
 
 def mse_loss(x, y):
-    """Example of min square loss. X and Y are 1D iterable objects"""
+    """Example of min square loss. x and y are 1D iterable objects."""
     return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
@@ -385,14 +371,14 @@ def normalize(dist):
         total = sum(dist.values())
         for key in dist:
             dist[key] = dist[key] / total
-            assert 0 <= dist[key] <= 1, "Probabilities must be between 0 and 1."
+            assert 0 <= dist[key] <= 1  # probabilities must be between 0 and 1
         return dist
     total = sum(dist)
     return [(n / total) for n in dist]
 
 
 def norm(x, ord=2):
-    """Return the n-norm of vector X"""
+    """Return the n-norm of vector x."""
     return np.linalg.norm(x, ord)
 
 
@@ -400,20 +386,17 @@ def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
-def conv1D(X, K):
-    """1D convolution. X: input vector; K: kernel vector"""
-    return np.convolve(X, K, mode='same')
+def conv1D(x, k):
+    """1D convolution. x: input vector; K: kernel vector."""
+    return np.convolve(x, k, mode='same')
 
 
 def gaussian_kernel(size=3):
-    mean = (size - 1) / 2
-    stdev = 0.1
-    return [gaussian(mean, stdev, x) for x in range(size)]
+    return [gaussian((size - 1) / 2, 0.1, x) for x in range(size)]
 
 
 def gaussian_kernel_1D(size=3, sigma=0.5):
-    mean = (size - 1) / 2
-    return [gaussian(mean, sigma, x) for x in range(size)]
+    return [gaussian((size - 1) / 2, sigma, x) for x in range(size)]
 
 
 def gaussian_kernel_2D(size=3, sigma=0.5):
@@ -437,9 +420,9 @@ def clip(x, lowest, highest):
     return max(lowest, min(x, highest))
 
 
-def softmax1D(Z):
-    """Return the softmax vector of input vector Z"""
-    exps = [math.exp(z) for z in Z]
+def softmax1D(x):
+    """Return the softmax vector of input vector x."""
+    exps = [math.exp(_x) for _x in x]
     sum_exps = sum(exps)
     return [exp / sum_exps for exp in exps]
 
@@ -494,7 +477,7 @@ class leaky_relu(Activation):
 
 
 def step(x):
-    """Return activation value of x with sign function"""
+    """Return activation value of x with sign function."""
     return 1 if x >= 0 else 0
 
 
@@ -508,7 +491,7 @@ def gaussian_2D(means, sigma, point):
     inverse = np.linalg.inv(sigma)
     assert det != 0
     x_u = vector_add(point, scalar_vector_product(-1, means))
-    buff = matrix_multiplication(matrix_multiplication([x_u], inverse), transpose2D([x_u]))
+    buff = matrix_multiplication(matrix_multiplication([x_u], inverse), np.array(x_u).T)
     return 1 / (math.sqrt(det) * 2 * math.pi) * math.exp(-0.5 * buff[0][0])
 
 
@@ -908,9 +891,8 @@ class defaultkeydict(collections.defaultdict):
 
 
 class hashabledict(dict):
-    """Allows hashing by representing a dictionary as tuple of key:value pairs
-       May cause problems as the hash value may change during runtime
-    """
+    """Allows hashing by representing a dictionary as tuple of key:value pairs.
+    May cause problems as the hash value may change during runtime."""
 
     def __hash__(self):
         return 1
@@ -919,7 +901,7 @@ class hashabledict(dict):
 # ______________________________________________________________________________
 # Monte Carlo tree node and ucb function
 class MCT_Node:
-    """Node in the Monte Carlo search tree, keeps track of the children states"""
+    """Node in the Monte Carlo search tree, keeps track of the children states."""
 
     def __init__(self, parent=None, state=None, U=0, N=0):
         self.__dict__.update(parent=parent, state=state, U=U, N=N)
@@ -936,7 +918,7 @@ def ucb(n, C=1.4):
 
 
 class Bool(int):
-    """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'"""
+    """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'."""
     __str__ = __repr__ = lambda self: 'T' if self else 'F'
 
 

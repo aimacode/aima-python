@@ -718,7 +718,7 @@ def ada_boost(dataset, L, K):
 
     examples, target = dataset.examples, dataset.target
     n = len(examples)
-    epsilon = 1 / (2 * n)
+    eps = 1 / (2 * n)
     w = [1 / n] * n
     h, z = [], []
     for k in range(K):
@@ -726,7 +726,7 @@ def ada_boost(dataset, L, K):
         h.append(h_k)
         error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k(example))
         # avoid divide-by-0 from either 0% or 100% error rates
-        error = clip(error, epsilon, 1 - epsilon)
+        error = clip(error, eps, 1 - eps)
         for j, example in enumerate(examples):
             if example[target] == h_k(example):
                 w[j] *= error / (1 - error)

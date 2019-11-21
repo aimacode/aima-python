@@ -13,7 +13,7 @@ from qpsolvers import solve_qp
 from probabilistic_learning import NaiveBayesLearner
 from utils import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, vector_add, clip, sigmoid,
                    scalar_vector_product, weighted_sample_with_replacement, num_or_str, normalize, print_table,
-                   open_data, sigmoid_derivative, probability, relu, relu_derivative, tanh, tanh_derivative,
+                   open_data, sigmoid_derivative, probability, relu, relu_derivative, tanh, tanh_derivative, leaky_relu,
                    leaky_relu_derivative, elu, elu_derivative, mean_boolean_error, random_weights, linear_kernel, inf)
 
 
@@ -695,8 +695,10 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 delta[-1] = [tanh_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
             elif node.activation == elu:
                 delta[-1] = [elu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
-            else:
+            elif node.activation == leaky_relu:
                 delta[-1] = [leaky_relu_derivative(o_nodes[i].value) * err[i] for i in range(o_units)]
+            else:
+                return ValueError("Activation function unknown.")
 
             # backward pass
             h_layers = n_layers - 2
@@ -720,9 +722,11 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 elif activation == elu:
                     delta[i] = [elu_derivative(layer[j].value) * dot_product(w[j], delta[i + 1])
                                 for j in range(h_units)]
-                else:
+                elif node.activation == leaky_relu:
                     delta[i] = [leaky_relu_derivative(layer[j].value) * dot_product(w[j], delta[i + 1])
                                 for j in range(h_units)]
+                else:
+                    return ValueError("Activation function unknown.")
 
             # update weights
             for i in range(1, n_layers):
@@ -940,7 +944,7 @@ def ada_boost(dataset, L, K):
 
     examples, target = dataset.examples, dataset.target
     n = len(examples)
-    epsilon = 1 / (2 * n)
+    eps = 1 / (2 * n)
     w = [1 / n] * n
     h, z = [], []
     for k in range(K):
@@ -948,7 +952,7 @@ def ada_boost(dataset, L, K):
         h.append(h_k)
         error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k(example))
         # avoid divide-by-0 from either 0% or 100% error rates
-        error = clip(error, epsilon, 1 - epsilon)
+        error = clip(error, eps, 1 - eps)
         for j, example in enumerate(examples):
             if example[target] == h_k(example):
                 w[j] *= error / (1 - error)
