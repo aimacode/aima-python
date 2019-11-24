@@ -3,7 +3,7 @@
 import random
 from collections import defaultdict
 
-from mdp import MDP, policy_evaluation
+from mdp4e import MDP, policy_evaluation
 
 
 # _________________________________________

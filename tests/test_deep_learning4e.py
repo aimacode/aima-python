@@ -44,25 +44,5 @@ def test_perceptron():
     assert err_ratio(pl, iris) < 0.4
 
 
-def test_rnn():
-    data = imdb.load_data(num_words=5000)
-    train, val, test = keras_dataset_loader(data)
-    train = (train[0][:1000], train[1][:1000])
-    val = (val[0][:200], val[1][:200])
-    rnn = SimpleRNNLearner(train, val)
-    score = rnn.evaluate(test[0][:200], test[1][:200], verbose=0)
-    assert score[1] >= 0.3
-
-
-def test_autoencoder():
-    iris = DataSet(name='iris')
-    classes = ['setosa', 'versicolor', 'virginica']
-    iris.classes_to_numbers(classes)
-    inputs = np.asarray(iris.examples)
-    al = AutoencoderLearner(inputs, 100)
-    print(inputs[0])
-    print(al.predict(inputs[:1]))
-
-
 if __name__ == "__main__":
     pytest.main()

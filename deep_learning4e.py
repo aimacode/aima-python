@@ -4,12 +4,6 @@ import math
 import random
 import statistics
 
-from keras import optimizers
-from keras.layers import Dense, SimpleRNN
-from keras.layers.embeddings import Embedding
-from keras.models import Sequential
-from keras.preprocessing import sequence
-
 from utils4e import (sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
                      random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss)
 
@@ -414,76 +408,3 @@ def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, verbose=None):
         return layer_out.index(max(layer_out))
 
     return predict
-
-
-def SimpleRNNLearner(train_data, val_data, epochs=2):
-    """
-    RNN example for text sentimental analysis.
-    :param train_data: a tuple of (training data, targets)
-            Training data: ndarray taking training examples, while each example is coded by embedding
-            Targets: ndarray taking targets of each example. Each target is mapped to an integer.
-    :param val_data: a tuple of (validation data, targets)
-    :param epochs: number of epochs
-    :return: a keras model
-    """
-
-    total_inputs = 5000
-    input_length = 500
-
-    # init data
-    X_train, y_train = train_data
-    X_val, y_val = val_data
-
-    # init a the sequential network (embedding layer, rnn layer, dense layer)
-    model = Sequential()
-    model.add(Embedding(total_inputs, 32, input_length=input_length))
-    model.add(SimpleRNN(units=128))
-    model.add(Dense(1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-    # train the model
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=128, verbose=2)
-
-    return model
-
-
-def keras_dataset_loader(dataset, max_length=500):
-    """
-    Helper function to load keras datasets.
-    :param dataset: keras data set type
-    :param max_length: max length of each input sequence
-    """
-    # init dataset
-    (X_train, y_train), (X_val, y_val) = dataset
-    if max_length > 0:
-        X_train = sequence.pad_sequences(X_train, maxlen=max_length)
-        X_val = sequence.pad_sequences(X_val, maxlen=max_length)
-    return (X_train[10:], y_train[10:]), (X_val, y_val), (X_train[:10], y_train[:10])
-
-
-def AutoencoderLearner(inputs, encoding_size, epochs=200):
-    """
-    Simple example of linear auto encoder learning producing the input itself.
-    :param inputs: a batch of input data in np.ndarray type
-    :param encoding_size: int, the size of encoding layer
-    :param epochs: number of epochs
-    :return: a keras model
-    """
-
-    # init data
-    input_size = len(inputs[0])
-
-    # init model
-    model = Sequential()
-    model.add(Dense(encoding_size, input_dim=input_size, activation='relu', kernel_initializer='random_uniform',
-                    bias_initializer='ones'))
-    model.add(Dense(input_size, activation='relu', kernel_initializer='random_uniform', bias_initializer='ones'))
-
-    # update model with sgd
-    sgd = optimizers.SGD(lr=0.01)
-    model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy'])
-
-    # train the model
-    model.fit(inputs, inputs, epochs=epochs, batch_size=10, verbose=2)
-
-    return model
