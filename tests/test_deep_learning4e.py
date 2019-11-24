@@ -2,8 +2,6 @@ import pytest
 
 from deep_learning4e import *
 from learning4e import DataSet, grade_learner, err_ratio
-from keras.datasets import imdb
-import numpy as np
 
 random.seed("aima-python")
 
