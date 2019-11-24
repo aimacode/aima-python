@@ -419,10 +419,10 @@ class Canvas_TicTacToe(Canvas):
 
     def __init__(self, varname, player_1='human', player_2='random',
                  width=300, height=350, cid=None):
-        valid_players = ('human', 'random', 'alphabeta')
+        valid_players = ('human', 'random', 'alpha_beta')
         if player_1 not in valid_players or player_2 not in valid_players:
             raise TypeError("Players must be one of {}".format(valid_players))
-        Canvas.__init__(self, varname, width, height, cid)
+        super().__init__(varname, width, height, cid)
         self.ttt = TicTacToe()
         self.state = self.ttt.initial
         self.turn = 0
@@ -446,7 +446,7 @@ class Canvas_TicTacToe(Canvas):
                 # Invalid move
                 return
             move = (x, y)
-        elif player == 'alphabeta':
+        elif player == 'alpha_beta':
             move = alpha_beta_player(self.ttt, self.state)
         else:
             move = random_player(self.ttt, self.state)
@@ -515,11 +515,11 @@ class Canvas_TicTacToe(Canvas):
         self.arc_n(x / 3 + 1 / 6, (y / 3 + 1 / 6) * 6 / 7, 1 / 9, 0, 360)
 
 
-class Canvas_minimax(Canvas):
-    """Minimax for Fig52Extended on HTML canvas"""
+class Canvas_min_max(Canvas):
+    """MinMax for Fig52Extended on HTML canvas"""
 
     def __init__(self, varname, util_list, width=800, height=600, cid=None):
-        Canvas.__init__(self, varname, width, height, cid)
+        super().__init__(varname, width, height, cid)
         self.utils = {node: util for node, util in zip(range(13, 40), util_list)}
         self.game = Fig52Extended()
         self.game.utils = self.utils
@@ -540,7 +540,7 @@ class Canvas_minimax(Canvas):
         self.draw_graph()
         self.stack_manager = self.stack_manager_gen()
 
-    def minimax(self, node):
+    def min_max(self, node):
         game = self.game
         player = game.to_move(node)
 
@@ -579,7 +579,7 @@ class Canvas_minimax(Canvas):
         return max_value(node)
 
     def stack_manager_gen(self):
-        self.minimax(0)
+        self.min_max(0)
         for change in self.change_list:
             if change[0] == 'a':
                 self.node_stack.append(change[1])
@@ -640,11 +640,11 @@ class Canvas_minimax(Canvas):
         self.update()
 
 
-class Canvas_alphabeta(Canvas):
+class Canvas_alpha_beta(Canvas):
     """Alpha-beta pruning for Fig52Extended on HTML canvas"""
 
     def __init__(self, varname, util_list, width=800, height=600, cid=None):
-        Canvas.__init__(self, varname, width, height, cid)
+        super().__init__(varname, width, height, cid)
         self.utils = {node: util for node, util in zip(range(13, 40), util_list)}
         self.game = Fig52Extended()
         self.game.utils = self.utils
@@ -667,11 +667,11 @@ class Canvas_alphabeta(Canvas):
         self.draw_graph()
         self.stack_manager = self.stack_manager_gen()
 
-    def alphabeta_search(self, node):
+    def alpha_beta_search(self, node):
         game = self.game
         player = game.to_move(node)
 
-        # Functions used by alphabeta
+        # Functions used by alpha_beta
         def max_value(node, alpha, beta):
             if game.terminal_test(node):
                 self.change_list.append(('a', node))
@@ -733,7 +733,7 @@ class Canvas_alphabeta(Canvas):
         return max_value(node, -inf, inf)
 
     def stack_manager_gen(self):
-        self.alphabeta_search(0)
+        self.alpha_beta_search(0)
         for change in self.change_list:
             if change[0] == 'a':
                 self.node_stack.append(change[1])
@@ -814,7 +814,7 @@ class Canvas_fol_bc_ask(Canvas):
     """fol_bc_ask() on HTML canvas"""
 
     def __init__(self, varname, kb, query, width=800, height=600, cid=None):
-        Canvas.__init__(self, varname, width, height, cid)
+        super().__init__(varname, width, height, cid)
         self.kb = kb
         self.query = query
         self.l = 1 / 20
