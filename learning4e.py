@@ -319,14 +319,13 @@ def leave_one_out(learner, dataset, size=None):
     return cross_validation(learner, dataset, size, len(dataset.examples))
 
 
-# TODO learning_curve needs to be fixed
 def learning_curve(learner, dataset, trials=10, sizes=None):
     if sizes is None:
-        sizes = list(range(2, len(dataset.examples) - 10, 2))
+        sizes = list(range(2, len(dataset.examples) - trials, 2))
 
     def score(learner, size):
         random.shuffle(dataset.examples)
-        return train_test_split(learner, dataset, 0, size)
+        return cross_validation(learner, dataset, size, trials)
 
     return [(size, mean([score(learner, size) for _ in range(trials)])) for size in sizes]
 
