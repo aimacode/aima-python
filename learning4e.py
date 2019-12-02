@@ -595,7 +595,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
 class BinarySVM:
     def __init__(self, kernel=linear_kernel, C=1.0):
         self.kernel = kernel
-        self.C = C
+        self.C = C  # hyper-parameter
         self.eps = 1e-6
         self.n_sv = -1
         self.sv_x, self.sv_y, = np.zeros(0), np.zeros(0)
@@ -604,6 +604,11 @@ class BinarySVM:
         self.b = 0.0  # intercept
 
     def fit(self, X, y):
+        """
+        Trains the model by solving a quadratic programming problem.
+        :param X: array of size [n_samples, n_features] holding the training samples
+        :param y: array of size [n_samples] holding the class labels
+        """
         # In QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
         self.QP(X, y)
         sv_indices = list(filter(lambda i: self.alphas[i] > self.eps, range(len(y))))
@@ -617,7 +622,13 @@ class BinarySVM:
                                                          self.kernel(self.sv_x, self.sv_x[sv_boundary])))
 
     def QP(self, X, y):
-        # in QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
+        """
+        Solves a quadratic programming problem. In QP formulation (dual):
+        m variables, 2m+1 constraints (1 equation, 2m inequations).
+        :param X: array of size [n_samples, n_features] holding the training samples
+        :param y: array of size [n_samples] holding the class labels
+        """
+        #
         m = len(y)  # m = n_samples
         K = self.kernel(X)  # gram matrix
         P = K * np.outer(y, y)
@@ -626,27 +637,40 @@ class BinarySVM:
         h = np.hstack((np.zeros(m), np.ones(m) * self.C))
         A = y.reshape((1, -1))
         b = np.zeros(1)
-        # make sure P is symmetric and positive definite
-        P = 0.5 * (P + P.T) + np.eye(P.shape[0]).__mul__(1e-3)
-        self.alphas = solve_qp(P, q, G, h, A, b)
+        # make sure P is positive definite
+        P += np.eye(P.shape[0]).__mul__(1e-3)
+        self.alphas = solve_qp(P, q, G, h, A, b, sym_proj=True)
 
-    def project(self, x):
+    def predict_score(self, x):
+        """
+        Predicts the score for a given example.
+        """
         if self.w is None:
             return np.dot(self.alphas * self.sv_y, self.kernel(self.sv_x, x)) + self.b
         return np.dot(x, self.w) + self.b
 
     def predict(self, x):
-        return np.sign(self.project(x))
+        """
+        Predicts the class of a given example.
+        """
+        return np.sign(self.predict_score(x))
 
 
 class MultiSVM:
     def __init__(self, kernel=linear_kernel, decision_function='ovr', C=1.0):
         self.kernel = kernel
         self.decision_function = decision_function
-        self.C = C
+        self.C = C  # hyper-parameter
         self.n_class, self.classifiers = 0, []
 
     def fit(self, X, y):
+        """
+        Trains n_class or n_class * (n_class - 1) / 2 classifiers
+        according to the training method, ovr or ovo respectively.
+        :param X: array of size [n_samples, n_features] holding the training samples
+        :param y: array of size [n_samples] holding the class labels
+        :return: array of classifiers
+        """
         labels = np.unique(y)
         self.n_class = len(labels)
         if self.decision_function == 'ovr':  # one-vs-rest method
@@ -671,22 +695,25 @@ class MultiSVM:
         else:
             return ValueError("Decision function must be either 'ovr' or 'ovo'.")
 
-    def predict(self, X):
-        n_samples = len(X)
-        if self.decision_function == 'ovr':  # one-vs-rest method: n classifiers
+    def predict(self, x):
+        """
+        Predicts the class of a given example according to the training method.
+        """
+        n_samples = len(x)
+        if self.decision_function == 'ovr':  # one-vs-rest method
             assert len(self.classifiers) == self.n_class
             score = np.zeros((n_samples, self.n_class))
             for i in range(self.n_class):
                 clf = self.classifiers[i]
-                score[:, i] = clf.project(X)
+                score[:, i] = clf.predict_score(x)
             return np.argmax(score, axis=1)
-        elif self.decision_function == 'ovo':  # use one-vs-one method: n*(n-1)/2 classifiers
+        elif self.decision_function == 'ovo':  # use one-vs-one method
             assert len(self.classifiers) == self.n_class * (self.n_class - 1) / 2
             vote = np.zeros((n_samples, self.n_class))
             clf_id = 0
             for i in range(self.n_class):
                 for j in range(i + 1, self.n_class):
-                    res = self.classifiers[clf_id].predict(X)
+                    res = self.classifiers[clf_id].predict(x)
                     vote[res < 0, i] += 1.0  # negative sample: class i
                     vote[res > 0, j] += 1.0  # positive sample: class j
                     clf_id += 1
