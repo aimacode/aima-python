@@ -45,7 +45,6 @@ def test_k_nearest_neighbors():
     iris = DataSet(name='iris')
     knn = NearestNeighborLearner(iris, k=3)
     assert knn([5, 3, 1, 0.1]) == 'setosa'
-    assert knn([5, 3, 1, 0.1]) == 'setosa'
     assert knn([6, 5, 3, 1.5]) == 'versicolor'
     assert knn([7.5, 4, 6, 2]) == 'virginica'
 
@@ -56,6 +55,25 @@ def test_decision_tree_learner():
     assert dtl([5, 3, 1, 0.1]) == 'setosa'
     assert dtl([6, 5, 3, 1.5]) == 'versicolor'
     assert dtl([7.5, 4, 6, 2]) == 'virginica'
+
+
+def test_svm():
+    iris = DataSet(name='iris')
+    classes = ['setosa', 'versicolor', 'virginica']
+    iris.classes_to_numbers(classes)
+    svm = MultiSVM()
+    n_samples, n_features = len(iris.examples), iris.target
+    X, y = np.array([x[:n_features] for x in iris.examples]), np.array([x[n_features] for x in iris.examples])
+    svm.fit(X, y)
+    assert svm.predict([[5.0, 3.1, 0.9, 0.1]]) == 0
+    assert svm.predict([[5.1, 3.5, 1.0, 0.0]]) == 0
+    assert svm.predict([[4.9, 3.3, 1.1, 0.1]]) == 0
+    assert svm.predict([[6.0, 3.0, 4.0, 1.1]]) == 1
+    assert svm.predict([[6.1, 2.2, 3.5, 1.0]]) == 1
+    assert svm.predict([[5.9, 2.5, 3.3, 1.1]]) == 1
+    assert svm.predict([[7.5, 4.1, 6.2, 2.3]]) == 2
+    assert svm.predict([[7.3, 4.0, 6.1, 2.4]]) == 2
+    assert svm.predict([[7.0, 3.3, 6.1, 2.5]]) == 2
 
 
 def test_information_content():

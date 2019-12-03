@@ -6,7 +6,7 @@ from collections import defaultdict
 from functools import reduce
 from math import sqrt, pi, exp
 
-from utils4e import product, argmax, isclose, probability, extend
+from utils4e import product, isclose, probability, extend
 
 
 # ______________________________________________________________________________
@@ -19,7 +19,7 @@ def DTAgentProgram(belief_state):
 
     def program(percept):
         belief_state.observe(program.action, percept)
-        program.action = argmax(belief_state.actions(), key=belief_state.expected_outcome_utility)
+        program.action = max(belief_state.actions(), key=belief_state.expected_outcome_utility)
         return program.action
 
     program.action = None

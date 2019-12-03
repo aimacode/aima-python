@@ -1,10 +1,9 @@
-"""Reinforcement Learning (Chapter 21)"""
-
-from collections import defaultdict
-from utils4e import argmax
-from mdp import MDP, policy_evaluation
+"""Reinforcement Learning. (Chapter 21)"""
 
 import random
+from collections import defaultdict
+
+from mdp4e import MDP, policy_evaluation
 
 
 # _________________________________________
@@ -13,7 +12,8 @@ import random
 
 
 class PassiveDUEAgent:
-    """Passive (non-learning) agent that uses direct utility estimation
+    """
+    Passive (non-learning) agent that uses direct utility estimation
     on a given MDP and policy.
 
     import sys
@@ -30,7 +30,6 @@ class PassiveDUEAgent:
         agent.estimate_U()
     agent.U[(0, 0)] > 0.2
     True
-
     """
 
     def __init__(self, pi, mdp):
@@ -87,8 +86,10 @@ class PassiveDUEAgent:
 
 
 class PassiveADPAgent:
-    """Passive (non-learning) agent that uses adaptive dynamic programming
-    on a given MDP and policy. [Figure 21.2]
+    """
+    [Figure 21.2]
+    Passive (non-learning) agent that uses adaptive dynamic programming
+    on a given MDP and policy.
 
     import sys
     from mdp import sequential_decision_environment
@@ -109,8 +110,8 @@ class PassiveADPAgent:
     """
 
     class ModelMDP(MDP):
-        """ Class for implementing modified Version of input MDP with
-        an editable transition model P and a custom function T. """
+        """Class for implementing modified Version of input MDP with
+        an editable transition model P and a custom function T."""
 
         def __init__(self, init, actlist, terminals, gamma, states):
             super().__init__(init, actlist, terminals, states=states, gamma=gamma)
@@ -171,10 +172,12 @@ class PassiveADPAgent:
 
 
 class PassiveTDAgent:
-    """The abstract class for a Passive (non-learning) agent that uses
+    """
+    [Figure 21.4]
+    The abstract class for a Passive (non-learning) agent that uses
     temporal differences to learn utility estimates. Override update_state
     method to convert percept to state and reward. The mdp being provided
-    should be an instance of a subclass of the MDP Class. [Figure 21.4]
+    should be an instance of a subclass of the MDP Class.
 
     import sys
     from mdp import sequential_decision_environment
@@ -237,9 +240,11 @@ class PassiveTDAgent:
 
 
 class QLearningAgent:
-    """ An exploratory Q-learning agent. It avoids having to learn the transition
-        model because the Q-value of a state can be related directly to those of
-        its neighbors. [Figure 21.8]
+    """
+    [Figure 21.8]
+    An exploratory Q-learning agent. It avoids having to learn the transition
+    model because the Q-value of a state can be related directly to those of
+    its neighbors.
 
     import sys
     from mdp import sequential_decision_environment
@@ -278,7 +283,7 @@ class QLearningAgent:
             self.alpha = lambda n: 1. / (1 + n)  # udacity video
 
     def f(self, u, n):
-        """ Exploration function. Returns fixed Rplus until
+        """Exploration function. Returns fixed Rplus until
         agent has visited state, action a Ne number of times.
         Same as ADP agent in book."""
         if n < self.Ne:
@@ -287,8 +292,8 @@ class QLearningAgent:
             return u
 
     def actions_in_state(self, state):
-        """ Return actions possible in given state.
-            Useful for max and argmax. """
+        """Return actions possible in given state.
+        Useful for max and argmax."""
         if state in self.terminals:
             return [None]
         else:
@@ -310,7 +315,7 @@ class QLearningAgent:
             self.s = self.a = self.r = None
         else:
             self.s, self.r = s1, r1
-            self.a = argmax(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
+            self.a = max(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
         return self.a
 
     def update_state(self, percept):

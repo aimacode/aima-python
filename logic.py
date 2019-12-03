@@ -1,5 +1,5 @@
 """
-Representations and Inference for Logic (Chapters 7-9, 12)
+Representations and Inference for Logic. (Chapters 7-9, 12)
 
 Covers both Propositional and First-Order Logic. First we have four
 important data types:
@@ -42,8 +42,7 @@ import networkx as nx
 from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
 from csp import parse_neighbors, UniversalDict
 from search import astar_search, PlanRoute
-from utils import (remove_all, unique, first, argmax, probability, isnumber,
-                   issequence, Expr, expr, subexpressions, extend)
+from utils import remove_all, unique, first, probability, isnumber, issequence, Expr, expr, subexpressions, extend
 
 
 class KB:
@@ -58,7 +57,8 @@ class KB:
     first one or returns False."""
 
     def __init__(self, sentence=None):
-        raise NotImplementedError
+        if sentence:
+            self.tell(sentence)
 
     def tell(self, sentence):
         """Add the sentence to the KB."""
@@ -81,9 +81,8 @@ class PropKB(KB):
     """A KB for propositional logic. Inefficient, with no indexing."""
 
     def __init__(self, sentence=None):
+        super().__init__(sentence)
         self.clauses = []
-        if sentence:
-            self.tell(sentence)
 
     def tell(self, sentence):
         """Add the sentence's clauses to the KB."""
@@ -1108,7 +1107,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
                 model[sym] = not model[sym]
                 return count
 
-            sym = argmax(prop_symbols(clause), key=sat_count)
+            sym = max(prop_symbols(clause), key=sat_count)
         model[sym] = not model[sym]
     # If no solution is found within the flip limit, we return failure
     return None
@@ -1930,10 +1929,11 @@ class FolKB(KB):
     False
     """
 
-    def __init__(self, initial_clauses=None):
+    def __init__(self, clauses=None):
+        super().__init__()
         self.clauses = []  # inefficient: no indexing
-        if initial_clauses:
-            for clause in initial_clauses:
+        if clauses:
+            for clause in clauses:
                 self.tell(clause)
 
     def tell(self, sentence):
@@ -1957,7 +1957,7 @@ def fol_fc_ask(kb, alpha):
     [Figure 9.3]
     A simple forward-chaining algorithm.
     """
-    # TODO: Improve efficiency
+    # TODO: improve efficiency
     kb_consts = list({c for clause in kb.clauses for c in constant_symbols(clause)})
 
     def enum_subst(p):
@@ -1968,7 +1968,7 @@ def fol_fc_ask(kb, alpha):
 
     # check if we can answer without new inferences
     for q in kb.clauses:
-        phi = unify(q, alpha)
+        phi = unify_mm(q, alpha)
         if phi is not None:
             yield phi
 
@@ -1979,9 +1979,9 @@ def fol_fc_ask(kb, alpha):
             for theta in enum_subst(p):
                 if set(subst(theta, p)).issubset(set(kb.clauses)):
                     q_ = subst(theta, q)
-                    if all([unify(x, q_) is None for x in kb.clauses + new]):
+                    if all([unify_mm(x, q_) is None for x in kb.clauses + new]):
                         new.append(q_)
-                        phi = unify(q_, alpha)
+                        phi = unify_mm(q_, alpha)
                         if phi is not None:
                             yield phi
         if not new:
@@ -2003,7 +2003,7 @@ def fol_bc_ask(kb, query):
 def fol_bc_or(kb, goal, theta):
     for rule in kb.fetch_rules_for_goal(goal):
         lhs, rhs = parse_definite_clause(standardize_variables(rule))
-        for theta1 in fol_bc_and(kb, lhs, unify(rhs, goal, theta)):
+        for theta1 in fol_bc_and(kb, lhs, unify_mm(rhs, goal, theta)):
             yield theta1
 
 
@@ -2019,7 +2019,7 @@ def fol_bc_and(kb, goals, theta):
                 yield theta2
 
 
-# A simple KB that defines the relevant conditions of the Wumpus World as in Fig 7.4.
+# A simple KB that defines the relevant conditions of the Wumpus World as in Figure 7.4.
 # See Sec. 7.4.3
 wumpus_kb = PropKB()
 

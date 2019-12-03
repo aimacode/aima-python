@@ -1,9 +1,9 @@
+import numpy as np
 import pytest
+from keras.datasets import imdb
 
 from deep_learning4e import *
 from learning4e import DataSet, grade_learner, err_ratio
-from keras.datasets import imdb
-import numpy as np
 
 random.seed("aima-python")
 
@@ -12,7 +12,7 @@ def test_neural_net():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    nnl_adam = NeuralNetLearner(iris, [4], learning_rate=0.001, epochs=200, optimizer=adam_optimizer)
+    nnl_adam = NeuralNetLearner(iris, [4], learning_rate=0.001, epochs=200, optimizer=adam)
     nnl_gd = NeuralNetLearner(iris, [4], learning_rate=0.15, epochs=100, optimizer=gradient_descent)
     tests = [([5.0, 3.1, 0.9, 0.1], 0),
              ([5.1, 3.5, 1.0, 0.0], 0),
@@ -54,7 +54,7 @@ def test_rnn():
     assert score[1] >= 0.3
 
 
-def test_auto_encoder():
+def test_autoencoder():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)

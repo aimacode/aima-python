@@ -1,4 +1,5 @@
-"""Implement Agents and Environments (Chapters 1-2).
+"""
+Implement Agents and Environments. (Chapters 1-2)
 
 The class hierarchies are as follows:
 
@@ -23,16 +24,14 @@ EnvGUI ## A window with a graphical representation of the Environment
 EnvToolbar ## contains buttons for controlling EnvGUI
 
 EnvCanvas ## Canvas to display the environment of an EnvGUI
-
 """
 
-# TO DO:
+# TODO
 # Implement grabbing correctly.
 # When an object is grabbed, does it still have a location?
 # What if it is released?
 # What if the grabbed or the grabber is deleted?
 # What if the grabber moves?
-#
 # Speed control in GUI does not have any effect -- fix it.
 
 from utils import distance_squared, turn_heading
@@ -90,8 +89,7 @@ class Agent(Thing):
         self.holding = []
         self.performance = 0
         if program is None or not isinstance(program, collections.Callable):
-            print("Can't find a valid program for {}, falling back to default.".format(
-                self.__class__.__name__))
+            print("Can't find a valid program for {}, falling back to default.".format(self.__class__.__name__))
 
             def program(percept):
                 return eval(input('Percept={}; action? '.format(percept)))
@@ -122,10 +120,13 @@ def TraceAgent(agent):
 
 
 def TableDrivenAgentProgram(table):
-    """This agent selects an action based on the percept sequence.
+    """
+    [Figure 2.7]
+    This agent selects an action based on the percept sequence.
     It is practical only for tiny domains.
     To customize it, provide as table a dictionary of all
-    {percept_sequence:action} pairs. [Figure 2.7]"""
+    {percept_sequence:action} pairs.
+    """
     percepts = []
 
     def program(percept):
@@ -154,7 +155,10 @@ def RandomAgentProgram(actions):
 
 
 def SimpleReflexAgentProgram(rules, interpret_input):
-    """This agent takes action based solely on the percept. [Figure 2.10]"""
+    """
+    [Figure 2.10]
+    This agent takes action based solely on the percept.
+    """
 
     def program(percept):
         state = interpret_input(percept)
@@ -166,7 +170,10 @@ def SimpleReflexAgentProgram(rules, interpret_input):
 
 
 def ModelBasedReflexAgentProgram(rules, update_state, model):
-    """This agent takes action based on the percept and state. [Figure 2.12]"""
+    """
+    [Figure 2.12]
+    This agent takes action based on the percept and state.
+    """
 
     def program(percept):
         program.state = update_state(program.state, program.action, percept, model)
@@ -219,7 +226,9 @@ def TableDrivenVacuumAgent():
 
 
 def ReflexVacuumAgent():
-    """A reflex agent for the two-state vacuum environment. [Figure 2.8]
+    """
+    [Figure 2.8]
+    A reflex agent for the two-state vacuum environment.
     >>> agent = ReflexVacuumAgent()
     >>> environment = TrivialVacuumEnvironment()
     >>> environment.add_thing(agent)
@@ -436,13 +445,13 @@ class Direction:
         """
         x, y = from_location
         if self.direction == self.R:
-            return (x + 1, y)
+            return x + 1, y
         elif self.direction == self.L:
-            return (x - 1, y)
+            return x - 1, y
         elif self.direction == self.U:
-            return (x, y - 1)
+            return x, y - 1
         elif self.direction == self.D:
-            return (x, y + 1)
+            return x, y + 1
 
 
 class XYEnvironment(Environment):
@@ -497,7 +506,7 @@ class XYEnvironment(Environment):
                 agent.holding.pop()
 
     def default_location(self, thing):
-        return (random.choice(self.width), random.choice(self.height))
+        return random.choice(self.width), random.choice(self.height)
 
     def move_to(self, thing, destination):
         """Move a thing to a new location. Returns True on success or False if there is an Obstacle.
@@ -525,7 +534,7 @@ class XYEnvironment(Environment):
     def is_inbounds(self, location):
         """Checks to make sure that the location is inbounds (within walls if we have walls)"""
         x, y = location
-        return not (x < self.x_start or x >= self.x_end or y < self.y_start or y >= self.y_end)
+        return not (x < self.x_start or x > self.x_end or y < self.y_start or y > self.y_end)
 
     def random_location_inbounds(self, exclude=None):
         """Returns a random location that is inbounds (within walls if we have walls)"""
@@ -723,7 +732,7 @@ class VacuumEnvironment(XYEnvironment):
         status = ('Dirty' if self.some_things_at(
             agent.location, Dirt) else 'Clean')
         bump = ('Bump' if agent.bump else 'None')
-        return (status, bump)
+        return status, bump
 
     def execute_action(self, agent, action):
         agent.bump = False
@@ -752,12 +761,11 @@ class TrivialVacuumEnvironment(Environment):
                        loc_B: random.choice(['Clean', 'Dirty'])}
 
     def thing_classes(self):
-        return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent,
-                TableDrivenVacuumAgent, ModelBasedVacuumAgent]
+        return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent, TableDrivenVacuumAgent, ModelBasedVacuumAgent]
 
     def percept(self, agent):
         """Returns the agent's location, and the location status (Dirty/Clean)."""
-        return (agent.location, self.status[agent.location])
+        return agent.location, self.status[agent.location]
 
     def execute_action(self, agent, action):
         """Change agent's location and/or location's status; track performance.
@@ -992,8 +1000,8 @@ class WumpusEnvironment(XYEnvironment):
             else:
                 print("Death by {} [-1000].".format(explorer[0].killed_by))
         else:
-            print("Explorer climbed out {}.".format("with Gold [+1000]!"
-                                                    if Gold() not in self.things else "without Gold [+0]"))
+            print("Explorer climbed out {}."
+                  .format("with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"))
         return True
 
     # TODO: Arrow needs to be implemented

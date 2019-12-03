@@ -1,5 +1,5 @@
 """
-Markov Decision Processes (Chapter 16)
+Markov Decision Processes. (Chapter 16)
 
 First we define an MDP, and the special case of a GridMDP, in which
 states are laid out in a 2-dimensional grid. We also represent a policy
@@ -8,15 +8,12 @@ dictionary of {state: number} pairs. We then define the value_iteration
 and policy_iteration algorithms.
 """
 
-from utils4e import argmax, vector_add, orientations, turn_right, turn_left
-from planning import *
 import random
-import numpy as np
 from collections import defaultdict
 
+import numpy as np
 
-# _____________________________________________________________
-# 16.1 Sequential Detection Problems
+from utils4e import vector_add, orientations, turn_right, turn_left
 
 
 class MDP:
@@ -26,7 +23,7 @@ class MDP:
     the text. Instead of P(s' | s, a) being a probability number for each
     state/state/action triplet, we instead have T(s, a) return a
     list of (p, s') pairs. We also keep track of the possible states,
-    terminal states, and actions for each state. [page 646]"""
+    terminal states, and actions for each state. [Page 646]"""
 
     def __init__(self, init, actlist, terminals, transitions=None, reward=None, states=None, gamma=0.9):
         if not (0 < gamma <= 1):
@@ -229,8 +226,8 @@ def value_iteration(mdp, epsilon=0.001):
         U = U1.copy()
         delta = 0
         for s in mdp.states:
-            # U1[s] = R(s) + gamma * max(sum(p*U[s1] for (p, s1) in T(s, a))
-            #                                        for a in mdp.actions(s))
+            # U1[s] = R(s) + gamma * max(sum(p * U[s1] for (p, s1) in T(s, a))
+            #                            for a in mdp.actions(s))
             U1[s] = max(q_value(mdp, s, a, U) for a in mdp.actions(s))
             delta = max(delta, abs(U1[s] - U[s]))
         if delta <= epsilon * (1 - gamma) / gamma:
@@ -247,7 +244,7 @@ def best_policy(mdp, U):
 
     pi = {}
     for s in mdp.states:
-        pi[s] = argmax(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
+        pi[s] = max(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
     return pi
 
 
@@ -266,8 +263,8 @@ def policy_iteration(mdp):
         U = policy_evaluation(pi, U, mdp)
         unchanged = True
         for s in mdp.states:
-            a_star = argmax(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
-            # a = argmax(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
+            a_star = max(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
+            # a = max(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
             if q_value(mdp, s, a_star, U) > q_value(mdp, s, pi[s], U):
                 pi[s] = a_star
                 unchanged = False
@@ -296,7 +293,7 @@ class POMDP(MDP):
     and a sensor model P(e|s). We also keep track of a gamma value,
     for use by algorithms. The transition and the sensor models
     are defined as matrices. We also keep track of the possible states
-    and actions for each state. [page 659]."""
+    and actions for each state. [Page 659]."""
 
     def __init__(self, actions, transitions=None, evidences=None, rewards=None, states=None, gamma=0.95):
         """Initialize variables of the pomdp"""
@@ -517,38 +514,3 @@ s = { 'a' : {	'plan1' : [(0.2, 'a'), (0.3, 'b'), (0.3, 'c'), (0.2, 'd')],
                 },
     }
 """
-
-
-# __________________________________________________________________________
-# Chapter 17 Multiagent Planning
-
-
-def double_tennis_problem():
-    """
-    [Figure 17.1] DOUBLE-TENNIS-PROBLEM
-    A multiagent planning problem involving two partner tennis players
-    trying to return an approaching ball and repositioning around in the court.
-
-    Example:
-        >>> from planning import *
-        >>> dtp = double_tennis_problem()
-        >>> goal_test(dtp.goals, dtp.initial)
-        False
-        >>> dtp.act(expr('Go(A, RightBaseLine, LeftBaseLine)'))
-        >>> dtp.act(expr('Hit(A, Ball, RightBaseLine)'))
-        >>> goal_test(dtp.goals, dtp.initial)
-        False
-        >>> dtp.act(expr('Go(A, LeftNet, RightBaseLine)'))
-        >>> goal_test(dtp.goals, dtp.initial)
-        True
-    """
-
-    return PlanningProblem(
-        initial='At(A, LeftBaseLine) & At(B, RightNet) & Approaching(Ball, RightBaseLine) & Partner(A, B) & Partner(B, A)',
-        goals='Returned(Ball) & At(a, LeftNet) & At(a, RightNet)',
-        actions=[Action('Hit(actor, Ball, loc)',
-                        precond='Approaching(Ball, loc) & At(actor, loc)',
-                        effect='Returned(Ball)'),
-                 Action('Go(actor, to, loc)',
-                        precond='At(actor, loc)',
-                        effect='At(actor, to) & ~At(actor, loc)')])

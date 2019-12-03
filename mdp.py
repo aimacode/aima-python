@@ -1,16 +1,19 @@
-"""Markov Decision Processes (Chapter 17)
+"""
+Markov Decision Processes. (Chapter 17)
 
 First we define an MDP, and the special case of a GridMDP, in which
 states are laid out in a 2-dimensional grid. We also represent a policy
 as a dictionary of {state: action} pairs, and a Utility function as a
 dictionary of {state: number} pairs. We then define the value_iteration
-and policy_iteration algorithms."""
-
-from utils import argmax, vector_add, orientations, turn_right, turn_left
+and policy_iteration algorithms.
+"""
 
 import random
-import numpy as np
 from collections import defaultdict
+
+import numpy as np
+
+from utils import vector_add, orientations, turn_right, turn_left
 
 
 class MDP:
@@ -20,7 +23,7 @@ class MDP:
     the text. Instead of P(s' | s, a) being a probability number for each
     state/state/action triplet, we instead have T(s, a) return a
     list of (p, s') pairs. We also keep track of the possible states,
-    terminal states, and actions for each state. [page 646]"""
+    terminal states, and actions for each state. [Page 646]"""
 
     def __init__(self, init, actlist, terminals, transitions=None, reward=None, states=None, gamma=0.9):
         if not (0 < gamma <= 1):
@@ -215,11 +218,11 @@ def value_iteration(mdp, epsilon=0.001):
 
 def best_policy(mdp, U):
     """Given an MDP and a utility function U, determine the best policy,
-    as a mapping from state to action. (Equation 17.4)"""
+    as a mapping from state to action. [Equation 17.4]"""
 
     pi = {}
     for s in mdp.states:
-        pi[s] = argmax(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
+        pi[s] = max(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
     return pi
 
 
@@ -241,7 +244,7 @@ def policy_iteration(mdp):
         U = policy_evaluation(pi, U, mdp)
         unchanged = True
         for s in mdp.states:
-            a = argmax(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
+            a = max(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
             if a != pi[s]:
                 pi[s] = a
                 unchanged = False
@@ -266,7 +269,7 @@ class POMDP(MDP):
     and a sensor model P(e|s). We also keep track of a gamma value,
     for use by algorithms. The transition and the sensor models
     are defined as matrices. We also keep track of the possible states
-    and actions for each state. [page 659]."""
+    and actions for each state. [Page 659]."""
 
     def __init__(self, actions, transitions=None, evidences=None, rewards=None, states=None, gamma=0.95):
         """Initialize variables of the pomdp"""
@@ -474,16 +477,16 @@ __doc__ += """
 
 """
 s = { 'a' : {	'plan1' : [(0.2, 'a'), (0.3, 'b'), (0.3, 'c'), (0.2, 'd')],
-				'plan2' : [(0.4, 'a'), (0.15, 'b'), (0.45, 'c')],
-				'plan3' : [(0.2, 'a'), (0.5, 'b'), (0.3, 'c')],
-			},
-	  'b' : {	'plan1' : [(0.2, 'a'), (0.6, 'b'), (0.2, 'c'), (0.1, 'd')],
-				'plan2' : [(0.6, 'a'), (0.2, 'b'), (0.1, 'c'), (0.1, 'd')],
-				'plan3' : [(0.3, 'a'), (0.3, 'b'), (0.4, 'c')],
-			},
-	  'c' : {	'plan1' : [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')],
-				'plan2' : [(0.5, 'a'), (0.3, 'b'), (0.1, 'c'), (0.1, 'd')],
-				'plan3' : [(0.1, 'a'), (0.3, 'b'), (0.1, 'c'), (0.5, 'd')],
-	  		},
-	}
+                'plan2' : [(0.4, 'a'), (0.15, 'b'), (0.45, 'c')],
+                'plan3' : [(0.2, 'a'), (0.5, 'b'), (0.3, 'c')],
+                 },
+      'b' : {	'plan1' : [(0.2, 'a'), (0.6, 'b'), (0.2, 'c'), (0.1, 'd')],
+                'plan2' : [(0.6, 'a'), (0.2, 'b'), (0.1, 'c'), (0.1, 'd')],
+                'plan3' : [(0.3, 'a'), (0.3, 'b'), (0.4, 'c')],
+                },
+        'c' : {	'plan1' : [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')],
+                'plan2' : [(0.5, 'a'), (0.3, 'b'), (0.1, 'c'), (0.1, 'd')],
+                'plan3' : [(0.1, 'a'), (0.3, 'b'), (0.1, 'c'), (0.5, 'd')],
+                },
+    }
 """

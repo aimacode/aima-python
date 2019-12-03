@@ -2,7 +2,7 @@
 
 import heapq
 
-from utils import weighted_sampler, argmax, product, gaussian
+from utils import weighted_sampler, product, gaussian
 
 
 class CountingProbDist:
@@ -93,7 +93,7 @@ def NaiveBayesSimple(distribution):
             attr_dist = attr_dists[target_val]
             return target_dist[target_val] * product(attr_dist[a] for a in example)
 
-        return argmax(target_dist.keys(), key=class_probability)
+        return max(target_dist.keys(), key=class_probability)
 
     return predict
 
@@ -124,7 +124,7 @@ def NaiveBayesDiscrete(dataset):
             return (target_dist[target_val] * product(attr_dists[target_val, attr][example[attr]]
                                                       for attr in dataset.inputs))
 
-        return argmax(target_vals, key=class_probability)
+        return max(target_vals, key=class_probability)
 
     return predict
 
@@ -149,6 +149,6 @@ def NaiveBayesContinuous(dataset):
                 prob *= gaussian(means[target_val][attr], deviations[target_val][attr], example[attr])
             return prob
 
-        return argmax(target_vals, key=class_probability)
+        return max(target_vals, key=class_probability)
 
     return predict

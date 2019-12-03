@@ -2,7 +2,7 @@
 
 from random import shuffle
 from math import log
-from utils import powerset
+from utils import power_set
 from collections import defaultdict
 from itertools import combinations, product
 from logic import (FolKB, constant_symbols, predicate_symbols, standardize_variables,
@@ -67,7 +67,7 @@ def generalizations(examples_so_far, h):
     hypotheses = []
 
     # Delete disjunctions
-    disj_powerset = powerset(range(len(h)))
+    disj_powerset = power_set(range(len(h)))
     for disjs in disj_powerset:
         h2 = h.copy()
         for d in reversed(list(disjs)):
@@ -78,7 +78,7 @@ def generalizations(examples_so_far, h):
 
     # Delete AND operations in disjunctions
     for i, disj in enumerate(h):
-        a_powerset = powerset(disj.keys())
+        a_powerset = power_set(disj.keys())
         for attrs in a_powerset:
             h2 = h[i].copy()
             for a in attrs:
@@ -106,7 +106,7 @@ def add_or(examples_so_far, h):
     e = examples_so_far[-1]
 
     attrs = {k: v for k, v in e.items() if k != 'GOAL'}
-    a_powerset = powerset(attrs.keys())
+    a_powerset = power_set(attrs.keys())
 
     for c in a_powerset:
         h2 = {}
@@ -144,7 +144,7 @@ def version_space_update(V, e):
 def all_hypotheses(examples):
     """Build a list of all the possible hypotheses"""
     values = values_table(examples)
-    h_powerset = powerset(values.keys())
+    h_powerset = power_set(values.keys())
     hypotheses = []
     for s in h_powerset:
         hypotheses.extend(build_attr_combinations(s, values))
@@ -203,7 +203,7 @@ def build_h_combinations(hypotheses):
     """Given a set of hypotheses, builds and returns all the combinations of the
     hypotheses."""
     h = []
-    h_powerset = powerset(range(len(hypotheses)))
+    h_powerset = power_set(range(len(hypotheses)))
 
     for s in h_powerset:
         t = []
@@ -249,7 +249,7 @@ class FOILContainer(FolKB):
     def __init__(self, clauses=None):
         self.const_syms = set()
         self.pred_syms = set()
-        FolKB.__init__(self, clauses)
+        super().__init__(clauses)
 
     def tell(self, sentence):
         if is_definite_clause(sentence):

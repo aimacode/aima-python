@@ -402,10 +402,8 @@ def mac(csp, var, value, assignment, removals, constraint_propagation=AC3b):
 # The search, proper
 
 
-def backtracking_search(csp,
-                        select_unassigned_variable=first_unassigned_variable,
-                        order_domain_values=unordered_domain_values,
-                        inference=no_inference):
+def backtracking_search(csp, select_unassigned_variable=first_unassigned_variable,
+                        order_domain_values=unordered_domain_values, inference=no_inference):
     """[Figure 6.5]"""
 
     def backtrack(assignment):
@@ -634,12 +632,13 @@ def queen_constraint(A, a, B, b):
 
 
 class NQueensCSP(CSP):
-    """Make a CSP for the nQueens problem for search with min_conflicts.
+    """
+    Make a CSP for the nQueens problem for search with min_conflicts.
     Suitable for large n, it uses only data structures of size O(n).
     Think of placing queens one per column, from left to right.
     That means position (x, y) represents (var, val) in the CSP.
     The main structures are three arrays to count queens that could conflict:
-        rows[i]      Number of queens in the ith row (i.e val == i)
+        rows[i]      Number of queens in the ith row (i.e. val == i)
         downs[i]     Number of queens in the \ diagonal
                      such that their (x, y) coordinates sum to i
         ups[i]       Number of queens in the / diagonal
@@ -741,7 +740,8 @@ for unit in map(set, _BOXES + _ROWS + _COLS):
 
 
 class Sudoku(CSP):
-    """A Sudoku problem.
+    """
+    A Sudoku problem.
     The box grid is a 3x3 array of boxes, each a 3x3 array of cells.
     Each cell holds a digit in 1..9. In each box, all digits are
     different; the same for each row and column as a 9x9 grid.
@@ -895,15 +895,16 @@ def solve_zebra(algorithm=min_conflicts, **args):
 # n-ary Constraint Satisfaction Problem
 
 class NaryCSP:
-    """A nary-CSP consists of
-    * domains, a dictionary that maps each variable to its domain
-    * constraints, a list of constraints
-    * variables, a set of variables
-    * var_to_const, a variable to set of constraints dictionary
+    """
+    A nary-CSP consists of:
+    domains     : a dictionary that maps each variable to its domain
+    constraints : a list of constraints
+    variables   : a set of variables
+    var_to_const: a variable to set of constraints dictionary
     """
 
     def __init__(self, domains, constraints):
-        """domains is a variable:domain dictionary
+        """Domains is a variable:domain dictionary
         constraints is a list of constraints
         """
         self.variables = set(domains)
@@ -915,11 +916,11 @@ class NaryCSP:
                 self.var_to_const[var].add(con)
 
     def __str__(self):
-        """string representation of CSP"""
+        """String representation of CSP"""
         return str(self.domains)
 
     def display(self, assignment=None):
-        """more detailed string representation of CSP"""
+        """More detailed string representation of CSP"""
         if assignment is None:
             assignment = {}
         print(assignment)
@@ -935,10 +936,11 @@ class NaryCSP:
 
 
 class Constraint:
-    """A Constraint consists of
-    * scope: a tuple of variables
-    * condition: a function that can applied to a tuple of values
-    for the variables
+    """
+    A Constraint consists of:
+    scope    : a tuple of variables
+    condition: a function that can applied to a tuple of values
+    for the variables.
     """
 
     def __init__(self, scope, condition):
@@ -956,12 +958,12 @@ class Constraint:
         return self.condition(*tuple(assignment[v] for v in self.scope))
 
 
-def all_diff(*values):
+def all_diff_constraint(*values):
     """Returns True if all values are different, False otherwise"""
     return len(values) is len(set(values))
 
 
-def is_word(words):
+def is_word_constraint(words):
     """Returns True if the letters concatenated form a word in words, False otherwise"""
 
     def isw(*letters):
@@ -970,7 +972,7 @@ def is_word(words):
     return isw
 
 
-def meet_at(p1, p2):
+def meet_at_constraint(p1, p2):
     """Returns a function that is True when the words meet at the positions (p1, p2), False otherwise"""
 
     def meets(w1, w2):
@@ -980,12 +982,12 @@ def meet_at(p1, p2):
     return meets
 
 
-def adjacent(x, y):
+def adjacent_constraint(x, y):
     """Returns True if x and y are adjacent numbers, False otherwise"""
     return abs(x - y) == 1
 
 
-def sum_(n):
+def sum_constraint(n):
     """Returns a function that is True when the the sum of all values is n, False otherwise"""
 
     def sumv(*values):
@@ -995,7 +997,7 @@ def sum_(n):
     return sumv
 
 
-def is_(val):
+def is_constraint(val):
     """Returns a function that is True when x is equal to val, False otherwise"""
 
     def isv(x):
@@ -1005,7 +1007,7 @@ def is_(val):
     return isv
 
 
-def ne_(val):
+def ne_constraint(val):
     """Returns a function that is True when x is not equal to val, False otherwise"""
 
     def nev(x):
@@ -1033,9 +1035,10 @@ class ACSolver:
         self.csp = csp
 
     def GAC(self, orig_domains=None, to_do=None, arc_heuristic=sat_up):
-        """Makes this CSP arc-consistent using Generalized Arc Consistency
-        orig_domains is the original domains
-        to_do is a set of (variable,constraint) pairs
+        """
+        Makes this CSP arc-consistent using Generalized Arc Consistency
+        orig_domains: is the original domains
+        to_do       : is a set of (variable,constraint) pairs
         returns the reduced domains (an arc-consistent variable:domain dictionary)
         """
         if orig_domains is None:
@@ -1137,7 +1140,7 @@ class ACSolver:
 
 
 def partition_domain(dom):
-    """partitions domain dom into two"""
+    """Partitions domain dom into two"""
     split = len(dom) // 2
     dom1 = set(list(dom)[:split])
     dom2 = dom - dom1
@@ -1157,7 +1160,7 @@ class ACSearchSolver(search.Problem):
         super().__init__(self.domains)
 
     def goal_test(self, node):
-        """node is a goal if all domains have 1 element"""
+        """Node is a goal if all domains have 1 element"""
         return all(len(node[var]) == 1 for var in node)
 
     def actions(self, state):
@@ -1178,12 +1181,12 @@ class ACSearchSolver(search.Problem):
 
 
 def ac_solver(csp, arc_heuristic=sat_up):
-    """arc consistency (domain splitting)"""
+    """Arc consistency (domain splitting interface)"""
     return ACSolver(csp).domain_splitting(arc_heuristic=arc_heuristic)
 
 
 def ac_search_solver(csp, arc_heuristic=sat_up):
-    """arc consistency (search interface)"""
+    """Arc consistency (search interface)"""
     from search import depth_first_tree_search
     solution = None
     try:
@@ -1203,11 +1206,11 @@ csp_crossword = NaryCSP({'one_across': {'ant', 'big', 'bus', 'car', 'has'},
                          'two_down': {'ginger', 'search', 'symbol', 'syntax'},
                          'three_across': {'book', 'buys', 'hold', 'land', 'year'},
                          'four_across': {'ant', 'big', 'bus', 'car', 'has'}},
-                        [Constraint(('one_across', 'one_down'), meet_at(0, 0)),
-                         Constraint(('one_across', 'two_down'), meet_at(2, 0)),
-                         Constraint(('three_across', 'two_down'), meet_at(2, 2)),
-                         Constraint(('three_across', 'one_down'), meet_at(0, 2)),
-                         Constraint(('four_across', 'two_down'), meet_at(0, 4))])
+                        [Constraint(('one_across', 'one_down'), meet_at_constraint(0, 0)),
+                         Constraint(('one_across', 'two_down'), meet_at_constraint(2, 0)),
+                         Constraint(('three_across', 'two_down'), meet_at_constraint(2, 2)),
+                         Constraint(('three_across', 'one_down'), meet_at_constraint(0, 2)),
+                         Constraint(('four_across', 'two_down'), meet_at_constraint(0, 4))])
 
 crossword1 = [['_', '_', '_', '*', '*'],
               ['_', '*', '_', '*', '*'],
@@ -1234,10 +1237,10 @@ class Crossword(NaryCSP):
                     scope.append(var)
                 else:
                     if len(scope) > 1:
-                        constraints.append(Constraint(tuple(scope), is_word(words)))
+                        constraints.append(Constraint(tuple(scope), is_word_constraint(words)))
                     scope.clear()
             if len(scope) > 1:
-                constraints.append(Constraint(tuple(scope), is_word(words)))
+                constraints.append(Constraint(tuple(scope), is_word_constraint(words)))
         puzzle_t = list(map(list, zip(*puzzle)))
         for i, line in enumerate(puzzle_t):
             scope = []
@@ -1246,10 +1249,10 @@ class Crossword(NaryCSP):
                     scope.append("p" + str(i) + str(j))
                 else:
                     if len(scope) > 1:
-                        constraints.append(Constraint(tuple(scope), is_word(words)))
+                        constraints.append(Constraint(tuple(scope), is_word_constraint(words)))
                     scope.clear()
             if len(scope) > 1:
-                constraints.append(Constraint(tuple(scope), is_word(words)))
+                constraints.append(Constraint(tuple(scope), is_word_constraint(words)))
         super().__init__(domains, constraints)
         self.puzzle = puzzle
 
@@ -1355,8 +1358,8 @@ class Kakuro(NaryCSP):
                             if len(var2) == 1:
                                 var2 = "0" + var2
                             x.append("X" + var1 + var2)
-                        constraints.append(Constraint(x, sum_(element[0])))
-                        constraints.append(Constraint(x, all_diff))
+                        constraints.append(Constraint(x, sum_constraint(element[0])))
+                        constraints.append(Constraint(x, all_diff_constraint))
                     # right - line
                     if element[1] != '':
                         x = []
@@ -1370,8 +1373,8 @@ class Kakuro(NaryCSP):
                             if len(var2) == 1:
                                 var2 = "0" + var2
                             x.append("X" + var1 + var2)
-                        constraints.append(Constraint(x, sum_(element[1])))
-                        constraints.append(Constraint(x, all_diff))
+                        constraints.append(Constraint(x, sum_constraint(element[1])))
+                        constraints.append(Constraint(x, all_diff_constraint))
         super().__init__(domains, constraints)
         self.puzzle = puzzle
 
@@ -1411,7 +1414,7 @@ class Kakuro(NaryCSP):
 two_two_four = NaryCSP({'T': set(range(1, 10)), 'F': set(range(1, 10)),
                         'W': set(range(0, 10)), 'O': set(range(0, 10)), 'U': set(range(0, 10)), 'R': set(range(0, 10)),
                         'C1': set(range(0, 2)), 'C2': set(range(0, 2)), 'C3': set(range(0, 2))},
-                       [Constraint(('T', 'F', 'W', 'O', 'U', 'R'), all_diff),
+                       [Constraint(('T', 'F', 'W', 'O', 'U', 'R'), all_diff_constraint),
                         Constraint(('O', 'R', 'C1'), lambda o, r, c1: o + o == r + 10 * c1),
                         Constraint(('W', 'U', 'C1', 'C2'), lambda w, u, c1, c2: c1 + w + w == u + 10 * c2),
                         Constraint(('T', 'O', 'C2', 'C3'), lambda t, o, c2, c3: c2 + t + t == o + 10 * c3),
@@ -1423,7 +1426,7 @@ send_more_money = NaryCSP({'S': set(range(1, 10)), 'M': set(range(1, 10)),
                            'O': set(range(0, 10)), 'R': set(range(0, 10)), 'Y': set(range(0, 10)),
                            'C1': set(range(0, 2)), 'C2': set(range(0, 2)), 'C3': set(range(0, 2)),
                            'C4': set(range(0, 2))},
-                          [Constraint(('S', 'E', 'N', 'D', 'M', 'O', 'R', 'Y'), all_diff),
+                          [Constraint(('S', 'E', 'N', 'D', 'M', 'O', 'R', 'Y'), all_diff_constraint),
                            Constraint(('D', 'E', 'Y', 'C1'), lambda d, e, y, c1: d + e == y + 10 * c1),
                            Constraint(('N', 'R', 'E', 'C1', 'C2'), lambda n, r, e, c1, c2: c1 + n + r == e + 10 * c2),
                            Constraint(('E', 'O', 'N', 'C2', 'C3'), lambda e, o, n, c2, c3: c2 + e + o == n + 10 * c3),

@@ -4,13 +4,11 @@ import math
 import random
 import statistics
 
-from keras import optimizers
-from keras.layers import Dense, SimpleRNN
-from keras.layers.embeddings import Embedding
-from keras.models import Sequential
+from keras import Sequential, optimizers
+from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
-from utils4e import (sigmoid, dot_product, softmax1D, conv1D, GaussianKernel, element_wise_product, vector_add,
+from utils4e import (sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
                      random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss)
 
 
@@ -123,7 +121,7 @@ class ConvLayer1D(Layer):
         super(ConvLayer1D, self).__init__(size)
         # init convolution kernel as gaussian kernel
         for node in self.nodes:
-            node.weights = GaussianKernel(kernel_size)
+            node.weights = gaussian_kernel(kernel_size)
 
     def forward(self, features):
         # each node in layer takes a channel in the features.
@@ -213,8 +211,8 @@ def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1,
     return net
 
 
-def adam_optimizer(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8,
-                   l_rate=0.001, batch_size=1, verbose=None):
+def adam(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8,
+         l_rate=0.001, batch_size=1, verbose=None):
     """
     [Figure 19.6]
     Adam optimizer to update the learnable parameters of a network.

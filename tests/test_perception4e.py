@@ -40,7 +40,7 @@ def test_generate_edge_weight():
 
 def test_graph_bfs():
     graph = Graph(gray_scale_image)
-    assert graph.bfs((1, 1), (0, 0), []) == False
+    assert not graph.bfs((1, 1), (0, 0), [])
     parents = []
     assert graph.bfs((0, 0), (2, 2), parents)
     assert len(parents) == 8
