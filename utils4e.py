@@ -13,7 +13,10 @@ from statistics import mean
 
 import numpy as np
 
-inf = float('inf')
+try:  # math.inf was added in Python 3.5
+    from math import inf
+except ImportError:  # Python 3.4
+    inf = float('inf')
 
 
 # part1. General data structures and their functions
@@ -37,7 +40,7 @@ class PriorityQueue:
         elif order == 'max':  # now item with max f(x)
             self.f = lambda x: -f(x)  # will be popped first
         else:
-            raise ValueError("order must be either 'min' or 'max'.")
+            raise ValueError("Order must be either 'min' or 'max'.")
 
     def append(self, item):
         """Insert item at its correct position."""
@@ -148,17 +151,20 @@ def mode(data):
     return item
 
 
-def powerset(iterable):
-    """powerset([1,2,3]) --> (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
+def power_set(iterable):
+    """power_set([1,2,3]) --> (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"""
     s = list(iterable)
     return list(chain.from_iterable(combinations(s, r) for r in range(len(s) + 1)))[1:]
 
 
 def extend(s, var, val):
     """Copy dict s and extend it by setting var to val; return copy."""
-    s2 = s.copy()
-    s2[var] = val
-    return s2
+    try:  # Python 3.5 and later
+        return eval('{**s, var: val}')
+    except SyntaxError:  # Python 3.4
+        s2 = s.copy()
+        s2[var] = val
+        return s2
 
 
 # ______________________________________________________________________________
@@ -166,18 +172,15 @@ def extend(s, var, val):
 
 identity = lambda x: x
 
-argmin = min
-argmax = max
-
 
 def argmin_random_tie(seq, key=identity):
     """Return a minimum element of seq; break ties at random."""
-    return argmin(shuffled(seq), key=key)
+    return min(shuffled(seq), key=key)
 
 
 def argmax_random_tie(seq, key=identity):
     """Return an element with highest fn(seq[i]) score; break ties at random."""
-    return argmax(shuffled(seq), key=key)
+    return max(shuffled(seq), key=key)
 
 
 def shuffled(iterable):
@@ -208,62 +211,29 @@ def histogram(values, mode=0, bin_function=None):
         return sorted(bins.items())
 
 
-def dot_product(X, Y):
-    """Return the sum of the element-wise product of vectors X and Y."""
-    return sum(x * y for x, y in zip(X, Y))
+def dot_product(x, y):
+    """Return the sum of the element-wise product of vectors x and y."""
+    return sum(_x * _y for _x, _y in zip(x, y))
 
 
-def element_wise_product_2D(X, Y):
-    """Return vector as an element-wise product of vectors X and Y"""
-    assert len(X) == len(Y)
-    return [x * y for x, y in zip(X, Y)]
-
-
-def element_wise_product(X, Y):
-    if hasattr(X, '__iter__') and hasattr(Y, '__iter__'):
-        assert len(X) == len(Y)
-        return [element_wise_product(x, y) for x, y in zip(X, Y)]
-    elif hasattr(X, '__iter__') == hasattr(Y, '__iter__'):
-        return X * Y
+def element_wise_product(x, y):
+    if hasattr(x, '__iter__') and hasattr(y, '__iter__'):
+        assert len(x) == len(y)
+        return [element_wise_product(_x, _y) for _x, _y in zip(x, y)]
+    elif hasattr(x, '__iter__') == hasattr(y, '__iter__'):
+        return x * y
     else:
-        raise Exception("Inputs must be in the same size!")
+        raise Exception('Inputs must be in the same size!')
 
 
-def transpose2D(M):
-    return list(map(list, zip(*M)))
+def matrix_multiplication(x, *y):
+    """Return a matrix as a matrix-multiplication of x and arbitrary number of matrices *y."""
 
-
-def matrix_multiplication(X_M, *Y_M):
-    """Return a matrix as a matrix-multiplication of X_M and arbitrary number of matrices *Y_M"""
-
-    def _mat_mult(X_M, Y_M):
-        """Return a matrix as a matrix-multiplication of two matrices X_M and Y_M
-        >>> matrix_multiplication([[1, 2, 3], [2, 3, 4]], [[3, 4], [1, 2], [1, 0]])
-        [[8, 8],[13, 14]]
-        """
-        assert len(X_M[0]) == len(Y_M)
-        result = [[0 for i in range(len(Y_M[0]))] for j in range(len(X_M))]
-        for i in range(len(X_M)):
-            for j in range(len(Y_M[0])):
-                for k in range(len(Y_M)):
-                    result[i][j] += X_M[i][k] * Y_M[k][j]
-        return result
-
-    result = X_M
-    for Y in Y_M:
-        result = _mat_mult(result, Y)
+    result = x
+    for _y in y:
+        result = np.matmul(result, _y)
 
     return result
-
-
-def vector_to_diagonal(v):
-    """Converts a vector to a diagonal matrix with vector elements
-    as the diagonal elements of the matrix"""
-    diag_matrix = [[0 for i in range(len(v))] for j in range(len(v))]
-    for i in range(len(v)):
-        diag_matrix[i][i] = v[i]
-
-    return diag_matrix
 
 
 def vector_add(a, b):
@@ -277,33 +247,17 @@ def vector_add(a, b):
         try:
             return a + b
         except TypeError:
-            raise Exception("Inputs must be in the same size!")
+            raise Exception('Inputs must be in the same size!')
 
 
-def scalar_vector_product(X, Y):
-    """Return vector as a product of a scalar and a vector recursively"""
-    return [scalar_vector_product(X, y) for y in Y] if hasattr(Y, '__iter__') else X * Y
+def scalar_vector_product(x, y):
+    """Return vector as a product of a scalar and a vector recursively."""
+    return [scalar_vector_product(x, _y) for _y in y] if hasattr(y, '__iter__') else x * y
 
 
-def map_vector(f, X):
-    """apply function f to iterable X"""
-    return [map_vector(f, x) for x in X] if hasattr(X, '__iter__') else list(map(f, [X]))[0]
-
-
-def scalar_matrix_product(X, Y):
-    """Return matrix as a product of a scalar and a matrix"""
-    return [scalar_vector_product(X, y) for y in Y]
-
-
-def inverse_matrix(X):
-    """Inverse a given square matrix of size 2x2"""
-    assert len(X) == 2
-    assert len(X[0]) == 2
-    det = X[0][0] * X[1][1] - X[0][1] * X[1][0]
-    assert det != 0
-    inv_mat = scalar_matrix_product(1.0 / det, [[X[1][1], -X[0][1]], [-X[1][0], X[0][0]]])
-
-    return inv_mat
+def map_vector(f, x):
+    """Apply function f to iterable x."""
+    return [map_vector(f, _x) for _x in x] if hasattr(x, '__iter__') else list(map(f, [x]))[0]
 
 
 def probability(p):
@@ -363,47 +317,45 @@ def num_or_str(x):  # TODO: rename as `atom`
             return str(x).strip()
 
 
-def euclidean_distance(X, Y):
-    return math.sqrt(sum((x - y) ** 2 for x, y in zip(X, Y) if x and y))
+def euclidean_distance(x, y):
+    return math.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
-def rms_error(X, Y):
-    return math.sqrt(ms_error(X, Y))
+def rms_error(x, y):
+    return math.sqrt(ms_error(x, y))
 
 
-def ms_error(X, Y):
-    return mean((x - y) ** 2 for x, y in zip(X, Y))
+def ms_error(x, y):
+    return mean((x - y) ** 2 for x, y in zip(x, y))
 
 
-def mean_error(X, Y):
-    return mean(abs(x - y) for x, y in zip(X, Y))
+def mean_error(x, y):
+    return mean(abs(x - y) for x, y in zip(x, y))
 
 
-def manhattan_distance(X, Y):
-    return sum(abs(x - y) for x, y in zip(X, Y))
+def manhattan_distance(x, y):
+    return sum(abs(_x - _y) for _x, _y in zip(x, y))
 
 
-def mean_boolean_error(X, Y):
-    return mean(int(x != y) for x, y in zip(X, Y))
+def mean_boolean_error(x, y):
+    return mean(_x != _y for _x, _y in zip(x, y))
 
 
-def hamming_distance(X, Y):
-    return sum(x != y for x, y in zip(X, Y))
+def hamming_distance(x, y):
+    return sum(_x != _y for _x, _y in zip(x, y))
 
 
 # 19.2 Common Loss Functions
 
 
-def cross_entropy_loss(X, Y):
-    """Example of cross entropy loss. X and Y are 1D iterable objects"""
-    n = len(X)
-    return (-1.0 / n) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(X, Y))
+def cross_entropy_loss(x, y):
+    """Example of cross entropy loss. x and y are 1D iterable objects."""
+    return (-1.0 / len(x)) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(x, y))
 
 
-def mse_loss(X, Y):
-    """Example of min square loss. X and Y are 1D iterable objects"""
-    n = len(X)
-    return (1.0 / n) * sum((x - y) ** 2 for x, y in zip(X, Y))
+def mse_loss(x, y):
+    """Example of min square loss. x and y are 1D iterable objects."""
+    return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
 # part3. Neural network util functions
@@ -416,38 +368,35 @@ def normalize(dist):
         total = sum(dist.values())
         for key in dist:
             dist[key] = dist[key] / total
-            assert 0 <= dist[key] <= 1, "Probabilities must be between 0 and 1."
+            assert 0 <= dist[key] <= 1  # probabilities must be between 0 and 1
         return dist
     total = sum(dist)
     return [(n / total) for n in dist]
 
 
-def norm(X, n=2):
-    """Return the n-norm of vector X"""
-    return sum([x ** n for x in X]) ** (1 / n)
+def norm(x, ord=2):
+    """Return the n-norm of vector x."""
+    return np.linalg.norm(x, ord)
 
 
 def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
-def conv1D(X, K):
-    """1D convolution. X: input vector; K: kernel vector"""
-    return np.convolve(X, K, mode='same')
+def conv1D(x, k):
+    """1D convolution. x: input vector; K: kernel vector."""
+    return np.convolve(x, k, mode='same')
 
 
-def GaussianKernel(size=3):
-    mean = (size - 1) / 2
-    stdev = 0.1
-    return [gaussian(mean, stdev, x) for x in range(size)]
+def gaussian_kernel(size=3):
+    return [gaussian((size - 1) / 2, 0.1, x) for x in range(size)]
 
 
-def gaussian_kernel_1d(size=3, sigma=0.5):
-    mean = (size - 1) / 2
-    return [gaussian(mean, sigma, x) for x in range(size)]
+def gaussian_kernel_1D(size=3, sigma=0.5):
+    return [gaussian((size - 1) / 2, sigma, x) for x in range(size)]
 
 
-def gaussian_kernel_2d(size=3, sigma=0.5):
+def gaussian_kernel_2D(size=3, sigma=0.5):
     x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
     g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
     return g / g.sum()
@@ -468,9 +417,9 @@ def clip(x, lowest, highest):
     return max(lowest, min(x, highest))
 
 
-def softmax1D(Z):
-    """Return the softmax vector of input vector Z"""
-    exps = [math.exp(z) for z in Z]
+def softmax1D(x):
+    """Return the softmax vector of input vector x."""
+    exps = [math.exp(_x) for _x in x]
     sum_exps = sum(exps)
     return [exp / sum_exps for exp in exps]
 
@@ -525,7 +474,7 @@ class leaky_relu(Activation):
 
 
 def step(x):
-    """Return activation value of x with sign function"""
+    """Return activation value of x with sign function."""
     return 1 if x >= 0 else 0
 
 
@@ -536,16 +485,38 @@ def gaussian(mean, st_dev, x):
 
 def gaussian_2D(means, sigma, point):
     det = sigma[0][0] * sigma[1][1] - sigma[0][1] * sigma[1][0]
-    inverse = inverse_matrix(sigma)
+    inverse = np.linalg.inv(sigma)
     assert det != 0
     x_u = vector_add(point, scalar_vector_product(-1, means))
-    buff = matrix_multiplication(matrix_multiplication([x_u], inverse), transpose2D([x_u]))
+    buff = matrix_multiplication(matrix_multiplication([x_u], inverse), np.array(x_u).T)
     return 1 / (math.sqrt(det) * 2 * math.pi) * math.exp(-0.5 * buff[0][0])
 
 
-try:  # math.isclose was added in Python 3.5; but we might be in 3.4
+def linear_kernel(x, y=None):
+    if y is None:
+        y = x
+    return np.dot(x, y.T)
+
+
+def polynomial_kernel(x, y=None, degree=2.0):
+    if y is None:
+        y = x
+    return (1.0 + np.dot(x, y.T)) ** degree
+
+
+def rbf_kernel(x, y=None, gamma=None):
+    """Radial-basis function kernel (aka squared-exponential kernel)."""
+    if y is None:
+        y = x
+    if gamma is None:
+        gamma = 1.0 / x.shape[1]  # 1.0 / n_features
+    return np.exp(-gamma * (-2.0 * np.dot(x, y.T) +
+                            np.sum(x * x, axis=1).reshape((-1, 1)) + np.sum(y * y, axis=1).reshape((1, -1))))
+
+
+try:  # math.isclose was added in Python 3.5
     from math import isclose
-except ImportError:
+except ImportError:  # Python 3.4
     def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
         """Return true if numbers a and b are close to each other."""
         return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
@@ -801,7 +772,7 @@ class Expr:
     def __call__(self, *args):
         """Call: if 'f' is a Symbol, then f(0) == Expr('f', 0)."""
         if self.args:
-            raise ValueError('can only do a call for a Symbol, not an Expr')
+            raise ValueError('Can only do a call for a Symbol, not an Expr')
         else:
             return Expr(self.op, *args)
 
@@ -917,9 +888,8 @@ class defaultkeydict(collections.defaultdict):
 
 
 class hashabledict(dict):
-    """Allows hashing by representing a dictionary as tuple of key:value pairs
-       May cause problems as the hash value may change during runtime
-    """
+    """Allows hashing by representing a dictionary as tuple of key:value pairs.
+    May cause problems as the hash value may change during runtime."""
 
     def __hash__(self):
         return 1
@@ -928,7 +898,7 @@ class hashabledict(dict):
 # ______________________________________________________________________________
 # Monte Carlo tree node and ucb function
 class MCT_Node:
-    """Node in the Monte Carlo search tree, keeps track of the children states"""
+    """Node in the Monte Carlo search tree, keeps track of the children states."""
 
     def __init__(self, parent=None, state=None, U=0, N=0):
         self.__dict__.update(parent=parent, state=state, U=U, N=N)
@@ -945,7 +915,7 @@ def ucb(n, C=1.4):
 
 
 class Bool(int):
-    """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'"""
+    """Just like `bool`, except values display as 'T' and 'F' instead of 'True' and 'False'."""
     __str__ = __repr__ = lambda self: 'T' if self else 'F'
 
 

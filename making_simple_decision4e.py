@@ -1,11 +1,10 @@
+"""Making Simple Decisions. (Chapter 15)"""
+
 import random
 
 from agents import Agent
 from probability import BayesNet
-from utils4e import argmax, vector_add, weighted_sample_with_replacement
-
-
-# Making Simple Decisions (Chapter 15)
+from utils4e import vector_add, weighted_sample_with_replacement
 
 
 class DecisionNetwork(BayesNet):
@@ -16,7 +15,7 @@ class DecisionNetwork(BayesNet):
     def __init__(self, action, infer):
         """action: a single action node
         infer: the preferred method to carry out inference on the given BayesNet"""
-        super(DecisionNetwork, self).__init__()
+        super().__init__()
         self.action = action
         self.infer = infer
 
@@ -47,6 +46,7 @@ class InformationGatheringAgent(Agent):
         """decnet: a decision network
         infer: the preferred method to carry out inference on the given decision network
         initial_evidence: initial evidence"""
+        super().__init__()
         self.decnet = decnet
         self.infer = infer
         self.observation = initial_evidence or []
@@ -60,7 +60,7 @@ class InformationGatheringAgent(Agent):
         """Execute the information gathering algorithm"""
         self.observation = self.integrate_percept(percept)
         vpis = self.vpi_cost_ratio(self.variables)
-        j = argmax(vpis)
+        j = max(vpis)
         variable = self.variables[j]
 
         if self.vpi(variable) > self.cost(variable):

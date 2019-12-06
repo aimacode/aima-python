@@ -1,10 +1,13 @@
-"""Statistical Language Processing tools.  (Chapter 22)
-We define Unigram and Ngram text models, use them to generate random text,
-and show the Viterbi algorithm for segmentatioon of letters into words.
-Then we show a very simple Information Retrieval system, and an example
-working on a tiny sample of Unix manual pages."""
+"""
+Statistical Language Processing tools. (Chapter 22)
 
-from utils import argmin, argmax, hashabledict
+We define Unigram and Ngram text models, use them to generate random text,
+and show the Viterbi algorithm for segmentation of letters into words.
+Then we show a very simple Information Retrieval system, and an example
+working on a tiny sample of Unix manual pages.
+"""
+
+from utils import hashabledict
 from probabilistic_learning import CountingProbDist
 import search
 
@@ -152,8 +155,7 @@ class IRSystem:
         """Index a whole collection of files."""
         prefix = os.path.dirname(__file__)
         for filename in filenames:
-            self.index_document(open(filename).read(),
-                                os.path.relpath(filename, prefix))
+            self.index_document(open(filename).read(), os.path.relpath(filename, prefix))
 
     def index_document(self, text, url):
         """Index the text of a document."""
@@ -175,15 +177,14 @@ class IRSystem:
             return []
 
         qwords = [w for w in words(query_text) if w not in self.stopwords]
-        shortest = argmin(qwords, key=lambda w: len(self.index[w]))
+        shortest = min(qwords, key=lambda w: len(self.index[w]))
         docids = self.index[shortest]
         return heapq.nlargest(n, ((self.total_score(qwords, docid), docid) for docid in docids))
 
     def score(self, word, docid):
         """Compute a score for this word on the document with this docid."""
         # There are many options; here we take a very simple approach
-        return (log(1 + self.index[word][docid]) /
-                log(1 + self.documents[docid].nwords))
+        return log(1 + self.index[word][docid]) / log(1 + self.documents[docid].nwords)
 
     def total_score(self, words, docid):
         """Compute the sum of the scores of these words on the document with this docid."""
@@ -193,9 +194,7 @@ class IRSystem:
         """Present the results as a list."""
         for (score, docid) in results:
             doc = self.documents[docid]
-            print(
-                ("{:5.2}|{:25} | {}".format(100 * score, doc.url,
-                                            doc.title[:45].expandtabs())))
+            print("{:5.2}|{:25} | {}".format(100 * score, doc.url, doc.title[:45].expandtabs()))
 
     def present_results(self, query_text, n=10):
         """Get results for the query and present them."""
@@ -211,8 +210,7 @@ class UnixConsultant(IRSystem):
         import os
         aima_root = os.path.dirname(__file__)
         mandir = os.path.join(aima_root, 'aima-data/MAN/')
-        man_files = [mandir + f for f in os.listdir(mandir)
-                     if f.endswith('.txt')]
+        man_files = [mandir + f for f in os.listdir(mandir) if f.endswith('.txt')]
 
         self.index_collection(man_files)
 
@@ -332,7 +330,7 @@ class ShiftDecoder:
     def decode(self, ciphertext):
         """Return the shift decoding of text with the best score."""
 
-        return argmax(all_shifts(ciphertext), key=lambda shift: self.score(shift))
+        return max(all_shifts(ciphertext), key=lambda shift: self.score(shift))
 
 
 def all_shifts(text):
@@ -396,16 +394,16 @@ class PermutationDecoder:
 class PermutationDecoderProblem(search.Problem):
 
     def __init__(self, initial=None, goal=None, decoder=None):
-        self.initial = initial or hashabledict()
+        super().__init__(initial or hashabledict(), goal)
         self.decoder = decoder
 
     def actions(self, state):
         search_list = [c for c in self.decoder.chardomain if c not in state]
         target_list = [c for c in alphabet if c not in state.values()]
-        # Find the best charater to replace
-        plainchar = argmax(search_list, key=lambda c: self.decoder.P1[c])
-        for cipherchar in target_list:
-            yield (plainchar, cipherchar)
+        # Find the best character to replace
+        plain_char = max(search_list, key=lambda c: self.decoder.P1[c])
+        for cipher_char in target_list:
+            yield (plain_char, cipher_char)
 
     def result(self, state, action):
         new_state = hashabledict(state)  # copy to prevent hash issues

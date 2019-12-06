@@ -59,7 +59,7 @@ def test_first():
     assert first('') is None
     assert first('', 'empty') == 'empty'
     assert first([1, 2, 3, 4, 5]) == 1
-    assert first([]) == None
+    assert first([]) is None
     assert first(range(10)) == 0
     assert first(x for x in range(10) if x > 3) == 4
     assert first(x for x in range(10) if x > 100) is None
@@ -81,27 +81,15 @@ def test_mode():
     assert mode("artificialintelligence") == 'i'
 
 
-def test_powerset():
-    assert powerset([1, 2, 3]) == [(1,), (2,), (3,), (1, 2), (1, 3), (2, 3), (1, 2, 3)]
-
-
-def test_argminmax():
-    assert argmin([-2, 1], key=abs) == 1
-    assert argmin(['one', 'to', 'three'], key=len) == 'to'
-    assert argmax([-2, 1], key=abs) == -2
-    assert argmax(['one', 'to', 'three'], key=len) == 'three'
+def test_power_set():
+    assert power_set([1, 2, 3]) == [(1,), (2,), (3,), (1, 2), (1, 3), (2, 3), (1, 2, 3)]
 
 
 def test_histogram():
-    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1]) == [(1, 2), (2, 3),
-                                                         (4, 2), (5, 1),
-                                                         (7, 1), (9, 1)]
-    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 0, lambda x: x * x) == [(1, 2), (4, 3),
-                                                                             (16, 2), (25, 1),
-                                                                             (49, 1), (81, 1)]
-    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 1) == [(2, 3), (4, 2),
-                                                            (1, 2), (9, 1),
-                                                            (7, 1), (5, 1)]
+    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1]) == [(1, 2), (2, 3), (4, 2), (5, 1), (7, 1), (9, 1)]
+    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 0, lambda x: x * x) == \
+           [(1, 2), (4, 3), (16, 2), (25, 1), (49, 1), (81, 1)]
+    assert histogram([1, 2, 4, 2, 4, 5, 7, 9, 2, 1], 1) == [(2, 3), (4, 2), (1, 2), (9, 1), (7, 1), (5, 1)]
 
 
 def test_euclidean():
@@ -163,53 +151,9 @@ def test_dot_product():
     assert dot_product([1, 2, 3], [0, 0, 0]) == 0
 
 
-def test_element_wise_product():
-    assert element_wise_product([1, 2, 5], [7, 10, 0]) == [7, 20, 0]
-    assert element_wise_product([1, 6, 3, 0], [9, 12, 0, 0]) == [9, 72, 0, 0]
-
-
-def test_matrix_multiplication():
-    assert matrix_multiplication([[1, 2, 3],
-                                  [2, 3, 4]],
-                                 [[3, 4],
-                                  [1, 2],
-                                  [1, 0]]) == [[8, 8], [13, 14]]
-
-    assert matrix_multiplication([[1, 2, 3],
-                                  [2, 3, 4]],
-                                 [[3, 4, 8, 1],
-                                  [1, 2, 5, 0],
-                                  [1, 0, 0, 3]],
-                                 [[1, 2],
-                                  [3, 4],
-                                  [5, 6],
-                                  [1, 2]]) == [[132, 176], [224, 296]]
-
-
-def test_vector_to_diagonal():
-    assert vector_to_diagonal([1, 2, 3]) == [[1, 0, 0], [0, 2, 0], [0, 0, 3]]
-    assert vector_to_diagonal([0, 3, 6]) == [[0, 0, 0], [0, 3, 0], [0, 0, 6]]
-
-
 def test_vector_add():
     assert vector_add((0, 1), (8, 9)) == (8, 10)
     assert vector_add((1, 1, 1), (2, 2, 2)) == (3, 3, 3)
-
-
-def test_scalar_vector_product():
-    assert scalar_vector_product(2, [1, 2, 3]) == [2, 4, 6]
-    assert scalar_vector_product(0, [9, 9, 9]) == [0, 0, 0]
-
-
-def test_scalar_matrix_product():
-    assert rounder(scalar_matrix_product(-5, [[1, 2], [3, 4], [0, 6]])) == [[-5, -10], [-15, -20], [0, -30]]
-    assert rounder(scalar_matrix_product(0.2, [[1, 2], [2, 3]])) == [[0.2, 0.4], [0.4, 0.6]]
-
-
-def test_inverse_matrix():
-    assert rounder(inverse_matrix([[1, 0], [0, 1]])) == [[1, 0], [0, 1]]
-    assert rounder(inverse_matrix([[2, 1], [4, 3]])) == [[1.5, -0.5], [-2.0, 1.0]]
-    assert rounder(inverse_matrix([[4, 7], [2, 6]])) == [[0.6, -0.7], [-0.2, 0.4]]
 
 
 def test_rounder():
@@ -217,8 +161,7 @@ def test_rounder():
     assert rounder(10.234566) == 10.2346
     assert rounder([1.234566, 0.555555, 6.010101]) == [1.2346, 0.5556, 6.0101]
     assert rounder([[1.234566, 0.555555, 6.010101],
-                    [10.505050, 12.121212, 6.030303]]) == [[1.2346, 0.5556, 6.0101],
-                                                           [10.5051, 12.1212, 6.0303]]
+                    [10.505050, 12.121212, 6.030303]]) == [[1.2346, 0.5556, 6.0101], [10.5051, 12.1212, 6.0303]]
 
 
 def test_num_or_str():
@@ -230,62 +173,14 @@ def test_normalize():
     assert normalize([1, 2, 1]) == [0.25, 0.5, 0.25]
 
 
-def test_norm():
-    assert isclose(norm([1, 2, 1], 1), 4)
-    assert isclose(norm([3, 4], 2), 5)
-    assert isclose(norm([-1, 1, 2], 4), 18 ** 0.25)
-
-
 def test_clip():
     assert [clip(x, 0, 1) for x in [-1, 0.5, 10]] == [0, 0.5, 1]
-
-
-def test_sigmoid():
-    assert isclose(0.5, sigmoid(0))
-    assert isclose(0.7310585786300049, sigmoid(1))
-    assert isclose(0.2689414213699951, sigmoid(-1))
 
 
 def test_gaussian():
     assert gaussian(1, 0.5, 0.7) == 0.6664492057835993
     assert gaussian(5, 2, 4.5) == 0.19333405840142462
     assert gaussian(3, 1, 3) == 0.3989422804014327
-
-
-def test_sigmoid_derivative():
-    value = 1
-    assert sigmoid_derivative(value) == 0
-
-    value = 3
-    assert sigmoid_derivative(value) == -6
-
-
-def test_truncated_svd():
-    test_mat = [[17, 0],
-                [0, 11]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(eival[0], 17)
-    assert isclose(eival[1], 11)
-
-    test_mat = [[17, 0],
-                [0, -34]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(eival[0], 34)
-    assert isclose(eival[1], 17)
-
-    test_mat = [[1, 0, 0, 0, 2],
-                [0, 0, 3, 0, 0],
-                [0, 0, 0, 0, 0],
-                [0, 2, 0, 0, 0]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(eival[0], 3)
-    assert isclose(eival[1], 5 ** 0.5)
-
-    test_mat = [[3, 2, 2],
-                [2, 3, -2]]
-    _, _, eival = truncated_svd(test_mat)
-    assert isclose(eival[0], 5)
-    assert isclose(eival[1], 3)
 
 
 def test_weighted_choice():

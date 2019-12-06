@@ -1,15 +1,15 @@
-"""Perception (Chapter 24)"""
+"""Perception. (Chapter 24)"""
 
+import cv2
+import keras
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal
-import matplotlib.pyplot as plt
-from utils4e import gaussian_kernel_2d, inf
-import keras
 from keras.datasets import mnist
+from keras.layers import Dense, Activation, Flatten, InputLayer, Conv2D, MaxPooling2D
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten, InputLayer
-from keras.layers import Conv2D, MaxPooling2D
-import cv2
+
+from utils4e import gaussian_kernel_2D, inf
 
 
 # ____________________________________________________
@@ -18,7 +18,7 @@ import cv2
 
 
 def array_normalization(array, range_min, range_max):
-    """normalize an array in the range of (range_min, range_max)"""
+    """Normalize an array in the range of (range_min, range_max)"""
     if not isinstance(array, np.ndarray):
         array = np.asarray(array)
     array = array - np.min(array)
@@ -47,7 +47,7 @@ def gaussian_derivative_edge_detector(image):
     """Image edge detector using derivative of gaussian kernels"""
     if not isinstance(image, np.ndarray):
         image = np.asarray(image)
-    gaussian_filter = gaussian_kernel_2d()
+    gaussian_filter = gaussian_kernel_2D()
     # init derivative of gaussian filters
     x_filter = scipy.signal.convolve2d(gaussian_filter, np.asarray([[1, -1]]), 'same')
     y_filter = scipy.signal.convolve2d(gaussian_filter, np.asarray([[1], [-1]]), 'same')
@@ -82,7 +82,7 @@ def show_edges(edges):
 
 
 def sum_squared_difference(pic1, pic2):
-    """ssd of two frames"""
+    """SSD of two frames"""
     pic1 = np.asarray(pic1)
     pic2 = np.asarray(pic2)
     assert pic1.shape == pic2.shape
@@ -131,7 +131,7 @@ gray_scale_image = gen_gray_scale_picture(3)
 
 def probability_contour_detection(image, discs, threshold=0):
     """
-    detect edges/contours by applying a set of discs to an image
+    Detect edges/contours by applying a set of discs to an image
     :param image: an image in type of numpy ndarray
     :param discs: a set of discs/filters to apply to pixels of image
     :param threshold: threshold to tell whether the pixel at (x, y) is on an edge
@@ -157,7 +157,7 @@ def probability_contour_detection(image, discs, threshold=0):
 
 def group_contour_detection(image, cluster_num=2):
     """
-    detecting contours in an image with k-means clustering
+    Detecting contours in an image with k-means clustering
     :param image: an image in numpy ndarray type
     :param cluster_num: number of clusters in k-means
     """
@@ -169,7 +169,7 @@ def group_contour_detection(image, cluster_num=2):
     ret, label, center = cv2.kmeans(Z, K, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
     center = np.uint8(center)
     res = center[label.flatten()]
-    res2 = res.reshape((img.shape))
+    res2 = res.reshape(img.shape)
     # show the image
     # cv2.imshow('res2', res2)
     # cv2.waitKey(0)
@@ -179,7 +179,7 @@ def group_contour_detection(image, cluster_num=2):
 
 def image_to_graph(image):
     """
-    convert an image to an graph in adjacent matrix form
+    Convert an image to an graph in adjacent matrix form
     """
     graph_dict = {}
     for x in range(image.shape[0]):
@@ -191,7 +191,7 @@ def image_to_graph(image):
 
 def generate_edge_weight(image, v1, v2):
     """
-    find edge weight between two vertices in an image
+    Find edge weight between two vertices in an image
     :param image: image in numpy ndarray type
     :param v1, v2: verticles in the image in form of (x index, y index)
     """
@@ -200,7 +200,7 @@ def generate_edge_weight(image, v1, v2):
 
 
 class Graph:
-    """graph in adjacent matrix to represent an image"""
+    """Graph in adjacent matrix to represent an image"""
 
     def __init__(self, image):
         """image: ndarray"""
@@ -219,7 +219,7 @@ class Graph:
                     self.flow[s][t] = generate_edge_weight(image, s, t)
 
     def bfs(self, s, t, parent):
-        """breadth first search to tell whether there is an edge between source and sink
+        """Breadth first search to tell whether there is an edge between source and sink
         parent: a list to save the path between s and t"""
         # queue to save the current searching frontier
         queue = [s]
@@ -236,7 +236,7 @@ class Graph:
         return True if t in visited else False
 
     def min_cut(self, source, sink):
-        """find the minimum cut of the graph between source and sink"""
+        """Find the minimum cut of the graph between source and sink"""
         parent = []
         max_flow = 0
 
@@ -298,7 +298,7 @@ def gen_discs(init_scale, scales=1):
 
 
 def load_MINST(train_size, val_size, test_size):
-    """load MINST dataset from keras"""
+    """Load MINST dataset from keras"""
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     total_size = len(x_train)
     if train_size + val_size > total_size:
@@ -318,25 +318,17 @@ def load_MINST(train_size, val_size, test_size):
 
 def simple_convnet(size=3, num_classes=10):
     """
-    simple convolutional network for digit recognition
+    Simple convolutional network for digit recognition
     :param size: number of convolution layers
     :param num_classes: number of output classes
     :return a convolution network in keras model type
     """
     model = Sequential()
     # add input layer for images of size (28, 28)
-    model.add(
-        InputLayer(input_shape=(1, 28, 28))
-    )
+    model.add(InputLayer(input_shape=(1, 28, 28)))
     # add convolution layers and max pooling layers
     for _ in range(size):
-        model.add(
-            Conv2D(
-                32, (2, 2),
-                padding='same',
-                kernel_initializer='random_uniform'
-            )
-        )
+        model.add(Conv2D(32, (2, 2), padding='same', kernel_initializer='random_uniform'))
         model.add(MaxPooling2D(padding='same'))
 
     # add flatten layer and output layers
@@ -354,7 +346,7 @@ def simple_convnet(size=3, num_classes=10):
 
 
 def train_model(model):
-    """train the simple convolution network"""
+    """Train the simple convolution network"""
     # load dataset
     (train_x, train_y), (val_x, val_y), (test_x, test_y) = load_MINST(1000, 100, 100)
     model.fit(train_x, train_y, validation_data=(val_x, val_y), epochs=5, verbose=2, batch_size=32)
@@ -369,7 +361,7 @@ def train_model(model):
 
 def selective_search(image):
     """
-    selective search for object detection
+    Selective search for object detection
     :param image: str, the path of image or image in ndarray type with 3 channels
     :return list of bounding boxes, each element is in form of [x_min, y_min, x_max, y_max]
     """
@@ -378,7 +370,7 @@ def selective_search(image):
     elif isinstance(image, str):
         im = cv2.imread(image)
     else:
-        im = np.stack((image) * 3, axis=-1)
+        im = np.stack(image * 3, axis=-1)
 
     # use opencv python to extract bounding box with selective search
     ss = cv2.ximgproc.segmentation.createSelectiveSearchSegmentation()

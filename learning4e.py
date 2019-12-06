@@ -1,4 +1,4 @@
-"""Learning from examples (Chapters 18)"""
+"""Learning from examples. (Chapters 18)"""
 
 import copy
 import heapq
@@ -7,11 +7,14 @@ import random
 from collections import defaultdict
 from statistics import mean, stdev
 
+import numpy as np
+from qpsolvers import solve_qp
+
 from probabilistic_learning import NaiveBayesLearner
 from utils import sigmoid, sigmoid_derivative
-from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product,
-                     weighted_sample_with_replacement, num_or_str, normalize, clip, print_table, open_data, probability,
-                     random_weights, mean_boolean_error)
+from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, num_or_str, normalize, clip,
+                     weighted_sample_with_replacement, print_table, open_data, probability, random_weights,
+                     mean_boolean_error, linear_kernel, inf)
 
 
 class DataSet:
@@ -195,7 +198,7 @@ class DataSet:
 def parse_csv(input, delim=','):
     r"""
     Input is a string consisting of lines, each line has comma-delimited
-    fields.  Convert this into a list of lists. Blank lines are skipped.
+    fields. Convert this into a list of lists. Blank lines are skipped.
     Fields that look like numbers are converted to numbers.
     The delim defaults to ',' but '\t' and None are also reasonable values.
     >>> parse_csv('1, 2, 3 \n 0, 2, na')
@@ -270,7 +273,7 @@ def model_selection(learner, dataset, k=10, trials=1):
         # check for convergence provided err_val is not empty
         if err and not isclose(err[-1], err, rel_tol=1e-6):
             best_size = 0
-            min_val = math.inf
+            min_val = inf
             i = 0
             while i < size:
                 if errs[i] < min_val:
@@ -286,7 +289,7 @@ def cross_validation(learner, dataset, size=None, k=10, trials=1):
     """
     Do k-fold cross_validate and return their mean.
     That is, keep out 1/k of the examples for testing on each of k runs.
-    Shuffle the examples first; if trials>1, average over several shuffles.
+    Shuffle the examples first; if trials > 1, average over several shuffles.
     Returns Training error
     """
     k = k or len(dataset.examples)
@@ -316,14 +319,13 @@ def leave_one_out(learner, dataset, size=None):
     return cross_validation(learner, dataset, size, len(dataset.examples))
 
 
-# TODO learning_curve needs to be fixed
 def learning_curve(learner, dataset, trials=10, sizes=None):
     if sizes is None:
-        sizes = list(range(2, len(dataset.examples) - 10, 2))
+        sizes = list(range(2, len(dataset.examples) - trials, 2))
 
     def score(learner, size):
         random.shuffle(dataset.examples)
-        return train_test_split(learner, dataset, 0, size)
+        return cross_validation(learner, dataset, size, trials)
 
     return [(size, mean([score(learner, size) for _ in range(trials)])) for size in sizes]
 
@@ -365,7 +367,7 @@ class DecisionFork:
             return self.default_child(example)
 
     def add(self, val, subtree):
-        """Add a branch.  If self.attr = val, go to the given subtree."""
+        """Add a branch. If self.attr = val, go to the given subtree."""
         self.branches[val] = subtree
 
     def display(self, indent=0):
@@ -441,8 +443,8 @@ def DecisionTreeLearner(dataset):
         def I(examples):
             return information_content([count(target, v, examples) for v in values[target]])
 
-        N = len(examples)
-        remainder = sum((len(examples_i) / N) * I(examples_i) for (v, examples_i) in split_by(attr, examples))
+        n = len(examples)
+        remainder = sum((len(examples_i) / n) * I(examples_i) for (v, examples_i) in split_by(attr, examples))
         return I(examples) - remainder
 
     def split_by(attr, examples):
@@ -590,6 +592,136 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
     return predict
 
 
+class BinarySVM:
+    def __init__(self, kernel=linear_kernel, C=1.0):
+        self.kernel = kernel
+        self.C = C  # hyper-parameter
+        self.eps = 1e-6
+        self.n_sv = -1
+        self.sv_x, self.sv_y, = np.zeros(0), np.zeros(0)
+        self.alphas = np.zeros(0)
+        self.w = None
+        self.b = 0.0  # intercept
+
+    def fit(self, X, y):
+        """
+        Trains the model by solving a quadratic programming problem.
+        :param X: array of size [n_samples, n_features] holding the training samples
+        :param y: array of size [n_samples] holding the class labels
+        """
+        # In QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
+        self.QP(X, y)
+        sv_indices = list(filter(lambda i: self.alphas[i] > self.eps, range(len(y))))
+        self.sv_x, self.sv_y, self.alphas = X[sv_indices], y[sv_indices], self.alphas[sv_indices]
+        self.n_sv = len(sv_indices)
+        if self.kernel == linear_kernel:
+            self.w = np.dot(self.alphas * self.sv_y, self.sv_x)
+        # calculate b: average over all support vectors
+        sv_boundary = self.alphas < self.C - self.eps
+        self.b = np.mean(self.sv_y[sv_boundary] - np.dot(self.alphas * self.sv_y,
+                                                         self.kernel(self.sv_x, self.sv_x[sv_boundary])))
+
+    def QP(self, X, y):
+        """
+        Solves a quadratic programming problem. In QP formulation (dual):
+        m variables, 2m+1 constraints (1 equation, 2m inequations).
+        :param X: array of size [n_samples, n_features] holding the training samples
+        :param y: array of size [n_samples] holding the class labels
+        """
+        #
+        m = len(y)  # m = n_samples
+        K = self.kernel(X)  # gram matrix
+        P = K * np.outer(y, y)
+        q = -np.ones(m)
+        G = np.vstack((-np.identity(m), np.identity(m)))
+        h = np.hstack((np.zeros(m), np.ones(m) * self.C))
+        A = y.reshape((1, -1))
+        b = np.zeros(1)
+        # make sure P is positive definite
+        P += np.eye(P.shape[0]).__mul__(1e-3)
+        self.alphas = solve_qp(P, q, G, h, A, b, sym_proj=True)
+
+    def predict_score(self, x):
+        """
+        Predicts the score for a given example.
+        """
+        if self.w is None:
+            return np.dot(self.alphas * self.sv_y, self.kernel(self.sv_x, x)) + self.b
+        return np.dot(x, self.w) + self.b
+
+    def predict(self, x):
+        """
+        Predicts the class of a given example.
+        """
+        return np.sign(self.predict_score(x))
+
+
+class MultiSVM:
+    def __init__(self, kernel=linear_kernel, decision_function='ovr', C=1.0):
+        self.kernel = kernel
+        self.decision_function = decision_function
+        self.C = C  # hyper-parameter
+        self.n_class, self.classifiers = 0, []
+
+    def fit(self, X, y):
+        """
+        Trains n_class or n_class * (n_class - 1) / 2 classifiers
+        according to the training method, ovr or ovo respectively.
+        :param X: array of size [n_samples, n_features] holding the training samples
+        :param y: array of size [n_samples] holding the class labels
+        :return: array of classifiers
+        """
+        labels = np.unique(y)
+        self.n_class = len(labels)
+        if self.decision_function == 'ovr':  # one-vs-rest method
+            for label in labels:
+                y1 = np.array(y)
+                y1[y1 != label] = -1.0
+                y1[y1 == label] = 1.0
+                clf = BinarySVM(self.kernel, self.C)
+                clf.fit(X, y1)
+                self.classifiers.append(copy.deepcopy(clf))
+        elif self.decision_function == 'ovo':  # use one-vs-one method
+            n_labels = len(labels)
+            for i in range(n_labels):
+                for j in range(i + 1, n_labels):
+                    neg_id, pos_id = y == labels[i], y == labels[j]
+                    x1, y1 = np.r_[X[neg_id], X[pos_id]], np.r_[y[neg_id], y[pos_id]]
+                    y1[y1 == labels[i]] = -1.0
+                    y1[y1 == labels[j]] = 1.0
+                    clf = BinarySVM(self.kernel, self.C)
+                    clf.fit(x1, y1)
+                    self.classifiers.append(copy.deepcopy(clf))
+        else:
+            return ValueError("Decision function must be either 'ovr' or 'ovo'.")
+
+    def predict(self, x):
+        """
+        Predicts the class of a given example according to the training method.
+        """
+        n_samples = len(x)
+        if self.decision_function == 'ovr':  # one-vs-rest method
+            assert len(self.classifiers) == self.n_class
+            score = np.zeros((n_samples, self.n_class))
+            for i in range(self.n_class):
+                clf = self.classifiers[i]
+                score[:, i] = clf.predict_score(x)
+            return np.argmax(score, axis=1)
+        elif self.decision_function == 'ovo':  # use one-vs-one method
+            assert len(self.classifiers) == self.n_class * (self.n_class - 1) / 2
+            vote = np.zeros((n_samples, self.n_class))
+            clf_id = 0
+            for i in range(self.n_class):
+                for j in range(i + 1, self.n_class):
+                    res = self.classifiers[clf_id].predict(x)
+                    vote[res < 0, i] += 1.0  # negative sample: class i
+                    vote[res > 0, j] += 1.0  # positive sample: class j
+                    clf_id += 1
+            return np.argmax(vote, axis=1)
+        else:
+            return ValueError("Decision function must be either 'ovr' or 'ovo'.")
+
+
 def EnsembleLearner(learners):
     """Given a list of learning algorithms, have them vote."""
 
@@ -608,16 +740,16 @@ def ada_boost(dataset, L, K):
     """[Figure 18.34]"""
 
     examples, target = dataset.examples, dataset.target
-    N = len(examples)
-    epsilon = 1 / (2 * N)
-    w = [1 / N] * N
+    n = len(examples)
+    eps = 1 / (2 * n)
+    w = [1 / n] * n
     h, z = [], []
     for k in range(K):
         h_k = L(dataset, w)
         h.append(h_k)
         error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k(example))
         # avoid divide-by-0 from either 0% or 100% error rates
-        error = clip(error, epsilon, 1 - epsilon)
+        error = clip(error, eps, 1 - eps)
         for j, example in enumerate(examples):
             if example[target] == h_k(example):
                 w[j] *= error / (1 - error)

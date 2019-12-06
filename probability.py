@@ -1,6 +1,4 @@
-"""
-Probability models. (Chapter 13-15)
-"""
+"""Probability models. (Chapter 13-15)"""
 
 import random
 from collections import defaultdict
@@ -9,19 +7,19 @@ from functools import reduce
 import numpy as np
 
 from agents import Agent
-from utils import (product, argmax, element_wise_product, matrix_multiplication, vector_to_diagonal, vector_add,
-                   scalar_vector_product, inverse_matrix, weighted_sample_with_replacement, isclose, probability,
-                   normalize, extend)
+from utils import (product, element_wise_product, matrix_multiplication, vector_add, scalar_vector_product,
+                   weighted_sample_with_replacement, isclose, probability, normalize, extend)
 
 
 def DTAgentProgram(belief_state):
     """
     [Figure 13.1]
-    A decision-theoretic agent."""
+    A decision-theoretic agent.
+    """
 
     def program(percept):
         belief_state.observe(program.action, percept)
-        program.action = argmax(belief_state.actions(), key=belief_state.expected_outcome_utility)
+        program.action = max(belief_state.actions(), key=belief_state.expected_outcome_utility)
         return program.action
 
     program.action = None
@@ -41,14 +39,14 @@ class ProbDist:
     (0.125, 0.375, 0.5)
     """
 
-    def __init__(self, var_name='?', freqs=None):
-        """If freqs is given, it is a dictionary of values - frequency pairs,
+    def __init__(self, var_name='?', freq=None):
+        """If freq is given, it is a dictionary of values - frequency pairs,
         then ProbDist is normalized."""
         self.prob = {}
         self.var_name = var_name
         self.values = []
-        if freqs:
-            for (v, p) in freqs.items():
+        if freq:
+            for (v, p) in freq.items():
                 self[v] = p
             self.normalize()
 
@@ -161,8 +159,7 @@ def enumerate_joint(variables, e, P):
     if not variables:
         return P[e]
     Y, rest = variables[0], variables[1:]
-    return sum([enumerate_joint(rest, extend(e, Y, y), P)
-                for y in P.values(Y)])
+    return sum([enumerate_joint(rest, extend(e, Y, y), P) for y in P.values(Y)])
 
 
 # ______________________________________________________________________________
@@ -261,7 +258,7 @@ class InformationGatheringAgent(Agent):
         """Execute the information gathering algorithm"""
         self.observation = self.integrate_percept(percept)
         vpis = self.vpi_cost_ratio(self.variables)
-        j = argmax(vpis)
+        j = max(vpis)
         variable = self.variables[j]
 
         if self.vpi(variable) > self.cost(variable):
@@ -376,13 +373,12 @@ class BayesNode:
 
 T, F = True, False
 
-burglary = BayesNet([
-    ('Burglary', '', 0.001),
-    ('Earthquake', '', 0.002),
-    ('Alarm', 'Burglary Earthquake',
-     {(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001}),
-    ('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
-    ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})])
+burglary = BayesNet([('Burglary', '', 0.001),
+                     ('Earthquake', '', 0.002),
+                     ('Alarm', 'Burglary Earthquake',
+                      {(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001}),
+                     ('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
+                     ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})])
 
 
 # ______________________________________________________________________________
@@ -513,12 +509,11 @@ def all_events(variables, bn, e):
 # [Figure 14.12a]: sprinkler network
 
 
-sprinkler = BayesNet([
-    ('Cloudy', '', 0.5),
-    ('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
-    ('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
-    ('WetGrass', 'Sprinkler Rain',
-     {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
+sprinkler = BayesNet([('Cloudy', '', 0.5),
+                      ('Sprinkler', 'Cloudy', {T: 0.10, F: 0.50}),
+                      ('Rain', 'Cloudy', {T: 0.80, F: 0.20}),
+                      ('WetGrass', 'Sprinkler Rain',
+                       {(T, T): 0.99, (T, F): 0.90, (F, T): 0.90, (F, F): 0.00})])
 
 
 # ______________________________________________________________________________
@@ -527,8 +522,9 @@ sprinkler = BayesNet([
 def prior_sample(bn):
     """
     [Figure 14.13]
-    Randomly sample from bn's full joint distribution. The result
-    is a {variable: value} dict."""
+    Randomly sample from bn's full joint distribution.
+    The result is a {variable: value} dict.
+    """
     event = {}
     for node in bn.nodes:
         event[node.variable] = node.sample(event)
@@ -584,9 +580,11 @@ def likelihood_weighting(X, e, bn, N=10000):
 
 
 def weighted_sample(bn, e):
-    """Sample an event from bn that's consistent with the evidence e;
+    """
+    Sample an event from bn that's consistent with the evidence e;
     return the event and its weight, the likelihood that the event
-    accords to the evidence."""
+    accords to the evidence.
+    """
     w = 1
     event = dict(e)  # boldface x in [Figure 14.15]
     for node in bn.nodes:
@@ -669,13 +667,13 @@ def forward_backward(HMM, ev):
     """
     [Figure 15.4]
     Forward-Backward algorithm for smoothing. Computes posterior probabilities
-    of a sequence of states given a sequence of observations."""
+    of a sequence of states given a sequence of observations.
+    """
     t = len(ev)
     ev.insert(0, None)  # to make the code look similar to pseudo code
 
     fv = [[0.0, 0.0] for _ in range(len(ev))]
     b = [1.0, 1.0]
-    bv = [b]  # we don't need bv; but we will have a list of all backward messages here
     sv = [[0, 0] for _ in range(len(ev))]
 
     fv[0] = HMM.prior
@@ -685,7 +683,6 @@ def forward_backward(HMM, ev):
     for i in range(t, -1, -1):
         sv[i - 1] = normalize(element_wise_product(fv[i], b))
         b = backward(HMM, b, ev[i])
-        bv.append(b)
 
     sv = sv[::-1]
 
@@ -696,7 +693,8 @@ def viterbi(HMM, ev):
     """
     [Equation 15.11]
     Viterbi algorithm to find the most likely sequence. Computes the best path and the
-    corresponding probabilities, given an HMM model and a sequence of observations."""
+    corresponding probabilities, given an HMM model and a sequence of observations.
+    """
     t = len(ev)
     ev = ev.copy()
     ev.insert(0, None)
@@ -741,20 +739,19 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
     [Figure 15.6]
     Smoothing algorithm with a fixed time lag of 'd' steps.
     Online algorithm that outputs the new smoothed estimate if observation
-    for new time step is given."""
+    for new time step is given.
+    """
     ev.insert(0, None)
 
     T_model = HMM.transition_model
     f = HMM.prior
     B = [[1, 0], [0, 1]]
-    evidence = []
 
-    evidence.append(e_t)
-    O_t = vector_to_diagonal(HMM.sensor_dist(e_t))
+    O_t = np.diag(HMM.sensor_dist(e_t))
     if t > d:
         f = forward(HMM, f, e_t)
-        O_tmd = vector_to_diagonal(HMM.sensor_dist(ev[t - d]))
-        B = matrix_multiplication(inverse_matrix(O_tmd), inverse_matrix(T_model), B, T_model, O_t)
+        O_tmd = np.diag(HMM.sensor_dist(ev[t - d]))
+        B = matrix_multiplication(np.linalg.inv(O_tmd), np.linalg.inv(T_model), B, T_model, O_t)
     else:
         B = matrix_multiplication(B, T_model, O_t)
     t += 1
@@ -801,7 +798,6 @@ def particle_filtering(e, N, HMM):
         w[i] = float("{0:.4f}".format(w[i]))
 
     # STEP 2
-
     s = weighted_sample_with_replacement(N, s, w)
 
     return s
@@ -831,7 +827,7 @@ class MCLmap:
         return kin_state
 
     def ray_cast(self, sensor_num, kin_state):
-        """Returns distace to nearest obstacle or map boundary in the direction of sensor"""
+        """Returns distance to nearest obstacle or map boundary in the direction of sensor"""
         pos = kin_state[:2]
         orient = kin_state[2]
         # sensor layout when orientation is 0 (towards North)
@@ -843,7 +839,7 @@ class MCLmap:
         for _ in range(orient):
             delta = (delta[1], -delta[0])
         range_count = 0
-        while (0 <= pos[0] < self.nrows) and (0 <= pos[1] < self.nrows) and (not self.m[pos[0]][pos[1]]):
+        while 0 <= pos[0] < self.nrows and 0 <= pos[1] < self.nrows and not self.m[pos[0]][pos[1]]:
             pos = vector_add(pos, delta)
             range_count += 1
         return range_count
@@ -852,13 +848,13 @@ class MCLmap:
 def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
     """
     [Figure 25.9]
-    Monte Carlo localization algorithm"""
+    Monte Carlo localization algorithm
+    """
 
     def ray_cast(sensor_num, kin_state, m):
         return m.ray_cast(sensor_num, kin_state)
 
     M = len(z)
-    W = [0] * N
     S_ = [0] * N
     W_ = [0] * N
     v = a['v']

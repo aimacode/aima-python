@@ -2,12 +2,10 @@ import random
 
 import pytest
 
-from agents import Agent
-from agents import Direction
 from agents import (ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,
                     RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram,
                     SimpleReflexAgentProgram, ModelBasedReflexAgentProgram, Wall, Gold, Explorer, Thing, Bump, Glitter,
-                    WumpusEnvironment, Pit, VacuumEnvironment, Dirt)
+                    WumpusEnvironment, Pit, VacuumEnvironment, Dirt, Direction, Agent)
 
 random.seed("aima-python")
 
