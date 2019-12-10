@@ -43,6 +43,7 @@ from time import sleep
 import random
 import copy
 import collections
+import numbers
 
 
 # ______________________________________________________________________________
@@ -211,7 +212,14 @@ def RandomVacuumAgent():
 
 
 def TableDrivenVacuumAgent():
-    """[Figure 2.3]"""
+    """Tabular approach towards vacuum world as mentioned in [Figure 2.3]
+    >>> agent = TableDrivenVacuumAgent()
+    >>> environment = TrivialVacuumEnvironment()
+    >>> environment.add_thing(agent)
+    >>> environment.run()
+    >>> environment.status == {(1,0):'Clean' , (0,0) : 'Clean'}
+    True
+    """
     table = {((loc_A, 'Clean'),): 'Right',
              ((loc_A, 'Dirty'),): 'Suck',
              ((loc_B, 'Clean'),): 'Left',
@@ -342,7 +350,12 @@ class Environment:
 
     def list_things_at(self, location, tclass=Thing):
         """Return all things exactly at a given location."""
-        return [thing for thing in self.things if thing.location == location and isinstance(thing, tclass)]
+        if isinstance(location, numbers.Number):
+            return [thing for thing in self.things
+                    if thing.location == location and isinstance(thing, tclass)]
+        return [thing for thing in self.things
+                if all(x==y for x,y in zip(thing.location, location))
+                    and isinstance(thing, tclass)]
 
     def some_things_at(self, location, tclass=Thing):
         """Return true if at least one of the things at location
@@ -621,7 +634,7 @@ class GraphicEnvironment(XYEnvironment):
         for x in range(x_start, x_end):
             row = []
             for y in range(y_start, y_end):
-                row.append(self.list_things_at([x, y]))
+                row.append(self.list_things_at((x, y)))
             result.append(row)
         return result
 
