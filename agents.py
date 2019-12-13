@@ -545,7 +545,7 @@ class XYEnvironment(Environment):
         """Add things to the world. If (exclude_duplicate_class_items) then the item won't be
         added if the location has at least one item of the same class."""
         if location is None:
-            location = self.default_location(thing)
+            super().add_thing(thing)
         elif self.is_inbounds(location):
             if (exclude_duplicate_class_items and
                     any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):

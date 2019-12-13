@@ -89,7 +89,7 @@ class Agent(Thing):
         self.bump = False
         self.holding = []
         self.performance = 0
-        if program is None or not isinstance(program, collections.Callable):
+        if program is None or not isinstance(program, collections.abc.Callable):
             print("Can't find a valid program for {}, falling back to default.".format(self.__class__.__name__))
 
             def program(percept):
@@ -541,7 +541,7 @@ class XYEnvironment(Environment):
                 t.location = destination
         return thing.bump
 
-    def add_thing(self, thing, location=None, exclude_duplicate_class_items=False):
+    def add_thing(self, thing, location=(1,1), exclude_duplicate_class_items=False):
         """Add things to the world. If (exclude_duplicate_class_items) then the item won't be
         added if the location has at least one item of the same class."""
         if location is None:
