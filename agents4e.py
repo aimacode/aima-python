@@ -37,7 +37,7 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 from utils4e import distance_squared, turn_heading
 from statistics import mean
 from ipythonblocks import BlockGrid
-from IPython.display import HTML, display
+from IPython.display import HTML, display, clear_output
 from time import sleep
 
 import random
@@ -456,15 +456,17 @@ class Direction:
         >>> l1
         (1, 0)
         """
+        # get the iterable class to return
+        iclass = from_location.__class__
         x, y = from_location
         if self.direction == self.R:
-            return x + 1, y
+            return iclass((x + 1, y))
         elif self.direction == self.L:
-            return x - 1, y
+            return iclass((x - 1, y))
         elif self.direction == self.U:
-            return x, y - 1
+            return iclass((x, y - 1))
         elif self.direction == self.D:
-            return x, y + 1
+            return iclass((x, y + 1))
 
 
 class XYEnvironment(Environment):
@@ -519,7 +521,11 @@ class XYEnvironment(Environment):
                 agent.holding.pop()
 
     def default_location(self, thing):
-        return random.choice(self.width), random.choice(self.height)
+        location = self.random_location_inbounds()
+        while self.some_things_at(location, Obstacle):
+            # we will find a random location with no obstacles
+            location = self.random_location_inbounds()
+        return location
 
     def move_to(self, thing, destination):
         """Move a thing to a new location. Returns True on success or False if there is an Obstacle.
@@ -535,10 +541,12 @@ class XYEnvironment(Environment):
                 t.location = destination
         return thing.bump
 
-    def add_thing(self, thing, location=(1, 1), exclude_duplicate_class_items=False):
+    def add_thing(self, thing, location=None, exclude_duplicate_class_items=False):
         """Add things to the world. If (exclude_duplicate_class_items) then the item won't be
         added if the location has at least one item of the same class."""
-        if self.is_inbounds(location):
+        if location is None:
+            super().add_thing(thing)
+        elif self.is_inbounds(location):
             if (exclude_duplicate_class_items and
                     any(isinstance(t, thing.__class__) for t in self.list_things_at(location))):
                 return
@@ -667,16 +675,16 @@ class GraphicEnvironment(XYEnvironment):
 
     def update(self, delay=1):
         sleep(delay)
-        if self.visible:
-            self.conceal()
-            self.reveal()
-        else:
-            self.reveal()
+        self.reveal()
 
     def reveal(self):
         """Display the BlockGrid for this world - the last thing to be added
         at a location defines the location color."""
         self.draw_world()
+        # wait for the world to update and
+        # apply changes to the same grid instead
+        # of making a new one.
+        clear_output(1)
         self.grid.show()
         self.visible = True
 
