@@ -11,7 +11,7 @@ from IPython.display import display
 from PIL import Image
 from matplotlib import lines
 
-from games import TicTacToe, alpha_beta_player, random_player, Fig52Extended, inf
+from games import TicTacToe, alpha_beta_player, random_player, Fig52Extended
 from learning import DataSet
 from logic import parse_definite_clause, standardize_variables, unify_mm, subst
 from search import GraphProblem, romania_map
@@ -642,7 +642,7 @@ class Canvas_alpha_beta(Canvas):
                 self.change_list.append(('h',))
                 self.change_list.append(('p',))
                 return game.utility(node, player)
-            v = -inf
+            v = -np.inf
             self.change_list.append(('a', node))
             self.change_list.append(('ab', node, v, beta))
             self.change_list.append(('h',))
@@ -671,7 +671,7 @@ class Canvas_alpha_beta(Canvas):
                 self.change_list.append(('h',))
                 self.change_list.append(('p',))
                 return game.utility(node, player)
-            v = inf
+            v = np.inf
             self.change_list.append(('a', node))
             self.change_list.append(('ab', node, alpha, v))
             self.change_list.append(('h',))
@@ -694,7 +694,7 @@ class Canvas_alpha_beta(Canvas):
             self.change_list.append(('h',))
             return v
 
-        return max_value(node, -inf, inf)
+        return max_value(node, -np.inf, np.inf)
 
     def stack_manager_gen(self):
         self.alpha_beta_search(0)
