@@ -1,22 +1,16 @@
-"""Provides some utilities widely used by other modules."""
+"""Provides some utilities widely used by other modules"""
 
 import bisect
 import collections
 import collections.abc
 import functools
 import heapq
-import math
 import os.path
 import random
 from itertools import chain, combinations
 from statistics import mean
 
 import numpy as np
-
-try:  # math.inf was added in Python 3.5
-    from math import inf
-except ImportError:  # Python 3.4
-    inf = float('inf')
 
 
 # part1. General data structures and their functions
@@ -318,11 +312,11 @@ def num_or_str(x):  # TODO: rename as `atom`
 
 
 def euclidean_distance(x, y):
-    return math.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
+    return np.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
 def rms_error(x, y):
-    return math.sqrt(ms_error(x, y))
+    return np.sqrt(ms_error(x, y))
 
 
 def ms_error(x, y):
@@ -350,7 +344,7 @@ def hamming_distance(x, y):
 
 def cross_entropy_loss(x, y):
     """Example of cross entropy loss. x and y are 1D iterable objects."""
-    return (-1.0 / len(x)) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(x, y))
+    return (-1.0 / len(x)) * sum(x * np.log(y) + (1 - x) * np.log(1 - y) for x, y in zip(x, y))
 
 
 def mse_loss(x, y):
@@ -419,7 +413,7 @@ def clip(x, lowest, highest):
 
 def softmax1D(x):
     """Return the softmax vector of input vector x."""
-    exps = [math.exp(_x) for _x in x]
+    exps = [np.exp(_x) for _x in x]
     sum_exps = sum(exps)
     return [exp / sum_exps for exp in exps]
 
@@ -431,7 +425,7 @@ class sigmoid(Activation):
             return 1
         if x <= -100:
             return 0
-        return 1 / (1 + math.exp(-x))
+        return 1 / (1 + np.exp(-x))
 
     def derivative(self, value):
         return value * (1 - value)
@@ -449,10 +443,10 @@ class relu(Activation):
 class elu(Activation):
 
     def f(self, x, alpha=0.01):
-        return x if x > 0 else alpha * (math.exp(x) - 1)
+        return x if x > 0 else alpha * (np.exp(x) - 1)
 
     def derivative(self, value, alpha=0.01):
-        return 1 if value > 0 else alpha * math.exp(value)
+        return 1 if value > 0 else alpha * np.exp(value)
 
 
 class tanh(Activation):
@@ -480,7 +474,7 @@ def step(x):
 
 def gaussian(mean, st_dev, x):
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
-    return 1 / (math.sqrt(2 * math.pi) * st_dev) * math.exp(-0.5 * (float(x - mean) / st_dev) ** 2)
+    return 1 / (np.sqrt(2 * np.pi) * st_dev) * np.exp(-0.5 * (float(x - mean) / st_dev) ** 2)
 
 
 def gaussian_2D(means, sigma, point):
@@ -489,7 +483,7 @@ def gaussian_2D(means, sigma, point):
     assert det != 0
     x_u = vector_add(point, scalar_vector_product(-1, means))
     buff = matrix_multiplication(matrix_multiplication([x_u], inverse), np.array(x_u).T)
-    return 1 / (math.sqrt(det) * 2 * math.pi) * math.exp(-0.5 * buff[0][0])
+    return 1 / (np.sqrt(det) * 2 * np.pi) * np.exp(-0.5 * buff[0][0])
 
 
 def linear_kernel(x, y=None):
@@ -513,13 +507,6 @@ def rbf_kernel(x, y=None, gamma=None):
     return np.exp(-gamma * (-2.0 * np.dot(x, y.T) +
                             np.sum(x * x, axis=1).reshape((-1, 1)) + np.sum(y * y, axis=1).reshape((1, -1))))
 
-
-try:  # math.isclose was added in Python 3.5
-    from math import isclose
-except ImportError:  # Python 3.4
-    def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
-        """Return true if numbers a and b are close to each other."""
-        return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 # part4. Self defined data structures
 # ______________________________________________________________________________
@@ -546,7 +533,7 @@ def distance(a, b):
     """The distance between two (x, y) points."""
     xA, yA = a
     xB, yB = b
-    return math.hypot((xA - xB), (yA - yB))
+    return np.hypot((xA - xB), (yA - yB))
 
 
 def distance_squared(a, b):
@@ -907,7 +894,7 @@ class MCT_Node:
 
 
 def ucb(n, C=1.4):
-    return inf if n.N == 0 else n.U / n.N + C * math.sqrt(math.log(n.parent.N) / n.N)
+    return np.inf if n.N == 0 else n.U / n.N + C * np.sqrt(np.log(n.parent.N) / n.N)
 
 
 # ______________________________________________________________________________

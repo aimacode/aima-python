@@ -1,11 +1,10 @@
-"""Provides some utilities widely used by other modules."""
+"""Provides some utilities widely used by other modules"""
 
 import bisect
 import collections
 import collections.abc
 import functools
 import heapq
-import math
 import operator
 import os.path
 import random
@@ -13,11 +12,6 @@ from itertools import chain, combinations
 from statistics import mean
 
 import numpy as np
-
-try:  # math.inf was added in Python 3.5
-    from math import inf
-except ImportError:  # Python 3.4
-    inf = float('inf')
 
 
 # ______________________________________________________________________________
@@ -236,15 +230,15 @@ def num_or_str(x):  # TODO: rename as `atom`
 
 
 def euclidean_distance(x, y):
-    return math.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
+    return np.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
 def cross_entropy_loss(x, y):
-    return (-1.0 / len(x)) * sum(x * math.log(y) + (1 - x) * math.log(1 - y) for x, y in zip(x, y))
+    return (-1.0 / len(x)) * sum(x * np.log(y) + (1 - x) * np.log(1 - y) for x, y in zip(x, y))
 
 
 def rms_error(x, y):
-    return math.sqrt(ms_error(x, y))
+    return np.sqrt(ms_error(x, y))
 
 
 def ms_error(x, y):
@@ -299,15 +293,15 @@ def sigmoid_derivative(value):
 
 def sigmoid(x):
     """Return activation value of x with sigmoid function."""
-    return 1 / (1 + math.exp(-x))
+    return 1 / (1 + np.exp(-x))
 
 
 def elu(x, alpha=0.01):
-    return x if x > 0 else alpha * (math.exp(x) - 1)
+    return x if x > 0 else alpha * (np.exp(x) - 1)
 
 
 def elu_derivative(value, alpha=0.01):
-    return 1 if value > 0 else alpha * math.exp(value)
+    return 1 if value > 0 else alpha * np.exp(value)
 
 
 def tanh(x):
@@ -341,7 +335,7 @@ def step(x):
 
 def gaussian(mean, st_dev, x):
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
-    return 1 / (math.sqrt(2 * math.pi) * st_dev) * math.e ** (-0.5 * (float(x - mean) / st_dev) ** 2)
+    return 1 / (np.sqrt(2 * np.pi) * st_dev) * np.e ** (-0.5 * (float(x - mean) / st_dev) ** 2)
 
 
 def linear_kernel(x, y=None):
@@ -365,13 +359,6 @@ def rbf_kernel(x, y=None, gamma=None):
     return np.exp(-gamma * (-2.0 * np.dot(x, y.T) +
                             np.sum(x * x, axis=1).reshape((-1, 1)) + np.sum(y * y, axis=1).reshape((1, -1))))
 
-
-try:  # math.isclose was added in Python 3.5
-    from math import isclose
-except ImportError:  # Python 3.4
-    def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
-        """Return true if numbers a and b are close to each other."""
-        return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 # ______________________________________________________________________________
 # Grid Functions
@@ -397,7 +384,7 @@ def distance(a, b):
     """The distance between two (x, y) points."""
     xA, yA = a
     xB, yB = b
-    return math.hypot((xA - xB), (yA - yB))
+    return np.hypot((xA - xB), (yA - yB))
 
 
 def distance_squared(a, b):

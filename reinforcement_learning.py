@@ -1,4 +1,4 @@
-"""Reinforcement Learning. (Chapter 21)"""
+"""Reinforcement Learning (Chapter 21)"""
 
 import random
 from collections import defaultdict

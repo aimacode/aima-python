@@ -1,11 +1,13 @@
-"""Games or Adversarial Search. (Chapter 5)"""
+"""Games or Adversarial Search (Chapter 5)"""
 
 import copy
 import itertools
 import random
 from collections import namedtuple
 
-from utils import vector_add, inf
+import numpy as np
+
+from utils import vector_add
 
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 StochasticGameState = namedtuple('StochasticGameState', 'to_move, utility, board, moves, chance')
@@ -24,7 +26,7 @@ def minmax_decision(state, game):
     def max_value(state):
         if game.terminal_test(state):
             return game.utility(state, player)
-        v = -inf
+        v = -np.inf
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a)))
         return v
@@ -32,7 +34,7 @@ def minmax_decision(state, game):
     def min_value(state):
         if game.terminal_test(state):
             return game.utility(state, player)
-        v = inf
+        v = np.inf
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a)))
         return v
@@ -53,13 +55,13 @@ def expect_minmax(state, game):
     player = game.to_move(state)
 
     def max_value(state):
-        v = -inf
+        v = -np.inf
         for a in game.actions(state):
             v = max(v, chance_node(state, a))
         return v
 
     def min_value(state):
-        v = inf
+        v = np.inf
         for a in game.actions(state):
             v = min(v, chance_node(state, a))
         return v
@@ -94,7 +96,7 @@ def alpha_beta_search(state, game):
     def max_value(state, alpha, beta):
         if game.terminal_test(state):
             return game.utility(state, player)
-        v = -inf
+        v = -np.inf
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a), alpha, beta))
             if v >= beta:
@@ -105,7 +107,7 @@ def alpha_beta_search(state, game):
     def min_value(state, alpha, beta):
         if game.terminal_test(state):
             return game.utility(state, player)
-        v = inf
+        v = np.inf
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a), alpha, beta))
             if v <= alpha:
@@ -114,8 +116,8 @@ def alpha_beta_search(state, game):
         return v
 
     # Body of alpha_beta_search:
-    best_score = -inf
-    beta = inf
+    best_score = -np.inf
+    beta = np.inf
     best_action = None
     for a in game.actions(state):
         v = min_value(game.result(state, a), best_score, beta)
@@ -135,7 +137,7 @@ def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     def max_value(state, alpha, beta, depth):
         if cutoff_test(state, depth):
             return eval_fn(state)
-        v = -inf
+        v = -np.inf
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a), alpha, beta, depth + 1))
             if v >= beta:
@@ -146,7 +148,7 @@ def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     def min_value(state, alpha, beta, depth):
         if cutoff_test(state, depth):
             return eval_fn(state)
-        v = inf
+        v = np.inf
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a), alpha, beta, depth + 1))
             if v <= alpha:
@@ -158,8 +160,8 @@ def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     # The default test cuts off at depth d or at a terminal state
     cutoff_test = (cutoff_test or (lambda state, depth: depth > d or game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
-    best_score = -inf
-    beta = inf
+    best_score = -np.inf
+    beta = np.inf
     best_action = None
     for a in game.actions(state):
         v = min_value(game.result(state, a), best_score, beta, 1)

@@ -1,9 +1,9 @@
 """Deep learning. (Chapters 20)"""
 
-import math
 import random
 import statistics
 
+import numpy as np
 from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
@@ -249,7 +249,7 @@ def adam(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8,
             r_hat = scalar_vector_product(1 / (1 - rho[1] ** t), r)
 
             # rescale r_hat
-            r_hat = map_vector(lambda x: 1 / (math.sqrt(x) + delta), r_hat)
+            r_hat = map_vector(lambda x: 1 / (np.sqrt(x) + delta), r_hat)
 
             # delta weights
             delta_theta = scalar_vector_product(-l_rate, element_wise_product(s_hat, r_hat))
@@ -341,7 +341,7 @@ class BatchNormalizationLayer(Layer):
         res = []
         # get normalized value of each input
         for i in range(len(self.nodes)):
-            val = [(inputs[i] - mu) * self.weights[0] / math.sqrt(self.epsilon + stderr ** 2) + self.weights[1]]
+            val = [(inputs[i] - mu) * self.weights[0] / np.sqrt(self.epsilon + stderr ** 2) + self.weights[1]]
             res.append(val)
             self.nodes[i].val = val
         return res

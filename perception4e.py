@@ -1,4 +1,4 @@
-"""Perception. (Chapter 24)"""
+"""Perception (Chapter 24)"""
 
 import cv2
 import keras
@@ -9,7 +9,7 @@ from keras.datasets import mnist
 from keras.layers import Dense, Activation, Flatten, InputLayer, Conv2D, MaxPooling2D
 from keras.models import Sequential
 
-from utils4e import gaussian_kernel_2D, inf
+from utils4e import gaussian_kernel_2D
 
 
 # ____________________________________________________
@@ -86,8 +86,8 @@ def sum_squared_difference(pic1, pic2):
     pic1 = np.asarray(pic1)
     pic2 = np.asarray(pic2)
     assert pic1.shape == pic2.shape
-    min_ssd = inf
-    min_dxy = (inf, inf)
+    min_ssd = np.inf
+    min_dxy = (np.inf, np.inf)
 
     # consider picture shift from -30 to 30
     for Dx in range(-30, 31):
@@ -241,7 +241,7 @@ class Graph:
         max_flow = 0
 
         while self.bfs(source, sink, parent):
-            path_flow = inf
+            path_flow = np.inf
             # find the minimum flow of s-t path
             for s, t in parent:
                 path_flow = min(path_flow, self.flow[s][t])

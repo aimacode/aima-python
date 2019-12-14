@@ -1,5 +1,5 @@
 """
-Statistical Language Processing tools. (Chapter 22)
+Statistical Language Processing tools (Chapter 22)
 
 We define Unigram and Ngram text models, use them to generate random text,
 and show the Viterbi algorithm for segmentation of letters into words.
@@ -7,15 +7,16 @@ Then we show a very simple Information Retrieval system, and an example
 working on a tiny sample of Unix manual pages.
 """
 
-from utils import hashabledict
-from probabilistic_learning import CountingProbDist
-import search
-
-from math import log, exp
-from collections import defaultdict
 import heapq
-import re
 import os
+import re
+from collections import defaultdict
+
+import numpy as np
+
+import search
+from probabilistic_learning import CountingProbDist
+from utils import hashabledict
 
 
 class UnigramWordModel(CountingProbDist):
@@ -184,7 +185,7 @@ class IRSystem:
     def score(self, word, docid):
         """Compute a score for this word on the document with this docid."""
         # There are many options; here we take a very simple approach
-        return log(1 + self.index[word][docid]) / log(1 + self.documents[docid].nwords)
+        return np.log(1 + self.index[word][docid]) / np.log(1 + self.documents[docid].nwords)
 
     def total_score(self, words, docid):
         """Compute the sum of the scores of these words on the document with this docid."""
@@ -385,10 +386,10 @@ class PermutationDecoder:
 
         # add small positive value to prevent computing log(0)
         # TODO: Modify the values to make score more accurate
-        logP = (sum(log(self.Pwords[word] + 1e-20) for word in words(text)) +
-                sum(log(self.P1[c] + 1e-5) for c in text) +
-                sum(log(self.P2[b] + 1e-10) for b in bigrams(text)))
-        return -exp(logP)
+        logP = (sum(np.log(self.Pwords[word] + 1e-20) for word in words(text)) +
+                sum(np.log(self.P1[c] + 1e-5) for c in text) +
+                sum(np.log(self.P2[b] + 1e-10) for b in bigrams(text)))
+        return -np.exp(logP)
 
 
 class PermutationDecoderProblem(search.Problem):

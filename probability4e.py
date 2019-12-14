@@ -1,12 +1,13 @@
-"""Probability models."""
+"""Probability models (Chapter 12-13)"""
 
 import copy
 import random
 from collections import defaultdict
 from functools import reduce
-from math import sqrt, pi, exp
 
-from utils4e import product, isclose, probability, extend
+import numpy as np
+
+from utils4e import product, probability, extend
 
 
 # ______________________________________________________________________________
@@ -69,7 +70,7 @@ class ProbDist:
         Returns the normalized distribution.
         Raises a ZeroDivisionError if the sum of the values is 0."""
         total = sum(self.prob.values())
-        if not isclose(total, 1.0):
+        if not np.isclose(total, 1.0):
             for val in self.prob:
                 self.prob[val] /= total
         return self
@@ -385,7 +386,7 @@ def gaussian_probability(param, event, value):
     for k, v in event.items():
         # buffer varianle to calculate h1*a_h1 + h2*a_h2
         buff += param['a'][k] * v
-    res = 1 / (param['sigma'] * sqrt(2 * pi)) * exp(-0.5 * ((value - buff - param['b']) / param['sigma']) ** 2)
+    res = 1 / (param['sigma'] * np.sqrt(2 * np.pi)) * np.exp(-0.5 * ((value - buff - param['b']) / param['sigma']) ** 2)
     return res
 
 
@@ -403,7 +404,7 @@ def logistic_probability(param, event, value):
         # buffer variable to calculate (value-mu)/sigma
 
         buff *= (v - param['mu']) / param['sigma']
-    p = 1 - 1 / (1 + exp(-4 / sqrt(2 * pi) * buff))
+    p = 1 - 1 / (1 + np.exp(-4 / np.sqrt(2 * np.pi) * buff))
     return p if value else 1 - p
 
 
@@ -456,8 +457,7 @@ harvest_buy = BayesNet([
     ('Cost', 'Subsidy', 'Harvest',
      {True: {'sigma': 0.5, 'b': 1, 'a': {'Harvest': 0.5}},
       False: {'sigma': 0.6, 'b': 1, 'a': {'Harvest': 0.5}}}, 'c'),
-    ('Buys', '', 'Cost', {T: {'mu': 0.5, 'sigma': 0.5}, F: {'mu': 0.6, 'sigma': 0.6}}, 'd'),
-])
+    ('Buys', '', 'Cost', {T: {'mu': 0.5, 'sigma': 0.5}, F: {'mu': 0.6, 'sigma': 0.6}}, 'd')])
 
 
 # ______________________________________________________________________________

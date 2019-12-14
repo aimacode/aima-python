@@ -1,20 +1,14 @@
-"""Learning from examples. (Chapters 18)"""
+"""Learning from examples (Chapters 18)"""
 
 import copy
-import heapq
-import math
-import random
 from collections import defaultdict
-from statistics import mean, stdev
+from statistics import stdev
 
-import numpy as np
 from qpsolvers import solve_qp
 
 from probabilistic_learning import NaiveBayesLearner
 from utils import sigmoid, sigmoid_derivative
-from utils4e import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, num_or_str, normalize, clip,
-                     weighted_sample_with_replacement, print_table, open_data, probability, random_weights,
-                     mean_boolean_error, linear_kernel, inf)
+from utils4e import *
 
 
 class DataSet:
@@ -457,7 +451,7 @@ def DecisionTreeLearner(dataset):
 def information_content(values):
     """Number of bits to represent the probability distribution in values."""
     probabilities = normalize(remove_all(0, values))
-    return sum(-p * math.log2(p) for p in probabilities)
+    return sum(-p * np.log2(p) for p in probabilities)
 
 
 def DecisionListLearner(dataset):
@@ -754,7 +748,7 @@ def ada_boost(dataset, L, K):
             if example[target] == h_k(example):
                 w[j] *= error / (1 - error)
         w = normalize(w)
-        z.append(math.log((1 - error) / error))
+        z.append(np.log((1 - error) / error))
     return weighted_majority(h, z)
 
 

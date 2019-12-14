@@ -1,20 +1,13 @@
-"""Learning from examples. (Chapters 18)"""
+"""Learning from examples (Chapters 18)"""
 
 import copy
-import heapq
-import math
-import random
 from collections import defaultdict
-from statistics import mean, stdev
+from statistics import stdev
 
-import numpy as np
 from qpsolvers import solve_qp
 
 from probabilistic_learning import NaiveBayesLearner
-from utils import (remove_all, unique, mode, argmax_random_tie, isclose, dot_product, vector_add, clip, sigmoid,
-                   scalar_vector_product, weighted_sample_with_replacement, num_or_str, normalize, print_table,
-                   open_data, sigmoid_derivative, probability, relu, relu_derivative, tanh, tanh_derivative, leaky_relu,
-                   leaky_relu_derivative, elu, elu_derivative, mean_boolean_error, random_weights, linear_kernel, inf)
+from utils import *
 
 
 class DataSet:
@@ -272,7 +265,7 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     while True:
         errT, errV = cross_validation(learner, dataset, size, k, trials)
         # check for convergence provided err_val is not empty
-        if errT and not isclose(errT[-1], errT, rel_tol=1e-6):
+        if errT and not np.isclose(errT[-1], errT, rel_tol=1e-6):
             best_size = 0
             min_val = inf
             i = 0
@@ -462,7 +455,7 @@ def DecisionTreeLearner(dataset):
 def information_content(values):
     """Number of bits to represent the probability distribution in values."""
     probabilities = normalize(remove_all(0, values))
-    return sum(-p * math.log2(p) for p in probabilities)
+    return sum(-p * np.log2(p) for p in probabilities)
 
 
 def DecisionListLearner(dataset):
@@ -980,7 +973,7 @@ def ada_boost(dataset, L, K):
             if example[target] == h_k(example):
                 w[j] *= error / (1 - error)
         w = normalize(w)
-        z.append(math.log((1 - error) / error))
+        z.append(np.log((1 - error) / error))
     return weighted_majority(h, z)
 
 

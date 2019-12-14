@@ -1,23 +1,23 @@
 """Knowledge in learning (Chapter 19)"""
 
-from random import shuffle
-from math import log
-from utils import power_set
 from collections import defaultdict
+from functools import partial
 from itertools import combinations, product
+from random import shuffle
+
+import numpy as np
+
 from logic import (FolKB, constant_symbols, predicate_symbols, standardize_variables,
                    variables, is_definite_clause, subst, expr, Expr)
-from functools import partial
-
-
-# ______________________________________________________________________________
+from utils import power_set
 
 
 def current_best_learning(examples, h, examples_so_far=None):
     """
     [Figure 19.2]
     The hypothesis is a list of dictionaries, with each dictionary representing
-    a disjunction."""
+    a disjunction.
+    """
     if examples_so_far is None:
         examples_so_far = []
     if not examples:
@@ -128,7 +128,8 @@ def version_space_learning(examples):
     """
     [Figure 19.3]
     The version space is a list of hypotheses, which in turn are a list
-    of dictionaries/disjunctions."""
+    of dictionaries/disjunctions.
+    """
     V = all_hypotheses(examples)
     for e in examples:
         if V:
@@ -314,7 +315,6 @@ class FOILContainer(FolKB):
 
     def choose_literal(self, literals, examples):
         """Choose the best literal based on the information gain."""
-
         return max(literals, key=partial(self.gain, examples=examples))
 
     def gain(self, l, examples):
@@ -345,8 +345,8 @@ class FOILContainer(FolKB):
             represents = lambda d: all(d[x] == example[x] for x in example)
             if any(represents(l_) for l_ in post_pos):
                 T += 1
-        value = T * (log(len(post_pos) / (len(post_pos) + len(post_neg)) + 1e-12, 2) -
-                     log(pre_pos / (pre_pos + pre_neg), 2))
+        value = T * (np.log2(len(post_pos) / (len(post_pos) + len(post_neg)) + 1e-12) -
+                     np.log2(pre_pos / (pre_pos + pre_neg)))
         return value
 
     def update_examples(self, target, examples, extended_examples):
