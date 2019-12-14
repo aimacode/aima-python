@@ -277,7 +277,7 @@ def test_VacuumEnvironment():
     # get an agent
     agent = ModelBasedVacuumAgent()
     agent.direction = Direction(Direction.R)
-    v.add_thing(agent)
+    v.add_thing(agent, location=(1, 1))
     v.add_thing(Dirt(), location=(2, 1))
 
     # check if things are added properly
