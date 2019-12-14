@@ -116,10 +116,10 @@ def test_cross_entropy():
 
 def test_rms_error():
     assert rms_error([2, 2], [2, 2]) == 0
-    assert rms_error((0, 0), (0, 1)) == math.sqrt(0.5)
+    assert rms_error((0, 0), (0, 1)) == np.sqrt(0.5)
     assert rms_error((1, 0), (0, 1)) == 1
-    assert rms_error((0, 0), (0, -1)) == math.sqrt(0.5)
-    assert rms_error((0, 0.5), (0, -0.5)) == math.sqrt(0.5)
+    assert rms_error((0, 0), (0, -1)) == np.sqrt(0.5)
+    assert rms_error((0, 0.5), (0, -0.5)) == np.sqrt(0.5)
 
 
 def test_manhattan_distance():

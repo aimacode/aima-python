@@ -354,8 +354,7 @@ class Environment:
             return [thing for thing in self.things
                     if thing.location == location and isinstance(thing, tclass)]
         return [thing for thing in self.things
-                if all(x==y for x,y in zip(thing.location, location))
-                    and isinstance(thing, tclass)]
+                if all(x == y for x, y in zip(thing.location, location)) and isinstance(thing, tclass)]
 
     def some_things_at(self, location, tclass=Thing):
         """Return true if at least one of the things at location

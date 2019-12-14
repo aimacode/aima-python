@@ -1,9 +1,10 @@
 import random
 
+import numpy as np
 import pytest
 
 from text import *
-from utils import isclose, open_data
+from utils import open_data
 
 random.seed("aima-python")
 
@@ -31,9 +32,9 @@ def test_text_models():
                          (13, ('as', 'well', 'as'))]
 
     # Test isclose
-    assert isclose(P1['the'], 0.0611, rel_tol=0.001)
-    assert isclose(P2['of', 'the'], 0.0108, rel_tol=0.01)
-    assert isclose(P3['so', 'as', 'to'], 0.000323, rel_tol=0.001)
+    assert np.isclose(P1['the'], 0.0611, rtol=0.001)
+    assert np.isclose(P2['of', 'the'], 0.0108, rtol=0.01)
+    assert np.isclose(P3['so', 'as', 'to'], 0.000323, rtol=0.001)
 
     # Test cond_prob.get
     assert P2.cond_prob.get(('went',)) is None

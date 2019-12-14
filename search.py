@@ -6,14 +6,10 @@ then create problem instances and solve them with calls to the various search
 functions.
 """
 
-import bisect
-import math
-import random
 import sys
 from collections import deque
 
-from utils import (is_in, argmax_random_tie, probability, weighted_sampler, memoize, print_table, open_data,
-                   PriorityQueue, name, distance, vector_add, inf)
+from utils import *
 
 
 class Problem:
@@ -331,7 +327,7 @@ def bidirectional_search(problem):
     gF, gB = {problem.initial: 0}, {problem.goal: 0}
     openF, openB = [problem.initial], [problem.goal]
     closedF, closedB = [], []
-    U = inf
+    U = np.inf
 
     def extend(U, open_dir, open_other, g_dir, g_other, closed_dir):
         """Extend search in given direction"""
@@ -357,7 +353,7 @@ def bidirectional_search(problem):
 
     def find_min(open_dir, g):
         """Finds minimum priority, g and f values in open_dir"""
-        m, m_f = inf, inf
+        m, m_f = np.inf, np.inf
         for n in open_dir:
             f = g[n] + problem.h(n)
             pr = max(f, 2 * g[n])
@@ -369,7 +365,7 @@ def bidirectional_search(problem):
     def find_key(pr_min, open_dir, g):
         """Finds key in open_dir with value equal to pr_min
         and minimum g value."""
-        m = inf
+        m = np.inf
         state = -1
         for n in open_dir:
             pr = max(g[n] + problem.h(n), 2 * g[n])
@@ -395,7 +391,7 @@ def bidirectional_search(problem):
             # Extend backward
             U, openB, closedB, gB = extend(U, openB, openF, gB, gF, closedB)
 
-    return inf
+    return np.inf
 
 
 # ______________________________________________________________________________
@@ -605,7 +601,7 @@ def recursive_best_first_search(problem, h=None):
             return node, 0  # (The second value is immaterial)
         successors = node.expand(problem)
         if len(successors) == 0:
-            return None, inf
+            return None, np.inf
         for s in successors:
             s.f = max(s.path_cost + h(s), node.f)
         while True:
@@ -617,14 +613,14 @@ def recursive_best_first_search(problem, h=None):
             if len(successors) > 1:
                 alternative = successors[1].f
             else:
-                alternative = inf
+                alternative = np.inf
             result, best.f = RBFS(problem, best, min(flimit, alternative))
             if result is not None:
                 return result, best.f
 
     node = Node(problem.initial)
     node.f = h(node)
-    result, bestf = RBFS(problem, node, inf)
+    result, bestf = RBFS(problem, node, np.inf)
     return result
 
 
@@ -648,7 +644,7 @@ def hill_climbing(problem):
 
 def exp_schedule(k=20, lam=0.005, limit=100):
     """One possible schedule function for simulated annealing"""
-    return lambda t: (k * math.exp(-lam * t) if t < limit else 0)
+    return lambda t: (k * np.exp(-lam * t) if t < limit else 0)
 
 
 def simulated_annealing(problem, schedule=exp_schedule()):
@@ -664,7 +660,7 @@ def simulated_annealing(problem, schedule=exp_schedule()):
             return current.state
         next_choice = random.choice(neighbors)
         delta_e = problem.value(next_choice.state) - problem.value(current.state)
-        if delta_e > 0 or probability(math.exp(delta_e / T)):
+        if delta_e > 0 or probability(np.exp(delta_e / T)):
             current = next_choice
 
 
@@ -683,7 +679,7 @@ def simulated_annealing_full(problem, schedule=exp_schedule()):
             return current.state
         next_choice = random.choice(neighbors)
         delta_e = problem.value(next_choice.state) - problem.value(current.state)
-        if delta_e > 0 or probability(math.exp(delta_e / T)):
+        if delta_e > 0 or probability(np.exp(delta_e / T)):
             current = next_choice
 
 
@@ -1080,7 +1076,7 @@ def RandomGraph(nodes=list(range(10)), min_links=2, width=400, height=300,
 
                 def distance_to_node(n):
                     if n is node or g.get(node, n):
-                        return inf
+                        return np.inf
                     return distance(g.locations[n], here)
 
                 neighbor = min(nodes, key=distance_to_node)
@@ -1188,11 +1184,11 @@ class GraphProblem(Problem):
         return action
 
     def path_cost(self, cost_so_far, A, action, B):
-        return cost_so_far + (self.graph.get(A, B) or inf)
+        return cost_so_far + (self.graph.get(A, B) or np.inf)
 
     def find_min_edge(self):
         """Find minimum value of edges."""
-        m = inf
+        m = np.inf
         for d in self.graph.graph_dict.values():
             local_min = min(d.values())
             m = min(m, local_min)
@@ -1208,7 +1204,7 @@ class GraphProblem(Problem):
 
             return int(distance(locs[node.state], locs[self.goal]))
         else:
-            return inf
+            return np.inf
 
 
 class GraphProblemStochastic(GraphProblem):
@@ -1368,7 +1364,7 @@ def boggle_neighbors(n2, cache={}):
 
 def exact_sqrt(n2):
     """If n2 is a perfect square, return its square root, else raise error."""
-    n = int(math.sqrt(n2))
+    n = int(np.sqrt(n2))
     assert n * n == n2
     return n
 

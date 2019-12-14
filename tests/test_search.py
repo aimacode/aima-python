@@ -156,15 +156,13 @@ def test_recursive_best_first_search():
         romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
     assert recursive_best_first_search(
         EightPuzzle((2, 4, 3, 1, 5, 6, 7, 8, 0))).solution() == [
-               'UP', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT', 'DOWN'
-           ]
+               'UP', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT', 'DOWN']
 
     def manhattan(node):
         state = node.state
         index_goal = {0: [2, 2], 1: [0, 0], 2: [0, 1], 3: [0, 2], 4: [1, 0], 5: [1, 1], 6: [1, 2], 7: [2, 0], 8: [2, 1]}
         index_state = {}
         index = [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
-        x, y = 0, 0
 
         for i in range(len(state)):
             index_state[state[i]] = index[i]
@@ -260,12 +258,10 @@ def test_LRTAStarAgent():
 
 def test_genetic_algorithm():
     # Graph coloring
-    edges = {
-        'A': [0, 1],
-        'B': [0, 3],
-        'C': [1, 2],
-        'D': [2, 3]
-    }
+    edges = {'A': [0, 1],
+             'B': [0, 3],
+             'C': [1, 2],
+             'D': [2, 3]}
 
     def fitness(c):
         return sum(c[n1] != c[n2] for (n1, n2) in edges.values())

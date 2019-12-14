@@ -1,14 +1,10 @@
-"""Probability models. (Chapter 13-15)"""
+"""Probability models (Chapter 13-15)"""
 
-import random
 from collections import defaultdict
 from functools import reduce
 
-import numpy as np
-
 from agents import Agent
-from utils import (product, element_wise_product, matrix_multiplication, vector_add, scalar_vector_product,
-                   weighted_sample_with_replacement, isclose, probability, normalize, extend)
+from utils import *
 
 
 def DTAgentProgram(belief_state):
@@ -68,7 +64,7 @@ class ProbDist:
         Returns the normalized distribution.
         Raises a ZeroDivisionError if the sum of the values is 0."""
         total = sum(self.prob.values())
-        if not isclose(total, 1.0):
+        if not np.isclose(total, 1.0):
             for val in self.prob:
                 self.prob[val] /= total
         return self

@@ -1,4 +1,4 @@
-"""Making Simple Decisions. (Chapter 15)"""
+"""Making Simple Decisions (Chapter 15)"""
 
 import random
 
