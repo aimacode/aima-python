@@ -340,42 +340,44 @@ def bidirectional_search(problem):
         open_dir.remove(n)
         closed_dir.append(n)
 
-        for c in problem.actions(n):
-            if c in open_dir or c in closed_dir:
-                if g_dir[c] <= problem.path_cost(g_dir[n], n, None, c):
+        for child in problem.actions(n):
+            if child in open_dir or child in closed_dir:
+                if g_dir[child] <= problem.path_cost(g_dir[n], n, None, child):
                     continue
 
-                open_dir.remove(c)
+                open_dir.remove(child)
 
-            g_dir[c] = problem.path_cost(g_dir[n], n, None, c)
-            open_dir.append(c)
+            g_dir[child] = problem.path_cost(g_dir[n], n, None, child)
+            open_dir.append(child)
 
-            if c in open_other:
-                U = min(U, g_dir[c] + g_other[c])
+            if child in open_other:
+                U = min(U, g_dir[child] + g_other[child])
 
         return U, open_dir, closed_dir, g_dir
 
     def find_min(open_dir, g):
         """Finds minimum priority, g and f values in open_dir"""
-        m, m_f = np.inf, np.inf
+        # pr_min_f isn't forward pr_min instead it's the f-value
+        # of node with priority pr_min.
+        pr_min, pr_min_f = np.inf, np.inf
         for n in open_dir:
             f = g[n] + problem.h(n)
             pr = max(f, 2 * g[n])
-            m = min(m, pr)
-            m_f = min(m_f, f)
+            pr_min = min(pr_min, pr)
+            pr_min_f = min(pr_min_f, f)
 
-        return m, m_f, min(g.values())
+        return pr_min, pr_min_f, min(g.values())
 
     def find_key(pr_min, open_dir, g):
         """Finds key in open_dir with value equal to pr_min
         and minimum g value."""
-        m = np.inf
+        gmin = np.inf
         state = -1
         for n in open_dir:
             pr = max(g[n] + problem.h(n), 2 * g[n])
             if pr == pr_min:
-                if g[n] < m:
-                    m = g[n]
+                if g[n] < gmin:
+                    gmin = g[n]
                     state = n
 
         return state
