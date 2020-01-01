@@ -340,18 +340,18 @@ def bidirectional_search(problem):
         open_dir.remove(n)
         closed_dir.append(n)
 
-        for child in problem.actions(n):
-            if child in open_dir or child in closed_dir:
-                if g_dir[child] <= problem.path_cost(g_dir[n], n, None, child):
+        for c in problem.actions(n):
+            if c in open_dir or c in closed_dir:
+                if g_dir[c] <= problem.path_cost(g_dir[n], n, None, c):
                     continue
 
-                open_dir.remove(child)
+                open_dir.remove(c)
 
-            g_dir[child] = problem.path_cost(g_dir[n], n, None, child)
-            open_dir.append(child)
+            g_dir[c] = problem.path_cost(g_dir[n], n, None, c)
+            open_dir.append(c)
 
-            if child in open_other:
-                U = min(U, g_dir[child] + g_other[child])
+            if c in open_other:
+                U = min(U, g_dir[c] + g_other[c])
 
         return U, open_dir, closed_dir, g_dir
 
@@ -371,13 +371,13 @@ def bidirectional_search(problem):
     def find_key(pr_min, open_dir, g):
         """Finds key in open_dir with value equal to pr_min
         and minimum g value."""
-        gmin = np.inf
+        m = np.inf
         state = -1
         for n in open_dir:
             pr = max(g[n] + problem.h(n), 2 * g[n])
             if pr == pr_min:
-                if g[n] < gmin:
-                    gmin = g[n]
+                if g[n] < m:
+                    m = g[n]
                     state = n
 
         return state
