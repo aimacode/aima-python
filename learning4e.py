@@ -7,7 +7,6 @@ from statistics import stdev
 from qpsolvers import solve_qp
 
 from probabilistic_learning import NaiveBayesLearner
-from utils import sigmoid, sigmoid_derivative
 from utils4e import *
 
 
@@ -569,8 +568,8 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = Sigmoid(dot_product(w, x))
-            h.append(sigmoid_derivative(y))
+            y = Sigmoid().f(dot_product(w, x))
+            h.append(Sigmoid().derivative(y))
             t = example[idx_t]
             err.append(t - y)
 
@@ -581,7 +580,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
 
     def predict(example):
         x = [1] + example
-        return Sigmoid(dot_product(w, x))
+        return Sigmoid().f(dot_product(w, x))
 
     return predict
 
