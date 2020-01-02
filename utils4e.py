@@ -418,7 +418,7 @@ def softmax1D(x):
     return [exp / sum_exps for exp in exps]
 
 
-class sigmoid(Activation):
+class Sigmoid(Activation):
 
     def f(self, x):
         if x >= 100:
@@ -431,7 +431,7 @@ class sigmoid(Activation):
         return value * (1 - value)
 
 
-class relu(Activation):
+class Relu(Activation):
 
     def f(self, x):
         return max(0, x)
@@ -440,7 +440,7 @@ class relu(Activation):
         return 1 if value > 0 else 0
 
 
-class elu(Activation):
+class Elu(Activation):
 
     def f(self, x, alpha=0.01):
         return x if x > 0 else alpha * (np.exp(x) - 1)
@@ -449,7 +449,7 @@ class elu(Activation):
         return 1 if value > 0 else alpha * np.exp(value)
 
 
-class tanh(Activation):
+class Tanh(Activation):
 
     def f(self, x):
         return np.tanh(x)
@@ -458,7 +458,7 @@ class tanh(Activation):
         return 1 - (value ** 2)
 
 
-class leaky_relu(Activation):
+class LeakyRelu(Activation):
 
     def f(self, x, alpha=0.01):
         return x if x > 0 else alpha * x

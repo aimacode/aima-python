@@ -8,7 +8,7 @@ from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
-from utils4e import (sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
+from utils4e import (Sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
                      random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss)
 
 
@@ -95,7 +95,7 @@ class DenseLayer(Layer):
         super(DenseLayer, self).__init__(out_size)
         self.out_size = out_size
         self.inputs = None
-        self.activation = sigmoid() if not activation else activation
+        self.activation = Sigmoid() if not activation else activation
         # initialize weights
         for node in self.nodes:
             node.weights = random_weights(-0.5, 0.5, in_size)
