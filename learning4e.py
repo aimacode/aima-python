@@ -7,7 +7,6 @@ from statistics import stdev
 from qpsolvers import solve_qp
 
 from probabilistic_learning import NaiveBayesLearner
-from utils import sigmoid, sigmoid_derivative
 from utils4e import *
 
 
@@ -265,9 +264,9 @@ def model_selection(learner, dataset, k=10, trials=1):
     while True:
         err = cross_validation(learner, dataset, size, k, trials)
         # check for convergence provided err_val is not empty
-        if err and not isclose(err[-1], err, rel_tol=1e-6):
+        if err and not np.isclose(err[-1], err, rtol=1e-6):
             best_size = 0
-            min_val = inf
+            min_val = np.inf
             i = 0
             while i < size:
                 if errs[i] < min_val:
@@ -569,8 +568,8 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = sigmoid(dot_product(w, x))
-            h.append(sigmoid_derivative(y))
+            y = Sigmoid().f(dot_product(w, x))
+            h.append(Sigmoid().derivative(y))
             t = example[idx_t]
             err.append(t - y)
 
@@ -581,7 +580,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
 
     def predict(example):
         x = [1] + example
-        return sigmoid(dot_product(w, x))
+        return Sigmoid().f(dot_product(w, x))
 
     return predict
 

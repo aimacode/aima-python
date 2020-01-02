@@ -92,6 +92,10 @@ def remove_all(item, seq):
     """Return a copy of seq (or string) with all occurrences of item removed."""
     if isinstance(seq, str):
         return seq.replace(item, '')
+    elif isinstance(seq, set):
+        rest = seq.copy()
+        rest.remove(item)
+        return rest
     else:
         return [x for x in seq if x != item]
 
@@ -368,11 +372,6 @@ def normalize(dist):
     return [(n / total) for n in dist]
 
 
-def norm(x, ord=2):
-    """Return the n-norm of vector x."""
-    return np.linalg.norm(x, ord)
-
-
 def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
@@ -402,7 +401,10 @@ def gaussian_kernel_2D(size=3, sigma=0.5):
 
 class Activation:
 
-    def derivative(self, value):
+    def f(self, x):
+        pass
+
+    def derivative(self, x):
         pass
 
 
@@ -418,7 +420,7 @@ def softmax1D(x):
     return [exp / sum_exps for exp in exps]
 
 
-class sigmoid(Activation):
+class Sigmoid(Activation):
 
     def f(self, x):
         if x >= 100:
@@ -431,7 +433,7 @@ class sigmoid(Activation):
         return value * (1 - value)
 
 
-class relu(Activation):
+class Relu(Activation):
 
     def f(self, x):
         return max(0, x)
@@ -440,7 +442,7 @@ class relu(Activation):
         return 1 if value > 0 else 0
 
 
-class elu(Activation):
+class Elu(Activation):
 
     def f(self, x, alpha=0.01):
         return x if x > 0 else alpha * (np.exp(x) - 1)
@@ -449,7 +451,7 @@ class elu(Activation):
         return 1 if value > 0 else alpha * np.exp(value)
 
 
-class tanh(Activation):
+class Tanh(Activation):
 
     def f(self, x):
         return np.tanh(x)
@@ -458,7 +460,7 @@ class tanh(Activation):
         return 1 - (value ** 2)
 
 
-class leaky_relu(Activation):
+class LeakyRelu(Activation):
 
     def f(self, x, alpha=0.01):
         return x if x > 0 else alpha * x

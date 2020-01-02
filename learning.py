@@ -265,9 +265,9 @@ def cross_validation_wrapper(learner, dataset, k=10, trials=1):
     while True:
         errT, errV = cross_validation(learner, dataset, size, k, trials)
         # check for convergence provided err_val is not empty
-        if errT and not np.isclose(errT[-1], errT, rel_tol=1e-6):
+        if errT and not np.isclose(errT[-1], errT, rtol=1e-6):
             best_size = 0
-            min_val = inf
+            min_val = np.inf
             i = 0
             while i < size:
                 if errs[i] < min_val:

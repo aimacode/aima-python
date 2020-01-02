@@ -8,7 +8,7 @@ from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
-from utils4e import (sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
+from utils4e import (Sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
                      random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss)
 
 
@@ -37,7 +37,7 @@ class NNUnit(Node):
     """
 
     def __init__(self, weights=None, value=None):
-        super(NNUnit, self).__init__(value)
+        super().__init__(value)
         self.weights = weights or []
 
 
@@ -59,7 +59,7 @@ class OutputLayer(Layer):
     """1D softmax output layer in 19.3.2"""
 
     def __init__(self, size=3):
-        super(OutputLayer, self).__init__(size)
+        super().__init__(size)
 
     def forward(self, inputs):
         assert len(self.nodes) == len(inputs)
@@ -73,7 +73,7 @@ class InputLayer(Layer):
     """1D input layer. Layer size is the same as input vector size."""
 
     def __init__(self, size=3):
-        super(InputLayer, self).__init__(size)
+        super().__init__(size)
 
     def forward(self, inputs):
         """Take each value of the inputs to each unit in the layer."""
@@ -92,10 +92,10 @@ class DenseLayer(Layer):
     """
 
     def __init__(self, in_size=3, out_size=3, activation=None):
-        super(DenseLayer, self).__init__(out_size)
+        super().__init__(out_size)
         self.out_size = out_size
         self.inputs = None
-        self.activation = sigmoid() if not activation else activation
+        self.activation = Sigmoid() if not activation else activation
         # initialize weights
         for node in self.nodes:
             node.weights = random_weights(-0.5, 0.5, in_size)
@@ -118,7 +118,7 @@ class ConvLayer1D(Layer):
     """
 
     def __init__(self, size=3, kernel_size=3):
-        super(ConvLayer1D, self).__init__(size)
+        super().__init__(size)
         # init convolution kernel as gaussian kernel
         for node in self.nodes:
             node.weights = gaussian_kernel(kernel_size)
@@ -142,7 +142,7 @@ class MaxPoolingLayer1D(Layer):
     """
 
     def __init__(self, size=3, kernel_size=3):
-        super(MaxPoolingLayer1D, self).__init__(size)
+        super().__init__(size)
         self.kernel_size = kernel_size
         self.inputs = None
 
@@ -326,7 +326,7 @@ class BatchNormalizationLayer(Layer):
     """Batch normalization layer."""
 
     def __init__(self, size, epsilon=0.001):
-        super(BatchNormalizationLayer, self).__init__(size)
+        super().__init__(size)
         self.epsilon = epsilon
         # self.weights = [beta, gamma]
         self.weights = [0, 0]

@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 from keras.datasets import imdb
 
