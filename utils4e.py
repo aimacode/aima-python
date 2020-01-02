@@ -372,11 +372,6 @@ def normalize(dist):
     return [(n / total) for n in dist]
 
 
-def norm(x, ord=2):
-    """Return the n-norm of vector x."""
-    return np.linalg.norm(x, ord)
-
-
 def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
@@ -406,7 +401,10 @@ def gaussian_kernel_2D(size=3, sigma=0.5):
 
 class Activation:
 
-    def derivative(self, value):
+    def f(self, x):
+        pass
+
+    def derivative(self, x):
         pass
 
 
