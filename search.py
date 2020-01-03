@@ -123,6 +123,10 @@ class Node:
         return isinstance(other, Node) and self.state == other.state
 
     def __hash__(self):
+        # We use the hash value of the state
+        # stored in the node instead of the node
+        # object itself to quickly search a node
+        # with the same state in a Hash Table
         return hash(self.state)
 
 
@@ -353,14 +357,16 @@ def bidirectional_search(problem):
 
     def find_min(open_dir, g):
         """Finds minimum priority, g and f values in open_dir"""
-        m, m_f = np.inf, np.inf
+        # pr_min_f isn't forward pr_min instead it's the f-value
+        # of node with priority pr_min.
+        pr_min, pr_min_f = np.inf, np.inf
         for n in open_dir:
             f = g[n] + problem.h(n)
             pr = max(f, 2 * g[n])
-            m = min(m, pr)
-            m_f = min(m_f, f)
+            pr_min = min(pr_min, pr)
+            pr_min_f = min(pr_min_f, f)
 
-        return m, m_f, min(g.values())
+        return pr_min, pr_min_f, min(g.values())
 
     def find_key(pr_min, open_dir, g):
         """Finds key in open_dir with value equal to pr_min
