@@ -197,10 +197,6 @@ def test_distance_squared():
     assert distance_squared((1, 2), (5, 5)) == 25.0
 
 
-def test_vector_clip():
-    assert vector_clip((-1, 10), (0, 0), (9, 9)) == (0, 9)
-
-
 def test_turn_heading():
     assert turn_heading((0, 1), 1) == (-1, 0)
     assert turn_heading((0, 1), -1) == (1, 0)

@@ -384,13 +384,6 @@ def distance_squared(a, b):
     return (xA - xB) ** 2 + (yA - yB) ** 2
 
 
-def vector_clip(vector, lowest, highest):
-    """Return vector, except if any element is less than the corresponding
-    value of lowest or more than the corresponding value of highest, clip to
-    those values."""
-    return type(vector)(map(np.clip, vector, lowest, highest))
-
-
 # ______________________________________________________________________________
 # Misc Functions
 

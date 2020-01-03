@@ -538,13 +538,6 @@ def distance_squared(a, b):
     return (xA - xB) ** 2 + (yA - yB) ** 2
 
 
-def vector_clip(vector, lowest, highest):
-    """Return vector, except if any element is less than the corresponding
-    value of lowest or more than the corresponding value of highest, clip to
-    those values."""
-    return type(vector)(map(np.clip, vector, lowest, highest))
-
-
 # ______________________________________________________________________________
 # Misc Functions
 
@@ -635,7 +628,6 @@ def failure_test(algorithm, tests):
     to check for correctness. On the other hand, a lot of algorithms output something
     particular on fail (for example, False, or None).
     tests is a list with each element in the form: (values, failure_output)."""
-    from statistics import mean
     return mean(int(algorithm(x) != y) for x, y in tests)
 
 
