@@ -173,10 +173,6 @@ def test_normalize():
     assert normalize([1, 2, 1]) == [0.25, 0.5, 0.25]
 
 
-def test_clip():
-    assert [clip(x, 0, 1) for x in [-1, 0.5, 10]] == [0, 0.5, 1]
-
-
 def test_gaussian():
     assert gaussian(1, 0.5, 0.7) == 0.6664492057835993
     assert gaussian(5, 2, 4.5) == 0.19333405840142462

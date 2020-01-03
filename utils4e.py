@@ -408,16 +408,9 @@ class Activation:
         pass
 
 
-def clip(x, lowest, highest):
-    """Return x clipped to the range [lowest..highest]."""
-    return max(lowest, min(x, highest))
-
-
 def softmax1D(x):
     """Return the softmax vector of input vector x."""
-    exps = [np.exp(_x) for _x in x]
-    sum_exps = sum(exps)
-    return [exp / sum_exps for exp in exps]
+    return np.exp(x) / sum(np.exp(x))
 
 
 class Sigmoid(Activation):
@@ -549,7 +542,7 @@ def vector_clip(vector, lowest, highest):
     """Return vector, except if any element is less than the corresponding
     value of lowest or more than the corresponding value of highest, clip to
     those values."""
-    return type(vector)(map(clip, vector, lowest, highest))
+    return type(vector)(map(np.clip, vector, lowest, highest))
 
 
 # ______________________________________________________________________________
