@@ -319,6 +319,14 @@ def euclidean_distance(x, y):
     return np.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
+def manhattan_distance(x, y):
+    return sum(abs(_x - _y) for _x, _y in zip(x, y))
+
+
+def hamming_distance(x, y):
+    return sum(_x != _y for _x, _y in zip(x, y))
+
+
 def rms_error(x, y):
     return np.sqrt(ms_error(x, y))
 
@@ -331,28 +339,20 @@ def mean_error(x, y):
     return mean(abs(x - y) for x, y in zip(x, y))
 
 
-def manhattan_distance(x, y):
-    return sum(abs(_x - _y) for _x, _y in zip(x, y))
-
-
 def mean_boolean_error(x, y):
     return mean(_x != _y for _x, _y in zip(x, y))
 
 
-def hamming_distance(x, y):
-    return sum(_x != _y for _x, _y in zip(x, y))
-
-
-# 19.2 Common Loss Functions
+# loss functions
 
 
 def cross_entropy_loss(x, y):
-    """Example of cross entropy loss. x and y are 1D iterable objects."""
-    return (-1.0 / len(x)) * sum(x * np.log(y) + (1 - x) * np.log(1 - y) for x, y in zip(x, y))
+    """Cross entropy loss function. x and y are 1D iterable objects."""
+    return (-1.0 / len(x)) * sum(x * np.log(_y) + (1 - _x) * np.log(1 - _y) for _x, _y in zip(x, y))
 
 
-def mse_loss(x, y):
-    """Example of min square loss. x and y are 1D iterable objects."""
+def mean_squared_error_loss(x, y):
+    """Min square loss function. x and y are 1D iterable objects."""
     return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
@@ -395,17 +395,16 @@ def gaussian_kernel_2D(size=3, sigma=0.5):
     return g / g.sum()
 
 
-# ______________________________________________________________________________
-# loss and activation functions
+# activation functions
 
 
 class Activation:
 
     def f(self, x):
-        pass
+        return NotImplementedError
 
     def derivative(self, x):
-        pass
+        return NotImplementedError
 
 
 def softmax1D(x):

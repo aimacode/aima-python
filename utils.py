@@ -233,8 +233,20 @@ def euclidean_distance(x, y):
     return np.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
+def manhattan_distance(x, y):
+    return sum(abs(_x - _y) for _x, _y in zip(x, y))
+
+
+def hamming_distance(x, y):
+    return sum(_x != _y for _x, _y in zip(x, y))
+
+
 def cross_entropy_loss(x, y):
     return (-1.0 / len(x)) * sum(_x * np.log(_y) + (1 - _x) * np.log(1 - _y) for _x, _y in zip(x, y))
+
+
+def mean_squared_error_loss(x, y):
+    return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
 def rms_error(x, y):
@@ -249,16 +261,8 @@ def mean_error(x, y):
     return mean(abs(_x - _y) for _x, _y in zip(x, y))
 
 
-def manhattan_distance(x, y):
-    return sum(abs(_x - _y) for _x, _y in zip(x, y))
-
-
 def mean_boolean_error(x, y):
     return mean(_x != _y for _x, _y in zip(x, y))
-
-
-def hamming_distance(x, y):
-    return sum(_x != _y for _x, _y in zip(x, y))
 
 
 def normalize(dist):
@@ -277,13 +281,13 @@ def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
-def sigmoid_derivative(value):
-    return value * (1 - value)
-
-
 def sigmoid(x):
     """Return activation value of x with sigmoid function."""
     return 1 / (1 + np.exp(-x))
+
+
+def sigmoid_derivative(value):
+    return value * (1 - value)
 
 
 def elu(x, alpha=0.01):
