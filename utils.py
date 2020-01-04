@@ -233,8 +233,20 @@ def euclidean_distance(x, y):
     return np.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
+def manhattan_distance(x, y):
+    return sum(abs(_x - _y) for _x, _y in zip(x, y))
+
+
+def hamming_distance(x, y):
+    return sum(_x != _y for _x, _y in zip(x, y))
+
+
 def cross_entropy_loss(x, y):
-    return (-1.0 / len(x)) * sum(x * np.log(y) + (1 - x) * np.log(1 - y) for x, y in zip(x, y))
+    return (-1.0 / len(x)) * sum(_x * np.log(_y) + (1 - _x) * np.log(1 - _y) for _x, _y in zip(x, y))
+
+
+def mean_squared_error_loss(x, y):
+    return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
 def rms_error(x, y):
@@ -242,23 +254,15 @@ def rms_error(x, y):
 
 
 def ms_error(x, y):
-    return mean((x - y) ** 2 for x, y in zip(x, y))
+    return mean((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
 def mean_error(x, y):
-    return mean(abs(x - y) for x, y in zip(x, y))
-
-
-def manhattan_distance(x, y):
-    return sum(abs(_x - _y) for _x, _y in zip(x, y))
+    return mean(abs(_x - _y) for _x, _y in zip(x, y))
 
 
 def mean_boolean_error(x, y):
     return mean(_x != _y for _x, _y in zip(x, y))
-
-
-def hamming_distance(x, y):
-    return sum(_x != _y for _x, _y in zip(x, y))
 
 
 def normalize(dist):
@@ -277,18 +281,13 @@ def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
-def clip(x, lowest, highest):
-    """Return x clipped to the range [lowest..highest]."""
-    return max(lowest, min(x, highest))
+def sigmoid(x):
+    """Return activation value of x with sigmoid function."""
+    return 1 / (1 + np.exp(-x))
 
 
 def sigmoid_derivative(value):
     return value * (1 - value)
-
-
-def sigmoid(x):
-    """Return activation value of x with sigmoid function."""
-    return 1 / (1 + np.exp(-x))
 
 
 def elu(x, alpha=0.01):
@@ -389,13 +388,6 @@ def distance_squared(a, b):
     return (xA - xB) ** 2 + (yA - yB) ** 2
 
 
-def vector_clip(vector, lowest, highest):
-    """Return vector, except if any element is less than the corresponding
-    value of lowest or more than the corresponding value of highest, clip to
-    those values."""
-    return type(vector)(map(clip, vector, lowest, highest))
-
-
 # ______________________________________________________________________________
 # Misc Functions
 
@@ -484,7 +476,6 @@ def failure_test(algorithm, tests):
     to check for correctness. On the other hand, a lot of algorithms output something
     particular on fail (for example, False, or None).
     tests is a list with each element in the form: (values, failure_output)."""
-    from statistics import mean
     return mean(int(algorithm(x) != y) for x, y in tests)
 
 

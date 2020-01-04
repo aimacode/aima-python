@@ -9,14 +9,14 @@ from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
 from utils4e import (Sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
-                     random_weights, scalar_vector_product, matrix_multiplication, map_vector, mse_loss)
+                     random_weights, scalar_vector_product, matrix_multiplication, map_vector, mean_squared_error_loss)
 
 
 class Node:
     """
     A node in a computational graph contains the pointer to all its parents.
-    :param val: value of current node.
-    :param parents: a container of all parents of current node.
+    :param val: value of current node
+    :param parents: a container of all parents of current node
     """
 
     def __init__(self, val=None, parents=None):
@@ -55,20 +55,6 @@ class Layer:
         raise NotImplementedError
 
 
-class OutputLayer(Layer):
-    """1D softmax output layer in 19.3.2"""
-
-    def __init__(self, size=3):
-        super().__init__(size)
-
-    def forward(self, inputs):
-        assert len(self.nodes) == len(inputs)
-        res = softmax1D(inputs)
-        for node, val in zip(self.nodes, res):
-            node.val = val
-        return res
-
-
 class InputLayer(Layer):
     """1D input layer. Layer size is the same as input vector size."""
 
@@ -83,12 +69,26 @@ class InputLayer(Layer):
         return inputs
 
 
+class OutputLayer(Layer):
+    """1D softmax output layer in 19.3.2."""
+
+    def __init__(self, size=3):
+        super().__init__(size)
+
+    def forward(self, inputs):
+        assert len(self.nodes) == len(inputs)
+        res = softmax1D(inputs)
+        for node, val in zip(self.nodes, res):
+            node.val = val
+        return res
+
+
 class DenseLayer(Layer):
     """
     1D dense layer in a neural network.
-    :param in_size: input vector size, int.
-    :param out_size: output vector size, int.
-    :param activation: activation function, Activation object.
+    :param in_size: (int) input vector size
+    :param out_size: (int) output vector size
+    :param activation: (Activation object) activation function
     """
 
     def __init__(self, in_size=3, out_size=3, activation=None):
@@ -124,7 +124,7 @@ class ConvLayer1D(Layer):
             node.weights = gaussian_kernel(kernel_size)
 
     def forward(self, features):
-        # each node in layer takes a channel in the features.
+        # each node in layer takes a channel in the features
         assert len(self.nodes) == len(features)
         res = []
         # compute the convolution output of each channel, store it in node.val
@@ -154,7 +154,8 @@ class MaxPoolingLayer1D(Layer):
         for i in range(len(self.nodes)):
             feature = features[i]
             # get the max value in a kernel_size * kernel_size area
-            out = [max(feature[i:i + self.kernel_size]) for i in range(len(feature) - self.kernel_size + 1)]
+            out = [max(feature[i:i + self.kernel_size])
+                   for i in range(len(feature) - self.kernel_size + 1)]
             res.append(out)
             self.nodes[i].val = out
         return res
@@ -270,13 +271,13 @@ def adam(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8,
 
 def BackPropagation(inputs, targets, theta, net, loss):
     """
-    The back-propagation algorithm for multilayer networks in only one epoch, to calculate gradients of theta
-    :param inputs: a batch of inputs in an array. Each input is an iterable object.
-    :param targets: a batch of targets in an array. Each target is an iterable object.
-    :param theta: parameters to be updated.
-    :param net: a list of predefined layer objects representing their linear sequence.
-    :param loss: a predefined loss function taking array of inputs and targets.
-    :return: gradients of theta, loss of the input batch.
+    The back-propagation algorithm for multilayer networks in only one epoch, to calculate gradients of theta.
+    :param inputs: a batch of inputs in an array. Each input is an iterable object
+    :param targets: a batch of targets in an array. Each target is an iterable object
+    :param theta: parameters to be updated
+    :param net: a list of predefined layer objects representing their linear sequence
+    :param loss: a predefined loss function taking array of inputs and targets
+    :return: gradients of theta, loss of the input batch
     """
 
     assert len(inputs) == len(targets)
@@ -325,9 +326,9 @@ def BackPropagation(inputs, targets, theta, net, loss):
 class BatchNormalizationLayer(Layer):
     """Batch normalization layer."""
 
-    def __init__(self, size, epsilon=0.001):
+    def __init__(self, size, eps=0.001):
         super().__init__(size)
-        self.epsilon = epsilon
+        self.eps = eps
         # self.weights = [beta, gamma]
         self.weights = [0, 0]
         self.inputs = None
@@ -341,7 +342,7 @@ class BatchNormalizationLayer(Layer):
         res = []
         # get normalized value of each input
         for i in range(len(self.nodes)):
-            val = [(inputs[i] - mu) * self.weights[0] / np.sqrt(self.epsilon + stderr ** 2) + self.weights[1]]
+            val = [(inputs[i] - mu) * self.weights[0] / np.sqrt(self.eps + stderr ** 2) + self.weights[1]]
             res.append(val)
             self.nodes[i].val = val
         return res
@@ -375,7 +376,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epoch
     raw_net.append(DenseLayer(hidden_input_size, output_size))
 
     # update parameters of the network
-    learned_net = optimizer(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate,
+    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=learning_rate,
                             batch_size=batch_size, verbose=verbose)
 
     def predict(example):
@@ -394,7 +395,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epoch
     return predict
 
 
-def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, verbose=None):
+def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, optimizer=gradient_descent, batch_size=1, verbose=None):
     """
     Simple perceptron neural network.
     """
@@ -405,7 +406,8 @@ def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, verbose=None):
     raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
 
     # update the network
-    learned_net = gradient_descent(dataset, raw_net, mse_loss, epochs, l_rate=learning_rate, verbose=verbose)
+    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=learning_rate,
+                            batch_size=batch_size, verbose=verbose)
 
     def predict(example):
         layer_out = learned_net[1].forward(example)
@@ -419,7 +421,7 @@ def SimpleRNNLearner(train_data, val_data, epochs=2):
     RNN example for text sentimental analysis.
     :param train_data: a tuple of (training data, targets)
             Training data: ndarray taking training examples, while each example is coded by embedding
-            Targets: ndarray taking targets of each example. Each target is mapped to an integer.
+            Targets: ndarray taking targets of each example. Each target is mapped to an integer
     :param val_data: a tuple of (validation data, targets)
     :param epochs: number of epochs
     :return: a keras model
