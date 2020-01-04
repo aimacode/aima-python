@@ -35,12 +35,14 @@ To download the repository:
 
 Then you need to install the basic dependencies to run the project on your system:
 
-`pip install -r requirements.txt`
+```
+cd aima-python
+pip install -r requirements.txt
+```
 
 You also need to fetch the datasets from the [`aima-data`](https://github.com/aimacode/aima-data) repository:
 
 ```
-cd aima-python
 git submodule init
 git submodule update
 ```
