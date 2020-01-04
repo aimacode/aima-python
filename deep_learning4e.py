@@ -88,7 +88,7 @@ class DenseLayer(Layer):
     1D dense layer in a neural network.
     :param in_size: (int) input vector size
     :param out_size: (int) output vector size
-    :param activation: activation function
+    :param activation: (Activation object) activation function
     """
 
     def __init__(self, in_size=3, out_size=3, activation=None):
