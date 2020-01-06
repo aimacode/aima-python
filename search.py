@@ -327,8 +327,10 @@ def iterative_deepening_search(problem):
 # Pseudocode from https://webdocs.cs.ualberta.ca/%7Eholte/Publications/MM-AAAI2016.pdf
 
 def bidirectional_search(problem):
-    e = problem.find_min_edge()
-    gF, gB = {problem.initial: 0}, {problem.goal: 0}
+    e = 0
+    if isinstance(problem, GraphProblem):
+        e = problem.find_min_edge()
+    gF, gB = {Node(problem.initial): 0}, {Node(problem.goal): 0}
     openF, openB = [Node(problem.initial)], [Node(problem.goal)]
     closedF, closedB = [], []
     U = np.inf
@@ -342,16 +344,16 @@ def bidirectional_search(problem):
 
         for c in n.expand(problem):
             if c in open_dir or c in closed_dir:
-                if g_dir[c.state] <= problem.path_cost(g_dir[n.state], n.state, None, c.state):
+                if g_dir[c] <= problem.path_cost(g_dir[n], n.state, None, c.state):
                     continue
 
                 open_dir.remove(c)
 
-            g_dir[c.state] = problem.path_cost(g_dir[n.state], n.state, None, c.state)
+            g_dir[c] = problem.path_cost(g_dir[n], n.state, None, c.state)
             open_dir.append(c)
 
             if c in open_other:
-                U = min(U, g_dir[c.state] + g_other[c.state])
+                U = min(U, g_dir[c] + g_other[c])
 
         return U, open_dir, closed_dir, g_dir
 
@@ -361,8 +363,8 @@ def bidirectional_search(problem):
         # of node with priority pr_min.
         pr_min, pr_min_f = np.inf, np.inf
         for n in open_dir:
-            f = g[n.state] + problem.h(n.state)
-            pr = max(f, 2 * g[n.state])
+            f = g[n] + problem.h(n)
+            pr = max(f, 2 * g[n])
             pr_min = min(pr_min, pr)
             pr_min_f = min(pr_min_f, f)
 
@@ -374,10 +376,10 @@ def bidirectional_search(problem):
         m = np.inf
         node = Node(-1)
         for n in open_dir:
-            pr = max(g[n.state] + problem.h(n.state), 2 * g[n.state])
+            pr = max(g[n] + problem.h(n), 2 * g[n])
             if pr == pr_min:
-                if g[n.state] < m:
-                    m = g[n.state]
+                if g[n] < m:
+                    m = g[n]
                     node = n
 
         return node

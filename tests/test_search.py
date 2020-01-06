@@ -71,6 +71,8 @@ def test_depth_limited_search():
 
 def test_bidirectional_search():
     assert bidirectional_search(romania_problem) == 418
+    assert bidirectional_search(eight_puzzle) == 12
+    assert bidirectional_search(EightPuzzle((1, 2, 3, 4, 5, 6, 0, 7, 8))) == 2
 
 
 def test_astar_search():
