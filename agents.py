@@ -511,14 +511,15 @@ class XYEnvironment(Environment):
         elif action == 'Forward':
             agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
         elif action == 'Grab':
-            things = [thing for thing in self.list_things_at(agent.location)]
-            if agent.can_grab(things[0]):
-                if things:
-                    agent.holding.append(things[0])
-                    self.delete_thing(things[0])
+            things = [thing for thing in self.list_things_at(agent.location) if agent.can_grab(thing)]
+            if things:    
+                agent.holding.append(things[0])
+                print("Grabbing ", things[0].__class__.__name__)
+                self.delete_thing(things[0])
         elif action == 'Release':
             if agent.holding:
                 dropped = agent.holding.pop()
+                print("Dropping ", dropped.__class__.__name__)
                 self.add_thing(dropped, location=agent.location)
 
     def default_location(self, thing):
@@ -571,10 +572,6 @@ class XYEnvironment(Environment):
     def delete_thing(self, thing):
         """Deletes thing, and everything it is holding (if thing is an agent)"""
         if isinstance(thing, Agent):
-            # for obj in thing.holding:
-            #     super().delete_thing(obj)
-            #     for obs in self.observers:
-            #         obs.thing_deleted(obj)
             del thing.holding
 
         super().delete_thing(thing)
@@ -970,21 +967,16 @@ class WumpusEnvironment(XYEnvironment):
 
         agent.bump = False
         if action == 'TurnRight':
-            agent.direction += Direction.R
+            super().execute_action(agent,action)
             agent.performance -= 1
         elif action == 'TurnLeft':
-            agent.direction += Direction.L
+            super().execute_action(agent,action)
             agent.performance -= 1
         elif action == 'Forward':
-            agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
+            super().execute_action(agent,action)
             agent.performance -= 1
         elif action == 'Grab':
-            things = [thing for thing in self.list_things_at(agent.location)
-                      if agent.can_grab(thing)]
-            if len(things):
-                print("Grabbing", things[0].__class__.__name__)
-                if len(things):
-                    agent.holding.append(things[0])
+            super().execute_action(agent,action)
             agent.performance -= 1
         elif action == 'Climb':
             if agent.location == (1, 1):  # Agent can only climb out of (1,1)
