@@ -510,14 +510,16 @@ class XYEnvironment(Environment):
             agent.direction += Direction.L
         elif action == 'Forward':
             agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
-        #         elif action == 'Grab':
-        #             things = [thing for thing in self.list_things_at(agent.location)
-        #                     if agent.can_grab(thing)]
-        #             if things:
-        #                 agent.holding.append(things[0])
+        elif action == 'Grab':
+            things = [thing for thing in self.list_things_at(agent.location)]
+            if agent.can_grab(things[0]):
+                if things:
+                    agent.holding.append(things[0])
+                    self.delete_thing(things[0])
         elif action == 'Release':
             if agent.holding:
-                agent.holding.pop()
+                dropped = agent.holding.pop()
+                self.add_thing(dropped, location=agent.location)
 
     def default_location(self, thing):
         location = self.random_location_inbounds()
@@ -569,10 +571,11 @@ class XYEnvironment(Environment):
     def delete_thing(self, thing):
         """Deletes thing, and everything it is holding (if thing is an agent)"""
         if isinstance(thing, Agent):
-            for obj in thing.holding:
-                super().delete_thing(obj)
-                for obs in self.observers:
-                    obs.thing_deleted(obj)
+            # for obj in thing.holding:
+            #     super().delete_thing(obj)
+            #     for obs in self.observers:
+            #         obs.thing_deleted(obj)
+            del thing.holding
 
         super().delete_thing(thing)
         for obs in self.observers:
