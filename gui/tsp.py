@@ -1,21 +1,19 @@
 from tkinter import *
 from tkinter import messagebox
-import sys
-import os.path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from search import *
+
 import utils
-import numpy as np
+from search import *
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 distances = {}
 
 
-class TSP_problem(Problem):
-
-    """ subclass of Problem to define various functions """
+class TSProblem(Problem):
+    """subclass of Problem to define various functions"""
 
     def two_opt(self, state):
-        """ Neighbour generating function for Traveling Salesman Problem """
+        """Neighbour generating function for Traveling Salesman Problem"""
         neighbour_state = state[:]
         left = random.randint(0, len(neighbour_state) - 1)
         right = random.randint(0, len(neighbour_state) - 1)
@@ -25,15 +23,15 @@ class TSP_problem(Problem):
         return neighbour_state
 
     def actions(self, state):
-        """ action that can be excuted in given state """
+        """action that can be executed in given state"""
         return [self.two_opt]
 
     def result(self, state, action):
-        """  result after applying the given action on the given state """
+        """result after applying the given action on the given state"""
         return action(state)
 
     def path_cost(self, c, state1, action, state2):
-        """ total distance for the Traveling Salesman to be covered if in state2  """
+        """total distance for the Traveling Salesman to be covered if in state2"""
         cost = 0
         for i in range(len(state2) - 1):
             cost += distances[state2[i]][state2[i + 1]]
@@ -41,12 +39,12 @@ class TSP_problem(Problem):
         return cost
 
     def value(self, state):
-        """ value of path cost given negative for the given state """
+        """value of path cost given negative for the given state"""
         return -1 * self.path_cost(None, None, None, state)
 
 
-class TSP_Gui():
-    """ Class to create gui of Traveling Salesman using simulated annealing where one can
+class TSPGui():
+    """Class to create gui of Traveling Salesman using simulated annealing where one can
     select cities, change speed and temperature. Distances between cities are euclidean
     distances between them.
     """
@@ -67,7 +65,7 @@ class TSP_Gui():
         Label(self.root, text="Map of Romania", font="Times 13 bold").grid(row=0, columnspan=10)
 
     def create_checkboxes(self, side=LEFT, anchor=W):
-        """ To select cities which are to be a part of Traveling Salesman Problem """
+        """To select cities which are to be a part of Traveling Salesman Problem"""
 
         row_number = 0
         column_number = 0
@@ -85,7 +83,7 @@ class TSP_Gui():
                 row_number += 1
 
     def create_buttons(self):
-        """ Create start and quit button """
+        """Create start and quit button"""
 
         Button(self.frame_select_cities, textvariable=self.button_text,
                command=self.run_traveling_salesman).grid(row=5, column=4, sticky=E + W)
@@ -93,7 +91,7 @@ class TSP_Gui():
             row=5, column=5, sticky=E + W)
 
     def create_dropdown_menu(self):
-        """ Create dropdown menu for algorithm selection """
+        """Create dropdown menu for algorithm selection"""
 
         choices = {'Simulated Annealing', 'Genetic Algorithm', 'Hill Climbing'}
         self.algo_var.set('Simulated Annealing')
@@ -102,19 +100,19 @@ class TSP_Gui():
         dropdown_menu.config(width=19)
 
     def run_traveling_salesman(self):
-        """ Choose selected citites """
+        """Choose selected cities"""
 
         cities = []
         for i in range(len(self.vars)):
             if self.vars[i].get() == 1:
                 cities.append(self.all_cities[i])
 
-        tsp_problem = TSP_problem(cities)
+        tsp_problem = TSProblem(cities)
         self.button_text.set("Reset")
         self.create_canvas(tsp_problem)
 
     def calculate_canvas_size(self):
-        """ Width and height for canvas """
+        """Width and height for canvas"""
 
         minx, maxx = sys.maxsize, -1 * sys.maxsize
         miny, maxy = sys.maxsize, -1 * sys.maxsize
@@ -137,7 +135,7 @@ class TSP_Gui():
         self.canvas_height = canvas_height
 
     def create_canvas(self, problem):
-        """ creating map with cities """
+        """creating map with cities"""
 
         map_canvas = Canvas(self.frame_canvas, width=self.canvas_width, height=self.canvas_height)
         map_canvas.grid(row=3, columnspan=10)
@@ -163,18 +161,18 @@ class TSP_Gui():
                             variable=self.speed, label="Speed ----> ", showvalue=0, font="Times 11",
                             relief="sunken", cursor="gumby")
         speed_scale.grid(row=1, columnspan=5, sticky=N + S + E + W)
-        
+
         if self.algo_var.get() == 'Simulated Annealing':
             self.temperature = IntVar()
             temperature_scale = Scale(self.frame_canvas, from_=100, to=0, orient=HORIZONTAL,
-                                  length=200, variable=self.temperature, label="Temperature ---->",
-                                  font="Times 11", relief="sunken", showvalue=0, cursor="gumby")
+                                      length=200, variable=self.temperature, label="Temperature ---->",
+                                      font="Times 11", relief="sunken", showvalue=0, cursor="gumby")
             temperature_scale.grid(row=1, column=5, columnspan=5, sticky=N + S + E + W)
             self.simulated_annealing_with_tunable_T(problem, map_canvas)
         elif self.algo_var.get() == 'Genetic Algorithm':
             self.mutation_rate = DoubleVar()
             self.mutation_rate.set(0.05)
-            mutation_rate_scale = Scale(self.frame_canvas, from_=0, to=1, orient=HORIZONTAL, 
+            mutation_rate_scale = Scale(self.frame_canvas, from_=0, to=1, orient=HORIZONTAL,
                                         length=200, variable=self.mutation_rate, label='Mutation Rate ---->',
                                         font='Times 11', relief='sunken', showvalue=0, cursor='gumby', resolution=0.001)
             mutation_rate_scale.grid(row=1, column=5, columnspan=5, sticky='nsew')
@@ -182,23 +180,23 @@ class TSP_Gui():
         elif self.algo_var.get() == 'Hill Climbing':
             self.no_of_neighbors = IntVar()
             self.no_of_neighbors.set(100)
-            no_of_neighbors_scale = Scale(self.frame_canvas, from_=10, to=1000, orient=HORIZONTAL, 
+            no_of_neighbors_scale = Scale(self.frame_canvas, from_=10, to=1000, orient=HORIZONTAL,
                                           length=200, variable=self.no_of_neighbors, label='Number of neighbors ---->',
-                                          font='Times 11',relief='sunken', showvalue=0, cursor='gumby')
+                                          font='Times 11', relief='sunken', showvalue=0, cursor='gumby')
             no_of_neighbors_scale.grid(row=1, column=5, columnspan=5, sticky='nsew')
             self.hill_climbing(problem, map_canvas)
 
     def exp_schedule(k=100, lam=0.03, limit=1000):
-        """ One possible schedule function for simulated annealing """
+        """One possible schedule function for simulated annealing"""
 
-        return lambda t: (k * math.exp(-lam * t) if t < limit else 0)
+        return lambda t: (k * np.exp(-lam * t) if t < limit else 0)
 
     def simulated_annealing_with_tunable_T(self, problem, map_canvas, schedule=exp_schedule()):
-        """ Simulated annealing where temperature is taken as user input """
+        """Simulated annealing where temperature is taken as user input"""
 
         current = Node(problem.initial)
 
-        while(1):
+        while True:
             T = schedule(self.temperature.get())
             if T == 0:
                 return current.state
@@ -207,7 +205,7 @@ class TSP_Gui():
                 return current.state
             next = random.choice(neighbors)
             delta_e = problem.value(next.state) - problem.value(current.state)
-            if delta_e > 0 or probability(math.exp(delta_e / T)):
+            if delta_e > 0 or probability(np.exp(delta_e / T)):
                 map_canvas.delete("poly")
 
                 current = next
@@ -221,10 +219,10 @@ class TSP_Gui():
                 map_canvas.after(self.speed.get())
 
     def genetic_algorithm(self, problem, map_canvas):
-        """ Genetic Algorithm modified for the given problem """
+        """Genetic Algorithm modified for the given problem"""
 
         def init_population(pop_number, gene_pool, state_length):
-            """ initialize population """
+            """initialize population"""
 
             population = []
             for i in range(pop_number):
@@ -232,7 +230,7 @@ class TSP_Gui():
             return population
 
         def recombine(state_a, state_b):
-            """ recombine two problem states """
+            """recombine two problem states"""
 
             start = random.randint(0, len(state_a) - 1)
             end = random.randint(start + 1, len(state_a))
@@ -243,7 +241,7 @@ class TSP_Gui():
             return new_state
 
         def mutate(state, mutation_rate):
-            """ mutate problem states """
+            """mutate problem states"""
 
             if random.uniform(0, 1) < mutation_rate:
                 sample = random.sample(range(len(state)), 2)
@@ -251,17 +249,18 @@ class TSP_Gui():
             return state
 
         def fitness_fn(state):
-            """ calculate fitness of a particular state """
-            
+            """calculate fitness of a particular state"""
+
             fitness = problem.value(state)
             return int((5600 + fitness) ** 2)
 
         current = Node(problem.initial)
         population = init_population(100, current.state, len(current.state))
         all_time_best = current.state
-        while(1):
-            population = [mutate(recombine(*select(2, population, fitness_fn)), self.mutation_rate.get()) for i in range(len(population))]
-            current_best = utils.argmax(population, key=fitness_fn)
+        while True:
+            population = [mutate(recombine(*select(2, population, fitness_fn)), self.mutation_rate.get())
+                          for _ in range(len(population))]
+            current_best = np.argmax(population, key=fitness_fn)
             if fitness_fn(current_best) > fitness_fn(all_time_best):
                 all_time_best = current_best
                 self.cost.set("Cost = " + str('%0.3f' % (-1 * problem.value(all_time_best))))
@@ -280,10 +279,10 @@ class TSP_Gui():
             map_canvas.after(self.speed.get())
 
     def hill_climbing(self, problem, map_canvas):
-        """ hill climbing where number of neighbors is taken as user input """
+        """hill climbing where number of neighbors is taken as user input"""
 
         def find_neighbors(state, number_of_neighbors=100):
-            """ finds neighbors using two_opt method """
+            """finds neighbors using two_opt method"""
 
             neighbors = []
             for i in range(number_of_neighbors):
@@ -293,9 +292,9 @@ class TSP_Gui():
             return neighbors
 
         current = Node(problem.initial)
-        while(1):
+        while True:
             neighbors = find_neighbors(current.state, self.no_of_neighbors.get())
-            neighbor = utils.argmax_random_tie(neighbors, key=lambda node: problem.value(node.state))
+            neighbor = np.argmax_random_tie(neighbors, key=lambda node: problem.value(node.state))
             map_canvas.delete('poly')
             points = []
             for city in current.state:
@@ -317,7 +316,8 @@ class TSP_Gui():
         if messagebox.askokcancel('Quit', 'Do you want to quit?'):
             self.root.destroy()
 
-def main():
+
+if __name__ == '__main__':
     all_cities = []
     for city in romania_map.locations.keys():
         distances[city] = {}
@@ -334,13 +334,9 @@ def main():
 
     root = Tk()
     root.title("Traveling Salesman Problem")
-    cities_selection_panel = TSP_Gui(root, all_cities)
+    cities_selection_panel = TSPGui(root, all_cities)
     cities_selection_panel.create_checkboxes()
     cities_selection_panel.create_buttons()
     cities_selection_panel.create_dropdown_menu()
     root.protocol('WM_DELETE_WINDOW', cities_selection_panel.on_closing)
     root.mainloop()
-
-
-if __name__ == '__main__':
-    main()
