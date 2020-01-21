@@ -3,6 +3,7 @@
 import copy
 from collections import defaultdict
 from statistics import stdev
+import numpy as np
 
 from qpsolvers import solve_qp
 
@@ -533,11 +534,10 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
             x = [1] + example
             y = dot_product(w, x)
             t = example[idx_t]
-            err.append(t - y)
-
+            err.append((t - y))
         # update weights
         for i in range(len(w)):
-            w[i] = w[i] + learning_rate * (dot_product(err, X_col[i]) / num_examples)
+            w[i] = w[i] - learning_rate * (dot_product(err, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
