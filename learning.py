@@ -590,7 +590,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
     return predict
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epochs=100, activation=sigmoid):
+def NeuralNetLearner(dataset, hidden_layer_sizes=3, learning_rate=0.01, epochs=100, activation=sigmoid):
     """
     Layered feed-forward network.
     hidden_layer_sizes: List of number of hidden units per hidden layer
@@ -598,8 +598,6 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epoch
     epochs: Number of passes over the dataset
     """
 
-    if hidden_layer_sizes is None:
-        hidden_layer_sizes = [3]
     i_units = len(dataset.inputs)
     o_units = len(dataset.values[dataset.target])
 
