@@ -795,7 +795,7 @@ def subexpressions(x):
     yield x
     if isinstance(x, Expr):
         for arg in x.args:
-            yield from subexpressions(arg)
+            yield subexpressions(arg)
 
 
 def arity(expression):

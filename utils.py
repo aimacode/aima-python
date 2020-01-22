@@ -2,7 +2,7 @@
 
 import bisect
 import collections
-import collections.abc
+import _collections_abc
 import functools
 import heapq
 import operator

@@ -33,6 +33,8 @@ class CountingProbDist:
 
     def add(self, o):
         """Add an observation o to the distribution."""
+        if(type(o)==list):
+            o = tuple(o)
         self.smooth_for(o)
         self.dictionary[o] += 1
         self.n_obs += 1
@@ -43,7 +45,9 @@ class CountingProbDist:
         Include o among the possible observations, whether or not
         it's been observed yet.
         """
-        if o not in self.dictionary:
+        if(type(o)==list):
+                o = tuple(o)
+        if o not in list(self.dictionary.keys()):
             self.dictionary[o] = self.default
             self.n_obs += self.default
             self.sampler = None
@@ -51,6 +55,8 @@ class CountingProbDist:
     def __getitem__(self, item):
         """Return an estimate of the probability of item."""
         self.smooth_for(item)
+        if(type(item)==list):
+                item = tuple(item)
         return self.dictionary[item] / self.n_obs
 
     # (top() and sample() are not used in this module, but elsewhere.)

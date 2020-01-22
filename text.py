@@ -11,6 +11,7 @@ import heapq
 import os
 import re
 from collections import defaultdict
+import types
 
 import numpy as np
 
@@ -304,7 +305,14 @@ def bigrams(text):
     >>> bigrams(['this', 'is', 'a', 'test'])
     [['this', 'is'], ['is', 'a'], ['a', 'test']]
     """
-    return [text[i:i + 2] for i in range(len(text) - 1)]
+
+    myText=[]
+    if(isinstance(text,types.GeneratorType)):
+        myText = list(text)
+    else:
+        myText=text
+    
+    return [myText[i:i + 2] for i in range(len(myText) - 1)]
 
 
 # Decoding a Shift (or Caesar) Cipher
@@ -325,19 +333,21 @@ class ShiftDecoder:
         s = 1.0
         for bi in bigrams(plaintext):
             s = s * self.P2[bi]
-
         return s
 
     def decode(self, ciphertext):
         """Return the shift decoding of text with the best score."""
 
-        return max(all_shifts(ciphertext), key=lambda shift: self.score(shift))
+        a = max(all_shifts(ciphertext), key=lambda shift: self.score(shift))
+        b = list(a)
+        print(b)
+        return b[0]
 
 
 def all_shifts(text):
     """Return a list of all 26 possible encodings of text by a shift cipher."""
 
-    yield from (shift_encode(text, i) for i, _ in enumerate(alphabet))
+    yield (shift_encode(text, i) for i, _ in enumerate(alphabet))
 
 
 # Decoding a General Permutation Cipher
