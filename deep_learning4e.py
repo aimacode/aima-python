@@ -4,9 +4,6 @@ import random
 import statistics
 
 import numpy as np
-from keras import Sequential, optimizers
-from keras.layers import Embedding, SimpleRNN, Dense
-from keras.preprocessing import sequence
 
 from utils4e import (Sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
                      random_weights, scalar_vector_product, matrix_multiplication, map_vector, mean_squared_error_loss)
@@ -15,18 +12,18 @@ from utils4e import (Sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, e
 class Node:
     """
     A node in a computational graph contains the pointer to all its parents.
-    :param val: value of current node
+    :param value: value of current node
     :param parents: a container of all parents of current node
     """
 
-    def __init__(self, val=None, parents=None):
+    def __init__(self, value=None, parents=None):
         if parents is None:
             parents = []
-        self.val = val
+        self.value = value
         self.parents = parents
 
     def __repr__(self):
-        return "<Node {}>".format(self.val)
+        return "<Node {}>".format(self.value)
 
 
 class NNUnit(Node):
@@ -65,7 +62,7 @@ class InputLayer(Layer):
         """Take each value of the inputs to each unit in the layer."""
         assert len(self.nodes) == len(inputs)
         for node, inp in zip(self.nodes, inputs):
-            node.val = inp
+            node.value = inp
         return inputs
 
 
@@ -79,7 +76,7 @@ class OutputLayer(Layer):
         assert len(self.nodes) == len(inputs)
         res = softmax1D(inputs)
         for node, val in zip(self.nodes, res):
-            node.val = val
+            node.value = val
         return res
 
 
@@ -106,7 +103,7 @@ class DenseLayer(Layer):
         # get the output value of each unit
         for unit in self.nodes:
             val = self.activation.f(dot_product(unit.weights, inputs))
-            unit.val = val
+            unit.value = val
             res.append(val)
         return res
 
@@ -131,7 +128,7 @@ class ConvLayer1D(Layer):
         for node, feature in zip(self.nodes, features):
             out = conv1D(feature, node.weights)
             res.append(out)
-            node.val = out
+            node.value = out
         return res
 
 
@@ -157,7 +154,7 @@ class MaxPoolingLayer1D(Layer):
             out = [max(feature[i:i + self.kernel_size])
                    for i in range(len(feature) - self.kernel_size + 1)]
             res.append(out)
-            self.nodes[i].val = out
+            self.nodes[i].value = out
         return res
 
 
@@ -310,7 +307,7 @@ def BackPropagation(inputs, targets, theta, net, loss):
         # backward pass
         for i in range(h_layers, 0, -1):
             layer = net[i]
-            derivative = [layer.activation.derivative(node.val) for node in layer.nodes]
+            derivative = [layer.activation.derivative(node.value) for node in layer.nodes]
             delta[i] = element_wise_product(previous, derivative)
             # pass to layer i-1 in the next iteration
             previous = matrix_multiplication([delta[i]], theta[i])[0]
@@ -344,7 +341,7 @@ class BatchNormalizationLayer(Layer):
         for i in range(len(self.nodes)):
             val = [(inputs[i] - mu) * self.weights[0] / np.sqrt(self.eps + stderr ** 2) + self.weights[1]]
             res.append(val)
-            self.nodes[i].val = val
+            self.nodes[i].value = val
         return res
 
 
@@ -354,7 +351,7 @@ def get_batch(examples, batch_size=1):
         yield examples[i: i + batch_size]
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epochs=100,
+def NeuralNetLearner(dataset, hidden_layer_sizes=None, l_rate=0.01, epochs=100,
                      optimizer=gradient_descent, batch_size=1, verbose=None):
     """
     Simple dense multilayer neural network.
@@ -376,7 +373,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epoch
     raw_net.append(DenseLayer(hidden_input_size, output_size))
 
     # update parameters of the network
-    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=learning_rate,
+    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=l_rate,
                             batch_size=batch_size, verbose=verbose)
 
     def predict(example):
@@ -414,76 +411,3 @@ def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, optimizer=gradien
         return layer_out.index(max(layer_out))
 
     return predict
-
-
-def SimpleRNNLearner(train_data, val_data, epochs=2):
-    """
-    RNN example for text sentimental analysis.
-    :param train_data: a tuple of (training data, targets)
-            Training data: ndarray taking training examples, while each example is coded by embedding
-            Targets: ndarray taking targets of each example. Each target is mapped to an integer
-    :param val_data: a tuple of (validation data, targets)
-    :param epochs: number of epochs
-    :return: a keras model
-    """
-
-    total_inputs = 5000
-    input_length = 500
-
-    # init data
-    X_train, y_train = train_data
-    X_val, y_val = val_data
-
-    # init a the sequential network (embedding layer, rnn layer, dense layer)
-    model = Sequential()
-    model.add(Embedding(total_inputs, 32, input_length=input_length))
-    model.add(SimpleRNN(units=128))
-    model.add(Dense(1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-    # train the model
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=128, verbose=2)
-
-    return model
-
-
-def keras_dataset_loader(dataset, max_length=500):
-    """
-    Helper function to load keras datasets.
-    :param dataset: keras data set type
-    :param max_length: max length of each input sequence
-    """
-    # init dataset
-    (X_train, y_train), (X_val, y_val) = dataset
-    if max_length > 0:
-        X_train = sequence.pad_sequences(X_train, maxlen=max_length)
-        X_val = sequence.pad_sequences(X_val, maxlen=max_length)
-    return (X_train[10:], y_train[10:]), (X_val, y_val), (X_train[:10], y_train[:10])
-
-
-def AutoencoderLearner(inputs, encoding_size, epochs=200):
-    """
-    Simple example of linear auto encoder learning producing the input itself.
-    :param inputs: a batch of input data in np.ndarray type
-    :param encoding_size: int, the size of encoding layer
-    :param epochs: number of epochs
-    :return: a keras model
-    """
-
-    # init data
-    input_size = len(inputs[0])
-
-    # init model
-    model = Sequential()
-    model.add(Dense(encoding_size, input_dim=input_size, activation='relu', kernel_initializer='random_uniform',
-                    bias_initializer='ones'))
-    model.add(Dense(input_size, activation='relu', kernel_initializer='random_uniform', bias_initializer='ones'))
-
-    # update model with sgd
-    sgd = optimizers.SGD(lr=0.01)
-    model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy'])
-
-    # train the model
-    model.fit(inputs, inputs, epochs=epochs, batch_size=10, verbose=2)
-
-    return model
