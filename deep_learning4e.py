@@ -178,7 +178,7 @@ def init_examples(examples, idx_i, idx_t, o_units):
     return inputs, targets
 
 
-def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1, verbose=None):
+def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1, verbose=None):
     """
     Gradient descent algorithm to update the learnable parameters of a network.
     :return: the updated network
@@ -197,6 +197,7 @@ def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1,
             # update weights with gradient descent
             weights = vector_add(weights, scalar_vector_product(-l_rate, gs))
             total_loss += batch_loss
+
             # update the weights of network each batch
             for i in range(len(net)):
                 if weights[i]:
@@ -351,8 +352,8 @@ def get_batch(examples, batch_size=1):
         yield examples[i: i + batch_size]
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes=None, l_rate=0.01, epochs=100,
-                     optimizer=gradient_descent, batch_size=1, verbose=None):
+def NeuralNetLearner(dataset, hidden_layer_sizes=None, l_rate=0.01, epochs=1000, batch_size=1,
+                     optimizer=stochastic_gradient_descent, verbose=None):
     """
     Simple dense multilayer neural network.
     :param hidden_layer_sizes: size of hidden layers in the form of a list
@@ -392,7 +393,8 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None, l_rate=0.01, epochs=100,
     return predict
 
 
-def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, optimizer=gradient_descent, batch_size=1, verbose=None):
+def PerceptronLearner(dataset, l_rate=0.01, epochs=1000, batch_size=1,
+                      optimizer=stochastic_gradient_descent, verbose=None):
     """
     Simple perceptron neural network.
     """
@@ -403,7 +405,7 @@ def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, optimizer=gradien
     raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
 
     # update the network
-    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=learning_rate,
+    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=l_rate,
                             batch_size=batch_size, verbose=verbose)
 
     def predict(example):
