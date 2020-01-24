@@ -47,7 +47,7 @@ class Layer:
     :param size: number of units in the current layer
     """
 
-    def __init__(self, size=3):
+    def __init__(self, size):
         self.nodes = [NNUnit() for _ in range(size)]
 
     def forward(self, inputs):
@@ -91,11 +91,11 @@ class DenseLayer(Layer):
     :param activation: (Activation object) activation function
     """
 
-    def __init__(self, in_size=3, out_size=3, activation=None):
+    def __init__(self, in_size=3, out_size=3, activation=Sigmoid):
         super().__init__(out_size)
         self.out_size = out_size
         self.inputs = None
-        self.activation = Sigmoid() if not activation else activation
+        self.activation = activation()
         # initialize weights
         for node in self.nodes:
             node.weights = random_weights(-0.5, 0.5, in_size)
@@ -105,7 +105,7 @@ class DenseLayer(Layer):
         res = []
         # get the output value of each unit
         for unit in self.nodes:
-            val = self.activation.f(dot_product(unit.weights, inputs))
+            val = self.activation.function(dot_product(unit.weights, inputs))
             unit.value = val
             res.append(val)
         return res
@@ -355,15 +355,12 @@ def get_batch(examples, batch_size=1):
         yield examples[i: i + batch_size]
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes=None, l_rate=0.01, epochs=1000, batch_size=1,
+def NeuralNetLearner(dataset, hidden_layer_sizes, l_rate=0.01, epochs=1000, batch_size=1,
                      optimizer=stochastic_gradient_descent, verbose=None):
     """
     Simple dense multilayer neural network.
     :param hidden_layer_sizes: size of hidden layers in the form of a list
     """
-
-    if hidden_layer_sizes is None:
-        hidden_layer_sizes = [4]
     input_size = len(dataset.inputs)
     output_size = len(dataset.values[dataset.target])
 

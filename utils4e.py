@@ -400,7 +400,7 @@ def gaussian_kernel_2D(size=3, sigma=0.5):
 
 class Activation:
 
-    def f(self, x):
+    def function(self, x):
         return NotImplementedError
 
     def derivative(self, x):
@@ -414,7 +414,7 @@ def softmax1D(x):
 
 class Sigmoid(Activation):
 
-    def f(self, x):
+    def function(self, x):
         if x >= 100:
             return 1
         if x <= -100:
@@ -427,7 +427,7 @@ class Sigmoid(Activation):
 
 class Relu(Activation):
 
-    def f(self, x):
+    def function(self, x):
         return max(0, x)
 
     def derivative(self, value):
@@ -436,7 +436,7 @@ class Relu(Activation):
 
 class Elu(Activation):
 
-    def f(self, x, alpha=0.01):
+    def function(self, x, alpha=0.01):
         return x if x > 0 else alpha * (np.exp(x) - 1)
 
     def derivative(self, value, alpha=0.01):
@@ -445,7 +445,7 @@ class Elu(Activation):
 
 class Tanh(Activation):
 
-    def f(self, x):
+    def function(self, x):
         return np.tanh(x)
 
     def derivative(self, value):
@@ -454,7 +454,7 @@ class Tanh(Activation):
 
 class LeakyRelu(Activation):
 
-    def f(self, x, alpha=0.01):
+    def function(self, x, alpha=0.01):
         return x if x > 0 else alpha * x
 
     def derivative(self, value, alpha=0.01):

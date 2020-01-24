@@ -568,7 +568,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = Sigmoid().f(dot_product(w, x))
+            y = Sigmoid().function(dot_product(w, x))
             h.append(Sigmoid().derivative(y))
             t = example[idx_t]
             err.append(t - y)
@@ -580,7 +580,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
 
     def predict(example):
         x = [1] + example
-        return Sigmoid().f(dot_product(w, x))
+        return Sigmoid().function(dot_product(w, x))
 
     return predict
 
