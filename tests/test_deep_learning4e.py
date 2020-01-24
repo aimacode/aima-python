@@ -1,4 +1,5 @@
 import pytest
+from keras.datasets import imdb
 
 from deep_learning4e import *
 from learning4e import DataSet, grade_learner, err_ratio
