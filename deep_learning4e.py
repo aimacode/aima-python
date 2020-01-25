@@ -14,30 +14,13 @@ from utils4e import (Sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, e
 
 class Node:
     """
-    A node in a computational graph contains the pointer to all its parents.
-    :param val: value of current node
-    :param parents: a container of all parents of current node
-    """
-
-    def __init__(self, val=None, parents=None):
-        if parents is None:
-            parents = []
-        self.val = val
-        self.parents = parents
-
-    def __repr__(self):
-        return "<Node {}>".format(self.val)
-
-
-class NNUnit(Node):
-    """
     A single unit of a layer in a neural network
     :param weights: weights between parent nodes and current node
     :param value: value of current node
     """
 
     def __init__(self, weights=None, value=None):
-        super().__init__(value)
+        self.value = value
         self.weights = weights or []
 
 
@@ -47,8 +30,8 @@ class Layer:
     :param size: number of units in the current layer
     """
 
-    def __init__(self, size=3):
-        self.nodes = [NNUnit() for _ in range(size)]
+    def __init__(self, size):
+        self.nodes = [Node() for _ in range(size)]
 
     def forward(self, inputs):
         """Define the operation to get the output of this layer"""
@@ -65,7 +48,7 @@ class InputLayer(Layer):
         """Take each value of the inputs to each unit in the layer."""
         assert len(self.nodes) == len(inputs)
         for node, inp in zip(self.nodes, inputs):
-            node.val = inp
+            node.value = inp
         return inputs
 
 
@@ -79,7 +62,7 @@ class OutputLayer(Layer):
         assert len(self.nodes) == len(inputs)
         res = softmax1D(inputs)
         for node, val in zip(self.nodes, res):
-            node.val = val
+            node.value = val
         return res
 
 
@@ -91,11 +74,11 @@ class DenseLayer(Layer):
     :param activation: (Activation object) activation function
     """
 
-    def __init__(self, in_size=3, out_size=3, activation=None):
+    def __init__(self, in_size=3, out_size=3, activation=Sigmoid):
         super().__init__(out_size)
         self.out_size = out_size
         self.inputs = None
-        self.activation = Sigmoid() if not activation else activation
+        self.activation = activation()
         # initialize weights
         for node in self.nodes:
             node.weights = random_weights(-0.5, 0.5, in_size)
@@ -105,8 +88,8 @@ class DenseLayer(Layer):
         res = []
         # get the output value of each unit
         for unit in self.nodes:
-            val = self.activation.f(dot_product(unit.weights, inputs))
-            unit.val = val
+            val = self.activation.function(dot_product(unit.weights, inputs))
+            unit.value = val
             res.append(val)
         return res
 
@@ -131,7 +114,7 @@ class ConvLayer1D(Layer):
         for node, feature in zip(self.nodes, features):
             out = conv1D(feature, node.weights)
             res.append(out)
-            node.val = out
+            node.value = out
         return res
 
 
@@ -157,7 +140,7 @@ class MaxPoolingLayer1D(Layer):
             out = [max(feature[i:i + self.kernel_size])
                    for i in range(len(feature) - self.kernel_size + 1)]
             res.append(out)
-            self.nodes[i].val = out
+            self.nodes[i].value = out
         return res
 
 
@@ -181,7 +164,7 @@ def init_examples(examples, idx_i, idx_t, o_units):
     return inputs, targets
 
 
-def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1, verbose=None):
+def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1, verbose=None):
     """
     Gradient descent algorithm to update the learnable parameters of a network.
     :return: the updated network
@@ -200,6 +183,7 @@ def gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1,
             # update weights with gradient descent
             weights = vector_add(weights, scalar_vector_product(-l_rate, gs))
             total_loss += batch_loss
+
             # update the weights of network each batch
             for i in range(len(net)):
                 if weights[i]:
@@ -310,7 +294,7 @@ def BackPropagation(inputs, targets, theta, net, loss):
         # backward pass
         for i in range(h_layers, 0, -1):
             layer = net[i]
-            derivative = [layer.activation.derivative(node.val) for node in layer.nodes]
+            derivative = [layer.activation.derivative(node.value) for node in layer.nodes]
             delta[i] = element_wise_product(previous, derivative)
             # pass to layer i-1 in the next iteration
             previous = matrix_multiplication([delta[i]], theta[i])[0]
@@ -344,7 +328,7 @@ class BatchNormalizationLayer(Layer):
         for i in range(len(self.nodes)):
             val = [(inputs[i] - mu) * self.weights[0] / np.sqrt(self.eps + stderr ** 2) + self.weights[1]]
             res.append(val)
-            self.nodes[i].val = val
+            self.nodes[i].value = val
         return res
 
 
@@ -354,15 +338,12 @@ def get_batch(examples, batch_size=1):
         yield examples[i: i + batch_size]
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epochs=100,
-                     optimizer=gradient_descent, batch_size=1, verbose=None):
+def NeuralNetLearner(dataset, hidden_layer_sizes, l_rate=0.01, epochs=1000, batch_size=1,
+                     optimizer=stochastic_gradient_descent, verbose=None):
     """
     Simple dense multilayer neural network.
     :param hidden_layer_sizes: size of hidden layers in the form of a list
     """
-
-    if hidden_layer_sizes is None:
-        hidden_layer_sizes = [4]
     input_size = len(dataset.inputs)
     output_size = len(dataset.values[dataset.target])
 
@@ -376,7 +357,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epoch
     raw_net.append(DenseLayer(hidden_input_size, output_size))
 
     # update parameters of the network
-    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=learning_rate,
+    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=l_rate,
                             batch_size=batch_size, verbose=verbose)
 
     def predict(example):
@@ -395,7 +376,8 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epoch
     return predict
 
 
-def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, optimizer=gradient_descent, batch_size=1, verbose=None):
+def PerceptronLearner(dataset, l_rate=0.01, epochs=1000, batch_size=1,
+                      optimizer=stochastic_gradient_descent, verbose=None):
     """
     Simple perceptron neural network.
     """
@@ -406,7 +388,7 @@ def PerceptronLearner(dataset, learning_rate=0.01, epochs=100, optimizer=gradien
     raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
 
     # update the network
-    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=learning_rate,
+    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=l_rate,
                             batch_size=batch_size, verbose=verbose)
 
     def predict(example):

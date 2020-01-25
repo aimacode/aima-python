@@ -11,8 +11,8 @@ def test_neural_net():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    nnl_gd = NeuralNetLearner(iris, [4], learning_rate=0.15, epochs=100, optimizer=gradient_descent)
-    nnl_adam = NeuralNetLearner(iris, [4], learning_rate=0.001, epochs=200, optimizer=adam)
+    nnl_gd = NeuralNetLearner(iris, [4], l_rate=0.15, epochs=100, optimizer=stochastic_gradient_descent)
+    nnl_adam = NeuralNetLearner(iris, [4], l_rate=0.001, epochs=200, optimizer=adam)
     tests = [([5.0, 3.1, 0.9, 0.1], 0),
              ([5.1, 3.5, 1.0, 0.0], 0),
              ([4.9, 3.3, 1.1, 0.1], 0),
@@ -32,8 +32,8 @@ def test_perceptron():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    pl_gd = PerceptronLearner(iris, learning_rate=0.01, epochs=100, optimizer=gradient_descent)
-    pl_adam = PerceptronLearner(iris, learning_rate=0.01, epochs=100, optimizer=adam)
+    pl_gd = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=stochastic_gradient_descent)
+    pl_adam = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=adam)
     tests = [([5, 3, 1, 0.1], 0),
              ([5, 3.5, 1, 0], 0),
              ([6, 3, 4, 1.1], 1),
