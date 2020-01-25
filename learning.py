@@ -738,7 +738,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 j=0
                 for layer in net[1:]:
                     for node in layer:
-                        velocity[i][j] = initialize_velocity(num_weights=len(node.weights))
+                        velocity[i][j] = initialize_to_zero(num_weights=len(node.weights))
                         j+=1
                     i+=1
                 beta = 0.9
@@ -746,12 +746,34 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                     layer = net[i]
                     inc = [node.value for node in net[i - 1]]
                     units = len(layer)
-                    dw = scalar_vector_product(delta,inc)
                     for j in range(units):
+                        dw = scalar_vector_product(delta[i][j],inc)
                         velocity[i][j] = beta*velocity[i][j] + (1-beta)*dw[i][j]
                         velocity/=(1-beta)
                         layer[j].weights = vector_add(layer[j].weights,
                                                       (learning_rate * velocity[i][j]))
+            elif(opt=='RMSprop'):
+                velocity=[]
+                s[0]=0
+                i=1
+                j=0
+                for layer in net[1:]:
+                    for node in layer:
+                        s[i][j] = initialize_to_zero(num_weights=len(node.weights))
+                        j+=1
+                    i+=1
+                beta = 0.999
+                epsilon = 10**-8
+                for i in range(1, n_layers):
+                    layer = net[i]
+                    inc = [node.value for node in net[i - 1]]
+                    units = len(layer)
+                    for j in range(units):
+                        dw = scalar_vector_product(delta[i][j],inc)
+                        s[i][j] = beta*s[i][j] + (1-beta)*(dw[i][j]**2)
+                        s/=(1-beta)
+                        layer[j].weights = vector_add(layer[j].weights,
+                                                      learning_rate * dw[i][j]/(s[i][j]**0.5+epsilon))
                 
     return net
 
