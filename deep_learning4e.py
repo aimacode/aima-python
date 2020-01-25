@@ -14,30 +14,13 @@ from utils4e import (Sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, e
 
 class Node:
     """
-    A node in a computational graph contains the pointer to all its parents.
-    :param value: value of current node
-    :param parents: a container of all parents of current node
-    """
-
-    def __init__(self, value=None, parents=None):
-        if parents is None:
-            parents = []
-        self.value = value
-        self.parents = parents
-
-    def __repr__(self):
-        return "<Node {}>".format(self.value)
-
-
-class NNUnit(Node):
-    """
     A single unit of a layer in a neural network
     :param weights: weights between parent nodes and current node
     :param value: value of current node
     """
 
     def __init__(self, weights=None, value=None):
-        super().__init__(value)
+        self.value = value
         self.weights = weights or []
 
 
@@ -48,7 +31,7 @@ class Layer:
     """
 
     def __init__(self, size):
-        self.nodes = [NNUnit() for _ in range(size)]
+        self.nodes = [Node() for _ in range(size)]
 
     def forward(self, inputs):
         """Define the operation to get the output of this layer"""
