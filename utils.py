@@ -280,12 +280,12 @@ def normalize(dist):
 def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
-def initialize_velocity(min_value,max_value,num_weights):
+def initialize_velocity(num_weights):
     #     The direction of the update has some variance, and so the path taken by gradient descent
     #     will "oscillate" towards convergence. Using momentum can reduce these oscillations.
     #     This is an Optimization Method
      
-    return [np.zeros((min_value, max_value)) for _ in range(num_weights)]
+    return np.zeros((num_weights))
 
 
 def sigmoid(x):

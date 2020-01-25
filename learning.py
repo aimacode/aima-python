@@ -630,7 +630,7 @@ def NeuralNetLearner(dataset, hidden_layer_sizes=None, learning_rate=0.01, epoch
     return predict
 
 
-def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmoid):
+def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmoid,opt=None):
     """
     [Figure 18.23]
     The back-propagation algorithm for multilayer networks.
@@ -720,15 +720,39 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                 else:
                     return ValueError("Activation function unknown.")
 
-            # update weights
-            for i in range(1, n_layers):
-                layer = net[i]
-                inc = [node.value for node in net[i - 1]]
-                units = len(layer)
-                for j in range(units):
-                    layer[j].weights = vector_add(layer[j].weights,
-                                                  scalar_vector_product(learning_rate * delta[i][j], inc))
-
+            # update weights if normal gradient descent is implemented
+            if(opt==None):
+                for i in range(1, n_layers):
+                    layer = net[i]
+                    inc = [node.value for node in net[i - 1]]
+                    units = len(layer)
+                    for j in range(units):
+                        layer[j].weights = vector_add(layer[j].weights,
+                                                      scalar_vector_product(learning_rate * delta[i][j], inc))
+                        
+            # update weights if gradient with momentum is implemented
+            else if(opt=='Momentum'):
+                velocity=[]
+                velocity[0]=0
+                i=1
+                j=0
+                for layer in net[1:]:
+                    for node in layer:
+                        velocity[i][j] = initialize_velocity(num_weights=len(node.weights))
+                        j+=1
+                    i+=1
+                beta = 0.9
+                for i in range(1, n_layers):
+                    layer = net[i]
+                    inc = [node.value for node in net[i - 1]]
+                    units = len(layer)
+                    dw = scalar_vector_product(delta,inc)
+                    for j in range(units):
+                        velocity[i][j] = beta*velocity[i][j] + (1-beta)*dw[i][j]
+                        velocity/=(1-beta)
+                        layer[j].weights = vector_add(layer[j].weights,
+                                                      (learning_rate * velocity[i][j]))
+                
     return net
 
 
@@ -765,6 +789,7 @@ class NNUnit:
         self.weights = weights or []
         self.inputs = inputs or []
         self.value = None
+        self.velocity = None
         self.activation = activation
 
 
