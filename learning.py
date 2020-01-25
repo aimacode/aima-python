@@ -731,7 +731,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                                                       scalar_vector_product(learning_rate * delta[i][j], inc))
                         
             # update weights if gradient with momentum is implemented
-            else if(opt=='Momentum'):
+            elif(opt=='Momentum'):
                 velocity=[]
                 velocity[0]=0
                 i=1
