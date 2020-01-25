@@ -721,7 +721,7 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                     return ValueError("Activation function unknown.")
 
             # update weights if normal gradient descent is implemented
-            if(opt==None):
+            if(opt==None or opt=''):
                 for i in range(1, n_layers):
                     layer = net[i]
                     inc = [node.value for node in net[i - 1]]
@@ -774,6 +774,8 @@ def BackPropagationLearner(dataset, net, learning_rate, epochs, activation=sigmo
                         s/=(1-beta)
                         layer[j].weights = vector_add(layer[j].weights,
                                                       learning_rate * dw[i][j]/(s[i][j]**0.5+epsilon))
+            else:
+                return ValueError("Optimization function unknown.")
                 
     return net
 
