@@ -1120,3 +1120,42 @@ def plot_pomdp_utility(utility):
     plt.text((right + left) / 2 - 0.02, 10, 'Ask')
     plt.text((right + 1) / 2 - 0.07, 10, 'Delete')
     plt.show()
+
+
+# Function to Visualize Water Pouring Problem
+def visual_pour(searcher, problem):
+    "Show what happens when searcvher solves problem."
+    problem = Instrumented(problem)
+    print('\n{}:'.format(searcher.__name__))
+    result = searcher(problem)
+    if result:
+        node = result
+        "The sequence of actions to get to this node."
+        action = []
+        while node.parent:
+              action.append(node.action)
+              node = node.parent
+        actions = action[::-1]
+        state = problem.initial
+        path_cost = 0
+        for steps, action in enumerate(actions, 1):
+            path_cost += problem.step_cost(state, action, 0)
+            result = problem.result(state, action)
+            print('  {} =={}==> {}; cost {} after {} steps'
+                  .format(state, action, result, path_cost, steps,
+                          '; GOAL!' if problem.goal_test(result) else ''))
+            state = result
+    msg = 'GOAL FOUND' if result else 'no solution'
+    print('{} after {} results and {} goal checks'
+          .format(msg, problem._counter['result'], problem._counter['goal_test']))
+
+
+class Instrumented:
+    "Instrument an object to count all the attribute accesses in _counter."
+    def __init__(self, obj):
+        self._object = obj
+        self._counter = Counter()
+
+    def __getattr__(self, attr):
+        self._counter[attr] += 1
+        return getattr(self._object, attr)
