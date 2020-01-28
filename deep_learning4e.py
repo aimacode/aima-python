@@ -9,7 +9,7 @@ from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
 from learning4e import Learner
-from utils4e import (Sigmoid, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
+from utils4e import (Sigmoid, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
                      scalar_vector_product, map_vector, mean_squared_error_loss)
 
 
