@@ -357,6 +357,10 @@ def normalize(dist):
     return [(n / total) for n in dist]
 
 
+def random_weights(min_value, max_value, num_weights):
+    return [random.uniform(min_value, max_value) for _ in range(num_weights)]
+
+
 def conv1D(x, k):
     """1D convolution. x: input vector; K: kernel vector."""
     return np.convolve(x, k, mode='same')

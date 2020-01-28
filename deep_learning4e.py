@@ -82,7 +82,7 @@ class DenseLayer(Layer):
         self.activation = activation()
         # initialize weights
         for node in self.nodes:
-            node.weights = np.random.uniform(-0.5, 0.5, in_size)
+            node.weights = random_weights(-0.5, 0.5, in_size)
 
     def forward(self, inputs):
         self.inputs = inputs
