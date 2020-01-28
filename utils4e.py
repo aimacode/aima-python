@@ -209,11 +209,6 @@ def histogram(values, mode=0, bin_function=None):
         return sorted(bins.items())
 
 
-def dot_product(x, y):
-    """Return the sum of the element-wise product of vectors x and y."""
-    return sum(_x * _y for _x, _y in zip(x, y))
-
-
 def element_wise_product(x, y):
     if hasattr(x, '__iter__') and hasattr(y, '__iter__'):
         assert len(x) == len(y)

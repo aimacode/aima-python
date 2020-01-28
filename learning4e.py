@@ -128,7 +128,7 @@ class DataSet:
 
     def sanitize(self, example):
         """Return a copy of example, with non-input attributes replaced by None."""
-        return [attr_i if i in self.inputs else None for i, attr_i in enumerate(example)]
+        return [attr_i if i in self.inputs else None for i, attr_i in enumerate(example)][:-1]
 
     def classes_to_numbers(self, classes=None):
         """Converts class names to numbers."""
@@ -201,7 +201,7 @@ def parse_csv(input, delim=','):
     return [list(map(num_or_str, line.split(delim))) for line in lines]
 
 
-def err_ratio(predict, dataset, examples=None, verbose=0):
+def err_ratio(predict, dataset, examples=None):
     """
     Return the proportion of the examples that are NOT correctly predicted.
     verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct
@@ -215,10 +215,6 @@ def err_ratio(predict, dataset, examples=None, verbose=0):
         output = predict(dataset.sanitize(example))
         if output == desired:
             right += 1
-            if verbose >= 2:
-                print('   OK: got {} for {}'.format(desired, example))
-        elif verbose:
-            print('WRONG: got {}, expected {} for {}'.format(output, desired, example))
     return 1 - (right / len(examples))
 
 
@@ -526,17 +522,17 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = dot_product(w, x)
+            y = np.dot(w, x)
             t = example[idx_t]
             err.append(t - y)
 
         # update weights
         for i in range(len(w)):
-            w[i] = w[i] + learning_rate * (dot_product(err, X_col[i]) / num_examples)
+            w[i] = w[i] + learning_rate * (np.dot(err, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
-        return dot_product(w, x)
+        return np.dot(w, x)
 
     return predict
 
@@ -568,7 +564,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = Sigmoid().function(dot_product(w, x))
+            y = Sigmoid().function(np.dot(w, x))
             h.append(Sigmoid().derivative(y))
             t = example[idx_t]
             err.append(t - y)
@@ -576,11 +572,11 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # update weights
         for i in range(len(w)):
             buffer = [x * y for x, y in zip(err, h)]
-            w[i] = w[i] + learning_rate * (dot_product(buffer, X_col[i]) / num_examples)
+            w[i] = w[i] + learning_rate * (np.dot(buffer, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
-        return Sigmoid().function(dot_product(w, x))
+        return Sigmoid().function(np.dot(w, x))
 
     return predict
 
@@ -740,11 +736,11 @@ def ada_boost(dataset, L, K):
     for k in range(K):
         h_k = L(dataset, w)
         h.append(h_k)
-        error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k(example))
+        error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k(example[:-1]))
         # avoid divide-by-0 from either 0% or 100% error rates
         error = np.clip(error, eps, 1 - eps)
         for j, example in enumerate(examples):
-            if example[target] == h_k(example):
+            if example[target] == h_k(example[:-1]):
                 w[j] *= error / (1 - error)
         w = normalize(w)
         z.append(np.log((1 - error) / error))

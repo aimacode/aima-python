@@ -8,8 +8,8 @@ from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
-from utils4e import (Sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
-                     random_weights, scalar_vector_product, matrix_multiplication, map_vector, mean_squared_error_loss)
+from utils4e import (Sigmoid, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
+                     scalar_vector_product, matrix_multiplication, map_vector, mean_squared_error_loss)
 
 
 class Node:
@@ -31,7 +31,7 @@ class Layer:
     """
 
     def __init__(self, size):
-        self.nodes = [Node() for _ in range(size)]
+        self.nodes = np.array([Node() for _ in range(size)])
 
     def forward(self, inputs):
         """Define the operation to get the output of this layer"""
@@ -88,7 +88,7 @@ class DenseLayer(Layer):
         res = []
         # get the output value of each unit
         for unit in self.nodes:
-            val = self.activation.function(dot_product(unit.weights, inputs))
+            val = self.activation.function(np.dot(unit.weights, inputs))
             unit.value = val
             res.append(val)
         return res
@@ -181,12 +181,12 @@ def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, ba
             # compute gradients of weights
             gs, batch_loss = BackPropagation(inputs, targets, weights, net, loss)
             # update weights with gradient descent
-            weights = vector_add(weights, scalar_vector_product(-l_rate, gs))
+            weights = [x + y for x, y in zip(weights, [np.array(tg) * -l_rate for tg in gs])]
             total_loss += batch_loss
 
             # update the weights of network each batch
             for i in range(len(net)):
-                if weights[i]:
+                if weights[i].size != 0:
                     for j in range(len(weights[i])):
                         net[i].nodes[j].weights = weights[i][j]
 
