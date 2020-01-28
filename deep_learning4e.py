@@ -8,8 +8,9 @@ from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
+from learning4e import Learner
 from utils4e import (Sigmoid, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
-                     scalar_vector_product, matrix_multiplication, map_vector, mean_squared_error_loss)
+                     scalar_vector_product, map_vector, mean_squared_error_loss)
 
 
 class Node:
@@ -190,7 +191,7 @@ def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, ba
                     for j in range(len(weights[i])):
                         net[i].nodes[j].weights = weights[i][j]
 
-        if verbose and (e + 1) % verbose == 0:
+        if verbose:
             print("epoch:{}, total_loss:{}".format(e + 1, total_loss))
 
     return net
@@ -247,7 +248,7 @@ def adam(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8,
                     for j in range(len(weights[i])):
                         net[i].nodes[j].weights = weights[i][j]
 
-        if verbose and (e + 1) % verbose == 0:
+        if verbose:
             print("epoch:{}, total_loss:{}".format(e + 1, total_loss))
 
     return net
@@ -288,16 +289,16 @@ def BackPropagation(inputs, targets, theta, net, loss):
         # initialize delta
         delta = [[] for _ in range(n_layers)]
 
-        previous = [layer_out[i] - t_val[i] for i in range(o_units)]
+        previous = np.array([layer_out[i] - t_val[i] for i in range(o_units)])
         h_layers = n_layers - 1
 
         # backward pass
         for i in range(h_layers, 0, -1):
             layer = net[i]
-            derivative = [layer.activation.derivative(node.value) for node in layer.nodes]
-            delta[i] = element_wise_product(previous, derivative)
+            derivative = np.array([layer.activation.derivative(node.value) for node in layer.nodes])
+            delta[i] = previous * derivative
             # pass to layer i-1 in the next iteration
-            previous = matrix_multiplication([delta[i]], theta[i])[0]
+            previous = np.matmul([delta[i]], theta[i])[0]
             # compute gradient of layer i
             gradients[i] = [scalar_vector_product(d, net[i].inputs) for d in delta[i]]
 
@@ -338,64 +339,136 @@ def get_batch(examples, batch_size=1):
         yield examples[i: i + batch_size]
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes, l_rate=0.01, epochs=1000, batch_size=1,
-                     optimizer=stochastic_gradient_descent, verbose=None):
+class NeuralNetLearner(Learner):
     """
     Simple dense multilayer neural network.
     :param hidden_layer_sizes: size of hidden layers in the form of a list
     """
-    input_size = len(dataset.inputs)
-    output_size = len(dataset.values[dataset.target])
 
-    # initialize the network
-    raw_net = [InputLayer(input_size)]
-    # add hidden layers
-    hidden_input_size = input_size
-    for h_size in hidden_layer_sizes:
-        raw_net.append(DenseLayer(hidden_input_size, h_size))
-        hidden_input_size = h_size
-    raw_net.append(DenseLayer(hidden_input_size, output_size))
+    def __init__(self, hidden_layer_sizes, l_rate=0.01, epochs=1000, batch_size=1,
+                 optimizer=stochastic_gradient_descent, verbose=False):
+        self.hidden_layer_sizes = hidden_layer_sizes
+        self.l_rate = l_rate
+        self.epochs = epochs
+        self.optimizer = optimizer
+        self.batch_size = batch_size
+        self.verbose = verbose
 
-    # update parameters of the network
-    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=l_rate,
-                            batch_size=batch_size, verbose=verbose)
+    def fit(self, dataset):
+        input_size = len(dataset.inputs)
+        output_size = len(dataset.values[dataset.target])
 
-    def predict(example):
-        n_layers = len(learned_net)
+        # initialize the network
+        raw_net = [InputLayer(input_size)]
+        # add hidden layers
+        hidden_input_size = input_size
+        for h_size in self.hidden_layer_sizes:
+            raw_net.append(DenseLayer(hidden_input_size, h_size))
+            hidden_input_size = h_size
+        raw_net.append(DenseLayer(hidden_input_size, output_size))
+
+        # update parameters of the network
+        self.learned_net = self.optimizer(dataset, raw_net, mean_squared_error_loss, epochs=self.epochs,
+                                          l_rate=self.l_rate, batch_size=self.batch_size, verbose=self.verbose)
+        return self
+
+    def predict(self, example):
+        n_layers = len(self.learned_net)
 
         layer_input = example
         layer_out = example
 
         # get the output of each layer by forward passing
         for i in range(1, n_layers):
-            layer_out = learned_net[i].forward(layer_input)
+            layer_out = self.learned_net[i].forward(layer_input)
             layer_input = layer_out
 
         return layer_out.index(max(layer_out))
 
-    return predict
 
-
-def PerceptronLearner(dataset, l_rate=0.01, epochs=1000, batch_size=1,
-                      optimizer=stochastic_gradient_descent, verbose=None):
+class PerceptronLearner(Learner):
     """
     Simple perceptron neural network.
     """
-    input_size = len(dataset.inputs)
-    output_size = len(dataset.values[dataset.target])
 
-    # initialize the network, add dense layer
-    raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
+    def __init__(self, l_rate=0.01, epochs=1000, batch_size=1, optimizer=stochastic_gradient_descent, verbose=None):
+        self.l_rate = l_rate
+        self.epochs = epochs
+        self.optimizer = optimizer
+        self.batch_size = batch_size
+        self.verbose = verbose
 
-    # update the network
-    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=l_rate,
-                            batch_size=batch_size, verbose=verbose)
+    def fit(self, dataset):
+        input_size = len(dataset.inputs)
+        output_size = len(dataset.values[dataset.target])
 
-    def predict(example):
-        layer_out = learned_net[1].forward(example)
+        # initialize the network, add dense layer
+        raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
+
+        # update the network
+        self.learned_net = self.optimizer(dataset, raw_net, mean_squared_error_loss, epochs=self.epochs,
+                                          l_rate=self.l_rate, batch_size=self.batch_size, verbose=self.verbose)
+        return self
+
+    def predict(self, example):
+        layer_out = self.learned_net[1].forward(example)
         return layer_out.index(max(layer_out))
 
-    return predict
+
+if __name__ == "__main__":
+    from learning4e import DataSet, grade_learner, err_ratio, Learner, Learner, Learner, \
+        LinearRegressionLearner, MeanSquaredError, MultiLogisticRegressionLearner
+
+    #
+    # iris_tests = [([5.0, 3.1, 0.9, 0.1], 0),
+    #               ([5.1, 3.5, 1.0, 0.0], 0),
+    #               ([4.9, 3.3, 1.1, 0.1], 0),
+    #               ([6.0, 3.0, 4.0, 1.1], 1),
+    #               ([6.1, 2.2, 3.5, 1.0], 1),
+    #               ([5.9, 2.5, 3.3, 1.1], 1),
+    #               ([7.5, 4.1, 6.2, 2.3], 2),
+    #               ([7.3, 4.0, 6.1, 2.4], 2),
+    #               ([7.0, 3.3, 6.1, 2.5], 2)]
+    #
+    # iris = DataSet(name='iris')
+    # classes = ['setosa', 'versicolor', 'virginica']
+    # iris.classes_to_numbers(classes)
+    # nnl_gd = NeuralNetLearner([4], l_rate=0.15, epochs=100, optimizer=stochastic_gradient_descent).fit(iris)
+    # nnl_adam = NeuralNetLearner([4], l_rate=0.001, epochs=200, optimizer=adam).fit(iris)
+    # assert grade_learner(nnl_gd, iris_tests) == 1
+    # assert err_ratio(nnl_gd, iris) < 0.08
+    # assert grade_learner(nnl_adam, iris_tests) == 1
+    # assert err_ratio(nnl_adam, iris) < 0.08
+    #
+    # iris = DataSet(name='iris')
+    # classes = ['setosa', 'versicolor', 'virginica']
+    # iris.classes_to_numbers(classes)
+    # pl_gd = PerceptronLearner(l_rate=0.01, epochs=100, optimizer=stochastic_gradient_descent).fit(iris)
+    # pl_adam = PerceptronLearner(l_rate=0.01, epochs=100, optimizer=adam).fit(iris)
+    # assert grade_learner(pl_gd, iris_tests) == 1
+    # assert err_ratio(pl_gd, iris) < 0.08
+    # assert grade_learner(pl_adam, iris_tests) == 1
+    # assert err_ratio(pl_adam, iris) < 0.08
+
+    iris_tests = [([[5.0, 3.1, 0.9, 0.1]], 0),
+                  ([[5.1, 3.5, 1.0, 0.0]], 0),
+                  ([[4.9, 3.3, 1.1, 0.1]], 0),
+                  ([[6.0, 3.0, 4.0, 1.1]], 1),
+                  ([[6.1, 2.2, 3.5, 1.0]], 1),
+                  ([[5.9, 2.5, 3.3, 1.1]], 1),
+                  ([[7.5, 4.1, 6.2, 2.3]], 2),
+                  ([[7.3, 4.0, 6.1, 2.4]], 2),
+                  ([[7.0, 3.3, 6.1, 2.5]], 2)]
+
+    iris = DataSet(name='iris')
+    classes = ['setosa', 'versicolor', 'virginica']
+    iris.classes_to_numbers(classes)
+    n_samples, n_features = len(iris.examples), iris.target
+    X, y = np.array([x[:n_features] for x in iris.examples]), \
+           np.array([x[n_features] for x in iris.examples])
+    ll = MultiLogisticRegressionLearner().fit(X, y)
+    assert grade_learner(ll, iris_tests) == 1
+    assert np.allclose(err_ratio(ll, iris), 0.04)
 
 
 def SimpleRNNLearner(train_data, val_data, epochs=2):

@@ -5,6 +5,7 @@ from collections import defaultdict
 from statistics import stdev
 
 from qpsolvers import solve_qp
+from scipy.optimize import minimize
 
 from probabilistic_learning import NaiveBayesLearner
 from utils4e import *
@@ -201,7 +202,15 @@ def parse_csv(input, delim=','):
     return [list(map(num_or_str, line.split(delim))) for line in lines]
 
 
-def err_ratio(predict, dataset, examples=None):
+class Learner:
+    def fit(self, X, y):
+        return NotImplementedError
+
+    def predict(self, x):
+        return NotImplementedError
+
+
+def err_ratio(learner, dataset, examples=None):
     """
     Return the proportion of the examples that are NOT correctly predicted.
     verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct
@@ -212,18 +221,18 @@ def err_ratio(predict, dataset, examples=None):
     right = 0
     for example in examples:
         desired = example[dataset.target]
-        output = predict(dataset.sanitize(example))
-        if output == desired:
+        output = learner.predict(dataset.sanitize(example))
+        if np.allclose(output, desired):
             right += 1
     return 1 - (right / len(examples))
 
 
-def grade_learner(predict, tests):
+def grade_learner(learner, tests):
     """
     Grades the given learner based on how many tests it passes.
     tests is a list with each element in the form: (values, output).
     """
-    return mean(int(predict(X) == y) for X, y in tests)
+    return mean(int(learner.predict(X) == y) for X, y in tests)
 
 
 def train_test_split(dataset, start=None, end=None, test_split=None):
@@ -319,18 +328,18 @@ def learning_curve(learner, dataset, trials=10, sizes=None):
     return [(size, mean([score(learner, size) for _ in range(trials)])) for size in sizes]
 
 
-def PluralityLearner(dataset):
+class PluralityLearner(Learner):
     """
     A very dumb algorithm: always pick the result that was most popular
     in the training data. Makes a baseline for comparison.
     """
-    most_popular = mode([e[dataset.target] for e in dataset.examples])
 
-    def predict(example):
+    def __init__(self, dataset):
+        self.most_popular = mode([e[dataset.target] for e in dataset.examples])
+
+    def predict(self, example):
         """Always return same result: the most popular from the training set."""
-        return most_popular
-
-    return predict
+        return self.most_popular
 
 
 class DecisionFork:
@@ -449,139 +458,216 @@ def information_content(values):
     return sum(-p * np.log2(p) for p in probabilities)
 
 
-def DecisionListLearner(dataset):
+class DecisionListLearner(Learner):
     """
     [Figure 18.11]
     A decision list implemented as a list of (test, value) pairs.
     """
 
-    def decision_list_learning(examples):
+    def __init__(self, dataset):
+        self.predict.decision_list = self.decision_list_learning(set(dataset.examples))
+
+    def decision_list_learning(self, examples):
         if not examples:
             return [(True, False)]
-        t, o, examples_t = find_examples(examples)
+        t, o, examples_t = self.find_examples(examples)
         if not t:
             raise Exception
-        return [(t, o)] + decision_list_learning(examples - examples_t)
+        return [(t, o)] + self.decision_list_learning(examples - examples_t)
 
-    def find_examples(examples):
+    def find_examples(self, examples):
         """
         Find a set of examples that all have the same outcome under
         some test. Return a tuple of the test, outcome, and examples.
         """
         raise NotImplementedError
 
-    def passes(example, test):
+    def passes(self, example, test):
         """Does the example pass the test?"""
         raise NotImplementedError
 
-    def predict(example):
+    def predict(self, example):
         """Predict the outcome for the first passing test."""
-        for test, outcome in predict.decision_list:
-            if passes(example, test):
+        for test, outcome in self.predict.decision_list:
+            if self.passes(example, test):
                 return outcome
 
-    predict.decision_list = decision_list_learning(set(dataset.examples))
 
-    return predict
-
-
-def NearestNeighborLearner(dataset, k=1):
+class NearestNeighborLearner(Learner):
     """k-NearestNeighbor: the k nearest neighbors vote."""
 
-    def predict(example):
+    def __init__(self, dataset, k=1):
+        self.dataset = dataset
+        self.k = k
+
+    def predict(self, example):
         """Find the k closest items, and have them vote for the best."""
-        best = heapq.nsmallest(k, ((dataset.distance(e, example), e) for e in dataset.examples))
-        return mode(e[dataset.target] for (d, e) in best)
-
-    return predict
+        best = heapq.nsmallest(self.k, ((self.dataset.distance(e, example), e) for e in self.dataset.examples))
+        return mode(e[self.dataset.target] for (d, e) in best)
 
 
-def LinearLearner(dataset, learning_rate=0.01, epochs=100):
+class LossFunction:
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y.flatten()
+
+    @staticmethod
+    def predict(X, theta):
+        return NotImplementedError
+
+    def function(self, theta):
+        return NotImplementedError
+
+    def jacobian(self, theta):
+        return NotImplementedError
+
+
+class MeanSquaredError(LossFunction):
+    def __init__(self, X, y):
+        super().__init__(X, y)
+        self.x_star = np.linalg.inv(X.T.dot(X)).dot(X.T).dot(y)  # or np.linalg.lstsq(X, y)[0]
+
+    @staticmethod
+    def predict(X, theta):
+        return np.dot(X, theta)
+
+    def function(self, theta):
+        return (1 / 2 * self.X.shape[0]) * np.sum(np.square(self.predict(self.X, theta) - self.y))
+
+    def jacobian(self, theta):
+        return (1 / self.X.shape[0]) * np.dot(self.X.T, self.predict(self.X, theta) - self.y)
+
+
+class CrossEntropy(LossFunction):
+    def __init__(self, X, y):
+        super().__init__(X, y)
+
+    @staticmethod
+    def predict(X, theta):
+        return Sigmoid().function(np.dot(X, theta))
+
+    def function(self, theta):
+        pred = self.predict(self.X, theta)
+        return -(1 / self.X.shape[0]) * np.sum(self.y * np.log(pred) + (1 - self.y) * np.log(1 - pred))
+
+    def jacobian(self, theta):
+        return (1 / self.X.shape[0]) * np.dot(self.X.T, self.predict(self.X, theta) - self.y)
+
+
+class LinearRegressionLearner(Learner):
     """
     [Section 18.6.4]
-    Linear classifier with hard threshold.
+    Linear Regressor
     """
-    idx_i = dataset.inputs
-    idx_t = dataset.target
-    examples = dataset.examples
-    num_examples = len(examples)
 
-    # X transpose
-    X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
+    def __init__(self, l_rate=0.01, epochs=1000, optimizer='bfgs'):
+        self.l_rate = l_rate
+        self.epochs = epochs
+        self.optimizer = optimizer
 
-    # add dummy
-    ones = [1 for _ in range(len(examples))]
-    X_col = [ones] + X_col
+    def fit(self, X, y):
+        loss = MeanSquaredError(X, y)
+        self.w = minimize(fun=loss.function, x0=np.zeros((X.shape[1], 1)),method=self.optimizer, jac=loss.jacobian).x
+        return self
 
-    # initialize random weights
-    num_weights = len(idx_i) + 1
-    w = random_weights(min_value=-0.5, max_value=0.5, num_weights=num_weights)
-
-    for epoch in range(epochs):
-        err = []
-        # pass over all examples
-        for example in examples:
-            x = [1] + example
-            y = np.dot(w, x)
-            t = example[idx_t]
-            err.append(t - y)
-
-        # update weights
-        for i in range(len(w)):
-            w[i] = w[i] + learning_rate * (np.dot(err, X_col[i]) / num_examples)
-
-    def predict(example):
-        x = [1] + example
-        return np.dot(w, x)
-
-    return predict
+    def predict(self, example):
+        return np.dot(example, self.w)
 
 
-def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
+class BinaryLogisticRegressionLearner(Learner):
     """
     [Section 18.6.5]
-    Linear classifier with logistic regression.
+    Logistic Regression Classifier
     """
-    idx_i = dataset.inputs
-    idx_t = dataset.target
-    examples = dataset.examples
-    num_examples = len(examples)
 
-    # X transpose
-    X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
+    def __init__(self, l_rate=0.01, epochs=1000, optimizer='bfgs'):
+        self.l_rate = l_rate
+        self.epochs = epochs
+        self.optimizer = optimizer
 
-    # add dummy
-    ones = [1 for _ in range(len(examples))]
-    X_col = [ones] + X_col
+    def fit(self, X, y):
+        self.labels = np.unique(y)
+        y = np.where(y == self.labels[0], 0, 1)
+        loss = CrossEntropy(X, y)
+        self.w = minimize(fun=loss.function, x0=np.zeros((X.shape[1], 1)), method=self.optimizer, jac=loss.jacobian).x
+        return self
 
-    # initialize random weights
-    num_weights = len(idx_i) + 1
-    w = random_weights(min_value=-0.5, max_value=0.5, num_weights=num_weights)
+    def predict_score(self, x):
+        return CrossEntropy.predict(x, self.w)
 
-    for epoch in range(epochs):
-        err = []
-        h = []
-        # pass over all examples
-        for example in examples:
-            x = [1] + example
-            y = Sigmoid().function(np.dot(w, x))
-            h.append(Sigmoid().derivative(y))
-            t = example[idx_t]
-            err.append(t - y)
-
-        # update weights
-        for i in range(len(w)):
-            buffer = [x * y for x, y in zip(err, h)]
-            w[i] = w[i] + learning_rate * (np.dot(buffer, X_col[i]) / num_examples)
-
-    def predict(example):
-        x = [1] + example
-        return Sigmoid().function(np.dot(w, x))
-
-    return predict
+    def predict(self, x):
+        return np.where(self.predict_score(x) >= 0.5, self.labels[1], self.labels[0]).astype(int)
 
 
-class BinarySVM:
+class MultiLogisticRegressionLearner(Learner):
+    def __init__(self, l_rate=0.01, epochs=1000, optimizer='bfgs', decision_function='ovr'):
+        self.l_rate = l_rate
+        self.epochs = epochs
+        self.optimizer = optimizer
+        self.decision_function = decision_function
+        self.n_class, self.classifiers = 0, []
+
+    def fit(self, X, y):
+        """
+        Trains n_class or n_class * (n_class - 1) / 2 classifiers
+        according to the training method, ovr or ovo respectively.
+        :param X: array of size [n_samples, n_features] holding the training samples
+        :param y: array of size [n_samples] holding the class labels
+        :return: array of classifiers
+        """
+        labels = np.unique(y)
+        self.n_class = len(labels)
+        if self.decision_function == 'ovr':  # one-vs-rest method
+            for label in labels:
+                y1 = np.array(y)
+                y1[y1 != label] = -1.0
+                y1[y1 == label] = 1.0
+                clf = BinaryLogisticRegressionLearner(self.l_rate, self.epochs, self.optimizer)
+                clf.fit(X, y1)
+                self.classifiers.append(copy.deepcopy(clf))
+        elif self.decision_function == 'ovo':  # use one-vs-one method
+            n_labels = len(labels)
+            for i in range(n_labels):
+                for j in range(i + 1, n_labels):
+                    neg_id, pos_id = y == labels[i], y == labels[j]
+                    x1, y1 = np.r_[X[neg_id], X[pos_id]], np.r_[y[neg_id], y[pos_id]]
+                    y1[y1 == labels[i]] = -1.0
+                    y1[y1 == labels[j]] = 1.0
+                    clf = BinaryLogisticRegressionLearner(self.l_rate, self.epochs, self.optimizer)
+                    clf.fit(x1, y1)
+                    self.classifiers.append(copy.deepcopy(clf))
+        else:
+            return ValueError("Decision function must be either 'ovr' or 'ovo'.")
+        return self
+
+    def predict(self, x):
+        """
+        Predicts the class of a given example according to the training method.
+        """
+        n_samples = len(x)
+        if self.decision_function == 'ovr':  # one-vs-rest method
+            assert len(self.classifiers) == self.n_class
+            score = np.zeros((n_samples, self.n_class))
+            for i in range(self.n_class):
+                clf = self.classifiers[i]
+                score[:, i] = clf.predict_score(x)
+            return np.argmax(score, axis=1)
+        elif self.decision_function == 'ovo':  # use one-vs-one method
+            assert len(self.classifiers) == self.n_class * (self.n_class - 1) / 2
+            vote = np.zeros((n_samples, self.n_class))
+            clf_id = 0
+            for i in range(self.n_class):
+                for j in range(i + 1, self.n_class):
+                    res = self.classifiers[clf_id].predict(x)
+                    vote[res < 0, i] += 1.0  # negative sample: class i
+                    vote[res > 0, j] += 1.0  # positive sample: class j
+                    clf_id += 1
+            return np.argmax(vote, axis=1)
+        else:
+            return ValueError("Decision function must be either 'ovr' or 'ovo'.")
+
+
+class BinarySVM(Learner):
     def __init__(self, kernel=linear_kernel, C=1.0):
         self.kernel = kernel
         self.C = C  # hyper-parameter
@@ -609,6 +695,7 @@ class BinarySVM:
         sv_boundary = self.alphas < self.C - self.eps
         self.b = np.mean(self.sv_y[sv_boundary] - np.dot(self.alphas * self.sv_y,
                                                          self.kernel(self.sv_x, self.sv_x[sv_boundary])))
+        return self
 
     def QP(self, X, y):
         """
@@ -645,7 +732,7 @@ class BinarySVM:
         return np.sign(self.predict_score(x))
 
 
-class MultiSVM:
+class MultiSVM(Learner):
     def __init__(self, kernel=linear_kernel, decision_function='ovr', C=1.0):
         self.kernel = kernel
         self.decision_function = decision_function
@@ -683,6 +770,7 @@ class MultiSVM:
                     self.classifiers.append(copy.deepcopy(clf))
         else:
             return ValueError("Decision function must be either 'ovr' or 'ovo'.")
+        return self
 
     def predict(self, x):
         """
@@ -711,18 +799,17 @@ class MultiSVM:
             return ValueError("Decision function must be either 'ovr' or 'ovo'.")
 
 
-def EnsembleLearner(learners):
+class EnsembleLearner(Learner):
     """Given a list of learning algorithms, have them vote."""
 
-    def train(dataset):
-        predictors = [learner(dataset) for learner in learners]
+    def __init__(self, learners):
+        self.learners = learners
 
-        def predict(example):
-            return mode(predictor(example) for predictor in predictors)
+    def train(self, dataset):
+        self.predictors = [learner(dataset) for learner in self.learners]
 
-        return predict
-
-    return train
+    def predict(self, example):
+        return mode(predictor(example) for predictor in self.predictors)
 
 
 def ada_boost(dataset, L, K):
@@ -736,24 +823,26 @@ def ada_boost(dataset, L, K):
     for k in range(K):
         h_k = L(dataset, w)
         h.append(h_k)
-        error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k(example[:-1]))
+        error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k.predict(example[:-1]))
         # avoid divide-by-0 from either 0% or 100% error rates
         error = np.clip(error, eps, 1 - eps)
         for j, example in enumerate(examples):
-            if example[target] == h_k(example[:-1]):
+            if example[target] == h_k.predict(example[:-1]):
                 w[j] *= error / (1 - error)
         w = normalize(w)
         z.append(np.log((1 - error) / error))
     return weighted_majority(h, z)
 
 
-def weighted_majority(predictors, weights):
+class weighted_majority(Learner):
     """Return a predictor that takes a weighted vote."""
 
-    def predict(example):
-        return weighted_mode((predictor(example) for predictor in predictors), weights)
+    def __init__(self, predictors, weights):
+        self.predictors = predictors
+        self.weights = weights
 
-    return predict
+    def predict(self, example):
+        return weighted_mode((predictor.predict(example) for predictor in self.predictors), self.weights)
 
 
 def weighted_mode(values, weights):
@@ -768,28 +857,29 @@ def weighted_mode(values, weights):
     return max(totals, key=totals.__getitem__)
 
 
-def RandomForest(dataset, n=5):
+class RandomForest(Learner):
     """An ensemble of Decision Trees trained using bagging and feature bagging."""
 
-    def data_bagging(dataset, m=0):
+    def __init__(self, dataset, n=5):
+        self.dataset = dataset
+        self.n = n
+        self.predictors = [DecisionTreeLearner(DataSet(examples=self.data_bagging(), attrs=self.dataset.attrs,
+                                                       attr_names=self.dataset.attr_names, target=self.dataset.target,
+                                                       inputs=self.feature_bagging())) for _ in range(self.n)]
+
+    def data_bagging(self, m=0):
         """Sample m examples with replacement"""
-        n = len(dataset.examples)
-        return weighted_sample_with_replacement(m or n, dataset.examples, [1] * n)
+        n = len(self.dataset.examples)
+        return weighted_sample_with_replacement(m or n, self.dataset.examples, [1] * n)
 
-    def feature_bagging(dataset, p=0.7):
+    def feature_bagging(self, p=0.7):
         """Feature bagging with probability p to retain an attribute"""
-        inputs = [i for i in dataset.inputs if probability(p)]
-        return inputs or dataset.inputs
+        inputs = [i for i in self.dataset.inputs if probability(p)]
+        return inputs or self.dataset.inputs
 
-    def predict(example):
-        print([predictor(example) for predictor in predictors])
-        return mode(predictor(example) for predictor in predictors)
-
-    predictors = [DecisionTreeLearner(DataSet(examples=data_bagging(dataset), attrs=dataset.attrs,
-                                              attr_names=dataset.attr_names, target=dataset.target,
-                                              inputs=feature_bagging(dataset))) for _ in range(n)]
-
-    return predict
+    def predict(self, example):
+        print([predictor(example) for predictor in self.predictors])
+        return mode(predictor(example) for predictor in self.predictors)
 
 
 def WeightedLearner(unweighted_learner):
@@ -800,7 +890,7 @@ def WeightedLearner(unweighted_learner):
     """
 
     def train(dataset, weights):
-        return unweighted_learner(replicated_dataset(dataset, weights))
+        return unweighted_learner().fit(replicated_dataset(dataset, weights))
 
     return train
 

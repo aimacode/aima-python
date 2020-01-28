@@ -219,16 +219,6 @@ def element_wise_product(x, y):
         raise Exception('Inputs must be in the same size!')
 
 
-def matrix_multiplication(x, *y):
-    """Return a matrix as a matrix-multiplication of x and arbitrary number of matrices *y."""
-
-    result = x
-    for _y in y:
-        result = np.matmul(result, _y)
-
-    return result
-
-
 def vector_add(a, b):
     """Component-wise addition of two vectors."""
     if not (a and b):
@@ -410,10 +400,6 @@ def softmax1D(x):
 class Sigmoid(Activation):
 
     def function(self, x):
-        if x >= 100:
-            return 1
-        if x <= -100:
-            return 0
         return 1 / (1 + np.exp(-x))
 
     def derivative(self, value):
@@ -464,15 +450,6 @@ def step(x):
 def gaussian(mean, st_dev, x):
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
     return 1 / (np.sqrt(2 * np.pi) * st_dev) * np.exp(-0.5 * (float(x - mean) / st_dev) ** 2)
-
-
-def gaussian_2D(means, sigma, point):
-    det = sigma[0][0] * sigma[1][1] - sigma[0][1] * sigma[1][0]
-    inverse = np.linalg.inv(sigma)
-    assert det != 0
-    x_u = vector_add(point, scalar_vector_product(-1, means))
-    buff = matrix_multiplication(matrix_multiplication([x_u], inverse), np.array(x_u).T)
-    return 1 / (np.sqrt(det) * 2 * np.pi) * np.exp(-0.5 * buff[0][0])
 
 
 def linear_kernel(x, y=None):
