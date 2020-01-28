@@ -123,16 +123,6 @@ def test_random_forest():
     assert grade_learner(rf, tests) >= 1 / 3
 
 
-def test_random_weights():
-    min_value = -0.5
-    max_value = 0.5
-    num_weights = 10
-    test_weights = random_weights(min_value, max_value, num_weights)
-    assert len(test_weights) == num_weights
-    for weight in test_weights:
-        assert min_value <= weight <= max_value
-
-
 def test_ada_boost():
     iris = DataSet(name='iris')
     iris.classes_to_numbers()
