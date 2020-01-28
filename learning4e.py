@@ -567,7 +567,7 @@ class LinearRegressionLearner(Learner):
 
     def fit(self, X, y):
         loss = MeanSquaredError(X, y)
-        self.w = minimize(fun=loss.function, x0=np.zeros((X.shape[1], 1)),method=self.optimizer, jac=loss.jacobian).x
+        self.w = minimize(fun=loss.function, x0=np.zeros((X.shape[1], 1)), method=self.optimizer, jac=loss.jacobian).x
         return self
 
     def predict(self, example):
