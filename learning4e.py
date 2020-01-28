@@ -395,61 +395,67 @@ class DecisionLeaf:
         return repr(self.result)
 
 
-def DecisionTreeLearner(dataset):
+class DecisionTreeLearner(Learner):
     """[Figure 18.5]"""
 
-    target, values = dataset.target, dataset.values
+    def __init__(self, dataset):
+        self.dataset = dataset
+        self.tree = self.decision_tree_learning(dataset.examples, dataset.inputs)
 
-    def decision_tree_learning(examples, attrs, parent_examples=()):
+    def decision_tree_learning(self, examples, attrs, parent_examples=()):
         if len(examples) == 0:
-            return plurality_value(parent_examples)
-        if all_same_class(examples):
-            return DecisionLeaf(examples[0][target])
+            return self.plurality_value(parent_examples)
+        if self.all_same_class(examples):
+            return DecisionLeaf(examples[0][self.dataset.target])
         if len(attrs) == 0:
-            return plurality_value(examples)
-        A = choose_attribute(attrs, examples)
-        tree = DecisionFork(A, dataset.attr_names[A], plurality_value(examples))
-        for (v_k, exs) in split_by(A, examples):
-            subtree = decision_tree_learning(exs, remove_all(A, attrs), examples)
+            return self.plurality_value(examples)
+        A = self.choose_attribute(attrs, examples)
+        tree = DecisionFork(A, self.dataset.attr_names[A], self.plurality_value(examples))
+        for (v_k, exs) in self.split_by(A, examples):
+            subtree = self.decision_tree_learning(exs, remove_all(A, attrs), examples)
             tree.add(v_k, subtree)
         return tree
 
-    def plurality_value(examples):
+    def plurality_value(self, examples):
         """
         Return the most popular target value for this set of examples.
         (If target is binary, this is the majority; otherwise plurality).
         """
-        popular = argmax_random_tie(values[target], key=lambda v: count(target, v, examples))
+        popular = argmax_random_tie(self.dataset.values[self.dataset.target],
+                                    key=lambda v: self.count(self.dataset.target, v, examples))
         return DecisionLeaf(popular)
 
-    def count(attr, val, examples):
+    def count(self, attr, val, examples):
         """Count the number of examples that have example[attr] = val."""
         return sum(e[attr] == val for e in examples)
 
-    def all_same_class(examples):
+    def all_same_class(self, examples):
         """Are all these examples in the same target class?"""
-        class0 = examples[0][target]
-        return all(e[target] == class0 for e in examples)
+        class0 = examples[0][self.dataset.target]
+        return all(e[self.dataset.target] == class0 for e in examples)
 
-    def choose_attribute(attrs, examples):
+    def choose_attribute(self, attrs, examples):
         """Choose the attribute with the highest information gain."""
-        return argmax_random_tie(attrs, key=lambda a: information_gain(a, examples))
+        return argmax_random_tie(attrs, key=lambda a: self.information_gain(a, examples))
 
-    def information_gain(attr, examples):
+    def information_gain(self, attr, examples):
         """Return the expected reduction in entropy from splitting by attr."""
 
         def I(examples):
-            return information_content([count(target, v, examples) for v in values[target]])
+            return information_content([self.count(self.dataset.target, v, examples)
+                                        for v in self.dataset.values[self.dataset.target]])
 
         n = len(examples)
-        remainder = sum((len(examples_i) / n) * I(examples_i) for (v, examples_i) in split_by(attr, examples))
+        remainder = sum((len(examples_i) / n) * I(examples_i)
+                        for (v, examples_i) in self.split_by(attr, examples))
         return I(examples) - remainder
 
-    def split_by(attr, examples):
+    def split_by(self, attr, examples):
         """Return a list of (val, examples) pairs for each val of attr."""
-        return [(v, [e for e in examples if e[attr] == v]) for v in values[attr]]
+        return [(v, [e for e in examples if e[attr] == v]) for v in self.dataset.values[attr]]
 
-    return decision_tree_learning(dataset.examples, dataset.inputs)
+    def predict(self, x):
+        return self.tree(x)
 
 
 def information_content(values):
@@ -878,8 +884,8 @@ class RandomForest(Learner):
         return inputs or self.dataset.inputs
 
     def predict(self, example):
-        print([predictor(example) for predictor in self.predictors])
-        return mode(predictor(example) for predictor in self.predictors)
+        print([predictor.predict(example) for predictor in self.predictors])
+        return mode(predictor.predict(example) for predictor in self.predictors)
 
 
 def WeightedLearner(unweighted_learner):

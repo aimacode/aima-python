@@ -52,9 +52,9 @@ def test_k_nearest_neighbors():
 def test_decision_tree_learner():
     iris = DataSet(name='iris')
     dtl = DecisionTreeLearner(iris)
-    assert dtl([5, 3, 1, 0.1]) == 'setosa'
-    assert dtl([6, 5, 3, 1.5]) == 'versicolor'
-    assert dtl([7.5, 4, 6, 2]) == 'virginica'
+    assert dtl.predict([5, 3, 1, 0.1]) == 'setosa'
+    assert dtl.predict([6, 5, 3, 1.5]) == 'versicolor'
+    assert dtl.predict([7.5, 4, 6, 2]) == 'virginica'
 
 
 def test_linear_learner():
