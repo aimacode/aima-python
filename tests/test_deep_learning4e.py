@@ -35,7 +35,7 @@ def test_perceptron():
     iris.classes_to_numbers(classes)
     pl_gd = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=stochastic_gradient_descent)
     assert grade_learner(pl_gd, iris_tests) == 1
-    assert err_ratio(pl_gd, iris) < 0.08
+    assert err_ratio(pl_gd, iris) < 0.1
     pl_adam = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=adam)
     assert grade_learner(pl_adam, iris_tests) == 1
     assert err_ratio(pl_adam, iris) < 0.08
