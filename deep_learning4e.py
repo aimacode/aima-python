@@ -415,62 +415,6 @@ class PerceptronLearner(Learner):
         return layer_out.index(max(layer_out))
 
 
-if __name__ == "__main__":
-    from learning4e import DataSet, grade_learner, err_ratio, Learner, Learner, Learner, \
-        LinearRegressionLearner, MeanSquaredError, MultiLogisticRegressionLearner
-
-    #
-    # iris_tests = [([5.0, 3.1, 0.9, 0.1], 0),
-    #               ([5.1, 3.5, 1.0, 0.0], 0),
-    #               ([4.9, 3.3, 1.1, 0.1], 0),
-    #               ([6.0, 3.0, 4.0, 1.1], 1),
-    #               ([6.1, 2.2, 3.5, 1.0], 1),
-    #               ([5.9, 2.5, 3.3, 1.1], 1),
-    #               ([7.5, 4.1, 6.2, 2.3], 2),
-    #               ([7.3, 4.0, 6.1, 2.4], 2),
-    #               ([7.0, 3.3, 6.1, 2.5], 2)]
-    #
-    # iris = DataSet(name='iris')
-    # classes = ['setosa', 'versicolor', 'virginica']
-    # iris.classes_to_numbers(classes)
-    # nnl_gd = NeuralNetLearner([4], l_rate=0.15, epochs=100, optimizer=stochastic_gradient_descent).fit(iris)
-    # nnl_adam = NeuralNetLearner([4], l_rate=0.001, epochs=200, optimizer=adam).fit(iris)
-    # assert grade_learner(nnl_gd, iris_tests) == 1
-    # assert err_ratio(nnl_gd, iris) < 0.08
-    # assert grade_learner(nnl_adam, iris_tests) == 1
-    # assert err_ratio(nnl_adam, iris) < 0.08
-    #
-    # iris = DataSet(name='iris')
-    # classes = ['setosa', 'versicolor', 'virginica']
-    # iris.classes_to_numbers(classes)
-    # pl_gd = PerceptronLearner(l_rate=0.01, epochs=100, optimizer=stochastic_gradient_descent).fit(iris)
-    # pl_adam = PerceptronLearner(l_rate=0.01, epochs=100, optimizer=adam).fit(iris)
-    # assert grade_learner(pl_gd, iris_tests) == 1
-    # assert err_ratio(pl_gd, iris) < 0.08
-    # assert grade_learner(pl_adam, iris_tests) == 1
-    # assert err_ratio(pl_adam, iris) < 0.08
-
-    iris_tests = [([[5.0, 3.1, 0.9, 0.1]], 0),
-                  ([[5.1, 3.5, 1.0, 0.0]], 0),
-                  ([[4.9, 3.3, 1.1, 0.1]], 0),
-                  ([[6.0, 3.0, 4.0, 1.1]], 1),
-                  ([[6.1, 2.2, 3.5, 1.0]], 1),
-                  ([[5.9, 2.5, 3.3, 1.1]], 1),
-                  ([[7.5, 4.1, 6.2, 2.3]], 2),
-                  ([[7.3, 4.0, 6.1, 2.4]], 2),
-                  ([[7.0, 3.3, 6.1, 2.5]], 2)]
-
-    iris = DataSet(name='iris')
-    classes = ['setosa', 'versicolor', 'virginica']
-    iris.classes_to_numbers(classes)
-    n_samples, n_features = len(iris.examples), iris.target
-    X, y = np.array([x[:n_features] for x in iris.examples]), \
-           np.array([x[n_features] for x in iris.examples])
-    ll = MultiLogisticRegressionLearner().fit(X, y)
-    assert grade_learner(ll, iris_tests) == 1
-    assert np.allclose(err_ratio(ll, iris), 0.04)
-
-
 def SimpleRNNLearner(train_data, val_data, epochs=2):
     """
     RNN example for text sentimental analysis.
@@ -516,7 +460,7 @@ def keras_dataset_loader(dataset, max_length=500):
     return (X_train[10:], y_train[10:]), (X_val, y_val), (X_train[:10], y_train[:10])
 
 
-def AutoencoderLearner(inputs, encoding_size, epochs=200):
+def AutoencoderLearner(inputs, encoding_size, epochs=200, verbose=None):
     """
     Simple example of linear auto encoder learning producing the input itself.
     :param inputs: a batch of input data in np.ndarray type
@@ -539,6 +483,6 @@ def AutoencoderLearner(inputs, encoding_size, epochs=200):
     model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy'])
 
     # train the model
-    model.fit(inputs, inputs, epochs=epochs, batch_size=10, verbose=2)
+    model.fit(inputs, inputs, epochs=epochs, batch_size=10, verbose=verbose)
 
     return model

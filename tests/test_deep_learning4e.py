@@ -57,8 +57,7 @@ def test_autoencoder():
     iris.classes_to_numbers(classes)
     inputs = np.asarray(iris.examples)
     al = AutoencoderLearner(inputs, 100)
-    print(inputs[0])
-    print(al.predict(inputs[:1]))
+    assert np.allclose(inputs[0], al.predict(inputs[:1]), rtol=0.15)
 
 
 if __name__ == "__main__":
