@@ -48,7 +48,7 @@ def test_rnn():
     val = (val[0][:200], val[1][:200])
     rnn = SimpleRNNLearner(train, val)
     score = rnn.evaluate(test[0][:200], test[1][:200], verbose=0)
-    assert score[1] >= 0.3
+    assert score[1] >= 0.2
 
 
 def test_autoencoder():
