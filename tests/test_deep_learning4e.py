@@ -21,10 +21,10 @@ def test_neural_net():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    nnl_gd = NeuralNetLearner([4], l_rate=0.15, epochs=100, optimizer=stochastic_gradient_descent).fit(iris)
+    nnl_gd = NeuralNetLearner(iris, [4], l_rate=0.15, epochs=100, optimizer=stochastic_gradient_descent)
     assert grade_learner(nnl_gd, iris_tests) == 1
     assert err_ratio(nnl_gd, iris) < 0.08
-    nnl_adam = NeuralNetLearner([4], l_rate=0.001, epochs=200, optimizer=adam).fit(iris)
+    nnl_adam = NeuralNetLearner(iris, [4], l_rate=0.001, epochs=200, optimizer=adam)
     assert grade_learner(nnl_adam, iris_tests) == 1
     assert err_ratio(nnl_adam, iris) < 0.08
 
@@ -33,10 +33,10 @@ def test_perceptron():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    pl_gd = PerceptronLearner(l_rate=0.01, epochs=100, optimizer=stochastic_gradient_descent).fit(iris)
+    pl_gd = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=stochastic_gradient_descent)
     assert grade_learner(pl_gd, iris_tests) == 1
     assert err_ratio(pl_gd, iris) < 0.08
-    pl_adam = PerceptronLearner(l_rate=0.01, epochs=100, optimizer=adam).fit(iris)
+    pl_adam = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=adam)
     assert grade_learner(pl_adam, iris_tests) == 1
     assert err_ratio(pl_adam, iris) < 0.08
 
@@ -57,7 +57,7 @@ def test_autoencoder():
     iris.classes_to_numbers(classes)
     inputs = np.asarray(iris.examples)
     al = AutoencoderLearner(inputs, 100)
-    assert np.allclose(inputs[0], al.predict(inputs[:1]), rtol=0.2)
+    assert np.allclose(inputs[0], np.round(al.predict(inputs[:1]), decimals=1), rtol=0.1)
 
 
 if __name__ == "__main__":

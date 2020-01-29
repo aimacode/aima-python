@@ -202,14 +202,6 @@ def parse_csv(input, delim=','):
     return [list(map(num_or_str, line.split(delim))) for line in lines]
 
 
-class Learner:
-    def fit(self, X, y):
-        return NotImplementedError
-
-    def predict(self, x):
-        return NotImplementedError
-
-
 def err_ratio(learner, dataset, examples=None):
     """
     Return the proportion of the examples that are NOT correctly predicted.
@@ -221,7 +213,7 @@ def err_ratio(learner, dataset, examples=None):
     right = 0
     for example in examples:
         desired = example[dataset.target]
-        output = learner.predict(dataset.sanitize(example))
+        output = learner(dataset.sanitize(example)) if callable(learner) else learner.predict(dataset.sanitize(example))
         if np.allclose(output, desired):
             right += 1
     return 1 - (right / len(examples))
@@ -232,7 +224,7 @@ def grade_learner(learner, tests):
     Grades the given learner based on how many tests it passes.
     tests is a list with each element in the form: (values, output).
     """
-    return mean(int(learner.predict(X) == y) for X, y in tests)
+    return mean(int((learner(X) if callable(learner) else learner.predict(X)) == y) for X, y in tests)
 
 
 def train_test_split(dataset, start=None, end=None, test_split=None):
@@ -328,7 +320,7 @@ def learning_curve(learner, dataset, trials=10, sizes=None):
     return [(size, mean([score(learner, size) for _ in range(trials)])) for size in sizes]
 
 
-class PluralityLearner(Learner):
+class PluralityLearner:
     """
     A very dumb algorithm: always pick the result that was most popular
     in the training data. Makes a baseline for comparison.
@@ -395,7 +387,7 @@ class DecisionLeaf:
         return repr(self.result)
 
 
-class DecisionTreeLearner(Learner):
+class DecisionTreeLearner:
     """[Figure 18.5]"""
 
     def __init__(self, dataset):
@@ -464,7 +456,7 @@ def information_content(values):
     return sum(-p * np.log2(p) for p in probabilities)
 
 
-class DecisionListLearner(Learner):
+class DecisionListLearner:
     """
     [Figure 18.11]
     A decision list implemented as a list of (test, value) pairs.
@@ -499,7 +491,7 @@ class DecisionListLearner(Learner):
                 return outcome
 
 
-class NearestNeighborLearner(Learner):
+class NearestNeighborLearner:
     """k-NearestNeighbor: the k nearest neighbors vote."""
 
     def __init__(self, dataset, k=1):
@@ -560,7 +552,7 @@ class CrossEntropy(LossFunction):
         return (1 / self.X.shape[0]) * np.dot(self.X.T, self.predict(self.X, theta) - self.y)
 
 
-class LinearRegressionLearner(Learner):
+class LinearRegressionLearner:
     """
     [Section 18.6.4]
     Linear Regressor
@@ -580,7 +572,7 @@ class LinearRegressionLearner(Learner):
         return np.dot(example, self.w)
 
 
-class BinaryLogisticRegressionLearner(Learner):
+class BinaryLogisticRegressionLearner:
     """
     [Section 18.6.5]
     Logistic Regression Classifier
@@ -605,7 +597,7 @@ class BinaryLogisticRegressionLearner(Learner):
         return np.where(self.predict_score(x) >= 0.5, self.labels[1], self.labels[0]).astype(int)
 
 
-class MultiLogisticRegressionLearner(Learner):
+class MultiLogisticRegressionLearner:
     def __init__(self, l_rate=0.01, epochs=1000, optimizer='bfgs', decision_function='ovr'):
         self.l_rate = l_rate
         self.epochs = epochs
@@ -673,7 +665,7 @@ class MultiLogisticRegressionLearner(Learner):
             return ValueError("Decision function must be either 'ovr' or 'ovo'.")
 
 
-class BinarySVM(Learner):
+class BinarySVM:
     def __init__(self, kernel=linear_kernel, C=1.0):
         self.kernel = kernel
         self.C = C  # hyper-parameter
@@ -738,7 +730,7 @@ class BinarySVM(Learner):
         return np.sign(self.predict_score(x))
 
 
-class MultiSVM(Learner):
+class MultiSVM:
     def __init__(self, kernel=linear_kernel, decision_function='ovr', C=1.0):
         self.kernel = kernel
         self.decision_function = decision_function
@@ -805,7 +797,7 @@ class MultiSVM(Learner):
             return ValueError("Decision function must be either 'ovr' or 'ovo'.")
 
 
-class EnsembleLearner(Learner):
+class EnsembleLearner:
     """Given a list of learning algorithms, have them vote."""
 
     def __init__(self, learners):
@@ -815,7 +807,8 @@ class EnsembleLearner(Learner):
         self.predictors = [learner(dataset) for learner in self.learners]
 
     def predict(self, example):
-        return mode(predictor(example) for predictor in self.predictors)
+        return mode(predictor(example) if callable(predictor) else predictor.predict(example)
+                    for predictor in self.predictors)
 
 
 def ada_boost(dataset, L, K):
@@ -829,18 +822,19 @@ def ada_boost(dataset, L, K):
     for k in range(K):
         h_k = L(dataset, w)
         h.append(h_k)
-        error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k.predict(example[:-1]))
+        error = sum(weight for example, weight in zip(examples, w) if example[target] !=
+                    (h_k(example[:-1]) if callable(h_k) else h_k.predict(example[:-1])))
         # avoid divide-by-0 from either 0% or 100% error rates
         error = np.clip(error, eps, 1 - eps)
         for j, example in enumerate(examples):
-            if example[target] == h_k.predict(example[:-1]):
+            if example[target] == (h_k(example[:-1]) if callable(h_k) else h_k.predict(example[:-1])):
                 w[j] *= error / (1 - error)
         w = normalize(w)
         z.append(np.log((1 - error) / error))
     return weighted_majority(h, z)
 
 
-class weighted_majority(Learner):
+class weighted_majority:
     """Return a predictor that takes a weighted vote."""
 
     def __init__(self, predictors, weights):
@@ -848,7 +842,8 @@ class weighted_majority(Learner):
         self.weights = weights
 
     def predict(self, example):
-        return weighted_mode((predictor.predict(example) for predictor in self.predictors), self.weights)
+        return weighted_mode((predictor(example) if callable(predictor) else predictor.predict(example)
+                              for predictor in self.predictors), self.weights)
 
 
 def weighted_mode(values, weights):
@@ -863,7 +858,7 @@ def weighted_mode(values, weights):
     return max(totals, key=totals.__getitem__)
 
 
-class RandomForest(Learner):
+class RandomForest:
     """An ensemble of Decision Trees trained using bagging and feature bagging."""
 
     def __init__(self, dataset, n=5):
@@ -884,8 +879,8 @@ class RandomForest(Learner):
         return inputs or self.dataset.inputs
 
     def predict(self, example):
-        print([predictor.predict(example) for predictor in self.predictors])
-        return mode(predictor.predict(example) for predictor in self.predictors)
+        return mode(predictor(example) if callable(predictor) else predictor.predict(example)
+                    for predictor in self.predictors)
 
 
 def WeightedLearner(unweighted_learner):
@@ -896,7 +891,8 @@ def WeightedLearner(unweighted_learner):
     """
 
     def train(dataset, weights):
-        return unweighted_learner().fit(replicated_dataset(dataset, weights))
+        return unweighted_learner(replicated_dataset(dataset, weights)) if callable(
+            unweighted_learner) else unweighted_learner().fit(replicated_dataset(dataset, weights))
 
     return train
 
