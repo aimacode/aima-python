@@ -8,7 +8,6 @@ from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
-from learning4e import Learner
 from utils4e import (Sigmoid, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
                      scalar_vector_product, map_vector, mean_squared_error_loss)
 
@@ -339,83 +338,83 @@ def get_batch(examples, batch_size=1):
         yield examples[i: i + batch_size]
 
 
-class NeuralNetLearner(Learner):
+def NeuralNetLearner(dataset, hidden_layer_sizes, l_rate=0.01, epochs=1000, batch_size=1,
+                     optimizer=stochastic_gradient_descent, verbose=False):
     """
     Simple dense multilayer neural network.
     :param hidden_layer_sizes: size of hidden layers in the form of a list
     """
 
-    def __init__(self, hidden_layer_sizes, l_rate=0.01, epochs=1000, batch_size=1,
-                 optimizer=stochastic_gradient_descent, verbose=False):
-        self.hidden_layer_sizes = hidden_layer_sizes
-        self.l_rate = l_rate
-        self.epochs = epochs
-        self.optimizer = optimizer
-        self.batch_size = batch_size
-        self.verbose = verbose
+    input_size = len(dataset.inputs)
+    output_size = len(dataset.values[dataset.target])
 
-    def fit(self, dataset):
-        input_size = len(dataset.inputs)
-        output_size = len(dataset.values[dataset.target])
+    # initialize the network
+    raw_net = [InputLayer(input_size)]
+    # add hidden layers
+    hidden_input_size = input_size
+    for h_size in hidden_layer_sizes:
+        raw_net.append(DenseLayer(hidden_input_size, h_size))
+        hidden_input_size = h_size
+    raw_net.append(DenseLayer(hidden_input_size, output_size))
 
-        # initialize the network
-        raw_net = [InputLayer(input_size)]
-        # add hidden layers
-        hidden_input_size = input_size
-        for h_size in self.hidden_layer_sizes:
-            raw_net.append(DenseLayer(hidden_input_size, h_size))
-            hidden_input_size = h_size
-        raw_net.append(DenseLayer(hidden_input_size, output_size))
+    # update parameters of the network
+    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs=epochs,
+                            l_rate=l_rate, batch_size=batch_size, verbose=verbose)
 
-        # update parameters of the network
-        self.learned_net = self.optimizer(dataset, raw_net, mean_squared_error_loss, epochs=self.epochs,
-                                          l_rate=self.l_rate, batch_size=self.batch_size, verbose=self.verbose)
-        return self
-
-    def predict(self, example):
-        n_layers = len(self.learned_net)
+    def predict(example):
+        n_layers = len(learned_net)
 
         layer_input = example
         layer_out = example
 
         # get the output of each layer by forward passing
         for i in range(1, n_layers):
-            layer_out = self.learned_net[i].forward(layer_input)
+            layer_out = learned_net[i].forward(layer_input)
             layer_input = layer_out
 
         return layer_out.index(max(layer_out))
 
+    return predict
 
-class PerceptronLearner(Learner):
+
+def PerceptronLearner(dataset, l_rate=0.01, epochs=1000, batch_size=1,
+                      optimizer=stochastic_gradient_descent, verbose=False):
     """
     Simple perceptron neural network.
     """
 
-    def __init__(self, l_rate=0.01, epochs=1000, batch_size=1, optimizer=stochastic_gradient_descent, verbose=None):
-        self.l_rate = l_rate
-        self.epochs = epochs
-        self.optimizer = optimizer
-        self.batch_size = batch_size
-        self.verbose = verbose
+    input_size = len(dataset.inputs)
+    output_size = len(dataset.values[dataset.target])
 
-    def fit(self, dataset):
-        input_size = len(dataset.inputs)
-        output_size = len(dataset.values[dataset.target])
+    # initialize the network, add dense layer
+    raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
 
-        # initialize the network, add dense layer
-        raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
+    # update the network
+    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs=epochs,
+                            l_rate=l_rate, batch_size=batch_size, verbose=verbose)
 
-        # update the network
-        self.learned_net = self.optimizer(dataset, raw_net, mean_squared_error_loss, epochs=self.epochs,
-                                          l_rate=self.l_rate, batch_size=self.batch_size, verbose=self.verbose)
-        return self
-
-    def predict(self, example):
-        layer_out = self.learned_net[1].forward(example)
+    def predict(example):
+        layer_out = learned_net[1].forward(example)
         return layer_out.index(max(layer_out))
 
+    return predict
 
-def SimpleRNNLearner(train_data, val_data, epochs=2):
+
+def keras_dataset_loader(dataset, max_length=500):
+    """
+    Helper function to load keras datasets.
+    :param dataset: keras data set type
+    :param max_length: max length of each input sequence
+    """
+    # init dataset
+    (X_train, y_train), (X_val, y_val) = dataset
+    if max_length > 0:
+        X_train = sequence.pad_sequences(X_train, maxlen=max_length)
+        X_val = sequence.pad_sequences(X_val, maxlen=max_length)
+    return (X_train[10:], y_train[10:]), (X_val, y_val), (X_train[:10], y_train[:10])
+
+
+def SimpleRNNLearner(train_data, val_data, epochs=2, verbose=False):
     """
     RNN example for text sentimental analysis.
     :param train_data: a tuple of (training data, targets)
@@ -423,6 +422,7 @@ def SimpleRNNLearner(train_data, val_data, epochs=2):
             Targets: ndarray taking targets of each example. Each target is mapped to an integer
     :param val_data: a tuple of (validation data, targets)
     :param epochs: number of epochs
+    :param verbose: verbosity mode
     :return: a keras model
     """
 
@@ -441,31 +441,18 @@ def SimpleRNNLearner(train_data, val_data, epochs=2):
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     # train the model
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=128, verbose=2)
+    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=128, verbose=verbose)
 
     return model
 
 
-def keras_dataset_loader(dataset, max_length=500):
-    """
-    Helper function to load keras datasets.
-    :param dataset: keras data set type
-    :param max_length: max length of each input sequence
-    """
-    # init dataset
-    (X_train, y_train), (X_val, y_val) = dataset
-    if max_length > 0:
-        X_train = sequence.pad_sequences(X_train, maxlen=max_length)
-        X_val = sequence.pad_sequences(X_val, maxlen=max_length)
-    return (X_train[10:], y_train[10:]), (X_val, y_val), (X_train[:10], y_train[:10])
-
-
-def AutoencoderLearner(inputs, encoding_size, epochs=200, verbose=None):
+def AutoencoderLearner(inputs, encoding_size, epochs=200, verbose=False):
     """
     Simple example of linear auto encoder learning producing the input itself.
     :param inputs: a batch of input data in np.ndarray type
     :param encoding_size: int, the size of encoding layer
     :param epochs: number of epochs
+    :param verbose: verbosity mode
     :return: a keras model
     """
 
