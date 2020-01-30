@@ -218,7 +218,7 @@ def init_examples(examples, idx_i, idx_t, o_units):
     return inputs, targets
 
 
-def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1, verbose=None):
+def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1, verbose=False):
     """
     Gradient descent algorithm to update the learnable parameters of a network.
     :return: the updated network
@@ -251,7 +251,7 @@ def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, ba
 
 
 def adam(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8,
-         l_rate=0.001, batch_size=1, verbose=None):
+         l_rate=0.001, batch_size=1, verbose=False):
     """
     [Figure 19.6]
     Adam optimizer to update the learnable parameters of a network.
