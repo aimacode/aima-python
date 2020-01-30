@@ -8,7 +8,7 @@ from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
-from utils4e import (Sigmoid, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
+from utils4e import (softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
                      scalar_vector_product, map_vector, mean_squared_error_loss)
 
 
@@ -36,6 +36,60 @@ class Layer:
     def forward(self, inputs):
         """Define the operation to get the output of this layer"""
         raise NotImplementedError
+
+
+class Activation:
+
+    def function(self, x):
+        return NotImplementedError
+
+    def derivative(self, x):
+        return NotImplementedError
+
+
+class Sigmoid(Activation):
+
+    def function(self, x):
+        return 1 / (1 + np.exp(-x))
+
+    def derivative(self, value):
+        return value * (1 - value)
+
+
+class Relu(Activation):
+
+    def function(self, x):
+        return max(0, x)
+
+    def derivative(self, value):
+        return 1 if value > 0 else 0
+
+
+class Elu(Activation):
+
+    def function(self, x, alpha=0.01):
+        return x if x > 0 else alpha * (np.exp(x) - 1)
+
+    def derivative(self, value, alpha=0.01):
+        return 1 if value > 0 else alpha * np.exp(value)
+
+
+class Tanh(Activation):
+
+    def function(self, x):
+        return np.tanh(x)
+
+    def derivative(self, value):
+        return 1 - (value ** 2)
+
+
+class LeakyRelu(Activation):
+
+    def function(self, x, alpha=0.01):
+        return x if x > 0 else alpha * x
+
+    def derivative(self, value, alpha=0.01):
+        return 1 if value > 0 else alpha
 
 
 class InputLayer(Layer):

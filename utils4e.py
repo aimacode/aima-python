@@ -168,6 +168,7 @@ def extend(s, var, val):
 # ______________________________________________________________________________
 # argmin and argmax
 
+
 identity = lambda x: x
 
 
@@ -328,7 +329,8 @@ def mean_boolean_error(x, y):
     return mean(_x != _y for _x, _y in zip(x, y))
 
 
-# loss functions
+# part3. Neural network util functions
+# ______________________________________________________________________________
 
 
 def cross_entropy_loss(x, y):
@@ -339,10 +341,6 @@ def cross_entropy_loss(x, y):
 def mean_squared_error_loss(x, y):
     """Min square loss function. x and y are 1D iterable objects."""
     return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
-
-
-# part3. Neural network util functions
-# ______________________________________________________________________________
 
 
 def normalize(dist):
@@ -359,6 +357,11 @@ def normalize(dist):
 
 def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
+
+
+def softmax1D(x):
+    """Return the softmax vector of input vector x."""
+    return np.exp(x) / np.sum(np.exp(x))
 
 
 def conv1D(x, k):
@@ -378,68 +381,6 @@ def gaussian_kernel_2D(size=3, sigma=0.5):
     x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
     g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
     return g / g.sum()
-
-
-# activation functions
-
-
-class Activation:
-
-    def function(self, x):
-        return NotImplementedError
-
-    def derivative(self, x):
-        return NotImplementedError
-
-
-def softmax1D(x):
-    """Return the softmax vector of input vector x."""
-    return np.exp(x) / sum(np.exp(x))
-
-
-class Sigmoid(Activation):
-
-    def function(self, x):
-        return 1 / (1 + np.exp(-x))
-
-    def derivative(self, value):
-        return value * (1 - value)
-
-
-class Relu(Activation):
-
-    def function(self, x):
-        return max(0, x)
-
-    def derivative(self, value):
-        return 1 if value > 0 else 0
-
-
-class Elu(Activation):
-
-    def function(self, x, alpha=0.01):
-        return x if x > 0 else alpha * (np.exp(x) - 1)
-
-    def derivative(self, value, alpha=0.01):
-        return 1 if value > 0 else alpha * np.exp(value)
-
-
-class Tanh(Activation):
-
-    def function(self, x):
-        return np.tanh(x)
-
-    def derivative(self, value):
-        return 1 - (value ** 2)
-
-
-class LeakyRelu(Activation):
-
-    def function(self, x, alpha=0.01):
-        return x if x > 0 else alpha * x
-
-    def derivative(self, value, alpha=0.01):
-        return 1 if value > 0 else alpha
 
 
 def step(x):
@@ -511,6 +452,7 @@ def distance_squared(a, b):
 
 # ______________________________________________________________________________
 # Misc Functions
+
 
 class injection:
     """Dependency injection of temporary values for global functions/classes/etc.
@@ -607,6 +549,7 @@ def failure_test(algorithm, tests):
 
 # See https://docs.python.org/3/reference/expressions.html#operator-precedence
 # See https://docs.python.org/3/reference/datamodel.html#special-method-names
+
 
 class Expr:
     """A mathematical expression with an operator and 0 or more arguments.
@@ -842,6 +785,8 @@ class hashabledict(dict):
 
 # ______________________________________________________________________________
 # Monte Carlo tree node and ucb function
+
+
 class MCT_Node:
     """Node in the Monte Carlo search tree, keeps track of the children states."""
 

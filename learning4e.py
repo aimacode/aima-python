@@ -7,6 +7,7 @@ from statistics import stdev
 from qpsolvers import solve_qp
 from scipy.optimize import minimize
 
+from deep_learning4e import Sigmoid
 from probabilistic_learning import NaiveBayesLearner
 from utils4e import *
 
