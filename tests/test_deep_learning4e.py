@@ -47,7 +47,7 @@ def test_rnn():
     train = (train[0][:1000], train[1][:1000])
     val = (val[0][:200], val[1][:200])
     rnn = SimpleRNNLearner(train, val)
-    score = rnn.evaluate(test[0][:200], test[1][:200], verbose=0)
+    score = rnn.evaluate(test[0][:200], test[1][:200], verbose=False)
     assert score[1] >= 0.2
 
 
@@ -57,7 +57,7 @@ def test_autoencoder():
     iris.classes_to_numbers(classes)
     inputs = np.asarray(iris.examples)
     al = AutoencoderLearner(inputs, 100)
-    assert np.allclose(inputs[0][:, np.newaxis], al.predict(inputs[:1]), rtol=0.3)
+    assert np.allclose(inputs[0], al.predict(inputs[:1]), rtol=0.3)
 
 
 if __name__ == "__main__":
