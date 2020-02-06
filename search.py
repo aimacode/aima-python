@@ -420,8 +420,35 @@ def astar_search(problem, h=None, display=False):
     return best_first_graph_search(problem, lambda n: n.path_cost + h(n), display)
 
 
+def cost_limited_astar_search(problem, limit, f):
+
+    def recursive_clas(node, problem, limit, f):
+        if problem.goal_test(node.state):
+            return node
+        elif f(node) > limit:
+            return 'cutoff'
+        else:
+            cutoff_occurred = False
+            for child in node.expand(problem):
+                result = recursive_astar_search(child, problem, limit - 1, f)
+                if result == 'cutoff':
+                    cutoff_occured = True
+                elif result is not None:
+                    return result
+            return 'cutoff' if cutoff_occurred else None
+
+    return recursive_astar_search(Node(problem.initial), problem, limit, f)
+
+
+def iterative_deepening_astar_search(problem, h=None):
+    """[Section 3.5.3]"""
+    
+    for cost in range(sys.maxsize):
+        result = cost_limited_astar_search(problem, cost, h)
+        if result != 'cutoff' and result != None:
+            return result
 # ______________________________________________________________________________
-# A* heuristics 
+# A* heuristics
 
 class EightPuzzle(Problem):
     """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board, where one of the
@@ -487,7 +514,7 @@ class EightPuzzle(Problem):
         return inversion % 2 == 0
 
     def h(self, node):
-        """ Return the heuristic value for a given state. Default heuristic function used is 
+        """ Return the heuristic value for a given state. Default heuristic function used is
         h(n) = number of misplaced tiles """
 
         return sum(s != g for (s, g) in zip(node.state, self.goal))
@@ -673,7 +700,7 @@ def simulated_annealing(problem, schedule=exp_schedule()):
 
 
 def simulated_annealing_full(problem, schedule=exp_schedule()):
-    """ This version returns all the states encountered in reaching 
+    """ This version returns all the states encountered in reaching
     the goal state."""
     states = []
     current = Node(problem.initial)
