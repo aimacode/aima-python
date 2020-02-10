@@ -13,7 +13,7 @@ before_script:
   - pip install -r requirements.txt
 
 script:
-  - pytest --cov=./
+  - py.test --cov=./
   - python -m doctest -v *.py
 
 after_success:
