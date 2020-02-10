@@ -9,7 +9,7 @@ python:
 before_install:
   - git submodule update --remote
 
-install:
+before_script:
   - pip install -r requirements.txt
 
 script:
