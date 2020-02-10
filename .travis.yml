@@ -8,10 +8,12 @@ python:
 
 before_install:
   - git submodule update --remote
+
+install:
   - pip install -r requirements.txt
 
 script:
-  - py.test --cov=./
+  - pytest --cov=./
   - python -m doctest -v *.py
 
 after_success:
