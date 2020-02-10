@@ -21,10 +21,13 @@ def test_neural_net():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    nnl_gd = NeuralNetLearner(iris, [4], l_rate=0.15, epochs=100, optimizer=stochastic_gradient_descent)
+    n_samples, n_features = len(iris.examples), iris.target
+    X, y = np.array([x[:n_features] for x in iris.examples]), \
+           np.array([x[n_features] for x in iris.examples])
+    nnl_gd = NeuralNetworkLearner(iris, [4], l_rate=0.15, epochs=100, optimizer=stochastic_gradient_descent).fit(X, y)
     assert grade_learner(nnl_gd, iris_tests) > 0.7
     assert err_ratio(nnl_gd, iris) < 0.08
-    nnl_adam = NeuralNetLearner(iris, [4], l_rate=0.001, epochs=200, optimizer=adam)
+    nnl_adam = NeuralNetworkLearner(iris, [4], l_rate=0.001, epochs=200, optimizer=adam).fit(X, y)
     assert grade_learner(nnl_adam, iris_tests) == 1
     assert err_ratio(nnl_adam, iris) < 0.08
 
@@ -33,10 +36,13 @@ def test_perceptron():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    pl_gd = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=stochastic_gradient_descent)
+    n_samples, n_features = len(iris.examples), iris.target
+    X, y = np.array([x[:n_features] for x in iris.examples]), \
+           np.array([x[n_features] for x in iris.examples])
+    pl_gd = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=stochastic_gradient_descent).fit(X, y)
     assert grade_learner(pl_gd, iris_tests) == 1
     assert err_ratio(pl_gd, iris) < 0.2
-    pl_adam = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=adam)
+    pl_adam = PerceptronLearner(iris, l_rate=0.01, epochs=100, optimizer=adam).fit(X, y)
     assert grade_learner(pl_adam, iris_tests) == 1
     assert err_ratio(pl_adam, iris) < 0.2
 

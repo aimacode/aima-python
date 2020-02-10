@@ -214,7 +214,7 @@ def err_ratio(learner, dataset, examples=None):
     right = 0
     for example in examples:
         desired = example[dataset.target]
-        output = learner(dataset.sanitize(example)) if callable(learner) else learner.predict(dataset.sanitize(example))
+        output = learner.predict(dataset.sanitize(example))
         if np.allclose(output, desired):
             right += 1
     return 1 - (right / len(examples))
@@ -225,7 +225,7 @@ def grade_learner(learner, tests):
     Grades the given learner based on how many tests it passes.
     tests is a list with each element in the form: (values, output).
     """
-    return mean(int((learner(X) if callable(learner) else learner.predict(X)) == y) for X, y in tests)
+    return mean(int(learner.predict(X) == y) for X, y in tests)
 
 
 def train_test_split(dataset, start=None, end=None, test_split=None):
@@ -808,8 +808,7 @@ class EnsembleLearner:
         self.predictors = [learner(dataset) for learner in self.learners]
 
     def predict(self, example):
-        return mode(predictor(example) if callable(predictor) else predictor.predict(example)
-                    for predictor in self.predictors)
+        return mode(predictor.predict(example) for predictor in self.predictors)
 
 
 def ada_boost(dataset, L, K):
@@ -823,12 +822,11 @@ def ada_boost(dataset, L, K):
     for k in range(K):
         h_k = L(dataset, w)
         h.append(h_k)
-        error = sum(weight for example, weight in zip(examples, w) if example[target] !=
-                    (h_k(example[:-1]) if callable(h_k) else h_k.predict(example[:-1])))
+        error = sum(weight for example, weight in zip(examples, w) if example[target] != h_k.predict(example[:-1]))
         # avoid divide-by-0 from either 0% or 100% error rates
         error = np.clip(error, eps, 1 - eps)
         for j, example in enumerate(examples):
-            if example[target] == (h_k(example[:-1]) if callable(h_k) else h_k.predict(example[:-1])):
+            if example[target] == h_k.predict(example[:-1]):
                 w[j] *= error / (1 - error)
         w = normalize(w)
         z.append(np.log((1 - error) / error))
@@ -843,8 +841,7 @@ class weighted_majority:
         self.weights = weights
 
     def predict(self, example):
-        return weighted_mode((predictor(example) if callable(predictor) else predictor.predict(example)
-                              for predictor in self.predictors), self.weights)
+        return weighted_mode((predictor.predict(example) for predictor in self.predictors), self.weights)
 
 
 def weighted_mode(values, weights):
@@ -880,8 +877,7 @@ class RandomForest:
         return inputs or self.dataset.inputs
 
     def predict(self, example):
-        return mode(predictor(example) if callable(predictor) else predictor.predict(example)
-                    for predictor in self.predictors)
+        return mode(predictor.predict(example) for predictor in self.predictors)
 
 
 def WeightedLearner(unweighted_learner):
@@ -892,8 +888,11 @@ def WeightedLearner(unweighted_learner):
     """
 
     def train(dataset, weights):
-        return unweighted_learner(replicated_dataset(dataset, weights)) if callable(
-            unweighted_learner) else unweighted_learner().fit(replicated_dataset(dataset, weights))
+        dataset = replicated_dataset(dataset, weights)
+        n_samples, n_features = len(dataset.examples), dataset.target
+        X, y = np.array([x[:n_features] for x in dataset.examples]), \
+               np.array([x[n_features] for x in dataset.examples])
+        return unweighted_learner.fit(X, y)
 
     return train
 

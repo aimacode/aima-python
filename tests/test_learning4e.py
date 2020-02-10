@@ -135,8 +135,9 @@ def test_random_weights():
 
 def test_ada_boost():
     iris = DataSet(name='iris')
-    iris.classes_to_numbers()
-    wl = WeightedLearner(PerceptronLearner)
+    classes = ['setosa', 'versicolor', 'virginica']
+    iris.classes_to_numbers(classes)
+    wl = WeightedLearner(PerceptronLearner(iris))
     ab = ada_boost(iris, wl, 5)
     tests = [([5, 3, 1, 0.1], 0),
              ([5, 3.5, 1, 0], 0),
