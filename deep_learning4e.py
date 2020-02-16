@@ -8,8 +8,8 @@ from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
-from utils4e import (Sigmoid, dot_product, softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add,
-                     random_weights, scalar_vector_product, matrix_multiplication, map_vector, mean_squared_error_loss)
+from utils4e import (softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
+                     scalar_vector_product, map_vector, mean_squared_error_loss)
 
 
 class Node:
@@ -31,11 +31,65 @@ class Layer:
     """
 
     def __init__(self, size):
-        self.nodes = [Node() for _ in range(size)]
+        self.nodes = np.array([Node() for _ in range(size)])
 
     def forward(self, inputs):
         """Define the operation to get the output of this layer"""
         raise NotImplementedError
+
+
+class Activation:
+
+    def function(self, x):
+        return NotImplementedError
+
+    def derivative(self, x):
+        return NotImplementedError
+
+
+class Sigmoid(Activation):
+
+    def function(self, x):
+        return 1 / (1 + np.exp(-x))
+
+    def derivative(self, value):
+        return value * (1 - value)
+
+
+class Relu(Activation):
+
+    def function(self, x):
+        return max(0, x)
+
+    def derivative(self, value):
+        return 1 if value > 0 else 0
+
+
+class Elu(Activation):
+
+    def function(self, x, alpha=0.01):
+        return x if x > 0 else alpha * (np.exp(x) - 1)
+
+    def derivative(self, value, alpha=0.01):
+        return 1 if value > 0 else alpha * np.exp(value)
+
+
+class Tanh(Activation):
+
+    def function(self, x):
+        return np.tanh(x)
+
+    def derivative(self, value):
+        return 1 - (value ** 2)
+
+
+class LeakyRelu(Activation):
+
+    def function(self, x, alpha=0.01):
+        return x if x > 0 else alpha * x
+
+    def derivative(self, value, alpha=0.01):
+        return 1 if value > 0 else alpha
 
 
 class InputLayer(Layer):
@@ -88,7 +142,7 @@ class DenseLayer(Layer):
         res = []
         # get the output value of each unit
         for unit in self.nodes:
-            val = self.activation.function(dot_product(unit.weights, inputs))
+            val = self.activation.function(np.dot(unit.weights, inputs))
             unit.value = val
             res.append(val)
         return res
@@ -144,6 +198,31 @@ class MaxPoolingLayer1D(Layer):
         return res
 
 
+class BatchNormalizationLayer(Layer):
+    """Batch normalization layer."""
+
+    def __init__(self, size, eps=0.001):
+        super().__init__(size)
+        self.eps = eps
+        # self.weights = [beta, gamma]
+        self.weights = [0, 0]
+        self.inputs = None
+
+    def forward(self, inputs):
+        # mean value of inputs
+        mu = sum(inputs) / len(inputs)
+        # standard error of inputs
+        stderr = statistics.stdev(inputs)
+        self.inputs = inputs
+        res = []
+        # get normalized value of each input
+        for i in range(len(self.nodes)):
+            val = [(inputs[i] - mu) * self.weights[0] / np.sqrt(self.eps + stderr ** 2) + self.weights[1]]
+            res.append(val)
+            self.nodes[i].value = val
+        return res
+
+
 def init_examples(examples, idx_i, idx_t, o_units):
     """Init examples from dataset.examples."""
 
@@ -164,7 +243,7 @@ def init_examples(examples, idx_i, idx_t, o_units):
     return inputs, targets
 
 
-def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1, verbose=None):
+def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, batch_size=1, verbose=False):
     """
     Gradient descent algorithm to update the learnable parameters of a network.
     :return: the updated network
@@ -181,23 +260,23 @@ def stochastic_gradient_descent(dataset, net, loss, epochs=1000, l_rate=0.01, ba
             # compute gradients of weights
             gs, batch_loss = BackPropagation(inputs, targets, weights, net, loss)
             # update weights with gradient descent
-            weights = vector_add(weights, scalar_vector_product(-l_rate, gs))
+            weights = [x + y for x, y in zip(weights, [np.array(tg) * -l_rate for tg in gs])]
             total_loss += batch_loss
 
             # update the weights of network each batch
             for i in range(len(net)):
-                if weights[i]:
+                if weights[i].size != 0:
                     for j in range(len(weights[i])):
                         net[i].nodes[j].weights = weights[i][j]
 
-        if verbose and (e + 1) % verbose == 0:
+        if verbose:
             print("epoch:{}, total_loss:{}".format(e + 1, total_loss))
 
     return net
 
 
 def adam(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8,
-         l_rate=0.001, batch_size=1, verbose=None):
+         l_rate=0.001, batch_size=1, verbose=False):
     """
     [Figure 19.6]
     Adam optimizer to update the learnable parameters of a network.
@@ -247,7 +326,7 @@ def adam(dataset, net, loss, epochs=1000, rho=(0.9, 0.999), delta=1 / 10 ** 8,
                     for j in range(len(weights[i])):
                         net[i].nodes[j].weights = weights[i][j]
 
-        if verbose and (e + 1) % verbose == 0:
+        if verbose:
             print("epoch:{}, total_loss:{}".format(e + 1, total_loss))
 
     return net
@@ -288,16 +367,16 @@ def BackPropagation(inputs, targets, theta, net, loss):
         # initialize delta
         delta = [[] for _ in range(n_layers)]
 
-        previous = [layer_out[i] - t_val[i] for i in range(o_units)]
+        previous = np.array([layer_out[i] - t_val[i] for i in range(o_units)])
         h_layers = n_layers - 1
 
         # backward pass
         for i in range(h_layers, 0, -1):
             layer = net[i]
-            derivative = [layer.activation.derivative(node.value) for node in layer.nodes]
-            delta[i] = element_wise_product(previous, derivative)
+            derivative = np.array([layer.activation.derivative(node.value) for node in layer.nodes])
+            delta[i] = previous * derivative
             # pass to layer i-1 in the next iteration
-            previous = matrix_multiplication([delta[i]], theta[i])[0]
+            previous = np.matmul([delta[i]], theta[i])[0]
             # compute gradient of layer i
             gradients[i] = [scalar_vector_product(d, net[i].inputs) for d in delta[i]]
 
@@ -307,98 +386,108 @@ def BackPropagation(inputs, targets, theta, net, loss):
     return total_gradients, batch_loss
 
 
-class BatchNormalizationLayer(Layer):
-    """Batch normalization layer."""
-
-    def __init__(self, size, eps=0.001):
-        super().__init__(size)
-        self.eps = eps
-        # self.weights = [beta, gamma]
-        self.weights = [0, 0]
-        self.inputs = None
-
-    def forward(self, inputs):
-        # mean value of inputs
-        mu = sum(inputs) / len(inputs)
-        # standard error of inputs
-        stderr = statistics.stdev(inputs)
-        self.inputs = inputs
-        res = []
-        # get normalized value of each input
-        for i in range(len(self.nodes)):
-            val = [(inputs[i] - mu) * self.weights[0] / np.sqrt(self.eps + stderr ** 2) + self.weights[1]]
-            res.append(val)
-            self.nodes[i].value = val
-        return res
-
-
 def get_batch(examples, batch_size=1):
     """Split examples into multiple batches"""
     for i in range(0, len(examples), batch_size):
         yield examples[i: i + batch_size]
 
 
-def NeuralNetLearner(dataset, hidden_layer_sizes, l_rate=0.01, epochs=1000, batch_size=1,
-                     optimizer=stochastic_gradient_descent, verbose=None):
+class NeuralNetworkLearner:
     """
     Simple dense multilayer neural network.
     :param hidden_layer_sizes: size of hidden layers in the form of a list
     """
-    input_size = len(dataset.inputs)
-    output_size = len(dataset.values[dataset.target])
 
-    # initialize the network
-    raw_net = [InputLayer(input_size)]
-    # add hidden layers
-    hidden_input_size = input_size
-    for h_size in hidden_layer_sizes:
-        raw_net.append(DenseLayer(hidden_input_size, h_size))
-        hidden_input_size = h_size
-    raw_net.append(DenseLayer(hidden_input_size, output_size))
+    def __init__(self, dataset, hidden_layer_sizes, l_rate=0.01, epochs=1000, batch_size=10,
+                 optimizer=stochastic_gradient_descent, loss=mean_squared_error_loss, verbose=False, plot=False):
+        self.dataset = dataset
+        self.l_rate = l_rate
+        self.epochs = epochs
+        self.batch_size = batch_size
+        self.optimizer = optimizer
+        self.loss = loss
+        self.verbose = verbose
+        self.plot = plot
 
-    # update parameters of the network
-    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=l_rate,
-                            batch_size=batch_size, verbose=verbose)
+        input_size = len(dataset.inputs)
+        output_size = len(dataset.values[dataset.target])
 
-    def predict(example):
-        n_layers = len(learned_net)
+        # initialize the network
+        raw_net = [InputLayer(input_size)]
+        # add hidden layers
+        hidden_input_size = input_size
+        for h_size in hidden_layer_sizes:
+            raw_net.append(DenseLayer(hidden_input_size, h_size))
+            hidden_input_size = h_size
+        raw_net.append(DenseLayer(hidden_input_size, output_size))
+        self.raw_net = raw_net
+
+    def fit(self, X, y):
+        self.learned_net = self.optimizer(self.dataset, self.raw_net, loss=self.loss, epochs=self.epochs,
+                                          l_rate=self.l_rate, batch_size=self.batch_size, verbose=self.verbose)
+        return self
+
+    def predict(self, example):
+        n_layers = len(self.learned_net)
 
         layer_input = example
         layer_out = example
 
         # get the output of each layer by forward passing
         for i in range(1, n_layers):
-            layer_out = learned_net[i].forward(layer_input)
+            layer_out = self.learned_net[i].forward(np.array(layer_input).reshape((-1, 1)))
             layer_input = layer_out
 
         return layer_out.index(max(layer_out))
 
-    return predict
 
-
-def PerceptronLearner(dataset, l_rate=0.01, epochs=1000, batch_size=1,
-                      optimizer=stochastic_gradient_descent, verbose=None):
+class PerceptronLearner:
     """
     Simple perceptron neural network.
     """
-    input_size = len(dataset.inputs)
-    output_size = len(dataset.values[dataset.target])
 
-    # initialize the network, add dense layer
-    raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
+    def __init__(self, dataset, l_rate=0.01, epochs=1000, batch_size=10, optimizer=stochastic_gradient_descent,
+                 loss=mean_squared_error_loss, verbose=False, plot=False):
+        self.dataset = dataset
+        self.l_rate = l_rate
+        self.epochs = epochs
+        self.batch_size = batch_size
+        self.optimizer = optimizer
+        self.loss = loss
+        self.verbose = verbose
+        self.plot = plot
 
-    # update the network
-    learned_net = optimizer(dataset, raw_net, mean_squared_error_loss, epochs, l_rate=l_rate,
-                            batch_size=batch_size, verbose=verbose)
+        input_size = len(dataset.inputs)
+        output_size = len(dataset.values[dataset.target])
 
-    def predict(example):
-        layer_out = learned_net[1].forward(example)
+        # initialize the network, add dense layer
+        self.raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
+
+    def fit(self, X, y):
+        self.learned_net = self.optimizer(self.dataset, self.raw_net, loss=self.loss, epochs=self.epochs,
+                                          l_rate=self.l_rate, batch_size=self.batch_size, verbose=self.verbose)
+        return self
+
+    def predict(self, example):
+        layer_out = self.learned_net[1].forward(np.array(example).reshape((-1, 1)))
         return layer_out.index(max(layer_out))
 
-    return predict
+
+def keras_dataset_loader(dataset, max_length=500):
+    """
+    Helper function to load keras datasets.
+    :param dataset: keras data set type
+    :param max_length: max length of each input sequence
+    """
+    # init dataset
+    (X_train, y_train), (X_val, y_val) = dataset
+    if max_length > 0:
+        X_train = sequence.pad_sequences(X_train, maxlen=max_length)
+        X_val = sequence.pad_sequences(X_val, maxlen=max_length)
+    return (X_train[10:], y_train[10:]), (X_val, y_val), (X_train[:10], y_train[:10])
 
 
-def SimpleRNNLearner(train_data, val_data, epochs=2):
+def SimpleRNNLearner(train_data, val_data, epochs=2, verbose=False):
     """
     RNN example for text sentimental analysis.
     :param train_data: a tuple of (training data, targets)
@@ -406,6 +495,7 @@ def SimpleRNNLearner(train_data, val_data, epochs=2):
             Targets: ndarray taking targets of each example. Each target is mapped to an integer
     :param val_data: a tuple of (validation data, targets)
     :param epochs: number of epochs
+    :param verbose: verbosity mode
     :return: a keras model
     """
 
@@ -424,31 +514,18 @@ def SimpleRNNLearner(train_data, val_data, epochs=2):
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     # train the model
-    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=128, verbose=2)
+    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=epochs, batch_size=128, verbose=verbose)
 
     return model
 
 
-def keras_dataset_loader(dataset, max_length=500):
-    """
-    Helper function to load keras datasets.
-    :param dataset: keras data set type
-    :param max_length: max length of each input sequence
-    """
-    # init dataset
-    (X_train, y_train), (X_val, y_val) = dataset
-    if max_length > 0:
-        X_train = sequence.pad_sequences(X_train, maxlen=max_length)
-        X_val = sequence.pad_sequences(X_val, maxlen=max_length)
-    return (X_train[10:], y_train[10:]), (X_val, y_val), (X_train[:10], y_train[:10])
-
-
-def AutoencoderLearner(inputs, encoding_size, epochs=200):
+def AutoencoderLearner(inputs, encoding_size, epochs=200, verbose=False):
     """
     Simple example of linear auto encoder learning producing the input itself.
     :param inputs: a batch of input data in np.ndarray type
     :param encoding_size: int, the size of encoding layer
     :param epochs: number of epochs
+    :param verbose: verbosity mode
     :return: a keras model
     """
 
@@ -466,6 +543,6 @@ def AutoencoderLearner(inputs, encoding_size, epochs=200):
     model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy'])
 
     # train the model
-    model.fit(inputs, inputs, epochs=epochs, batch_size=10, verbose=2)
+    model.fit(inputs, inputs, epochs=epochs, batch_size=10, verbose=verbose)
 
     return model

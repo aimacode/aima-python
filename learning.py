@@ -201,7 +201,7 @@ def parse_csv(input, delim=','):
     return [list(map(num_or_str, line.split(delim))) for line in lines]
 
 
-def err_ratio(predict, dataset, examples=None, verbose=0):
+def err_ratio(predict, dataset, examples=None):
     """
     Return the proportion of the examples that are NOT correctly predicted.
     verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct
@@ -215,10 +215,6 @@ def err_ratio(predict, dataset, examples=None, verbose=0):
         output = predict(dataset.sanitize(example))
         if output == desired:
             right += 1
-            if verbose >= 2:
-                print('   OK: got {} for {}'.format(desired, example))
-        elif verbose:
-            print('WRONG: got {}, expected {} for {}'.format(output, desired, example))
     return 1 - (right / len(examples))
 
 
