@@ -168,6 +168,7 @@ def extend(s, var, val):
 # ______________________________________________________________________________
 # argmin and argmax
 
+
 identity = lambda x: x
 
 
@@ -209,11 +210,6 @@ def histogram(values, mode=0, bin_function=None):
         return sorted(bins.items())
 
 
-def dot_product(x, y):
-    """Return the sum of the element-wise product of vectors x and y."""
-    return sum(_x * _y for _x, _y in zip(x, y))
-
-
 def element_wise_product(x, y):
     if hasattr(x, '__iter__') and hasattr(y, '__iter__'):
         assert len(x) == len(y)
@@ -222,16 +218,6 @@ def element_wise_product(x, y):
         return x * y
     else:
         raise Exception('Inputs must be in the same size!')
-
-
-def matrix_multiplication(x, *y):
-    """Return a matrix as a matrix-multiplication of x and arbitrary number of matrices *y."""
-
-    result = x
-    for _y in y:
-        result = np.matmul(result, _y)
-
-    return result
 
 
 def vector_add(a, b):
@@ -343,7 +329,8 @@ def mean_boolean_error(x, y):
     return mean(_x != _y for _x, _y in zip(x, y))
 
 
-# loss functions
+# part3. Neural network util functions
+# ______________________________________________________________________________
 
 
 def cross_entropy_loss(x, y):
@@ -354,10 +341,6 @@ def cross_entropy_loss(x, y):
 def mean_squared_error_loss(x, y):
     """Min square loss function. x and y are 1D iterable objects."""
     return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
-
-
-# part3. Neural network util functions
-# ______________________________________________________________________________
 
 
 def normalize(dist):
@@ -374,6 +357,11 @@ def normalize(dist):
 
 def random_weights(min_value, max_value, num_weights):
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
+
+
+def softmax1D(x):
+    """Return the softmax vector of input vector x."""
+    return np.exp(x) / np.sum(np.exp(x))
 
 
 def conv1D(x, k):
@@ -395,72 +383,6 @@ def gaussian_kernel_2D(size=3, sigma=0.5):
     return g / g.sum()
 
 
-# activation functions
-
-
-class Activation:
-
-    def function(self, x):
-        return NotImplementedError
-
-    def derivative(self, x):
-        return NotImplementedError
-
-
-def softmax1D(x):
-    """Return the softmax vector of input vector x."""
-    return np.exp(x) / sum(np.exp(x))
-
-
-class Sigmoid(Activation):
-
-    def function(self, x):
-        if x >= 100:
-            return 1
-        if x <= -100:
-            return 0
-        return 1 / (1 + np.exp(-x))
-
-    def derivative(self, value):
-        return value * (1 - value)
-
-
-class Relu(Activation):
-
-    def function(self, x):
-        return max(0, x)
-
-    def derivative(self, value):
-        return 1 if value > 0 else 0
-
-
-class Elu(Activation):
-
-    def function(self, x, alpha=0.01):
-        return x if x > 0 else alpha * (np.exp(x) - 1)
-
-    def derivative(self, value, alpha=0.01):
-        return 1 if value > 0 else alpha * np.exp(value)
-
-
-class Tanh(Activation):
-
-    def function(self, x):
-        return np.tanh(x)
-
-    def derivative(self, value):
-        return 1 - (value ** 2)
-
-
-class LeakyRelu(Activation):
-
-    def function(self, x, alpha=0.01):
-        return x if x > 0 else alpha * x
-
-    def derivative(self, value, alpha=0.01):
-        return 1 if value > 0 else alpha
-
-
 def step(x):
     """Return activation value of x with sign function."""
     return 1 if x >= 0 else 0
@@ -469,15 +391,6 @@ def step(x):
 def gaussian(mean, st_dev, x):
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
     return 1 / (np.sqrt(2 * np.pi) * st_dev) * np.exp(-0.5 * (float(x - mean) / st_dev) ** 2)
-
-
-def gaussian_2D(means, sigma, point):
-    det = sigma[0][0] * sigma[1][1] - sigma[0][1] * sigma[1][0]
-    inverse = np.linalg.inv(sigma)
-    assert det != 0
-    x_u = vector_add(point, scalar_vector_product(-1, means))
-    buff = matrix_multiplication(matrix_multiplication([x_u], inverse), np.array(x_u).T)
-    return 1 / (np.sqrt(det) * 2 * np.pi) * np.exp(-0.5 * buff[0][0])
 
 
 def linear_kernel(x, y=None):
@@ -539,6 +452,7 @@ def distance_squared(a, b):
 
 # ______________________________________________________________________________
 # Misc Functions
+
 
 class injection:
     """Dependency injection of temporary values for global functions/classes/etc.
@@ -635,6 +549,7 @@ def failure_test(algorithm, tests):
 
 # See https://docs.python.org/3/reference/expressions.html#operator-precedence
 # See https://docs.python.org/3/reference/datamodel.html#special-method-names
+
 
 class Expr:
     """A mathematical expression with an operator and 0 or more arguments.
@@ -870,6 +785,8 @@ class hashabledict(dict):
 
 # ______________________________________________________________________________
 # Monte Carlo tree node and ucb function
+
+
 class MCT_Node:
     """Node in the Monte Carlo search tree, keeps track of the children states."""
 

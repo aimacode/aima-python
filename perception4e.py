@@ -392,7 +392,7 @@ def selective_search(image):
 # faster RCNN
 def pool_rois(feature_map, rois, pooled_height, pooled_width):
     """
-    Applies ROI pooling for a single image and varios ROIs
+    Applies ROI pooling for a single image and various ROIs
     :param feature_map: ndarray, in shape of (width, height, channel)
     :param rois: list of roi
     :param pooled_height: height of pooled area
