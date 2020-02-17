@@ -421,32 +421,41 @@ def astar_search(problem, h=None, display=False):
 
 
 def cost_limited_astar_search(problem, limit, f):
-
-    def recursive_clas(node, problem, limit, f):
-        if problem.goal_test(node.state):
+    """Cost limited A* search is a depth first search bounded by a predetermined
+    limit on f(n) = g(n)+h(n) of nodes. Only children nodes of parent node with
+    f(n) <= limit are searched. """
+    def recursive_cost_limited_astar_search(node, problem, limit, f):
+        if problem.goal_test(node.state):  #return the node, if it is the goal.
             return node
-        elif f(node) > limit:
+        elif f(node) > limit:  #potential goal nodes beyond the cost limit are not searched.
             return 'cutoff'
         else:
-            cutoff_occurred = False
+            cutoff_occurred = False  
+            # recusively search in the child nodes
             for child in node.expand(problem):
-                result = recursive_astar_search(child, problem, limit - 1, f)
+                result = recursive_cost_limited_astar_search(child, problem, limit - 1, f)
                 if result == 'cutoff':
-                    cutoff_occured = True
-                elif result is not None:
+                    cutoff_occured = True  #indicate there are nodes beyond limit not searched.
+                elif result is not None:  #goal node is found and returned.
                     return result
+
+            #if code reaches this point, no result has been found within the cost limit.
+            #'cutoff' indicates there may be goal nodes lying beyond the cost limit.
+            #None indicates there's no solution.
             return 'cutoff' if cutoff_occurred else None
 
-    return recursive_astar_search(Node(problem.initial), problem, limit, f)
+    # Body of cost_depth_limited_search:
+    return recursive_cost_limited_astar_search(Node(problem.initial), problem, limit, f)
 
 
 def iterative_deepening_astar_search(problem, h=None):
     """[Section 3.5.3]"""
-    
-    for cost in range(sys.maxsize):
-        result = cost_limited_astar_search(problem, cost, h)
-        if result != 'cutoff' and result != None:
+    for cost_limit in range(sys.maxsize):
+        result = cost_limited_astar_search(problem, cost_limit, h)
+        if result != 'cutoff':
             return result
+
+
 # ______________________________________________________________________________
 # A* heuristics
 
