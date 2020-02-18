@@ -27,11 +27,6 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 """
 
 # TODO
-# Implement grabbing correctly.
-# When an object is grabbed, does it still have a location?
-# What if it is released?
-# What if the grabbed or the grabber is deleted?
-# What if the grabber moves?
 # Speed control in GUI does not have any effect -- fix it.
 
 from utils import distance_squared, turn_heading
@@ -966,16 +961,7 @@ class WumpusEnvironment(XYEnvironment):
             return
 
         agent.bump = False
-        if action == 'TurnRight':
-            super().execute_action(agent,action)
-            agent.performance -= 1
-        elif action == 'TurnLeft':
-            super().execute_action(agent,action)
-            agent.performance -= 1
-        elif action == 'Forward':
-            super().execute_action(agent,action)
-            agent.performance -= 1
-        elif action == 'Grab':
+        if action in ['TurnRight', 'TurnLeft', 'Forward','Grab']:
             super().execute_action(agent,action)
             agent.performance -= 1
         elif action == 'Climb':
