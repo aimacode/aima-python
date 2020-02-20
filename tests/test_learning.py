@@ -149,7 +149,7 @@ def test_ada_boost():
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(ab, tests) > 4 / 6
+    assert grade_learner(ab, tests) > 2 / 3
     assert err_ratio(ab, iris) < 0.25
 
 

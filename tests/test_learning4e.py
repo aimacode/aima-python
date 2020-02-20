@@ -38,42 +38,68 @@ def test_means_and_deviation():
 def test_plurality_learner():
     zoo = DataSet(name='zoo')
     pl = PluralityLearner(zoo)
-    assert pl([1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 4, 1, 0, 1]) == 'mammal'
+    assert pl.predict([1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 4, 1, 0, 1]) == 'mammal'
 
 
 def test_k_nearest_neighbors():
     iris = DataSet(name='iris')
     knn = NearestNeighborLearner(iris, k=3)
-    assert knn([5, 3, 1, 0.1]) == 'setosa'
-    assert knn([6, 5, 3, 1.5]) == 'versicolor'
-    assert knn([7.5, 4, 6, 2]) == 'virginica'
+    assert knn.predict([5, 3, 1, 0.1]) == 'setosa'
+    assert knn.predict([6, 5, 3, 1.5]) == 'versicolor'
+    assert knn.predict([7.5, 4, 6, 2]) == 'virginica'
 
 
 def test_decision_tree_learner():
     iris = DataSet(name='iris')
     dtl = DecisionTreeLearner(iris)
-    assert dtl([5, 3, 1, 0.1]) == 'setosa'
-    assert dtl([6, 5, 3, 1.5]) == 'versicolor'
-    assert dtl([7.5, 4, 6, 2]) == 'virginica'
+    assert dtl.predict([5, 3, 1, 0.1]) == 'setosa'
+    assert dtl.predict([6, 5, 3, 1.5]) == 'versicolor'
+    assert dtl.predict([7.5, 4, 6, 2]) == 'virginica'
+
+
+def test_linear_learner():
+    iris = DataSet(name='iris')
+    classes = ['setosa', 'versicolor', 'virginica']
+    iris.classes_to_numbers(classes)
+    n_samples, n_features = len(iris.examples), iris.target
+    X, y = np.array([x[:n_features] for x in iris.examples]), \
+           np.array([x[n_features] for x in iris.examples])
+    ll = LinearRegressionLearner().fit(X, y)
+    assert np.allclose(ll.w, MeanSquaredError(X, y).x_star)
+
+
+iris_tests = [([[5.0, 3.1, 0.9, 0.1]], 0),
+              ([[5.1, 3.5, 1.0, 0.0]], 0),
+              ([[4.9, 3.3, 1.1, 0.1]], 0),
+              ([[6.0, 3.0, 4.0, 1.1]], 1),
+              ([[6.1, 2.2, 3.5, 1.0]], 1),
+              ([[5.9, 2.5, 3.3, 1.1]], 1),
+              ([[7.5, 4.1, 6.2, 2.3]], 2),
+              ([[7.3, 4.0, 6.1, 2.4]], 2),
+              ([[7.0, 3.3, 6.1, 2.5]], 2)]
+
+
+def test_logistic_learner():
+    iris = DataSet(name='iris')
+    classes = ['setosa', 'versicolor', 'virginica']
+    iris.classes_to_numbers(classes)
+    n_samples, n_features = len(iris.examples), iris.target
+    X, y = np.array([x[:n_features] for x in iris.examples]), \
+           np.array([x[n_features] for x in iris.examples])
+    ll = MultiLogisticRegressionLearner().fit(X, y)
+    assert grade_learner(ll, iris_tests) == 1
+    assert np.allclose(err_ratio(ll, iris), 0.04)
 
 
 def test_svm():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    svm = MultiSVM()
     n_samples, n_features = len(iris.examples), iris.target
     X, y = np.array([x[:n_features] for x in iris.examples]), np.array([x[n_features] for x in iris.examples])
-    svm.fit(X, y)
-    assert svm.predict([[5.0, 3.1, 0.9, 0.1]]) == 0
-    assert svm.predict([[5.1, 3.5, 1.0, 0.0]]) == 0
-    assert svm.predict([[4.9, 3.3, 1.1, 0.1]]) == 0
-    assert svm.predict([[6.0, 3.0, 4.0, 1.1]]) == 1
-    assert svm.predict([[6.1, 2.2, 3.5, 1.0]]) == 1
-    assert svm.predict([[5.9, 2.5, 3.3, 1.1]]) == 1
-    assert svm.predict([[7.5, 4.1, 6.2, 2.3]]) == 2
-    assert svm.predict([[7.3, 4.0, 6.1, 2.4]]) == 2
-    assert svm.predict([[7.0, 3.3, 6.1, 2.5]]) == 2
+    svm = MultiSVM().fit(X, y)
+    assert grade_learner(svm, iris_tests) == 1
+    assert np.isclose(err_ratio(svm, iris), 0.04)
 
 
 def test_information_content():
@@ -109,8 +135,9 @@ def test_random_weights():
 
 def test_ada_boost():
     iris = DataSet(name='iris')
-    iris.classes_to_numbers()
-    wl = WeightedLearner(PerceptronLearner)
+    classes = ['setosa', 'versicolor', 'virginica']
+    iris.classes_to_numbers(classes)
+    wl = WeightedLearner(PerceptronLearner(iris))
     ab = ada_boost(iris, wl, 5)
     tests = [([5, 3, 1, 0.1], 0),
              ([5, 3.5, 1, 0], 0),
@@ -118,7 +145,7 @@ def test_ada_boost():
              ([6, 2, 3.5, 1], 1),
              ([7.5, 4, 6, 2], 2),
              ([7, 3, 6, 2.5], 2)]
-    assert grade_learner(ab, tests) > 4 / 6
+    assert grade_learner(ab, tests) > 2 / 3
     assert err_ratio(ab, iris) < 0.25
 
 
