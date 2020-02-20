@@ -26,10 +26,10 @@ def test_neural_net():
            np.array([x[n_features] for x in iris.examples])
     nnl_gd = NeuralNetworkLearner(iris, [4], l_rate=0.15, epochs=100, optimizer=stochastic_gradient_descent).fit(X, y)
     assert grade_learner(nnl_gd, iris_tests) > 0.7
-    assert err_ratio(nnl_gd, iris) < 0.08
+    assert err_ratio(nnl_gd, iris) < 0.1
     nnl_adam = NeuralNetworkLearner(iris, [4], l_rate=0.001, epochs=200, optimizer=adam).fit(X, y)
     assert grade_learner(nnl_adam, iris_tests) == 1
-    assert err_ratio(nnl_adam, iris) < 0.08
+    assert err_ratio(nnl_adam, iris) < 0.1
 
 
 def test_perceptron():
