@@ -1290,7 +1290,7 @@ class AnimateProblem(Problem):
         self.sc4 = self.ax.scatter(*transpose([node.state]), 9**2, marker='8', c='yellow')
         self.sc5 = self.ax.scatter(*transpose([self.initial]), 9**2, marker='D', c='green')
         self.sc6 = self.ax.scatter(*transpose([self.goal]), 9**2, marker='8', c='red')
-        plt.title(f"Explored: {len(self.reached)}, Path Cost: {node.path_cost}\nSolver: {self.solver}")
+        plt.title("Explored: {}, Path Cost: {}\nSolver: {}".format(len(self.reached), node.path_cost, self.solver))
         return self.sc1, self.sc2, self.sc3, self.sc4, self.sc5, self.sc6
         
     def run(self, frames=200):
