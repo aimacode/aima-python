@@ -959,9 +959,9 @@ class WumpusEnvironment(XYEnvironment):
 
         if isinstance(agent, Explorer) and self.in_danger(agent):
             return
-
+            
         agent.bump = False
-        if action in ['TurnRight', 'TurnLeft', 'Forward','Grab']:
+        if action in ['TurnRight', 'TurnLeft', 'Forward', 'Grab']:
             super().execute_action(agent,action)
             agent.performance -= 1
         elif action == 'Climb':
