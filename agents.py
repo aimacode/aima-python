@@ -962,7 +962,7 @@ class WumpusEnvironment(XYEnvironment):
             
         agent.bump = False
         if action in ['TurnRight', 'TurnLeft', 'Forward', 'Grab']:
-            super().execute_action(agent,action)
+            super().execute_action(agent, action)
             agent.performance -= 1
         elif action == 'Climb':
             if agent.location == (1, 1):  # Agent can only climb out of (1,1)
