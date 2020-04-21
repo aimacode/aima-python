@@ -226,7 +226,7 @@ def test_and_or_graph_search():
     def run_plan(state, problem, plan):
         if problem.goal_test(state):
             return True
-        if len(plan) is not 2:
+        if len(plan) != 2:
             return False
         predicate = lambda x: run_plan(x, problem, plan[1][x])
         return all(predicate(r) for r in problem.result(state, plan[0]))
