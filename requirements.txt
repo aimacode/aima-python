@@ -10,7 +10,7 @@ numpy
 opencv-python
 pandas
 pillow
-pytest
+pytest-cov
 qpsolvers
 quadprog
 scipy
