@@ -1,4 +1,5 @@
-Image
+cvxopt
+image
 ipython
 ipythonblocks
 ipywidgets
@@ -12,7 +13,6 @@ pandas
 pillow
 pytest-cov
 qpsolvers
-quadprog
 scipy
 sortedcontainers
 tensorflow

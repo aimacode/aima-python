@@ -850,11 +850,9 @@ class BinarySVM:
         q = -np.ones(m)
         G = np.vstack((-np.identity(m), np.identity(m)))
         h = np.hstack((np.zeros(m), np.ones(m) * self.C))
-        A = y.reshape((1, -1))
+        A = y.astype(np.float)
         b = np.zeros(1)
-        # make sure P is positive definite
-        P += np.eye(P.shape[0]).__mul__(1e-3)
-        self.alphas = solve_qp(P, q, G, h, A, b, sym_proj=True)
+        self.alphas = solve_qp(P, q, G, h, A, b, solver='cvxopt', sym_proj=True)
 
     def predict_score(self, x):
         """
