@@ -784,7 +784,7 @@ class Canvas_fol_bc_ask(Canvas):
         self.l = 1 / 20
         self.b = 3 * self.l
         bc_out = list(self.fol_bc_ask())
-        if len(bc_out) is 0:
+        if len(bc_out) == 0:
             self.valid = False
         else:
             self.valid = True
