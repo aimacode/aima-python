@@ -758,8 +758,9 @@ class Sudoku(CSP):
     . . 2 | 6 . 9 | 5 . .
     8 . . | 2 . 3 | . . 9
     . . 5 | . 1 . | 3 . .
-    >>> AC3(e); e.display(e.infer_assignment())
+    >>> AC3(e) #doctest: +ELLIPSIS
     (True, 6925)
+    >>> e.display(e.infer_assignment())
     4 8 3 | 9 2 1 | 6 5 7
     9 6 7 | 3 4 5 | 8 2 1
     2 5 1 | 8 7 6 | 4 9 3
