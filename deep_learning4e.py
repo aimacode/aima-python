@@ -46,6 +46,9 @@ class Activation:
     def derivative(self, x):
         return NotImplementedError
 
+    def __call__(self, x):
+        return self.function(x)
+
 
 class Sigmoid(Activation):
 
