@@ -1,21 +1,25 @@
-"""Knowledge in learning, Chapter 19"""
+"""Knowledge in learning (Chapter 19)"""
 
-from random import shuffle
-from math import log
-from utils import powerset
 from collections import defaultdict
+from functools import partial
 from itertools import combinations, product
+from random import shuffle
+
+import numpy as np
+
 from logic import (FolKB, constant_symbols, predicate_symbols, standardize_variables,
                    variables, is_definite_clause, subst, expr, Expr)
-from functools import partial
-
-# ______________________________________________________________________________
+from utils import power_set
 
 
-def current_best_learning(examples, h, examples_so_far=[]):
-    """ [Figure 19.2]
+def current_best_learning(examples, h, examples_so_far=None):
+    """
+    [Figure 19.2]
     The hypothesis is a list of dictionaries, with each dictionary representing
-    a disjunction."""
+    a disjunction.
+    """
+    if examples_so_far is None:
+        examples_so_far = []
     if not examples:
         return h
 
@@ -63,7 +67,7 @@ def generalizations(examples_so_far, h):
     hypotheses = []
 
     # Delete disjunctions
-    disj_powerset = powerset(range(len(h)))
+    disj_powerset = power_set(range(len(h)))
     for disjs in disj_powerset:
         h2 = h.copy()
         for d in reversed(list(disjs)):
@@ -74,7 +78,7 @@ def generalizations(examples_so_far, h):
 
     # Delete AND operations in disjunctions
     for i, disj in enumerate(h):
-        a_powerset = powerset(disj.keys())
+        a_powerset = power_set(disj.keys())
         for attrs in a_powerset:
             h2 = h[i].copy()
             for a in attrs:
@@ -102,7 +106,7 @@ def add_or(examples_so_far, h):
     e = examples_so_far[-1]
 
     attrs = {k: v for k, v in e.items() if k != 'GOAL'}
-    a_powerset = powerset(attrs.keys())
+    a_powerset = power_set(attrs.keys())
 
     for c in a_powerset:
         h2 = {}
@@ -116,13 +120,16 @@ def add_or(examples_so_far, h):
 
     return ors
 
+
 # ______________________________________________________________________________
 
 
 def version_space_learning(examples):
-    """ [Figure 19.3]
+    """
+    [Figure 19.3]
     The version space is a list of hypotheses, which in turn are a list
-    of dictionaries/disjunctions."""
+    of dictionaries/disjunctions.
+    """
     V = all_hypotheses(examples)
     for e in examples:
         if V:
@@ -138,7 +145,7 @@ def version_space_update(V, e):
 def all_hypotheses(examples):
     """Build a list of all the possible hypotheses"""
     values = values_table(examples)
-    h_powerset = powerset(values.keys())
+    h_powerset = power_set(values.keys())
     hypotheses = []
     for s in h_powerset:
         hypotheses.extend(build_attr_combinations(s, values))
@@ -181,7 +188,7 @@ def build_attr_combinations(s, values):
 
     h = []
     for i, a in enumerate(s):
-        rest = build_attr_combinations(s[i+1:], values)
+        rest = build_attr_combinations(s[i + 1:], values)
         for v in values[a]:
             o = {a: v}
             for r in rest:
@@ -197,7 +204,7 @@ def build_h_combinations(hypotheses):
     """Given a set of hypotheses, builds and returns all the combinations of the
     hypotheses."""
     h = []
-    h_powerset = powerset(range(len(hypotheses)))
+    h_powerset = power_set(range(len(hypotheses)))
 
     for s in h_powerset:
         t = []
@@ -206,6 +213,7 @@ def build_h_combinations(hypotheses):
         h.append(t)
 
     return h
+
 
 # ______________________________________________________________________________
 
@@ -232,16 +240,17 @@ def consistent_det(A, E):
 
     return True
 
+
 # ______________________________________________________________________________
 
 
-class FOIL_container(FolKB):
+class FOILContainer(FolKB):
     """Hold the kb and other necessary elements required by FOIL."""
 
     def __init__(self, clauses=None):
         self.const_syms = set()
         self.pred_syms = set()
-        FolKB.__init__(self, clauses)
+        super().__init__(clauses)
 
     def tell(self, sentence):
         if is_definite_clause(sentence):
@@ -249,7 +258,7 @@ class FOIL_container(FolKB):
             self.const_syms.update(constant_symbols(sentence))
             self.pred_syms.update(predicate_symbols(sentence))
         else:
-            raise Exception("Not a definite clause: {}".format(sentence))
+            raise Exception('Not a definite clause: {}'.format(sentence))
 
     def foil(self, examples, target):
         """Learn a list of first-order horn clauses
@@ -274,7 +283,6 @@ class FOIL_container(FolKB):
         The horn clause is specified as [consequent, list of antecedents]
         Return value is the tuple (horn_clause, extended_positive_examples)."""
         clause = [target, []]
-        # [positive_examples, negative_examples]
         extended_examples = examples
         while extended_examples[1]:
             l = self.choose_literal(self.new_literals(clause), extended_examples)
@@ -282,7 +290,7 @@ class FOIL_container(FolKB):
             extended_examples = [sum([list(self.extend_example(example, l)) for example in
                                       extended_examples[i]], []) for i in range(2)]
 
-        return (clause, extended_examples[0])
+        return clause, extended_examples[0]
 
     def extend_example(self, example, literal):
         """Generate extended examples which satisfy the literal."""
@@ -293,7 +301,7 @@ class FOIL_container(FolKB):
 
     def new_literals(self, clause):
         """Generate new literals based on known predicate symbols.
-        Generated literal must share atleast one variable with clause"""
+        Generated literal must share at least one variable with clause"""
         share_vars = variables(clause[0])
         for l in clause[1]:
             share_vars.update(variables(l))
@@ -305,14 +313,11 @@ class FOIL_container(FolKB):
                     if not Expr(pred, args) in clause[1]:
                         yield Expr(pred, *[var for var in args])
 
-
-    def choose_literal(self, literals, examples): 
+    def choose_literal(self, literals, examples):
         """Choose the best literal based on the information gain."""
+        return max(literals, key=partial(self.gain, examples=examples))
 
-        return max(literals, key = partial(self.gain , examples = examples))
-
-
-    def gain(self, l ,examples):
+    def gain(self, l, examples):
         """
         Find the utility of each literal when added to the body of the clause. 
         Utility function is: 
@@ -330,9 +335,9 @@ class FOIL_container(FolKB):
         """
         pre_pos = len(examples[0])
         pre_neg = len(examples[1])
-        post_pos = sum([list(self.extend_example(example, l)) for example in examples[0]], [])           
-        post_neg = sum([list(self.extend_example(example, l)) for example in examples[1]], []) 
-        if pre_pos + pre_neg ==0 or len(post_pos) + len(post_neg)==0:
+        post_pos = sum([list(self.extend_example(example, l)) for example in examples[0]], [])
+        post_neg = sum([list(self.extend_example(example, l)) for example in examples[1]], [])
+        if pre_pos + pre_neg == 0 or len(post_pos) + len(post_neg) == 0:
             return -1
         # number of positive example that are represented in extended_examples
         T = 0
@@ -340,9 +345,9 @@ class FOIL_container(FolKB):
             represents = lambda d: all(d[x] == example[x] for x in example)
             if any(represents(l_) for l_ in post_pos):
                 T += 1
-        value = T * (log(len(post_pos) / (len(post_pos) + len(post_neg)) + 1e-12,2) - log(pre_pos / (pre_pos + pre_neg),2))
+        value = T * (np.log2(len(post_pos) / (len(post_pos) + len(post_neg)) + 1e-12) -
+                     np.log2(pre_pos / (pre_pos + pre_neg)))
         return value
-
 
     def update_examples(self, target, examples, extended_examples):
         """Add to the kb those examples what are represented in extended_examples
@@ -406,17 +411,12 @@ def guess_value(e, h):
 
 
 def is_consistent(e, h):
-    return e["GOAL"] == guess_value(e, h)
+    return e['GOAL'] == guess_value(e, h)
 
 
 def false_positive(e, h):
-    return guess_value(e, h) and not e["GOAL"]
+    return guess_value(e, h) and not e['GOAL']
 
 
 def false_negative(e, h):
-    return e["GOAL"] and not guess_value(e, h)
-
-
-    
-
-
+    return e['GOAL'] and not guess_value(e, h)

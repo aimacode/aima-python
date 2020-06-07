@@ -5,6 +5,7 @@ from utils import weighted_choice
 import urllib.request
 import re
 
+
 # ______________________________________________________________________________
 # Grammars and Lexicons
 
@@ -89,7 +90,7 @@ def ProbRules(**rules):
         rules[lhs] = []
         rhs_separate = [alt.strip().split() for alt in rhs.split('|')]
         for r in rhs_separate:
-            prob = float(r[-1][1:-1]) # remove brackets, convert to float
+            prob = float(r[-1][1:-1])  # remove brackets, convert to float
             rhs_rule = (r[:-1], prob)
             rules[lhs].append(rhs_rule)
 
@@ -106,7 +107,7 @@ def ProbLexicon(**rules):
         rules[lhs] = []
         rhs_separate = [word.strip().split() for word in rhs.split('|')]
         for r in rhs_separate:
-            prob = float(r[-1][1:-1]) # remove brackets, convert to float
+            prob = float(r[-1][1:-1])  # remove brackets, convert to float
             word = r[:-1][0]
             rhs_rule = (word, prob)
             rules[lhs].append(rhs_rule)
@@ -212,7 +213,7 @@ E_NP_ = Grammar('E_NP_',  # Another Trivial Grammar for testing
                 Lexicon(Adj='happy | handsome | hairy',
                         N='man'))
 
-E_Prob = ProbGrammar('E_Prob', # The Probabilistic Grammar from the notebook
+E_Prob = ProbGrammar('E_Prob',  # The Probabilistic Grammar from the notebook
                      ProbRules(
                          S="NP VP [0.6] | S Conjunction S [0.4]",
                          NP="Pronoun [0.2] | Name [0.05] | Noun [0.2] | Article Noun [0.15] \
@@ -236,52 +237,50 @@ E_Prob = ProbGrammar('E_Prob', # The Probabilistic Grammar from the notebook
                          Digit="0 [0.35] | 1 [0.35] | 2 [0.3]"
                      ))
 
-
-
-E_Chomsky = Grammar('E_Prob_Chomsky', # A Grammar in Chomsky Normal Form
+E_Chomsky = Grammar('E_Prob_Chomsky',  # A Grammar in Chomsky Normal Form
                     Rules(
-                       S='NP VP',
-                       NP='Article Noun | Adjective Noun',
-                       VP='Verb NP | Verb Adjective',
+                        S='NP VP',
+                        NP='Article Noun | Adjective Noun',
+                        VP='Verb NP | Verb Adjective',
                     ),
                     Lexicon(
-                       Article='the | a | an',
-                       Noun='robot | sheep | fence',
-                       Adjective='good | new | sad',
-                       Verb='is | say | are'
+                        Article='the | a | an',
+                        Noun='robot | sheep | fence',
+                        Adjective='good | new | sad',
+                        Verb='is | say | are'
                     ))
 
-E_Prob_Chomsky = ProbGrammar('E_Prob_Chomsky', # A Probabilistic Grammar in CNF
+E_Prob_Chomsky = ProbGrammar('E_Prob_Chomsky',  # A Probabilistic Grammar in CNF
                              ProbRules(
-                                S='NP VP [1]',
-                                NP='Article Noun [0.6] | Adjective Noun [0.4]',
-                                VP='Verb NP [0.5] | Verb Adjective [0.5]',
+                                 S='NP VP [1]',
+                                 NP='Article Noun [0.6] | Adjective Noun [0.4]',
+                                 VP='Verb NP [0.5] | Verb Adjective [0.5]',
                              ),
                              ProbLexicon(
-                                Article='the [0.5] | a [0.25] | an [0.25]',
-                                Noun='robot [0.4] | sheep [0.4] | fence [0.2]',
-                                Adjective='good [0.5] | new [0.2] | sad [0.3]',
-                                Verb='is [0.5] | say [0.3] | are [0.2]'
+                                 Article='the [0.5] | a [0.25] | an [0.25]',
+                                 Noun='robot [0.4] | sheep [0.4] | fence [0.2]',
+                                 Adjective='good [0.5] | new [0.2] | sad [0.3]',
+                                 Verb='is [0.5] | say [0.3] | are [0.2]'
                              ))
 E_Prob_Chomsky_ = ProbGrammar('E_Prob_Chomsky_',
-                             ProbRules(
-                                S='NP VP [1]',
-                                NP='NP PP [0.4] | Noun Verb [0.6]',
-                                PP='Preposition NP [1]',
-                                VP='Verb NP [0.7] | VP PP [0.3]',
-                                ),
-                             ProbLexicon(
-                                Noun='astronomers [0.18] | eyes [0.32] | stars [0.32] | telescopes [0.18]',
-                                Verb='saw [0.5] | \'\' [0.5]',
-                                Preposition='with [1]'
-                                ))
+                              ProbRules(
+                                  S='NP VP [1]',
+                                  NP='NP PP [0.4] | Noun Verb [0.6]',
+                                  PP='Preposition NP [1]',
+                                  VP='Verb NP [0.7] | VP PP [0.3]',
+                              ),
+                              ProbLexicon(
+                                  Noun='astronomers [0.18] | eyes [0.32] | stars [0.32] | telescopes [0.18]',
+                                  Verb='saw [0.5] | \'\' [0.5]',
+                                  Preposition='with [1]'
+                              ))
+
 
 # ______________________________________________________________________________
 # Chart Parsing
 
 
 class Chart:
-
     """Class for parsing sentences using a chart data structure.
     >>> chart = Chart(E0)
     >>> len(chart.parses('the stench is in 2 2'))
@@ -310,7 +309,7 @@ class Chart:
     def parse(self, words, S='S'):
         """Parse a list of words; according to the grammar.
         Leave results in the chart."""
-        self.chart = [[] for i in range(len(words)+1)]
+        self.chart = [[] for i in range(len(words) + 1)]
         self.add_edge([0, 0, 'S_', [], [S]])
         for i in range(len(words)):
             self.scanner(i, words[i])
@@ -332,7 +331,7 @@ class Chart:
         """For each edge expecting a word of this category here, extend the edge."""
         for (i, j, A, alpha, Bb) in self.chart[j]:
             if Bb and self.grammar.isa(word, Bb[0]):
-                self.add_edge([i, j+1, A, alpha + [(Bb[0], word)], Bb[1:]])
+                self.add_edge([i, j + 1, A, alpha + [(Bb[0], word)], Bb[1:]])
 
     def predictor(self, edge):
         """Add to chart any rules for B that could help extend this edge."""
@@ -366,13 +365,13 @@ def CYK_parse(words, grammar):
 
     # Combine first and second parts of right-hand sides of rules,
     # from short to long.
-    for length in range(2, N+1):
-        for start in range(N-length+1):
+    for length in range(2, N + 1):
+        for start in range(N - length + 1):
             for len1 in range(1, length):  # N.B. the book incorrectly has N instead of length
                 len2 = length - len1
                 for (X, Y, Z, p) in grammar.cnf_rules():
                     P[X, start, length] = max(P[X, start, length],
-                                              P[Y, start, len1] * P[Z, start+len1, len2] * p)
+                                              P[Y, start, len1] * P[Z, start + len1, len2] * p)
 
     return P
 
@@ -444,7 +443,7 @@ def onlyWikipediaURLS(urls):
     """Some example HTML page data is from wikipedia. This function converts
     relative wikipedia links to full wikipedia URLs"""
     wikiURLs = [url for url in urls if url.startswith('/wiki/')]
-    return ["https://en.wikipedia.org"+url for url in wikiURLs]
+    return ["https://en.wikipedia.org" + url for url in wikiURLs]
 
 
 # ______________________________________________________________________________
@@ -484,17 +483,18 @@ def normalize(pages):
     """Normalize divides each page's score by the sum of the squares of all
     pages' scores (separately for both the authority and hub scores).
     """
-    summed_hub = sum(page.hub**2 for _, page in pages.items())
-    summed_auth = sum(page.authority**2 for _, page in pages.items())
+    summed_hub = sum(page.hub ** 2 for _, page in pages.items())
+    summed_auth = sum(page.authority ** 2 for _, page in pages.items())
     for _, page in pages.items():
-        page.hub /= summed_hub**0.5
-        page.authority /= summed_auth**0.5
+        page.hub /= summed_hub ** 0.5
+        page.authority /= summed_auth ** 0.5
 
 
 class ConvergenceDetector(object):
     """If the hub and authority values of the pages are no longer changing, we have
     reached a convergence and further iterations will have no effect. This detects convergence
     so that we can stop the HITS algorithm as early as possible."""
+
     def __init__(self):
         self.hub_history = None
         self.auth_history = None
@@ -508,10 +508,10 @@ class ConvergenceDetector(object):
         if self.hub_history is None:
             self.hub_history, self.auth_history = [], []
         else:
-            diffsHub = [abs(x-y) for x, y in zip(curr_hubs, self.hub_history[-1])]
-            diffsAuth = [abs(x-y) for x, y in zip(curr_auths, self.auth_history[-1])]
-            aveDeltaHub  = sum(diffsHub)/float(len(pagesIndex))
-            aveDeltaAuth = sum(diffsAuth)/float(len(pagesIndex))
+            diffsHub = [abs(x - y) for x, y in zip(curr_hubs, self.hub_history[-1])]
+            diffsAuth = [abs(x - y) for x, y in zip(curr_auths, self.auth_history[-1])]
+            aveDeltaHub = sum(diffsHub) / float(len(pagesIndex))
+            aveDeltaAuth = sum(diffsAuth) / float(len(pagesIndex))
             if aveDeltaHub < 0.01 and aveDeltaAuth < 0.01:  # may need tweaking
                 return True
         if len(self.hub_history) > 2:  # prevent list from getting long
@@ -522,13 +522,13 @@ class ConvergenceDetector(object):
         return False
 
 
-def getInlinks(page):
+def getInLinks(page):
     if not page.inlinks:
         page.inlinks = determineInlinks(page)
     return [addr for addr, p in pagesIndex.items() if addr in page.inlinks]
 
 
-def getOutlinks(page):
+def getOutLinks(page):
     if not page.outlinks:
         page.outlinks = findOutlinks(page)
     return [addr for addr, p in pagesIndex.items() if addr in page.outlinks]
@@ -538,12 +538,12 @@ def getOutlinks(page):
 # HITS Algorithm
 
 class Page(object):
-    def __init__(self, address, inlinks=None, outlinks=None, hub=0, authority=0):
+    def __init__(self, address, inLinks=None, outLinks=None, hub=0, authority=0):
         self.address = address
         self.hub = hub
         self.authority = authority
-        self.inlinks = inlinks
-        self.outlinks = outlinks
+        self.inlinks = inLinks
+        self.outlinks = outLinks
 
 
 pagesContent = {}  # maps Page relative or absolute URL/location to page's HTML content
@@ -562,8 +562,8 @@ def HITS(query):
         hub = {p: pages[p].hub for p in pages}
         for p in pages:
             # p.authority ← ∑i Inlinki(p).Hub
-            pages[p].authority = sum(hub[x] for x in getInlinks(pages[p]))
+            pages[p].authority = sum(hub[x] for x in getInLinks(pages[p]))
             # p.hub ← ∑i Outlinki(p).Authority
-            pages[p].hub = sum(authority[x] for x in getOutlinks(pages[p]))
+            pages[p].hub = sum(authority[x] for x in getOutLinks(pages[p]))
         normalize(pages)
     return pages

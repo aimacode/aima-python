@@ -1,15 +1,14 @@
 """Reinforcement Learning (Chapter 21)"""
 
-from collections import defaultdict
-from utils import argmax
-from mdp import MDP, policy_evaluation
-
 import random
+from collections import defaultdict
+
+from mdp import MDP, policy_evaluation
 
 
 class PassiveDUEAgent:
-    
-    """Passive (non-learning) agent that uses direct utility estimation
+    """
+    Passive (non-learning) agent that uses direct utility estimation
     on a given MDP and policy.
 
     import sys
@@ -18,15 +17,16 @@ class PassiveDUEAgent:
     south = (0,-1)
     west = (-1, 0)
     east = (1, 0)
-    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
+    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north,
+              (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     agent = PassiveDUEAgent(policy, sequential_decision_environment)
     for i in range(200):
         run_single_trial(agent,sequential_decision_environment)
         agent.estimate_U()
     agent.U[(0, 0)] > 0.2
     True
-
     """
+
     def __init__(self, pi, mdp):
         self.pi = pi
         self.mdp = mdp
@@ -36,7 +36,7 @@ class PassiveDUEAgent:
         self.s_history = []
         self.r_history = []
         self.init = mdp.init
-        
+
     def __call__(self, percept):
         s1, r1 = percept
         self.s_history.append(s1)
@@ -48,40 +48,40 @@ class PassiveDUEAgent:
         else:
             self.s, self.a = s1, self.pi[s1]
         return self.a
-    
+
     def estimate_U(self):
         # this function can be called only if the MDP has reached a terminal state
         # it will also reset the mdp history
         assert self.a is None, 'MDP is not in terminal state'
         assert len(self.s_history) == len(self.r_history)
         # calculating the utilities based on the current iteration
-        U2 = {s : [] for s in set(self.s_history)}
+        U2 = {s: [] for s in set(self.s_history)}
         for i in range(len(self.s_history)):
             s = self.s_history[i]
             U2[s] += [sum(self.r_history[i:])]
-        U2 = {k : sum(v)/max(len(v), 1) for k, v in U2.items()}
+        U2 = {k: sum(v) / max(len(v), 1) for k, v in U2.items()}
         # resetting history
         self.s_history, self.r_history = [], []
         # setting the new utilities to the average of the previous 
         # iteration and this one
         for k in U2.keys():
             if k in self.U.keys():
-                self.U[k] = (self.U[k] + U2[k]) /2
+                self.U[k] = (self.U[k] + U2[k]) / 2
             else:
                 self.U[k] = U2[k]
         return self.U
 
     def update_state(self, percept):
-        '''To be overridden in most cases. The default case
-        assumes the percept to be of type (state, reward)'''
+        """To be overridden in most cases. The default case
+        assumes the percept to be of type (state, reward)"""
         return percept
-    
 
 
 class PassiveADPAgent:
-
-    """Passive (non-learning) agent that uses adaptive dynamic programming
-    on a given MDP and policy. [Figure 21.2]
+    """
+    [Figure 21.2]
+    Passive (non-learning) agent that uses adaptive dynamic programming
+    on a given MDP and policy.
 
     import sys
     from mdp import sequential_decision_environment
@@ -89,7 +89,8 @@ class PassiveADPAgent:
     south = (0,-1)
     west = (-1, 0)
     east = (1, 0)
-    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
+    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north,
+              (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     agent = PassiveADPAgent(policy, sequential_decision_environment)
     for i in range(100):
         run_single_trial(agent,sequential_decision_environment)
@@ -101,8 +102,9 @@ class PassiveADPAgent:
     """
 
     class ModelMDP(MDP):
-        """ Class for implementing modified Version of input MDP with
-        an editable transition model P and a custom function T. """
+        """Class for implementing modified Version of input MDP with
+        an editable transition model P and a custom function T."""
+
         def __init__(self, init, actlist, terminals, gamma, states):
             super().__init__(init, actlist, terminals, states=states, gamma=gamma)
             nested_dict = lambda: defaultdict(nested_dict)
@@ -123,7 +125,7 @@ class PassiveADPAgent:
         self.Ns1_sa = defaultdict(int)
         self.s = None
         self.a = None
-        self.visited = set()        # keeping track of visited states
+        self.visited = set()  # keeping track of visited states
 
     def __call__(self, percept):
         s1, r1 = percept
@@ -159,10 +161,12 @@ class PassiveADPAgent:
 
 
 class PassiveTDAgent:
-    """The abstract class for a Passive (non-learning) agent that uses
+    """
+    [Figure 21.4]
+    The abstract class for a Passive (non-learning) agent that uses
     temporal differences to learn utility estimates. Override update_state
     method to convert percept to state and reward. The mdp being provided
-    should be an instance of a subclass of the MDP Class. [Figure 21.4]
+    should be an instance of a subclass of the MDP Class.
 
     import sys
     from mdp import sequential_decision_environment
@@ -170,7 +174,8 @@ class PassiveTDAgent:
     south = (0,-1)
     west = (-1, 0)
     east = (1, 0)
-    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
+    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north,
+              (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     agent = PassiveTDAgent(policy, sequential_decision_environment, alpha=lambda n: 60./(59+n))
     for i in range(200):
         run_single_trial(agent,sequential_decision_environment)
@@ -195,7 +200,7 @@ class PassiveTDAgent:
         if alpha:
             self.alpha = alpha
         else:
-            self.alpha = lambda n: 1/(1+n)  # udacity video
+            self.alpha = lambda n: 1 / (1 + n)  # udacity video
 
     def __call__(self, percept):
         s1, r1 = self.update_state(percept)
@@ -219,9 +224,11 @@ class PassiveTDAgent:
 
 
 class QLearningAgent:
-    """ An exploratory Q-learning agent. It avoids having to learn the transition
-        model because the Q-value of a state can be related directly to those of
-        its neighbors. [Figure 21.8]
+    """
+     [Figure 21.8]
+     An exploratory Q-learning agent. It avoids having to learn the transition
+     model because the Q-value of a state can be related directly to those of
+     its neighbors.
 
     import sys
     from mdp import sequential_decision_environment
@@ -229,7 +236,8 @@ class QLearningAgent:
     south = (0,-1)
     west = (-1, 0)
     east = (1, 0)
-    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north, (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
+    policy = {(0, 2): east, (1, 2): east, (2, 2): east, (3, 2): None, (0, 1): north, (2, 1): north,
+              (3, 1): None, (0, 0): north, (1, 0): west, (2, 0): west, (3, 0): west,}
     q_agent = QLearningAgent(sequential_decision_environment, Ne=5, Rplus=2, alpha=lambda n: 60./(59+n))
     for i in range(200):
         run_single_trial(q_agent,sequential_decision_environment)
@@ -239,6 +247,7 @@ class QLearningAgent:
     q_agent.Q[((1, 0), (0, -1))] <= 0.5
     True
     """
+
     def __init__(self, mdp, Ne, Rplus, alpha=None):
 
         self.gamma = mdp.gamma
@@ -255,10 +264,10 @@ class QLearningAgent:
         if alpha:
             self.alpha = alpha
         else:
-            self.alpha = lambda n: 1./(1+n)  # udacity video
+            self.alpha = lambda n: 1. / (1 + n)  # udacity video
 
     def f(self, u, n):
-        """ Exploration function. Returns fixed Rplus until
+        """Exploration function. Returns fixed Rplus until
         agent has visited state, action a Ne number of times.
         Same as ADP agent in book."""
         if n < self.Ne:
@@ -267,8 +276,8 @@ class QLearningAgent:
             return u
 
     def actions_in_state(self, state):
-        """ Return actions possible in given state.
-            Useful for max and argmax. """
+        """Return actions possible in given state.
+        Useful for max and argmax."""
         if state in self.terminals:
             return [None]
         else:
@@ -285,12 +294,12 @@ class QLearningAgent:
         if s is not None:
             Nsa[s, a] += 1
             Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1]
-                                           for a1 in actions_in_state(s1)) - Q[s, a])
+                                                           for a1 in actions_in_state(s1)) - Q[s, a])
         if s in terminals:
             self.s = self.a = self.r = None
         else:
             self.s, self.r = s1, r1
-            self.a = argmax(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
+            self.a = max(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
         return self.a
 
     def update_state(self, percept):

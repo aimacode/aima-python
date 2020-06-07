@@ -1,14 +1,10 @@
-from tkinter import *
-import sys
-import os.path
-import math
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from search import *
-from search import breadth_first_tree_search as bfts, depth_first_tree_search as dfts, \
-    depth_first_graph_search as dfgs, breadth_first_graph_search as bfs, uniform_cost_search as ucs, \
-    astar_search as asts
-from utils import PriorityQueue
 from copy import deepcopy
+from tkinter import *
+
+from search import *
+from utils import PriorityQueue
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 root = None
 city_coord = {}
@@ -289,7 +285,6 @@ def make_rectangle(map, x0, y0, margin, city_name):
 
 
 def make_legend(map):
-
     rect1 = map.create_rectangle(600, 100, 610, 110, fill="white")
     text1 = map.create_text(615, 105, anchor=W, text="Un-explored")
 
@@ -325,13 +320,11 @@ def tree_search(problem):
         display_current(node)
     if counter % 3 == 1 and counter >= 0:
         if problem.goal_test(node.state):
-
             return node
         frontier.extend(node.expand(problem))
 
         display_frontier(frontier)
     if counter % 3 == 2 and counter >= 0:
-
         display_explored(node)
     return None
 
@@ -562,7 +555,7 @@ def astar_search(problem, h=None):
 
 # TODO:
 # Remove redundant code.
-# Make the interchangbility work between various algorithms at each step.
+# Make the interchangeability work between various algorithms at each step.
 def on_click():
     """
     This function defines the action of the 'Next' button.
@@ -572,7 +565,7 @@ def on_click():
     if "Breadth-First Tree Search" == algo.get():
         node = breadth_first_tree_search(romania_problem)
         if node is not None:
-            final_path = bfts(romania_problem).solution()
+            final_path = breadth_first_tree_search(romania_problem).solution()
             final_path.append(start.get())
             display_final(final_path)
             next_button.config(state="disabled")
@@ -580,7 +573,7 @@ def on_click():
     elif "Depth-First Tree Search" == algo.get():
         node = depth_first_tree_search(romania_problem)
         if node is not None:
-            final_path = dfts(romania_problem).solution()
+            final_path = depth_first_tree_search(romania_problem).solution()
             final_path.append(start.get())
             display_final(final_path)
             next_button.config(state="disabled")
@@ -588,7 +581,7 @@ def on_click():
     elif "Breadth-First Graph Search" == algo.get():
         node = breadth_first_graph_search(romania_problem)
         if node is not None:
-            final_path = bfs(romania_problem).solution()
+            final_path = breadth_first_graph_search(romania_problem).solution()
             final_path.append(start.get())
             display_final(final_path)
             next_button.config(state="disabled")
@@ -596,7 +589,7 @@ def on_click():
     elif "Depth-First Graph Search" == algo.get():
         node = depth_first_graph_search(romania_problem)
         if node is not None:
-            final_path = dfgs(romania_problem).solution()
+            final_path = depth_first_graph_search(romania_problem).solution()
             final_path.append(start.get())
             display_final(final_path)
             next_button.config(state="disabled")
@@ -604,7 +597,7 @@ def on_click():
     elif "Uniform Cost Search" == algo.get():
         node = uniform_cost_search(romania_problem)
         if node is not None:
-            final_path = ucs(romania_problem).solution()
+            final_path = uniform_cost_search(romania_problem).solution()
             final_path.append(start.get())
             display_final(final_path)
             next_button.config(state="disabled")
@@ -612,7 +605,7 @@ def on_click():
     elif "A* - Search" == algo.get():
         node = astar_search(romania_problem)
         if node is not None:
-            final_path = asts(romania_problem).solution()
+            final_path = astar_search(romania_problem).solution()
             final_path.append(start.get())
             display_final(final_path)
             next_button.config(state="disabled")
@@ -626,10 +619,9 @@ def reset_map():
         city_map.itemconfig(city_coord[city], fill="white")
     next_button.config(state="normal")
 
+
 # TODO: Add more search algorithms in the OptionMenu
-
-
-def main():
+if __name__ == "__main__":
     global algo, start, goal, next_button
     root = Tk()
     root.title("Road Map of Romania")
@@ -678,7 +670,3 @@ def main():
     frame1.pack(side=BOTTOM)
     create_map(root)
     root.mainloop()
-
-
-if __name__ == "__main__":
-    main()

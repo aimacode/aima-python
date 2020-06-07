@@ -1,9 +1,11 @@
+import random
+
 import pytest
 import nlp
 
 from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
-from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInlinks
-from nlp import getOutlinks, Page, determineInlinks, HITS
+from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInLinks
+from nlp import getOutLinks, Page, determineInlinks, HITS
 from nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
 from nlp import Chart, CYK_parse
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
@@ -11,6 +13,8 @@ from nlp import Chart, CYK_parse
 
 from unittest.mock import patch
 from io import BytesIO
+
+random.seed("aima-python")
 
 
 def test_rules():
@@ -39,7 +43,7 @@ def test_grammar():
 
 def test_generation():
     lexicon = Lexicon(Article="the | a | an",
-                          Pronoun="i | you | he")
+                      Pronoun="i | you | he")
 
     rules = Rules(
         S="Article | More | Pronoun",
@@ -153,9 +157,10 @@ pF = Page("F", ["E"], [], 6, 1)
 pageDict = {pA.address: pA, pB.address: pB, pC.address: pC,
             pD.address: pD, pE.address: pE, pF.address: pF}
 nlp.pagesIndex = pageDict
-nlp.pagesContent ={pA.address: testHTML, pB.address: testHTML2,
-                   pC.address: testHTML, pD.address: testHTML2,
-                   pE.address: testHTML, pF.address: testHTML2}
+nlp.pagesContent = {pA.address: testHTML, pB.address: testHTML2,
+                    pC.address: testHTML, pD.address: testHTML2,
+                    pE.address: testHTML, pF.address: testHTML2}
+
 
 # This test takes a long time (> 60 secs)
 # def test_loadPageHTML():
@@ -183,12 +188,15 @@ def test_determineInlinks():
     assert set(determineInlinks(pE)) == set([])
     assert set(determineInlinks(pF)) == set(['E'])
 
+
 def test_findOutlinks_wiki():
     testPage = pageDict[pA.address]
     outlinks = findOutlinks(testPage, handleURLs=onlyWikipediaURLS)
     assert "https://en.wikipedia.org/wiki/TestThing" in outlinks
     assert "https://en.wikipedia.org/wiki/TestThing" in outlinks
     assert "https://google.com.au" not in outlinks
+
+
 # ______________________________________________________________________________
 # HITS Helper Functions
 
@@ -217,7 +225,8 @@ def test_relevant_pages():
 def test_normalize():
     normalize(pageDict)
     print(page.hub for addr, page in nlp.pagesIndex.items())
-    expected_hub = [1/91**0.5, 2/91**0.5, 3/91**0.5, 4/91**0.5, 5/91**0.5, 6/91**0.5]  # Works only for sample data above
+    expected_hub = [1 / 91 ** 0.5, 2 / 91 ** 0.5, 3 / 91 ** 0.5, 4 / 91 ** 0.5, 5 / 91 ** 0.5,
+                    6 / 91 ** 0.5]  # Works only for sample data above
     expected_auth = list(reversed(expected_hub))
     assert len(expected_hub) == len(expected_auth) == len(nlp.pagesIndex)
     assert expected_hub == [page.hub for addr, page in sorted(nlp.pagesIndex.items())]
@@ -243,12 +252,12 @@ def test_detectConvergence():
 
 
 def test_getInlinks():
-    inlnks = getInlinks(pageDict['A'])
+    inlnks = getInLinks(pageDict['A'])
     assert sorted(inlnks) == pageDict['A'].inlinks
 
 
 def test_getOutlinks():
-    outlnks = getOutlinks(pageDict['A'])
+    outlnks = getOutLinks(pageDict['A'])
     assert sorted(outlnks) == pageDict['A'].outlinks
 
 

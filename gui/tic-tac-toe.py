@@ -1,10 +1,11 @@
-from tkinter import *
-import sys
 import os.path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from games import minimax_decision, alphabeta_player, random_player, TicTacToe
+from tkinter import *
+
+from games import minmax_decision, alpha_beta_player, random_player, TicTacToe
 # "gen_state" can be used to generate a game state to apply the algorithm
 from tests.test_games import gen_state
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 ttt = TicTacToe()
 root = None
@@ -95,9 +96,9 @@ def on_click(button):
         if "Random" in choice:
             a, b = random_player(ttt, state)
         elif "Pro" in choice:
-            a, b = minimax_decision(state, ttt)
+            a, b = minmax_decision(state, ttt)
         else:
-            a, b = alphabeta_player(ttt, state)
+            a, b = alpha_beta_player(ttt, state)
     except (ValueError, IndexError, TypeError) as e:
         disable_game()
         result.set("It's a draw :|")
@@ -152,8 +153,7 @@ def check_victory(button):
         return True
 
     # check if previous move was on the secondary diagonal and caused a win
-    if x + y \
-            == 2 and buttons[0][2]['text'] == buttons[1][1]['text'] == buttons[2][0]['text'] != " ":
+    if x + y == 2 and buttons[0][2]['text'] == buttons[1][1]['text'] == buttons[2][0]['text'] != " ":
         buttons[0][2].config(text="/" + tt + "/")
         buttons[1][1].config(text="/" + tt + "/")
         buttons[2][0].config(text="/" + tt + "/")
@@ -213,7 +213,7 @@ def exit_game(root):
     root.destroy()
 
 
-def main():
+if __name__ == "__main__":
     global result, choices
 
     root = Tk()
@@ -230,7 +230,3 @@ def main():
     menu = OptionMenu(root, choices, "Vs Random", "Vs Pro", "Vs Legend")
     menu.pack()
     root.mainloop()
-
-
-if __name__ == "__main__":
-    main()

@@ -19,10 +19,12 @@ When complete, this project will have Python implementations for all the pseudoc
 - `nlp_apps.ipynb`: A Jupyter notebook that gives example applications of the code.
 
 
-## Python 3.4 and up
+## Python 3.5 and up
 
-This code requires Python 3.4 or later, and does not run in Python 2. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+This code requires Python 3.5 or later, and does not run in Python 2. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
 You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions. All notebooks are available in a [binder environment](http://mybinder.org/repo/aimacode/aima-python). Alternatively, visit [jupyter.org](http://jupyter.org/) for instructions on setting up your own Jupyter notebook environment.
+
+There is a sibling [aima-docker](https://github.com/rajatjain1997/aima-docker) project that shows you how to use docker containers to run more complex problems in more complex software environments.
 
 
 ## Installation Guide
@@ -33,12 +35,14 @@ To download the repository:
 
 Then you need to install the basic dependencies to run the project on your system:
 
-`pip install -r requirements.txt`
+```
+cd aima-python
+pip install -r requirements.txt
+```
 
 You also need to fetch the datasets from the [`aima-data`](https://github.com/aimacode/aima-data) repository:
 
 ```
-cd aima-python
 git submodule init
 git submodule update
 ```
@@ -172,7 +176,7 @@ Here is a table of the implemented data structures, the figure, name of the impl
 
 # Acknowledgements
 
-Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially @darius, @SnShine, @reachtarunhere, @MrDupin, @Chipe1, @ad71 and @MariannaSpyrakou.
+Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially [@darius](https://github.com/darius), [@SnShine](https://github.com/SnShine), [@reachtarunhere](https://github.com/reachtarunhere), [@antmarakis](https://github.com/antmarakis), [@Chipe1](https://github.com/Chipe1), [@ad71](https://github.com/ad71) and [@MariannaSpyrakou](https://github.com/MariannaSpyrakou).
 
 <!---Reference Links-->
 [agents]:../master/agents.py

@@ -1,10 +1,12 @@
-import pytest
-import os
 import random
 
-from text import *
-from utils import isclose, open_data
+import numpy as np
+import pytest
 
+from text import *
+from utils import open_data
+
+random.seed("aima-python")
 
 
 def test_text_models():
@@ -30,9 +32,9 @@ def test_text_models():
                          (13, ('as', 'well', 'as'))]
 
     # Test isclose
-    assert isclose(P1['the'], 0.0611, rel_tol=0.001)
-    assert isclose(P2['of', 'the'], 0.0108, rel_tol=0.01)
-    assert isclose(P3['so', 'as', 'to'], 0.000323, rel_tol=0.001)
+    assert np.isclose(P1['the'], 0.0611, rtol=0.001)
+    assert np.isclose(P2['of', 'the'], 0.0108, rtol=0.01)
+    assert np.isclose(P3['so', 'as', 'to'], 0.000323, rtol=0.001)
 
     # Test cond_prob.get
     assert P2.cond_prob.get(('went',)) is None
@@ -171,7 +173,8 @@ def test_permutation_decoder():
     assert pd.decode('aba') in ('ece', 'ete', 'tat', 'tit', 'txt')
 
     pd = PermutationDecoder(canonicalize(flatland))
-    assert pd.decode('aba') in ('ded', 'did', 'ece', 'ele', 'eme', 'ere', 'eve', 'eye', 'iti', 'mom', 'ses', 'tat', 'tit')
+    assert pd.decode('aba') in (
+        'ded', 'did', 'ece', 'ele', 'eme', 'ere', 'eve', 'eye', 'iti', 'mom', 'ses', 'tat', 'tit')
 
 
 def test_rot13_encoding():
@@ -227,8 +230,7 @@ def test_ir_system():
         Results(62.95, "aima-data/MAN/shred.txt"),
         Results(57.46, "aima-data/MAN/pico.txt"),
         Results(43.38, "aima-data/MAN/login.txt"),
-        Results(41.93, "aima-data/MAN/ln.txt"),
-    ])
+        Results(41.93, "aima-data/MAN/ln.txt")])
 
     q2 = uc.query("how do I delete a file")
     assert verify_query(q2, [
@@ -238,8 +240,7 @@ def test_ir_system():
         Results(60.63, "aima-data/MAN/zip.txt"),
         Results(57.46, "aima-data/MAN/pico.txt"),
         Results(51.28, "aima-data/MAN/shred.txt"),
-        Results(26.72, "aima-data/MAN/tr.txt"),
-    ])
+        Results(26.72, "aima-data/MAN/tr.txt")])
 
     q3 = uc.query("email")
     assert verify_query(q3, [
@@ -247,8 +248,7 @@ def test_ir_system():
         Results(12.01, "aima-data/MAN/info.txt"),
         Results(9.89, "aima-data/MAN/pico.txt"),
         Results(8.73, "aima-data/MAN/grep.txt"),
-        Results(8.07, "aima-data/MAN/zip.txt"),
-    ])
+        Results(8.07, "aima-data/MAN/zip.txt")])
 
     q4 = uc.query("word count for files")
     assert verify_query(q4, [
@@ -258,8 +258,7 @@ def test_ir_system():
         Results(55.45, "aima-data/MAN/ps.txt"),
         Results(53.42, "aima-data/MAN/more.txt"),
         Results(42.00, "aima-data/MAN/dd.txt"),
-        Results(12.85, "aima-data/MAN/who.txt"),
-    ])
+        Results(12.85, "aima-data/MAN/who.txt")])
 
     q5 = uc.query("learn: date")
     assert verify_query(q5, [])
@@ -267,8 +266,7 @@ def test_ir_system():
     q6 = uc.query("2003")
     assert verify_query(q6, [
         Results(14.58, "aima-data/MAN/pine.txt"),
-        Results(11.62, "aima-data/MAN/jar.txt"),
-    ])
+        Results(11.62, "aima-data/MAN/jar.txt")])
 
 
 def test_words():
@@ -281,7 +279,7 @@ def test_canonicalize():
 
 def test_translate():
     text = 'orange apple lemon '
-    func = lambda x: ('s ' + x) if x ==' ' else x
+    func = lambda x: ('s ' + x) if x == ' ' else x
 
     assert translate(text, func) == 'oranges  apples  lemons  '
 
@@ -289,7 +287,6 @@ def test_translate():
 def test_bigrams():
     assert bigrams('this') == ['th', 'hi', 'is']
     assert bigrams(['this', 'is', 'a', 'test']) == [['this', 'is'], ['is', 'a'], ['a', 'test']]
-
 
 
 if __name__ == '__main__':
