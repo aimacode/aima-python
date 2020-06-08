@@ -170,14 +170,14 @@ def SimpleReflexAgentProgram(rules, interpret_input):
     return program
 
 
-def ModelBasedReflexAgentProgram(rules, update_state, trainsition_model, sensor_model):
+def ModelBasedReflexAgentProgram(rules, update_state, transition_model, sensor_model):
     """
     [Figure 2.12]
     This agent takes action based on the percept and state.
     """
 
     def program(percept):
-        program.state = update_state(program.state, program.action, percept, trainsition_model, sensor_model)
+        program.state = update_state(program.state, program.action, percept, transition_model, sensor_model)
         rule = rule_match(program.state, rules)
         action = rule.action
         return action
