@@ -424,7 +424,13 @@ class ConnectFour(TicTacToe):
 
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
-                if y == 1 or (x, y - 1) in state.board]
+                if x == self.h or (x + 1 , y ) in state.board]
+
+class Gomoku(TicTacToe):
+    """Also known as Five in a row."""
+
+    def __init__(self, h=15, v=16, k=5):
+        TicTacToe.__init__(self, h, v, k)
 
 
 class Backgammon(StochasticGame):
