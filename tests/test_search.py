@@ -185,15 +185,15 @@ def test_recursive_best_first_search():
 def test_hill_climbing():
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 20],
                                        [-3, 7, 11, 5]])
-    assert hill_climbing(prob) == [0, 3]
+    assert hill_climbing(prob) == (0, 3)
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 8],
                                        [-3, 7, 9, 999],
                                        [1, 2, 5, 11]])
-    assert hill_climbing(prob) == [0, 2]
+    assert hill_climbing(prob) == (0, 2)
     prob = PeakFindingProblem((2, 0), [[0, 5, 10, 8],
                                        [-3, 7, 9, 999],
                                        [1, 2, 5, 11]])
-    assert hill_climbing(prob) == [1, 3]
+    assert hill_climbing(prob) == (1, 3)
 
 
 def test_simulated_annealing():
