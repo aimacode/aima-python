@@ -202,6 +202,10 @@ def alpha_beta_player(game, state):
     return alpha_beta_search(state, game)
 
 
+def minmax_player(game,state):
+    return minmax_decision(state,game)
+
+
 def expect_minmax_player(game, state):
     return expect_minmax(state, game)
 
