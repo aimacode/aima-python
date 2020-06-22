@@ -34,8 +34,6 @@ import itertools
 import random
 from collections import defaultdict
 
-import numpy as np
-
 from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
 from search import astar_search, PlanRoute
 from utils4e import remove_all, unique, first, probability, isnumber, issequence, Expr, expr, subexpressions
@@ -852,7 +850,7 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
                 model[sym] = not model[sym]
                 return count
 
-            sym = np.argmax(prop_symbols(clause), key=sat_count)
+            sym = max(prop_symbols(clause), key=sat_count)
         model[sym] = not model[sym]
     # If no solution is found within the flip limit, we return failure
     return None
@@ -1054,7 +1052,7 @@ class WumpusKB(PropKB):
 # ______________________________________________________________________________
 
 
-class WumpusPosition():
+class WumpusPosition:
     def __init__(self, x, y, orientation):
         self.X = x
         self.Y = y
@@ -1074,8 +1072,8 @@ class WumpusPosition():
         self.orientation = orientation
 
     def __eq__(self, other):
-        if other.get_location() == self.get_location() and \
-                other.get_orientation() == self.get_orientation():
+        if (other.get_location() == self.get_location() and
+                other.get_orientation() == self.get_orientation()):
             return True
         else:
             return False
@@ -1526,8 +1524,8 @@ wumpus_kb = PropKB()
 
 P11, P12, P21, P22, P31, B11, B21 = expr('P11, P12, P21, P22, P31, B11, B21')
 wumpus_kb.tell(~P11)
-wumpus_kb.tell(B11 | '<=>' | ((P12 | P21)))
-wumpus_kb.tell(B21 | '<=>' | ((P11 | P22 | P31)))
+wumpus_kb.tell(B11 | '<=>' | (P12 | P21))
+wumpus_kb.tell(B21 | '<=>' | (P11 | P22 | P31))
 wumpus_kb.tell(~B11)
 wumpus_kb.tell(B21)
 
@@ -1543,8 +1541,7 @@ test_kb = FolKB(
                # Note that this order of conjuncts
                # would result in infinite recursion:
                # '(Human(h) & Mother(m, h)) ==> Human(m)'
-               '(Mother(m, h) & Human(h)) ==> Human(m)'
-               ]))
+               '(Mother(m, h) & Human(h)) ==> Human(m)']))
 
 crime_kb = FolKB(
     map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
@@ -1554,8 +1551,7 @@ crime_kb = FolKB(
                'Missile(x) ==> Weapon(x)',
                'Enemy(x, America) ==> Hostile(x)',
                'American(West)',
-               'Enemy(Nono, America)'
-               ]))
+               'Enemy(Nono, America)']))
 
 
 # ______________________________________________________________________________

@@ -1,10 +1,17 @@
 import pytest
+
 from logic4e import *
-from utils4e import expr_handle_infix_ops, count, Symbol
+from utils4e import expr_handle_infix_ops, count
 
 definite_clauses_KB = PropDefiniteKB()
-for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B', 'C']:
-    definite_clauses_KB.tell(expr(clause))           
+for clause in ['(B & F)==>E',
+               '(A & E & F)==>G',
+               '(B & C)==>F',
+               '(A & B)==>D',
+               '(E & F)==>H',
+               '(H & I)==>J',
+               'A', 'B', 'C']:
+    definite_clauses_KB.tell(expr(clause))
 
 
 def test_is_symbol():
@@ -38,8 +45,7 @@ def test_variables():
 def test_expr():
     assert repr(expr('P <=> Q(1)')) == '(P <=> Q(1))'
     assert repr(expr('P & Q | ~R(x, F(x))')) == '((P & Q) | ~R(x, F(x)))'
-    assert (expr_handle_infix_ops('P & Q ==> R & ~S')
-            == "P & Q |'==>'| R & ~S")
+    assert (expr_handle_infix_ops('P & Q ==> R & ~S') == "P & Q |'==>'| R & ~S")
 
 
 def test_extend():
@@ -47,7 +53,7 @@ def test_extend():
 
 
 def test_subst():
-    assert subst({x: 42, y:0}, F(x) + y) == (F(42) + 0)
+    assert subst({x: 42, y: 0}, F(x) + y) == (F(42) + 0)
 
 
 def test_PropKB():
@@ -55,7 +61,7 @@ def test_PropKB():
     assert count(kb.ask(expr) for expr in [A, C, D, E, Q]) is 0
     kb.tell(A & E)
     assert kb.ask(A) == kb.ask(E) == {}
-    kb.tell(E |'==>'| C)
+    kb.tell(E | '==>' | C)
     assert kb.ask(C) == {}
     kb.retract(E)
     assert kb.ask(E) is False
@@ -94,7 +100,8 @@ def test_is_definite_clause():
 def test_parse_definite_clause():
     assert parse_definite_clause(expr('A & B & C & D ==> E')) == ([A, B, C, D], E)
     assert parse_definite_clause(expr('Farmer(Mac)')) == ([], expr('Farmer(Mac)'))
-    assert parse_definite_clause(expr('(Farmer(f) & Rabbit(r)) ==> Hates(f, r)')) == ([expr('Farmer(f)'), expr('Rabbit(r)')], expr('Hates(f, r)'))
+    assert parse_definite_clause(expr('(Farmer(f) & Rabbit(r)) ==> Hates(f, r)')) == (
+        [expr('Farmer(f)'), expr('Rabbit(r)')], expr('Hates(f, r)'))
 
 
 def test_pl_true():
@@ -131,28 +138,28 @@ def test_dpll():
     assert (dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F)
                              & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D))
             == {B: False, C: True, A: True, F: False, D: True, E: False})
-    assert dpll_satisfiable(A & B & ~C & D) == {C: False,  A: True, D: True, B: True}
-    assert dpll_satisfiable((A | (B & C)) |'<=>'| ((A | B) & (A | C))) == {C: True, A: True} or {C: True, B: True}
-    assert dpll_satisfiable(A |'<=>'| B) == {A: True, B: True}
+    assert dpll_satisfiable(A & B & ~C & D) == {C: False, A: True, D: True, B: True}
+    assert dpll_satisfiable((A | (B & C)) | '<=>' | ((A | B) & (A | C))) == {C: True, A: True} or {C: True, B: True}
+    assert dpll_satisfiable(A | '<=>' | B) == {A: True, B: True}
     assert dpll_satisfiable(A & ~B) == {A: True, B: False}
     assert dpll_satisfiable(P & ~P) is False
 
 
 def test_find_pure_symbol():
-    assert find_pure_symbol([A, B, C], [A|~B,~B|~C,C|A]) == (A, True)
-    assert find_pure_symbol([A, B, C], [~A|~B,~B|~C,C|A]) == (B, False)
-    assert find_pure_symbol([A, B, C], [~A|B,~B|~C,C|A]) == (None, None)
+    assert find_pure_symbol([A, B, C], [A | ~B, ~B | ~C, C | A]) == (A, True)
+    assert find_pure_symbol([A, B, C], [~A | ~B, ~B | ~C, C | A]) == (B, False)
+    assert find_pure_symbol([A, B, C], [~A | B, ~B | ~C, C | A]) == (None, None)
 
 
 def test_unit_clause_assign():
-    assert unit_clause_assign(A|B|C, {A:True}) == (None, None)
-    assert unit_clause_assign(B|C, {A:True}) == (None, None)
-    assert unit_clause_assign(B|~A, {A:True}) == (B, True)
+    assert unit_clause_assign(A | B | C, {A: True}) == (None, None)
+    assert unit_clause_assign(B | C, {A: True}) == (None, None)
+    assert unit_clause_assign(B | ~A, {A: True}) == (B, True)
 
 
 def test_find_unit_clause():
-    assert find_unit_clause([A|B|C, B|~C, ~A|~B], {A:True}) == (B, False)
-    
+    assert find_unit_clause([A | B | C, B | ~C, ~A | ~B], {A: True}) == (B, False)
+
 
 def test_unify():
     assert unify(x, x, {}) == {}
@@ -175,9 +182,9 @@ def test_tt_entails():
     assert tt_entails(P & Q, Q)
     assert not tt_entails(P | Q, Q)
     assert tt_entails(A & (B | C) & E & F & ~(P | Q), A & E & F & ~P & ~Q)
-    assert not tt_entails(P |'<=>'| Q, Q)
-    assert tt_entails((P |'==>'| Q) & P, Q)
-    assert not tt_entails((P |'<=>'| Q) & ~P, Q)
+    assert not tt_entails(P | '<=>' | Q, Q)
+    assert tt_entails((P | '==>' | Q) & P, Q)
+    assert not tt_entails((P | '<=>' | Q) & ~P, Q)
 
 
 def test_prop_symbols():
@@ -231,12 +238,13 @@ def test_move_not_inwards():
 
 
 def test_distribute_and_over_or():
-    def test_entailment(s, has_and = False):
+    def test_entailment(s, has_and=False):
         result = distribute_and_over_or(s)
         if has_and:
             assert result.op == '&'
         assert tt_entails(s, result)
         assert tt_entails(result, s)
+
     test_entailment((A & B) | C, True)
     test_entailment((A | B) & C, True)
     test_entailment((A | B) | C, False)
@@ -253,7 +261,8 @@ def test_to_cnf():
     assert repr(to_cnf("a | (b & c) | d")) == '((b | a | d) & (c | a | d))'
     assert repr(to_cnf("A & (B | (D & E))")) == '(A & (D | B) & (E | B))'
     assert repr(to_cnf("A | (B | (C | (D & E)))")) == '((D | A | B | C) & (E | A | B | C))'
-    assert repr(to_cnf('(A <=> ~B) ==> (C | ~D)')) == '((B | ~A | C | ~D) & (A | ~A | C | ~D) & (B | ~B | C | ~D) & (A | ~B | C | ~D))'
+    assert repr(to_cnf(
+        '(A <=> ~B) ==> (C | ~D)')) == '((B | ~A | C | ~D) & (A | ~A | C | ~D) & (B | ~B | C | ~D) & (A | ~B | C | ~D))'
 
 
 def test_pl_resolution():
@@ -281,6 +290,7 @@ def test_fol_bc_ask():
         return sorted(
             [dict((x, v) for x, v in list(a.items()) if x in test_variables)
              for a in answers], key=repr)
+
     assert repr(test_ask('Farmer(x)')) == '[{x: Mac}]'
     assert repr(test_ask('Human(x)')) == '[{x: Mac}, {x: MrsMac}]'
     assert repr(test_ask('Rabbit(x)')) == '[{x: MrsRabbit}, {x: Pete}]'
@@ -295,6 +305,7 @@ def test_fol_fc_ask():
         return sorted(
             [dict((x, v) for x, v in list(a.items()) if x in test_variables)
              for a in answers], key=repr)
+
     assert repr(test_ask('Criminal(x)', crime_kb)) == '[{x: West}]'
     assert repr(test_ask('Enemy(x, America)', crime_kb)) == '[{x: Nono}]'
     assert repr(test_ask('Farmer(x)')) == '[{x: Mac}]'
@@ -316,6 +327,7 @@ def test_WalkSAT():
             if single_solution:  # Cross check the solution if only one exists
                 assert all(pl_true(x, single_solution) for x in clauses)
                 assert soln == single_solution
+
     # Test WalkSat for problems with solution
     check_SAT([A & B, A & C])
     check_SAT([A | B, P & Q, P & B])

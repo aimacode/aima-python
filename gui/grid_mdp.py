@@ -636,7 +636,7 @@ class SolveMDP(tk.Frame):
             self.grid_to_show[k[1]][k[0]] = v
 
         if (self.delta < self.epsilon * (1 - self.gamma) / self.gamma) or (
-                self.iterations > 60) and self.terminated == False:
+                self.iterations > 60) and self.terminated is False:
             self.terminated = True
             display(self.grid_to_show, self._height, self._width)
 

@@ -131,8 +131,8 @@ def test_text_parsing():
     assert astar_search_parsing(words, grammer) == 'S'
     assert beam_search_parsing(words, grammer) == 'S'
     words = ["the", "is", "wupus", "dead"]
-    assert astar_search_parsing(words, grammer) == False
-    assert beam_search_parsing(words, grammer) == False
+    assert astar_search_parsing(words, grammer) is False
+    assert beam_search_parsing(words, grammer) is False
 
 
 if __name__ == '__main__':
