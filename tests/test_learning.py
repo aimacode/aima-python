@@ -56,14 +56,14 @@ def test_decision_tree_learner():
     assert dtl([7.5, 4, 6, 2]) == 'virginica'
 
 
-def test_svm():
+def test_svc():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
-    svm = MultiSVM()
     n_samples, n_features = len(iris.examples), iris.target
-    X, y = np.array([x[:n_features] for x in iris.examples]), np.array([x[n_features] for x in iris.examples])
-    svm.fit(X, y)
+    X, y = (np.array([x[:n_features] for x in iris.examples]),
+            np.array([x[n_features] for x in iris.examples]))
+    svm = MultiClassLearner(SVC()).fit(X, y)
     assert svm.predict([[5.0, 3.1, 0.9, 0.1]]) == 0
     assert svm.predict([[5.1, 3.5, 1.0, 0.0]]) == 0
     assert svm.predict([[4.9, 3.3, 1.1, 0.1]]) == 0

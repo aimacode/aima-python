@@ -1,4 +1,5 @@
-Image
+cvxopt
+image
 ipython
 ipythonblocks
 ipywidgets
@@ -10,9 +11,8 @@ numpy
 opencv-python
 pandas
 pillow
-pytest
+pytest-cov
 qpsolvers
-quadprog
 scipy
 sortedcontainers
 tensorflow

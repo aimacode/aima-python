@@ -1251,7 +1251,7 @@ class NQueensProblem(Problem):
 
     def actions(self, state):
         """In the leftmost empty column, try all non-conflicting rows."""
-        if state[-1] is not -1:
+        if state[-1] != -1:
             return []  # All columns filled; no successors
         else:
             col = state.index(-1)
@@ -1279,7 +1279,7 @@ class NQueensProblem(Problem):
 
     def goal_test(self, state):
         """Check if all columns filled, no conflicts."""
-        if state[-1] is -1:
+        if state[-1] == -1:
             return False
         return not any(self.conflicted(state, state[col], col)
                        for col in range(len(state)))

@@ -57,49 +57,23 @@ def test_decision_tree_learner():
     assert dtl.predict([7.5, 4, 6, 2]) == 'virginica'
 
 
-def test_linear_learner():
+def test_svc():
     iris = DataSet(name='iris')
     classes = ['setosa', 'versicolor', 'virginica']
     iris.classes_to_numbers(classes)
     n_samples, n_features = len(iris.examples), iris.target
-    X, y = np.array([x[:n_features] for x in iris.examples]), \
-           np.array([x[n_features] for x in iris.examples])
-    ll = LinearRegressionLearner().fit(X, y)
-    assert np.allclose(ll.w, MeanSquaredError(X, y).x_star)
-
-
-iris_tests = [([[5.0, 3.1, 0.9, 0.1]], 0),
-              ([[5.1, 3.5, 1.0, 0.0]], 0),
-              ([[4.9, 3.3, 1.1, 0.1]], 0),
-              ([[6.0, 3.0, 4.0, 1.1]], 1),
-              ([[6.1, 2.2, 3.5, 1.0]], 1),
-              ([[5.9, 2.5, 3.3, 1.1]], 1),
-              ([[7.5, 4.1, 6.2, 2.3]], 2),
-              ([[7.3, 4.0, 6.1, 2.4]], 2),
-              ([[7.0, 3.3, 6.1, 2.5]], 2)]
-
-
-def test_logistic_learner():
-    iris = DataSet(name='iris')
-    classes = ['setosa', 'versicolor', 'virginica']
-    iris.classes_to_numbers(classes)
-    n_samples, n_features = len(iris.examples), iris.target
-    X, y = np.array([x[:n_features] for x in iris.examples]), \
-           np.array([x[n_features] for x in iris.examples])
-    ll = MultiLogisticRegressionLearner().fit(X, y)
-    assert grade_learner(ll, iris_tests) == 1
-    assert np.allclose(err_ratio(ll, iris), 0.04)
-
-
-def test_svm():
-    iris = DataSet(name='iris')
-    classes = ['setosa', 'versicolor', 'virginica']
-    iris.classes_to_numbers(classes)
-    n_samples, n_features = len(iris.examples), iris.target
-    X, y = np.array([x[:n_features] for x in iris.examples]), np.array([x[n_features] for x in iris.examples])
-    svm = MultiSVM().fit(X, y)
-    assert grade_learner(svm, iris_tests) == 1
-    assert np.isclose(err_ratio(svm, iris), 0.04)
+    X, y = (np.array([x[:n_features] for x in iris.examples]),
+            np.array([x[n_features] for x in iris.examples]))
+    svm = MultiClassLearner(SVC()).fit(X, y)
+    assert svm.predict([[5.0, 3.1, 0.9, 0.1]]) == 0
+    assert svm.predict([[5.1, 3.5, 1.0, 0.0]]) == 0
+    assert svm.predict([[4.9, 3.3, 1.1, 0.1]]) == 0
+    assert svm.predict([[6.0, 3.0, 4.0, 1.1]]) == 1
+    assert svm.predict([[6.1, 2.2, 3.5, 1.0]]) == 1
+    assert svm.predict([[5.9, 2.5, 3.3, 1.1]]) == 1
+    assert svm.predict([[7.5, 4.1, 6.2, 2.3]]) == 2
+    assert svm.predict([[7.3, 4.0, 6.1, 2.4]]) == 2
+    assert svm.predict([[7.0, 3.3, 6.1, 2.5]]) == 2
 
 
 def test_information_content():

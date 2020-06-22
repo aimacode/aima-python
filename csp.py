@@ -758,8 +758,9 @@ class Sudoku(CSP):
     . . 2 | 6 . 9 | 5 . .
     8 . . | 2 . 3 | . . 9
     . . 5 | . 1 . | 3 . .
-    >>> AC3(e); e.display(e.infer_assignment())
-    (True, 6925)
+    >>> AC3(e)  # doctest: +ELLIPSIS
+    (True, ...)
+    >>> e.display(e.infer_assignment())
     4 8 3 | 9 2 1 | 6 5 7
     9 6 7 | 3 4 5 | 8 2 1
     2 5 1 | 8 7 6 | 4 9 3
@@ -1265,7 +1266,7 @@ class Crossword(NaryCSP):
                 else:
                     var = "p" + str(j) + str(i)
                     if assignment is not None:
-                        if isinstance(assignment[var], set) and len(assignment[var]) is 1:
+                        if isinstance(assignment[var], set) and len(assignment[var]) == 1:
                             puzzle += "[" + str(first(assignment[var])).upper() + "] "
                         elif isinstance(assignment[var], str):
                             puzzle += "[" + str(assignment[var]).upper() + "] "
@@ -1393,7 +1394,7 @@ class Kakuro(NaryCSP):
                         var2 = "0" + var2
                     var = "X" + var1 + var2
                     if assignment is not None:
-                        if isinstance(assignment[var], set) and len(assignment[var]) is 1:
+                        if isinstance(assignment[var], set) and len(assignment[var]) == 1:
                             puzzle += "[" + str(first(assignment[var])) + "]\t"
                         elif isinstance(assignment[var], int):
                             puzzle += "[" + str(assignment[var]) + "]\t"

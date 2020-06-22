@@ -8,7 +8,7 @@ from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
-from utils4e import (softmax1D, conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
+from utils4e import (conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
                      scalar_vector_product, map_vector, mean_squared_error_loss)
 
 
@@ -46,6 +46,9 @@ class Activation:
     def derivative(self, x):
         return NotImplementedError
 
+    def __call__(self, x):
+        return self.function(x)
+
 
 class Sigmoid(Activation):
 
@@ -56,7 +59,7 @@ class Sigmoid(Activation):
         return value * (1 - value)
 
 
-class Relu(Activation):
+class ReLU(Activation):
 
     def function(self, x):
         return max(0, x)
@@ -65,13 +68,28 @@ class Relu(Activation):
         return 1 if value > 0 else 0
 
 
-class Elu(Activation):
+class ELU(Activation):
 
-    def function(self, x, alpha=0.01):
-        return x if x > 0 else alpha * (np.exp(x) - 1)
+    def __init__(self, alpha=0.01):
+        self.alpha = alpha
 
-    def derivative(self, value, alpha=0.01):
-        return 1 if value > 0 else alpha * np.exp(value)
+    def function(self, x):
+        return x if x > 0 else self.alpha * (np.exp(x) - 1)
+
+    def derivative(self, value):
+        return 1 if value > 0 else self.alpha * np.exp(value)
+
+
+class LeakyReLU(Activation):
+
+    def __init__(self, alpha=0.01):
+        self.alpha = alpha
+
+    def function(self, x):
+        return max(x, self.alpha * x)
+
+    def derivative(self, value):
+        return 1 if value > 0 else self.alpha
 
 
 class Tanh(Activation):
@@ -83,13 +101,31 @@ class Tanh(Activation):
         return 1 - (value ** 2)
 
 
-class LeakyRelu(Activation):
+class SoftMax(Activation):
 
-    def function(self, x, alpha=0.01):
-        return x if x > 0 else alpha * x
+    def function(self, x):
+        return np.exp(x) / np.sum(np.exp(x))
 
-    def derivative(self, value, alpha=0.01):
-        return 1 if value > 0 else alpha
+    def derivative(self, x):
+        return np.ones_like(x)
+
+
+class SoftPlus(Activation):
+
+    def function(self, x):
+        return np.log(1. + np.exp(x))
+
+    def derivative(self, x):
+        return 1. / (1. + np.exp(-x))
+
+
+class Linear(Activation):
+
+    def function(self, x):
+        return x
+
+    def derivative(self, x):
+        return np.ones_like(x)
 
 
 class InputLayer(Layer):
@@ -112,9 +148,9 @@ class OutputLayer(Layer):
     def __init__(self, size=3):
         super().__init__(size)
 
-    def forward(self, inputs):
+    def forward(self, inputs, activation=SoftMax):
         assert len(self.nodes) == len(inputs)
-        res = softmax1D(inputs)
+        res = activation().function(inputs)
         for node, val in zip(self.nodes, res):
             node.value = val
         return res
