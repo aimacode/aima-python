@@ -338,9 +338,6 @@ def simple_convnet(size=3, num_classes=10):
 
     # compile model
     model.compile(loss='categorical_crossentropy',
-                  optimizer='rmsprop',
-                  lr=0.0001,
-                  decay=1e-6,
                   metrics=['accuracy'])
     print(model.summary())
     return model
