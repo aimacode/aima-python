@@ -4,6 +4,7 @@ ipython
 ipythonblocks
 ipywidgets
 jupyter
+tensorflow
 keras
 matplotlib
 networkx
@@ -15,4 +16,3 @@ pytest-cov
 qpsolvers
 scipy
 sortedcontainers
-tensorflow
