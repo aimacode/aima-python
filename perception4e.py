@@ -337,9 +337,10 @@ def simple_convnet(size=3, num_classes=10):
     model.add(Activation('softmax'))
 
     # compile model
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
     model.compile(loss='categorical_crossentropy',
-                  optimizer=opt,
+                  optimizer='rmsprop',
+                  lr=0.0001,
+                  decay=1e-6,
                   metrics=['accuracy'])
     print(model.summary())
     return model
