@@ -30,17 +30,14 @@ And a few other functions:
     unify            Do unification of two FOL sentences
     diff, simp       Symbolic differentiation and simplification
 """
-
-from utils import (
-    removeall, unique, first, argmax, probability,
-    isnumber, issequence, Expr, expr, subexpressions
-)
-from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
-from search import astar_search, PlanRoute
-
 import itertools
 import random
 from collections import defaultdict
+
+from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
+from search import astar_search, PlanRoute
+from utils4e import remove_all, unique, first, probability, isnumber, issequence, Expr, expr, subexpressions
+
 
 # ______________________________________________________________________________
 # Chapter 7 Logical Agents
@@ -48,7 +45,6 @@ from collections import defaultdict
 
 
 class KB:
-
     """
     A knowledge base to which you can tell and ask sentences.
     To create a KB, subclass this class and implement tell, ask_generator, and retract.
@@ -132,6 +128,7 @@ def KB_AgentProgram(KB):
 
     return program
 
+
 # _____________________________________________________________________________
 # 7.2 The Wumpus World
 
@@ -143,19 +140,19 @@ def facing_east(time):
     return Expr('FacingEast', time)
 
 
-def facing_west (time):
+def facing_west(time):
     return Expr('FacingWest', time)
 
 
-def facing_north (time):
+def facing_north(time):
     return Expr('FacingNorth', time)
 
 
-def facing_south (time):
+def facing_south(time):
     return Expr('FacingSouth', time)
 
 
-def wumpus (x, y):
+def wumpus(x, y):
     return Expr('W', x, y)
 
 
@@ -219,11 +216,12 @@ def ok_to_move(x, y, time):
     return Expr('OK', x, y, time)
 
 
-def location(x, y, time = None):
+def location(x, y, time=None):
     if time is None:
         return Expr('L', x, y)
     else:
         return Expr('L', x, y, time)
+
 
 # Symbols
 
@@ -235,14 +233,16 @@ def implies(lhs, rhs):
 def equiv(lhs, rhs):
     return Expr('<=>', lhs, rhs)
 
+
 # Helper Function
 
 
 def new_disjunction(sentences):
     t = sentences[0]
-    for i in range(1,len(sentences)):
+    for i in range(1, len(sentences)):
         t |= sentences[i]
     return t
+
 
 # ______________________________________________________________________________
 # 7.4 Propositional Logic
@@ -441,6 +441,7 @@ def pl_true(exp, model={}):
     else:
         raise ValueError("illegal operator in logic expression" + str(exp))
 
+
 # ______________________________________________________________________________
 # 7.5 Propositional Theorem Proving
 
@@ -489,6 +490,7 @@ def move_not_inwards(s):
     if s.op == '~':
         def NOT(b):
             return move_not_inwards(~b)
+
         a = s.args[0]
         if a.op == '~':
             return move_not_inwards(a.args[0])  # ~~A ==> A
@@ -566,6 +568,7 @@ def dissociate(op, args):
                 collect(arg.args)
             else:
                 result.append(arg)
+
     collect(args)
     return result
 
@@ -589,6 +592,7 @@ def disjuncts(s):
     """
     return dissociate('|', [s])
 
+
 # ______________________________________________________________________________
 
 
@@ -603,7 +607,7 @@ def pl_resolution(KB, alpha):
     while True:
         n = len(clauses)
         pairs = [(clauses[i], clauses[j])
-                 for i in range(n) for j in range(i+1, n)]
+                 for i in range(n) for j in range(i + 1, n)]
         for (ci, cj) in pairs:
             resolvents = pl_resolve(ci, cj)
             if False in resolvents:
@@ -622,10 +626,11 @@ def pl_resolve(ci, cj):
     for di in disjuncts(ci):
         for dj in disjuncts(cj):
             if di == ~dj or ~di == dj:
-                dnew = unique(removeall(di, disjuncts(ci)) +
-                              removeall(dj, disjuncts(cj)))
+                dnew = unique(remove_all(di, disjuncts(ci)) +
+                              remove_all(dj, disjuncts(cj)))
                 clauses.append(associate('|', dnew))
     return clauses
+
 
 # ______________________________________________________________________________
 # 7.5.4 Forward and backward chaining
@@ -683,7 +688,6 @@ Simple inference in a wumpus world example
 """
 wumpus_world_inference = expr("(B11 <=> (P12 | P21))  &  ~B11")
 
-
 """ [Figure 7.16]
 Propositional Logic Forward Chaining example
 """
@@ -695,8 +699,10 @@ for s in "P==>Q; (L&M)==>P; (B&L)==>M; (A&P)==>L; (A&B)==>L; A;B".split(';'):
 Definite clauses KB example
 """
 definite_clauses_KB = PropDefiniteKB()
-for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B', 'C']:
+for clause in ['(B & F)==>E', '(A & E & F)==>G', '(B & C)==>F', '(A & B)==>D', '(E & F)==>H', '(H & I)==>J', 'A', 'B',
+               'C']:
     definite_clauses_KB.tell(expr(clause))
+
 
 # ______________________________________________________________________________
 # 7.6 Effective Propositional Model Checking
@@ -730,10 +736,10 @@ def dpll(clauses, symbols, model):
         return model
     P, value = find_pure_symbol(symbols, unknown_clauses)
     if P:
-        return dpll(clauses, removeall(P, symbols), extend(model, P, value))
+        return dpll(clauses, remove_all(P, symbols), extend(model, P, value))
     P, value = find_unit_clause(clauses, model)
     if P:
-        return dpll(clauses, removeall(P, symbols), extend(model, P, value))
+        return dpll(clauses, remove_all(P, symbols), extend(model, P, value))
     if not symbols:
         raise TypeError("Argument should be of the type Expr.")
     P, symbols = symbols[0], symbols[1:]
@@ -791,7 +797,7 @@ def unit_clause_assign(clause, model):
             if model[sym] == positive:
                 return None, None  # clause already True
         elif P:
-            return None, None      # more than 1 unbound variable
+            return None, None  # more than 1 unbound variable
         else:
             P, value = sym, positive
     return P, value
@@ -809,6 +815,7 @@ def inspect_literal(literal):
         return literal.args[0], False
     else:
         return literal, True
+
 
 # ______________________________________________________________________________
 # 7.6.2 Local search algorithms
@@ -842,10 +849,12 @@ def WalkSAT(clauses, p=0.5, max_flips=10000):
                 count = len([clause for clause in clauses if pl_true(clause, model)])
                 model[sym] = not model[sym]
                 return count
-            sym = argmax(prop_symbols(clause), key=sat_count)
+
+            sym = max(prop_symbols(clause), key=sat_count)
         model[sym] = not model[sym]
     # If no solution is found within the flip limit, we return failure
     return None
+
 
 # ______________________________________________________________________________
 # 7.7 Agents Based on Propositional Logic
@@ -857,31 +866,31 @@ class WumpusKB(PropKB):
     Create a Knowledge Base that contains the atemporal "Wumpus physics" and temporal rules with time zero.
     """
 
-    def __init__(self,dimrow):
+    def __init__(self, dimrow):
         super().__init__()
         self.dimrow = dimrow
-        self.tell( ~wumpus(1, 1) )
-        self.tell( ~pit(1, 1) )
+        self.tell(~wumpus(1, 1))
+        self.tell(~pit(1, 1))
 
-        for y in range(1, dimrow+1):
-            for x in range(1, dimrow+1):
+        for y in range(1, dimrow + 1):
+            for x in range(1, dimrow + 1):
 
                 pits_in = list()
                 wumpus_in = list()
 
-                if x > 1: # West room exists
+                if x > 1:  # West room exists
                     pits_in.append(pit(x - 1, y))
                     wumpus_in.append(wumpus(x - 1, y))
 
-                if y < dimrow: # North room exists
+                if y < dimrow:  # North room exists
                     pits_in.append(pit(x, y + 1))
                     wumpus_in.append(wumpus(x, y + 1))
 
-                if x < dimrow: # East room exists
+                if x < dimrow:  # East room exists
                     pits_in.append(pit(x + 1, y))
                     wumpus_in.append(wumpus(x + 1, y))
 
-                if y > 1: # South room exists
+                if y > 1:  # South room exists
                     pits_in.append(pit(x, y - 1))
                     wumpus_in.append(wumpus(x, y - 1))
 
@@ -890,23 +899,23 @@ class WumpusKB(PropKB):
 
         # Rule that describes existence of at least one Wumpus
         wumpus_at_least = list()
-        for x in range(1, dimrow+1):
+        for x in range(1, dimrow + 1):
             for y in range(1, dimrow + 1):
                 wumpus_at_least.append(wumpus(x, y))
 
         self.tell(new_disjunction(wumpus_at_least))
 
         # Rule that describes existence of at most one Wumpus
-        for i in range(1, dimrow+1):
-            for j in range(1, dimrow+1):
-                for u in range(1, dimrow+1):
-                    for v in range(1, dimrow+1):
-                        if i!=u or j!=v:
+        for i in range(1, dimrow + 1):
+            for j in range(1, dimrow + 1):
+                for u in range(1, dimrow + 1):
+                    for v in range(1, dimrow + 1):
+                        if i != u or j != v:
                             self.tell(~wumpus(i, j) | ~wumpus(u, v))
 
         # Temporal rules at time zero
         self.tell(location(1, 1, 0))
-        for i in range(1, dimrow+1):
+        for i in range(1, dimrow + 1):
             for j in range(1, dimrow + 1):
                 self.tell(implies(location(i, j, 0), equiv(percept_breeze(0), breeze(i, j))))
                 self.tell(implies(location(i, j, 0), equiv(percept_stench(0), stench(i, j))))
@@ -970,8 +979,8 @@ class WumpusKB(PropKB):
         t = time - 1
 
         # current location rules
-        for i in range(1, self.dimrow+1):
-            for j in range(1, self.dimrow+1):
+        for i in range(1, self.dimrow + 1):
+            for j in range(1, self.dimrow + 1):
                 self.tell(implies(location(i, j, time), equiv(percept_breeze(time), breeze(i, j))))
                 self.tell(implies(location(i, j, time), equiv(percept_stench(time), stench(i, j))))
 
@@ -1043,7 +1052,7 @@ class WumpusKB(PropKB):
 # ______________________________________________________________________________
 
 
-class WumpusPosition():
+class WumpusPosition:
     def __init__(self, x, y, orientation):
         self.X = x
         self.Y = y
@@ -1063,11 +1072,12 @@ class WumpusPosition():
         self.orientation = orientation
 
     def __eq__(self, other):
-        if other.get_location() == self.get_location() and \
-                        other.get_orientation()==self.get_orientation():
+        if (other.get_location() == self.get_location() and
+                other.get_orientation() == self.get_orientation()):
             return True
         else:
             return False
+
 
 # ______________________________________________________________________________
 # 7.7.2 A hybrid agent
@@ -1076,7 +1086,7 @@ class WumpusPosition():
 class HybridWumpusAgent(Agent):
     """An agent for the wumpus world that does logical inference. [Figure 7.20]"""
 
-    def __init__(self,dimentions):
+    def __init__(self, dimentions):
         self.dimrow = dimentions
         self.kb = WumpusKB(self.dimrow)
         self.t = 0
@@ -1090,8 +1100,8 @@ class HybridWumpusAgent(Agent):
 
         temp = list()
 
-        for i in range(1, self.dimrow+1):
-            for j in range(1, self.dimrow+1):
+        for i in range(1, self.dimrow + 1):
+            for j in range(1, self.dimrow + 1):
                 if self.kb.ask_if_true(location(i, j, self.t)):
                     temp.append(i)
                     temp.append(j)
@@ -1106,8 +1116,8 @@ class HybridWumpusAgent(Agent):
             self.current_position = WumpusPosition(temp[0], temp[1], 'RIGHT')
 
         safe_points = list()
-        for i in range(1, self.dimrow+1):
-            for j in range(1, self.dimrow+1):
+        for i in range(1, self.dimrow + 1):
+            for j in range(1, self.dimrow + 1):
                 if self.kb.ask_if_true(ok_to_move(i, j, self.t)):
                     safe_points.append([i, j])
 
@@ -1115,14 +1125,14 @@ class HybridWumpusAgent(Agent):
             goals = list()
             goals.append([1, 1])
             self.plan.append('Grab')
-            actions = self.plan_route(self.current_position,goals,safe_points)
+            actions = self.plan_route(self.current_position, goals, safe_points)
             self.plan.extend(actions)
             self.plan.append('Climb')
 
         if len(self.plan) == 0:
             unvisited = list()
-            for i in range(1, self.dimrow+1):
-                for j in range(1, self.dimrow+1):
+            for i in range(1, self.dimrow + 1):
+                for j in range(1, self.dimrow + 1):
                     for k in range(self.t):
                         if self.kb.ask_if_true(location(i, j, k)):
                             unvisited.append([i, j])
@@ -1132,13 +1142,13 @@ class HybridWumpusAgent(Agent):
                     if u not in unvisited_and_safe and s == u:
                         unvisited_and_safe.append(u)
 
-            temp = self.plan_route(self.current_position,unvisited_and_safe,safe_points)
+            temp = self.plan_route(self.current_position, unvisited_and_safe, safe_points)
             self.plan.extend(temp)
 
         if len(self.plan) == 0 and self.kb.ask_if_true(have_arrow(self.t)):
             possible_wumpus = list()
-            for i in range(1, self.dimrow+1):
-                for j in range(1, self.dimrow+1):
+            for i in range(1, self.dimrow + 1):
+                for j in range(1, self.dimrow + 1):
                     if not self.kb.ask_if_true(wumpus(i, j)):
                         possible_wumpus.append([i, j])
 
@@ -1147,8 +1157,8 @@ class HybridWumpusAgent(Agent):
 
         if len(self.plan) == 0:
             not_unsafe = list()
-            for i in range(1, self.dimrow+1):
-                for j in range(1, self.dimrow+1):
+            for i in range(1, self.dimrow + 1):
+                for j in range(1, self.dimrow + 1):
                     if not self.kb.ask_if_true(ok_to_move(i, j, self.t)):
                         not_unsafe.append([i, j])
             temp = self.plan_route(self.current_position, not_unsafe, safe_points)
@@ -1178,7 +1188,7 @@ class HybridWumpusAgent(Agent):
         for loc in goals:
             x = loc[0]
             y = loc[1]
-            for i in range(1, self.dimrow+1):
+            for i in range(1, self.dimrow + 1):
                 if i < x:
                     shooting_positions.add(WumpusPosition(i, y, 'EAST'))
                 if i > x:
@@ -1190,7 +1200,7 @@ class HybridWumpusAgent(Agent):
 
         # Can't have a shooting position from any of the rooms the Wumpus could reside
         orientations = ['EAST', 'WEST', 'NORTH', 'SOUTH']
-        for loc in goals:            
+        for loc in goals:
             for orientation in orientations:
                 shooting_positions.remove(WumpusPosition(loc[0], loc[1], orientation))
 
@@ -1220,7 +1230,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
         # Symbol claiming state s at time t
         state_counter = itertools.count()
         for s in states:
-            for t in range(time+1):
+            for t in range(time + 1):
                 state_sym[s, t] = Expr("State_{}".format(next(state_counter)))
 
         # Add initial state axiom
@@ -1240,11 +1250,11 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
                         "Transition_{}".format(next(transition_counter)))
 
                     # Change the state from s to s_
-                    clauses.append(action_sym[s, action, t] |'==>'| state_sym[s, t])
-                    clauses.append(action_sym[s, action, t] |'==>'| state_sym[s_, t + 1])
+                    clauses.append(action_sym[s, action, t] | '==>' | state_sym[s, t])
+                    clauses.append(action_sym[s, action, t] | '==>' | state_sym[s_, t + 1])
 
         # Allow only one state at any time
-        for t in range(time+1):
+        for t in range(time + 1):
             # must be a state at any time
             clauses.append(associate('|', [state_sym[s, t] for s in states]))
 
@@ -1286,6 +1296,7 @@ def SAT_plan(init, transition, goal, t_max, SAT_solver=dpll_satisfiable):
         if model is not False:
             return extract_solution(model)
     return None
+
 
 # ______________________________________________________________________________
 # Chapter 9 Inference in First Order Logic
@@ -1505,6 +1516,7 @@ def fol_bc_and(KB, goals, theta):
             for theta2 in fol_bc_and(KB, rest, theta1):
                 yield theta2
 
+
 # ______________________________________________________________________________
 # A simple KB that defines the relevant conditions of the Wumpus World as in Fig 7.4.
 # See Sec. 7.4.3
@@ -1512,8 +1524,8 @@ wumpus_kb = PropKB()
 
 P11, P12, P21, P22, P31, B11, B21 = expr('P11, P12, P21, P22, P31, B11, B21')
 wumpus_kb.tell(~P11)
-wumpus_kb.tell(B11 | '<=>' | ((P12 | P21)))
-wumpus_kb.tell(B21 | '<=>' | ((P11 | P22 | P31)))
+wumpus_kb.tell(B11 | '<=>' | (P12 | P21))
+wumpus_kb.tell(B21 | '<=>' | (P11 | P22 | P31))
 wumpus_kb.tell(~B11)
 wumpus_kb.tell(B21)
 
@@ -1529,8 +1541,7 @@ test_kb = FolKB(
                # Note that this order of conjuncts
                # would result in infinite recursion:
                # '(Human(h) & Mother(m, h)) ==> Human(m)'
-               '(Mother(m, h) & Human(h)) ==> Human(m)'
-               ]))
+               '(Mother(m, h) & Human(h)) ==> Human(m)']))
 
 crime_kb = FolKB(
     map(expr, ['(American(x) & Weapon(y) & Sells(x, y, z) & Hostile(z)) ==> Criminal(x)',
@@ -1540,8 +1551,8 @@ crime_kb = FolKB(
                'Missile(x) ==> Weapon(x)',
                'Enemy(x, America) ==> Hostile(x)',
                'American(West)',
-               'Enemy(Nono, America)'
-               ]))
+               'Enemy(Nono, America)']))
+
 
 # ______________________________________________________________________________
 
