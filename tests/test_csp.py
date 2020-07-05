@@ -34,6 +34,12 @@ def test_csp_nconflicts():
     val = 'B'
     assert map_coloring_test.nconflicts(var, val, assignment) == 0
 
+def test_csp_countlostvalues():
+    map_coloring_test = MapColoringCSP(list('RGB'), 'A: B C; B: C; C: ')
+    assignment = {'A': 'G'}
+    var = 'C'
+    val = 'R'
+    assert map_coloring_test.countlostvalues(var,val, assignment) == 2
 
 def test_csp_actions():
     map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
@@ -331,13 +337,13 @@ def test_lcv():
 
     var = 'B'
 
-    assert lcv(var, assignment, csp) == [4, 0, 1, 2, 3, 5]
-    assignment = {'A': 1, 'C': 3}
+    assert lcv(var, assignment, csp) == [0, 2, 4, 1, 3, 5]
+    assignment = {'A': 1}
 
     constraints = lambda X, x, Y, y: (x + y) % 2 == 0 and (x + y) < 5
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
-    assert lcv(var, assignment, csp) == [1, 3, 0, 2, 4, 5]
+    assert lcv(var, assignment, csp) == [0, 1, 2, 3, 4, 5]
 
 
 def test_forward_checking():

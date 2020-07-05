@@ -91,7 +91,7 @@ class CSP(search.Problem):
         for v in self.neighbors[var]:
             if v not in assignment:
                 for dval in self.domains[v]:
-                   if not self.constraints(var, val, v, dval):
+                    if not self.constraints(var, val, v, dval):
                        countvals += 1
 
         for v in self.neighbors:
