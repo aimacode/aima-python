@@ -1027,16 +1027,16 @@ class Graph:
         """Make a digraph into an undirected graph by adding symmetric edges."""
         for a in list(self.graph_dict.keys()):
             for (b, dist) in self.graph_dict[a].items():
-                self.connect1(b, a, dist)
+                self.one_way_link(b, a, dist)
 
     def connect(self, A, B, distance=1):
         """Add a link from A and B of given distance, and also add the inverse
         link if the graph is undirected."""
-        self.connect1(A, B, distance)
+        self.one_way_link(A, B, distance)
         if not self.directed:
-            self.connect1(B, A, distance)
+            self.one_way_link(B, A, distance)
 
-    def connect1(self, A, B, distance):
+    def one_way_link(self, A, B, distance):
         """Add a link from A to B of given distance, in one direction only."""
         self.graph_dict.setdefault(A, {})[B] = distance
 
