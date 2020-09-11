@@ -44,7 +44,8 @@ def test_best_first_graph_search():
 def test_uniform_cost_search():
     assert uniform_cost_search(
         romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
-    assert uniform_cost_search(n_queens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
+    solution = uniform_cost_search(n_queens).solution()
+    assert n_queens.goal_test(solution) == True
 
 
 def test_depth_first_tree_search():
@@ -80,7 +81,8 @@ def test_astar_search():
     assert astar_search(eight_puzzle).solution() == ['LEFT', 'LEFT', 'UP', 'RIGHT', 'RIGHT', 'DOWN', 'LEFT', 'UP',
                                                      'LEFT', 'DOWN', 'RIGHT', 'RIGHT']
     assert astar_search(EightPuzzle((1, 2, 3, 4, 5, 6, 0, 7, 8))).solution() == ['RIGHT', 'RIGHT']
-    assert astar_search(n_queens).solution() == [7, 1, 3, 0, 6, 4, 2, 5]
+    solution = astar_search(n_queens).solution()
+    assert n_queens.goal_test(solution) == True
 
 
 def test_find_blank_square():
