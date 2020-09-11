@@ -274,7 +274,8 @@ def best_first_graph_search(problem, f, display=False):
         node = frontier.pop()
         if problem.goal_test(node.state):
             if display:
-                print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
+                print('%d paths have been expanded and %d paths remain in '
+                	'the frontier.' % (len(explored), len(frontier)))
             return node
         explored.add(node.state)
         for child in node.expand(problem):
@@ -710,7 +711,7 @@ def and_or_graph_search(problem):
             return None
         for action in problem.actions(state):
             plan = and_search(problem.result(state, action),
-                              problem, path + [state, ])
+                              problem, path + [state])
             if plan is not None:
                 return [action, plan]
 
@@ -1399,7 +1400,7 @@ class Wordlist:
         """See if prefix is in dictionary, as a full word or as a prefix.
         Return two values: the first is the lowest i such that
         words[i].startswith(prefix), or is None; the second is
-        True iff prefix itself is in the Wordlist."""
+        True if prefix itself is in the Wordlist."""
         words = self.words
         if hi is None:
             hi = len(words)
