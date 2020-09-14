@@ -1,30 +1,41 @@
-<div align="center">
-  <a href="http://aima.cs.berkeley.edu/"><img src="https://raw.githubusercontent.com/aimacode/aima-python/master/images/aima_logo.png"></a><br><br>
-</div>
+
 
 # `aima-python` [![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
 
 
 Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
 
+# Updates for 4th Edition
+
+The 4th edition of the book as out now in 2020, and thus we are updating the code. All code here will reflect the 4th edition. Changes include:
+
+- Move from Python 3.5 to 3.7.
+- More emphasis on Jupyter (Ipython) notebooks.
+- More projects using external packages (tensorflow, etc.).
 
 
-## Structure of the Project
 
-When complete, this project will have Python implementations for all the pseudocode algorithms in the book, as well as tests and examples of use. For each major topic, such as `nlp` (natural language processing), we provide the following  files:
+# Structure of the Project
 
-- `nlp.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data.
-- `tests/test_nlp.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
-- `nlp.ipynb`: A Jupyter (IPython) notebook that explains and gives examples of how to use the code.
-- `nlp_apps.ipynb`: A Jupyter notebook that gives example applications of the code.
+When complete, this project will have Python implementations for all the pseudocode algorithms in the book, as well as tests and examples of use. For each major topic, such as `search`, we provide the following  files:
 
+- `search.ipynb` and `search.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data. The `.py` file is generated automatically from the `.ipynb` file; the idea is that it is easier to read the documentation in the `.ipynb` file.
+- `search_XX.ipynb`: Notebooks that show how to use the code, broken out into various topics (the `XX`).
+- `tests/test_search.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
 
-## Python 3.5 and up
+# Python 3.7 and up
 
-This code requires Python 3.5 or later, and does not run in Python 2. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+The code for the 3rd edition was in Python 3.5; the current 4th edition code is in Python 3.7. It should also run in later versions, but does not run in Python 2. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
 You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions. All notebooks are available in a [binder environment](http://mybinder.org/repo/aimacode/aima-python). Alternatively, visit [jupyter.org](http://jupyter.org/) for instructions on setting up your own Jupyter notebook environment.
 
-There is a sibling [aima-docker](https://github.com/rajatjain1997/aima-docker) project that shows you how to use docker containers to run more complex problems in more complex software environments.
+Features from Python 3.6 and 3.7 that we will be using for this version of the code:
+- [f-strings](https://docs.python.org/3.6/whatsnew/3.6.html#whatsnew36-pep498): all string formatting should be done with `f'var = {var}'`, not with `'var = {}'.format(var)` nor `'var = %s' % var`.
+- [`typing` module](https://docs.python.org/3.7/library/typing.html): declare functions with type hints: `def successors(state) -> List[State]:`; that is, give type declarations, but omit them when it is obvious. I don't need to say `state: State`, but in another context it would make sense to say `s: State`.
+- Underscores in numerics: write a million as `1_000_000` not as `1000000`.
+- [`dataclasses` module](https://docs.python.org/3.7/library/dataclasses.html#module-dataclasses): replace `namedtuple` with `dataclass`.
+
+
+[//]: # (There is a sibling [aima-docker]https://github.com/rajatjain1997/aima-docker project that shows you how to use docker containers to run more complex problems in more complex software environments.)
 
 
 ## Installation Guide
