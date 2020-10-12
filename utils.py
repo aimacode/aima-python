@@ -752,6 +752,14 @@ class PriorityQueue:
         else:
             raise Exception('Trying to pop from empty PriorityQueue.')
 
+    def get_item(self, key):
+        """Returns the first node associated with key in PriorityQueue.
+        Raises KeyError if key is not present."""
+        for _, item in self.heap:
+            if item == key:
+                return item
+        raise KeyError(str(key) + " is not in the priority queue")
+
     def __len__(self):
         """Return current capacity of PriorityQueue."""
         return len(self.heap)
