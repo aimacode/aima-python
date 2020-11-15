@@ -371,7 +371,10 @@ def unordered_domain_values(var, assignment, csp):
 
 def lcv(var, assignment, csp):
     """Least-constraining-values heuristic."""
-    return sorted(csp.choices(var), key=lambda val: csp.nconflicts(var, val, assignment))
+    return sorted(csp.choices(var), key=lambda val: sum(not csp.constraints(var, val, unass_var, unass_val)
+                                                          for unass_var in csp.neighbors[var]
+                                                          if unass_var not in assignment
+                                                          for unass_val in csp.choices(unass_var)))
 
 
 # Inference
