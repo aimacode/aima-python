@@ -27,7 +27,7 @@ def pseudocode(algorithm):
     from IPython.display import Markdown
 
     algorithm = algorithm.replace(' ', '-')
-    url = "https://raw.githubusercontent.com/aimacode/aima-pseudocode/master/md/{}.md".format(algorithm)
+    url = f"https://raw.githubusercontent.com/aimacode/aima-pseudocode/master/md/{algorithm}.md"
     f = urlopen(url)
     md = f.read().decode('utf-8')
     md = md.split('\n', 1)[-1].strip()
@@ -227,7 +227,7 @@ def make_plot_grid_step_function(columns, rows, U_over_time):
         for col in range(len(grid)):
             for row in range(len(grid[0])):
                 magic = grid[col][row]
-                fig.axes.text(row, col, "{0:.2f}".format(magic), va='center', ha='center')
+                fig.axes.text(row, col, f"{magic:.2f}", va='center', ha='center')
 
         plt.show()
 
@@ -287,24 +287,24 @@ class Canvas:
         if not isinstance(exec_str, str):
             print("Invalid execution argument:", exec_str)
             self.alert("Received invalid execution command format")
-        prefix = "{0}_canvas_object.".format(self.cid)
+        prefix = f"{self.cid}_canvas_object."
         self.exec_list.append(prefix + exec_str + ';')
 
     def fill(self, r, g, b):
         """Changes the fill color to a color in rgb format"""
-        self.execute("fill({0}, {1}, {2})".format(r, g, b))
+        self.execute(f"fill({r}, {g}, {b})")
 
     def stroke(self, r, g, b):
         """Changes the colors of line/strokes to rgb"""
-        self.execute("stroke({0}, {1}, {2})".format(r, g, b))
+        self.execute(f"stroke({r}, {g}, {b})")
 
     def strokeWidth(self, w):
         """Changes the width of lines/strokes to 'w' pixels"""
-        self.execute("strokeWidth({0})".format(w))
+        self.execute(f"strokeWidth({w})")
 
     def rect(self, x, y, w, h):
         """Draw a rectangle with 'w' width, 'h' height and (x, y) as the top-left corner"""
-        self.execute("rect({0}, {1}, {2}, {3})".format(x, y, w, h))
+        self.execute(f"rect({x}, {y}, {w}, {z})")
 
     def rect_n(self, xn, yn, wn, hn):
         """Similar to rect(), but the dimensions are normalized to fall between 0 and 1"""
@@ -316,7 +316,7 @@ class Canvas:
 
     def line(self, x1, y1, x2, y2):
         """Draw a line from (x1, y1) to (x2, y2)"""
-        self.execute("line({0}, {1}, {2}, {3})".format(x1, y1, x2, y2))
+        self.execute(f"line({x1}, {y1}, {x2}, {y2})")
 
     def line_n(self, x1n, y1n, x2n, y2n):
         """Similar to line(), but the dimensions are normalized to fall between 0 and 1"""
@@ -328,7 +328,7 @@ class Canvas:
 
     def arc(self, x, y, r, start, stop):
         """Draw an arc with (x, y) as centre, 'r' as radius from angles 'start' to 'stop'"""
-        self.execute("arc({0}, {1}, {2}, {3}, {4})".format(x, y, r, start, stop))
+        self.execute(f"arc({x}, {y}, {r}, {start}, {stop})")
 
     def arc_n(self, xn, yn, rn, start, stop):
         """Similar to arc(), but the dimensions are normalized to fall between 0 and 1
@@ -345,14 +345,14 @@ class Canvas:
 
     def font(self, font):
         """Changes the font of text"""
-        self.execute('font("{0}")'.format(font))
+        self.execute(f'font("{font}")')
 
     def text(self, txt, x, y, fill=True):
         """Display a text at (x, y)"""
         if fill:
-            self.execute('fill_text("{0}", {1}, {2})'.format(txt, x, y))
+            self.execute(f'fill_text("{txt}", {x}, {y})')
         else:
-            self.execute('stroke_text("{0}", {1}, {2})'.format(txt, x, y))
+            self.execute(f'stroke_text("{txt}", {x}, {y})')
 
     def text_n(self, txt, xn, yn, fill=True):
         """Similar to text(), but with normalized coordinates"""
@@ -362,7 +362,7 @@ class Canvas:
 
     def alert(self, message):
         """Immediately display an alert"""
-        display_html('<script>alert("{0}")</script>'.format(message))
+        display_html(f'<script>alert("{message}")</script>')
 
     def update(self):
         """Execute the JS code to execute the commands queued by execute()"""
@@ -385,7 +385,7 @@ class Canvas_TicTacToe(Canvas):
                  width=300, height=350, cid=None):
         valid_players = ('human', 'random', 'alpha_beta')
         if player_1 not in valid_players or player_2 not in valid_players:
-            raise TypeError("Players must be one of {}".format(valid_players))
+            raise TypeError(f"Players must be one of {valid_players}")
         super().__init__(varname, width, height, cid)
         self.ttt = TicTacToe()
         self.state = self.ttt.initial
@@ -439,7 +439,7 @@ class Canvas_TicTacToe(Canvas):
             if utility == 0:
                 self.text_n('Game Draw!', offset, 6 / 7 + offset)
             else:
-                self.text_n('Player {} wins!'.format("XO"[utility < 0]), offset, 6 / 7 + offset)
+                self.text_n(f'Player {"XO"[utility < 0]} wins!', offset, 6 / 7 + offset)
                 # Find the 3 and draw a line
                 self.stroke([255, 0][self.turn], [0, 255][self.turn], 0)
                 for i in range(3):
@@ -461,7 +461,7 @@ class Canvas_TicTacToe(Canvas):
             self.fill(0, 0, 0)
             self.text_n('Restart', 0.5 + 2 * offset, 13 / 14)
         else:  # Print which player's turn it is
-            self.text_n("Player {}'s move({})".format("XO"[self.turn], self.players[self.turn]),
+            self.text_n(f"Player {"XO"[self.turn]}'s move({self.players[self.turn]})",
                         offset, 6 / 7 + offset)
 
         self.update()
@@ -1064,7 +1064,7 @@ def plot_NQueens(solution):
     im = np.array(im).astype(np.float) / 255
     fig = plt.figure(figsize=(7, 7))
     ax = fig.add_subplot(111)
-    ax.set_title('{} Queens'.format(n))
+    ax.set_title(f'{n} Queens')
     plt.imshow(board, cmap='binary', interpolation='nearest')
     # NQueensCSP gives a solution as a dictionary
     if isinstance(solution, dict):
