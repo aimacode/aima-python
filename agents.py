@@ -50,7 +50,7 @@ class Thing:
     .__name__  slot (used for output only)."""
 
     def __repr__(self):
-        return '<{}>'.format(getattr(self, '__name__', self.__class__.__name__))
+        return f'<{getattr(self, '__name__', self.__class__.__name__)}>'
 
     def is_alive(self):
         """Things that are 'alive' should return true."""
@@ -85,10 +85,10 @@ class Agent(Thing):
         self.holding = []
         self.performance = 0
         if program is None or not isinstance(program, collections.abc.Callable):
-            print("Can't find a valid program for {}, falling back to default.".format(self.__class__.__name__))
+            print(f"Can't find a valid program for {self.__class__.__name__}, falling back to default.")
 
             def program(percept):
-                return eval(input('Percept={}; action? '.format(percept)))
+                return eval(input(f'Percept={percept}; action? '))
 
         self.program = program
 
@@ -105,7 +105,7 @@ def TraceAgent(agent):
 
     def new_program(percept):
         action = old_program(percept)
-        print('{} perceives {} and does {}'.format(agent, percept, action))
+        print('{agent} perceives {percept} and does {action}')
         return action
 
     agent.program = new_program
@@ -378,8 +378,8 @@ class Environment:
         except ValueError as e:
             print(e)
             print("  in Environment delete_thing")
-            print("  Thing to be removed: {} at {}".format(thing, thing.location))
-            print("  from list: {}".format([(thing, thing.location) for thing in self.things]))
+            print(f"  Thing to be removed: {thing} at {thing.location}")
+            print(f"  from list: {[(thing, thing.location) for thing in self.things]}")
         if thing in self.agents:
             self.agents.remove(thing)
 
@@ -999,10 +999,9 @@ class WumpusEnvironment(XYEnvironment):
             if explorer[0].alive:
                 return False
             else:
-                print("Death by {} [-1000].".format(explorer[0].killed_by))
+                print(f"Death by {explorer[0].killed_by} [-1000].")
         else:
-            print("Explorer climbed out {}."
-                  .format("with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"))
+            print(f"Explorer climbed out {"with Gold [+1000]!" if Gold() not in self.things else "without Gold [+0]"}.")
         return True
 
     # TODO: Arrow needs to be implemented
