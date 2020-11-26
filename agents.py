@@ -105,7 +105,7 @@ def TraceAgent(agent):
 
     def new_program(percept):
         action = old_program(percept)
-        print('{agent} perceives {percept} and does {action}')
+        print(f'{agent} perceives {percept} and does {action}')
         return action
 
     agent.program = new_program
