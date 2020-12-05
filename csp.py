@@ -185,7 +185,7 @@ def AC3(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
             for Xk in csp.neighbors[Xi]:
                 if Xk != Xj:
                     queue.add((Xk, Xi))
-    return True, checks  # CSP is satisfiable
+    return True, checks  # CSP is arc-consistent
 
 
 def revise(csp, Xi, Xj, removals, checks=0):
@@ -257,7 +257,7 @@ def AC3b(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
                 for Xk in csp.neighbors[Xj]:
                     if Xk != Xi:
                         queue.add((Xk, Xj))
-    return True, checks  # CSP is satisfiable
+    return True, checks  # CSP is arc-consistent
 
 
 def partition(csp, Xi, Xj, checks=0):
@@ -334,7 +334,7 @@ def AC4(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
             if revised:
                 if not csp.curr_domains[Xi]:
                     return False, checks  # CSP is inconsistent
-    return True, checks  # CSP is satisfiable
+    return True, checks  # CSP is arc-consistent
 
 
 # ______________________________________________________________________________
