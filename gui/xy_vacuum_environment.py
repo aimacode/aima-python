@@ -1,9 +1,9 @@
-from tkinter import *
-import random
-import sys
 import os.path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from tkinter import *
+
 from agents import *
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
 class Gui(VacuumEnvironment):
@@ -12,12 +12,19 @@ class Gui(VacuumEnvironment):
     """
     xi, yi = (0, 0)
     perceptible_distance = 1
+
     agnt = -1
     #agnt variable is used to check if we have right to change the position of the agent(i.e, if the change agent position button is clicked)
     def __init__(self, root, width=7, height=7, elements=['D', 'W']):
         super().__init__(width, height)
         global agnt
         agnt = -1 #intially the agent variable is set to -1
+
+    def __init__(self, root, width=7, height=7, elements=None):
+        super().__init__(width, height)
+        if elements is None:
+            elements = ['D', 'W']
+
         self.root = root
         self.create_frames()
         self.create_buttons()
@@ -87,10 +94,10 @@ class Gui(VacuumEnvironment):
             
     def execute_action(self, agent, action):
         """Determines the action the agent performs."""
-        xi, yi = ((self.xi, self.yi))
+        xi, yi = (self.xi, self.yi)
         if action == 'Suck':
             dirt_list = self.list_things_at(agent.location, Dirt)
-            if dirt_list != []:
+            if dirt_list:
                 dirt = dirt_list[0]
                 agent.performance += 100
                 self.delete_thing(dirt)
@@ -197,11 +204,9 @@ class XYReflexAgent(Agent):
         self.direction = Direction("up")
 
 
-# TODO:
-# Check the coordinate system.
-# Give manual choice for agent's location.
-def main():
-    """The main function."""
+# TODO: Check the coordinate system.
+# TODO: Give manual choice for agent's location.
+if __name__ == "__main__":
     root = Tk()
     root.title("Vacuum Environment")
     root.geometry("420x440")
@@ -225,7 +230,3 @@ def main():
     agent_button.config(command=env.update_env_agent)
     reset_button.config(command=lambda: env.reset_env(agt))
     root.mainloop()
-
-
-if __name__ == "__main__":
-    main()

@@ -1,7 +1,7 @@
 How to Contribute to aima-python
 ==========================
 
-Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5674023002832896/) student, or an independent contributor, here is a guide on how you can help.
+Thanks for considering contributing to `aima-python`! Whether you are an aspiring [Google Summer of Code](https://summerofcode.withgoogle.com/organizations/5431334980288512/) student, or an independent contributor, here is a guide on how you can help.
 
 First of all, you can read these write-ups from past GSoC students to get an idea about what you can do for the project. [Chipe1](https://github.com/aimacode/aima-python/issues/641) - [MrDupin](https://github.com/aimacode/aima-python/issues/632)
 
@@ -23,7 +23,7 @@ In more detail:
 
 ## Port to Python 3; Pythonic Idioms
 
-- Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`s; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formatting to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
+- Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formatting to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
 - Replace old Lisp-based idioms with proper Python idioms. For example, we have many functions that were taken directly from Common Lisp, such as the `every` function: `every(callable, items)` returns true if every element of `items` is callable. This is good Lisp style, but good Python style would be to use `all` and a generator expression: `all(callable(f) for f in items)`. Eventually, fix all calls to these legacy Lisp functions and then remove the functions.
 
 ## New and Improved Algorithms
@@ -84,6 +84,8 @@ Patch Rules
   without your patch.
 
 - Follow the style guidelines described above.
+- Refer the issue you have fixed.
+- Explain in brief what changes you have made with affected files name.
 
 # Choice of Programming Languages
 

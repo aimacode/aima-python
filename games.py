@@ -1,20 +1,23 @@
-"""Games, or Adversarial Search (Chapter 5)"""
+"""Games or Adversarial Search (Chapter 5)"""
 
-from collections import namedtuple
-import random
-import itertools
 import copy
-from utils import argmax, vector_add
+import itertools
+import random
+from collections import namedtuple
 
-infinity = float('inf')
+import numpy as np
+
+from utils import vector_add
+
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 StochasticGameState = namedtuple('StochasticGameState', 'to_move, utility, board, moves, chance')
 
+
 # ______________________________________________________________________________
-# Minimax Search
+# MinMax Search
 
 
-def minimax_decision(state, game):
+def minmax_decision(state, game):
     """Given a state in a game, calculate the best move by searching
     forward all the way to the terminal states. [Figure 5.3]"""
 
@@ -23,7 +26,7 @@ def minimax_decision(state, game):
     def max_value(state):
         if game.terminal_test(state):
             return game.utility(state, player)
-        v = -infinity
+        v = -np.inf
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a)))
         return v
@@ -31,31 +34,34 @@ def minimax_decision(state, game):
     def min_value(state):
         if game.terminal_test(state):
             return game.utility(state, player)
-        v = infinity
+        v = np.inf
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a)))
         return v
 
-    # Body of minimax_decision:
-    return argmax(game.actions(state),
-                  key=lambda a: min_value(game.result(state, a)))
+    # Body of minmax_decision:
+    return max(game.actions(state), key=lambda a: min_value(game.result(state, a)))
+
 
 # ______________________________________________________________________________
 
 
-def expectiminimax(state, game):
-    """Return the best move for a player after dice are thrown. The game tree
-	includes chance nodes along with min and max nodes. [Figure 5.11]"""
+def expect_minmax(state, game):
+    """
+    [Figure 5.11]
+    Return the best move for a player after dice are thrown. The game tree
+	includes chance nodes along with min and max nodes.
+	"""
     player = game.to_move(state)
 
     def max_value(state):
-        v = -infinity
+        v = -np.inf
         for a in game.actions(state):
             v = max(v, chance_node(state, a))
         return v
 
     def min_value(state):
-        v = infinity
+        v = np.inf
         for a in game.actions(state):
             v = min(v, chance_node(state, a))
         return v
@@ -76,22 +82,21 @@ def expectiminimax(state, game):
             sum_chances += util * game.probability(chance)
         return sum_chances / num_chances
 
-    # Body of expectiminimax:
-    return argmax(game.actions(state),
-                  key=lambda a: chance_node(state, a), default=None)
+    # Body of expect_minmax:
+    return max(game.actions(state), key=lambda a: chance_node(state, a), default=None)
 
 
-def alphabeta_search(state, game):
+def alpha_beta_search(state, game):
     """Search game to determine best action; use alpha-beta pruning.
     As in [Figure 5.7], this version searches all the way to the leaves."""
 
     player = game.to_move(state)
 
-    # Functions used by alphabeta
+    # Functions used by alpha_beta
     def max_value(state, alpha, beta):
         if game.terminal_test(state):
             return game.utility(state, player)
-        v = -infinity
+        v = -np.inf
         for a in game.actions(state):
             v = max(v, min_value(game.result(state, a), alpha, beta))
             if v >= beta:
@@ -102,7 +107,7 @@ def alphabeta_search(state, game):
     def min_value(state, alpha, beta):
         if game.terminal_test(state):
             return game.utility(state, player)
-        v = infinity
+        v = np.inf
         for a in game.actions(state):
             v = min(v, max_value(game.result(state, a), alpha, beta))
             if v <= alpha:
@@ -110,9 +115,9 @@ def alphabeta_search(state, game):
             beta = min(beta, v)
         return v
 
-    # Body of alphabeta_search:
-    best_score = -infinity
-    beta = infinity
+    # Body of alpha_beta_search:
+    best_score = -np.inf
+    beta = np.inf
     best_action = None
     for a in game.actions(state):
         v = min_value(game.result(state, a), best_score, beta)
@@ -122,20 +127,19 @@ def alphabeta_search(state, game):
     return best_action
 
 
-def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
+def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     """Search game to determine best action; use alpha-beta pruning.
     This version cuts off search and uses an evaluation function."""
 
     player = game.to_move(state)
 
-    # Functions used by alphabeta
+    # Functions used by alpha_beta
     def max_value(state, alpha, beta, depth):
         if cutoff_test(state, depth):
             return eval_fn(state)
-        v = -infinity
+        v = -np.inf
         for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a),
-                                 alpha, beta, depth + 1))
+            v = max(v, min_value(game.result(state, a), alpha, beta, depth + 1))
             if v >= beta:
                 return v
             alpha = max(alpha, v)
@@ -144,23 +148,20 @@ def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     def min_value(state, alpha, beta, depth):
         if cutoff_test(state, depth):
             return eval_fn(state)
-        v = infinity
+        v = np.inf
         for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a),
-                                 alpha, beta, depth + 1))
+            v = min(v, max_value(game.result(state, a), alpha, beta, depth + 1))
             if v <= alpha:
                 return v
             beta = min(beta, v)
         return v
 
-    # Body of alphabeta_cutoff_search starts here:
+    # Body of alpha_beta_cutoff_search starts here:
     # The default test cuts off at depth d or at a terminal state
-    cutoff_test = (cutoff_test or
-                   (lambda state, depth: depth > d or
-                    game.terminal_test(state)))
+    cutoff_test = (cutoff_test or (lambda state, depth: depth > d or game.terminal_test(state)))
     eval_fn = eval_fn or (lambda state: game.utility(state, player))
-    best_score = -infinity
-    beta = infinity
+    best_score = -np.inf
+    beta = np.inf
     best_action = None
     for a in game.actions(state):
         v = min_value(game.result(state, a), best_score, beta, 1)
@@ -168,6 +169,7 @@ def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
             best_score = v
             best_action = a
     return best_action
+
 
 # ______________________________________________________________________________
 # Players for Games
@@ -195,11 +197,17 @@ def random_player(game, state):
     """A player that chooses a legal move at random."""
     return random.choice(game.actions(state)) if game.actions(state) else None
 
-def alphabeta_player(game, state):
-    return alphabeta_search(state, game)
 
-def expectiminimax_player(game, state):
-    return expectiminimax(state, game)
+def alpha_beta_player(game, state):
+    return alpha_beta_search(state, game)
+
+
+def minmax_player(game,state):
+    return minmax_decision(state,game)
+
+
+def expect_minmax_player(game, state):
+    return expect_minmax(state, game)
 
 
 # ______________________________________________________________________________
@@ -253,6 +261,7 @@ class Game:
                     self.display(state)
                     return self.utility(state, self.to_move(self.initial))
 
+
 class StochasticGame(Game):
     """A stochastic game includes uncertain events which influence
     the moves of players at each state. To create a stochastic game, subclass
@@ -268,7 +277,7 @@ class StochasticGame(Game):
         raise NotImplementedError
 
     def probability(self, chance):
-        """Return the probability of occurence of a chance."""
+        """Return the probability of occurrence of a chance."""
         raise NotImplementedError
 
     def play_game(self, *players):
@@ -283,6 +292,7 @@ class StochasticGame(Game):
                 if self.terminal_test(state):
                     self.display(state)
                     return self.utility(state, self.to_move(self.initial))
+
 
 class Fig52Game(Game):
     """The game represented in [Figure 5.2]. Serves as a simple test case."""
@@ -316,7 +326,7 @@ class Fig52Game(Game):
 class Fig52Extended(Game):
     """Similar to Fig52Game but bigger. Useful for visualisation"""
 
-    succs = {i:dict(l=i*3+1, m=i*3+2, r=i*3+3) for i in range(13)}
+    succs = {i: dict(l=i * 3 + 1, m=i * 3 + 2, r=i * 3 + 3) for i in range(13)}
     utils = dict()
 
     def actions(self, state):
@@ -336,6 +346,7 @@ class Fig52Extended(Game):
 
     def to_move(self, state):
         return 'MIN' if state in {1, 2, 3} else 'MAX'
+
 
 class TicTacToe(Game):
     """Play TicTacToe on an h x v board, with Max (first player) playing 'X'.
@@ -417,7 +428,13 @@ class ConnectFour(TicTacToe):
 
     def actions(self, state):
         return [(x, y) for (x, y) in state.moves
-                if y == 1 or (x, y - 1) in state.board]
+                if x == self.h or (x + 1 , y ) in state.board]
+
+class Gomoku(TicTacToe):
+    """Also known as Five in a row."""
+
+    def __init__(self, h=15, v=16, k=5):
+        TicTacToe.__init__(self, h, v, k)
 
 
 class Backgammon(StochasticGame):
@@ -427,14 +444,14 @@ class Backgammon(StochasticGame):
 
     def __init__(self):
         """Initial state of the game"""
-        point = {'W' : 0, 'B' : 0}
+        point = {'W': 0, 'B': 0}
         board = [point.copy() for index in range(24)]
         board[0]['B'] = board[23]['W'] = 2
         board[5]['W'] = board[18]['B'] = 5
         board[7]['W'] = board[16]['B'] = 3
         board[11]['B'] = board[12]['W'] = 5
-        self.allow_bear_off = {'W' : False, 'B' : False}
-        self.direction = {'W' : -1, 'B' : 1}
+        self.allow_bear_off = {'W': False, 'B': False}
+        self.direction = {'W': -1, 'B': 1}
         self.initial = StochasticGameState(to_move='W',
                                            utility=0,
                                            board=board,
@@ -481,7 +498,7 @@ class Backgammon(StochasticGame):
         taken_points = [index for index, point in enumerate(all_points)
                         if point[player] > 0]
         if self.checkers_at_home(board, player) == 1:
-            return [(taken_points[0], )]
+            return [(taken_points[0],)]
         moves = list(itertools.permutations(taken_points, 2))
         moves = moves + [(index, index) for index, point in enumerate(all_points)
                          if point[player] >= 2]
@@ -498,7 +515,7 @@ class Backgammon(StochasticGame):
 
     def compute_utility(self, board, move, player):
         """If 'W' wins with this move, return 1; if 'B' wins return -1; else return 0."""
-        util = {'W' : 1, 'B' : -1}
+        util = {'W': 1, 'B': -1}
         for idx in range(0, 24):
             if board[idx][player] > 0:
                 return 0
@@ -569,5 +586,5 @@ class Backgammon(StochasticGame):
                                    moves=state.moves, chance=dice)
 
     def probability(self, chance):
-        """Return the probability of occurence of a dice roll."""
-        return 1/36 if chance[0] == chance[1] else 1/18
+        """Return the probability of occurrence of a dice roll."""
+        return 1 / 36 if chance[0] == chance[1] else 1 / 18

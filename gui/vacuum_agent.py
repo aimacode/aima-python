@@ -1,15 +1,14 @@
-from tkinter import *
-import random
-import sys
 import os.path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from tkinter import *
+
 from agents import *
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 loc_A, loc_B = (0, 0), (1, 0)  # The two locations for the Vacuum world
 
 
 class Gui(Environment):
-
     """This GUI environment has two locations, A and B. Each can be Dirty
     or Clean. The agent perceives its location and the location's
     status."""
@@ -33,7 +32,7 @@ class Gui(Environment):
 
     def percept(self, agent):
         """Returns the agent's location, and the location status (Dirty/Clean)."""
-        return (agent.location, self.status[agent.location])
+        return agent.location, self.status[agent.location]
 
     def execute_action(self, agent, action):
         """Change the location status (Dirty/Clean); track performance.
@@ -137,8 +136,7 @@ def move_agent(env, agent, before_step):
 
 # TODO: Add more agents to the environment.
 # TODO: Expand the environment to XYEnvironment.
-def main():
-    """The main function of the program."""
+if __name__ == "__main__":
     root = Tk()
     root.title("Vacuum Environment")
     root.geometry("420x380")
@@ -154,7 +152,3 @@ def main():
     create_agent(env, agent)
     next_button.config(command=lambda: env.update_env(agent))
     root.mainloop()
-
-
-if __name__ == "__main__":
-    main()

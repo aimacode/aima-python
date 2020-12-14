@@ -1,23 +1,19 @@
-language:
-  - python
+language: python
 
 python:
-  - "3.4"
+  - 3.5
+  - 3.6
+  - 3.7
+  - 3.8
 
 before_install:
   - git submodule update --remote
 
 install:
-  - pip install six
-  - pip install flake8
-  - pip install ipython
-  - pip install matplotlib
-  - pip install networkx
-  - pip install ipywidgets
-  - pip install Pillow
+  - pip install --upgrade -r requirements.txt
 
 script:
-  - py.test
+  - py.test --cov=./
   - python -m doctest -v *.py
 
 after_success:

@@ -1,13 +1,14 @@
 import pytest
 from search import *
 
+random.seed("aima-python")
 
 romania_problem = GraphProblem('Arad', 'Bucharest', romania_map)
 vacuum_world = GraphProblemStochastic('State_1', ['State_7', 'State_8'], vacuum_world)
 LRTA_problem = OnlineSearchProblem('State_3', 'State_5', one_dim_state_space)
 eight_puzzle = EightPuzzle((1, 2, 3, 4, 5, 7, 8, 6, 0))
 eight_puzzle2 = EightPuzzle((1, 0, 6, 8, 7, 5, 4, 2), (0, 1, 2, 3, 4, 5, 6, 7, 8))
-nqueens = NQueensProblem(8)
+n_queens = NQueensProblem(8)
 
 
 def test_find_min_edge():
@@ -17,7 +18,7 @@ def test_find_min_edge():
 def test_breadth_first_tree_search():
     assert breadth_first_tree_search(
         romania_problem).solution() == ['Sibiu', 'Fagaras', 'Bucharest']
-    assert breadth_first_graph_search(nqueens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
+    assert breadth_first_graph_search(n_queens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
 
 
 def test_breadth_first_graph_search():
@@ -43,11 +44,11 @@ def test_best_first_graph_search():
 def test_uniform_cost_search():
     assert uniform_cost_search(
         romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
-    assert uniform_cost_search(nqueens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
+    assert uniform_cost_search(n_queens).solution() == [0, 4, 7, 5, 2, 6, 1, 3]
 
 
 def test_depth_first_tree_search():
-    assert depth_first_tree_search(nqueens).solution() == [7, 3, 0, 2, 5, 1, 6, 4]
+    assert depth_first_tree_search(n_queens).solution() == [7, 3, 0, 2, 5, 1, 6, 4]
 
 
 def test_depth_first_graph_search():
@@ -70,13 +71,16 @@ def test_depth_limited_search():
 
 def test_bidirectional_search():
     assert bidirectional_search(romania_problem) == 418
+    assert bidirectional_search(eight_puzzle) == 12
+    assert bidirectional_search(EightPuzzle((1, 2, 3, 4, 5, 6, 0, 7, 8))) == 2
 
 
 def test_astar_search():
     assert astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
-    assert astar_search(eight_puzzle).solution() == ['LEFT', 'LEFT', 'UP', 'RIGHT', 'RIGHT', 'DOWN', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT']
+    assert astar_search(eight_puzzle).solution() == ['LEFT', 'LEFT', 'UP', 'RIGHT', 'RIGHT', 'DOWN', 'LEFT', 'UP',
+                                                     'LEFT', 'DOWN', 'RIGHT', 'RIGHT']
     assert astar_search(EightPuzzle((1, 2, 3, 4, 5, 6, 0, 7, 8))).solution() == ['RIGHT', 'RIGHT']
-    assert astar_search(nqueens).solution() == [7, 1, 3, 0, 6, 4, 2, 5]
+    assert astar_search(n_queens).solution() == [7, 1, 3, 0, 6, 4, 2, 5]
 
 
 def test_find_blank_square():
@@ -111,42 +115,42 @@ def test_result():
 
 
 def test_goal_test():
-    assert eight_puzzle.goal_test((0, 1, 2, 3, 4, 5, 6, 7, 8)) == False
-    assert eight_puzzle.goal_test((6, 3, 5, 1, 8, 4, 2, 0, 7)) == False
-    assert eight_puzzle.goal_test((3, 4, 1, 7, 6, 0, 2, 8, 5)) == False
-    assert eight_puzzle.goal_test((1, 2, 3, 4, 5, 6, 7, 8, 0)) == True
-    assert eight_puzzle2.goal_test((4, 8, 1, 6, 0, 2, 3, 5, 7)) == False
-    assert eight_puzzle2.goal_test((3, 4, 1, 7, 6, 0, 2, 8, 5)) == False
-    assert eight_puzzle2.goal_test((1, 2, 3, 4, 5, 6, 7, 8, 0)) == False
-    assert eight_puzzle2.goal_test((0, 1, 2, 3, 4, 5, 6, 7, 8)) == True
-    assert nqueens.goal_test((7, 3, 0, 2, 5, 1, 6, 4)) == True
-    assert nqueens.goal_test((0, 4, 7, 5, 2, 6, 1, 3)) == True
-    assert nqueens.goal_test((7, 1, 3, 0, 6, 4, 2, 5)) == True
-    assert nqueens.goal_test((0, 1, 2, 3, 4, 5, 6, 7)) == False
+    assert not eight_puzzle.goal_test((0, 1, 2, 3, 4, 5, 6, 7, 8))
+    assert not eight_puzzle.goal_test((6, 3, 5, 1, 8, 4, 2, 0, 7))
+    assert not eight_puzzle.goal_test((3, 4, 1, 7, 6, 0, 2, 8, 5))
+    assert eight_puzzle.goal_test((1, 2, 3, 4, 5, 6, 7, 8, 0))
+    assert not eight_puzzle2.goal_test((4, 8, 1, 6, 0, 2, 3, 5, 7))
+    assert not eight_puzzle2.goal_test((3, 4, 1, 7, 6, 0, 2, 8, 5))
+    assert not eight_puzzle2.goal_test((1, 2, 3, 4, 5, 6, 7, 8, 0))
+    assert eight_puzzle2.goal_test((0, 1, 2, 3, 4, 5, 6, 7, 8))
+    assert n_queens.goal_test((7, 3, 0, 2, 5, 1, 6, 4))
+    assert n_queens.goal_test((0, 4, 7, 5, 2, 6, 1, 3))
+    assert n_queens.goal_test((7, 1, 3, 0, 6, 4, 2, 5))
+    assert not n_queens.goal_test((0, 1, 2, 3, 4, 5, 6, 7))
 
 
 def test_check_solvability():
-    assert eight_puzzle.check_solvability((0, 1, 2, 3, 4, 5, 6, 7, 8)) == True
-    assert eight_puzzle.check_solvability((6, 3, 5, 1, 8, 4, 2, 0, 7)) == True
-    assert eight_puzzle.check_solvability((3, 4, 1, 7, 6, 0, 2, 8, 5)) == True
-    assert eight_puzzle.check_solvability((1, 8, 4, 7, 2, 6, 3, 0, 5)) == True
-    assert eight_puzzle.check_solvability((4, 8, 1, 6, 0, 2, 3, 5, 7)) == True
-    assert eight_puzzle.check_solvability((1, 0, 6, 8, 7, 5, 4, 2, 3)) == True
-    assert eight_puzzle.check_solvability((1, 2, 3, 4, 5, 6, 7, 8, 0)) == True
-    assert eight_puzzle.check_solvability((1, 2, 3, 4, 5, 6, 8, 7, 0)) == False
-    assert eight_puzzle.check_solvability((1, 0, 3, 2, 4, 5, 6, 7, 8)) == False
-    assert eight_puzzle.check_solvability((7, 0, 2, 8, 5, 3, 6, 4, 1)) == False
+    assert eight_puzzle.check_solvability((0, 1, 2, 3, 4, 5, 6, 7, 8))
+    assert eight_puzzle.check_solvability((6, 3, 5, 1, 8, 4, 2, 0, 7))
+    assert eight_puzzle.check_solvability((3, 4, 1, 7, 6, 0, 2, 8, 5))
+    assert eight_puzzle.check_solvability((1, 8, 4, 7, 2, 6, 3, 0, 5))
+    assert eight_puzzle.check_solvability((4, 8, 1, 6, 0, 2, 3, 5, 7))
+    assert eight_puzzle.check_solvability((1, 0, 6, 8, 7, 5, 4, 2, 3))
+    assert eight_puzzle.check_solvability((1, 2, 3, 4, 5, 6, 7, 8, 0))
+    assert not eight_puzzle.check_solvability((1, 2, 3, 4, 5, 6, 8, 7, 0))
+    assert not eight_puzzle.check_solvability((1, 0, 3, 2, 4, 5, 6, 7, 8))
+    assert not eight_puzzle.check_solvability((7, 0, 2, 8, 5, 3, 6, 4, 1))
 
 
 def test_conflict():
-    assert not nqueens.conflict(7, 0, 1, 1)
-    assert not nqueens.conflict(0, 3, 6, 4)
-    assert not nqueens.conflict(2, 6, 5, 7)
-    assert not nqueens.conflict(2, 4, 1, 6)
-    assert nqueens.conflict(0, 0, 1, 1)
-    assert nqueens.conflict(4, 3, 4, 4)
-    assert nqueens.conflict(6, 5, 5, 6)
-    assert nqueens.conflict(0, 6, 1, 7)
+    assert not n_queens.conflict(7, 0, 1, 1)
+    assert not n_queens.conflict(0, 3, 6, 4)
+    assert not n_queens.conflict(2, 6, 5, 7)
+    assert not n_queens.conflict(2, 4, 1, 6)
+    assert n_queens.conflict(0, 0, 1, 1)
+    assert n_queens.conflict(4, 3, 4, 4)
+    assert n_queens.conflict(6, 5, 5, 6)
+    assert n_queens.conflict(0, 6, 1, 7)
 
 
 def test_recursive_best_first_search():
@@ -154,35 +158,33 @@ def test_recursive_best_first_search():
         romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
     assert recursive_best_first_search(
         EightPuzzle((2, 4, 3, 1, 5, 6, 7, 8, 0))).solution() == [
-            'UP', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT', 'DOWN'
-        ]
+               'UP', 'LEFT', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'RIGHT', 'DOWN']
 
     def manhattan(node):
         state = node.state
-        index_goal = {0:[2,2], 1:[0,0], 2:[0,1], 3:[0,2], 4:[1,0], 5:[1,1], 6:[1,2], 7:[2,0], 8:[2,1]}
+        index_goal = {0: [2, 2], 1: [0, 0], 2: [0, 1], 3: [0, 2], 4: [1, 0], 5: [1, 1], 6: [1, 2], 7: [2, 0], 8: [2, 1]}
         index_state = {}
-        index = [[0,0], [0,1], [0,2], [1,0], [1,1], [1,2], [2,0], [2,1], [2,2]]
-        x, y = 0, 0
-        
+        index = [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
+
         for i in range(len(state)):
             index_state[state[i]] = index[i]
-        
+
         mhd = 0
-        
+
         for i in range(8):
             for j in range(2):
                 mhd = abs(index_goal[i][j] - index_state[i][j]) + mhd
-        
+
         return mhd
 
     assert recursive_best_first_search(
         EightPuzzle((2, 4, 3, 1, 5, 6, 7, 8, 0)), h=manhattan).solution() == [
-            'LEFT', 'UP', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'DOWN', 'UP', 'DOWN', 'RIGHT'
-        ]
+               'LEFT', 'UP', 'UP', 'LEFT', 'DOWN', 'RIGHT', 'DOWN', 'UP', 'DOWN', 'RIGHT']
+
 
 def test_hill_climbing():
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 20],
-                                           [-3, 7, 11, 5]])
+                                       [-3, 7, 11, 5]])
     assert hill_climbing(prob) == (0, 3)
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 8],
                                        [-3, 7, 9, 999],
@@ -195,10 +197,9 @@ def test_hill_climbing():
 
 
 def test_simulated_annealing():
-    random.seed("aima-python")
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 20],
                                        [-3, 7, 11, 5]], directions4)
-    sols = {prob.value(simulated_annealing(prob)) for i in range(100)}
+    sols = {prob.value(simulated_annealing(prob)) for _ in range(100)}
     assert max(sols) == 20
     prob = PeakFindingProblem((0, 0), [[0, 5, 10, 8],
                                        [-3, 7, 9, 999],
@@ -223,10 +224,11 @@ def test_and_or_graph_search():
     def run_plan(state, problem, plan):
         if problem.goal_test(state):
             return True
-        if len(plan) is not 2:
+        if len(plan) != 2:
             return False
         predicate = lambda x: run_plan(x, problem, plan[1][x])
         return all(predicate(r) for r in problem.result(state, plan[0]))
+
     plan = and_or_graph_search(vacuum_world)
     assert run_plan('State_1', vacuum_world, plan)
 
@@ -256,12 +258,10 @@ def test_LRTAStarAgent():
 
 def test_genetic_algorithm():
     # Graph coloring
-    edges = {
-        'A': [0, 1],
-        'B': [0, 3],
-        'C': [1, 2],
-        'D': [2, 3]
-    }
+    edges = {'A': [0, 1],
+             'B': [0, 3],
+             'C': [1, 2],
+             'D': [2, 3]}
 
     def fitness(c):
         return sum(c[n1] != c[n2] for (n1, n2) in edges.values())
@@ -282,7 +282,7 @@ def test_genetic_algorithm():
     def fitness(q):
         non_attacking = 0
         for row1 in range(len(q)):
-            for row2 in range(row1+1, len(q)):
+            for row2 in range(row1 + 1, len(q)):
                 col1 = int(q[row1])
                 col2 = int(q[row2])
                 row_diff = row1 - row2
@@ -292,7 +292,6 @@ def test_genetic_algorithm():
                     non_attacking += 1
 
         return non_attacking
-
 
     solution = genetic_algorithm(population, fitness, gene_pool=gene_pool, f_thres=25)
     assert fitness(solution) >= 25
@@ -325,12 +324,12 @@ def test_simpleProblemSolvingAgent():
 
         def formulate_goal(self, state):
             goal = [state7, state8]
-            return goal  
+            return goal
 
         def formulate_problem(self, state, goal):
             problem = state
-            return problem   
-    
+            return problem
+
         def search(self, problem):
             if problem == state1:
                 seq = ["Suck", "Right", "Suck"]
@@ -360,7 +359,6 @@ def test_simpleProblemSolvingAgent():
     assert a(state6) == "Left"
     assert a(state1) == "Suck"
     assert a(state3) == "Right"
-    
 
 
 # TODO: for .ipynb:
