@@ -34,7 +34,7 @@ class PriorityQueue:
         if order == 'min':
             self.f = f
         elif order == 'max':
-            self.f = lambda x: -f(x)
+            self.f = lambda x: -f(x)    # now item with max f(x) will be popped first.
         else:
             raise ValueError("Order must be either 'min' or 'max'.")
 
