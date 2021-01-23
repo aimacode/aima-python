@@ -36,7 +36,7 @@ class PriorityQueue:
         elif order == 'max':
             self.f = lambda x: -f(x)
         else:
-            raise ValueError("""Order must be either 'min' or 'max'.""")
+            raise ValueError("Order must be either 'min' or 'max'.")
 
     def append(self, item):
         """Insert item at its correct position."""
@@ -67,7 +67,7 @@ class PriorityQueue:
             self.length -= 1
 
         else:
-            raise Exception('Trying to pop from empty PriorityQueue.')
+            raise Exception("Trying to pop from empty PriorityQueue.")
 
     def __len__(self):
         """Return current capacity of PriorityQueue."""
