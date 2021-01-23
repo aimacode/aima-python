@@ -21,24 +21,31 @@ import numpy as np
 
 
 class PriorityQueue:
-    """A Queue in which the minimum (or maximum) element (as determined by f and order) is returned first.
-    If order is 'min', the item with minimum f(x) is
-    returned first; if order is 'max', then it is the item with maximum f(x).
+    """A Queue in which the minimum (or maximum) element 
+    (as determined by f and order) is returned first.
+    If order is 'min', then item with minimum f(x) is returned first;
+    if the order is 'max', then it is the item with maximum f(x).
     Also supports dict-like lookup."""
 
     def __init__(self, order='min', f=lambda x: x):
         self.heap = []
-
+        self.items = {}
+        self.length = 0
         if order == 'min':
             self.f = f
-        elif order == 'max':  # now item with max f(x)
-            self.f = lambda x: -f(x)  # will be popped first
+        elif order == 'max':
+            self.f = lambda x: -f(x)
         else:
-            raise ValueError("Order must be either 'min' or 'max'.")
+            raise ValueError("""Order must be either 'min' or 'max'.""")
 
     def append(self, item):
         """Insert item at its correct position."""
         heapq.heappush(self.heap, (self.f(item), item))
+        if item not in self.items:
+            self.items[item] = [1, self.f(item)]
+        else:
+            self.items[item][0] += 1
+        self.length += 1
 
     def extend(self, items):
         """Insert each item in items at its correct position."""
@@ -46,36 +53,44 @@ class PriorityQueue:
             self.append(item)
 
     def pop(self):
-        """Pop and return the item (with min or max f(x) value)
-        depending on the order."""
-        if self.heap:
-            return heapq.heappop(self.heap)[1]
+        """Pop and return the item (with min or max f(x) value) depending
+        on the order."""
+        while self.heap:
+            item = heapq.heappop(self.heap)[1]
+            if item not in self.items:
+                continue
+            if self.items[item][0] > 1:
+                self.items[item][0] -= 1
+            elif self.items[item][0] == 1:
+                del self.items[item]
+            return item
+            self.length -= 1
+
         else:
             raise Exception('Trying to pop from empty PriorityQueue.')
 
     def __len__(self):
         """Return current capacity of PriorityQueue."""
-        return len(self.heap)
+        return self.length
 
     def __contains__(self, key):
-        """Return True if the key is in PriorityQueue."""
-        return any([item == key for _, item in self.heap])
+        """Return True if key is in PriorityQueue."""
+        return key in self.items
 
     def __getitem__(self, key):
-        """Returns the first value associated with key in PriorityQueue.
-        Raises KeyError if key is not present."""
-        for value, item in self.heap:
-            if item == key:
-                return value
-        raise KeyError(str(key) + " is not in the priority queue")
+        """Returns the value associated with key in PriorityQueue.
+        Raise KeyError if key is not present."""
+        if key in self.items:
+            return self.items[key][1]
+        raise KeyError(str(key) + ' is not in the priority queue')
 
     def __delitem__(self, key):
         """Delete the first occurrence of key."""
         try:
-            del self.heap[[item == key for _, item in self.heap].index(True)]
-        except ValueError:
+            del self.items[key]
+            self.length -= 1
+        except KeyError:
             raise KeyError(str(key) + " is not in the priority queue")
-        heapq.heapify(self.heap)
 
 
 # ______________________________________________________________________________
@@ -317,11 +332,11 @@ def rms_error(x, y):
 
 
 def ms_error(x, y):
-    return mean((x - y) ** 2 for x, y in zip(x, y))
+    return mean((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
 def mean_error(x, y):
-    return mean(abs(x - y) for x, y in zip(x, y))
+    return mean(abs(_x - _y) for _x, _y in zip(x, y))
 
 
 def mean_boolean_error(x, y):
@@ -334,7 +349,7 @@ def mean_boolean_error(x, y):
 
 def cross_entropy_loss(x, y):
     """Cross entropy loss function. x and y are 1D iterable objects."""
-    return (-1.0 / len(x)) * sum(x * np.log(_y) + (1 - _x) * np.log(1 - _y) for _x, _y in zip(x, y))
+    return (-1.0 / len(x)) * sum(_x * np.log(_y) + (1 - _x) * np.log(1 - _y) for _x, _y in zip(x, y))
 
 
 def mean_squared_error_loss(x, y):
