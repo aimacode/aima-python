@@ -180,8 +180,7 @@ def monte_carlo_tree_search(state, game, N=1000):
         """select a leaf node in the tree"""
         if node.children:
             return select(max(node.children.keys(), key=ucb))
-        else:
-            return node
+        return node
 
     def expand(node):
         """expand the leaf node by adding all its children states"""
@@ -275,7 +274,7 @@ class Game:
     be done in the constructor."""
 
     def actions(self, state):
-        """Return a list of the allowable moves at this point."""
+        """Return a list of the legal moves at this point."""
         raise NotImplementedError
 
     def result(self, state, move):
