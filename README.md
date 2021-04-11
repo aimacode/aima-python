@@ -160,9 +160,9 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.12  | FOIL                              | `FOIL_container`              | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`reinforcement_learning.py`][reinforcement_learning]     | Done | Included |
-| 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`reinforcement_learning.py.py`][reinforcement_learning]  | Done | Included |
-| 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`reinforcement_learning.py.py`][reinforcement_learning]  | Done | Included |
+| 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`reinforcement_learning.py`][reinforcement_learning]  | Done | Included |
+| 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`reinforcement_learning.py`][reinforcement_learning]  | Done | Included |
+| 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`reinforcement_learning.py`][reinforcement_learning]  | Done | Included |
 | 22.1   | HITS                              | `HITS`                        | [`nlp.py`][nlp]                 | Done | Included |
 | 23     | Chart-Parse                       | `Chart`                       | [`nlp.py`][nlp]                 | Done | Included |
 | 23.5   | CYK-Parse                         | `CYK_parse`                   | [`nlp.py`][nlp]                 | Done | Included |
