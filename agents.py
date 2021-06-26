@@ -1,5 +1,5 @@
 """
-Implement Agents and Environments. (Chapters 1-2)
+Implement Agents and Environments. (Chapters 1-2) -- with options for dialogical reasoning.
 
 The class hierarchies are as follows:
 
