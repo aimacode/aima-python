@@ -15,4 +15,4 @@ pytest-cov
 qpsolvers
 scipy
 sortedcontainers
-tensorflow
+tensorflow>=2.6.0
