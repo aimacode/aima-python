@@ -1,4 +1,5 @@
 import pytest
+from tensorflow import keras
 from keras.datasets import imdb
 
 from deep_learning4e import *
