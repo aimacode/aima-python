@@ -15,4 +15,3 @@ pytest-cov==2.10.1
 qpsolvers==1.4
 scipy==1.5.2
 sortedcontainers==2.2.2
-tensorflow==2.3.1
