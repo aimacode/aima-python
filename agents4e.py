@@ -510,11 +510,6 @@ class XYEnvironment(Environment):
             agent.direction += Direction.L
         elif action == 'Forward':
             agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
-        #         elif action == 'Grab':
-        #             things = [thing for thing in self.list_things_at(agent.location)
-        #                     if agent.can_grab(thing)]
-        #             if things:
-        #                 agent.holding.append(things[0])
         elif action == 'Release':
             if agent.holding:
                 agent.holding.pop()
