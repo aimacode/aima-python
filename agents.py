@@ -34,6 +34,7 @@ from statistics import mean
 from ipythonblocks import BlockGrid
 from IPython.display import HTML, display, clear_output
 from time import sleep
+import matplotlib.pyplot as plt
 
 import random
 import copy
@@ -98,6 +99,42 @@ class Agent(Thing):
         return False
 
 
+class Observer():
+	def __init__(self, figsize=None):
+		self.figure = plt.figure(num='Observer', figsize=figsize)
+		self.observer = self.figure.add_axes([0.1, 0.1, 0.8 ,0.8])
+		self.observer.axis('off')
+
+	def thing_moved(self, thing):
+		raise NotImplementedError
+
+	def thing_added(self, thing):
+		raise NotImplementedError
+
+	def thing_deleted(self, thing):
+		raise NotImplementedError
+
+	def keep_plot_on(self):
+		self.figure.show()
+		plt.show()
+
+	def pause_observer(self, secs):
+		plt.pause(secs)
+
+	def set_plot_label(self, text):
+		self.observer.set_title(text)
+		self.refresh_canvas()
+
+	def observer_self_cleanup(self):
+		self.figure.clear()
+		plt.close('all')
+		del(self)
+
+	def refresh_canvas(self):
+		self.figure.canvas.draw_idle()
+		self.figure.show()
+
+    
 def TraceAgent(agent):
     """Wrap the agent's program to print its input and output. This will let
     you see what the agent is doing in the environment."""
