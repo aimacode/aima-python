@@ -495,6 +495,118 @@ class EightPuzzle(Problem):
 
 # ______________________________________________________________________________
 
+class TravelingSalesman(Problem):
+    """ The problem of finding the shortest
+        way to perform Hemilton Circle between the cities"""
+
+    def __init__(self, all_cities, initial, goal=None):
+        # initial = (0), goal = some state that its first and last values are 0
+        """ Define goal state and initialize a problem """
+        super().__init__(initial, goal)
+        self.cities_matrix = self.init_distance_matrix(all_cities)
+        self.cities_identifiers = set(all_cities.keys())
+        self.cities_amount = len(self.cities_identifiers)
+        self.trees_evaluation_hash = {}
+
+    def value(self, state):
+        """ Define state value """
+        overall_distance = 0.0
+        state_max_ind = len(state) - 1
+        for ind, city in enumerate(state):
+            if ind != state_max_ind:
+                overall_distance += self.cities_matrix[state[ind]][state[ind + 1]]
+        return overall_distance
+
+    def actions(self, state):
+        """ Return the actions that can be executed in the given state.
+        The result would be a list"""
+        if len(state) == self.cities_amount:
+            return [0]
+        return self.get_unvisited_cities(state)
+
+    def result(self, state, action):
+        """ Given state and action, return a new state that is the result of the action.
+        Action is assumed to be a valid action in the state """
+
+        # blank is the index of the blank square
+        new_state = list(state)
+        new_state.append(action)
+        return tuple(new_state)
+
+    def goal_test(self, state):
+        """ Given a state, return True if state is a goal state or False, otherwise"""
+        return len(state) == (self.cities_amount + 1) and state[0] == state[self.cities_amount]
+
+    def get_unvisited_cities(self, state):
+        """ Returns unused actions(cities) """
+        return self.cities_identifiers.difference(state)
+
+    def path_cost(self, c, state1, action, state2):
+        """ Return next state cost """
+        return c + self.cities_matrix[state1[-1]][state2[-1]]
+
+    def h(self, node):
+        h = 0.0
+        unvisited_cities = self.get_unvisited_cities(node.state)
+        mst_evaluation = self.eval_unvisited_mst_edges_sum(unvisited_cities)
+        h += mst_evaluation
+        return h
+
+    def eval_unvisited_mst_edges_sum(self, unvisited_nodes):
+        if not unvisited_nodes:
+            return 0.0
+        return self.tsp_kruskal(unvisited_nodes)
+
+    def tsp_kruskal(self, unvisited_nodes):
+        """ Generate MST of the graph and return sum of edges """
+        forest_value = 0.0
+        disjoint_sets = DisjointSets()
+        non_sorted_edges_list = []
+        for vertex_x in unvisited_nodes:
+            disjoint_sets.make_set(vertex_x)
+            for vertex_y in unvisited_nodes:
+                if vertex_x < vertex_y:
+                    non_sorted_edges_list.append((vertex_x, vertex_y))
+        edges_list = sorted(non_sorted_edges_list, key=lambda edge: self.cities_matrix[edge[0]][edge[1]], reverse=False)
+        for vertex_u, vertex_v in edges_list:
+            if disjoint_sets.find(vertex_v) != disjoint_sets.find(vertex_u):
+                forest_value += self.cities_matrix[vertex_u][vertex_v]
+                disjoint_sets.union(vertex_v, vertex_u)
+        return forest_value
+
+    def init_distance_matrix(self, all_cities):
+        """ Generate matrix of distance between all cities """
+        return {row_ind: {col_ind: distance(row_coords, col_coords) for col_ind, col_coords in all_cities.items()}
+                for row_ind, row_coords in all_cities.items()}
+
+
+class DisjointSets:
+    parent = {}
+    rank = {}
+
+    def make_set(self, vertex):
+        self.parent[vertex] = vertex
+        self.rank[vertex] = 0
+
+    def find(self, vertex):
+        if self.parent[vertex] == vertex:
+            return vertex
+        return self.find(self.parent[vertex])
+
+    def union(self, vertex_u, vertex_v):
+        vertex_u_root = self.find(vertex_u)
+        vertex_v_root = self.find(vertex_v)
+
+        if self.rank[vertex_u_root] > self.rank[vertex_v_root]:
+            self.parent[vertex_v_root] = vertex_u_root
+        elif self.rank[vertex_u_root] < self.rank[vertex_v_root]:
+            self.parent[vertex_u_root] = vertex_v_root
+        else:
+            self.parent[vertex_u_root] = vertex_v_root
+            self.rank[vertex_v_root] += 1
+
+
+# ______________________________________________________________________________
 
 class PlanRoute(Problem):
     """ The problem of moving the Hybrid Wumpus Agent from one place to other """
