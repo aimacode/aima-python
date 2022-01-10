@@ -292,11 +292,13 @@ def test_priority_queue_with_objects():
 
     queue = PriorityQueue(f=lambda x: x.b)
     queue.append(Test(1, 100))
+    queue.append(Test(5, 100))
+    assert len(queue) == 2
     other = Test(1, 10)
     assert queue[other] == 100
     assert other in queue
     del queue[other]
-    assert len(queue) == 0
+    assert len(queue) == 1
 
 
 if __name__ == '__main__':
