@@ -27,16 +27,16 @@ def minmax_decision(state, game):
         if game.terminal_test(state):
             return game.utility(state, player)
         v = -np.inf
-        for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a)))
+        for action in game.actions(state):
+            v = max(v, min_value(game.result(state, action)))
         return v
 
     def min_value(state):
         if game.terminal_test(state):
             return game.utility(state, player)
         v = np.inf
-        for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a)))
+        for action in game.actions(state):
+            v = min(v, max_value(game.result(state, action)))
         return v
 
     # Body of minmax_decision:
@@ -56,14 +56,14 @@ def expect_minmax(state, game):
 
     def max_value(state):
         v = -np.inf
-        for a in game.actions(state):
-            v = max(v, chance_node(state, a))
+        for action in game.actions(state):
+            v = max(v, chance_node(state, action))
         return v
 
     def min_value(state):
         v = np.inf
-        for a in game.actions(state):
-            v = min(v, chance_node(state, a))
+        for action in game.actions(state):
+            v = min(v, chance_node(state, action))
         return v
 
     def chance_node(state, action):
@@ -83,7 +83,7 @@ def expect_minmax(state, game):
         return sum_chances / num_chances
 
     # Body of expect_min_max:
-    return max(game.actions(state), key=lambda a: chance_node(state, a), default=None)
+    return max(game.actions(state), key=lambda action: chance_node(state, action), default=None)
 
 
 def alpha_beta_search(state, game):
@@ -97,8 +97,8 @@ def alpha_beta_search(state, game):
         if game.terminal_test(state):
             return game.utility(state, player)
         v = -np.inf
-        for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a), alpha, beta))
+        for action in game.actions(state):
+            v = max(v, min_value(game.result(state, action), alpha, beta))
             if v >= beta:
                 return v
             alpha = max(alpha, v)
@@ -108,8 +108,8 @@ def alpha_beta_search(state, game):
         if game.terminal_test(state):
             return game.utility(state, player)
         v = np.inf
-        for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a), alpha, beta))
+        for action in game.actions(state):
+            v = min(v, max_value(game.result(state, action), alpha, beta))
             if v <= alpha:
                 return v
             beta = min(beta, v)
@@ -119,11 +119,11 @@ def alpha_beta_search(state, game):
     best_score = -np.inf
     beta = np.inf
     best_action = None
-    for a in game.actions(state):
-        v = min_value(game.result(state, a), best_score, beta)
+    for action in game.actions(state):
+        v = min_value(game.result(state, action), best_score, beta)
         if v > best_score:
             best_score = v
-            best_action = a
+            best_action = action
     return best_action
 
 
@@ -138,8 +138,8 @@ def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         if cutoff_test(state, depth):
             return eval_fn(state)
         v = -np.inf
-        for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a), alpha, beta, depth + 1))
+        for action in game.actions(state):
+            v = max(v, min_value(game.result(state, action), alpha, beta, depth + 1))
             if v >= beta:
                 return v
             alpha = max(alpha, v)
@@ -149,8 +149,8 @@ def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
         if cutoff_test(state, depth):
             return eval_fn(state)
         v = np.inf
-        for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a), alpha, beta, depth + 1))
+        for action in game.actions(state):
+            v = min(v, max_value(game.result(state, action), alpha, beta, depth + 1))
             if v <= alpha:
                 return v
             beta = min(beta, v)
@@ -163,11 +163,11 @@ def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
     best_score = -np.inf
     beta = np.inf
     best_action = None
-    for a in game.actions(state):
-        v = min_value(game.result(state, a), best_score, beta, 1)
+    for action in game.actions(state):
+        v = min_value(game.result(state, action), best_score, beta, 1)
         if v > best_score:
             best_score = v
-            best_action = a
+            best_action = action
     return best_action
 
 
@@ -176,19 +176,18 @@ def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
 
 def monte_carlo_tree_search(state, game, N=1000):
-    def select(n):
+    def select(node):
         """select a leaf node in the tree"""
-        if n.children:
-            return select(max(n.children.keys(), key=ucb))
-        else:
-            return n
+        if node.children:
+            return select(max(node.children.keys(), key=ucb))
+        return node
 
-    def expand(n):
+    def expand(node):
         """expand the leaf node by adding all its children states"""
-        if not n.children and not game.terminal_test(n.state):
-            n.children = {MCT_Node(state=game.result(n.state, action), parent=n): action
-                          for action in game.actions(n.state)}
-        return select(n)
+        if not node.children and not game.terminal_test(node.state):
+            node.children = {MCT_Node(state=game.result(node.state, action), parent=node): action
+                             for action in game.actions(node.state)}
+        return select(node)
 
     def simulate(game, state):
         """simulate the utility of current state by random picking a step"""
@@ -199,15 +198,15 @@ def monte_carlo_tree_search(state, game, N=1000):
         v = game.utility(state, player)
         return -v
 
-    def backprop(n, utility):
+    def backprop(node, utility):
         """passing the utility back to all parent nodes"""
         if utility > 0:
-            n.U += utility
+            node.U += utility
         # if utility == 0:
-        #     n.U += 0.5
-        n.N += 1
-        if n.parent:
-            backprop(n.parent, -utility)
+        #     node.U += 0.5
+        node.N += 1
+        if node.parent:
+            backprop(node.parent, -utility)
 
     root = MCT_Node(state=state)
 
@@ -275,7 +274,7 @@ class Game:
     be done in the constructor."""
 
     def actions(self, state):
-        """Return a list of the allowable moves at this point."""
+        """Return a list of the legal moves at this point."""
         raise NotImplementedError
 
     def result(self, state, move):
@@ -348,18 +347,18 @@ class StochasticGame(Game):
 class Fig52Game(Game):
     """The game represented in [Figure 5.2]. Serves as a simple test case."""
 
-    succs = dict(A=dict(a1='B', a2='C', a3='D'),
-                 B=dict(b1='B1', b2='B2', b3='B3'),
-                 C=dict(c1='C1', c2='C2', c3='C3'),
-                 D=dict(d1='D1', d2='D2', d3='D3'))
+    successors = dict(A=dict(a1='B', a2='C', a3='D'),
+                      B=dict(b1='B1', b2='B2', b3='B3'),
+                      C=dict(c1='C1', c2='C2', c3='C3'),
+                      D=dict(d1='D1', d2='D2', d3='D3'))
     utils = dict(B1=3, B2=12, B3=8, C1=2, C2=4, C3=6, D1=14, D2=5, D3=2)
     initial = 'A'
 
     def actions(self, state):
-        return list(self.succs.get(state, {}).keys())
+        return list(self.successors.get(state, {}).keys())
 
     def result(self, state, move):
-        return self.succs[state][move]
+        return self.successors[state][move]
 
     def utility(self, state, player):
         if player == 'MAX':
@@ -377,14 +376,14 @@ class Fig52Game(Game):
 class Fig52Extended(Game):
     """Similar to Fig52Game but bigger. Useful for visualisation"""
 
-    succs = {i: dict(l=i * 3 + 1, m=i * 3 + 2, r=i * 3 + 3) for i in range(13)}
+    successors = {i: dict(l=i * 3 + 1, m=i * 3 + 2, r=i * 3 + 3) for i in range(13)}
     utils = dict()
 
     def actions(self, state):
-        return sorted(list(self.succs.get(state, {}).keys()))
+        return sorted(list(self.successors.get(state, {}).keys()))
 
     def result(self, state, move):
-        return self.succs[state][move]
+        return self.successors[state][move]
 
     def utility(self, state, player):
         if player == 'MAX':
