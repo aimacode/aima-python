@@ -1766,7 +1766,7 @@ def occur_check(var, x, s):
         return (occur_check(var, x.op, s) or
                 occur_check(var, x.args, s))
     elif isinstance(x, (list, tuple)):
-        return first(e for e in x if occur_check(var, e, s))
+        return any(e for e in x if occur_check(var, e, s))
     else:
         return False
 
