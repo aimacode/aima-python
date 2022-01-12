@@ -183,11 +183,14 @@ def query_player(game, state):
     print("")
     move = None
     if game.actions(state):
-        move_string = input('Your move? ')
-        try:
-            move = eval(move_string)
-        except NameError:
-            move = move_string
+        while True:
+            move_string = input('Your move? ')
+            try:
+                move = eval(move_string)
+            except NameError:
+                move = move_string
+            if move in game.actions(state):
+               break 
     else:
         print('no legal moves: passing turn to next player')
     return move
