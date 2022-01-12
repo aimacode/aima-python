@@ -8,6 +8,7 @@ import scipy.signal
 from keras.datasets import mnist
 from keras.layers import Dense, Activation, Flatten, InputLayer, Conv2D, MaxPooling2D
 from keras.models import Sequential
+from tensorflow.keras.utils import to_categorical
 
 from utils4e import gaussian_kernel_2D
 
@@ -309,8 +310,8 @@ def load_MINST(train_size, val_size, test_size):
     x_train /= 255
     test_x = x_test.astype('float32')
     test_x /= 255
-    y_train = keras.utils.to_categorical(y_train, 10)
-    y_test = keras.utils.to_categorical(y_test, 10)
+    y_train = to_categorical(y_train, 10)
+    y_test = to_categorical(y_test, 10)
     return ((x_train[:train_size], y_train[:train_size]),
             (x_train[train_size:train_size + val_size], y_train[train_size:train_size + val_size]),
             (x_test[:test_size], y_test[:test_size]))
