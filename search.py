@@ -420,8 +420,44 @@ def astar_search(problem, h=None, display=False):
     return best_first_graph_search(problem, lambda n: n.path_cost + h(n), display)
 
 
+def cost_limited_astar_search(problem, limit, f):
+    """Cost limited A* search is a depth first search bounded by a predetermined
+    limit on f(n) = g(n)+h(n) of nodes. Only children nodes of parent node with
+    f(n) <= limit are searched. """
+    def recursive_cost_limited_astar_search(node, problem, limit, f):
+        if problem.goal_test(node.state):  #return the node, if it is the goal.
+            return node
+        elif f(node) > limit:  #potential goal nodes beyond the cost limit are not searched.
+            return 'cutoff'
+        else:
+            cutoff_occurred = False  
+            # recusively search in the child nodes
+            for child in node.expand(problem):
+                result = recursive_cost_limited_astar_search(child, problem, limit - 1, f)
+                if result == 'cutoff':
+                    cutoff_occured = True  #indicate there are nodes beyond limit not searched.
+                elif result is not None:  #goal node is found and returned.
+                    return result
+
+            #if code reaches this point, no result has been found within the cost limit.
+            #'cutoff' indicates there may be goal nodes lying beyond the cost limit.
+            #None indicates there's no solution.
+            return 'cutoff' if cutoff_occurred else None
+
+    # Body of cost_depth_limited_search:
+    return recursive_cost_limited_astar_search(Node(problem.initial), problem, limit, f)
+
+
+def iterative_deepening_astar_search(problem, h=None):
+    """[Section 3.5.3]"""
+    for cost_limit in range(sys.maxsize):
+        result = cost_limited_astar_search(problem, cost_limit, h)
+        if result != 'cutoff':
+            return result
+
+
 # ______________________________________________________________________________
-# A* heuristics 
+# A* heuristics
 
 class EightPuzzle(Problem):
     """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board, where one of the
@@ -487,7 +523,7 @@ class EightPuzzle(Problem):
         return inversion % 2 == 0
 
     def h(self, node):
-        """ Return the heuristic value for a given state. Default heuristic function used is 
+        """ Return the heuristic value for a given state. Default heuristic function used is
         h(n) = number of misplaced tiles """
 
         return sum(s != g for (s, g) in zip(node.state, self.goal))
@@ -673,7 +709,7 @@ def simulated_annealing(problem, schedule=exp_schedule()):
 
 
 def simulated_annealing_full(problem, schedule=exp_schedule()):
-    """ This version returns all the states encountered in reaching 
+    """ This version returns all the states encountered in reaching
     the goal state."""
     states = []
     current = Node(problem.initial)
