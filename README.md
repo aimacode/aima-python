@@ -1,207 +1,206 @@
 
 
-# `aima-python` [![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
+# `AIMA Code Installation Instructions` [![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
 
+Implementations of all algorithms presented in the lecture in several programming languages are available online at [https://github.com/aimaTUM/aima-python](https://github.com/aimaTUM/aima-python). For most of the examples from the lecture we provide _Jupyter Notebooks_ that implement the example in Moodle. This should encourage you to debug the code for the examples step by step in order to develop a better understanding of the involved algorithms. The following two steps are required to set up a programming environment that allows you to execute the _Jupyter Notebooks_:
 
-Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
+1. Installation of _Anaconda_
+2. Download of the AIMA python code
 
-# Updates for 4th Edition
+__UPDATE:__ Updated the git link for step 2.3, to avoid bug 4.1.
 
-The 4th edition of the book as out now in 2020, and thus we are updating the code. All code here will reflect the 4th edition. Changes include:
+__UPDATE:__ Added new entries to the known bugs section, and changed the order of steps 2.1, 2.2, and 2.3 to avoid unnecessary errors.
 
-- Move from Python 3.5 to 3.7.
-- More emphasis on Jupyter (Ipython) notebooks.
-- More projects using external packages (tensorflow, etc.).
+__UPDATE:__ Added new entries to the known bugs section, removed bug 4.1 (not relevant any more), and emphasized the necessity of using python 3.7.
 
+__UPDATE:__ Removed bug 4.4 (not relevant any more, having removed the TensorFlow dependency). 
 
+# 1. Installation of Anaconda
 
-# Structure of the Project
+To execute the _Jupyter Notebooks_ it is required to first install _Python_, _Jupyter_, and several standard python libraries. We recommend to use the _Anaconda_ environment, which installs all the above mentioned programs at once including the package manager conda. Conda is also used to create a virtual environment. _If you already use conda or want to use the python environment `venv`, or simply your home python distribution, feel free to do so and jump directly to point 2._
 
-When complete, this project will have Python implementations for all the pseudocode algorithms in the book, as well as tests and examples of use. For each major topic, such as `search`, we provide the following  files:
+## 1.1 Installation on Linux
 
-- `search.ipynb` and `search.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data. The `.py` file is generated automatically from the `.ipynb` file; the idea is that it is easier to read the documentation in the `.ipynb` file.
-- `search_XX.ipynb`: Notebooks that show how to use the code, broken out into various topics (the `XX`).
-- `tests/test_search.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
+1. Download the Python 3 (currently 3.7) installer from: 
 
-# Python 3.7 and up
+   https://www.anaconda.com/download/#linux
+2. Go to the download folder your terminal and run: 
 
-The code for the 3rd edition was in Python 3.5; the current 4th edition code is in Python 3.7. It should also run in later versions, but does not run in Python 2. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
-You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions. All notebooks are available in a [binder environment](http://mybinder.org/repo/aimacode/aima-python). Alternatively, visit [jupyter.org](http://jupyter.org/) for instructions on setting up your own Jupyter notebook environment.
+   `bash Anaconda-latest-Linux-x86_64.sh`
+3. Follow the prompts on the installer screens. If you are unsure about any setting, accept the defaults. You can change them later. One of them is the auto `conda init`. It will initialize the conda base environment each time you start your terminal.
+4. To make the changes take effect, close and then re-open your terminal.
+5. To test your installation, in your terminal or Anaconda prompt, run the following command to list all installed packages: 
 
-Features from Python 3.6 and 3.7 that we will be using for this version of the code:
-- [f-strings](https://docs.python.org/3.6/whatsnew/3.6.html#whatsnew36-pep498): all string formatting should be done with `f'var = {var}'`, not with `'var = {}'.format(var)` nor `'var = %s' % var`.
-- [`typing` module](https://docs.python.org/3.7/library/typing.html): declare functions with type hints: `def successors(state) -> List[State]:`; that is, give type declarations, but omit them when it is obvious. I don't need to say `state: State`, but in another context it would make sense to say `s: State`.
-- Underscores in numerics: write a million as `1_000_000` not as `1000000`.
-- [`dataclasses` module](https://docs.python.org/3.7/library/dataclasses.html#module-dataclasses): replace `namedtuple` with `dataclass`.
+   `conda list`.
 
+## 1.2 Installation on Windows
 
-[//]: # (There is a sibling [aima-docker]https://github.com/rajatjain1997/aima-docker project that shows you how to use docker containers to run more complex problems in more complex software environments.)
+1. Download the Python 3 (currently 3.7) installer from: 
 
+   https://www.anaconda.com/download/#windows
+2. Double-click on the _.exe_ file.
+3. Follow the instructions on the screen. If you are unsure about any setting, accept the defaults. You can change them later.
+4. When installation is finished, form the _start_ menu, open the _Anaconda prompt_.
+5. To test your installation, in your anaconda prompt, run the following command to list all installed packages: 
 
-## Installation Guide
+   `conda list`.
 
-To download the repository:
+## 1.3 Installation on macOS
 
-`git clone https://github.com/aimacode/aima-python.git`
+1. Download the Python 3 (currently 3.7) installer from: 
 
-Then you need to install the basic dependencies to run the project on your system:
+   https://www.anaconda.com/download/#macos
+2. Double-click the _.pkg_ file.
+3. Follow the prompts on the installer screens. If you are unsure about any setting, accept the defaults. You can change them later.
+4. To make the changes take effect, close and then re-open your terminal.
+5. To test your installation, in your terminal or anaconda prompt, run the following command to list all installed packages: 
 
-```
-cd aima-python
-pip install -r requirements.txt
-```
+   `conda list`.
 
-You also need to fetch the datasets from the [`aima-data`](https://github.com/aimacode/aima-data) repository:
+## 1.4 How to use Anaconda
+Anaconda distribution comes with more than 1,500 packages as well as the conda package and virtual environment manager. It also includes a GUI, Anaconda Navigator, as a graphical alternative to the command line interface (CLI). First time users might find helpful information in the [anaconda docs](https://docs.anaconda.com/anaconda/navigator/). As you will see in the following section we will use an Anaconda environment for package managing. An introduction to how to use Anaconda within the command line can be found [here](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html). The most important commands are:
 
-```
-git submodule init
-git submodule update
-```
+1. Creating a new Anaconda environment: 
 
-Wait for the datasets to download, it may take a while. Once they are downloaded, you need to install `pytest`, so that you can run the test suite:
+   `conda create --name <env_name>`
+2. List all existing environments: 
 
-`pip install pytest`
+   `conda info --envs`
+3. Activate specific environment: 
 
-Then to run the tests:
+   `conda activate <env_name>`
+4. Install package: 
 
-`py.test`
+   `conda install <package_name>`
+5. List all packages of current environment: 
 
-And you are good to go!
+   `conda list`
 
+# 2.Download of the AIMA python code
 
-# Index of Algorithms
+Python implementations for the algorithms from the lecture are available on the repository at https://github.com/aimaTUM/aima-python. For installation, the following steps are required:
 
-Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was made for the third edition of the book and is being updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented. Another great place for contributors to start is by adding tests and writing on the notebooks. You can see which algorithms have tests and notebook sections below. If the algorithm you want to work on is covered, don't worry! You can still add more tests and provide some examples of use in the notebook!
+1. Create a new Anaconda environment. Here it is assumed that the environment is called AI_AIMA. 
 
-| **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File** | **Tests** | **Notebook**
-|:-------|:----------------------------------|:------------------------------|:--------------------------------|:-----|:---------|
-| 2      | Random-Vacuum-Agent               | `RandomVacuumAgent`           | [`agents.py`][agents]           | Done | Included |
-| 2      | Model-Based-Vacuum-Agent          | `ModelBasedVacuumAgent`       | [`agents.py`][agents]           | Done | Included |
-| 2.1    | Environment                       | `Environment`                 | [`agents.py`][agents]           | Done | Included |
-| 2.1    | Agent                             | `Agent`                       | [`agents.py`][agents]           | Done | Included |
-| 2.3    | Table-Driven-Vacuum-Agent         | `TableDrivenVacuumAgent`      | [`agents.py`][agents]           | Done | Included |
-| 2.7    | Table-Driven-Agent                | `TableDrivenAgent`            | [`agents.py`][agents]           | Done | Included |
-| 2.8    | Reflex-Vacuum-Agent               | `ReflexVacuumAgent`           | [`agents.py`][agents]           | Done | Included |
-| 2.10   | Simple-Reflex-Agent               | `SimpleReflexAgent`           | [`agents.py`][agents]           | Done | Included |
-| 2.12   | Model-Based-Reflex-Agent          | `ReflexAgentWithState`        | [`agents.py`][agents]           | Done | Included |
-| 3      | Problem                           | `Problem`                     | [`search.py`][search]           | Done | Included |
-| 3      | Node                              | `Node`                        | [`search.py`][search]           | Done | Included |
-| 3      | Queue                             | `Queue`                       | [`utils.py`][utils]             | Done | No Need  |
-| 3.1    | Simple-Problem-Solving-Agent      | `SimpleProblemSolvingAgent`   | [`search.py`][search]           | Done | Included |
-| 3.2    | Romania                           | `romania`                     | [`search.py`][search]           | Done | Included |
-| 3.7    | Tree-Search                       | `depth/breadth_first_tree_search`                 | [`search.py`][search]           | Done | Included |
-| 3.7    | Graph-Search                      | `depth/breadth_first_graph_search`                | [`search.py`][search]           | Done | Included |
-| 3.11   | Breadth-First-Search              | `breadth_first_graph_search`  | [`search.py`][search]           | Done | Included |
-| 3.14   | Uniform-Cost-Search               | `uniform_cost_search`         | [`search.py`][search]           | Done | Included |
-| 3.17   | Depth-Limited-Search              | `depth_limited_search`        | [`search.py`][search]           | Done | Included |
-| 3.18   | Iterative-Deepening-Search        | `iterative_deepening_search`  | [`search.py`][search]           | Done | Included |
-| 3.22   | Best-First-Search                 | `best_first_graph_search`     | [`search.py`][search]           | Done | Included |
-| 3.24   | A\*-Search                        | `astar_search`                | [`search.py`][search]           | Done | Included |
-| 3.26   | Recursive-Best-First-Search       | `recursive_best_first_search` | [`search.py`][search]           | Done | Included |
-| 4.2    | Hill-Climbing                     | `hill_climbing`               | [`search.py`][search]           | Done | Included |
-| 4.5    | Simulated-Annealing               | `simulated_annealing`         | [`search.py`][search]           | Done | Included |
-| 4.8    | Genetic-Algorithm                 | `genetic_algorithm`           | [`search.py`][search]           | Done | Included |
-| 4.11   | And-Or-Graph-Search               | `and_or_graph_search`         | [`search.py`][search]           | Done | Included |
-| 4.21   | Online-DFS-Agent                  | `online_dfs_agent`            | [`search.py`][search]           | Done | Included |
-| 4.24   | LRTA\*-Agent                      | `LRTAStarAgent`               | [`search.py`][search]           | Done | Included |
-| 5.3    | Minimax-Decision                  | `minimax_decision`            | [`games.py`][games]             | Done | Included |
-| 5.7    | Alpha-Beta-Search                 | `alphabeta_search`            | [`games.py`][games]             | Done | Included |
-| 6      | CSP                               | `CSP`                         | [`csp.py`][csp]                 | Done | Included |
-| 6.3    | AC-3                              | `AC3`                         | [`csp.py`][csp]                 | Done | Included |
-| 6.5    | Backtracking-Search               | `backtracking_search`         | [`csp.py`][csp]                 | Done | Included |
-| 6.8    | Min-Conflicts                     | `min_conflicts`               | [`csp.py`][csp]                 | Done | Included |
-| 6.11   | Tree-CSP-Solver                   | `tree_csp_solver`             | [`csp.py`][csp]                 | Done | Included |
-| 7      | KB                                | `KB`                          | [`logic.py`][logic]             | Done | Included |
-| 7.1    | KB-Agent                          | `KB_AgentProgram`             | [`logic.py`][logic]             | Done | Included |
-| 7.7    | Propositional Logic Sentence      | `Expr`                        | [`utils.py`][utils]             | Done | Included |
-| 7.10   | TT-Entails                        | `tt_entails`                  | [`logic.py`][logic]             | Done | Included |
-| 7.12   | PL-Resolution                     | `pl_resolution`               | [`logic.py`][logic]             | Done | Included |
-| 7.14   | Convert to CNF                    | `to_cnf`                      | [`logic.py`][logic]             | Done | Included |
-| 7.15   | PL-FC-Entails?                    | `pl_fc_entails`               | [`logic.py`][logic]             | Done | Included |
-| 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`][logic]             | Done | Included |
-| 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done | Included |
-| 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |
-| 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done | Included |
-| 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done | Included |
-| 9.1    | Unify                             | `unify`                       | [`logic.py`][logic]             | Done | Included |
-| 9.3    | FOL-FC-Ask                        | `fol_fc_ask`                  | [`logic.py`][logic]             | Done | Included |
-| 9.6    | FOL-BC-Ask                        | `fol_bc_ask`                  | [`logic.py`][logic]             | Done | Included |
-| 10.1   | Air-Cargo-problem                 | `air_cargo`                   | [`planning.py`][planning]       | Done | Included |
-| 10.2   | Spare-Tire-Problem                | `spare_tire`                  | [`planning.py`][planning]       | Done | Included |
-| 10.3   | Three-Block-Tower                 | `three_block_tower`           | [`planning.py`][planning]       | Done | Included |
-| 10.7   | Cake-Problem                      | `have_cake_and_eat_cake_too`  | [`planning.py`][planning]       | Done | Included |
-| 10.9   | Graphplan                         | `GraphPlan`                   | [`planning.py`][planning]       | Done | Included |
-| 10.13  | Partial-Order-Planner             | `PartialOrderPlanner`         | [`planning.py`][planning]       | Done | Included |
-| 11.1   | Job-Shop-Problem-With-Resources   | `job_shop_problem`            | [`planning.py`][planning]       | Done | Included |
-| 11.5   | Hierarchical-Search               | `hierarchical_search`         | [`planning.py`][planning]       | Done | Included |
-| 11.8   | Angelic-Search                    | `angelic_search`              | [`planning.py`][planning]       | Done | Included |
-| 11.10  | Doubles-tennis                    | `double_tennis_problem`       | [`planning.py`][planning]       | Done | Included |
-| 13     | Discrete Probability Distribution | `ProbDist`                    | [`probability.py`][probability] | Done | Included |
-| 13.1   | DT-Agent                          | `DTAgent`                     | [`probability.py`][probability] | Done | Included |
-| 14.9   | Enumeration-Ask                   | `enumeration_ask`             | [`probability.py`][probability] | Done | Included |
-| 14.11  | Elimination-Ask                   | `elimination_ask`             | [`probability.py`][probability] | Done | Included |
-| 14.13  | Prior-Sample                      | `prior_sample`                | [`probability.py`][probability] | Done | Included |
-| 14.14  | Rejection-Sampling                | `rejection_sampling`          | [`probability.py`][probability] | Done | Included |
-| 14.15  | Likelihood-Weighting              | `likelihood_weighting`        | [`probability.py`][probability] | Done | Included |
-| 14.16  | Gibbs-Ask                         | `gibbs_ask`                   | [`probability.py`][probability] | Done | Included |
-| 15.4   | Forward-Backward                  | `forward_backward`            | [`probability.py`][probability] | Done | Included |
-| 15.6   | Fixed-Lag-Smoothing               | `fixed_lag_smoothing`         | [`probability.py`][probability] | Done | Included |
-| 15.17  | Particle-Filtering                | `particle_filtering`          | [`probability.py`][probability] | Done | Included |
-| 16.9   | Information-Gathering-Agent       | `InformationGatheringAgent`   | [`probability.py`][probability] | Done | Included |
-| 17.4   | Value-Iteration                   | `value_iteration`             | [`mdp.py`][mdp]                 | Done | Included |
-| 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`][mdp]                 | Done | Included |
-| 17.9   | POMDP-Value-Iteration             | `pomdp_value_iteration`       | [`mdp.py`][mdp]                 | Done | Included |
-| 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`][learning]       | Done | Included |
-| 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]\*     |      |          |
-| 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]\*     |      |          |
-| 18.24  | Back-Prop-Learning                | `BackPropagationLearner`      | [`learning.py`][learning]       | Done | Included |
-| 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`][learning]       | Done | Included |
-| 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 19.12  | FOIL                              | `FOIL_container`              | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`][rl]                   | Done | Included |
-| 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`][rl]                   | Done | Included |
-| 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`rl.py`][rl]                   | Done | Included |
-| 22.1   | HITS                              | `HITS`                        | [`nlp.py`][nlp]                 | Done | Included |
-| 23     | Chart-Parse                       | `Chart`                       | [`nlp.py`][nlp]                 | Done | Included |
-| 23.5   | CYK-Parse                         | `CYK_parse`                   | [`nlp.py`][nlp]                 | Done | Included |
-| 25.9   | Monte-Carlo-Localization          | `monte_carlo_localization`    | [`probability.py`][probability] | Done | Included |
+   `conda create --name AI_AIMA python=3.7` 
+  
+   This step is not required. You can also work within the base environment, however in that case you __have to use Python 3.7, and not a newer version__. Additionally, using environments makes it easier to distribute your projects later on.
+		
+   If not yet activated, activate your environment. This step is needed each time you want to work within the environment. The current environment is indicated left to your computers name in the terminal.
 
+   `conda activate AI_AIMA`
 
-# Index of data structures
+2. If git is not yet installed on your machine or in your _Anaconda_ environment, install it with the following command
 
-Here is a table of the implemented data structures, the figure, name of the implementation in the repository, and the file where they are implemented.
+   `conda install -c anaconda git`
 
-| **Figure** | **Name (in repository)** | **File** |
-|:-------|:--------------------------------|:--------------------------|
-| 3.2    | romania_map                     | [`search.py`][search]     |
-| 4.9    | vacumm_world                    | [`search.py`][search]     |
-| 4.23   | one_dim_state_space             | [`search.py`][search]     |
-| 6.1    | australia_map                   | [`search.py`][search]     |
-| 7.13   | wumpus_world_inference          | [`logic.py`][logic]       |
-| 7.16   | horn_clauses_KB                 | [`logic.py`][logic]       |
-| 17.1   | sequential_decision_environment | [`mdp.py`][mdp]           |
-| 18.2   | waiting_decision_tree           | [`learning.py`][learning] |
+3. Download the repository
 
+   `git clone https://github.com/aimaTUM/aima-python`
 
-# Acknowledgements
+4. Install pip within your conda environment:
 
-Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially [@darius](https://github.com/darius), [@SnShine](https://github.com/SnShine), [@reachtarunhere](https://github.com/reachtarunhere), [@antmarakis](https://github.com/antmarakis), [@Chipe1](https://github.com/Chipe1), [@ad71](https://github.com/ad71) and [@MariannaSpyrakou](https://github.com/MariannaSpyrakou).
+   `conda install pip git`
 
-<!---Reference Links-->
-[agents]:../master/agents.py
-[csp]:../master/csp.py
-[games]:../master/games.py
-[grid]:../master/grid.py
-[knowledge]:../master/knowledge.py
-[learning]:../master/learning.py
-[logic]:../master/logic.py
-[mdp]:../master/mdp.py
-[nlp]:../master/nlp.py
-[planning]:../master/planning.py
-[probability]:../master/probability.py
-[rl]:../master/rl.py
-[search]:../master/search.py
-[utils]:../master/utils.py
-[text]:../master/text.py
+5. Go inside the project folder and install the project requirements:
+
+   `cd aima-python`
+
+   `pip install -r requirements.txt --use-feature=2020-resolver`
+
+   This will fetch all python packages needed. Unfortunately _conda_ has some issues installing _opencv_ so we used _pip_ in this case. Usually it is easier to just use `conda install` to install the needed packages.
+
+   The `--use-feature=2020-resolver` may be necessary if your pip installation is not the latest version.
+
+   The download may take a while. It case it fails to download some of the packages (for example due to connection problems), try to run the command again.
+
+   If you see that one package cannot be installed, even after repeated tries through pip, you can also try to install it through conda, using one of the following commands:
+
+   `conda install <NAME_OF_PACKAGE>`
+
+   `conda install -c conda-forge <NAME_OF_PACKAGE>`
+
+   where `<NAME_OF_PACKAGE>` is the name of the package whose installation fails.
+
+6. Check if the packages are installed:
+
+   `conda list`
+
+7. Fetch the corresponding dataset from the _aima-data_ repository:
+
+   `git submodule init`
+
+   `git submodule update`
+
+   The download of the set may take a while.
+
+8. Run the test suite:
+
+   `py.test`
+
+   If all tests were successful, you are now ready to start!
+
+   If not, look below in the known bugs/FAQ section.
+
+# 3. Executing the Jupyter notebooks
+
+For most of the examples from the lecture we provide _Jupyter Notebooks_ on Moodle. <span style="color:red"> To avoid issues with the relative file path we recommend to place these notebooks in the root folder of the _AIMA_ repository you downloaded in the previous step. </span> To start the _Jupyter_ web-interface simply type the following command into your terminal / anaconda prompt:
+
+`jupyter notebook`
+   
+From the web-interface you can then easily open, modify, and execute the _Jupyter Notebooks_. Depending on your environment, it is possible that you have to install some additional python libraries. This can be done with the command:
+
+(Note: Make sure you have activated your __project environment__ _`AI\_AIMA`_.)
+
+`pip install <library name>`
+
+or 
+
+`conda install <library name>`
+
+# 4. Known Bugs/FAQ
+
+## 4.1 In Step 5 of installing the AIMA package, the `pip install` command returns an error, when installing `qpsolvers` or `quadprog`.
+
+### For Windows
+You may need the latest version of the C++ compiler provided by Visual Studio. You can download it [here](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+
+During the installation, you will be asked which options you want to install alongside Visual Studio. Make sure that you select the option "Desktop development with C++". If you missed this option and installed Visual Studio without it, you can still install it afterwards through the Visual Studio app (Start $\rightarrow$ Visual Studio Installer): In the box "Visual Studio Build Tools" you can select the option "Modify", and select there the module "Desktop development with C++".
+
+After installation, reboot your system. This should fix the problem.
+
+If this does not solve your problem, you may also try to install `qpsolvers` (which contains `quadprog`) through conda:
+
+`conda install -c conda-forge quadprog`
+
+The installation using pip will continue to fail if you try to do that again, but as long as `py.test` runs without problems, you do not need to worry about it.
+
+### For iOS/macOS
+
+This is a known bug related to an outdated version of Xcode. You can update Xcode by running the following command:
+
+`xcode-select --install`
+
+You can find more information [here](https://stackoverflow.com/questions/58364832/problems-installing-qpsolvers-on-mac)
+
+## 4.2 When running `py.test` on Windows, two tests fail: `test_learning.py` and `test_learning4e.py`
+
+This may be caused by an incorrect installation of `cvxopt` through pip. Instead, you can install it through conda:
+
+`conda install -c conda-forge cvxopt`
+
+Then, `py.test` should run without errors.
+
+## 4.3 When running `py.test` on iOS/macOS, several `AttributeError` are returned by some file `plugin.py`,with the description `'Function' object has no attribute 'get_marker'`.
+
+This is a known bug originating from an incompatibility with newer versions of `pytest`. It can be solved by installing an older version:
+
+`pip install pytest==3.10.1`
+
+You can find more information [here](https://stackoverflow.com/questions/54254337/pytest-attributeerror-function-object-has-no-attribute-get-marker)
+
+## 4.4 On iOS/macOS, I have another error appearing, that was not listed here.
+
+Often, mac-related issues may arise because you have not installed the latest update. Simply update your OS and/or your applications, and continue with the AIMA installation instructions.
+
+If your problem is still not solved, don't hesitate to notify us of the problem on the Moodle forums.
