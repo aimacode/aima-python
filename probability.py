@@ -729,35 +729,53 @@ def viterbi(HMM, ev):
 
 # _________________________________________________________________________
 
-
-def fixed_lag_smoothing(e_t, HMM, d, ev, t):
+class FixedLagSmoother:
     """
     [Figure 15.6]
     Smoothing algorithm with a fixed time lag of 'd' steps.
     Online algorithm that outputs the new smoothed estimate if observation
     for new time step is given.
     """
-    ev.insert(0, None)
-
-    T_model = HMM.transition_model
-    f = HMM.prior
-    B = [[1, 0], [0, 1]]
-
-    O_t = np.diag(HMM.sensor_dist(e_t))
-    if t > d:
-        f = forward(HMM, f, e_t)
-        O_tmd = np.diag(HMM.sensor_dist(ev[t - d]))
-        B = matrix_multiplication(np.linalg.inv(O_tmd), np.linalg.inv(T_model), B, T_model, O_t)
-    else:
-        B = matrix_multiplication(B, T_model, O_t)
-    t += 1
-
-    if t > d:
-        # always returns a 1x2 matrix
-        return [normalize(i) for i in matrix_multiplication([f], B)][0]
-    else:
-        return None
-
+    def __init__(self, ev, HMM, d):
+        
+        ev.insert(0, None)
+        self.ev = ev
+        self.HMM = HMM
+        self.d = d
+        self.T_model = HMM.transition_model
+        
+        # persistent variables
+        self.t = 1
+        self.f = HMM.prior
+        self.B = [[1, 0], [0, 1]]
+    
+    
+    def _step(self, e_t):
+        O_t = np.diag(self.HMM.sensor_dist(e_t))
+        
+        if self.t > self.d:
+            self.f = forward(self.HMM, self.f, self.ev[self.t-self.d])
+            O_tmd = np.diag(self.HMM.sensor_dist(self.ev[self.t-self.d]))
+            self.B = matrix_multiplication(
+                np.linalg.inv(O_tmd), np.linalg.inv(self.T_model), self.B, self.T_model, O_t)
+        else:
+            self.B = matrix_multiplication(self.B, self.T_model, O_t)
+        self.t += 1
+        
+    def fit(self):
+        for i in range(len(self.ev)-1):
+            self._step(self.ev[i+1])
+        
+    def smoothing(self, e_t):
+        self.ev.append(e_t)
+        self._step(e_t)
+        if self.t > self.d + 1:
+            return [normalize(i) for i in matrix_multiplication([self.f], self.B)][0]
+        else:
+            return None
+        
+        
+        
 
 # _________________________________________________________________________
 
