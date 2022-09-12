@@ -210,18 +210,24 @@ def tt_entails(kb, alpha):
     True
     """
     assert not variables(alpha)
+    print(f"KB: {kb}")
+    print(f"alpha: {alpha}")
     symbols = list(prop_symbols(kb & alpha))
+    print(f"symbols: {symbols}")
     return tt_check_all(kb, alpha, symbols, {})
 
 
 def tt_check_all(kb, alpha, symbols, model):
     """Auxiliary routine to implement tt_entails."""
+    print(f"model:{model}")
     if not symbols:
         if pl_true(kb, model):
             result = pl_true(alpha, model)
+            print(f"When KB is True, alpha is {result}")
             assert result in (True, False)
             return result
         else:
+            print("When KB is False, return True")
             return True
     else:
         P, rest = symbols[0], symbols[1:]
@@ -552,14 +558,19 @@ def pl_fc_entails(kb, q):
     inferred = defaultdict(bool)
     agenda = [s for s in kb.clauses if is_prop_symbol(s.op)]
     while agenda:
+        print(f"queue:{agenda}")
         p = agenda.pop()
+        print(f"{p} poped from queue {agenda}")
         if p == q:
+            print(f"{p} is the same with query, return True")
             return True
         if not inferred[p]:
             inferred[p] = True
             for c in kb.clauses_with_premise(p):
                 count[c] -= 1
                 if count[c] == 0:
+                    print(f"premises in clauses: {c} are all true")
+                    print(f"conclusion {c.args[1]} are added to queue")
                     agenda.append(c.args[1])
     return False
 
@@ -721,16 +732,23 @@ def dpll_satisfiable(s, branching_heuristic=no_branching_heuristic):
 
 def dpll(clauses, symbols, model, branching_heuristic=no_branching_heuristic):
     """See if the clauses are true in a partial model."""
+    print(f"clauses: {clauses}")
+    print(f"symbols: {symbols}")
+    print(f"model: {model}")
     unknown_clauses = []  # clauses with an unknown truth value
     for c in clauses:
+        print(f"check pl_true of clause {c} with model {model}")
         val = pl_true(c, model)
+        print(f"Check Results: {val}")
         if val is False:
             return False
         if val is None:
             unknown_clauses.append(c)
     if not unknown_clauses:
         return model
+    print(f"Finding pure symbol with symbols {symbols} and clauses {unknown_clauses}")
     P, value = find_pure_symbol(symbols, unknown_clauses)
+    print(f"Pure symbol results P: {P} value: {value}")
     if P:
         return dpll(clauses, remove_all(P, symbols), extend(model, P, value), branching_heuristic)
     P, value = find_unit_clause(clauses, model)
@@ -1717,21 +1735,31 @@ def unify(x, y, s={}):
     >>> unify(x, 3, {})
     {x: 3}
     """
+    print(f"x: {x}, y: {y}, s: {s}")
     if s is None:
+        print(f"Substitution {s} is None, return None")
         return None
     elif x == y:
+        print(f"Expressions x: {x} == Expressions y: {y}, return Substitution: {s}")
         return s
     elif is_variable(x):
+        print(f"Expression x: {x} is variable")
         return unify_var(x, y, s)
     elif is_variable(y):
+        print(f"Expression y: {y} is variable")
         return unify_var(y, x, s)
     elif isinstance(x, Expr) and isinstance(y, Expr):
+        print(f"Expression x and y are Expr, return Unify({x.args}, {y.args}, Unify({x.op}, {y.op}, {s}))")
         return unify(x.args, y.args, unify(x.op, y.op, s))
     elif isinstance(x, str) or isinstance(y, str):
+        print(f"Expression x: {x} or y: {y} are str, return None")
         return None
     elif issequence(x) and issequence(y) and len(x) == len(y):
+        print(f"Expression x: {x} and y: {y} are list")
         if not x:
+            print(f"if not x :{x}, return s")
             return s
+        print(f"Return Unify(x[1:]:{x[1:]}, y[1:]):{y[1:]}, Unify(x[0]:{x[0]}, y[0]:{y[0]}, s:{s})")
         return unify(x[1:], y[1:], unify(x[0], y[0], s))
     else:
         return None
@@ -1743,6 +1771,7 @@ def is_variable(x):
 
 
 def unify_var(var, x, s):
+    
     if var in s:
         return unify(s[var], x, s)
     elif x in s:
@@ -1997,23 +2026,31 @@ def fol_bc_ask(kb, query):
     A simple backward-chaining algorithm for first-order logic.
     KB should be an instance of FolKB, and query an atomic sentence.
     """
+#     print(f"Starting KB: {kb} and Query: {query}")
     return fol_bc_or(kb, query, {})
 
 
 def fol_bc_or(kb, goal, theta):
+    print(f"Starting Back Or with (KB, Goal: {goal}, theta: {theta})")
     for rule in kb.fetch_rules_for_goal(goal):
+        print(f"Processing Rule: {rule}")
         lhs, rhs = parse_definite_clause(standardize_variables(rule))
+        print(f"lhs: {lhs}, rhs: {rhs}")
         for theta1 in fol_bc_and(kb, lhs, unify_mm(rhs, goal, theta)):
             yield theta1
 
 
 def fol_bc_and(kb, goals, theta):
+    print(f"Starting Back And with (KB, Goals: {goals}, theta: {theta})")
     if theta is None:
+        print(f"theta is None, pass")
         pass
     elif not goals:
+        print(f"Length(goals)=0, yield theta: {theta}")
         yield theta
     else:
         first, rest = goals[0], goals[1:]
+        print(f"first: {first} for Back Or, rest: {rest} for Back And")
         for theta1 in fol_bc_or(kb, subst(theta, first), theta):
             for theta2 in fol_bc_and(kb, rest, theta1):
                 yield theta2

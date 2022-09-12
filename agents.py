@@ -65,7 +65,7 @@ class Thing:
         # Do we need this?
         pass
 
-
+    
 class Agent(Thing):
     """An Agent is a subclass of Thing with one required instance attribute 
     (aka slot), .program, which should hold a function that takes one argument,

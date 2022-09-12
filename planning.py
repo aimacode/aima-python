@@ -1558,7 +1558,9 @@ class RealWorldPlanningProblem(PlanningProblem):
             ['At(SFO) & ~At(Home)']
             ]}
         """
+#         print(self.name)
         indices = [i for i, x in enumerate(library['HLA']) if expr(x).op == self.name]
+#         print(f"indices: {indices}")
         for i in indices:
             actions = []
             for j in range(len(library['steps'][i])):
@@ -1577,25 +1579,36 @@ class RealWorldPlanningProblem(PlanningProblem):
         The problem is a real-world problem defined by the problem class, and the hierarchy is
         a dictionary of HLA - refinements (see refinements generator for details)
         """
+        print(f"hiearchy: {hierarchy}")
         act = Node(self.initial, None, [self.actions[0]])
         frontier = deque()
         frontier.append(act)
+        print(f"frontier: {[x.__dict__ for x in frontier]}")
         while True:
             if not frontier:
                 return None
             plan = frontier.popleft()
+            print(f"Plan {plan.action} poped from frontier: {[x.__dict__ for x in frontier]}")
             # finds the first non primitive hla in plan actions
             (hla, index) = RealWorldPlanningProblem.find_hla(plan, hierarchy)
+            print(f"Find HLA, get hla: {hla} and index: {index}")
             prefix = plan.action[:index]
+            print(f"prefix: {prefix}")
             outcome = RealWorldPlanningProblem(
                 RealWorldPlanningProblem.result(self.initial, prefix), self.goals, self.actions)
+            print(f"Outcome: {outcome.initial}")
             suffix = plan.action[index + 1:]
+            print(f"suffix: {suffix}")
             if not hla:  # hla is None and plan is primitive
                 if outcome.goal_test():
+                    print(f"Outcome: {outcome.initial} Goal Test Success, return Plan:{ 1}")
                     return plan.action
             else:
                 for sequence in RealWorldPlanningProblem.refinements(hla, hierarchy):  # find refinements
+                    print(f"Refinement(hla: {hla}) got sequence: {sequence}")
                     frontier.append(Node(outcome.initial, plan, prefix + sequence + suffix))
+                    print(f"frontier Added: {frontier[-1].__dict__}")
+
 
     def result(state, actions):
         """The outcome of applying an action to the current problem"""
@@ -1626,24 +1639,39 @@ class RealWorldPlanningProblem(PlanningProblem):
             if not frontier:
                 return None
             plan = frontier.popleft()  # sequence of HLA/Angelic HLA's
+            print('\n')
+            print(f"Plan {plan.action} poped from frontier: {[x.__dict__ for x in frontier]}")
             opt_reachable_set = RealWorldPlanningProblem.reach_opt(self.initial, plan)
+            print(f"Opt Reachable Set: {opt_reachable_set}")
             pes_reachable_set = RealWorldPlanningProblem.reach_pes(self.initial, plan)
+            print(f"Pes Reachable Set: {pes_reachable_set}")
             if self.intersects_goal(opt_reachable_set):
+                print(f"Opt Reachable Set intersects with Goal.")
                 if RealWorldPlanningProblem.is_primitive(plan, hierarchy):
+                    print(f"Plan is premitive, return plan")
                     return [x for x in plan.action]
                 guaranteed = self.intersects_goal(pes_reachable_set)
+                print(f"Pes Reachable Set intersects with Goal, get Guaranteed: {guaranteed}")
                 if guaranteed and RealWorldPlanningProblem.making_progress(plan, initial_plan):
+                    print(f"guaranteed: {guaranteed} not empty and Making-Progress")
                     final_state = guaranteed[0]  # any element of guaranteed
-                    return RealWorldPlanningProblem.decompose(hierarchy, final_state, pes_reachable_set)
+                    print(f"final_state: {final_state}")
+                    return RealWorldPlanningProblem.decompose(hierarchy, plan, final_state, pes_reachable_set)
                 # there should be at least one HLA/AngelicHLA, otherwise plan would be primitive
                 hla, index = RealWorldPlanningProblem.find_hla(plan, hierarchy)
+                print(f"Find HLA: {hla} in plan: {plan}")
                 prefix = plan.action[:index]
+                print(f"Prefix: {prefix}")
                 suffix = plan.action[index + 1:]
+                print(f"suffix: {suffix}")
                 outcome = RealWorldPlanningProblem(
                     RealWorldPlanningProblem.result(self.initial, prefix), self.goals, self.actions)
+                print(f"Outcome: {outcome.initial}")
                 for sequence in RealWorldPlanningProblem.refinements(hla, hierarchy):  # find refinements
+                    print(f"Refinement(hla: {hla}) got sequence: {sequence}")
                     frontier.append(
                         AngelicNode(outcome.initial, plan, prefix + sequence + suffix, prefix + sequence + suffix))
+                    print(f"frontier Added: {frontier[-1].__dict__}")
 
     def intersects_goal(self, reachable_set):
         """
@@ -1724,20 +1752,27 @@ class RealWorldPlanningProblem(PlanningProblem):
         """
         for i in range(len(initial_plan)):
             if plan == initial_plan[i]:
+                print(f"Running Making-Progress: Plan: {plan} is same with Initial Plan: {initial_plan}")
                 return False
         return True
 
     def decompose(hierarchy, plan, s_f, reachable_set):
         solution = []
         i = max(reachable_set.keys())
+        print(f"Running Decompose with hierarchy, plan: {plan}, final_state: {s_f}, reachable_set: {reachable_set}")
         while plan.action_pes:
             action = plan.action_pes.pop()
+            print(f"Pop action: {action} from Plan: {plan.action_pes}")
             if i == 0:
                 return solution
-            s_i = RealWorldPlanningProblem.find_previous_state(s_f, reachable_set, i, action)
+            s_i = RealWorldPlanningProblem.find_previous_state(
+                s_f, reachable_set, i, action)
+            print(f"Find Previous state: {s_i}")
             problem = RealWorldPlanningProblem(s_i, s_f, plan.action)
-            angelic_call = RealWorldPlanningProblem.angelic_search(problem, hierarchy,
-                                                                   [AngelicNode(s_i, Node(None), [action], [action])])
+            print(f"Define problem with initial s_i: {s_i} and goal s_f: {s_f}")
+            angelic_call = RealWorldPlanningProblem.angelic_search(
+                problem, hierarchy, [AngelicNode(s_i, Node(None), [action], [action])])
+            print(f"Run Angelic Search, get {angelic_call}")
             if angelic_call:
                 for x in angelic_call:
                     solution.insert(0, x)

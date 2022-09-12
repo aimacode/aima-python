@@ -35,14 +35,14 @@ Features from Python 3.6 and 3.7 that we will be using for this version of the c
 - [`dataclasses` module](https://docs.python.org/3.7/library/dataclasses.html#module-dataclasses): replace `namedtuple` with `dataclass`.
 
 
-[//]: # (There is a sibling [aima-docker]https://github.com/rajatjain1997/aima-docker project that shows you how to use docker containers to run more complex problems in more complex software environments.)
+[//]: # "There is a sibling [aima-docker]https://github.com/rajatjain1997/aima-docker project that shows you how to use docker containers to run more complex problems in more complex software environments."
 
 
 ## Installation Guide
 
 To download the repository:
 
-`git clone https://github.com/aimacode/aima-python.git`
+`git clone https://github.com/shengmincui/aima-python.git`
 
 Then you need to install the basic dependencies to run the project on your system:
 

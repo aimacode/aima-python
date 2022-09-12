@@ -1063,13 +1063,14 @@ def plot_NQueens(solution):
     height = im.size[1]
     im = np.array(im).astype(np.float) / 255
     fig = plt.figure(figsize=(7, 7))
+    print(fig)
     ax = fig.add_subplot(111)
     ax.set_title('{} Queens'.format(n))
     plt.imshow(board, cmap='binary', interpolation='nearest')
     # NQueensCSP gives a solution as a dictionary
     if isinstance(solution, dict):
         for (k, v) in solution.items():
-            newax = fig.add_axes([0.064 + (k * 0.112), 0.062 + ((7 - v) * 0.112), 0.1, 0.1], zorder=1)
+            newax = fig.add_axes([(0.064 + (k * 0.112)), (0.062 + ((7 - v) * 0.112)), 0.1, 0.1], zorder=1)
             newax.imshow(im)
             newax.axis('off')
     # NQueensProblem gives a solution as a list
@@ -1080,6 +1081,7 @@ def plot_NQueens(solution):
             newax.axis('off')
     fig.tight_layout()
     plt.show()
+    
 
 
 # Function to plot a heatmap, given a grid
