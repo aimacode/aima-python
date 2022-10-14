@@ -7,14 +7,6 @@ Implementations of all algorithms presented in the lecture in several programmin
 1. Installation of _Anaconda_
 2. Download of the AIMA python code
 
-__UPDATE:__ Updated the git link for step 2.3, to avoid bug 4.1.
-
-__UPDATE:__ Added new entries to the known bugs section, and changed the order of steps 2.1, 2.2, and 2.3 to avoid unnecessary errors.
-
-__UPDATE:__ Added new entries to the known bugs section, removed bug 4.1 (not relevant any more), and emphasized the necessity of using python 3.7.
-
-__UPDATE:__ Removed bug 4.4 (not relevant any more, having removed the TensorFlow dependency). 
-
 # 1. Installation of Anaconda
 
 To execute the _Jupyter Notebooks_ it is required to first install _Python_, _Jupyter_, and several standard python libraries. We recommend to use the _Anaconda_ environment, which installs all the above mentioned programs at once including the package manager conda. Conda is also used to create a virtual environment. _If you already use conda or want to use the python environment `venv`, or simply your home python distribution, feel free to do so and jump directly to point 2._
