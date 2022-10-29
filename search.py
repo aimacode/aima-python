@@ -930,9 +930,9 @@ def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ng
 
         fittest_individual = fitness_threshold(fitness_fn, f_thres, population)
         if fittest_individual:
-            return fittest_individual
+            return fittest_individual,i
 
-    return max(population, key=fitness_fn)
+    return max(population, key=fitness_fn),-1
 
 
 def fitness_threshold(fitness_fn, f_thres, population):
