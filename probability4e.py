@@ -591,9 +591,12 @@ def all_events(variables, bn, e):
     else:
         X, rest = variables[0], variables[1:]
         for e1 in all_events(rest, bn, e):
-            for x in bn.variable_values(X):
-                yield extend(e1, X, x)
-
+            if X in e:
+                yield e1
+            else:
+                for x in bn.variable_values(X):
+                    yield extend(e1, X, x)
+                    
 
 # ______________________________________________________________________________
 # 13.3.4 Clustering algorithms
