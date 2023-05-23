@@ -1,7 +1,7 @@
 """Perception (Chapter 24)"""
 
 import cv2
-import keras
+from tensorflow import keras
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal

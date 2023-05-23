@@ -4,7 +4,8 @@ import random
 import statistics
 
 import numpy as np
-from keras import Sequential, optimizers
+from tensorflow import keras
+from tensorflow.keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
