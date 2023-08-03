@@ -4,6 +4,9 @@ import tkinter as tk
 import tkinter.messagebox
 from functools import partial
 from tkinter import ttk
+import time
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import matplotlib
 import matplotlib.animation as animation
@@ -15,12 +18,11 @@ from matplotlib.ticker import MaxNLocator
 
 from mdp import *
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 matplotlib.use('TkAgg')
 style.use('ggplot')
 
-fig = Figure(figsize=(20, 15))
+fig = Figure(figsize=(20, 25))
 sub = fig.add_subplot(111)
 plt.rcParams['axes.grid'] = False
 
@@ -47,11 +49,12 @@ def extents(f):
     return [f[0] - delta / 2, f[-1] + delta / 2]
 
 
-def display(gridmdp, _height, _width):
+def display(gridmdp, _height, _width, _a):
     """displays matrix"""
 
     dialog = tk.Toplevel()
-    dialog.wm_title('Values')
+    #dialog.wm_title('Values')
+    dialog.wm_title(_a)
 
     container = tk.Frame(dialog)
     container.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -125,7 +128,8 @@ def initialize_dialogbox(_width, _height, gridmdp, terminals, buttons):
     btn_ok = ttk.Button(container, text='Ok', command=dialog.destroy)
     btn_ok.grid(row=5, column=2, sticky='nsew', pady=5, padx=5)
 
-    dialog.geometry('400x200')
+    #dialog.geometry('400x200')
+    dialog.geometry('1600x200')
     dialog.mainloop()
 
 
@@ -393,7 +397,7 @@ class MDPapp(tk.Tk):
         _height = self.shared_data['height'].get()
         _width = self.shared_data['width'].get()
         print(build_page.gridmdp)
-        display(build_page.gridmdp, _height, _width)
+        display(build_page.gridmdp, _height, _width, "aaaaa")
 
     def view_terminals(self):
         """prints current terminals to console"""
@@ -570,6 +574,9 @@ class SolveMDP(tk.Frame):
         self.epsilon = 0.001
         self.delta = 0
 
+    def print_inter_matrix(self, values, h, w):
+        display(values, h, w, "aaaaa")
+
     def process_data(self, terminals, _height, _width, gridmdp):
         """preprocess variables"""
 
@@ -606,7 +613,7 @@ class SolveMDP(tk.Frame):
 
         self.canvas = FigureCanvasTkAgg(fig, self.frame)
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        self.anim = animation.FuncAnimation(fig, self.animate_graph, interval=50)
+        self.anim = animation.FuncAnimation(fig, self.animate_graph, interval=300)
         self.canvas.show()
 
     def animate_graph(self, i):
@@ -620,8 +627,14 @@ class SolveMDP(tk.Frame):
         y = np.linspace(0, len(self.gridmdp) - 1, y_interval)
 
         sub.clear()
-        sub.imshow(self.grid_to_show, cmap='BrBG', aspect='auto', interpolation='none', extent=extents(x) + extents(y),
+        #sub.imshow(self.grid_to_show, cmap='BrBG', aspect='auto', interpolation='none', extent=extents(x) + extents(y),
+        #           origin='lower')
+
+        for (j,i),label in np.ndenumerate(self.grid_to_show):
+            sub.text(i,j,label,ha='center',va='center')
+        sub.imshow(self.grid_to_show, aspect='auto', interpolation='none', extent=extents(x) + extents(y),
                    origin='lower')
+
         fig.tight_layout()
 
         U = self.U1.copy()
@@ -634,15 +647,19 @@ class SolveMDP(tk.Frame):
         self.grid_to_show = grid_to_show = [[0.0] * max(1, self._width) for _ in range(max(1, self._height))]
         for k, v in U.items():
             self.grid_to_show[k[1]][k[0]] = v
+        
+        #time.sleep(1)
 
         if (self.delta < self.epsilon * (1 - self.gamma) / self.gamma) or (
                 self.iterations > 60) and self.terminated is False:
             self.terminated = True
-            display(self.grid_to_show, self._height, self._width)
+            display(self.grid_to_show, self._height, self._width, "Final Value")
 
             pi = best_policy(self.sequential_decision_environment,
                              value_iteration(self.sequential_decision_environment, .01))
             display_best_policy(self.sequential_decision_environment.to_arrows(pi), self._height, self._width)
+
+
 
         ax = fig.gca()
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
