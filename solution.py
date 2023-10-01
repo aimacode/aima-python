@@ -12,6 +12,7 @@ class FleetProblem (search.Problem ) :
     lugares=0
     requests=0 # [time, initial pos, final pos, people] 
     m_Time=0 #[PxP] matrix with time 
+    pickups=[] # list of pickup locations
     def __init__(self):
         
         request_status = ['N']*self.R
@@ -24,10 +25,6 @@ class FleetProblem (search.Problem ) :
         search.Problem.__init__(self, initial=[request_status, vehicule_status, 0]) 
         #[r_status,v_status, time]
         
-    def result (self, state, action):
-        """Return the state that results from exectuting given action in given state"""
-        pass
-    
     def find_max (self, initial, final):
         """Return the max time from all moves from inital positions to final positions"""
         time = []
@@ -41,49 +38,66 @@ class FleetProblem (search.Problem ) :
         """Updates request status from not ready to ready"""
         r_status= state
         
-        if state[1].index('N'):
+        if 'N' in state[1]:
             for r in enumerate(r_status[1]):
                 if state[-1] > self.requests[r][0]:
                     r_status[1][r] = 'R'
                     
-        return r_status
+        return r_status    
     
-    def actions (self, state):
-        """Return actions that can be executed in the given state"""
+    def result (self, state, action):
+        """Return the state that results from exectuting given action in given state"""
+        
         initial_positions = []
         new_states = []
         temp_state = state
+        '''
+        action list is going to be redone ------> missing redo here
+        '''
+        for v in self.V:
+            initial_positions.append(state[v+1][1]) # get initial positions of vehicles
+            
+        for v in self.V:
+            temp_state[v+1][1] = action[v] # update positions of vehicles
+                
+            temp_state[-1] = self.find_max(initial_positions,action) # update the time 
+            
+            temp_state = self.check_Request_ready(temp_state) # update from Not Ready to Ready
+            
+            if 'R' in temp_state[1]:
+                
+                for r in enumerate(temp_state[1]):
+                    if temp_state[1][r] == 'R' and self.requests[r][1] in action:
+                        # change to read if action says pick up or not
+            
+            # if can pickup do it
+            # if multiple cars for pick up, add states for all possibilites
+            # if can dropoff do it
+        pass
+    
+    def pickups_combs (self, action):
+        """Generates possible pickup combinations"""
+        #TO DO generate possible pickup true/false combinations----------------------------------------------------
+        pass
+    
+    def actions (self, state):
+        """Return actions that can be executed in the given state"""
+        actions=[]
         
         # calculating all possibilities in car positions
         positions = range(self.P)
         combinations = list(itertools.product(positions, repeat = self.V))
         
-        for v in self.V:
-            initial_positions.append(state[v+1][1]) # get initial positions of vehicles
-            
-        # remove initial positions from combinations
-        combinations.remove(initial_positions)
-        
-        for comb in combinations:
-            temp_state = state
-            
-            for v in self.V:
-                temp_state[v+1][1] = comb[v] # update positions of vehicles
+        # actions have the final postions and the option to pickup or not
+        # dropoff is automatic
+        if 'R' in state[1]:
+            for comb in combinations:
+                actions.append(self.pickups_combs(comb))          
+        else:
+            for comb in combinations:
+                actions.append(comb+tuple((False)*self.V)) # N represents not doing anything
                 
-            temp_state[-1] = self.find_max(initial_positions,comb) # update the time 
-            
-            temp_state = self.check_Request_ready(temp_state) # update from Not Ready to Ready
-            
-            
-            
-            # if can pickup do it
-            # if multiple cars for pick up, add states for all possibilites
-            # if can dropoff do it
-         
-            
-                
-        
-        return new_states
+        return actions
     
     def goal_test(self, state):
         """Return True if the state is a goal"""
@@ -136,6 +150,9 @@ class FleetProblem (search.Problem ) :
                         
                         self.requests[x][y] = float(split_str[y])
                         
+                for r in self.requests:
+                    self.pickups.append(r[2])  
+                          
                 request_status = ['N']*self.R 
                 '''
                 4 codigos:
