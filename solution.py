@@ -4,7 +4,7 @@ import io
 import itertools
 
 
-class FleetProblem (search.Problem ) :
+class FleetProblem (search.Problem) :
     
     R=0 
     P=0
@@ -25,17 +25,9 @@ class FleetProblem (search.Problem ) :
     (-1) representa lugar vago         
     '''
     
-    def __init__(self):
-        
-        request_status = ['N']*self.R
-        vehicule_status = []
-        if self.V != 0:
-            for v in range(self.V):
-                vehicule_status.append([v,0,[-1]*self.lugares[v],self.lugares[v]]) # [numero do veiculo,posição atual do veiculo,[0,0,0,0] cada numero representa o nº do request da pessoa]
-                # (-1) representa lugar vago
-            
-        search.Problem.__init__(self, initial=[request_status, vehicule_status, 0]) 
-        #[r_status,v_status, time]
+    def __init__(self,fh):
+        self.load(fh)
+        pass
         
     def find_max (self, initial, action):
         """Return the max time from all moves from inital positions to final positions"""
@@ -181,7 +173,7 @@ class FleetProblem (search.Problem ) :
                 actions.append(self.pickups_combs(comb, state))
                 
         for action in actions:
-            if !self.action_val(action):
+            if self.action_val(action) == False:
                 actions.remove(action)
         '''
         action format:
@@ -217,7 +209,7 @@ class FleetProblem (search.Problem ) :
                 
                 newline = line[1:]
                 self.P = int(newline)
-                print(self.P)
+                
                 self.m_Time = np.zeros((self.P,self.P))
                 
                 for x in range(self.P-1):
@@ -235,7 +227,7 @@ class FleetProblem (search.Problem ) :
                 
                 newline = line[1:]
                 self.R = int(newline)
-                print(self.R)
+                
                 self.requests = np.zeros((self.R,4))
                 
                 for x in range(self.R):
@@ -275,11 +267,11 @@ class FleetProblem (search.Problem ) :
         search.Problem.__init__(self, initial=[request_status, vehicule_status, 0] ) #path_cost e parent são feitos automaticamente! ultimo elemento é o tempo
         
     
-    def solve(self):
+    def solve(self,fh):
         """Calls the uninformed search algorithm chosen. Returns solutions in the specified format"""
-        search.uniform_cost_search(FleetProblem())
+        search.uniform_cost_search(FleetProblem(fh=fh),display=True)
         # tem de percorrer a solução e fazer print da solução no formato do 1ºassignment!!!!---------------------------unfinished--------------------
-        return 'Test'
+        pass
         
 P = """
 # this is a comment
@@ -299,9 +291,9 @@ P 4
     
 def main():
     problem = FleetProblem()
+    
     with io.StringIO(P) as fh:
-        problem.load(fh)
-    print(problem.solve())
+        problem.solve(fh)#--------------------------------------problem calling problem nees to init_ and need to pass fh
 
         
 if __name__=='__main__':
