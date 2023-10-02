@@ -57,14 +57,36 @@ class FleetProblem (search.Problem ) :
                     
         return r_status    
     
+    def update_drop_Off (self, state):
+        """Updates request status from pickupp to dropoff and vehicle capacity. Vehicle final positions have to be already updated! """
+        temp_state = state
+            
+        if 'P' in temp_state[1]:
+            for i in enumerate(temp_state[1]):
+                if temp_state[1][i] == 'P':
+                    car_numb=0
+                    seat_numb=0
+                    
+                    #find car thats responsible for said request
+                    for car in enumerate(temp_state):
+                        if car == 0:
+                            continue
+                        for seat in enumerate(temp_state[car][2]):
+                            if temp_state[car][2][seat] == i: #if the car has people from request i
+                                car_numb = car
+                                seat_numb = seat
+                                break
+                    temp_state[car_numb][2][seat_numb] = -1 # changing request to none inside car
+                    temp_state[car_numb][-1] += self.requests[i][-1] # freeing up seats
+                    temp_state[1][i] = 'D' # updating request status
+                    
+        return temp_state
+    
     def result (self, state, action):
         """Return the state that results from exectuting given action in given state"""
         
         initial_positions = []
         temp_state = state
-        '''
-        action ---------------------------------------------> unfinished--------------------------------------------
-        '''
         for v in self.V:
             initial_positions.append(state[v+1][1]) # get initial positions of vehicles
             
@@ -75,9 +97,20 @@ class FleetProblem (search.Problem ) :
             
         temp_state = self.check_Request_ready(temp_state) # update from Not Ready to Ready
         
-        #actions have been validated
-        #update status from pickup
-        #check if dropoff if yes update status!
+        for pos in enumerate(action):
+            for a in enumerate(action[pos]):
+                if  a!=0:
+                    if pos[a]: # its true if the people were picked up
+                        temp_state[1][a-1] = 'P' #update status from pickup 
+                        people = self.requests[a-1][-1]
+                        temp_state[pos+1][-1] -= people # updating number of free seats in car
+                        
+                        for i in range(self.lugares[pos]):# updating list of which people are inside the car
+                            if temp_state[pos+1][2][i] == -1 :
+                                temp_state[pos+1][2][i] = a-1
+                                break
+        #update for dropoffs
+        temp_state = self.update_drop_Off(temp_state)
         
         return temp_state
     
@@ -159,8 +192,13 @@ class FleetProblem (search.Problem ) :
     
     def goal_test(self, state):
         """Return True if the state is a goal"""
-        #-------------------------------------------------------------unfinished-------------------------
-        pass
+        
+        goal = ['D']*self.R
+        
+        if state[1] == goal:
+            return True
+        else:
+            return False
     
     def load (self, fh):
         """Loads a problem from the file object fh"""
