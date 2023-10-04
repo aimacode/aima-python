@@ -12,6 +12,7 @@ class FleetProblem (search.Problem) :
     lugares=0
     requests=0 # [time, initial pos, final pos, people] 
     m_Time=0 #[PxP] matrix with time 
+    file_read = False
     '''
     state
     [r_status,v_status,time]
@@ -26,8 +27,12 @@ class FleetProblem (search.Problem) :
     '''
     
     def __init__(self,fh):
+        
+        if self.file_read:
+            return
+        
         self.load(fh)
-        pass
+        return
         
     def find_max (self, initial, action):
         """Return the max time from all moves from inital positions to final positions"""
@@ -122,23 +127,23 @@ class FleetProblem (search.Problem) :
             for i in combinations:
                 temp=[]
                 for a in enumerate(pos):
-                    temp.append(pos[a],i[a])
+                    temp.append([pos[a]],i[a])
                 actions.append(temp)
         else:
             for i in pos:
                 temp = [False]*self.R
-                actions.append(i + temp)
+                actions.append([i] + temp)
         return actions 
     
     def action_val (self,action,state):
         """Verifies if action is valid or not"""
         initial_positions = []
-        temp_state = state
+        temp_state = list(state)
         
-        for v in self.V:
+        for v in range(self.V):
             initial_positions.append(state[v+1][1]) # get initial positions of vehicles
             
-        for v in self.V:
+        for v in range(self.V):
             temp_state[v+1][1] = action[v][1] # update positions of vehicles
                 
         temp_state[-1] += self.find_max(initial_positions,action) # update the time 
@@ -173,7 +178,7 @@ class FleetProblem (search.Problem) :
                 actions.append(self.pickups_combs(comb, state))
                 
         for action in actions:
-            if self.action_val(action) == False:
+            if self.action_val(action,state) == False:
                 actions.remove(action)
         '''
         action format:
@@ -194,13 +199,13 @@ class FleetProblem (search.Problem) :
     
     def load (self, fh):
         """Loads a problem from the file object fh"""
+        self.file_read = True
         while True :
             
             if self.P !=0 and self.V!=0:
                 break
             
             line = fh.readline()
-            
             if line[0] == '#':
                 
                 continue
@@ -239,7 +244,7 @@ class FleetProblem (search.Problem) :
                         
                         self.requests[x][y] = float(split_str[y])
                         
-                request_status = ['N']*self.R 
+                request_status = ('N',)*self.R 
                 '''
                 4 codigos:
                 N - not ready: o pedido ainda nao foi feito
@@ -260,18 +265,18 @@ class FleetProblem (search.Problem) :
                     line = fh.readline()
                     self.lugares[x] = int(line)
                     
-                vehicule_status = []
+                vehicule_status = ()
                 for v in range(self.V):
-                    vehicule_status.append([v,0,[-1]*self.lugares[v],self.lugares[v]]) # [numero do veiculo,posição atual do veiculo,[0,0,0,0] cada numero representa o nº do request da pessoa]
+                    vehicule_status += ((v,0,(1,)*self.lugares[v],self.lugares[v])) # [numero do veiculo,posição atual do veiculo,[0,0,0,0] cada numero representa o nº do request da pessoa]
                     # (-1) representa lugar vago, ultimo digito representa o numero de lugares disponíveis     
-        search.Problem.__init__(self, initial=[request_status, vehicule_status, 0] ) #path_cost e parent são feitos automaticamente! ultimo elemento é o tempo
-        
+        search.Problem.__init__(self, initial=(request_status, vehicule_status, 0) ) #path_cost e parent são feitos automaticamente! ultimo elemento é o tempo
+        fh.close()
     
-    def solve(self,fh):
+    def solve(self, fh):
         """Calls the uninformed search algorithm chosen. Returns solutions in the specified format"""
-        search.uniform_cost_search(FleetProblem(fh=fh),display=True)
+        search.uniform_cost_search(FleetProblem(fh=fh), display=True)
         # tem de percorrer a solução e fazer print da solução no formato do 1ºassignment!!!!---------------------------unfinished--------------------
-        pass
+        return
         
 P = """
 # this is a comment
@@ -290,11 +295,13 @@ P 4
 """    
     
 def main():
-    problem = FleetProblem()
     
     with io.StringIO(P) as fh:
-        problem.solve(fh)#--------------------------------------problem calling problem nees to init_ and need to pass fh
+        problem = FleetProblem(fh=fh)
+    with io.StringIO(P) as fh:
+        problem.solve(fh=fh)
 
         
 if __name__=='__main__':
     main()
+# tuples are hashable but imutable!!!!!"
