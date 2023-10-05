@@ -1,6 +1,6 @@
 import search
-import numpy as np
 import io
+import time
 import itertools
 
 
@@ -33,14 +33,28 @@ class FleetProblem (search.Problem) :
         
         self.load(fh)
         return
+    
+    def list_to_tuple(self, lst):
+        """Converts list of lists to tuple of tuples"""
+        if isinstance(lst, list):
+            return tuple(self.list_to_tuple(x) if isinstance(x, list) else x for x in lst)
+        else:
+            return lst  
+          
+    def tuple_to_list(self, tpl):
+        """Converts tuple of tupless to list of lists"""
+        if isinstance(tpl, tuple):
+            return [self.tuple_to_list(item) if isinstance(item, tuple) else item for item in tpl]
+        else:
+            return tpl    
         
     def find_max (self, initial, action):
         """Return the max time from all moves from inital positions to final positions"""
         time = []
         
-        for i in enumerate(initial):
+        for i in range(len(initial)):
             time.append(self.m_Time[initial[i]][action[i][1]])
-            
+          
         return max(time)
     
     def check_Request_ready(self,state):
@@ -83,21 +97,24 @@ class FleetProblem (search.Problem) :
         """Return the state that results from exectuting given action in given state"""
         
         initial_positions = []
-        temp_state = state
-        for v in self.V:
+        
+        temp_state=self.tuple_to_list(state)
+        
+        for v in range(self.V):
             initial_positions.append(state[v+1][1]) # get initial positions of vehicles
             
-        for v in self.V:
-            temp_state[v+1][1] = action[v][1] # update positions of vehicles
+        for v in range(self.V):
+            temp_state[v+1][1] = action[v][0] # update positions of vehicles
                 
         temp_state[-1] += self.find_max(initial_positions,action) # update the time 
             
         temp_state = self.check_Request_ready(temp_state) # update from Not Ready to Ready
         
-        for pos in enumerate(action):
-            for a in enumerate(action[pos]):
+        for pos in range(len(action)):
+            
+            for a in range(len(action[pos])):
                 if  a!=0:
-                    if pos[a]: # its true if the people were picked up
+                    if action[pos][a]: # its true if the people were picked up
                         temp_state[1][a-1] = 'P' #update status from pickup 
                         people = self.requests[a-1][-1]
                         temp_state[pos+1][-1] -= people # updating number of free seats in car
@@ -106,13 +123,16 @@ class FleetProblem (search.Problem) :
                             if temp_state[pos+1][2][i] == -1 :
                                 temp_state[pos+1][2][i] = a-1
                                 break
+                            
         #update for dropoffs
         temp_state = self.update_drop_Off(temp_state)
         
+        temp_state = self.list_to_tuple(temp_state)
+        print(temp_state)
         return temp_state
     
     def pickups_combs (self, pos, state):
-        """Generates possible pickup combinations, can be impossible"""
+        """Generates possible pickup combinations, can give actions that are impossible"""
         
         bools = [True, False]
         temp=[]
@@ -138,21 +158,23 @@ class FleetProblem (search.Problem) :
     def action_val (self,action,state):
         """Verifies if action is valid or not"""
         initial_positions = []
-        temp_state = list(state)
+        
+        temp_state = self.tuple_to_list(state)
         
         for v in range(self.V):
             initial_positions.append(state[v+1][1]) # get initial positions of vehicles
             
         for v in range(self.V):
-            temp_state[v+1][1] = action[v][1] # update positions of vehicles
+            temp_state[v+1][1] = action[v][0] # update positions of vehicles
                 
         temp_state[-1] += self.find_max(initial_positions,action) # update the time 
             
         temp_state = self.check_Request_ready(temp_state) # update from Not Ready to Ready
         
-        for comand in enumerate(action): # action [final pos, R1,R2,R3,R4,... pickup yes or no]*self.V
+        for comand in range(len(action)): # action [final pos, R1,R2,R3,R4,... pickup yes or no]*self.V
             
-            for i in enumerate(action[comand]):
+            for i in range(len(action[comand])):
+                
                 if i == 0 and action[comand][i] != self.requests[i-1][1]: # check if in position for pickup
                     return False
                 elif i == True and temp_state[1][i-1] != 'R': # chek if it is available for pickup
@@ -185,6 +207,7 @@ class FleetProblem (search.Problem) :
         [final position,[T,F,list saying which requests to pickup or not]] * numero de veiculos
         para cada ação!
         '''
+        print(actions)
         return actions
     
     def goal_test(self, state):
@@ -215,7 +238,7 @@ class FleetProblem (search.Problem) :
                 newline = line[1:]
                 self.P = int(newline)
                 
-                self.m_Time = np.zeros((self.P,self.P))
+                self.m_Time = [[0 for _ in range(self.P)] for _ in range(self.P)]
                 
                 for x in range(self.P-1):
                     
@@ -233,7 +256,7 @@ class FleetProblem (search.Problem) :
                 newline = line[1:]
                 self.R = int(newline)
                 
-                self.requests = np.zeros((self.R,4))
+                self.requests = [[0 for _ in range(4)] for _ in range(self.R)]
                 
                 for x in range(self.R):
                     
@@ -267,7 +290,7 @@ class FleetProblem (search.Problem) :
                     
                 vehicule_status = ()
                 for v in range(self.V):
-                    vehicule_status += ((v,0,(1,)*self.lugares[v],self.lugares[v])) # [numero do veiculo,posição atual do veiculo,[0,0,0,0] cada numero representa o nº do request da pessoa]
+                    vehicule_status += ((v,0,(-1,)*self.lugares[v],self.lugares[v])) # [numero do veiculo,posição atual do veiculo,[0,0,0,0] cada numero representa o nº do request da pessoa]
                     # (-1) representa lugar vago, ultimo digito representa o numero de lugares disponíveis     
         search.Problem.__init__(self, initial=(request_status, vehicule_status, 0) ) #path_cost e parent são feitos automaticamente! ultimo elemento é o tempo
         fh.close()
@@ -275,6 +298,7 @@ class FleetProblem (search.Problem) :
     def solve(self, fh):
         """Calls the uninformed search algorithm chosen. Returns solutions in the specified format"""
         search.uniform_cost_search(FleetProblem(fh=fh), display=True)
+        print('terminated,time:')
         # tem de percorrer a solução e fazer print da solução no formato do 1ºassignment!!!!---------------------------unfinished--------------------
         return
         
@@ -295,13 +319,18 @@ P 4
 """    
     
 def main():
-    
+    start=time.time()
     with io.StringIO(P) as fh:
         problem = FleetProblem(fh=fh)
     with io.StringIO(P) as fh:
         problem.solve(fh=fh)
+    end=time.time()
+    print((start-end)*1000)
 
         
 if __name__=='__main__':
     main()
 # tuples are hashable but imutable!!!!!"
+
+
+        
