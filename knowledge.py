@@ -325,11 +325,11 @@ class FOILContainer(FolKB):
 
         where: 
         
-            pre_pos = number of possitive bindings of rule R (=current set of rules)
+            pre_pos = number of positive bindings of rule R (=current set of rules)
             pre_neg = number of negative bindings of rule R 
-            post_pos = number of possitive bindings of rule R' (= R U {l} )
+            post_pos = number of positive bindings of rule R' (= R U {l} )
             post_neg = number of negative bindings of rule R' 
-            T = number of possitive bindings of rule R that are still covered 
+            T = number of positive bindings of rule R that are still covered 
                 after adding literal l 
 
         """

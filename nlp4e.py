@@ -512,7 +512,7 @@ g = Grammar("arithmetic_expression",  # A Grammar of Arithmetic Expression
             },
             lexicon={})
 
-g = Grammar("Ali loves Bob",  # A example grammer of Ali loves Bob example
+g = Grammar("Ali loves Bob",  # A example grammar of Ali loves Bob example
             rules={
                 "S_loves_ali_bob": "NP_ali, VP_x_loves_x_bob", "S_loves_bob_ali": "NP_bob, VP_x_loves_x_ali",
                 "VP_x_loves_x_bob": "Verb_xy_loves_xy NP_bob", "VP_x_loves_x_ali": "Verb_xy_loves_xy NP_ali",
