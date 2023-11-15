@@ -398,7 +398,7 @@ def loadPageHTML(addressList):
     for addr in addressList:
         with urllib.request.urlopen(addr) as response:
             raw_html = response.read().decode('utf-8')
-            # Strip raw html of unnessecary content. Basically everything that isn't link or text
+            # Strip raw html of unnecessary content. Basically everything that isn't link or text
             html = stripRawHTML(raw_html)
             contentDict[addr] = html
     return contentDict
@@ -414,7 +414,7 @@ def initPages(addressList):
 
 def stripRawHTML(raw_html):
     """Remove the <head> section of the HTML which contains links to stylesheets etc.,
-    and remove all other unnessecary HTML"""
+    and remove all other unnecessary HTML"""
     # TODO: Strip more out of the raw html
     return re.sub("<head>.*?</head>", "", raw_html, flags=re.DOTALL)  # remove <head> section
 
