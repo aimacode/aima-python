@@ -552,7 +552,7 @@ class XYEnvironment(Environment):
     def is_inbounds(self, location):
         """Checks to make sure that the location is inbounds (within walls if we have walls)"""
         x, y = location
-        return not (x < self.x_start or x > self.x_end or y < self.y_start or y > self.y_end)
+        return not (x < self.x_start or x > self.x_end-1 or y < self.y_start or y > self.y_end-1)
 
     def random_location_inbounds(self, exclude=None):
         """Returns a random location that is inbounds (within walls if we have walls)"""
