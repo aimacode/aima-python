@@ -9,7 +9,7 @@ Python code for the book *[Artificial Intelligence: A Modern Approach](http://ai
 
 The 4th edition of the book as out now in 2020, and thus we are updating the code. All code here will reflect the 4th edition. Changes include:
 
-- Move from Python 3.5 to 3.7.
+- Move from Python 3.5 to 3.7.11
 - More emphasis on Jupyter (Ipython) notebooks.
 - More projects using external packages (tensorflow, etc.).
 
