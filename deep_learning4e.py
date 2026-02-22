@@ -575,7 +575,7 @@ def AutoencoderLearner(inputs, encoding_size, epochs=200, verbose=False):
     model.add(Dense(input_size, activation='relu', kernel_initializer='random_uniform', bias_initializer='ones'))
 
     # update model with sgd
-    sgd = optimizers.SGD(lr=0.01)
+    sgd = optimizers.SGD(learning_rate=0.01)
     model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy'])
 
     # train the model
