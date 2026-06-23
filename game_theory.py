@@ -1,4 +1,8 @@
-"""Multiagent decision making: non-cooperative game theory (Chapter 18)."""
+"""Multiagent decision making: game theory and social choice (Chapter 18)."""
+
+from collections import Counter, defaultdict
+from itertools import combinations, permutations
+from math import factorial
 
 import numpy as np
 from scipy.optimize import linprog
@@ -80,3 +84,104 @@ def solve_zero_sum_game(payoff):
     col_strategy = res.x[:n]
 
     return value, row_strategy, col_strategy
+
+
+# ______________________________________________________________________________
+# 18.3 Cooperative Game Theory
+
+
+def shapley_value(players, characteristic_function):
+    """
+    [Section 18.3]
+    The Shapley value of a cooperative game (players, v): a fair division of the
+    grand coalition's value v(N) that pays each player the average, over all n!
+    orderings of the players, of the marginal contribution
+    mc_i(C) = v(C and {i}) - v(C) they make to the players preceding them. The
+    'characteristic_function' is a callable mapping a frozenset of players to its
+    value. Returns a dict mapping each player to their Shapley value.
+    """
+    players = list(players)
+    phi = {i: 0.0 for i in players}
+    for order in permutations(players):
+        preceding = set()
+        for i in order:
+            phi[i] += (characteristic_function(frozenset(preceding | {i})) -
+                       characteristic_function(frozenset(preceding)))
+            preceding.add(i)
+    return {i: phi[i] / factorial(len(players)) for i in players}
+
+
+def is_in_core(players, characteristic_function, payoff):
+    """
+    [Section 18.3]
+    True if 'payoff' (a dict mapping each player to their share) lies in the core
+    of the cooperative game (players, v): it must distribute exactly the grand
+    coalition's value (sum of shares = v(N)) and be immune to defection, i.e. for
+    every coalition C the players in C receive at least v(C) (otherwise C would be
+    better off on its own). An empty core means the grand coalition cannot form.
+    """
+    players = list(players)
+    # efficiency: the grand coalition's value is fully distributed
+    if not np.isclose(sum(payoff[i] for i in players), characteristic_function(frozenset(players))):
+        return False
+    # no coalition can object: x(C) >= v(C) for every coalition C
+    return all(sum(payoff[i] for i in coalition) >= characteristic_function(frozenset(coalition)) - 1e-9
+               for size in range(1, len(players)) for coalition in combinations(players, size))
+
+
+# ______________________________________________________________________________
+# 18.4 Making Collective Decisions
+
+
+def plurality_winner(preferences):
+    """
+    [Section 18.4]
+    Winner under plurality voting: the candidate ranked first by the most voters.
+    'preferences' is a list of ballots, each a list of candidates ordered from
+    most to least preferred.
+    """
+    first_choices = Counter(ballot[0] for ballot in preferences)
+    return max(first_choices, key=first_choices.get)
+
+
+def borda_winner(preferences):
+    """
+    [Section 18.4]
+    Winner under the Borda count: with k candidates each voter awards k points to
+    their top choice, k-1 to the next, down to 1 for the last; the candidate with
+    the highest total score wins.
+    """
+    scores = defaultdict(int)
+    for ballot in preferences:
+        for rank, candidate in enumerate(ballot):
+            scores[candidate] += len(ballot) - rank
+    return max(scores, key=scores.get)
+
+
+def condorcet_winner(preferences):
+    """
+    [Section 18.4]
+    The Condorcet winner: the candidate that beats every other candidate in a
+    pairwise majority comparison. Returns None when no such candidate exists
+    (Condorcet's paradox), in which case majority preference is cyclic.
+    """
+    candidates = list(preferences[0])
+
+    def beats(a, b):  # a majority of voters rank a above b
+        return sum(ballot.index(a) < ballot.index(b) for ballot in preferences) > len(preferences) / 2
+
+    return next((a for a in candidates if all(a == b or beats(a, b) for b in candidates)), None)
+
+
+def vickrey_auction(bids):
+    """
+    [Section 18.4]
+    Sealed-bid second-price (Vickrey) auction: the highest bidder wins but pays
+    only the second-highest bid. 'bids' maps each bidder to their bid. Returns the
+    (winner, price) pair. Because the winner does not pay their own bid, bidding
+    one's true value is a dominant strategy (the mechanism is truth-revealing).
+    """
+    ranked = sorted(bids.values(), reverse=True)
+    winner = max(bids, key=bids.get)
+    price = ranked[1] if len(ranked) > 1 else ranked[0]
+    return winner, price

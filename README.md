@@ -155,6 +155,10 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 17.4   | Dynamic-Decision-Network          | `pomdp_lookahead`             | [`mdp4e.py`](mdp4e.py)          | Done |          |
 | 18.2   | Pure-Nash-Equilibria              | `pure_nash_equilibria`        | [`game_theory.py`](game_theory.py) | Done |       |
 | 18.2   | Zero-Sum-Game (LP)                | `solve_zero_sum_game`         | [`game_theory.py`](game_theory.py) | Done |       |
+| 18.3   | Shapley-Value                     | `shapley_value`               | [`game_theory.py`](game_theory.py) | Done |       |
+| 18.3   | Core (cooperative game)           | `is_in_core`                  | [`game_theory.py`](game_theory.py) | Done |       |
+| 18.4   | Voting (plurality/Borda/Condorcet)| `plurality_winner` etc.       | [`game_theory.py`](game_theory.py) | Done |       |
+| 18.4   | Vickrey-Auction                   | `vickrey_auction`             | [`game_theory.py`](game_theory.py) | Done |       |
 | 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`][learning]       | Done | Included |
 | 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]       | Done | Included |
 | 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]       | Done | Included |
