@@ -639,7 +639,7 @@ def test_zebra():
     ans = algorithm(z, max_steps=10000)
     assert ans is None or ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1,
                                   'Snails': 3, 'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3,
-                                  'Water': 1, 'Englishman': 3, 'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2,
+                                  'Water': 1, 'Englishman': 3, 'Spaniard': 4, 'Norwegian': 1, 'Ukrainian': 2,
                                   'Japanese': 5, 'Kools': 1, 'Chesterfields': 2, 'Winston': 3, 'LuckyStrike': 4,
                                   'Parliaments': 5}
 
@@ -648,13 +648,13 @@ def test_zebra():
                  'Fox': [1, 2], 'Snails': [3], 'Horse': [2], 'Zebra': [5], 'OJ': [1, 2, 3, 4, 5],
                  'Tea': [1, 2, 3, 4, 5], 'Coffee': [1, 2, 3, 4, 5], 'Milk': [3], 'Water': [1, 2, 3, 4, 5],
                  'Englishman': [1, 2, 3, 4, 5], 'Spaniard': [1, 2, 3, 4, 5], 'Norwegian': [1],
-                 'Ukranian': [1, 2, 3, 4, 5], 'Japanese': [1, 2, 3, 4, 5], 'Kools': [1, 2, 3, 4, 5],
+                 'Ukrainian': [1, 2, 3, 4, 5], 'Japanese': [1, 2, 3, 4, 5], 'Kools': [1, 2, 3, 4, 5],
                  'Chesterfields': [1, 2, 3, 4, 5], 'Winston': [1, 2, 3, 4, 5], 'LuckyStrike': [1, 2, 3, 4, 5],
                  'Parliaments': [1, 2, 3, 4, 5]}
     ans = algorithm(z, max_steps=10000)
     assert ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1, 'Snails': 3,
                    'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3, 'Water': 1, 'Englishman': 3,
-                   'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2, 'Japanese': 5, 'Kools': 1, 'Chesterfields': 2,
+                   'Spaniard': 4, 'Norwegian': 1, 'Ukrainian': 2, 'Japanese': 5, 'Kools': 1, 'Chesterfields': 2,
                    'Winston': 3, 'LuckyStrike': 4, 'Parliaments': 5}
 
 
