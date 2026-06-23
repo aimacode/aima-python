@@ -147,30 +147,30 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 15.4   | Forward-Backward                  | `forward_backward`            | [`probability.py`][probability] | Done | Included |
 | 15.6   | Fixed-Lag-Smoothing               | `fixed_lag_smoothing`         | [`probability.py`][probability] | Done | Included |
 | 15.17  | Particle-Filtering                | `particle_filtering`          | [`probability.py`][probability] | Done | Included |
-| 15.4   | Kalman-Filter                     | `KalmanFilter`                | [`probability.py`][probability] | Done |          |
-| 15.5   | Dynamic-Bayesian-Network          | `DynamicBayesNet`             | [`probability.py`][probability] | Done |          |
+| 15.4   | Kalman-Filter                     | `KalmanFilter`                | [`probability.py`][probability] | Done | Included |
+| 15.5   | Dynamic-Bayesian-Network          | `DynamicBayesNet`             | [`probability.py`][probability] | Done | Included |
 | 16.9   | Information-Gathering-Agent       | `InformationGatheringAgent`   | [`probability.py`][probability] | Done | Included |
 | 17.4   | Value-Iteration                   | `value_iteration`             | [`mdp.py`][mdp]                 | Done | Included |
 | 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`][mdp]                 | Done | Included |
 | 17.9   | POMDP-Value-Iteration             | `pomdp_value_iteration`       | [`mdp.py`][mdp]                 | Done | Included |
-| 17.4   | Dynamic-Decision-Network          | `pomdp_lookahead`             | [`mdp4e.py`](mdp4e.py)          | Done |          |
-| 18.2   | Iterated-Dominance                | `iterated_dominance`          | [`game_theory.py`](game_theory.py) | Done |       |
-| 18.2   | Pure-Nash-Equilibria              | `pure_nash_equilibria`        | [`game_theory.py`](game_theory.py) | Done |       |
-| 18.2   | Zero-Sum-Game (LP)                | `solve_zero_sum_game`         | [`game_theory.py`](game_theory.py) | Done |       |
-| 18.3   | Shapley-Value                     | `shapley_value`               | [`game_theory.py`](game_theory.py) | Done |       |
-| 18.3   | Core (cooperative game)           | `is_in_core`                  | [`game_theory.py`](game_theory.py) | Done |       |
-| 18.4   | Voting (plurality/Borda/Condorcet)| `plurality_winner` etc.       | [`game_theory.py`](game_theory.py) | Done |       |
-| 18.4   | Vickrey-Auction                   | `vickrey_auction`             | [`game_theory.py`](game_theory.py) | Done |       |
-| 18.4.1 | Contract-Net-Protocol             | `contract_net`                | [`game_theory.py`](game_theory.py) | Done |       |
-| 18.4.4 | Alternating-Offers-Bargaining     | `alternating_offers_bargaining` | [`game_theory.py`](game_theory.py) | Done |     |
+| 17.4   | Dynamic-Decision-Network          | `pomdp_lookahead`             | [`mdp4e.py`](mdp4e.py)          | Done | Included |
+| 18.2   | Iterated-Dominance                | `iterated_dominance`          | [`game_theory.py`](game_theory.py) | Done | Included |
+| 18.2   | Pure-Nash-Equilibria              | `pure_nash_equilibria`        | [`game_theory.py`](game_theory.py) | Done | Included |
+| 18.2   | Zero-Sum-Game (LP)                | `solve_zero_sum_game`         | [`game_theory.py`](game_theory.py) | Done | Included |
+| 18.3   | Shapley-Value                     | `shapley_value`               | [`game_theory.py`](game_theory.py) | Done | Included |
+| 18.3   | Core (cooperative game)           | `is_in_core`                  | [`game_theory.py`](game_theory.py) | Done | Included |
+| 18.4   | Voting (plurality/Borda/Condorcet)| `plurality_winner` etc.       | [`game_theory.py`](game_theory.py) | Done | Included |
+| 18.4   | Vickrey-Auction                   | `vickrey_auction`             | [`game_theory.py`](game_theory.py) | Done | Included |
+| 18.4.1 | Contract-Net-Protocol             | `contract_net`                | [`game_theory.py`](game_theory.py) | Done | Included |
+| 18.4.4 | Alternating-Offers-Bargaining     | `alternating_offers_bargaining` | [`game_theory.py`](game_theory.py) | Done | Included |
 | 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`][learning]       | Done | Included |
 | 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]       | Done | Included |
 | 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]       | Done | Included |
 | 18.24  | Back-Prop-Learning                | `BackPropagationLearner`      | [`learning.py`][learning]       | Done | Included |
 | 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`][learning]       | Done | Included |
-| 20.X   | EM (Mixture of Gaussians)         | `gaussian_mixture_em`         | [`learning.py`][learning]       | Done |          |
-| 20.3.2 | EM (Bayes net hidden variable)    | `naive_bayes_em`              | [`learning.py`][learning]       | Done |          |
-| 20.3   | Baum-Welch (HMM learning)         | `baum_welch`                  | [`probability.py`][probability] | Done |          |
+| 20.X   | EM (Mixture of Gaussians)         | `gaussian_mixture_em`         | [`learning.py`][learning]       | Done | Included |
+| 20.3.2 | EM (Bayes net hidden variable)    | `naive_bayes_em`              | [`learning.py`][learning]       | Done | Included |
+| 20.3   | Baum-Welch (HMM learning)         | `baum_welch`                  | [`probability.py`][probability] | Done | Included |
 | 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](knowledge.py)  | Done | Included |
@@ -178,7 +178,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`][rl]                   | Done | Included |
 | 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`][rl]                   | Done | Included |
 | 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`rl.py`][rl]                   | Done | Included |
-| 21.8   | SARSA-Agent                       | `SARSALearningAgent`          | [`rl.py`][rl]                   | Done |          |
+| 21.8   | SARSA-Agent                       | `SARSALearningAgent`          | [`rl.py`][rl]                   | Done | Included |
 | 22.1   | HITS                              | `HITS`                        | [`nlp.py`][nlp]                 | Done | Included |
 | 23     | Chart-Parse                       | `Chart`                       | [`nlp.py`][nlp]                 | Done | Included |
 | 23.5   | CYK-Parse                         | `CYK_parse`                   | [`nlp.py`][nlp]                 | Done | Included |
