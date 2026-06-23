@@ -153,6 +153,8 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`][mdp]                 | Done | Included |
 | 17.9   | POMDP-Value-Iteration             | `pomdp_value_iteration`       | [`mdp.py`][mdp]                 | Done | Included |
 | 17.4   | Dynamic-Decision-Network          | `pomdp_lookahead`             | [`mdp4e.py`](mdp4e.py)          | Done |          |
+| 18.2   | Pure-Nash-Equilibria              | `pure_nash_equilibria`        | [`game_theory.py`](game_theory.py) | Done |       |
+| 18.2   | Zero-Sum-Game (LP)                | `solve_zero_sum_game`         | [`game_theory.py`](game_theory.py) | Done |       |
 | 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`][learning]       | Done | Included |
 | 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]       | Done | Included |
 | 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]       | Done | Included |
