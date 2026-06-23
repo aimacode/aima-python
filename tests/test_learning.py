@@ -153,5 +153,27 @@ def test_ada_boost():
     assert err_ratio(ab, iris) < 0.25
 
 
+def test_gaussian_mixture_em():
+    np.random.seed(42)
+    # two well-separated 2-D Gaussian blobs around (0, 0) and (10, 10)
+    blob1 = np.random.randn(100, 2) + [0, 0]
+    blob2 = np.random.randn(100, 2) + [10, 10]
+    data = np.vstack([blob1, blob2])
+
+    model = gaussian_mixture_em(data, k=2)
+
+    # the two recovered means should match the two true cluster centers (in some order)
+    means = sorted(model['means'].tolist())
+    assert np.allclose(means[0], [0, 0], atol=0.5)
+    assert np.allclose(means[1], [10, 10], atol=0.5)
+    # the mixture weights are roughly balanced and sum to 1
+    assert np.isclose(model['weights'].sum(), 1)
+    assert np.allclose(model['weights'], 0.5, atol=0.1)
+    # every point is assigned (with highest responsibility) to its own cluster
+    labels = model['responsibilities'].argmax(axis=1)
+    assert labels[0] != labels[-1]
+    assert len(set(labels[:100])) == 1 and len(set(labels[100:])) == 1
+
+
 if __name__ == "__main__":
     pytest.main()
