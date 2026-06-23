@@ -38,6 +38,43 @@ def dominant_strategy(payoff, strongly=True):
     return None
 
 
+def iterated_dominance(payoff1, payoff2, strongly=True):
+    """
+    [Section 18.2]
+    Iterated elimination of dominated strategies: since a rational player never
+    plays a dominated strategy, we can repeatedly delete, for either player, any
+    strategy that is dominated among the strategies still in play, until none
+    remains. 'payoff1'/'payoff2' are the row and column player's payoff matrices.
+    Returns the surviving (rows, cols) strategy indices of the original game.
+    """
+    A, B = np.asarray(payoff1, dtype=float), np.asarray(payoff2, dtype=float)
+    rows, cols = list(range(A.shape[0])), list(range(A.shape[1]))
+
+    def find_dominated(payoff, own, opponent):
+        """A strategy in 'own' that is dominated against the surviving 'opponent' strategies."""
+        for s in own:
+            for t in own:
+                if s != t:
+                    better, worse = payoff[t][opponent], payoff[s][opponent]
+                    if (np.all(better > worse) if strongly else
+                            np.all(better >= worse) and np.any(better > worse)):
+                        return s
+        return None
+
+    eliminated = True
+    while eliminated:
+        # the row player's payoff is A[row][col]; the column player's is B.T[col][row]
+        row = find_dominated(A, rows, cols)
+        if row is not None:
+            rows.remove(row)
+        col = find_dominated(B.T, cols, rows)
+        if col is not None:
+            cols.remove(col)
+        eliminated = row is not None or col is not None
+
+    return rows, cols
+
+
 def pure_nash_equilibria(payoff1, payoff2):
     """
     [Section 18.2]

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from game_theory import (dominates, dominant_strategy, pure_nash_equilibria, solve_zero_sum_game,
+from game_theory import (dominates, dominant_strategy, iterated_dominance, pure_nash_equilibria, solve_zero_sum_game,
                          shapley_value, is_in_core, plurality_winner, borda_winner, condorcet_winner,
                          vickrey_auction, contract_net, alternating_offers_bargaining)
 
@@ -23,6 +23,13 @@ def test_dominant_strategy():
     assert dominant_strategy(np.transpose(BO)) == 0
     # matching pennies has no dominant strategy
     assert dominant_strategy([[1, -1], [-1, 1]]) is None
+
+
+def test_iterated_dominance():
+    # iterated elimination collapses the prisoner's dilemma to (testify, testify)
+    assert iterated_dominance(ALI, BO) == ([0], [0])
+    # matching pennies has no dominated strategies, so nothing is removed
+    assert iterated_dominance([[1, -1], [-1, 1]], [[-1, 1], [1, -1]]) == ([0, 1], [0, 1])
 
 
 def test_pure_nash_equilibria():
