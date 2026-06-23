@@ -356,6 +356,39 @@ def test_kalman_filter():
     assert final_cov.shape == (2, 2)
 
 
+def test_baum_welch():
+    def sequence_log_likelihood(hmm, obs):
+        """Log probability of the observation sequence under hmm (scaled forward pass)."""
+        A = np.array(hmm.transition_model)
+        sensor = np.array(hmm.sensor_model)
+        B = np.array([sensor[0] if e else sensor[1] for e in obs])
+        alpha = np.array(hmm.prior) * B[0]
+        ll = np.log(alpha.sum())
+        alpha = alpha / alpha.sum()
+        for t in range(1, len(obs)):
+            alpha = B[t] * (alpha @ A)
+            ll += np.log(alpha.sum())
+            alpha = alpha / alpha.sum()
+        return ll
+
+    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
+    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
+    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
+    observations = [T, T, F, T, T, F, F, F, T, F, T, T]
+
+    # Baum-Welch (EM) must never decrease the data log likelihood
+    log_likelihoods = [sequence_log_likelihood(baum_welch(umbrellaHMM, observations, iterations=k), observations)
+                       for k in (1, 2, 5, 10, 20)]
+    assert all(later >= earlier - 1e-9 for earlier, later in zip(log_likelihoods, log_likelihoods[1:]))
+    assert log_likelihoods[-1] >= sequence_log_likelihood(umbrellaHMM, observations) - 1e-9
+
+    # the learned parameters are still valid probability distributions
+    learned = baum_welch(umbrellaHMM, observations, iterations=20)
+    assert np.allclose(np.sum(learned.transition_model, axis=1), 1)
+    assert np.isclose(sum(learned.prior), 1)
+    assert np.allclose(np.sum(learned.sensor_model, axis=0), 1)
+
+
 def test_monte_carlo_localization():
     # TODO: Add tests for random motion/inaccurate sensors
     random.seed('aima-python')

@@ -727,6 +727,65 @@ def viterbi(HMM, ev):
     return ml_path, ml_probabilities
 
 
+def baum_welch(HMM, observations, iterations=100):
+    """
+    [Section 20.3]
+    Baum-Welch algorithm: the instance of EM that learns the parameters of a
+    Hidden Markov Model (transition model, sensor model and prior) from a single
+    sequence of boolean 'observations', starting from the initial guess in 'HMM'.
+    Each iteration runs a (scaled) forward-backward pass to compute the smoothed
+    state marginals gamma_t(i) = P(X_t=i | e_1:T) and transition marginals
+    xi_t(i,j) = P(X_t=i, X_t+1=j | e_1:T) (E-step), then re-estimates every
+    parameter as the corresponding normalized expected count (M-step):
+        prior_i     = gamma_0(i)
+        A_ij        = sum_t xi_t(i, j) / sum_t gamma_t(i)
+        sensor_oi   = sum_{t: e_t = o} gamma_t(i) / sum_t gamma_t(i)
+    Returns a new HiddenMarkovModel with the learned parameters.
+    """
+    A = np.array(HMM.transition_model, dtype=float)
+    prior = np.array(HMM.prior, dtype=float)
+    # sensor[0] = P(e=True | state), sensor[1] = P(e=False | state)
+    sensor = np.array(HMM.sensor_model, dtype=float)
+    obs = list(observations)
+    n, t_max = len(prior), len(obs)
+
+    for _ in range(iterations):
+        # emission vectors b_t(i) = P(e_t | X_t = i), recomputed from current sensor
+        B = np.array([sensor[0] if e else sensor[1] for e in obs])
+
+        # E-step: scaled forward (alpha) and backward (beta) messages
+        alpha, c = np.zeros((t_max, n)), np.zeros(t_max)
+        alpha[0] = prior * B[0]
+        c[0] = alpha[0].sum()
+        alpha[0] /= c[0]
+        for t in range(1, t_max):
+            alpha[t] = B[t] * (alpha[t - 1] @ A)
+            c[t] = alpha[t].sum()
+            alpha[t] /= c[t]
+        beta = np.zeros((t_max, n))
+        beta[-1] = 1
+        for t in range(t_max - 2, -1, -1):
+            beta[t] = (A @ (B[t + 1] * beta[t + 1])) / c[t + 1]
+
+        # smoothed state and transition marginals (normalized, so the per-step
+        # scaling factors cancel out)
+        gamma = alpha * beta
+        gamma /= gamma.sum(axis=1, keepdims=True)
+        xi = np.zeros((t_max - 1, n, n))
+        for t in range(t_max - 1):
+            xi[t] = alpha[t][:, None] * A * B[t + 1] * beta[t + 1]
+            xi[t] /= xi[t].sum()
+
+        # M-step: re-estimate every parameter from the expected counts
+        prior = gamma[0]
+        A = xi.sum(axis=0) / gamma[:-1].sum(axis=0)[:, None]
+        mask = np.array(obs, dtype=bool)
+        p_true = gamma[mask].sum(axis=0) / gamma.sum(axis=0)
+        sensor = np.array([p_true, 1 - p_true])
+
+    return HiddenMarkovModel(A.tolist(), sensor.tolist(), prior.tolist())
+
+
 # _________________________________________________________________________
 
 
