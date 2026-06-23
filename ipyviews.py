@@ -49,7 +49,7 @@ class ContinuousWorldView:
         self.show()
 
     def handle_remove_obstacle(self):
-        return NotImplementedError
+        raise NotImplementedError
 
     def get_polygon_obstacles_coordinates(self):
         obstacle_coordiantes = []

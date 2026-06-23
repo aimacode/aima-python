@@ -677,7 +677,7 @@ def dlcs(symbols, clauses):
 
 
 def jw(symbols, clauses):
-    """
+    r"""
     Jeroslow-Wang heuristic
     For each literal compute J(l) = \sum{l in clause c} 2^{-|c|}
     Return the literal maximizing J

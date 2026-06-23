@@ -632,7 +632,7 @@ def queen_constraint(A, a, B, b):
 
 
 class NQueensCSP(CSP):
-    """
+    r"""
     Make a CSP for the nQueens problem for search with min_conflicts.
     Suitable for large n, it uses only data structures of size O(n).
     Think of placing queens one per column, from left to right.

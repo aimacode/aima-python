@@ -120,7 +120,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.15   | PL-FC-Entails?                    | `pl_fc_entails`               | [`logic.py`][logic]             | Done | Included |
 | 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`][logic]             | Done | Included |
 | 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done | Included |
-| 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |
+| 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           | [`logic.py`][logic]             | Done | Included |
 | 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done | Included |
 | 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done | Included |
 | 9.1    | Unify                             | `unify`                       | [`logic.py`][logic]             | Done | Included |
@@ -152,8 +152,8 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`][mdp]                 | Done | Included |
 | 17.9   | POMDP-Value-Iteration             | `pomdp_value_iteration`       | [`mdp.py`][mdp]                 | Done | Included |
 | 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`][learning]       | Done | Included |
-| 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]\*     |      |          |
-| 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]\*     |      |          |
+| 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]       | Done | Included |
+| 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]       | Done | Included |
 | 18.24  | Back-Prop-Learning                | `BackPropagationLearner`      | [`learning.py`][learning]       | Done | Included |
 | 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`][learning]       | Done | Included |
 | 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](knowledge.py)  | Done | Included |
