@@ -142,8 +142,8 @@ def shapley_value(players, characteristic_function):
     for order in permutations(players):
         preceding = set()
         for i in order:
-            phi[i] += (characteristic_function(frozenset(preceding | {i})) -
-                       characteristic_function(frozenset(preceding)))
+            phi[i] += (characteristic_function(frozenset(preceding | {i}))
+                       - characteristic_function(frozenset(preceding)))
             preceding.add(i)
     return {i: phi[i] / factorial(len(players)) for i in players}
 
@@ -157,12 +157,12 @@ def is_in_core(players, characteristic_function, payoff):
     every coalition C the players in C receive at least v(C) (otherwise C would be
     better off on its own). An empty core means the grand coalition cannot form.
     """
-    players = list(players)
+    players, v = list(players), characteristic_function
     # efficiency: the grand coalition's value is fully distributed
-    if not np.isclose(sum(payoff[i] for i in players), characteristic_function(frozenset(players))):
+    if not np.isclose(sum(payoff[i] for i in players), v(frozenset(players))):
         return False
     # no coalition can object: x(C) >= v(C) for every coalition C
-    return all(sum(payoff[i] for i in coalition) >= characteristic_function(frozenset(coalition)) - 1e-9
+    return all(sum(payoff[i] for i in coalition) >= v(frozenset(coalition)) - 1e-9
                for size in range(1, len(players)) for coalition in combinations(players, size))
 
 
@@ -205,7 +205,8 @@ def condorcet_winner(preferences):
     candidates = list(preferences[0])
 
     def beats(a, b):  # a majority of voters rank a above b
-        return sum(ballot.index(a) < ballot.index(b) for ballot in preferences) > len(preferences) / 2
+        votes = sum(ballot.index(a) < ballot.index(b) for ballot in preferences)
+        return votes > len(preferences) / 2
 
     return next((a for a in candidates if all(a == b or beats(a, b) for b in candidates)), None)
 
