@@ -356,6 +356,17 @@ def test_kalman_filter():
     assert final_cov.shape == (2, 2)
 
 
+def test_kalman_filter_steady_state():
+    # [Section 15.4] for the 1-D random walk with unit transition and sensor
+    # variance the filtered variance converges to the fixed point of
+    # s = (s + 1) / (s + 2), i.e. s^2 + s - 1 = 0, so s = (sqrt(5) - 1) / 2
+    kf = KalmanFilter(transition_model=[[1]], sensor_model=[[1]],
+                      transition_noise=[[1]], sensor_noise=[[1]])
+    estimates = kalman_filter(kf, mean0=[0], cov0=[[1]], observations=[0.0] * 60)
+    steady_state = (5 ** 0.5 - 1) / 2
+    assert estimates[-1][1][0, 0] == pytest.approx(steady_state, abs=1e-6)
+
+
 def test_baum_welch():
     def sequence_log_likelihood(hmm, obs):
         """Log probability of the observation sequence under hmm (scaled forward pass)."""
@@ -408,6 +419,16 @@ def test_dynamic_bayes_net():
     umbrellaHMM = HiddenMarkovModel([[0.7, 0.3], [0.3, 0.7]], [[0.9, 0.2], [0.1, 0.8]])
     hmm_belief = forward(umbrellaHMM, umbrellaHMM.prior, True)
     assert umbrella_dbn.filter([{'Umbrella': True}], 'Rain')[True] == pytest.approx(hmm_belief[0])
+
+    # over the book's umbrella evidence sequence [T, T, F, T, T], exact DBN
+    # filtering agrees step for step with the HMM forward algorithm
+    sequence = [T, T, F, T, T]
+    fv = umbrellaHMM.prior
+    for e in sequence:
+        fv = forward(umbrellaHMM, fv, e)
+    dbn_belief = umbrella_dbn.filter([{'Umbrella': e} for e in sequence], 'Rain')
+    assert dbn_belief[True] == pytest.approx(fv[0])
+    assert dbn_belief[True] == pytest.approx(0.8673, abs=1e-4)
 
 
 def test_monte_carlo_localization():

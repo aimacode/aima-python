@@ -103,6 +103,48 @@ def test_vickrey_auction():
     assert price == 8  # but pays the second-highest bid
 
 
+# ---------------------------------------------------------------------------
+# Additional cases taken from the book and the 3rd-edition solutions manual
+# ---------------------------------------------------------------------------
+
+def test_zero_sum_game_solutions_manual_17_17():
+    # Exercise 17.17 (3rd-edition solutions manual): a 5-move rock-paper-scissors-
+    # fire-water zero-sum game. The worked solution gives the optimal mixed
+    # strategy r = p = s = 1/9, f = w = 1/3 with game value 0.
+    payoff = [[0, -1, 1, -1, 1],
+              [1, 0, -1, -1, 1],
+              [-1, 1, 0, -1, 1],
+              [1, 1, 1, 0, -1],
+              [-1, -1, -1, 1, 0]]
+    value, row_strategy, col_strategy = solve_zero_sum_game(payoff)
+    assert value == pytest.approx(0, abs=1e-9)
+    assert row_strategy == pytest.approx([1 / 9, 1 / 9, 1 / 9, 1 / 3, 1 / 3])
+    assert col_strategy == pytest.approx([1 / 9, 1 / 9, 1 / 9, 1 / 3, 1 / 3])
+
+
+def test_zero_sum_game_with_saddle_point():
+    # a zero-sum game whose maximin and minimax coincide in pure strategies has a
+    # saddle point: here the value is 3, attained by row 0 against column 1
+    value, row_strategy, col_strategy = solve_zero_sum_game([[4, 3], [2, 1]])
+    assert value == pytest.approx(3)
+    assert row_strategy == pytest.approx([1, 0])
+    assert col_strategy == pytest.approx([0, 1])
+
+
+def test_battle_of_the_sexes():
+    # a coordination game with two pure-strategy Nash equilibria, one favouring
+    # each player, at the two matching outcomes
+    a = [[2, 0], [0, 1]]
+    b = [[1, 0], [0, 2]]
+    assert pure_nash_equilibria(a, b) == [(0, 0), (1, 1)]
+
+
+def test_stag_hunt():
+    # the stag hunt also has two pure Nash equilibria: both hunt the stag (the
+    # payoff-dominant one) or both forage alone (the risk-dominant one)
+    assert pure_nash_equilibria([[3, 0], [2, 2]], [[3, 2], [0, 2]]) == [(0, 0), (1, 1)]
+
+
 def test_contract_net():
     # each agent's cost for each task; None means the agent cannot do the task
     costs = {('painter', 'paint'): 10, ('painter', 'wire'): None,
