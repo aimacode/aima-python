@@ -1,6 +1,7 @@
 import pytest
 from utils import failure_test
 from csp import *
+from search import depth_first_tree_search
 import random
 
 random.seed("aima-python")
@@ -514,6 +515,42 @@ def test_ac_search_solver():
            {'T': 9, 'F': 1, 'W': 2, 'O': 8, 'U': 5, 'R': 6, 'C1': 1, 'C2': 0, 'C3': 1}
     assert ac_search_solver(send_more_money) == {'S': 9, 'M': 1, 'E': 5, 'N': 6, 'D': 7, 'O': 0, 'R': 8, 'Y': 2,
                                                  'C1': 1, 'C2': 1, 'C3': 0, 'C4': 1}
+
+
+def _complete_and_consistent(csp, solution):
+    """A solver answer is valid if every variable is assigned and the CSP holds."""
+    if solution is None:
+        return False
+    assignment = {var: (first(val) if isinstance(val, (set, frozenset)) else val)
+                  for var, val in solution.items()}
+    return set(assignment) == csp.variables and csp.consistent(assignment)
+
+
+def test_nary_csp():
+    csp = NaryCSP({'a': {1, 2, 3}, 'b': {1, 2, 3}},
+                  [Constraint(('a', 'b'), all_diff_constraint)])
+    assert csp.variables == {'a', 'b'}
+    assert csp.consistent({'a': 1, 'b': 2})
+    assert not csp.consistent({'a': 1, 'b': 1})
+    # each variable is linked back to the constraint over its scope
+    assert len(csp.var_to_const['a']) == 1 and len(csp.var_to_const['b']) == 1
+
+
+def test_ac_solver_classes():
+    # exercise the ACSolver / ACSearchSolver classes directly (not just the wrappers)
+    assert _complete_and_consistent(csp_crossword, ACSolver(csp_crossword).domain_splitting())
+    solution = depth_first_tree_search(ACSearchSolver(csp_crossword))
+    assert solution is not None and _complete_and_consistent(csp_crossword, solution.state)
+
+
+def test_crossword():
+    crossword = Crossword(crossword1, words1)
+    assert _complete_and_consistent(crossword, ac_solver(crossword))
+
+
+def test_kakuro():
+    kakuro = Kakuro(kakuro2)
+    assert _complete_and_consistent(kakuro, ac_solver(kakuro))
 
 
 def test_different_values_constraint():
