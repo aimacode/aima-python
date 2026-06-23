@@ -329,6 +329,33 @@ def test_particle_filtering():
     # XXX 'A' and 'B' are really arbitrary names, but I'm letting it stand for now
 
 
+def test_kalman_filter():
+    # one-dimensional random walk (Section 15.4 example): x_{t+1} = x_t + noise,
+    # z_t = x_t + noise. With prior N(0, 1), transition variance 2 and sensor
+    # variance 1, a single observation z = 2.5 has the closed-form posterior
+    # mean ((cov0 + Sigma_x) * z + Sigma_z * mean0) / (cov0 + Sigma_x + Sigma_z)
+    # and variance (cov0 + Sigma_x) * Sigma_z / (cov0 + Sigma_x + Sigma_z)
+    kf = KalmanFilter(transition_model=[[1]], sensor_model=[[1]],
+                      transition_noise=[[2]], sensor_noise=[[1]])
+    (mean, cov), = kalman_filter(kf, mean0=[0], cov0=[[1]], observations=[2.5])
+    assert np.isclose(mean[0], 1.875)
+    assert np.isclose(cov[0, 0], 0.75)
+    # conditioning on the observation never increases the predicted uncertainty
+    assert cov[0, 0] < 1 + 2
+
+    # two-dimensional constant-velocity model: the state is [position, velocity]
+    # and only the position is observed; from a sequence of steadily increasing
+    # position measurements the filter should infer a positive velocity
+    kf = KalmanFilter(transition_model=[[1, 1], [0, 1]], sensor_model=[[1, 0]],
+                      transition_noise=[[0.01, 0], [0, 0.01]], sensor_noise=[[1]])
+    estimates = kalman_filter(kf, mean0=[0, 0], cov0=[[1, 0], [0, 1]],
+                              observations=[1, 2, 3, 4, 5])
+    assert len(estimates) == 5
+    final_mean, final_cov = estimates[-1]
+    assert final_mean[1] > 0  # inferred velocity is positive
+    assert final_cov.shape == (2, 2)
+
+
 def test_monte_carlo_localization():
     # TODO: Add tests for random motion/inaccurate sensors
     random.seed('aima-python')

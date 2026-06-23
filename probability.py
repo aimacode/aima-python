@@ -800,6 +800,67 @@ def particle_filtering(e, N, HMM):
 
 
 # _________________________________________________________________________
+
+
+class KalmanFilter:
+    """
+    [Section 15.4]
+    Kalman filter for a linear-Gaussian dynamical system. The hidden state
+    evolves and is observed according to the linear-Gaussian model
+
+        x_{t+1} = F x_t + noise,   noise ~ N(0, Sigma_x)   (transition model)
+        z_t     = H x_t + noise,   noise ~ N(0, Sigma_z)   (sensor model)
+
+    where F is the transition matrix, H the sensor matrix, Sigma_x the
+    transition (process) noise covariance and Sigma_z the sensor (measurement)
+    noise covariance. Because the family of Gaussians is closed under the
+    Bayesian filtering update, the forward message stays Gaussian and is fully
+    described by a mean vector and a covariance matrix at every step.
+    """
+
+    def __init__(self, transition_model, sensor_model, transition_noise, sensor_noise):
+        self.F = np.atleast_2d(transition_model)  # transition matrix
+        self.H = np.atleast_2d(sensor_model)  # sensor matrix
+        self.Sigma_x = np.atleast_2d(transition_noise)  # transition noise covariance
+        self.Sigma_z = np.atleast_2d(sensor_noise)  # sensor noise covariance
+
+    def predict(self, mean, cov):
+        """Time update: project the Gaussian estimate one step forward through F."""
+        mean = self.F @ mean
+        cov = self.F @ cov @ self.F.T + self.Sigma_x
+        return mean, cov
+
+    def update(self, mean, cov, z):
+        """Measurement update: condition the predicted Gaussian on observation z."""
+        # Kalman gain [Equation 15.21]
+        K = cov @ self.H.T @ np.linalg.inv(self.H @ cov @ self.H.T + self.Sigma_z)
+        mean = mean + K @ (np.atleast_1d(z) - self.H @ mean)
+        cov = (np.eye(cov.shape[0]) - K @ self.H) @ cov
+        return mean, cov
+
+    def filter(self, mean, cov, z):
+        """One predict-then-update cycle for a single new observation z."""
+        mean, cov = self.predict(mean, cov)
+        return self.update(mean, cov, z)
+
+
+def kalman_filter(KF, mean0, cov0, observations):
+    """
+    [Section 15.4]
+    Run the Kalman filter 'KF' over a sequence of 'observations', starting from
+    the Gaussian prior N(mean0, cov0). Returns, for each time step, the filtered
+    Gaussian estimate as a (mean, covariance) pair.
+    """
+    mean, cov = np.atleast_1d(mean0).astype(float), np.atleast_2d(cov0).astype(float)
+    estimates = []
+    for z in observations:
+        mean, cov = KF.filter(mean, cov, z)
+        estimates.append((mean, cov))
+
+    return estimates
+
+
+# _________________________________________________________________________
 # TODO: Implement continuous map for MonteCarlo similar to Fig25.10 from the book
 
 
