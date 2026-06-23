@@ -1,6 +1,6 @@
 
 
-# `aima-python` [![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
+# `aima-python` [![tests](https://github.com/aimacode/aima-python/actions/workflows/tests.yml/badge.svg)](https://github.com/aimacode/aima-python/actions/workflows/tests.yml) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
 
 
 Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
@@ -25,7 +25,7 @@ When complete, this project will have Python implementations for all the pseudoc
 
 # Python 3.9 and up
 
-The code for the 3rd edition was in Python 3.5; the 4th edition code targets Python 3.7 and runs on Python 3.9 and up, but does not run in Python 2. The full test suite (including the deep-learning modules) is tested on Python 3.11/3.12; note that some optional dependencies (`tensorflow`, `keras`, `opencv-python`) do not yet ship wheels for the very latest releases, so a 3.11/3.12 environment is recommended for running everything. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+The code for the 3rd edition was in Python 3.5; the 4th edition code targets Python 3.7 and runs on Python 3.9 and up, but does not run in Python 2. Continuous integration runs the full test suite (including the deep-learning modules) on Python 3.9, 3.10, 3.11 and 3.12; note that some optional dependencies (`tensorflow`, `keras`, `opencv-python`) do not yet ship wheels for the very latest releases (3.13+), so one of those versions is recommended for running everything. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
 You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions. All notebooks are available in a [binder environment](http://mybinder.org/repo/aimacode/aima-python). Alternatively, visit [jupyter.org](http://jupyter.org/) for instructions on setting up your own Jupyter notebook environment.
 
 Features from Python 3.6 and 3.7 that we will be using for this version of the code:
