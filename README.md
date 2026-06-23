@@ -159,6 +159,8 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 18.3   | Core (cooperative game)           | `is_in_core`                  | [`game_theory.py`](game_theory.py) | Done |       |
 | 18.4   | Voting (plurality/Borda/Condorcet)| `plurality_winner` etc.       | [`game_theory.py`](game_theory.py) | Done |       |
 | 18.4   | Vickrey-Auction                   | `vickrey_auction`             | [`game_theory.py`](game_theory.py) | Done |       |
+| 18.4.1 | Contract-Net-Protocol             | `contract_net`                | [`game_theory.py`](game_theory.py) | Done |       |
+| 18.4.4 | Alternating-Offers-Bargaining     | `alternating_offers_bargaining` | [`game_theory.py`](game_theory.py) | Done |     |
 | 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`][learning]       | Done | Included |
 | 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]       | Done | Included |
 | 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]       | Done | Included |

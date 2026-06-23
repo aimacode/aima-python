@@ -185,3 +185,35 @@ def vickrey_auction(bids):
     winner = max(bids, key=bids.get)
     price = ranked[1] if len(ranked) > 1 else ranked[0]
     return winner, price
+
+
+def contract_net(tasks, agents, bid, select=min):
+    """
+    [Section 18.4.1]
+    The contract net protocol for task allocation. For each task the manager
+    broadcasts a task announcement; every agent submits a bid through the callable
+    bid(agent, task), which returns a numeric bid or None when the agent cannot or
+    will not perform the task. The manager then awards the task to the agent with
+    the best bid ('select' = min for costs, max for values). Returns a dict mapping
+    each task to an (agent, bid) award, or to None if nobody bid.
+    """
+    allocation = {}
+    for task in tasks:
+        bids = {agent: bid(agent, task) for agent in agents}
+        bids = {agent: b for agent, b in bids.items() if b is not None}
+        allocation[task] = (select(bids, key=bids.get), select(bids.values())) if bids else None
+    return allocation
+
+
+def alternating_offers_bargaining(discount_a, discount_b):
+    """
+    [Section 18.4.4]
+    Rubinstein's alternating-offers bargaining over how to split a pie of size 1
+    between two impatient agents with discount factors discount_a and discount_b
+    in [0, 1). In the unique subgame-perfect equilibrium the agent who makes the
+    first offer (A) keeps a share (1 - discount_b) / (1 - discount_a * discount_b)
+    and B receives the rest; the more patient an agent is (larger discount factor)
+    the larger the share it secures. Returns the (share_a, share_b) pair.
+    """
+    share_a = (1 - discount_b) / (1 - discount_a * discount_b)
+    return share_a, 1 - share_a

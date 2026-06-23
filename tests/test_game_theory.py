@@ -3,7 +3,7 @@ import pytest
 
 from game_theory import (dominates, dominant_strategy, pure_nash_equilibria, solve_zero_sum_game,
                          shapley_value, is_in_core, plurality_winner, borda_winner, condorcet_winner,
-                         vickrey_auction)
+                         vickrey_auction, contract_net, alternating_offers_bargaining)
 
 # Prisoner's dilemma, payoffs as utilities (= minus the years in prison).
 # Rows/cols: 0 = testify, 1 = refuse. Outcome indexed [Ali (row)][Bo (col)].
@@ -94,6 +94,30 @@ def test_vickrey_auction():
     winner, price = vickrey_auction({'a': 10, 'b': 8, 'c': 5})
     assert winner == 'a'  # highest bidder wins
     assert price == 8  # but pays the second-highest bid
+
+
+def test_contract_net():
+    # each agent's cost for each task; None means the agent cannot do the task
+    costs = {('painter', 'paint'): 10, ('painter', 'wire'): None,
+             ('cheap_painter', 'paint'): 7, ('cheap_painter', 'wire'): None,
+             ('electrician', 'paint'): None, ('electrician', 'wire'): 5}
+    allocation = contract_net(['paint', 'wire'], ['painter', 'cheap_painter', 'electrician'],
+                              bid=lambda agent, task: costs[(agent, task)])
+    # the manager awards each task to the lowest-cost capable agent
+    assert allocation == {'paint': ('cheap_painter', 7), 'wire': ('electrician', 5)}
+    # a task nobody can do stays unallocated
+    assert contract_net(['fly'], ['painter'], bid=lambda a, t: None) == {'fly': None}
+
+
+def test_alternating_offers_bargaining():
+    # with equal discount factors the first mover keeps 1 / (1 + gamma)
+    assert alternating_offers_bargaining(0.5, 0.5) == pytest.approx((1 / 1.5, 0.5 / 1.5))
+    # a totally impatient responder concedes everything (ultimatum game)
+    assert alternating_offers_bargaining(0.0, 0.0) == pytest.approx((1, 0))
+    # the more patient agent secures the larger share
+    share_a, share_b = alternating_offers_bargaining(0.9, 0.5)
+    assert share_a > share_b
+    assert share_a + share_b == pytest.approx(1)
 
 
 if __name__ == "__main__":
