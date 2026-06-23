@@ -389,6 +389,27 @@ def test_baum_welch():
     assert np.allclose(np.sum(learned.sensor_model, axis=0), 1)
 
 
+def test_dynamic_bayes_net():
+    # the umbrella world as a DBN: hidden Rain with a 0.7 self-transition, observed
+    # through Umbrella with sensor probabilities 0.9 / 0.2
+    umbrella_dbn = DynamicBayesNet(prior=[('Rain', '', 0.5)],
+                                   transition=[('Rain', 'Rain_prev', {T: 0.7, F: 0.3})],
+                                   sensors=[('Umbrella', 'Rain', {T: 0.9, F: 0.2})])
+
+    # unrolling spans slices 0..steps with evidence variables at slices 1..steps
+    assert umbrella_dbn.unroll(2).variables == ['Rain_0', 'Rain_1', 'Umbrella_1', 'Rain_2', 'Umbrella_2']
+
+    # filtering by exact inference matches the canonical umbrella values, which in
+    # turn agree with the HMM forward algorithm
+    assert umbrella_dbn.filter([{'Umbrella': True}], 'Rain')[True] == pytest.approx(0.8182, abs=1e-4)
+    assert umbrella_dbn.filter([{'Umbrella': True}, {'Umbrella': True}], 'Rain')[True] == pytest.approx(0.8834,
+                                                                                                        abs=1e-4)
+
+    umbrellaHMM = HiddenMarkovModel([[0.7, 0.3], [0.3, 0.7]], [[0.9, 0.2], [0.1, 0.8]])
+    hmm_belief = forward(umbrellaHMM, umbrellaHMM.prior, True)
+    assert umbrella_dbn.filter([{'Umbrella': True}], 'Rain')[True] == pytest.approx(hmm_belief[0])
+
+
 def test_monte_carlo_localization():
     # TODO: Add tests for random motion/inaccurate sensors
     random.seed('aima-python')

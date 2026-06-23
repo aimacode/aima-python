@@ -920,6 +920,60 @@ def kalman_filter(KF, mean0, cov0, observations):
 
 
 # _________________________________________________________________________
+
+
+class DynamicBayesNet:
+    """
+    [Section 15.5]
+    A dynamic Bayesian network for a stationary first-order Markov process. It is
+    specified by a prior network over the state variables at slice 0 and a single
+    transition + sensor network describing, for one time step, the distribution of
+    each state variable (given the previous slice) and of each evidence variable
+    (given the current slice). The DBN can be 'unrolled' into an ordinary BayesNet
+    spanning any number of slices and then queried with the exact inference
+    algorithms; in particular filtering is the query for the last state variable
+    given the whole evidence sequence.
+
+    Each spec is a (variable, parents, cpt) triple as for a BayesNode. In a
+    transition spec, a parent named '<var>_prev' refers to state variable <var> at
+    the previous slice; every other parent refers to the current slice.
+    """
+
+    def __init__(self, prior, transition, sensors):
+        self.prior = prior
+        self.transition = transition
+        self.sensors = sensors
+        self.state_variables = [spec[0] for spec in prior]
+        self.evidence_variables = [spec[0] for spec in sensors]
+
+    @staticmethod
+    def _rename(parents, t, t_prev):
+        """Map the parent names of a slice template to concrete unrolled names."""
+        if isinstance(parents, str):
+            parents = parents.split()
+        return [f'{p[:-len("_prev")]}_{t_prev}' if p.endswith('_prev') else f'{p}_{t}' for p in parents]
+
+    def unroll(self, steps):
+        """Unroll the DBN into a BayesNet over slices 0..steps (evidence at 1..steps)."""
+        specs = [(f'{var}_0', self._rename(parents, 0, 0), cpt) for var, parents, cpt in self.prior]
+        for t in range(1, steps + 1):
+            for var, parents, cpt in self.transition + self.sensors:
+                specs.append((f'{var}_{t}', self._rename(parents, t, t - 1), cpt))
+        return BayesNet(specs)
+
+    def filter(self, evidence, query, infer=elimination_ask):
+        """
+        Filtering: the posterior over 'query' at the last slice given the whole
+        observation sequence. 'evidence' is a list of dicts, one per time step
+        t = 1, 2, ..., each mapping evidence variables to their observed values.
+        """
+        steps = len(evidence)
+        net = self.unroll(steps)
+        e = {f'{var}_{t}': val for t, obs in enumerate(evidence, 1) for var, val in obs.items()}
+        return infer(f'{query}_{steps}', e, net)
+
+
+# _________________________________________________________________________
 # TODO: Implement continuous map for MonteCarlo similar to Fig25.10 from the book
 
 

@@ -148,6 +148,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 15.6   | Fixed-Lag-Smoothing               | `fixed_lag_smoothing`         | [`probability.py`][probability] | Done | Included |
 | 15.17  | Particle-Filtering                | `particle_filtering`          | [`probability.py`][probability] | Done | Included |
 | 15.4   | Kalman-Filter                     | `KalmanFilter`                | [`probability.py`][probability] | Done |          |
+| 15.5   | Dynamic-Bayesian-Network          | `DynamicBayesNet`             | [`probability.py`][probability] | Done |          |
 | 16.9   | Information-Gathering-Agent       | `InformationGatheringAgent`   | [`probability.py`][probability] | Done | Included |
 | 17.4   | Value-Iteration                   | `value_iteration`             | [`mdp.py`][mdp]                 | Done | Included |
 | 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`][mdp]                 | Done | Included |
