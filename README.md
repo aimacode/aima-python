@@ -177,6 +177,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`][rl]                   | Done | Included |
 | 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`][rl]                   | Done | Included |
 | 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`rl.py`][rl]                   | Done | Included |
+| 21.8   | SARSA-Agent                       | `SARSALearningAgent`          | [`rl.py`][rl]                   | Done |          |
 | 22.1   | HITS                              | `HITS`                        | [`nlp.py`][nlp]                 | Done | Included |
 | 23     | Chart-Parse                       | `Chart`                       | [`nlp.py`][nlp]                 | Done | Included |
 | 23.5   | CYK-Parse                         | `CYK_parse`                   | [`nlp.py`][nlp]                 | Done | Included |
