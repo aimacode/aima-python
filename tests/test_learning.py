@@ -175,5 +175,26 @@ def test_gaussian_mixture_em():
     assert len(set(labels[:100])) == 1 and len(set(labels[100:])) == 1
 
 
+def test_naive_bayes_em():
+    np.random.seed(42)
+    # the 'two bags of candy' example (Section 20.3.2): bag 1 mostly has cherry
+    # flavour, red wrapper and a hole (each feature true with prob 0.8), bag 2 is
+    # the opposite (each feature true with prob 0.3); the bag is hidden
+    bag1 = (np.random.rand(1000, 3) < 0.8).astype(int)
+    bag2 = (np.random.rand(1000, 3) < 0.3).astype(int)
+    candies = np.vstack([bag1, bag2])
+
+    model = naive_bayes_em(candies, k=2)
+
+    # recover the two bags (sorted by how 'cherry/red/holed' they are to undo the
+    # arbitrary labelling of the hidden classes)
+    components = sorted(model['probabilities'].tolist(), key=lambda p: sum(p))
+    assert np.allclose(components[0], [0.3, 0.3, 0.3], atol=0.1)  # bag 2
+    assert np.allclose(components[1], [0.8, 0.8, 0.8], atol=0.1)  # bag 1
+    # the two bags were mixed in equal proportions and the priors sum to 1
+    assert np.isclose(model['weights'].sum(), 1)
+    assert np.allclose(model['weights'], 0.5, atol=0.1)
+
+
 if __name__ == "__main__":
     pytest.main()

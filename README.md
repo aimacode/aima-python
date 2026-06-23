@@ -159,6 +159,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 18.24  | Back-Prop-Learning                | `BackPropagationLearner`      | [`learning.py`][learning]       | Done | Included |
 | 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`][learning]       | Done | Included |
 | 20.X   | EM (Mixture of Gaussians)         | `gaussian_mixture_em`         | [`learning.py`][learning]       | Done |          |
+| 20.3.2 | EM (Bayes net hidden variable)    | `naive_bayes_em`              | [`learning.py`][learning]       | Done |          |
 | 20.3   | Baum-Welch (HMM learning)         | `baum_welch`                  | [`probability.py`][probability] | Done |          |
 | 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](knowledge.py)  | Done | Included |
