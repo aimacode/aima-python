@@ -1047,8 +1047,8 @@ class Linearize:
     def execute(self):
         """Finds total-order solution for a planning graph"""
 
-        graphPlan_solution = GraphPlan(self.planning_problem).execute()
-        filtered_solution = self.filter(graphPlan_solution)
+        graph_plan_solution = GraphPlan(self.planning_problem).execute()
+        filtered_solution = self.filter(graph_plan_solution)
         ordered_solution = []
         planning_problem = self.planning_problem
         for level in filtered_solution:
@@ -1315,11 +1315,11 @@ class PartialOrderPlanner:
         for causal_link in self.causal_links:
             print(causal_link)
 
-        print('\nConstraints')
+        print('\n_constraints')
         for constraint in self.constraints:
             print(constraint[0], '<', constraint[1])
 
-        print('\nPartial Order Plan')
+        print('\n_partial Order Plan')
         print(list(reversed(list(self.toposort(self.convert(self.constraints))))))
 
     def execute(self, display=True):
@@ -1380,37 +1380,37 @@ class PartialOrderPlanner:
             return self.constraints, self.causal_links
 
 
-def spare_tire_graphPlan():
+def spare_tire_graph_plan():
     """Solves the spare tire problem using GraphPlan"""
     return GraphPlan(spare_tire()).execute()
 
 
-def three_block_tower_graphPlan():
+def three_block_tower_graph_plan():
     """Solves the Sussman Anomaly problem using GraphPlan"""
     return GraphPlan(three_block_tower()).execute()
 
 
-def air_cargo_graphPlan():
+def air_cargo_graph_plan():
     """Solves the air cargo problem using GraphPlan"""
     return GraphPlan(air_cargo()).execute()
 
 
-def have_cake_and_eat_cake_too_graphPlan():
+def have_cake_and_eat_cake_too_graph_plan():
     """Solves the cake problem using GraphPlan"""
     return [GraphPlan(have_cake_and_eat_cake_too()).execute()[1]]
 
 
-def shopping_graphPlan():
+def shopping_graph_plan():
     """Solves the shopping problem using GraphPlan"""
     return GraphPlan(shopping_problem()).execute()
 
 
-def socks_and_shoes_graphPlan():
+def socks_and_shoes_graph_plan():
     """Solves the socks and shoes problem using GraphPlan"""
     return GraphPlan(socks_and_shoes()).execute()
 
 
-def simple_blocks_world_graphPlan():
+def simple_blocks_world_graph_plan():
     """Solves the simple blocks world problem"""
     return GraphPlan(simple_blocks_world()).execute()
 
@@ -1611,11 +1611,11 @@ class RealWorldPlanningProblem(PlanningProblem):
         commit to high-level plans that work while avoiding high-level plans that don’t.
         The predicate MAKING-PROGRESS checks to make sure that we aren’t stuck in an infinite regression
         of refinements.
-        At top level, call ANGELIC-SEARCH with [Act] as the initialPlan.
+        At top level, call ANGELIC-SEARCH with [Act] as the initial_plan.
 
         InitialPlan contains a sequence of HLA's with angelic semantics
 
-        The possible effects of an angelic HLA in initialPlan are:
+        The possible effects of an angelic HLA in initial_plan are:
         ~ : effect remove
         $+: effect possibly add
         $-: effect possibly remove
