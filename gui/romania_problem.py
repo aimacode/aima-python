@@ -656,7 +656,7 @@ if __name__ == "__main__":
         pady=2,
         relief=tk.GROOVE)
     next_button.pack(side=tk.RIGHT)
-    tk.reset_button = tk.Button(
+    reset_button = tk.Button(
         frame1,
         width=6,
         height=2,
@@ -665,7 +665,7 @@ if __name__ == "__main__":
         padx=2,
         pady=2,
         relief=tk.GROOVE)
-    tk.reset_button.pack(side=tk.RIGHT)
+    reset_button.pack(side=tk.RIGHT)
     frame1.pack(side=tk.BOTTOM)
     create_map(root)
     root.mainloop()
