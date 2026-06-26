@@ -110,6 +110,15 @@ def test_pour_problem():
     assert any(level == 4 for level in solution.state)
 
 
+def test_n_puzzle():
+    # NPuzzle generalizes EightPuzzle; a one-move-from-goal 3x3 instance is solved by A*
+    npuzzle = NPuzzle(initial=(1, 2, 3, 4, 5, 6, 0, 7, 8), size=3, shuffle=0)
+    assert astar_search(npuzzle).solution() == ['RIGHT', 'RIGHT']
+    # a shuffled instance is always solvable and reaches the goal
+    solved = astar_search(NPuzzle(size=3, shuffle=15))
+    assert solved is not None
+
+
 def test_find_blank_square():
     assert eight_puzzle.find_blank_square((0, 1, 2, 3, 4, 5, 6, 7, 8)) == 0
     assert eight_puzzle.find_blank_square((6, 3, 5, 1, 8, 4, 2, 0, 7)) == 7
