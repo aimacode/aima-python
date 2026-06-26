@@ -8,13 +8,13 @@
 # Displays a progress bar that indicates the amount of completion of the algorithm
 # Displays the first few individuals of the current generation
 
+import sys
 import os.path
 from tkinter import *
 from tkinter import ttk
 
-import search
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+import search
 
 LARGE_FONT = ('Verdana', 12)
 EXTRA_LARGE_FONT = ('Consolas', 36, 'bold')
