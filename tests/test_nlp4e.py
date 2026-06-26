@@ -127,12 +127,12 @@ def test_subspan():
 
 def test_text_parsing():
     words = ["the", "wumpus", "is", "dead"]
-    grammer = E0
-    assert astar_search_parsing(words, grammer) == 'S'
-    assert beam_search_parsing(words, grammer) == 'S'
+    grammar = E0
+    assert astar_search_parsing(words, grammar) == 'S'
+    assert beam_search_parsing(words, grammar) == 'S'
     words = ["the", "is", "wupus", "dead"]
-    assert astar_search_parsing(words, grammer) is False
-    assert beam_search_parsing(words, grammer) is False
+    assert astar_search_parsing(words, grammar) is False
+    assert beam_search_parsing(words, grammar) is False
 
 
 if __name__ == '__main__':
