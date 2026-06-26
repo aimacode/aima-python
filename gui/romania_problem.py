@@ -1,5 +1,5 @@
 from copy import deepcopy
-from tkinter import *
+import tkinter as tk
 
 from search import *
 from utils import PriorityQueue
@@ -28,7 +28,7 @@ def create_map(root):
     width = 750
     height = 670
     margin = 5
-    city_map = Canvas(root, width=width, height=height)
+    city_map = tk.Canvas(root, width=width, height=height)
     city_map.pack()
 
     # Since lines have to be drawn between particular points, we need to list
@@ -274,31 +274,31 @@ def make_rectangle(map, x0, y0, margin, city_name):
             x0 - 2 * margin,
             y0 - 2 * margin,
             text=city_name,
-            anchor=E)
+            anchor=tk.E)
     else:
         map.create_text(
             x0 - 2 * margin,
             y0 - 2 * margin,
             text=city_name,
-            anchor=SE)
+            anchor=tk.SE)
     city_coord.update({city_name: rect})
 
 
 def make_legend(map):
     rect1 = map.create_rectangle(600, 100, 610, 110, fill="white")
-    text1 = map.create_text(615, 105, anchor=W, text="Un-explored")
+    text1 = map.create_text(615, 105, anchor=tk.W, text="Un-explored")
 
     rect2 = map.create_rectangle(600, 115, 610, 125, fill="orange")
-    text2 = map.create_text(615, 120, anchor=W, text="Frontier")
+    text2 = map.create_text(615, 120, anchor=tk.W, text="Frontier")
 
     rect3 = map.create_rectangle(600, 130, 610, 140, fill="red")
-    text3 = map.create_text(615, 135, anchor=W, text="Currently Exploring")
+    text3 = map.create_text(615, 135, anchor=tk.W, text="Currently Exploring")
 
     rect4 = map.create_rectangle(600, 145, 610, 155, fill="grey")
-    text4 = map.create_text(615, 150, anchor=W, text="Explored")
+    text4 = map.create_text(615, 150, anchor=tk.W, text="Explored")
 
     rect5 = map.create_rectangle(600, 160, 610, 170, fill="dark green")
-    text5 = map.create_text(615, 165, anchor=W, text="Final Solution")
+    text5 = map.create_text(615, 165, anchor=tk.W, text="Final Solution")
 
 
 def tree_search(problem):
@@ -622,32 +622,31 @@ def reset_map():
 
 # TODO: Add more search algorithms in the OptionMenu
 if __name__ == "__main__":
-    global algo, start, goal, next_button
-    root = Tk()
+    root = tk.Tk()
     root.title("Road Map of Romania")
     root.geometry("950x1150")
-    algo = StringVar(root)
-    start = StringVar(root)
-    goal = StringVar(root)
+    algo = tk.StringVar(root)
+    start = tk.StringVar(root)
+    goal = tk.StringVar(root)
     algo.set("Breadth-First Tree Search")
     start.set('Arad')
     goal.set('Bucharest')
     cities = sorted(romania_map.locations.keys())
-    algorithm_menu = OptionMenu(
+    algorithm_menu = tk.OptionMenu(
         root,
         algo, "Breadth-First Tree Search", "Depth-First Tree Search",
         "Breadth-First Graph Search", "Depth-First Graph Search",
         "Uniform Cost Search", "A* - Search")
-    Label(root, text="\n Search Algorithm").pack()
+    tk.Label(root, text="\n Search Algorithm").pack()
     algorithm_menu.pack()
-    Label(root, text="\n Start City").pack()
-    start_menu = OptionMenu(root, start, *cities)
+    tk.Label(root, text="\n Start City").pack()
+    start_menu = tk.OptionMenu(root, start, *cities)
     start_menu.pack()
-    Label(root, text="\n Goal City").pack()
-    goal_menu = OptionMenu(root, goal, *cities)
+    tk.Label(root, text="\n Goal City").pack()
+    goal_menu = tk.OptionMenu(root, goal, *cities)
     goal_menu.pack()
-    frame1 = Frame(root)
-    next_button = Button(
+    frame1 = tk.Frame(root)
+    next_button = tk.Button(
         frame1,
         width=6,
         height=2,
@@ -655,9 +654,9 @@ if __name__ == "__main__":
         command=on_click,
         padx=2,
         pady=2,
-        relief=GROOVE)
-    next_button.pack(side=RIGHT)
-    reset_button = Button(
+        relief=tk.GROOVE)
+    next_button.pack(side=tk.RIGHT)
+    reset_button = tk.Button(
         frame1,
         width=6,
         height=2,
@@ -665,8 +664,8 @@ if __name__ == "__main__":
         command=reset_map,
         padx=2,
         pady=2,
-        relief=GROOVE)
-    reset_button.pack(side=RIGHT)
-    frame1.pack(side=BOTTOM)
+        relief=tk.GROOVE)
+    reset_button.pack(side=tk.RIGHT)
+    frame1.pack(side=tk.BOTTOM)
     create_map(root)
     root.mainloop()

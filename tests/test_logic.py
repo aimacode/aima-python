@@ -158,6 +158,26 @@ def test_cdcl_satisfiable():
     assert cdcl_satisfiable(P & ~P) is False
 
 
+def test_dpll_branching_heuristics():
+    # every branching heuristic must still return a satisfying model on a SAT
+    # instance and report UNSAT on an unsatisfiable one
+    sat = (A | B | C) & (~A | ~B) & (~B | ~C) & (A | C)
+    for heuristic in (no_branching_heuristic, moms, momsf, posit, dlis, dlcs, jw, jw2, zm):
+        model = dpll_satisfiable(sat, branching_heuristic=heuristic)
+        assert model and pl_true(sat, model)
+        assert dpll_satisfiable(P & ~P, branching_heuristic=heuristic) is False
+
+
+def test_cdcl_restart_strategies():
+    # every restart strategy must still return a satisfying model on a SAT
+    # instance and report UNSAT on an unsatisfiable one
+    sat = (A | B | C) & (~A | ~B) & (~B | ~C) & (A | C) & (D | ~A) & (~D | B)
+    for restart_strategy in (no_restart, luby, glucose):
+        model = cdcl_satisfiable(sat, restart_strategy=restart_strategy)
+        assert model and pl_true(sat, model)
+        assert cdcl_satisfiable(P & ~P, restart_strategy=restart_strategy) is False
+
+
 def test_find_pure_symbol():
     assert find_pure_symbol([A, B, C], [A | ~B, ~B | ~C, C | A]) == (A, True)
     assert find_pure_symbol([A, B, C], [~A | ~B, ~B | ~C, C | A]) == (B, False)

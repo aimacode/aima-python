@@ -65,5 +65,17 @@ def test_QLearning():
     assert q_agent.Q[((1, 0), (0, -1))] <= 0.5  # In reality around -0.1
 
 
+def test_SARSA():
+    sarsa_agent = SARSALearningAgent(sequential_decision_environment, Ne=5, Rplus=2, alpha=lambda n: 60. / (59 + n))
+
+    for i in range(200):
+        run_single_trial(sarsa_agent, sequential_decision_environment)
+
+    # the on-policy agent does not always produce the same results; check the
+    # learned Q-values are in a sensible range, as for the Q-learning agent
+    assert sarsa_agent.Q[((0, 1), (0, 1))] >= -0.5  # In reality around 0.1
+    assert sarsa_agent.Q[((1, 0), (0, -1))] <= 0.5  # In reality around -0.1
+
+
 if __name__ == '__main__':
     pytest.main()

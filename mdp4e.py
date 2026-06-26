@@ -210,7 +210,9 @@ def q_value(mdp, s, a, U):
     return res
 
 
-# TODO: DDN in figure 16.4 and 16.5
+# Dynamic decision networks (DDNs) are solved online by the belief-state
+# look-ahead agent `pomdp_lookahead` defined below, with belief updates via
+# `update_belief` (POMDP filtering).
 
 # ______________________________________________________________________________
 # 16.2 Algorithms for MDPs
@@ -478,6 +480,59 @@ def pomdp_value_iteration(pomdp, epsilon=0.1):
         if count > 10:
             if pomdp.max_difference(U, prev_U) < epsilon * (1 - pomdp.gamma) / pomdp.gamma:
                 return U
+
+
+def update_belief(pomdp, belief, action, observation):
+    """
+    [Equation 17.17]
+    POMDP filtering: update the belief state (a probability distribution over the
+    states) after executing 'action' and perceiving 'observation'. The prediction
+    step propagates the belief through the transition model and the update step
+    weights it by the sensor model, then renormalizes:
+        b'(s') = alpha * P(o | s') * sum_s P(s' | s, a) b(s)
+    """
+    transition, sensor = pomdp.t_prob[int(action)], pomdp.e_prob[int(action)]
+    n = len(belief)
+    # prediction: b_pred(s') = sum_s b(s) P(s' | s, a)
+    predicted = [sum(belief[s] * transition[s][sp] for s in range(n)) for sp in range(n)]
+    # update: weight each predicted state by the likelihood of the observation
+    updated = [sensor[sp][observation] * predicted[sp] for sp in range(n)]
+    total = sum(updated)
+    return [b / total for b in updated] if total else predicted
+
+
+def pomdp_lookahead(pomdp, belief, depth):
+    """
+    [Section 17.5 - Dynamic Decision Networks]
+    Online decision making for a POMDP modeled as a dynamic decision network
+    (DDN): the network is projected 'depth' steps into the future and solved by
+    belief-state expectimax search. Decision nodes range over the belief states
+    and chance nodes branch over the possible observations, with the belief
+    updated by POMDP filtering ([Equation 17.17]) along each branch. Returns the
+    action that maximizes the expected discounted utility from 'belief'.
+    """
+
+    def utility(belief, depth):
+        if depth == 0:
+            return 0
+        return max(q_value(belief, action, depth) for action in pomdp.actions)
+
+    def q_value(belief, action, depth):
+        # expected immediate reward of taking 'action' in the current belief
+        reward = sum(belief[s] * pomdp.rewards[int(action)][s] for s in range(len(belief)))
+        # expectation over the possible observations of the next belief's utility
+        sensor = pomdp.e_prob[int(action)]
+        predicted = [sum(belief[s] * pomdp.t_prob[int(action)][s][sp] for s in range(len(belief)))
+                     for sp in range(len(belief))]
+        future = 0
+        for observation in range(len(sensor[0])):
+            # P(observation | belief, action)
+            p_o = sum(predicted[sp] * sensor[sp][observation] for sp in range(len(belief)))
+            if p_o > 0:
+                future += p_o * utility(update_belief(pomdp, belief, action, observation), depth - 1)
+        return reward + pomdp.gamma * future
+
+    return max(pomdp.actions, key=lambda action: q_value(belief, action, depth))
 
 
 __doc__ += """
