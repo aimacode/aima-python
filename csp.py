@@ -83,6 +83,14 @@ class CSP(search.Problem):
 
         return count(conflict(v) for v in self.neighbors[var])
 
+    def count_lost_values(self, var, val, assignment):
+        """Return how many values would be ruled out in the domains of the
+        unassigned neighbours of var if var were assigned val (the count used
+        by the least-constraining-value heuristic)."""
+        return count(not self.constraints(var, val, neighbor, dval)
+                     for neighbor in self.neighbors[var] if neighbor not in assignment
+                     for dval in self.domains[neighbor])
+
     def display(self, assignment):
         """Show a human-readable representation of the CSP."""
         # Subclasses can print in a prettier way, or display with a GUI
@@ -185,7 +193,7 @@ def AC3(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
             for Xk in csp.neighbors[Xi]:
                 if Xk != Xj:
                     queue.add((Xk, Xi))
-    return True, checks  # CSP is satisfiable
+    return True, checks  # CSP is arc-consistent
 
 
 def revise(csp, Xi, Xj, removals, checks=0):
@@ -257,7 +265,7 @@ def AC3b(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
                 for Xk in csp.neighbors[Xj]:
                     if Xk != Xi:
                         queue.add((Xk, Xj))
-    return True, checks  # CSP is satisfiable
+    return True, checks  # CSP is arc-consistent
 
 
 def partition(csp, Xi, Xj, checks=0):
@@ -334,7 +342,7 @@ def AC4(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
             if revised:
                 if not csp.curr_domains[Xi]:
                     return False, checks  # CSP is inconsistent
-    return True, checks  # CSP is satisfiable
+    return True, checks  # CSP is arc-consistent
 
 
 # ______________________________________________________________________________
@@ -371,7 +379,7 @@ def unordered_domain_values(var, assignment, csp):
 
 def lcv(var, assignment, csp):
     """Least-constraining-values heuristic."""
-    return sorted(csp.choices(var), key=lambda val: csp.nconflicts(var, val, assignment))
+    return sorted(csp.choices(var), key=lambda val: csp.count_lost_values(var, val, assignment))
 
 
 # Inference
@@ -632,7 +640,7 @@ def queen_constraint(A, a, B, b):
 
 
 class NQueensCSP(CSP):
-    """
+    r"""
     Make a CSP for the nQueens problem for search with min_conflicts.
     Suitable for large n, it uses only data structures of size O(n).
     Think of placing queens one per column, from left to right.
@@ -818,7 +826,7 @@ def Zebra():
     Colors = 'Red Yellow Blue Green Ivory'.split()
     Pets = 'Dog Fox Snails Horse Zebra'.split()
     Drinks = 'OJ Tea Coffee Milk Water'.split()
-    Countries = 'Englishman Spaniard Norwegian Ukranian Japanese'.split()
+    Countries = 'Englishman Spaniard Norwegian Ukrainian Japanese'.split()
     Smokes = 'Kools Chesterfields Winston LuckyStrike Parliaments'.split()
     variables = Colors + Pets + Drinks + Countries + Smokes
     domains = {}
@@ -829,7 +837,7 @@ def Zebra():
     neighbors = parse_neighbors("""Englishman: Red;
                 Spaniard: Dog; Kools: Yellow; Chesterfields: Fox;
                 Norwegian: Blue; Winston: Snails; LuckyStrike: OJ;
-                Ukranian: Tea; Japanese: Parliaments; Kools: Horse;
+                Ukrainian: Tea; Japanese: Parliaments; Kools: Horse;
                 Coffee: Green; Green: Ivory""")
     for type in [Colors, Pets, Drinks, Countries, Smokes]:
         for A in type:
@@ -857,7 +865,7 @@ def Zebra():
             return same
         if A == 'LuckyStrike' and B == 'OJ':
             return same
-        if A == 'Ukranian' and B == 'Tea':
+        if A == 'Ukrainian' and B == 'Tea':
             return same
         if A == 'Japanese' and B == 'Parliaments':
             return same

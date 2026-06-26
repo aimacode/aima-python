@@ -677,7 +677,7 @@ def dlcs(symbols, clauses):
 
 
 def jw(symbols, clauses):
-    """
+    r"""
     Jeroslow-Wang heuristic
     For each literal compute J(l) = \sum{l in clause c} 2^{-|c|}
     Return the literal maximizing J
@@ -1492,8 +1492,8 @@ class HybridWumpusAgent(Agent):
     An agent for the wumpus world that does logical inference.
     """
 
-    def __init__(self, dimentions):
-        self.dimrow = dimentions
+    def __init__(self, dimensions):
+        self.dimrow = dimensions
         self.kb = WumpusKB(self.dimrow)
         self.t = 0
         self.plan = list()
@@ -1766,7 +1766,7 @@ def occur_check(var, x, s):
         return (occur_check(var, x.op, s) or
                 occur_check(var, x.args, s))
     elif isinstance(x, (list, tuple)):
-        return first(e for e in x if occur_check(var, e, s))
+        return any(occur_check(var, e, s) for e in x)
     else:
         return False
 

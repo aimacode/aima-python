@@ -421,8 +421,45 @@ def astar_search(problem, h=None, display=False):
     return best_first_graph_search(problem, lambda n: n.path_cost + h(n), display)
 
 
+def iterative_deepening_astar_search(problem, h=None):
+    """[Section 3.5.3] Iterative-deepening A* search: repeatedly run a depth-first
+    search bounded by an f = g + h contour, raising the bound to the smallest f
+    that exceeded it, until a goal within the bound is found."""
+    h = memoize(h or problem.h, 'h')
+
+    def f(node):
+        return node.path_cost + h(node)
+
+    def contour(node, bound):
+        """Depth-first search pruned at f(node) > bound. Return a goal Node, or
+        the smallest f-value among the nodes that exceeded the bound."""
+        if f(node) > bound:
+            return f(node)
+        if problem.goal_test(node.state):
+            return node
+        minimum = np.inf
+        for child in node.expand(problem):
+            # avoid cycles along the current path
+            if child.state not in (ancestor.state for ancestor in node.path()):
+                result = contour(child, bound)
+                if isinstance(result, Node):
+                    return result
+                minimum = min(minimum, result)
+        return minimum
+
+    node = Node(problem.initial)
+    bound = f(node)
+    while True:
+        result = contour(node, bound)
+        if isinstance(result, Node):
+            return result
+        if result == np.inf:
+            return None
+        bound = result
+
+
 # ______________________________________________________________________________
-# A* heuristics 
+# A* heuristics
 
 class EightPuzzle(Problem):
     """ The problem of sliding tiles numbered from 1 to 8 on a 3x3 board, where one of the
@@ -488,7 +525,7 @@ class EightPuzzle(Problem):
         return inversion % 2 == 0
 
     def h(self, node):
-        """ Return the heuristic value for a given state. Default heuristic function used is 
+        """ Return the heuristic value for a given state. Default heuristic function used is
         h(n) = number of misplaced tiles """
 
         return sum(s != g for (s, g) in zip(node.state, self.goal))
@@ -496,6 +533,119 @@ class EightPuzzle(Problem):
 
 # ______________________________________________________________________________
 
+class TravelingSalesman(Problem):
+    """ The problem of finding the shortest Hamiltonian cycle (tour) that visits
+        every city exactly once and returns to the start."""
+
+    def __init__(self, all_cities, initial, goal=None):
+        # initial = (0), goal = some state that its first and last values are 0
+        """ Define goal state and initialize a problem """
+        super().__init__(initial, goal)
+        self.cities_matrix = self.init_distance_matrix(all_cities)
+        self.cities_identifiers = set(all_cities.keys())
+        self.cities_amount = len(self.cities_identifiers)
+        self.trees_evaluation_hash = {}
+
+    def value(self, state):
+        """ Define state value """
+        overall_distance = 0.0
+        state_max_ind = len(state) - 1
+        for ind, city in enumerate(state):
+            if ind != state_max_ind:
+                overall_distance += self.cities_matrix[state[ind]][state[ind + 1]]
+        return overall_distance
+
+    def actions(self, state):
+        """ Return the actions that can be executed in the given state.
+        The result would be a list"""
+        if len(state) == self.cities_amount:
+            return [0]
+        return self.get_unvisited_cities(state)
+
+    def result(self, state, action):
+        """ Given state and action, return a new state that is the result of the action.
+        Action is assumed to be a valid action in the state """
+
+        # blank is the index of the blank square
+        new_state = list(state)
+        new_state.append(action)
+        return tuple(new_state)
+
+    def goal_test(self, state):
+        """ Given a state, return True if state is a goal state or False, otherwise"""
+        return len(state) == (self.cities_amount + 1) and state[0] == state[self.cities_amount]
+
+    def get_unvisited_cities(self, state):
+        """ Returns unused actions(cities) """
+        return self.cities_identifiers.difference(state)
+
+    def path_cost(self, c, state1, action, state2):
+        """ Return next state cost """
+        return c + self.cities_matrix[state1[-1]][state2[-1]]
+
+    def h(self, node):
+        h = 0.0
+        unvisited_cities = self.get_unvisited_cities(node.state)
+        mst_evaluation = self.eval_unvisited_mst_edges_sum(unvisited_cities)
+        h += mst_evaluation
+        return h
+
+    def eval_unvisited_mst_edges_sum(self, unvisited_nodes):
+        if not unvisited_nodes:
+            return 0.0
+        return self.tsp_kruskal(unvisited_nodes)
+
+    def tsp_kruskal(self, unvisited_nodes):
+        """ Generate MST of the graph and return sum of edges """
+        forest_value = 0.0
+        disjoint_sets = DisjointSets()
+        non_sorted_edges_list = []
+        for vertex_x in unvisited_nodes:
+            disjoint_sets.make_set(vertex_x)
+            for vertex_y in unvisited_nodes:
+                if vertex_x < vertex_y:
+                    non_sorted_edges_list.append((vertex_x, vertex_y))
+        edges_list = sorted(non_sorted_edges_list, key=lambda edge: self.cities_matrix[edge[0]][edge[1]], reverse=False)
+        for vertex_u, vertex_v in edges_list:
+            if disjoint_sets.find(vertex_v) != disjoint_sets.find(vertex_u):
+                forest_value += self.cities_matrix[vertex_u][vertex_v]
+                disjoint_sets.union(vertex_v, vertex_u)
+        return forest_value
+
+    def init_distance_matrix(self, all_cities):
+        """ Generate matrix of distance between all cities """
+        return {row_ind: {col_ind: distance(row_coords, col_coords) for col_ind, col_coords in all_cities.items()}
+                for row_ind, row_coords in all_cities.items()}
+
+
+class DisjointSets:
+    def __init__(self):
+        self.parent = {}
+        self.rank = {}
+
+    def make_set(self, vertex):
+        self.parent[vertex] = vertex
+        self.rank[vertex] = 0
+
+    def find(self, vertex):
+        if self.parent[vertex] == vertex:
+            return vertex
+        return self.find(self.parent[vertex])
+
+    def union(self, vertex_u, vertex_v):
+        vertex_u_root = self.find(vertex_u)
+        vertex_v_root = self.find(vertex_v)
+
+        if self.rank[vertex_u_root] > self.rank[vertex_v_root]:
+            self.parent[vertex_v_root] = vertex_u_root
+        elif self.rank[vertex_u_root] < self.rank[vertex_v_root]:
+            self.parent[vertex_u_root] = vertex_v_root
+        else:
+            self.parent[vertex_u_root] = vertex_v_root
+            self.rank[vertex_v_root] += 1
+
+
+# ______________________________________________________________________________
 
 class PlanRoute(Problem):
     """ The problem of moving the Hybrid Wumpus Agent from one place to other """
@@ -674,7 +824,7 @@ def simulated_annealing(problem, schedule=exp_schedule()):
 
 
 def simulated_annealing_full(problem, schedule=exp_schedule()):
-    """ This version returns all the states encountered in reaching 
+    """ This version returns all the states encountered in reaching
     the goal state."""
     states = []
     current = Node(problem.initial)
