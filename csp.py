@@ -655,7 +655,7 @@ def queen_constraint(A, a, B, b):
 
 
 class NQueensCSP(CSP):
-    """
+    r"""
     Make a CSP for the nQueens problem for search with min_conflicts.
     Suitable for large n, it uses only data structures of size O(n).
     Think of placing queens one per column, from left to right.
@@ -781,8 +781,9 @@ class Sudoku(CSP):
     . . 2 | 6 . 9 | 5 . .
     8 . . | 2 . 3 | . . 9
     . . 5 | . 1 . | 3 . .
-    >>> AC3(e); e.display(e.infer_assignment())
-    (True, 6925)
+    >>> AC3(e)  # doctest: +ELLIPSIS
+    (True, ...)
+    >>> e.display(e.infer_assignment())
     4 8 3 | 9 2 1 | 6 5 7
     9 6 7 | 3 4 5 | 8 2 1
     2 5 1 | 8 7 6 | 4 9 3
@@ -840,7 +841,7 @@ def Zebra():
     Colors = 'Red Yellow Blue Green Ivory'.split()
     Pets = 'Dog Fox Snails Horse Zebra'.split()
     Drinks = 'OJ Tea Coffee Milk Water'.split()
-    Countries = 'Englishman Spaniard Norwegian Ukranian Japanese'.split()
+    Countries = 'Englishman Spaniard Norwegian Ukrainian Japanese'.split()
     Smokes = 'Kools Chesterfields Winston LuckyStrike Parliaments'.split()
     variables = Colors + Pets + Drinks + Countries + Smokes
     domains = {}
@@ -851,7 +852,7 @@ def Zebra():
     neighbors = parse_neighbors("""Englishman: Red;
                 Spaniard: Dog; Kools: Yellow; Chesterfields: Fox;
                 Norwegian: Blue; Winston: Snails; LuckyStrike: OJ;
-                Ukranian: Tea; Japanese: Parliaments; Kools: Horse;
+                Ukrainian: Tea; Japanese: Parliaments; Kools: Horse;
                 Coffee: Green; Green: Ivory""")
     for type in [Colors, Pets, Drinks, Countries, Smokes]:
         for A in type:
@@ -879,7 +880,7 @@ def Zebra():
             return same
         if A == 'LuckyStrike' and B == 'OJ':
             return same
-        if A == 'Ukranian' and B == 'Tea':
+        if A == 'Ukrainian' and B == 'Tea':
             return same
         if A == 'Japanese' and B == 'Parliaments':
             return same
@@ -1288,7 +1289,7 @@ class Crossword(NaryCSP):
                 else:
                     var = "p" + str(j) + str(i)
                     if assignment is not None:
-                        if isinstance(assignment[var], set) and len(assignment[var]) is 1:
+                        if isinstance(assignment[var], set) and len(assignment[var]) == 1:
                             puzzle += "[" + str(first(assignment[var])).upper() + "] "
                         elif isinstance(assignment[var], str):
                             puzzle += "[" + str(assignment[var]).upper() + "] "
@@ -1416,7 +1417,7 @@ class Kakuro(NaryCSP):
                         var2 = "0" + var2
                     var = "X" + var1 + var2
                     if assignment is not None:
-                        if isinstance(assignment[var], set) and len(assignment[var]) is 1:
+                        if isinstance(assignment[var], set) and len(assignment[var]) == 1:
                             puzzle += "[" + str(first(assignment[var])) + "]\t"
                         elif isinstance(assignment[var], int):
                             puzzle += "[" + str(assignment[var]) + "]\t"

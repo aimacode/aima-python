@@ -123,7 +123,7 @@ class MCLmap:
         return kin_state
 
     def ray_cast(self, sensor_num, kin_state):
-        """Returns distace to nearest obstacle or map boundary in the direction of sensor"""
+        """Returns distance to nearest obstacle or map boundary in the direction of sensor"""
         pos = kin_state[:2]
         orient = kin_state[2]
         # sensor layout when orientation is 0 (towards North)

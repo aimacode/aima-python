@@ -311,9 +311,9 @@ def load_MINST(train_size, val_size, test_size):
     test_x /= 255
     y_train = keras.utils.to_categorical(y_train, 10)
     y_test = keras.utils.to_categorical(y_test, 10)
-    return (x_train[:train_size], y_train[:train_size]), \
-           (x_train[train_size:train_size + val_size], y_train[train_size:train_size + val_size]), \
-           (x_test[:test_size], y_test[:test_size])
+    return ((x_train[:train_size], y_train[:train_size]),
+            (x_train[train_size:train_size + val_size], y_train[train_size:train_size + val_size]),
+            (x_test[:test_size], y_test[:test_size]))
 
 
 def simple_convnet(size=3, num_classes=10):
@@ -337,9 +337,7 @@ def simple_convnet(size=3, num_classes=10):
     model.add(Activation('softmax'))
 
     # compile model
-    opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
     model.compile(loss='categorical_crossentropy',
-                  optimizer=opt,
                   metrics=['accuracy'])
     print(model.summary())
     return model
