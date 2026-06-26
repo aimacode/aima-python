@@ -299,5 +299,15 @@ def test_priority_queue_with_objects():
     assert len(queue) == 0
 
 
+def test_priority_queue_ties_with_non_comparable_items():
+    # Items with equal priority must never be compared with each other
+    # (these dicts are not orderable); ties keep insertion (FIFO) order.
+    queue = PriorityQueue(f=lambda d: d['cost'])
+    queue.append({'cost': 1, 'id': 'a'})
+    queue.append({'cost': 1, 'id': 'b'})
+    queue.append({'cost': 0, 'id': 'c'})
+    assert [queue.pop()['id'] for _ in range(3)] == ['c', 'a', 'b']
+
+
 if __name__ == '__main__':
     pytest.main()

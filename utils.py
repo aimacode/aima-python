@@ -728,6 +728,9 @@ class PriorityQueue:
 
     def __init__(self, order='min', f=lambda x: x):
         self.heap = []
+        # monotonic tie-breaker so items with equal priority are never compared
+        # (which would fail for non-comparable items); ties keep insertion order
+        self.counter = 0
         if order == 'min':
             self.f = f
         elif order == 'max':  # now item with max f(x)
@@ -737,7 +740,8 @@ class PriorityQueue:
 
     def append(self, item):
         """Insert item at its correct position."""
-        heapq.heappush(self.heap, (self.f(item), item))
+        heapq.heappush(self.heap, (self.f(item), self.counter, item))
+        self.counter += 1
 
     def extend(self, items):
         """Insert each item in items at its correct position."""
@@ -748,7 +752,7 @@ class PriorityQueue:
         """Pop and return the item (with min or max f(x) value)
         depending on the order."""
         if self.heap:
-            return heapq.heappop(self.heap)[1]
+            return heapq.heappop(self.heap)[-1]
         else:
             raise Exception('Trying to pop from empty PriorityQueue.')
 
@@ -758,12 +762,12 @@ class PriorityQueue:
 
     def __contains__(self, key):
         """Return True if the key is in PriorityQueue."""
-        return any([item == key for _, item in self.heap])
+        return any(item == key for *_, item in self.heap)
 
     def __getitem__(self, key):
         """Returns the first value associated with key in PriorityQueue.
         Raises KeyError if key is not present."""
-        for value, item in self.heap:
+        for value, _, item in self.heap:
             if item == key:
                 return value
         raise KeyError(str(key) + " is not in the priority queue")
@@ -771,7 +775,7 @@ class PriorityQueue:
     def __delitem__(self, key):
         """Delete the first occurrence of key."""
         try:
-            del self.heap[[item == key for _, item in self.heap].index(True)]
+            del self.heap[[item == key for *_, item in self.heap].index(True)]
         except ValueError:
             raise KeyError(str(key) + " is not in the priority queue")
         heapq.heapify(self.heap)
