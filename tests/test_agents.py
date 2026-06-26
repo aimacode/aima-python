@@ -117,7 +117,7 @@ def test_TableDrivenAgent():
     # add agent to the environment
     environment.add_thing(agent)
 
-    # run the environment by single step everytime to check how environment evolves using TableDrivenAgentProgram
+    # run the environment by single step every time to check how environment evolves using TableDrivenAgentProgram
     environment.run(steps=1)
     assert environment.status == {(1, 0): 'Clean', (0, 0): 'Dirty'}
 
