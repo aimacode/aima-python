@@ -1,15 +1,15 @@
 
 
-# `aima-python` [![Build Status](https://travis-ci.org/aimacode/aima-python.svg?branch=master)](https://travis-ci.org/aimacode/aima-python) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
+# `aima-python` [![tests](https://github.com/aimacode/aima-python/actions/workflows/tests.yml/badge.svg)](https://github.com/aimacode/aima-python/actions/workflows/tests.yml) [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/aimacode/aima-python)
 
 
 Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
 
 # Updates for 4th Edition
 
-The 4th edition of the book as out now in 2020, and thus we are updating the code. All code here will reflect the 4th edition. Changes include:
+The 4th edition of the book is out now in 2020, and thus we are updating the code. All code here will reflect the 4th edition. Changes include:
 
-- Move from Python 3.5 to 3.7.
+- Move from Python 3.5 to 3.7, and on to modern Python (the code now runs on Python 3.9 and up).
 - More emphasis on Jupyter (Ipython) notebooks.
 - More projects using external packages (tensorflow, etc.).
 
@@ -23,9 +23,9 @@ When complete, this project will have Python implementations for all the pseudoc
 - `search_XX.ipynb`: Notebooks that show how to use the code, broken out into various topics (the `XX`).
 - `tests/test_search.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
 
-# Python 3.7 and up
+# Python 3.9 and up
 
-The code for the 3rd edition was in Python 3.5; the current 4th edition code is in Python 3.7. It should also run in later versions, but does not run in Python 2. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
+The code for the 3rd edition was in Python 3.5; the 4th edition code targets Python 3.7 and runs on Python 3.9 and up, but does not run in Python 2. Continuous integration runs the full test suite (including the deep-learning modules) on Python 3.9, 3.10, 3.11 and 3.12; note that some optional dependencies (`tensorflow`, `keras`, `opencv-python`) do not yet ship wheels for the very latest releases (3.13+), so one of those versions is recommended for running everything. You can [install Python](https://www.python.org/downloads) or use a browser-based Python interpreter such as [repl.it](https://repl.it/languages/python3).
 You can run the code in an IDE, or from the command line with `python -i filename.py` where the `-i` option puts you in an interactive loop where you can run Python functions. All notebooks are available in a [binder environment](http://mybinder.org/repo/aimacode/aima-python). Alternatively, visit [jupyter.org](http://jupyter.org/) for instructions on setting up your own Jupyter notebook environment.
 
 Features from Python 3.6 and 3.7 that we will be using for this version of the code:
@@ -120,7 +120,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 7.15   | PL-FC-Entails?                    | `pl_fc_entails`               | [`logic.py`][logic]             | Done | Included |
 | 7.17   | DPLL-Satisfiable?                 | `dpll_satisfiable`            | [`logic.py`][logic]             | Done | Included |
 | 7.18   | WalkSAT                           | `WalkSAT`                     | [`logic.py`][logic]             | Done | Included |
-| 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           |                                 |      |          |
+| 7.20   | Hybrid-Wumpus-Agent               | `HybridWumpusAgent`           | [`logic.py`][logic]             | Done | Included |
 | 7.22   | SATPlan                           | `SAT_plan`                    | [`logic.py`][logic]             | Done | Included |
 | 9      | Subst                             | `subst`                       | [`logic.py`][logic]             | Done | Included |
 | 9.1    | Unify                             | `unify`                       | [`logic.py`][logic]             | Done | Included |
@@ -147,15 +147,30 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 15.4   | Forward-Backward                  | `forward_backward`            | [`probability.py`][probability] | Done | Included |
 | 15.6   | Fixed-Lag-Smoothing               | `fixed_lag_smoothing`         | [`probability.py`][probability] | Done | Included |
 | 15.17  | Particle-Filtering                | `particle_filtering`          | [`probability.py`][probability] | Done | Included |
+| 15.4   | Kalman-Filter                     | `KalmanFilter`                | [`probability.py`][probability] | Done | Included |
+| 15.5   | Dynamic-Bayesian-Network          | `DynamicBayesNet`             | [`probability.py`][probability] | Done | Included |
 | 16.9   | Information-Gathering-Agent       | `InformationGatheringAgent`   | [`probability.py`][probability] | Done | Included |
 | 17.4   | Value-Iteration                   | `value_iteration`             | [`mdp.py`][mdp]                 | Done | Included |
 | 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`][mdp]                 | Done | Included |
 | 17.9   | POMDP-Value-Iteration             | `pomdp_value_iteration`       | [`mdp.py`][mdp]                 | Done | Included |
+| 17.4   | Dynamic-Decision-Network          | `pomdp_lookahead`             | [`mdp4e.py`](mdp4e.py)          | Done | Included |
+| 18.2   | Iterated-Dominance                | `iterated_dominance`          | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
+| 18.2   | Pure-Nash-Equilibria              | `pure_nash_equilibria`        | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
+| 18.2   | Zero-Sum-Game (LP)                | `solve_zero_sum_game`         | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
+| 18.3   | Shapley-Value                     | `shapley_value`               | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
+| 18.3   | Core (cooperative game)           | `is_in_core`                  | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
+| 18.4   | Voting (plurality/Borda/Condorcet)| `plurality_winner` etc.       | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
+| 18.4   | Vickrey-Auction                   | `vickrey_auction`             | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
+| 18.4.1 | Contract-Net-Protocol             | `contract_net`                | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
+| 18.4.4 | Alternating-Offers-Bargaining     | `alternating_offers_bargaining` | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
 | 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`][learning]       | Done | Included |
-| 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]\*     |      |          |
-| 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]\*     |      |          |
+| 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]       | Done | Included |
+| 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]       | Done | Included |
 | 18.24  | Back-Prop-Learning                | `BackPropagationLearner`      | [`learning.py`][learning]       | Done | Included |
 | 18.34  | AdaBoost                          | `AdaBoost`                    | [`learning.py`][learning]       | Done | Included |
+| 20.X   | EM (Mixture of Gaussians)         | `gaussian_mixture_em`         | [`learning.py`][learning]       | Done | Included |
+| 20.3.2 | EM (Bayes net hidden variable)    | `naive_bayes_em`              | [`learning.py`][learning]       | Done | Included |
+| 20.3   | Baum-Welch (HMM learning)         | `baum_welch`                  | [`probability.py`][probability] | Done | Included |
 | 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](knowledge.py)  | Done | Included |
 | 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](knowledge.py)  | Done | Included |
@@ -163,6 +178,7 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`rl.py`][rl]                   | Done | Included |
 | 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`rl.py`][rl]                   | Done | Included |
 | 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`rl.py`][rl]                   | Done | Included |
+| 21.8   | SARSA-Agent                       | `SARSALearningAgent`          | [`rl.py`][rl]                   | Done | Included |
 | 22.1   | HITS                              | `HITS`                        | [`nlp.py`][nlp]                 | Done | Included |
 | 23     | Chart-Parse                       | `Chart`                       | [`nlp.py`][nlp]                 | Done | Included |
 | 23.5   | CYK-Parse                         | `CYK_parse`                   | [`nlp.py`][nlp]                 | Done | Included |

@@ -194,19 +194,19 @@ def test_graph_call():
     assert levels_size == len(graph.levels) - 1
 
 
-def test_graphPlan():
-    spare_tire_solution = spare_tire_graphPlan()
+def test_graph_plan():
+    spare_tire_solution = spare_tire_graph_plan()
     spare_tire_solution = linearize(spare_tire_solution)
     assert expr('Remove(Flat, Axle)') in spare_tire_solution
     assert expr('Remove(Spare, Trunk)') in spare_tire_solution
     assert expr('PutOn(Spare, Axle)') in spare_tire_solution
 
-    cake_solution = have_cake_and_eat_cake_too_graphPlan()
+    cake_solution = have_cake_and_eat_cake_too_graph_plan()
     cake_solution = linearize(cake_solution)
     assert expr('Eat(Cake)') in cake_solution
     assert expr('Bake(Cake)') in cake_solution
 
-    air_cargo_solution = air_cargo_graphPlan()
+    air_cargo_solution = air_cargo_graph_plan()
     air_cargo_solution = linearize(air_cargo_solution)
     assert expr('Load(C1, P1, SFO)') in air_cargo_solution
     assert expr('Load(C2, P2, JFK)') in air_cargo_solution
@@ -215,28 +215,32 @@ def test_graphPlan():
     assert expr('Unload(C1, P1, JFK)') in air_cargo_solution
     assert expr('Unload(C2, P2, SFO)') in air_cargo_solution
 
-    sussman_anomaly_solution = three_block_tower_graphPlan()
+    sussman_anomaly_solution = three_block_tower_graph_plan()
     sussman_anomaly_solution = linearize(sussman_anomaly_solution)
     assert expr('MoveToTable(C, A)') in sussman_anomaly_solution
     assert expr('Move(B, Table, C)') in sussman_anomaly_solution
     assert expr('Move(A, Table, B)') in sussman_anomaly_solution
 
-    blocks_world_solution = simple_blocks_world_graphPlan()
+    blocks_world_solution = simple_blocks_world_graph_plan()
     blocks_world_solution = linearize(blocks_world_solution)
     assert expr('ToTable(A, B)') in blocks_world_solution
     assert expr('FromTable(B, A)') in blocks_world_solution
     assert expr('FromTable(C, B)') in blocks_world_solution
 
-    shopping_problem_solution = shopping_graphPlan()
+    shopping_problem_solution = shopping_graph_plan()
     shopping_problem_solution = linearize(shopping_problem_solution)
-    assert expr('Go(Home, HW)') in shopping_problem_solution
-    assert expr('Go(Home, SM)') in shopping_problem_solution
+    # The plan must visit both stores; the route may be reached either directly
+    # from Home or by hopping between the stores (e.g. Home -> SM -> HW).
+    assert (expr('Go(Home, HW)') in shopping_problem_solution or
+            expr('Go(SM, HW)') in shopping_problem_solution)
+    assert (expr('Go(Home, SM)') in shopping_problem_solution or
+            expr('Go(HW, SM)') in shopping_problem_solution)
     assert expr('Buy(Drill, HW)') in shopping_problem_solution
     assert expr('Buy(Banana, SM)') in shopping_problem_solution
     assert expr('Buy(Milk, SM)') in shopping_problem_solution
 
 
-def test_forwardPlan():
+def test_forward_plan():
     spare_tire_solution = astar_search(ForwardPlan(spare_tire())).solution()
     spare_tire_solution = list(map(lambda action: Expr(action.name, *action.args), spare_tire_solution))
     assert expr('Remove(Flat, Axle)') in spare_tire_solution
@@ -278,7 +282,7 @@ def test_forwardPlan():
     assert expr('Buy(Drill, HW)') in shopping_problem_solution
 
 
-def test_backwardPlan():
+def test_backward_plan():
     spare_tire_solution = astar_search(BackwardPlan(spare_tire())).solution()
     spare_tire_solution = list(map(lambda action: Expr(action.name, *action.args), spare_tire_solution))
     assert expr('Remove(Flat, Axle)') in spare_tire_solution
@@ -582,7 +586,7 @@ plan3 = AngelicNode('At(Home)', None, [drive_SFOLongTermParking, shuttle_SFO])
 prob_1 = RealWorldPlanningProblem('At(Home) & Have(Cash) & Have(Car) ', 'At(SFO) & Have(Cash)',
                                   [go_SFO, taxi_SFO, drive_SFOLongTermParking, shuttle_SFO])
 
-initialPlan = [AngelicNode(prob_1.initial, None, [angelic_opt_description], [angelic_pes_description])]
+initial_plan = [AngelicNode(prob_1.initial, None, [angelic_opt_description], [angelic_pes_description])]
 
 
 def test_refinements():
@@ -740,15 +744,15 @@ def test_making_progress():
 
     plan_1 = AngelicNode(prob_1.initial, None, [angelic_opt_description], [angelic_pes_description])
 
-    assert (not RealWorldPlanningProblem.making_progress(plan_1, initialPlan))
+    assert (not RealWorldPlanningProblem.making_progress(plan_1, initial_plan))
 
 
 def test_angelic_search():
     """
-    Test angelic search for problem, hierarchy, initialPlan
+    Test angelic search for problem, hierarchy, initial_plan
     """
     # test_1
-    solution = RealWorldPlanningProblem.angelic_search(prob_1, library_1, initialPlan)
+    solution = RealWorldPlanningProblem.angelic_search(prob_1, library_1, initial_plan)
 
     assert (len(solution) == 2)
 
@@ -759,7 +763,7 @@ def test_angelic_search():
     assert (solution[1].args == shuttle_SFO.args)
 
     # test_2
-    solution_2 = RealWorldPlanningProblem.angelic_search(prob_1, library_2, initialPlan)
+    solution_2 = RealWorldPlanningProblem.angelic_search(prob_1, library_2, initial_plan)
 
     assert (len(solution_2) == 2)
 
