@@ -533,8 +533,8 @@ class EightPuzzle(Problem):
 # ______________________________________________________________________________
 
 class TravelingSalesman(Problem):
-    """ The problem of finding the shortest
-        way to perform Hemilton Circle between the cities"""
+    """ The problem of finding the shortest Hamiltonian cycle (tour) that visits
+        every city exactly once and returns to the start."""
 
     def __init__(self, all_cities, initial, goal=None):
         # initial = (0), goal = some state that its first and last values are 0
@@ -618,8 +618,9 @@ class TravelingSalesman(Problem):
 
 
 class DisjointSets:
-    parent = {}
-    rank = {}
+    def __init__(self):
+        self.parent = {}
+        self.rank = {}
 
     def make_set(self, vertex):
         self.parent[vertex] = vertex
