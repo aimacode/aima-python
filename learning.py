@@ -511,8 +511,8 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     examples = dataset.examples
     num_examples = len(examples)
 
-    # X transpose
-    X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
+    # X transpose: the actual value of each input feature across the examples
+    X_col = [[example[i] for example in examples] for i in idx_i]  # vertical columns of X
 
     # add dummy
     ones = [1 for _ in range(len(examples))]
@@ -526,7 +526,7 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         err = []
         # pass over all examples
         for example in examples:
-            x = [1] + example
+            x = [1] + [example[i] for i in idx_i]
             y = np.dot(w, x)
             t = example[idx_t]
             err.append(t - y)
@@ -536,7 +536,7 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
             w[i] = w[i] + learning_rate * (np.dot(err, X_col[i]) / num_examples)
 
     def predict(example):
-        x = [1] + example
+        x = [1] + [example[i] for i in idx_i]
         return np.dot(w, x)
 
     return predict
@@ -552,8 +552,8 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
     examples = dataset.examples
     num_examples = len(examples)
 
-    # X transpose
-    X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
+    # X transpose: the actual value of each input feature across the examples
+    X_col = [[example[i] for example in examples] for i in idx_i]  # vertical columns of X
 
     # add dummy
     ones = [1 for _ in range(len(examples))]
@@ -568,7 +568,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         h = []
         # pass over all examples
         for example in examples:
-            x = [1] + example
+            x = [1] + [example[i] for i in idx_i]
             y = sigmoid(np.dot(w, x))
             h.append(sigmoid_derivative(y))
             t = example[idx_t]
@@ -580,7 +580,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
             w[i] = w[i] + learning_rate * (np.dot(buffer, X_col[i]) / num_examples)
 
     def predict(example):
-        x = [1] + example
+        x = [1] + [example[i] for i in idx_i]
         return sigmoid(np.dot(w, x))
 
     return predict
