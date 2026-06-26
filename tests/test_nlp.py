@@ -3,9 +3,9 @@ import random
 import pytest
 import nlp
 
-from nlp import loadPageHTML, stripRawHTML, findOutlinks, onlyWikipediaURLS
-from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, getInLinks
-from nlp import getOutLinks, Page, determineInlinks, HITS
+from nlp import load_page_html, strip_raw_html, find_outlinks, only_wikipedia_urls
+from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, get_in_links
+from nlp import get_out_links, Page, determine_inlinks, HITS
 from nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
 from nlp import Chart, CYK_parse
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
@@ -126,15 +126,15 @@ def test_CYK_parse():
 # ______________________________________________________________________________
 # Data Setup
 
-testHTML = """Keyword String 1: A man is a male human.
+test_html = """Keyword String 1: A man is a male human.
             Keyword String 2: Like most other male mammals, a man inherits an
             X from his mom and a Y from his dad.
             Links:
             href="https://google.com.au"
             < href="/wiki/TestThing" > href="/wiki/TestBoy"
             href="/wiki/TestLiving" href="/wiki/TestMan" >"""
-testHTML2 = "a mom and a dad"
-testHTML3 = """
+test_html2 = "a mom and a dad"
+test_html3 = """
             <!DOCTYPE html>
             <html>
             <head>
@@ -154,44 +154,44 @@ pC = Page("C", ["B", "E"], ["A", "D"], 3, 4)
 pD = Page("D", ["A", "B", "C", "E"], [], 4, 3)
 pE = Page("E", [], ["A", "B", "C", "D", "F"], 5, 2)
 pF = Page("F", ["E"], [], 6, 1)
-pageDict = {pA.address: pA, pB.address: pB, pC.address: pC,
+page_dict = {pA.address: pA, pB.address: pB, pC.address: pC,
             pD.address: pD, pE.address: pE, pF.address: pF}
-nlp.pagesIndex = pageDict
-nlp.pagesContent = {pA.address: testHTML, pB.address: testHTML2,
-                    pC.address: testHTML, pD.address: testHTML2,
-                    pE.address: testHTML, pF.address: testHTML2}
+nlp.pages_index = page_dict
+nlp.pages_content = {pA.address: test_html, pB.address: test_html2,
+                    pC.address: test_html, pD.address: test_html2,
+                    pE.address: test_html, pF.address: test_html2}
 
 
 # This test takes a long time (> 60 secs)
-# def test_loadPageHTML():
+# def test_load_page_html():
 #     # first format all the relative URLs with the base URL
-#     addresses = [examplePagesSet[0] + x for x in examplePagesSet[1:]]
-#     loadedPages = loadPageHTML(addresses)
-#     relURLs = ['Ancient_Greek','Ethics','Plato','Theology']
-#     fullURLs = ["https://en.wikipedia.org/wiki/"+x for x in relURLs]
-#     assert all(x in loadedPages for x in fullURLs)
-#     assert all(loadedPages.get(key,"") != "" for key in addresses)
+#     addresses = [example_pages_set[0] + x for x in example_pages_set[1:]]
+#     loaded_pages = load_page_html(addresses)
+#     rel_urls = ['Ancient_Greek','Ethics','Plato','Theology']
+#     full_urls = ["https://en.wikipedia.org/wiki/"+x for x in rel_urls]
+#     assert all(x in loaded_pages for x in full_urls)
+#     assert all(loaded_pages.get(key,"") != "" for key in addresses)
 
 
-@patch('urllib.request.urlopen', return_value=BytesIO(testHTML3.encode()))
-def test_stripRawHTML(html_mock):
+@patch('urllib.request.urlopen', return_value=BytesIO(test_html3.encode()))
+def test_strip_raw_html(html_mock):
     addr = "https://en.wikipedia.org/wiki/Ethics"
-    aPage = loadPageHTML([addr])
-    someHTML = aPage[addr]
-    strippedHTML = stripRawHTML(someHTML)
-    assert "<head>" not in strippedHTML and "</head>" not in strippedHTML
-    assert "AIMA book" in someHTML and "AIMA book" in strippedHTML
+    a_page = load_page_html([addr])
+    some_html = a_page[addr]
+    stripped_html = strip_raw_html(some_html)
+    assert "<head>" not in stripped_html and "</head>" not in stripped_html
+    assert "AIMA book" in some_html and "AIMA book" in stripped_html
 
 
-def test_determineInlinks():
-    assert set(determineInlinks(pA)) == set(['B', 'C', 'E'])
-    assert set(determineInlinks(pE)) == set([])
-    assert set(determineInlinks(pF)) == set(['E'])
+def test_determine_inlinks():
+    assert set(determine_inlinks(pA)) == set(['B', 'C', 'E'])
+    assert set(determine_inlinks(pE)) == set([])
+    assert set(determine_inlinks(pF)) == set(['E'])
 
 
-def test_findOutlinks_wiki():
-    testPage = pageDict[pA.address]
-    outlinks = findOutlinks(testPage, handleURLs=onlyWikipediaURLS)
+def test_find_outlinks_wiki():
+    test_page = page_dict[pA.address]
+    outlinks = find_outlinks(test_page, handle_urls=only_wikipedia_urls)
     assert "https://en.wikipedia.org/wiki/TestThing" in outlinks
     assert "https://en.wikipedia.org/wiki/TestThing" in outlinks
     assert "https://google.com.au" not in outlinks
@@ -202,12 +202,12 @@ def test_findOutlinks_wiki():
 
 
 def test_expand_pages():
-    pages = {k: pageDict[k] for k in ('F')}
-    pagesTwo = {k: pageDict[k] for k in ('A', 'E')}
+    pages = {k: page_dict[k] for k in ('F')}
+    pages_two = {k: page_dict[k] for k in ('A', 'E')}
     expanded_pages = expand_pages(pages)
     assert all(x in expanded_pages for x in ['F', 'E'])
     assert all(x not in expanded_pages for x in ['A', 'B', 'C', 'D'])
-    expanded_pages = expand_pages(pagesTwo)
+    expanded_pages = expand_pages(pages_two)
     print(expanded_pages)
     assert all(x in expanded_pages for x in ['A', 'B', 'C', 'D', 'E', 'F'])
 
@@ -223,42 +223,42 @@ def test_relevant_pages():
 
 
 def test_normalize():
-    normalize(pageDict)
-    print(page.hub for addr, page in nlp.pagesIndex.items())
+    normalize(page_dict)
+    print(page.hub for addr, page in nlp.pages_index.items())
     expected_hub = [1 / 91 ** 0.5, 2 / 91 ** 0.5, 3 / 91 ** 0.5, 4 / 91 ** 0.5, 5 / 91 ** 0.5,
                     6 / 91 ** 0.5]  # Works only for sample data above
     expected_auth = list(reversed(expected_hub))
-    assert len(expected_hub) == len(expected_auth) == len(nlp.pagesIndex)
-    assert expected_hub == [page.hub for addr, page in sorted(nlp.pagesIndex.items())]
-    assert expected_auth == [page.authority for addr, page in sorted(nlp.pagesIndex.items())]
+    assert len(expected_hub) == len(expected_auth) == len(nlp.pages_index)
+    assert expected_hub == [page.hub for addr, page in sorted(nlp.pages_index.items())]
+    assert expected_auth == [page.authority for addr, page in sorted(nlp.pages_index.items())]
 
 
-def test_detectConvergence():
-    # run detectConvergence once to initialise history
+def test_detect_convergence():
+    # run detect_convergence once to initialise history
     convergence = ConvergenceDetector()
     convergence()
     assert convergence()  # values haven't changed so should return True
     # make tiny increase/decrease to all values
-    for _, page in nlp.pagesIndex.items():
+    for _, page in nlp.pages_index.items():
         page.hub += 0.0003
         page.authority += 0.0004
     # retest function with values. Should still return True
     assert convergence()
-    for _, page in nlp.pagesIndex.items():
+    for _, page in nlp.pages_index.items():
         page.hub += 3000000
         page.authority += 3000000
     # retest function with values. Should now return false
     assert not convergence()
 
 
-def test_getInlinks():
-    inlnks = getInLinks(pageDict['A'])
-    assert sorted(inlnks) == pageDict['A'].inlinks
+def test_get_inlinks():
+    inlnks = get_in_links(page_dict['A'])
+    assert sorted(inlnks) == page_dict['A'].inlinks
 
 
-def test_getOutlinks():
-    outlnks = getOutLinks(pageDict['A'])
-    assert sorted(outlnks) == pageDict['A'].outlinks
+def test_get_outlinks():
+    outlnks = get_out_links(page_dict['A'])
+    assert sorted(outlnks) == page_dict['A'].outlinks
 
 
 def test_HITS():

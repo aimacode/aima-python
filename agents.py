@@ -480,7 +480,7 @@ class XYEnvironment(Environment):
         self.observers = []
         # Sets iteration start and end (no walls).
         self.x_start, self.y_start = (0, 0)
-        self.x_end, self.y_end = (self.width, self.height)
+        self.x_end, self.y_end = (self.width - 1, self.height - 1)
 
     perceptible_distance = 1
 

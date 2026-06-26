@@ -41,10 +41,10 @@ class Layer:
 class Activation:
 
     def function(self, x):
-        return NotImplementedError
+        raise NotImplementedError
 
     def derivative(self, x):
-        return NotImplementedError
+        raise NotImplementedError
 
     def __call__(self, x):
         return self.function(x)

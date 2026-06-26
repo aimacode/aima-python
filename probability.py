@@ -727,6 +727,65 @@ def viterbi(HMM, ev):
     return ml_path, ml_probabilities
 
 
+def baum_welch(HMM, observations, iterations=100):
+    """
+    [Section 20.3]
+    Baum-Welch algorithm: the instance of EM that learns the parameters of a
+    Hidden Markov Model (transition model, sensor model and prior) from a single
+    sequence of boolean 'observations', starting from the initial guess in 'HMM'.
+    Each iteration runs a (scaled) forward-backward pass to compute the smoothed
+    state marginals gamma_t(i) = P(X_t=i | e_1:T) and transition marginals
+    xi_t(i,j) = P(X_t=i, X_t+1=j | e_1:T) (E-step), then re-estimates every
+    parameter as the corresponding normalized expected count (M-step):
+        prior_i     = gamma_0(i)
+        A_ij        = sum_t xi_t(i, j) / sum_t gamma_t(i)
+        sensor_oi   = sum_{t: e_t = o} gamma_t(i) / sum_t gamma_t(i)
+    Returns a new HiddenMarkovModel with the learned parameters.
+    """
+    A = np.array(HMM.transition_model, dtype=float)
+    prior = np.array(HMM.prior, dtype=float)
+    # sensor[0] = P(e=True | state), sensor[1] = P(e=False | state)
+    sensor = np.array(HMM.sensor_model, dtype=float)
+    obs = list(observations)
+    n, t_max = len(prior), len(obs)
+
+    for _ in range(iterations):
+        # emission vectors b_t(i) = P(e_t | X_t = i), recomputed from current sensor
+        B = np.array([sensor[0] if e else sensor[1] for e in obs])
+
+        # E-step: scaled forward (alpha) and backward (beta) messages
+        alpha, c = np.zeros((t_max, n)), np.zeros(t_max)
+        alpha[0] = prior * B[0]
+        c[0] = alpha[0].sum()
+        alpha[0] /= c[0]
+        for t in range(1, t_max):
+            alpha[t] = B[t] * (alpha[t - 1] @ A)
+            c[t] = alpha[t].sum()
+            alpha[t] /= c[t]
+        beta = np.zeros((t_max, n))
+        beta[-1] = 1
+        for t in range(t_max - 2, -1, -1):
+            beta[t] = (A @ (B[t + 1] * beta[t + 1])) / c[t + 1]
+
+        # smoothed state and transition marginals (normalized, so the per-step
+        # scaling factors cancel out)
+        gamma = alpha * beta
+        gamma /= gamma.sum(axis=1, keepdims=True)
+        xi = np.zeros((t_max - 1, n, n))
+        for t in range(t_max - 1):
+            xi[t] = alpha[t][:, None] * A * B[t + 1] * beta[t + 1]
+            xi[t] /= xi[t].sum()
+
+        # M-step: re-estimate every parameter from the expected counts
+        prior = gamma[0]
+        A = xi.sum(axis=0) / gamma[:-1].sum(axis=0)[:, None]
+        mask = np.array(obs, dtype=bool)
+        p_true = gamma[mask].sum(axis=0) / gamma.sum(axis=0)
+        sensor = np.array([p_true, 1 - p_true])
+
+    return HiddenMarkovModel(A.tolist(), sensor.tolist(), prior.tolist())
+
+
 # _________________________________________________________________________
 
 
@@ -797,6 +856,121 @@ def particle_filtering(e, N, HMM):
     s = weighted_sample_with_replacement(N, s, w)
 
     return s
+
+
+# _________________________________________________________________________
+
+
+class KalmanFilter:
+    """
+    [Section 15.4]
+    Kalman filter for a linear-Gaussian dynamical system. The hidden state
+    evolves and is observed according to the linear-Gaussian model
+
+        x_{t+1} = F x_t + noise,   noise ~ N(0, Sigma_x)   (transition model)
+        z_t     = H x_t + noise,   noise ~ N(0, Sigma_z)   (sensor model)
+
+    where F is the transition matrix, H the sensor matrix, Sigma_x the
+    transition (process) noise covariance and Sigma_z the sensor (measurement)
+    noise covariance. Because the family of Gaussians is closed under the
+    Bayesian filtering update, the forward message stays Gaussian and is fully
+    described by a mean vector and a covariance matrix at every step.
+    """
+
+    def __init__(self, transition_model, sensor_model, transition_noise, sensor_noise):
+        self.F = np.atleast_2d(transition_model)  # transition matrix
+        self.H = np.atleast_2d(sensor_model)  # sensor matrix
+        self.Sigma_x = np.atleast_2d(transition_noise)  # transition noise covariance
+        self.Sigma_z = np.atleast_2d(sensor_noise)  # sensor noise covariance
+
+    def predict(self, mean, cov):
+        """Time update: project the Gaussian estimate one step forward through F."""
+        mean = self.F @ mean
+        cov = self.F @ cov @ self.F.T + self.Sigma_x
+        return mean, cov
+
+    def update(self, mean, cov, z):
+        """Measurement update: condition the predicted Gaussian on observation z."""
+        # Kalman gain [Equation 15.21]
+        K = cov @ self.H.T @ np.linalg.inv(self.H @ cov @ self.H.T + self.Sigma_z)
+        mean = mean + K @ (np.atleast_1d(z) - self.H @ mean)
+        cov = (np.eye(cov.shape[0]) - K @ self.H) @ cov
+        return mean, cov
+
+    def filter(self, mean, cov, z):
+        """One predict-then-update cycle for a single new observation z."""
+        mean, cov = self.predict(mean, cov)
+        return self.update(mean, cov, z)
+
+
+def kalman_filter(KF, mean0, cov0, observations):
+    """
+    [Section 15.4]
+    Run the Kalman filter 'KF' over a sequence of 'observations', starting from
+    the Gaussian prior N(mean0, cov0). Returns, for each time step, the filtered
+    Gaussian estimate as a (mean, covariance) pair.
+    """
+    mean, cov = np.atleast_1d(mean0).astype(float), np.atleast_2d(cov0).astype(float)
+    estimates = []
+    for z in observations:
+        mean, cov = KF.filter(mean, cov, z)
+        estimates.append((mean, cov))
+
+    return estimates
+
+
+# _________________________________________________________________________
+
+
+class DynamicBayesNet:
+    """
+    [Section 15.5]
+    A dynamic Bayesian network for a stationary first-order Markov process. It is
+    specified by a prior network over the state variables at slice 0 and a single
+    transition + sensor network describing, for one time step, the distribution of
+    each state variable (given the previous slice) and of each evidence variable
+    (given the current slice). The DBN can be 'unrolled' into an ordinary BayesNet
+    spanning any number of slices and then queried with the exact inference
+    algorithms; in particular filtering is the query for the last state variable
+    given the whole evidence sequence.
+
+    Each spec is a (variable, parents, cpt) triple as for a BayesNode. In a
+    transition spec, a parent named '<var>_prev' refers to state variable <var> at
+    the previous slice; every other parent refers to the current slice.
+    """
+
+    def __init__(self, prior, transition, sensors):
+        self.prior = prior
+        self.transition = transition
+        self.sensors = sensors
+        self.state_variables = [spec[0] for spec in prior]
+        self.evidence_variables = [spec[0] for spec in sensors]
+
+    @staticmethod
+    def _rename(parents, t, t_prev):
+        """Map the parent names of a slice template to concrete unrolled names."""
+        if isinstance(parents, str):
+            parents = parents.split()
+        return [f'{p[:-len("_prev")]}_{t_prev}' if p.endswith('_prev') else f'{p}_{t}' for p in parents]
+
+    def unroll(self, steps):
+        """Unroll the DBN into a BayesNet over slices 0..steps (evidence at 1..steps)."""
+        specs = [(f'{var}_0', self._rename(parents, 0, 0), cpt) for var, parents, cpt in self.prior]
+        for t in range(1, steps + 1):
+            for var, parents, cpt in self.transition + self.sensors:
+                specs.append((f'{var}_{t}', self._rename(parents, t, t - 1), cpt))
+        return BayesNet(specs)
+
+    def filter(self, evidence, query, infer=elimination_ask):
+        """
+        Filtering: the posterior over 'query' at the last slice given the whole
+        observation sequence. 'evidence' is a list of dicts, one per time step
+        t = 1, 2, ..., each mapping evidence variables to their observed values.
+        """
+        steps = len(evidence)
+        net = self.unroll(steps)
+        e = {f'{var}_{t}': val for t, obs in enumerate(evidence, 1) for var, val in obs.items()}
+        return infer(f'{query}_{steps}', e, net)
 
 
 # _________________________________________________________________________
