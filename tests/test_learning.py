@@ -114,6 +114,14 @@ def test_neural_network_learner():
     assert err_ratio(nnl, iris) < 0.21
 
 
+def test_linear_learner():
+    iris = DataSet(name="iris")
+    iris.classes_to_numbers()
+    # both linear learners should train and produce a numeric prediction without shape errors
+    assert isinstance(float(LinearLearner(iris)(iris.examples[0][:-1])), float)
+    assert isinstance(float(LogisticLinearLeaner(iris)(iris.examples[0][:-1])), float)
+
+
 def test_perceptron():
     iris = DataSet(name='iris')
     iris.classes_to_numbers()
