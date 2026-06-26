@@ -35,12 +35,12 @@ def test_csp_nconflicts():
     val = 'B'
     assert map_coloring_test.nconflicts(var, val, assignment) == 0
 
-def test_csp_countlostvalues():
+def test_csp_count_lost_values():
     map_coloring_test = MapColoringCSP(list('RGB'), 'A: B C; B: C; C: ')
     assignment = {'A': 'G'}
     var = 'C'
     val = 'R'
-    assert map_coloring_test.countlostvalues(var,val, assignment) == 2
+    assert map_coloring_test.count_lost_values(var, val, assignment) == 1
 
 def test_csp_actions():
     map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
