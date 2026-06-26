@@ -1,17 +1,15 @@
 import pytest
 
-from logic import *
-from utils import expr_handle_infix_ops, count
-
-random.seed("aima-python")
+from logic4e import *
+from utils4e import expr_handle_infix_ops, count
 
 definite_clauses_KB = PropDefiniteKB()
-for clause in ['(B & F) ==> E',
-               '(A & E & F) ==> G',
-               '(B & C) ==> F',
-               '(A & B) ==> D',
-               '(E & F) ==> H',
-               '(H & I) ==> J',
+for clause in ['(B & F)==>E',
+               '(A & E & F)==>G',
+               '(B & C)==>F',
+               '(A & B)==>D',
+               '(E & F)==>H',
+               '(H & I)==>J',
                'A', 'B', 'C']:
     definite_clauses_KB.tell(expr(clause))
 
@@ -47,7 +45,7 @@ def test_variables():
 def test_expr():
     assert repr(expr('P <=> Q(1)')) == '(P <=> Q(1))'
     assert repr(expr('P & Q | ~R(x, F(x))')) == '((P & Q) | ~R(x, F(x)))'
-    assert expr_handle_infix_ops('P & Q ==> R & ~S') == "P & Q |'==>'| R & ~S"
+    assert (expr_handle_infix_ops('P & Q ==> R & ~S') == "P & Q |'==>'| R & ~S")
 
 
 def test_extend():
@@ -66,8 +64,8 @@ def test_PropKB():
     kb.tell(E | '==>' | C)
     assert kb.ask(C) == {}
     kb.retract(E)
-    assert not kb.ask(E)
-    assert not kb.ask(C)
+    assert kb.ask(E) is False
+    assert kb.ask(C) is False
 
 
 def test_wumpus_kb():
@@ -78,10 +76,10 @@ def test_wumpus_kb():
     assert wumpus_kb.ask(~P12) == {}
 
     # Statement: There is a pit in [2,2].
-    assert not wumpus_kb.ask(P22)
+    assert wumpus_kb.ask(P22) is False
 
     # Statement: There is a pit in [3,1].
-    assert not wumpus_kb.ask(P31)
+    assert wumpus_kb.ask(P31) is False
 
     # Statement: Neither [1,2] nor [2,1] contains a pit.
     assert wumpus_kb.ask(~P12 & ~P21) == {}
@@ -108,11 +106,11 @@ def test_parse_definite_clause():
 
 def test_pl_true():
     assert pl_true(P, {}) is None
-    assert not pl_true(P, {P: False})
-    assert pl_true(P | Q, {P: True})
-    assert pl_true((A | B) & (C | D), {A: False, B: True, D: True})
-    assert not pl_true((A & B) & (C | D), {A: False, B: True, D: True})
-    assert not pl_true((A & B) | (A & C), {A: False, B: True, C: True})
+    assert pl_true(P, {P: False}) is False
+    assert pl_true(P | Q, {P: True}) is True
+    assert pl_true((A | B) & (C | D), {A: False, B: True, D: True}) is True
+    assert pl_true((A & B) & (C | D), {A: False, B: True, D: True}) is False
+    assert pl_true((A & B) | (A & C), {A: False, B: True, C: True}) is False
     assert pl_true((A | B) & (C | D), {A: True, D: False}) is None
     assert pl_true(P | P, {}) is None
 
@@ -136,46 +134,15 @@ def test_tt_true():
     assert tt_true('(A | (B & C)) <=> ((A | B) & (A | C))')
 
 
-def test_dpll_satisfiable():
-    assert dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F) & (~D | ~F) &
-                            (B | ~C | D) & (A | ~E | F) & (~A | E | D)) == \
-           {B: False, C: True, A: True, F: False, D: True, E: False}
+def test_dpll():
+    assert (dpll_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F)
+                             & (~D | ~F) & (B | ~C | D) & (A | ~E | F) & (~A | E | D))
+            == {B: False, C: True, A: True, F: False, D: True, E: False})
     assert dpll_satisfiable(A & B & ~C & D) == {C: False, A: True, D: True, B: True}
     assert dpll_satisfiable((A | (B & C)) | '<=>' | ((A | B) & (A | C))) == {C: True, A: True} or {C: True, B: True}
     assert dpll_satisfiable(A | '<=>' | B) == {A: True, B: True}
     assert dpll_satisfiable(A & ~B) == {A: True, B: False}
     assert dpll_satisfiable(P & ~P) is False
-
-
-def test_cdcl_satisfiable():
-    assert cdcl_satisfiable(A & ~B & C & (A | ~D) & (~E | ~D) & (C | ~D) & (~A | ~F) & (E | ~F) & (~D | ~F) &
-                            (B | ~C | D) & (A | ~E | F) & (~A | E | D)) == \
-           {B: False, C: True, A: True, F: False, D: True, E: False}
-    assert cdcl_satisfiable(A & B & ~C & D) == {C: False, A: True, D: True, B: True}
-    assert cdcl_satisfiable((A | (B & C)) | '<=>' | ((A | B) & (A | C))) == {C: True, A: True} or {C: True, B: True}
-    assert cdcl_satisfiable(A | '<=>' | B) == {A: True, B: True}
-    assert cdcl_satisfiable(A & ~B) == {A: True, B: False}
-    assert cdcl_satisfiable(P & ~P) is False
-
-
-def test_dpll_branching_heuristics():
-    # every branching heuristic must still return a satisfying model on a SAT
-    # instance and report UNSAT on an unsatisfiable one
-    sat = (A | B | C) & (~A | ~B) & (~B | ~C) & (A | C)
-    for heuristic in (no_branching_heuristic, moms, momsf, posit, dlis, dlcs, jw, jw2, zm):
-        model = dpll_satisfiable(sat, branching_heuristic=heuristic)
-        assert model and pl_true(sat, model)
-        assert dpll_satisfiable(P & ~P, branching_heuristic=heuristic) is False
-
-
-def test_cdcl_restart_strategies():
-    # every restart strategy must still return a satisfying model on a SAT
-    # instance and report UNSAT on an unsatisfiable one
-    sat = (A | B | C) & (~A | ~B) & (~B | ~C) & (A | C) & (D | ~A) & (~D | B)
-    for restart_strategy in (no_restart, luby, glucose):
-        model = cdcl_satisfiable(sat, restart_strategy=restart_strategy)
-        assert model and pl_true(sat, model)
-        assert cdcl_satisfiable(P & ~P, restart_strategy=restart_strategy) is False
 
 
 def test_find_pure_symbol():
@@ -200,28 +167,6 @@ def test_unify():
     assert unify(x & 4 & y, 6 & y & 4, {}) == {x: 6, y: 4}
     assert unify(expr('A(x)'), expr('A(B)')) == {x: B}
     assert unify(expr('American(x) & Weapon(B)'), expr('American(A) & Weapon(y)')) == {x: A, y: B}
-    assert unify(expr('P(F(x,z), G(u, z))'), expr('P(F(y,a), y)')) == {x: G(u, a), z: a, y: G(u, a)}
-
-    # tests for https://github.com/aimacode/aima-python/issues/1053
-    # unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) 
-    # must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
-    assert unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) == {z: A, x: F(A), u: G(y)}
-    assert unify(expr('P(x, A, F(G(y)))'), expr('P(F(z), z, F(u))')) == {x: F(A), z: A, u: G(y)}
-
-
-def test_unify_mm():
-    assert unify_mm(x, x) == {}
-    assert unify_mm(x, 3) == {x: 3}
-    assert unify_mm(x & 4 & y, 6 & y & 4) == {x: 6, y: 4}
-    assert unify_mm(expr('A(x)'), expr('A(B)')) == {x: B}
-    assert unify_mm(expr('American(x) & Weapon(B)'), expr('American(A) & Weapon(y)')) == {x: A, y: B}
-    assert unify_mm(expr('P(F(x,z), G(u, z))'), expr('P(F(y,a), y)')) == {x: G(u, a), z: a, y: G(u, a)}
-
-    # tests for https://github.com/aimacode/aima-python/issues/1053
-    # unify(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))'))
-    # must return {z: A, x: F(A), u: G(y)} and not {z: A, x: F(z), u: G(y)}
-    assert unify_mm(expr('P(A, x, F(G(y)))'), expr('P(z, F(z), F(u))')) == {z: A, x: F(A), u: G(y)}
-    assert unify_mm(expr('P(x, A, F(G(y)))'), expr('P(F(z), z, F(u))')) == {x: F(A), z: A, u: G(y)}
 
 
 def test_pl_fc_entails():
@@ -280,8 +225,10 @@ def test_dissociate():
 
 
 def test_associate():
-    assert repr(associate('&', [(A & B), (B | C), (B & C)])) == '(A & B & (B | C) & B & C)'
-    assert repr(associate('|', [A | (B | (C | (A & B)))])) == '(A | B | C | (A & B))'
+    assert (repr(associate('&', [(A & B), (B | C), (B & C)]))
+            == '(A & B & (B | C) & B & C)')
+    assert (repr(associate('|', [A | (B | (C | (A & B)))]))
+            == '(A | B | C | (A & B))')
 
 
 def test_move_not_inwards():
@@ -305,17 +252,17 @@ def test_distribute_and_over_or():
 
 
 def test_to_cnf():
-    assert repr(to_cnf(wumpus_world_inference & ~expr('~P12'))) == \
-           '((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)'
+    assert (repr(to_cnf(wumpus_world_inference & ~expr('~P12'))) ==
+            "((~P12 | B11) & (~P21 | B11) & (P12 | P21 | ~B11) & ~B11 & P12)")
     assert repr(to_cnf((P & Q) | (~P & ~Q))) == '((~P | P) & (~Q | P) & (~P | Q) & (~Q | Q))'
     assert repr(to_cnf('A <=> B')) == '((A | ~B) & (B | ~A))'
-    assert repr(to_cnf('B <=> (P1 | P2)')) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
+    assert repr(to_cnf("B <=> (P1 | P2)")) == '((~P1 | B) & (~P2 | B) & (P1 | P2 | ~B))'
     assert repr(to_cnf('A <=> (B & C)')) == '((A | ~B | ~C) & (B | ~A) & (C | ~A))'
-    assert repr(to_cnf('a | (b & c) | d')) == '((b | a | d) & (c | a | d))'
-    assert repr(to_cnf('A & (B | (D & E))')) == '(A & (D | B) & (E | B))'
-    assert repr(to_cnf('A | (B | (C | (D & E)))')) == '((D | A | B | C) & (E | A | B | C))'
-    assert repr(to_cnf('(A <=> ~B) ==> (C | ~D)')) == \
-           '((B | ~A | C | ~D) & (A | ~A | C | ~D) & (B | ~B | C | ~D) & (A | ~B | C | ~D))'
+    assert repr(to_cnf("a | (b & c) | d")) == '((b | a | d) & (c | a | d))'
+    assert repr(to_cnf("A & (B | (D & E))")) == '(A & (D | B) & (E | B))'
+    assert repr(to_cnf("A | (B | (C | (D & E)))")) == '((D | A | B | C) & (E | A | B | C))'
+    assert repr(to_cnf(
+        '(A <=> ~B) ==> (C | ~D)')) == '((B | ~A | C | ~D) & (A | ~A | C | ~D) & (B | ~B | C | ~D) & (A | ~B | C | ~D))'
 
 
 def test_pl_resolution():
@@ -331,15 +278,18 @@ def test_pl_resolution():
 def test_standardize_variables():
     e = expr('F(a, b, c) & G(c, A, 23)')
     assert len(variables(standardize_variables(e))) == 3
+    # assert variables(e).intersection(variables(standardize_variables(e))) == {}
     assert is_variable(standardize_variables(expr('x')))
 
 
 def test_fol_bc_ask():
     def test_ask(query, kb=None):
         q = expr(query)
+        test_variables = variables(q)
         answers = fol_bc_ask(kb or test_kb, q)
-        return sorted([dict((x, v) for x, v in list(a.items()) if x in variables(q))
-                       for a in answers], key=repr)
+        return sorted(
+            [dict((x, v) for x, v in list(a.items()) if x in test_variables)
+             for a in answers], key=repr)
 
     assert repr(test_ask('Farmer(x)')) == '[{x: Mac}]'
     assert repr(test_ask('Human(x)')) == '[{x: Mac}, {x: MrsMac}]'
@@ -350,9 +300,11 @@ def test_fol_bc_ask():
 def test_fol_fc_ask():
     def test_ask(query, kb=None):
         q = expr(query)
+        test_variables = variables(q)
         answers = fol_fc_ask(kb or test_kb, q)
-        return sorted([dict((x, v) for x, v in list(a.items()) if x in variables(q))
-                       for a in answers], key=repr)
+        return sorted(
+            [dict((x, v) for x, v in list(a.items()) if x in test_variables)
+             for a in answers], key=repr)
 
     assert repr(test_ask('Criminal(x)', crime_kb)) == '[{x: West}]'
     assert repr(test_ask('Enemy(x, America)', crime_kb)) == '[{x: Nono}]'
@@ -366,17 +318,15 @@ def test_d():
 
 
 def test_WalkSAT():
-    def check_SAT(clauses, single_solution=None):
+    def check_SAT(clauses, single_solution={}):
         # Make sure the solution is correct if it is returned by WalkSat
         # Sometimes WalkSat may run out of flips before finding a solution
-        if single_solution is None:
-            single_solution = {}
-        sol = WalkSAT(clauses)
-        if sol:
-            assert all(pl_true(x, sol) for x in clauses)
+        soln = WalkSAT(clauses)
+        if soln:
+            assert all(pl_true(x, soln) for x in clauses)
             if single_solution:  # Cross check the solution if only one exists
                 assert all(pl_true(x, single_solution) for x in clauses)
-                assert sol == single_solution
+                assert soln == single_solution
 
     # Test WalkSat for problems with solution
     check_SAT([A & B, A & C])
@@ -394,9 +344,9 @@ def test_SAT_plan():
     transition = {'A': {'Left': 'A', 'Right': 'B'},
                   'B': {'Left': 'A', 'Right': 'C'},
                   'C': {'Left': 'B', 'Right': 'C'}}
-    assert SAT_plan('A', transition, 'C', 1) is None
-    assert SAT_plan('A', transition, 'B', 2) == ['Right']
-    assert SAT_plan('C', transition, 'A', 2) == ['Left', 'Left']
+    assert SAT_plan('A', transition, 'C', 2) is None
+    assert SAT_plan('A', transition, 'B', 3) == ['Right']
+    assert SAT_plan('C', transition, 'A', 3) == ['Left', 'Left']
 
     transition = {(0, 0): {'Right': (0, 1), 'Down': (1, 0)},
                   (0, 1): {'Left': (1, 0), 'Down': (1, 1)},

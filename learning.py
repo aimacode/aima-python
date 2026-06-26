@@ -527,17 +527,17 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = dot_product(w, x)
+            y = np.dot(w, x)
             t = example[idx_t]
             err.append(t - y)
 
         # update weights
         for i in range(len(w)):
-            w[i] = w[i] + learning_rate * (dot_product(err, X_col[i]) / num_examples)
+            w[i] = w[i] + learning_rate * (np.dot(err, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
-        return dot_product(w, x)
+        return np.dot(w, x)
 
     return predict
 
@@ -569,7 +569,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # pass over all examples
         for example in examples:
             x = [1] + example
-            y = sigmoid(dot_product(w, x))
+            y = sigmoid(np.dot(w, x))
             h.append(sigmoid_derivative(y))
             t = example[idx_t]
             err.append(t - y)
@@ -577,11 +577,11 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
         # update weights
         for i in range(len(w)):
             buffer = [x * y for x, y in zip(err, h)]
-            w[i] = w[i] + learning_rate * (dot_product(buffer, X_col[i]) / num_examples)
+            w[i] = w[i] + learning_rate * (np.dot(buffer, X_col[i]) / num_examples)
 
     def predict(example):
         x = [1] + example
-        return sigmoid(dot_product(w, x))
+        return sigmoid(np.dot(w, x))
 
     return predict
 
@@ -807,16 +807,16 @@ def find_max_node(nodes):
     return nodes.index(max(nodes, key=lambda node: node.value))
 
 
-class BinarySVM:
-    def __init__(self, kernel=linear_kernel, C=1.0):
+class SVC:
+
+    def __init__(self, kernel=linear_kernel, C=1.0, verbose=False):
         self.kernel = kernel
         self.C = C  # hyper-parameter
-        self.eps = 1e-6
-        self.n_sv = -1
-        self.sv_x, self.sv_y, = np.zeros(0), np.zeros(0)
+        self.sv_idx, self.sv, self.sv_y = np.zeros(0), np.zeros(0), np.zeros(0)
         self.alphas = np.zeros(0)
         self.w = None
         self.b = 0.0  # intercept
+        self.verbose = verbose
 
     def fit(self, X, y):
         """
@@ -825,18 +825,91 @@ class BinarySVM:
         :param y: array of size [n_samples] holding the class labels
         """
         # In QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
-        self.QP(X, y)
-        sv_indices = list(filter(lambda i: self.alphas[i] > self.eps, range(len(y))))
-        self.sv_x, self.sv_y, self.alphas = X[sv_indices], y[sv_indices], self.alphas[sv_indices]
-        self.n_sv = len(sv_indices)
-        if self.kernel == linear_kernel:
-            self.w = np.dot(self.alphas * self.sv_y, self.sv_x)
-        # calculate b: average over all support vectors
-        sv_boundary = self.alphas < self.C - self.eps
-        self.b = np.mean(self.sv_y[sv_boundary] - np.dot(self.alphas * self.sv_y,
-                                                         self.kernel(self.sv_x, self.sv_x[sv_boundary])))
+        self.solve_qp(X, y)
+        sv = self.alphas > 1e-5
+        self.sv_idx = np.arange(len(self.alphas))[sv]
+        self.sv, self.sv_y, self.alphas = X[sv], y[sv], self.alphas[sv]
 
-    def QP(self, X, y):
+        if self.kernel == linear_kernel:
+            self.w = np.dot(self.alphas * self.sv_y, self.sv)
+
+        for n in range(len(self.alphas)):
+            self.b += self.sv_y[n]
+            self.b -= np.sum(self.alphas * self.sv_y * self.K[self.sv_idx[n], sv])
+        self.b /= len(self.alphas)
+        return self
+
+    def solve_qp(self, X, y):
+        """
+        Solves a quadratic programming problem. In QP formulation (dual):
+        m variables, 2m+1 constraints (1 equation, 2m inequations).
+        :param X: array of size [n_samples, n_features] holding the training samples
+        :param y: array of size [n_samples] holding the class labels
+        """
+        m = len(y)  # m = n_samples
+        self.K = self.kernel(X)  # gram matrix
+        P = self.K * np.outer(y, y)
+        q = -np.ones(m)
+        lb = np.zeros(m)  # lower bounds
+        ub = np.ones(m) * self.C  # upper bounds
+        A = y.astype(np.float64)  # equality matrix
+        b = np.zeros(1)  # equality vector
+        self.alphas = solve_qp(P, q, A=A, b=b, lb=lb, ub=ub, solver='cvxopt',
+                               sym_proj=True, verbose=self.verbose)
+
+    def predict_score(self, X):
+        """
+        Predicts the score for a given example.
+        """
+        if self.w is None:
+            return np.dot(self.alphas * self.sv_y, self.kernel(self.sv, X)) + self.b
+        return np.dot(X, self.w) + self.b
+
+    def predict(self, X):
+        """
+        Predicts the class of a given example.
+        """
+        return np.sign(self.predict_score(X))
+
+
+class SVR:
+
+    def __init__(self, kernel=linear_kernel, C=1.0, epsilon=0.1, verbose=False):
+        self.kernel = kernel
+        self.C = C  # hyper-parameter
+        self.epsilon = epsilon  # epsilon insensitive loss value
+        self.sv_idx, self.sv = np.zeros(0), np.zeros(0)
+        self.alphas_p, self.alphas_n = np.zeros(0), np.zeros(0)
+        self.w = None
+        self.b = 0.0  # intercept
+        self.verbose = verbose
+
+    def fit(self, X, y):
+        """
+        Trains the model by solving a quadratic programming problem.
+        :param X: array of size [n_samples, n_features] holding the training samples
+        :param y: array of size [n_samples] holding the class labels
+        """
+        # In QP formulation (dual): m variables, 2m+1 constraints (1 equation, 2m inequations)
+        self.solve_qp(X, y)
+
+        sv = np.logical_or(self.alphas_p > 1e-5, self.alphas_n > 1e-5)
+        self.sv_idx = np.arange(len(self.alphas_p))[sv]
+        self.sv, sv_y = X[sv], y[sv]
+        self.alphas_p, self.alphas_n = self.alphas_p[sv], self.alphas_n[sv]
+
+        if self.kernel == linear_kernel:
+            self.w = np.dot(self.alphas_p - self.alphas_n, self.sv)
+
+        for n in range(len(self.alphas_p)):
+            self.b += sv_y[n]
+            self.b -= np.sum((self.alphas_p - self.alphas_n) * self.K[self.sv_idx[n], sv])
+        self.b -= self.epsilon
+        self.b /= len(self.alphas_p)
+
+        return self
+
+    def solve_qp(self, X, y):
         """
         Solves a quadratic programming problem. In QP formulation (dual):
         m variables, 2m+1 constraints (1 equation, 2m inequations).
@@ -845,37 +918,30 @@ class BinarySVM:
         """
         #
         m = len(y)  # m = n_samples
-        K = self.kernel(X)  # gram matrix
-        P = K * np.outer(y, y)
-        q = -np.ones(m)
-        G = np.vstack((-np.identity(m), np.identity(m)))
-        h = np.hstack((np.zeros(m), np.ones(m) * self.C))
-        A = y.reshape((1, -1))
-        b = np.zeros(1)
-        # make sure P is positive definite
-        P += np.eye(P.shape[0]).__mul__(1e-3)
-        self.alphas = solve_qp(P, q, G, h, A, b, sym_proj=True)
+        self.K = self.kernel(X)  # gram matrix
+        P = np.vstack((np.hstack((self.K, -self.K)),  # alphas_p, alphas_n
+                       np.hstack((-self.K, self.K))))  # alphas_n, alphas_p
+        q = np.hstack((-y, y)) + self.epsilon
+        lb = np.zeros(2 * m)  # lower bounds
+        ub = np.ones(2 * m) * self.C  # upper bounds
+        A = np.hstack((np.ones(m), -np.ones(m)))  # equality matrix
+        b = np.zeros(1)  # equality vector
+        alphas = solve_qp(P, q, A=A, b=b, lb=lb, ub=ub, solver='cvxopt',
+                          sym_proj=True, verbose=self.verbose)
+        self.alphas_p = alphas[:m]
+        self.alphas_n = alphas[m:]
 
-    def predict_score(self, x):
-        """
-        Predicts the score for a given example.
-        """
-        if self.w is None:
-            return np.dot(self.alphas * self.sv_y, self.kernel(self.sv_x, x)) + self.b
-        return np.dot(x, self.w) + self.b
-
-    def predict(self, x):
-        """
-        Predicts the class of a given example.
-        """
-        return np.sign(self.predict_score(x))
+    def predict(self, X):
+        if self.kernel != linear_kernel:
+            return np.dot(self.alphas_p - self.alphas_n, self.kernel(self.sv, X)) + self.b
+        return np.dot(X, self.w) + self.b
 
 
-class MultiSVM:
-    def __init__(self, kernel=linear_kernel, decision_function='ovr', C=1.0):
-        self.kernel = kernel
+class MultiClassLearner:
+
+    def __init__(self, clf, decision_function='ovr'):
+        self.clf = clf
         self.decision_function = decision_function
-        self.C = C  # hyper-parameter
         self.n_class, self.classifiers = 0, []
 
     def fit(self, X, y):
@@ -893,34 +959,33 @@ class MultiSVM:
                 y1 = np.array(y)
                 y1[y1 != label] = -1.0
                 y1[y1 == label] = 1.0
-                clf = BinarySVM(self.kernel, self.C)
-                clf.fit(X, y1)
-                self.classifiers.append(copy.deepcopy(clf))
+                self.clf.fit(X, y1)
+                self.classifiers.append(copy.deepcopy(self.clf))
         elif self.decision_function == 'ovo':  # use one-vs-one method
             n_labels = len(labels)
             for i in range(n_labels):
                 for j in range(i + 1, n_labels):
                     neg_id, pos_id = y == labels[i], y == labels[j]
-                    x1, y1 = np.r_[X[neg_id], X[pos_id]], np.r_[y[neg_id], y[pos_id]]
+                    X1, y1 = np.r_[X[neg_id], X[pos_id]], np.r_[y[neg_id], y[pos_id]]
                     y1[y1 == labels[i]] = -1.0
                     y1[y1 == labels[j]] = 1.0
-                    clf = BinarySVM(self.kernel, self.C)
-                    clf.fit(x1, y1)
-                    self.classifiers.append(copy.deepcopy(clf))
+                    self.clf.fit(X1, y1)
+                    self.classifiers.append(copy.deepcopy(self.clf))
         else:
             return ValueError("Decision function must be either 'ovr' or 'ovo'.")
+        return self
 
-    def predict(self, x):
+    def predict(self, X):
         """
         Predicts the class of a given example according to the training method.
         """
-        n_samples = len(x)
+        n_samples = len(X)
         if self.decision_function == 'ovr':  # one-vs-rest method
             assert len(self.classifiers) == self.n_class
             score = np.zeros((n_samples, self.n_class))
             for i in range(self.n_class):
                 clf = self.classifiers[i]
-                score[:, i] = clf.predict_score(x)
+                score[:, i] = clf.predict_score(X)
             return np.argmax(score, axis=1)
         elif self.decision_function == 'ovo':  # use one-vs-one method
             assert len(self.classifiers) == self.n_class * (self.n_class - 1) / 2
@@ -928,7 +993,7 @@ class MultiSVM:
             clf_id = 0
             for i in range(self.n_class):
                 for j in range(i + 1, self.n_class):
-                    res = self.classifiers[clf_id].predict(x)
+                    res = self.classifiers[clf_id].predict(X)
                     vote[res < 0, i] += 1.0  # negative sample: class i
                     vote[res > 0, j] += 1.0  # positive sample: class j
                     clf_id += 1
@@ -1055,9 +1120,20 @@ def weighted_replicate(seq, weights, n):
             weighted_sample_with_replacement(n - sum(wholes), seq, fractions))
 
 
-def flatten(seqs):
-    return sum(seqs, [])
+# metrics
 
+def accuracy_score(y_pred, y_true):
+    assert y_pred.shape == y_true.shape
+    return np.mean(y_pred == y_true)
+
+
+def r2_score(y_pred, y_true):
+    assert y_pred.shape == y_true.shape
+    return 1. - (np.sum(np.square(y_pred - y_true)) /  # sum of square of residuals
+                 np.sum(np.square(y_true - np.mean(y_true))))  # total sum of squares
+
+
+# datasets
 
 orings = DataSet(name='orings', target='Distressed', attr_names='Rings Distressed Temp Pressure Flightnum')
 
@@ -1159,6 +1235,115 @@ def ContinuousXor(n):
         x, y = [random.uniform(0.0, 2.0) for _ in '12']
         examples.append([x, y, x != y])
     return DataSet(name='continuous xor', examples=examples)
+
+
+def gaussian_mixture_em(dataset, k, epsilon=1e-4, max_iterations=100):
+    """
+    [Section 20.3]
+    Unsupervised clustering with the Expectation-Maximization (EM) algorithm,
+    fitting a mixture of k Gaussians to 'dataset' (a sequence of points). Each
+    iteration performs two steps:
+        E-step: compute the responsibilities p_ij = P(C=i | x_j), the posterior
+                probability that point x_j was generated by component i, which by
+                Bayes' rule is proportional to P(x_j | C=i) * P(C=i).
+        M-step: re-estimate the weight, mean and covariance of each component as
+                the responsibility-weighted statistics of the whole data set.
+    EM is guaranteed to increase the data log likelihood at each iteration; it is
+    iterated until that improvement falls below 'epsilon' or 'max_iterations' is
+    reached. Returns a dict with the fitted 'weights', 'means', 'covariances' and
+    the final 'responsibilities'.
+    """
+    X = np.asarray(dataset, dtype=float)
+    n, d = X.shape
+
+    def multivariate_gaussian(points, mean, cov):
+        """Density of N(mean, cov) evaluated at each row of 'points'."""
+        diff = points - mean
+        return (np.exp(-0.5 * np.sum(diff @ np.linalg.inv(cov) * diff, axis=1)) /
+                np.sqrt((2 * np.pi) ** d * np.linalg.det(cov)))
+
+    # initialize: uniform weights, means at k distinct random data points and
+    # covariances at the sample covariance of the whole data set
+    weights = np.full(k, 1 / k)
+    means = X[np.random.choice(n, k, replace=False)]
+    covariances = np.array([np.cov(X, rowvar=False) for _ in range(k)])
+
+    log_likelihood = -np.inf
+    responsibilities = np.zeros((n, k))
+    for _ in range(max_iterations):
+        # E-step: p_ij = alpha * P(x_j | C=i) * P(C=i)
+        for i in range(k):
+            responsibilities[:, i] = weights[i] * multivariate_gaussian(X, means[i], covariances[i])
+        point_likelihoods = responsibilities.sum(axis=1)
+        responsibilities /= point_likelihoods[:, np.newaxis]
+
+        # M-step: refit each component to the responsibility-weighted data
+        counts = responsibilities.sum(axis=0)
+        weights = counts / n
+        means = (responsibilities.T @ X) / counts[:, np.newaxis]
+        for i in range(k):
+            diff = X - means[i]
+            # regularize the covariance to avoid the degenerate zero-variance maximum
+            covariances[i] = (responsibilities[:, i] * diff.T) @ diff / counts[i] + 1e-6 * np.eye(d)
+
+        # stop once the data log likelihood stops improving appreciably
+        new_log_likelihood = np.sum(np.log(point_likelihoods))
+        if abs(new_log_likelihood - log_likelihood) < epsilon:
+            break
+        log_likelihood = new_log_likelihood
+
+    return {'weights': weights, 'means': means, 'covariances': covariances,
+            'responsibilities': responsibilities}
+
+
+def naive_bayes_em(dataset, k, epsilon=1e-4, max_iterations=100):
+    """
+    [Section 20.3]
+    Learn the parameters of a Bayes net with a hidden variable via EM: a naive
+    Bayes model with a hidden k-valued class (the 'bags of candy' example of
+    Section 20.3.2). 'dataset' is a sequence of binary feature vectors; given the
+    unobserved class, the features are independent Bernoulli variables. Each
+    iteration performs two steps:
+        E-step: responsibilities r_ji = P(class=i | x_j), which by Bayes' rule and
+                conditional independence is proportional to
+                P(class=i) * prod_f P(x_jf | class=i).
+        M-step: re-estimate the class priors and every conditional probability
+                P(feature_f = 1 | class=i) as the responsibility-weighted counts.
+    Returns a dict with the learned class 'weights', the 'probabilities' matrix
+    (k x d, entry [i][f] = P(feature f = 1 | class i)) and the final
+    'responsibilities'.
+    """
+    X = np.asarray(dataset, dtype=float)
+    n, d = X.shape
+
+    # initialize: uniform priors and random conditionals (a symmetric init is a
+    # fixed point of EM, so the components must start out distinct)
+    weights = np.full(k, 1 / k)
+    theta = np.random.uniform(0.25, 0.75, size=(k, d))
+
+    log_likelihood = -np.inf
+    responsibilities = np.zeros((n, k))
+    for _ in range(max_iterations):
+        # E-step: r_ji = alpha * P(class=i) * prod_f theta_if^x_jf (1-theta_if)^(1-x_jf)
+        for i in range(k):
+            responsibilities[:, i] = weights[i] * np.prod(theta[i] ** X * (1 - theta[i]) ** (1 - X), axis=1)
+        point_likelihoods = responsibilities.sum(axis=1)
+        responsibilities /= point_likelihoods[:, np.newaxis]
+
+        # M-step: priors and conditional probabilities from the expected counts
+        counts = responsibilities.sum(axis=0)
+        weights = counts / n
+        theta = (responsibilities.T @ X) / counts[:, np.newaxis]
+        # keep the probabilities inside (0, 1) to avoid 0/0 in the next E-step
+        theta = np.clip(theta, 1e-9, 1 - 1e-9)
+
+        # stop once the data log likelihood stops improving appreciably
+        new_log_likelihood = np.sum(np.log(point_likelihoods))
+        if abs(new_log_likelihood - log_likelihood) < epsilon:
+            break
+        log_likelihood = new_log_likelihood
+
+    return {'weights': weights, 'probabilities': theta, 'responsibilities': responsibilities}
 
 
 def compare(algorithms=None, datasets=None, k=10, trials=1):

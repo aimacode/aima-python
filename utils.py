@@ -92,12 +92,11 @@ def power_set(iterable):
 
 def extend(s, var, val):
     """Copy dict s and extend it by setting var to val; return copy."""
-    try:  # Python 3.5 and later
-        return eval('{**s, var: val}')
-    except SyntaxError:  # Python 3.4
-        s2 = s.copy()
-        s2[var] = val
-        return s2
+    return {**s, var: val}
+
+
+def flatten(seqs):
+    return sum(seqs, [])
 
 
 # ______________________________________________________________________________

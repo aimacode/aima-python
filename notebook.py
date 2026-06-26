@@ -238,8 +238,8 @@ def make_visualize(slider):
     """Takes an input a sliderand returns callback function
     for timer and animation."""
 
-    def visualize_callback(Visualize, time_step):
-        if Visualize is True:
+    def visualize_callback(visualize, time_step):
+        if visualize is True:
             for i in range(slider.min, slider.max + 1):
                 slider.value = i
                 time.sleep(float(time_step))
@@ -784,7 +784,7 @@ class Canvas_fol_bc_ask(Canvas):
         self.l = 1 / 20
         self.b = 3 * self.l
         bc_out = list(self.fol_bc_ask())
-        if len(bc_out) is 0:
+        if len(bc_out) == 0:
             self.valid = False
         else:
             self.valid = True
@@ -924,7 +924,7 @@ def show_map(graph_data, node_colors=None):
     # add a white bounding box behind the node labels
     [label.set_bbox(dict(facecolor='white', edgecolor='none')) for label in node_label_handles.values()]
 
-    # add edge lables to the graph
+    # add edge labels to the graph
     nx.draw_networkx_edge_labels(G, pos=node_positions, edge_labels=edge_weights, font_size=14)
 
     # add a legend
@@ -957,7 +957,7 @@ def final_path_colors(initial_node_colors, problem, solution):
 
 def display_visual(graph_data, user_input, algorithm=None, problem=None):
     initial_node_colors = graph_data['node_colors']
-    if user_input == False:
+    if user_input is False:
         def slider_callback(iteration):
             # don't show graph for the first time running the cell calling this function
             try:
@@ -965,8 +965,8 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
             except:
                 pass
 
-        def visualize_callback(Visualize):
-            if Visualize is True:
+        def visualize_callback(visualize):
+            if visualize is True:
                 button.value = False
 
                 global all_node_colors
@@ -986,10 +986,10 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
         display(slider_visual)
 
         button = widgets.ToggleButton(value=False)
-        button_visual = widgets.interactive(visualize_callback, Visualize=button)
+        button_visual = widgets.interactive(visualize_callback, visualize=button)
         display(button_visual)
 
-    if user_input == True:
+    if user_input is True:
         node_colors = dict(initial_node_colors)
         if isinstance(algorithm, dict):
             assert set(algorithm.keys()).issubset({"Breadth First Tree Search",
@@ -1019,8 +1019,8 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
             except:
                 pass
 
-        def visualize_callback(Visualize):
-            if Visualize is True:
+        def visualize_callback(visualize):
+            if visualize is True:
                 button.value = False
 
                 problem = GraphProblem(start_dropdown.value, end_dropdown.value, romania_map)
@@ -1047,7 +1047,7 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
         display(end_dropdown)
 
         button = widgets.ToggleButton(value=False)
-        button_visual = widgets.interactive(visualize_callback, Visualize=button)
+        button_visual = widgets.interactive(visualize_callback, visualize=button)
         display(button_visual)
 
         slider = widgets.IntSlider(min=0, max=1, step=1, value=0)
@@ -1061,7 +1061,7 @@ def plot_NQueens(solution):
     board = np.array([2 * int((i + j) % 2) for j in range(n) for i in range(n)]).reshape((n, n))
     im = Image.open('images/queen_s.png')
     height = im.size[1]
-    im = np.array(im).astype(np.float) / 255
+    im = np.array(im).astype(float) / 255
     fig = plt.figure(figsize=(7, 7))
     ax = fig.add_subplot(111)
     ax.set_title('{} Queens'.format(n))

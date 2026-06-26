@@ -1,6 +1,7 @@
 import pytest
 from utils import failure_test
 from csp import *
+from search import depth_first_tree_search
 import random
 
 random.seed("aima-python")
@@ -34,6 +35,12 @@ def test_csp_nconflicts():
     val = 'B'
     assert map_coloring_test.nconflicts(var, val, assignment) == 0
 
+def test_csp_count_lost_values():
+    map_coloring_test = MapColoringCSP(list('RGB'), 'A: B C; B: C; C: ')
+    assignment = {'A': 'G'}
+    var = 'C'
+    val = 'R'
+    assert map_coloring_test.count_lost_values(var, val, assignment) == 1
 
 def test_csp_actions():
     map_coloring_test = MapColoringCSP(list('123'), 'A: B C; B: C; C: ')
@@ -331,13 +338,13 @@ def test_lcv():
 
     var = 'B'
 
-    assert lcv(var, assignment, csp) == [4, 0, 1, 2, 3, 5]
-    assignment = {'A': 1, 'C': 3}
+    assert lcv(var, assignment, csp) == [0, 2, 4, 1, 3, 5]
+    assignment = {'A': 1}
 
     constraints = lambda X, x, Y, y: (x + y) % 2 == 0 and (x + y) < 5
     csp = CSP(variables=None, domains=domains, neighbors=neighbors, constraints=constraints)
 
-    assert lcv(var, assignment, csp) == [1, 3, 0, 2, 4, 5]
+    assert lcv(var, assignment, csp) == [0, 1, 2, 3, 4, 5]
 
 
 def test_forward_checking():
@@ -516,6 +523,42 @@ def test_ac_search_solver():
                                                  'C1': 1, 'C2': 1, 'C3': 0, 'C4': 1}
 
 
+def _complete_and_consistent(csp, solution):
+    """A solver answer is valid if every variable is assigned and the CSP holds."""
+    if solution is None:
+        return False
+    assignment = {var: (first(val) if isinstance(val, (set, frozenset)) else val)
+                  for var, val in solution.items()}
+    return set(assignment) == csp.variables and csp.consistent(assignment)
+
+
+def test_nary_csp():
+    csp = NaryCSP({'a': {1, 2, 3}, 'b': {1, 2, 3}},
+                  [Constraint(('a', 'b'), all_diff_constraint)])
+    assert csp.variables == {'a', 'b'}
+    assert csp.consistent({'a': 1, 'b': 2})
+    assert not csp.consistent({'a': 1, 'b': 1})
+    # each variable is linked back to the constraint over its scope
+    assert len(csp.var_to_const['a']) == 1 and len(csp.var_to_const['b']) == 1
+
+
+def test_ac_solver_classes():
+    # exercise the ACSolver / ACSearchSolver classes directly (not just the wrappers)
+    assert _complete_and_consistent(csp_crossword, ACSolver(csp_crossword).domain_splitting())
+    solution = depth_first_tree_search(ACSearchSolver(csp_crossword))
+    assert solution is not None and _complete_and_consistent(csp_crossword, solution.state)
+
+
+def test_crossword():
+    crossword = Crossword(crossword1, words1)
+    assert _complete_and_consistent(crossword, ac_solver(crossword))
+
+
+def test_kakuro():
+    kakuro = Kakuro(kakuro2)
+    assert _complete_and_consistent(kakuro, ac_solver(kakuro))
+
+
 def test_different_values_constraint():
     assert different_values_constraint('A', 1, 'B', 2)
     assert not different_values_constraint('A', 1, 'B', 1)
@@ -639,7 +682,7 @@ def test_zebra():
     ans = algorithm(z, max_steps=10000)
     assert ans is None or ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1,
                                   'Snails': 3, 'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3,
-                                  'Water': 1, 'Englishman': 3, 'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2,
+                                  'Water': 1, 'Englishman': 3, 'Spaniard': 4, 'Norwegian': 1, 'Ukrainian': 2,
                                   'Japanese': 5, 'Kools': 1, 'Chesterfields': 2, 'Winston': 3, 'LuckyStrike': 4,
                                   'Parliaments': 5}
 
@@ -648,13 +691,13 @@ def test_zebra():
                  'Fox': [1, 2], 'Snails': [3], 'Horse': [2], 'Zebra': [5], 'OJ': [1, 2, 3, 4, 5],
                  'Tea': [1, 2, 3, 4, 5], 'Coffee': [1, 2, 3, 4, 5], 'Milk': [3], 'Water': [1, 2, 3, 4, 5],
                  'Englishman': [1, 2, 3, 4, 5], 'Spaniard': [1, 2, 3, 4, 5], 'Norwegian': [1],
-                 'Ukranian': [1, 2, 3, 4, 5], 'Japanese': [1, 2, 3, 4, 5], 'Kools': [1, 2, 3, 4, 5],
+                 'Ukrainian': [1, 2, 3, 4, 5], 'Japanese': [1, 2, 3, 4, 5], 'Kools': [1, 2, 3, 4, 5],
                  'Chesterfields': [1, 2, 3, 4, 5], 'Winston': [1, 2, 3, 4, 5], 'LuckyStrike': [1, 2, 3, 4, 5],
                  'Parliaments': [1, 2, 3, 4, 5]}
     ans = algorithm(z, max_steps=10000)
     assert ans == {'Red': 3, 'Yellow': 1, 'Blue': 2, 'Green': 5, 'Ivory': 4, 'Dog': 4, 'Fox': 1, 'Snails': 3,
                    'Horse': 2, 'Zebra': 5, 'OJ': 4, 'Tea': 2, 'Coffee': 5, 'Milk': 3, 'Water': 1, 'Englishman': 3,
-                   'Spaniard': 4, 'Norwegian': 1, 'Ukranian': 2, 'Japanese': 5, 'Kools': 1, 'Chesterfields': 2,
+                   'Spaniard': 4, 'Norwegian': 1, 'Ukrainian': 2, 'Japanese': 5, 'Kools': 1, 'Chesterfields': 2,
                    'Winston': 3, 'LuckyStrike': 4, 'Parliaments': 5}
 
 

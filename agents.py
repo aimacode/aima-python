@@ -27,11 +27,6 @@ EnvCanvas ## Canvas to display the environment of an EnvGUI
 """
 
 # TODO
-# Implement grabbing correctly.
-# When an object is grabbed, does it still have a location?
-# What if it is released?
-# What if the grabbed or the grabber is deleted?
-# What if the grabber moves?
 # Speed control in GUI does not have any effect -- fix it.
 
 from utils import distance_squared, turn_heading
@@ -72,17 +67,17 @@ class Thing:
 
 
 class Agent(Thing):
-    """An Agent is a subclass of Thing with one required slot,
-    .program, which should hold a function that takes one argument, the
-    percept, and returns an action. (What counts as a percept or action
+    """An Agent is a subclass of Thing with one required instance attribute 
+    (aka slot), .program, which should hold a function that takes one argument,
+    the percept, and returns an action. (What counts as a percept or action 
     will depend on the specific environment in which the agent exists.)
-    Note that 'program' is a slot, not a method. If it were a method,
-    then the program could 'cheat' and look at aspects of the agent.
-    It's not supposed to do that: the program can only look at the
-    percepts. An agent program that needs a model of the world (and of
-    the agent itself) will have to build and maintain its own model.
-    There is an optional slot, .performance, which is a number giving
-    the performance measure of the agent in its environment."""
+    Note that 'program' is a slot, not a method. If it were a method, then the
+    program could 'cheat' and look at aspects of the agent. It's not supposed
+    to do that: the program can only look at the percepts. An agent program
+    that needs a model of the world (and of the agent itself) will have to
+    build and maintain its own model. There is an optional slot, .performance,
+    which is a number giving the performance measure of the agent in its
+    environment."""
 
     def __init__(self, program=None):
         self.alive = True
@@ -485,7 +480,7 @@ class XYEnvironment(Environment):
         self.observers = []
         # Sets iteration start and end (no walls).
         self.x_start, self.y_start = (0, 0)
-        self.x_end, self.y_end = (self.width, self.height)
+        self.x_end, self.y_end = (self.width - 1, self.height - 1)
 
     perceptible_distance = 1
 
@@ -510,14 +505,17 @@ class XYEnvironment(Environment):
             agent.direction += Direction.L
         elif action == 'Forward':
             agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
-        #         elif action == 'Grab':
-        #             things = [thing for thing in self.list_things_at(agent.location)
-        #                     if agent.can_grab(thing)]
-        #             if things:
-        #                 agent.holding.append(things[0])
+        elif action == 'Grab':
+            things = [thing for thing in self.list_things_at(agent.location) if agent.can_grab(thing)]
+            if things:    
+                agent.holding.append(things[0])
+                print("Grabbing ", things[0].__class__.__name__)
+                self.delete_thing(things[0])
         elif action == 'Release':
             if agent.holding:
-                agent.holding.pop()
+                dropped = agent.holding.pop()
+                print("Dropping ", dropped.__class__.__name__)
+                self.add_thing(dropped, location=agent.location)
 
     def default_location(self, thing):
         location = self.random_location_inbounds()
@@ -569,10 +567,7 @@ class XYEnvironment(Environment):
     def delete_thing(self, thing):
         """Deletes thing, and everything it is holding (if thing is an agent)"""
         if isinstance(thing, Agent):
-            for obj in thing.holding:
-                super().delete_thing(obj)
-                for obs in self.observers:
-                    obs.thing_deleted(obj)
+            del thing.holding
 
         super().delete_thing(thing)
         for obs in self.observers:
@@ -964,24 +959,10 @@ class WumpusEnvironment(XYEnvironment):
 
         if isinstance(agent, Explorer) and self.in_danger(agent):
             return
-
+            
         agent.bump = False
-        if action == 'TurnRight':
-            agent.direction += Direction.R
-            agent.performance -= 1
-        elif action == 'TurnLeft':
-            agent.direction += Direction.L
-            agent.performance -= 1
-        elif action == 'Forward':
-            agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
-            agent.performance -= 1
-        elif action == 'Grab':
-            things = [thing for thing in self.list_things_at(agent.location)
-                      if agent.can_grab(thing)]
-            if len(things):
-                print("Grabbing", things[0].__class__.__name__)
-                if len(things):
-                    agent.holding.append(things[0])
+        if action in ['TurnRight', 'TurnLeft', 'Forward', 'Grab']:
+            super().execute_action(agent, action)
             agent.performance -= 1
         elif action == 'Climb':
             if agent.location == (1, 1):  # Agent can only climb out of (1,1)

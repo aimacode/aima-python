@@ -329,6 +329,108 @@ def test_particle_filtering():
     # XXX 'A' and 'B' are really arbitrary names, but I'm letting it stand for now
 
 
+def test_kalman_filter():
+    # one-dimensional random walk (Section 15.4 example): x_{t+1} = x_t + noise,
+    # z_t = x_t + noise. With prior N(0, 1), transition variance 2 and sensor
+    # variance 1, a single observation z = 2.5 has the closed-form posterior
+    # mean ((cov0 + Sigma_x) * z + Sigma_z * mean0) / (cov0 + Sigma_x + Sigma_z)
+    # and variance (cov0 + Sigma_x) * Sigma_z / (cov0 + Sigma_x + Sigma_z)
+    kf = KalmanFilter(transition_model=[[1]], sensor_model=[[1]],
+                      transition_noise=[[2]], sensor_noise=[[1]])
+    (mean, cov), = kalman_filter(kf, mean0=[0], cov0=[[1]], observations=[2.5])
+    assert np.isclose(mean[0], 1.875)
+    assert np.isclose(cov[0, 0], 0.75)
+    # conditioning on the observation never increases the predicted uncertainty
+    assert cov[0, 0] < 1 + 2
+
+    # two-dimensional constant-velocity model: the state is [position, velocity]
+    # and only the position is observed; from a sequence of steadily increasing
+    # position measurements the filter should infer a positive velocity
+    kf = KalmanFilter(transition_model=[[1, 1], [0, 1]], sensor_model=[[1, 0]],
+                      transition_noise=[[0.01, 0], [0, 0.01]], sensor_noise=[[1]])
+    estimates = kalman_filter(kf, mean0=[0, 0], cov0=[[1, 0], [0, 1]],
+                              observations=[1, 2, 3, 4, 5])
+    assert len(estimates) == 5
+    final_mean, final_cov = estimates[-1]
+    assert final_mean[1] > 0  # inferred velocity is positive
+    assert final_cov.shape == (2, 2)
+
+
+def test_kalman_filter_steady_state():
+    # [Section 15.4] for the 1-D random walk with unit transition and sensor
+    # variance the filtered variance converges to the fixed point of
+    # s = (s + 1) / (s + 2), i.e. s^2 + s - 1 = 0, so s = (sqrt(5) - 1) / 2
+    kf = KalmanFilter(transition_model=[[1]], sensor_model=[[1]],
+                      transition_noise=[[1]], sensor_noise=[[1]])
+    estimates = kalman_filter(kf, mean0=[0], cov0=[[1]], observations=[0.0] * 60)
+    steady_state = (5 ** 0.5 - 1) / 2
+    assert estimates[-1][1][0, 0] == pytest.approx(steady_state, abs=1e-6)
+
+
+def test_baum_welch():
+    def sequence_log_likelihood(hmm, obs):
+        """Log probability of the observation sequence under hmm (scaled forward pass)."""
+        A = np.array(hmm.transition_model)
+        sensor = np.array(hmm.sensor_model)
+        B = np.array([sensor[0] if e else sensor[1] for e in obs])
+        alpha = np.array(hmm.prior) * B[0]
+        ll = np.log(alpha.sum())
+        alpha = alpha / alpha.sum()
+        for t in range(1, len(obs)):
+            alpha = B[t] * (alpha @ A)
+            ll += np.log(alpha.sum())
+            alpha = alpha / alpha.sum()
+        return ll
+
+    umbrella_transition = [[0.7, 0.3], [0.3, 0.7]]
+    umbrella_sensor = [[0.9, 0.2], [0.1, 0.8]]
+    umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
+    observations = [T, T, F, T, T, F, F, F, T, F, T, T]
+
+    # Baum-Welch (EM) must never decrease the data log likelihood
+    log_likelihoods = [sequence_log_likelihood(baum_welch(umbrellaHMM, observations, iterations=k), observations)
+                       for k in (1, 2, 5, 10, 20)]
+    assert all(later >= earlier - 1e-9 for earlier, later in zip(log_likelihoods, log_likelihoods[1:]))
+    assert log_likelihoods[-1] >= sequence_log_likelihood(umbrellaHMM, observations) - 1e-9
+
+    # the learned parameters are still valid probability distributions
+    learned = baum_welch(umbrellaHMM, observations, iterations=20)
+    assert np.allclose(np.sum(learned.transition_model, axis=1), 1)
+    assert np.isclose(sum(learned.prior), 1)
+    assert np.allclose(np.sum(learned.sensor_model, axis=0), 1)
+
+
+def test_dynamic_bayes_net():
+    # the umbrella world as a DBN: hidden Rain with a 0.7 self-transition, observed
+    # through Umbrella with sensor probabilities 0.9 / 0.2
+    umbrella_dbn = DynamicBayesNet(prior=[('Rain', '', 0.5)],
+                                   transition=[('Rain', 'Rain_prev', {T: 0.7, F: 0.3})],
+                                   sensors=[('Umbrella', 'Rain', {T: 0.9, F: 0.2})])
+
+    # unrolling spans slices 0..steps with evidence variables at slices 1..steps
+    assert umbrella_dbn.unroll(2).variables == ['Rain_0', 'Rain_1', 'Umbrella_1', 'Rain_2', 'Umbrella_2']
+
+    # filtering by exact inference matches the canonical umbrella values, which in
+    # turn agree with the HMM forward algorithm
+    assert umbrella_dbn.filter([{'Umbrella': True}], 'Rain')[True] == pytest.approx(0.8182, abs=1e-4)
+    assert umbrella_dbn.filter([{'Umbrella': True}, {'Umbrella': True}], 'Rain')[True] == pytest.approx(0.8834,
+                                                                                                        abs=1e-4)
+
+    umbrellaHMM = HiddenMarkovModel([[0.7, 0.3], [0.3, 0.7]], [[0.9, 0.2], [0.1, 0.8]])
+    hmm_belief = forward(umbrellaHMM, umbrellaHMM.prior, True)
+    assert umbrella_dbn.filter([{'Umbrella': True}], 'Rain')[True] == pytest.approx(hmm_belief[0])
+
+    # over the book's umbrella evidence sequence [T, T, F, T, T], exact DBN
+    # filtering agrees step for step with the HMM forward algorithm
+    sequence = [T, T, F, T, T]
+    fv = umbrellaHMM.prior
+    for e in sequence:
+        fv = forward(umbrellaHMM, fv, e)
+    dbn_belief = umbrella_dbn.filter([{'Umbrella': e} for e in sequence], 'Rain')
+    assert dbn_belief[True] == pytest.approx(fv[0])
+    assert dbn_belief[True] == pytest.approx(0.8673, abs=1e-4)
+
+
 def test_monte_carlo_localization():
     # TODO: Add tests for random motion/inaccurate sensors
     random.seed('aima-python')
