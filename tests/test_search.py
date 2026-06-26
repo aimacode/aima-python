@@ -91,6 +91,17 @@ def test_iterative_deepening_astar_search():
     assert iterative_deepening_astar_search(EightPuzzle((1, 2, 3, 4, 5, 6, 0, 7, 8))).solution() == ['RIGHT', 'RIGHT']
 
 
+def test_traveling_salesman():
+    cities = {0: (0, 0), 1: (0, 1), 2: (1, 1), 3: (1, 0), 4: (0.5, 2)}
+    tsp = TravelingSalesman(cities, initial=(0,))
+    solution = astar_search(tsp).state
+    # a valid tour starts and ends at the start city and visits every city once
+    assert solution[0] == solution[-1] == 0
+    assert set(solution) == set(cities)
+    # the MST heuristic is admissible, so A* finds the optimal tour cost
+    assert tsp.value(solution) == pytest.approx(3 + 5 ** 0.5)
+
+
 def test_find_blank_square():
     assert eight_puzzle.find_blank_square((0, 1, 2, 3, 4, 5, 6, 7, 8)) == 0
     assert eight_puzzle.find_blank_square((6, 3, 5, 1, 8, 4, 2, 0, 7)) == 7
