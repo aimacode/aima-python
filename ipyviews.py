@@ -49,7 +49,7 @@ class ContinuousWorldView:
         self.show()
 
     def handle_remove_obstacle(self):
-        return NotImplementedError
+        raise NotImplementedError
 
     def get_polygon_obstacles_coordinates(self):
         obstacle_coordiantes = []
@@ -89,7 +89,7 @@ with open('js/gridworld.js', 'r') as js_file:
 class GridWorldView:
     """ View for grid world. Uses XYEnviornment in agents.py as model.
         world: an instance of XYEnviornment.
-        block_size: size of individual blocks in pixes.
+        block_size: size of individual blocks in pixels.
         default_fill: color of blocks. A hex value or name should be passed.
     """
 
@@ -108,7 +108,7 @@ class GridWorldView:
                     return x
 
     def set_label(self, coordinates, label):
-        """ Add lables to a particular block of grid.
+        """ Add labels to a particular block of grid.
             coordinates: a tuple of (row, column).
             rows and columns are 0 indexed.
         """
@@ -127,7 +127,7 @@ class GridWorldView:
         self.representation[thing_class_name] = {"type": repr_type, "source": source}
 
     def handle_click(self, coordinates):
-        """ This method needs to be overidden. Make sure to include a
+        """ This method needs to be overridden. Make sure to include a
             self.show() call at the end. """
         self.show()
 

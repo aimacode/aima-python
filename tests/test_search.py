@@ -317,7 +317,7 @@ def GA_GraphColoringInts(edges, fitness):
     return genetic_algorithm(population, fitness)
 
 
-def test_simpleProblemSolvingAgent():
+def test_simple_problem_solving_agent():
     class vacuumAgent(SimpleProblemSolvingAgentProgram):
         def update_state(self, state, percept):
             return percept

@@ -324,6 +324,41 @@ class QLearningAgent:
         return percept
 
 
+class SARSALearningAgent(QLearningAgent):
+    """
+    [Section 22.3]
+    An on-policy temporal-difference control agent (SARSA: State-Action-Reward-
+    State-Action). It is identical to the Q-learning agent except for the update
+    rule: instead of bootstrapping on the maximum Q-value over next actions, SARSA
+    bootstraps on the Q-value of the action a1 that its exploration policy will
+    actually take in the next state. Being on-policy, SARSA learns the value of the
+    policy it is following, exploration included, rather than that of the greedy
+    policy.
+    """
+
+    def __call__(self, percept):
+        s1, r1 = self.update_state(percept)
+        Q, Nsa, s, a, r = self.Q, self.Nsa, self.s, self.a, self.r
+        alpha, gamma, terminals = self.alpha, self.gamma, self.terminals
+        actions_in_state = self.actions_in_state
+
+        # pick the next action with the same exploration policy as Q-learning
+        a1 = max(actions_in_state(s1), key=lambda a2: self.f(Q[s1, a2], Nsa[s1, a2]))
+
+        if s in terminals:
+            Q[s, None] = r1
+        if s is not None:
+            Nsa[s, a] += 1
+            # on-policy update: bootstrap on the actually-chosen next action a1
+            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * Q[s1, a1] - Q[s, a])
+        if s in terminals:
+            self.s = self.a = self.r = None
+        else:
+            self.s, self.r = s1, r1
+            self.a = a1
+        return self.a
+
+
 def run_single_trial(agent_program, mdp):
     """Execute trial for given agent_program
     and mdp. mdp should be an instance of subclass
