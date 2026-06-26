@@ -83,6 +83,14 @@ class CSP(search.Problem):
 
         return count(conflict(v) for v in self.neighbors[var])
 
+    def count_lost_values(self, var, val, assignment):
+        """Return how many values would be ruled out in the domains of the
+        unassigned neighbours of var if var were assigned val (the count used
+        by the least-constraining-value heuristic)."""
+        return count(not self.constraints(var, val, neighbor, dval)
+                     for neighbor in self.neighbors[var] if neighbor not in assignment
+                     for dval in self.domains[neighbor])
+
     def display(self, assignment):
         """Show a human-readable representation of the CSP."""
         # Subclasses can print in a prettier way, or display with a GUI
@@ -371,7 +379,7 @@ def unordered_domain_values(var, assignment, csp):
 
 def lcv(var, assignment, csp):
     """Least-constraining-values heuristic."""
-    return sorted(csp.choices(var), key=lambda val: csp.nconflicts(var, val, assignment))
+    return sorted(csp.choices(var), key=lambda val: csp.count_lost_values(var, val, assignment))
 
 
 # Inference
