@@ -102,6 +102,14 @@ def test_traveling_salesman():
     assert tsp.value(solution) == pytest.approx(3 + 5 ** 0.5)
 
 
+def test_pour_problem():
+    # the classic two-jug puzzle: with jugs of capacity 3 and 5, measure out 4
+    problem = PourProblem(initial=(0, 0), goals={4}, capacities=(3, 5))
+    solution = breadth_first_graph_search(problem)
+    assert solution is not None
+    assert any(level == 4 for level in solution.state)
+
+
 def test_find_blank_square():
     assert eight_puzzle.find_blank_square((0, 1, 2, 3, 4, 5, 6, 7, 8)) == 0
     assert eight_puzzle.find_blank_square((6, 3, 5, 1, 8, 4, 2, 0, 7)) == 7
