@@ -229,8 +229,12 @@ def test_graph_plan():
 
     shopping_problem_solution = shopping_graph_plan()
     shopping_problem_solution = linearize(shopping_problem_solution)
-    assert expr('Go(Home, HW)') in shopping_problem_solution
-    assert expr('Go(Home, SM)') in shopping_problem_solution
+    # The plan must visit both stores; the route may be reached either directly
+    # from Home or by hopping between the stores (e.g. Home -> SM -> HW).
+    assert (expr('Go(Home, HW)') in shopping_problem_solution or
+            expr('Go(SM, HW)') in shopping_problem_solution)
+    assert (expr('Go(Home, SM)') in shopping_problem_solution or
+            expr('Go(HW, SM)') in shopping_problem_solution)
     assert expr('Buy(Drill, HW)') in shopping_problem_solution
     assert expr('Buy(Banana, SM)') in shopping_problem_solution
     assert expr('Buy(Milk, SM)') in shopping_problem_solution
