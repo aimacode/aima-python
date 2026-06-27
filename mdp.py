@@ -188,6 +188,24 @@ class GridMDP(MDP):
         return self.to_grid({s: chars[a] for (s, a) in policy.items()})
 
 
+def gen_grid(n_rows=3, n_cols=4, terminals=((3, 2), (3, 1)), main_reward=-0.04,
+             terminal_rewards=(1, -1), block_coords=((1, 1),)):
+    """Generate a grid (list of lists of rewards) of arbitrary size in the format
+    accepted by GridMDP, e.g. GridMDP(gen_grid(...), terminals=[...]).
+    n_rows, n_cols: grid dimensions.
+    terminals: (x, y) coordinates of the terminal cells.
+    main_reward: reward for every non-terminal, non-blocked cell.
+    terminal_rewards: reward for each cell in terminals (paired by position).
+    block_coords: (x, y) coordinates of obstacles (set to None / unreachable)."""
+    grid = [[main_reward] * n_cols for _ in range(n_rows)]
+    for (x, y), reward in zip(terminals, terminal_rewards):
+        grid[y][x] = reward
+    for x, y in block_coords:
+        grid[y][x] = None
+    grid.reverse()  # row 0 at the bottom, matching GridMDP's convention
+    return grid
+
+
 # ______________________________________________________________________________
 
 

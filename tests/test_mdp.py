@@ -22,6 +22,26 @@ sequential_decision_environment_3 = GridMDP([[-1.0, -0.1, -0.1, -0.1, -0.1, 0.5]
                                             terminals=[(2, 2), (3, 2), (0, 4), (5, 0)])
 
 
+def test_gen_grid():
+    # the default reproduces the canonical 4x3 Figure 17.1 grid
+    assert gen_grid() == [[-0.04, -0.04, -0.04, 1],
+                          [-0.04, None, -0.04, -1],
+                          [-0.04, -0.04, -0.04, -0.04]]
+    # and feeds GridMDP to the same optimal policy as the shipped environment
+    generated = GridMDP(gen_grid(), terminals=[(3, 2), (3, 1)])
+    assert (best_policy(generated, value_iteration(generated, .001)) ==
+            best_policy(sequential_decision_environment,
+                        value_iteration(sequential_decision_environment, .001)))
+    # an arbitrary larger world places terminals and obstacles correctly
+    big = gen_grid(n_rows=5, n_cols=5, terminals=[(4, 3), (4, 2)], main_reward=0.04,
+                   terminal_rewards=[1, -1], block_coords=[(0, 3), (2, 3), (3, 1)])
+    assert big == [[0.04, 0.04, 0.04, 0.04, 0.04],
+                   [None, 0.04, None, 0.04, 1],
+                   [0.04, 0.04, 0.04, 0.04, -1],
+                   [0.04, 0.04, 0.04, None, 0.04],
+                   [0.04, 0.04, 0.04, 0.04, 0.04]]
+
+
 def test_value_iteration():
     # exact float equality on the value function is brittle across numpy/BLAS
     # versions (the values can differ in the last decimal), so compare with a
