@@ -1496,6 +1496,7 @@ class PartialOrderPlanner:
     A partially ordered plan is defined by a set of actions and a set of constraints of the form A < B,
     which denotes that action A has to be performed before action B.
     To summarize the working of a partial order planner,
+
     1. An open precondition is selected (a sub-goal that we want to achieve).
     2. An action that fulfils the open precondition is chosen.
     3. Temporal constraints are updated.
@@ -2011,37 +2012,38 @@ class RealWorldPlanningProblem(PlanningProblem):
     def refinements(self, library):  # refinements may be (multiple) HLA themselves ...
         """
         State is a Problem, containing the current state kb library is a
-        dictionary containing details for every possible refinement. e.g.:
-        {
-        'HLA': [
-            'Go(Home, SFO)',
-            'Go(Home, SFO)',
-            'Drive(Home, SFOLongTermParking)',
-            'Shuttle(SFOLongTermParking, SFO)',
-            'Taxi(Home, SFO)'
-            ],
-        'steps': [
-            ['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'],
-            ['Taxi(Home, SFO)'],
-            [],
-            [],
-            []
-            ],
-        # empty refinements indicate a primitive action
-        'precond': [
-            ['At(Home) & Have(Car)'],
-            ['At(Home)'],
-            ['At(Home) & Have(Car)'],
-            ['At(SFOLongTermParking)'],
-            ['At(Home)']
-            ],
-        'effect': [
-            ['At(SFO) & ~At(Home)'],
-            ['At(SFO) & ~At(Home)'],
-            ['At(SFOLongTermParking) & ~At(Home)'],
-            ['At(SFO) & ~At(SFOLongTermParking)'],
-            ['At(SFO) & ~At(Home)']
-            ]}
+        dictionary containing details for every possible refinement. e.g.::
+
+            {
+            'HLA': [
+                'Go(Home, SFO)',
+                'Go(Home, SFO)',
+                'Drive(Home, SFOLongTermParking)',
+                'Shuttle(SFOLongTermParking, SFO)',
+                'Taxi(Home, SFO)'
+                ],
+            'steps': [
+                ['Drive(Home, SFOLongTermParking)', 'Shuttle(SFOLongTermParking, SFO)'],
+                ['Taxi(Home, SFO)'],
+                [],
+                [],
+                []
+                ],
+            # empty refinements indicate a primitive action
+            'precond': [
+                ['At(Home) & Have(Car)'],
+                ['At(Home)'],
+                ['At(Home) & Have(Car)'],
+                ['At(SFOLongTermParking)'],
+                ['At(Home)']
+                ],
+            'effect': [
+                ['At(SFO) & ~At(Home)'],
+                ['At(SFO) & ~At(Home)'],
+                ['At(SFOLongTermParking) & ~At(Home)'],
+                ['At(SFO) & ~At(SFOLongTermParking)'],
+                ['At(SFO) & ~At(Home)']
+                ]}
         """
         indices = [i for i, x in enumerate(library['HLA']) if expr(x).op == self.name]
         for i in indices:
@@ -2358,7 +2360,8 @@ class AngelicHLA(HLA):
         """
         Converts strings into Exprs
         An HLA with angelic semantics can achieve the effects of simple HLA's (add / remove a variable)
-        and furthermore can have following effects on the variables:
+        and furthermore can have following effects on the variables::
+
             Possibly add variable    ( $+ )
             Possibly remove variable ( $- )
             Possibly add or remove a variable ( $$ )

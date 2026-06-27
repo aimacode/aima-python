@@ -109,9 +109,11 @@ def sum_squared_difference(pic1, pic2):
 def gen_gray_scale_picture(size, level=3):
     """
     Generate a picture with different gray scale levels
+
     :param size: size of generated picture
     :param level: the number of level of gray scales in the picture,
                   range (0, 255) are equally divided by number of levels
+
     :return image in numpy ndarray type
     """
     assert level > 0

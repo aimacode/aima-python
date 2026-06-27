@@ -369,11 +369,13 @@ def gaussian_probability(param, event, value):
     """
     Gaussian probability of a continuous Bayesian network node on condition of
     certain event and the parameters determined by the event
+
     :param param: parameters determined by discrete parent events of current node
     :param event: a dict, continuous event of current node, the values are used
                   as parameters in calculating distribution
     :param value: float, the value of current continuous node
     :return: float, the calculated probability
+
     >>> param = {'sigma':0.5, 'b':1, 'a':{'h1':0.5, 'h2': 1.5}}
     >>> event = {'h1':0.6, 'h2': 0.3}
     >>> gaussian_probability(param, event, 1)

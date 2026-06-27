@@ -155,7 +155,7 @@ def element_wise_product(x, y):
 
 
 def matrix_multiplication(x, *y):
-    """Return a matrix as a matrix-multiplication of x and arbitrary number of matrices *y."""
+    r"""Return a matrix as a matrix-multiplication of x and arbitrary number of matrices \*y."""
 
     result = x
     for _y in y:
@@ -658,7 +658,7 @@ def arity(expression):
 
 
 class PartialExpr:
-    """Given 'P |'==>'| Q, first form PartialExpr('==>', P), then combine with Q."""
+    r"""Given 'P \|'==>'\| Q, first form PartialExpr('==>', P), then combine with Q."""
 
     def __init__(self, op, lhs):
         self.op, self.lhs = op, lhs
@@ -671,10 +671,11 @@ class PartialExpr:
 
 
 def expr(x):
-    """Shortcut to create an Expression. x is a str in which:
+    r"""Shortcut to create an Expression. x is a str in which:
     - identifiers are automatically defined as Symbols.
-    - ==> is treated as an infix |'==>'|, as are <== and <=>.
+    - ==> is treated as an infix \|'==>'\|, as are <== and <=>.
     If x is already an Expression, it is returned unchanged. Example:
+
     >>> expr('P & Q ==> Q')
     ((P & Q) ==> Q)
     """
@@ -685,7 +686,8 @@ infix_ops = '==> <== <=>'.split()
 
 
 def expr_handle_infix_ops(x):
-    """Given a str, return a new str with ==> replaced by |'==>'|, etc.
+    r"""Given a str, return a new str with ==> replaced by \|'==>'\|, etc.
+
     >>> expr_handle_infix_ops('P ==> Q')
     "P |'==>'| Q"
     """

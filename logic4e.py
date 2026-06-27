@@ -48,7 +48,8 @@ class KB:
     """
     A knowledge base to which you can tell and ask sentences.
     To create a KB, subclass this class and implement tell, ask_generator, and retract.
-    Ask_generator：
+    Ask_generator::
+
       For a Propositional Logic KB, ask(P & Q) returns True or False, but for an
       FOL KB, something like ask(Brother(x, y)) might return many substitutions
       such as {x: Cain, y: Abel}, {x: Abel, y: Cain}, {x: George, y: Jeb}, etc.
@@ -461,7 +462,7 @@ def to_cnf(s):
 
 
 def eliminate_implications(s):
-    """Change implications into equivalent form with only &, |, and ~ as logical operators."""
+    r"""Change implications into equivalent form with only &, \|, and ~ as logical operators."""
     s = expr(s)
     if not s.args or is_symbol(s.op):
         return s  # Atoms are unchanged.
@@ -534,9 +535,10 @@ def distribute_and_over_or(s):
 
 
 def associate(op, args):
-    """Given an associative op, return an expression with the same
-    meaning as Expr(op, *args), but flattened -- that is, with nested
+    r"""Given an associative op, return an expression with the same
+    meaning as Expr(op, \*args), but flattened -- that is, with nested
     instances of the same op promoted to the top level.
+
     >>> associate('&', [(A&B),(B|C),(B&C)])
     (A & B & (B | C) & B & C)
     >>> associate('|', [A|(B|(C|(A&B)))])
@@ -555,8 +557,9 @@ _op_identity = {'&': True, '|': False, '+': 0, '*': 1}
 
 
 def dissociate(op, args):
-    """Given an associative op, return a flattened list result such
-    that Expr(op, *result) means the same as Expr(op, *args).
+    r"""Given an associative op, return a flattened list result such
+    that Expr(op, \*result) means the same as Expr(op, \*args).
+
     >>> dissociate('&', [A & B])
     [A, B]
     """
@@ -715,6 +718,7 @@ def dpll_satisfiable(s):
     rather than True when it succeeds; this is more useful. (2) The
     function find_pure_symbol is passed a list of unknown clauses, rather
     than a list of all clauses and the model; this is more efficient.
+
     >>> dpll_satisfiable(A |'<=>'| B) == {A: True, B: True}
     True
     """

@@ -286,9 +286,9 @@ def policy_evaluation(pi, U, mdp, k=20):
 
 
 class POMDP(MDP):
-    """A Partially Observable Markov Decision Process, defined by
-    a transition model P(s'|s,a), actions A(s), a reward function R(s),
-    and a sensor model P(e|s). We also keep track of a gamma value,
+    r"""A Partially Observable Markov Decision Process, defined by
+    a transition model P(s'\|s,a), actions A(s), a reward function R(s),
+    and a sensor model P(e\|s). We also keep track of a gamma value,
     for use by algorithms. The transition and the sensor models
     are defined as matrices. We also keep track of the possible states
     and actions for each state. [Page 659]."""

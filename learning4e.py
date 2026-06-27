@@ -14,26 +14,26 @@ from utils4e import *
 
 class DataSet:
     """
-    A data set for a machine learning problem. It has the following fields:
+    A data set for a machine learning problem. It has the following fields::
 
-    d.examples   A list of examples. Each one is a list of attribute values.
-    d.attrs      A list of integers to index into an example, so example[attr]
-                 gives a value. Normally the same as range(len(d.examples[0])).
-    d.attr_names Optional list of mnemonic names for corresponding attrs.
-    d.target     The attribute that a learning algorithm will try to predict.
-                 By default the final attribute.
-    d.inputs     The list of attrs without the target.
-    d.values     A list of lists: each sublist is the set of possible
-                 values for the corresponding attribute. If initially None,
-                 it is computed from the known examples by self.set_problem.
-                 If not None, an erroneous value raises ValueError.
-    d.distance   A function from a pair of examples to a non-negative number.
-                 Should be symmetric, etc. Defaults to mean_boolean_error
-                 since that can handle any field types.
-    d.name       Name of the data set (for output display only).
-    d.source     URL or other source where the data came from.
-    d.exclude    A list of attribute indexes to exclude from d.inputs. Elements
-                 of this list can either be integers (attrs) or attr_names.
+        d.examples   A list of examples. Each one is a list of attribute values.
+        d.attrs      A list of integers to index into an example, so example[attr]
+                     gives a value. Normally the same as range(len(d.examples[0])).
+        d.attr_names Optional list of mnemonic names for corresponding attrs.
+        d.target     The attribute that a learning algorithm will try to predict.
+                     By default the final attribute.
+        d.inputs     The list of attrs without the target.
+        d.values     A list of lists: each sublist is the set of possible
+                     values for the corresponding attribute. If initially None,
+                     it is computed from the known examples by self.set_problem.
+                     If not None, an erroneous value raises ValueError.
+        d.distance   A function from a pair of examples to a non-negative number.
+                     Should be symmetric, etc. Defaults to mean_boolean_error
+                     since that can handle any field types.
+        d.name       Name of the data set (for output display only).
+        d.source     URL or other source where the data came from.
+        d.exclude    A list of attribute indexes to exclude from d.inputs. Elements
+                     of this list can either be integers (attrs) or attr_names.
 
     Normally, you call the constructor and you're done; then you just
     access fields like d.examples and d.target and d.inputs.
@@ -158,11 +158,12 @@ class DataSet:
 
     def find_means_and_deviations(self):
         """
-        Finds the means and standard deviations of self.dataset.
-        means     : a dictionary for each class/target. Holds a list of the means
-                    of the features for the class.
-        deviations: a dictionary for each class/target. Holds a list of the sample
-                    standard deviations of the features for the class.
+        Finds the means and standard deviations of self.dataset::
+
+            means     : a dictionary for each class/target. Holds a list of the means
+                        of the features for the class.
+            deviations: a dictionary for each class/target. Holds a list of the sample
+                        standard deviations of the features for the class.
         """
         target_names = self.values[self.target]
         feature_numbers = len(self.inputs)

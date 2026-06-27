@@ -16,7 +16,8 @@ from utils import argmin_random_tie, count, first, extend
 
 class CSP(search.Problem):
     """This class describes finite-domain Constraint Satisfaction Problems.
-    A CSP is specified by the following inputs:
+    A CSP is specified by the following inputs::
+
         variables   A list of variables; each is atomic (e.g. int or string).
         domains     A dict of {var:[possible_value, ...]} entries.
         neighbors   A dict of {var:[var,...]} that for each variable lists
@@ -35,18 +36,23 @@ class CSP(search.Problem):
     However, the class also supports data structures and methods that help you
     solve CSPs by calling a search function on the CSP. Methods and slots are
     as follows, where the argument 'a' represents an assignment, which is a
-    dict of {var:val} entries:
+    dict of {var:val} entries::
+
         assign(var, val, a)     Assign a[var] = val; do other bookkeeping
         unassign(var, a)        Do del a[var], plus other bookkeeping
         nconflicts(var, val, a) Return the number of other variables that
                                 conflict with var=val
         curr_domains[var]       Slot: remaining consistent values for var
                                 Used by constraint propagation routines.
-    The following methods are used only by graph_search and tree_search:
+
+    The following methods are used only by graph_search and tree_search::
+
         actions(state)          Return a list of actions
         result(state, action)   Return a successor of state
         goal_test(state)        Return true if all constraints satisfied
-    The following are just for debugging purposes:
+
+    The following are just for debugging purposes::
+
         nassigns                Slot: tracks the number of assignments made
         display(a)              Print a human-readable representation
     """
@@ -656,17 +662,20 @@ class NQueensCSP(CSP):
     Suitable for large n, it uses only data structures of size O(n).
     Think of placing queens one per column, from left to right.
     That means position (x, y) represents (var, val) in the CSP.
-    The main structures are three arrays to count queens that could conflict:
+    The main structures are three arrays to count queens that could conflict::
+
         rows[i]      Number of queens in the ith row (i.e. val == i)
         downs[i]     Number of queens in the \ diagonal
                      such that their (x, y) coordinates sum to i
         ups[i]       Number of queens in the / diagonal
                      such that their (x, y) coordinates have x-y+n-1 = i
+
     We increment/decrement these counts each time a queen is placed/moved from
     a row/diagonal. So moving is O(1), as is nconflicts.  But choosing
     a variable, and a best value for the variable, are each O(n).
     If you want, you can keep track of conflicted variables, then variable
     selection will also be O(1).
+
     >>> len(backtracking_search(NQueensCSP(8)))
     8
     """
@@ -947,8 +956,9 @@ class NaryCSP:
 
     def consistent(self, assignment):
         """assignment is a variable:value dictionary
+
         returns True if all of the constraints that can be evaluated
-                        evaluate to True given assignment.
+        evaluate to True given assignment.
         """
         return all(con.holds(assignment)
                    for con in self.constraints

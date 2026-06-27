@@ -294,9 +294,9 @@ def policy_evaluation(pi, U, mdp, k=20):
 
 
 class POMDP(MDP):
-    """A Partially Observable Markov Decision Process, defined by
-    a transition model P(s'|s,a), actions A(s), a reward function R(s),
-    and a sensor model P(e|s). We also keep track of a gamma value,
+    r"""A Partially Observable Markov Decision Process, defined by
+    a transition model P(s'\|s,a), actions A(s), a reward function R(s),
+    and a sensor model P(e\|s). We also keep track of a gamma value,
     for use by algorithms. The transition and the sensor models
     are defined as matrices. We also keep track of the possible states
     and actions for each state. [Page 659]."""
@@ -492,7 +492,8 @@ def update_belief(pomdp, belief, action, observation):
     POMDP filtering: update the belief state (a probability distribution over the
     states) after executing 'action' and perceiving 'observation'. The prediction
     step propagates the belief through the transition model and the update step
-    weights it by the sensor model, then renormalizes:
+    weights it by the sensor model, then renormalizes::
+
         b'(s') = alpha * P(o | s') * sum_s P(s' | s, a) b(s)
     """
     transition, sensor = pomdp.t_prob[int(action)], pomdp.e_prob[int(action)]

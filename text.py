@@ -228,6 +228,7 @@ class Document:
 def words(text, reg=re.compile('[a-z0-9]+')):
     """Return a list of the words in text, ignoring punctuation and
     converting everything to lowercase (to canonicalize).
+
     >>> words("``EGAD!'' Edgar cried.")
     ['egad', 'edgar', 'cried']
     """
@@ -236,6 +237,7 @@ def words(text, reg=re.compile('[a-z0-9]+')):
 
 def canonicalize(text):
     """Return a canonical text: only lowercase letters and blanks.
+
     >>> canonicalize("``EGAD!'' Edgar cried.")
     'egad edgar cried'
     """

@@ -320,11 +320,12 @@ class FOILContainer(FolKB):
     def gain(self, l, examples):
         """
         Find the utility of each literal when added to the body of the clause. 
-        Utility function is: 
+        Utility function is::
+
             gain(R, l) = T * (log_2 (post_pos / (post_pos + post_neg)) - log_2 (pre_pos / (pre_pos + pre_neg)))
 
-        where: 
-        
+        where::
+
             pre_pos = number of positive bindings of rule R (=current set of rules)
             pre_neg = number of negative bindings of rule R 
             post_pos = number of positive bindings of rule R' (= R U {l} )

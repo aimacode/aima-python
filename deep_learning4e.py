@@ -526,9 +526,11 @@ def keras_dataset_loader(dataset, max_length=500):
 def SimpleRNNLearner(train_data, val_data, epochs=2, verbose=False):
     """
     RNN example for text sentimental analysis.
-    :param train_data: a tuple of (training data, targets)
-            Training data: ndarray taking training examples, while each example is coded by embedding
-            Targets: ndarray taking targets of each example. Each target is mapped to an integer
+
+    :param train_data:
+        a tuple of (training data, targets)
+        Training data: ndarray taking training examples, while each example is coded by embedding
+        Targets: ndarray taking targets of each example. Each target is mapped to an integer
     :param val_data: a tuple of (validation data, targets)
     :param epochs: number of epochs
     :param verbose: verbosity mode

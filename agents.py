@@ -1,29 +1,30 @@
 """
 Implement Agents and Environments. (Chapters 1-2)
 
-The class hierarchies are as follows:
+The class hierarchies are as follows::
 
-Thing ## A physical object that can exist in an environment
-    Agent
-        Wumpus
-    Dirt
-    Wall
-    ...
+    Thing  ## A physical object that can exist in an environment
+        Agent
+            Wumpus
+        Dirt
+        Wall
+        ...
 
-Environment ## An environment holds objects, runs simulations
-    XYEnvironment
-        VacuumEnvironment
-        WumpusEnvironment
+    Environment  ## An environment holds objects, runs simulations
+        XYEnvironment
+            VacuumEnvironment
+            WumpusEnvironment
 
-An agent program is a callable instance, taking percepts and choosing actions
+An agent program is a callable instance, taking percepts and choosing actions::
+
     SimpleReflexAgentProgram
     ...
 
-EnvGUI ## A window with a graphical representation of the Environment
+The GUI helpers are::
 
-EnvToolbar ## contains buttons for controlling EnvGUI
-
-EnvCanvas ## Canvas to display the environment of an EnvGUI
+    EnvGUI      ## A window with a graphical representation of the Environment
+    EnvToolbar  ## contains buttons for controlling EnvGUI
+    EnvCanvas   ## Canvas to display the environment of an EnvGUI
 """
 
 # TODO
@@ -284,10 +285,12 @@ def ModelBasedVacuumAgent():
 
 class Environment:
     """Abstract class representing an Environment. 'Real' Environment classes
-    inherit from this. Your Environment will typically need to implement:
-        percept:           Define the percept that an agent sees.
-        execute_action:    Define the effects of executing an action.
-                           Also update the agent.performance slot.
+    inherit from this. Your Environment will typically need to implement::
+
+        percept:         Define the percept that an agent sees.
+        execute_action:  Define the effects of executing an action;
+                         also update the agent.performance slot.
+
     The environment keeps a list of .things and .agents (which is a subset
     of .things). Each agent has a .performance slot, initialized to 0.
     Each thing has a .location slot, even though some environments may not
@@ -385,13 +388,16 @@ class Environment:
 
 
 class Direction:
-    """A direction class for agents that want to move in a 2D plane
-        Usage:
-            d = Direction("down")
-            To change directions:
-            d = d + "right" or d = d + Direction.R #Both do the same thing
-            Note that the argument to __add__ must be a string and not a Direction object.
-            Also, it (the argument) can only be right or left."""
+    """A direction class for agents that want to move in a 2D plane.
+
+    Usage::
+
+        d = Direction("down")
+        # to change directions:
+        d = d + "right" or d = d + Direction.R  # both do the same thing
+
+    Note that the argument to __add__ must be a string and not a Direction
+    object, and it can only be 'right' or 'left'."""
 
     R = "right"
     L = "left"

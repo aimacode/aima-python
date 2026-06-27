@@ -50,8 +50,8 @@ def expect_minmax(state, game):
     """
     [Figure 5.11]
     Return the best move for a player after dice are thrown. The game tree
-	includes chance nodes along with min and max nodes.
-	"""
+    includes chance nodes along with min and max nodes.
+    """
     player = game.to_move(state)
 
     def max_value(state):
@@ -576,8 +576,8 @@ class Backgammon(StochasticGame):
 
     def is_legal_move(self, board, start, steps, player):
         """Move is a tuple which contains starting points of checkers to be
-		moved during a player's turn. An on-board move is legal if both the destinations
-		are open. A bear-off move is the one where a checker is moved off-board.
+        moved during a player's turn. An on-board move is legal if both the destinations
+        are open. A bear-off move is the one where a checker is moved off-board.
         It is legal only after a player has moved all his checkers to his home."""
         dest1, dest2 = vector_add(start, steps)
         dest_range = range(0, 24)

@@ -79,7 +79,8 @@ def NaiveBayesSimple(distribution):
     """
     A simple naive bayes classifier that takes as input a dictionary of
     CountingProbDist objects and classifies items according to these distributions.
-    The input dictionary is in the following form:
+    The input dictionary is in the following form::
+
         (ClassName, ClassProb): CountingProbDist
     """
     target_dist = {c_name: prob for c_name, prob in distribution.keys()}

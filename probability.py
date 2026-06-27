@@ -736,10 +736,12 @@ def baum_welch(HMM, observations, iterations=100):
     Each iteration runs a (scaled) forward-backward pass to compute the smoothed
     state marginals gamma_t(i) = P(X_t=i | e_1:T) and transition marginals
     xi_t(i,j) = P(X_t=i, X_t+1=j | e_1:T) (E-step), then re-estimates every
-    parameter as the corresponding normalized expected count (M-step):
+    parameter as the corresponding normalized expected count (M-step)::
+
         prior_i     = gamma_0(i)
         A_ij        = sum_t xi_t(i, j) / sum_t gamma_t(i)
         sensor_oi   = sum_{t: e_t = o} gamma_t(i) / sum_t gamma_t(i)
+
     Returns a new HiddenMarkovModel with the learned parameters.
     """
     A = np.array(HMM.transition_model, dtype=float)
