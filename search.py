@@ -287,9 +287,36 @@ def best_first_graph_search(problem, f, display=False):
     return None
 
 
+def best_first_tree_search(problem, f, display=False):
+    """Search the nodes with the lowest f scores first, without remembering the
+    states already reached. This is the tree-search counterpart of
+    best_first_graph_search: it drops the explored set and the frontier
+    membership/replacement bookkeeping, so it is faster when the state space is a
+    tree (no repeated states) but does not terminate on a graph that contains
+    cycles. You specify the function f(node) that you want to minimize."""
+    f = memoize(f, 'f')
+    node = Node(problem.initial)
+    frontier = PriorityQueue('min', f)
+    frontier.append(node)
+    while frontier:
+        node = frontier.pop()
+        if problem.goal_test(node.state):
+            if display:
+                print(len(frontier), "paths remain in the frontier")
+            return node
+        for child in node.expand(problem):
+            frontier.append(child)
+    return None
+
+
 def uniform_cost_search(problem, display=False):
     """[Figure 3.14]"""
     return best_first_graph_search(problem, lambda node: node.path_cost, display)
+
+
+def uniform_cost_tree_search(problem, display=False):
+    """[Figure 3.14] Tree-search version of uniform-cost search."""
+    return best_first_tree_search(problem, lambda node: node.path_cost, display)
 
 
 def depth_limited_search(problem, limit=50):
@@ -407,6 +434,7 @@ def bidirectional_search(problem):
 
 
 greedy_best_first_graph_search = best_first_graph_search
+greedy_best_first_tree_search = best_first_tree_search
 
 
 # Greedy best-first search is accomplished by specifying f(n) = h(n).
@@ -418,6 +446,15 @@ def astar_search(problem, h=None, display=False):
     else in your Problem subclass."""
     h = memoize(h or problem.h, 'h')
     return best_first_graph_search(problem, lambda n: n.path_cost + h(n), display)
+
+
+def astar_tree_search(problem, h=None, display=False):
+    """Tree-search version of A*: best-first tree search with f(n) = g(n) + h(n).
+    Faster than astar_search when the state space is a tree, since it keeps no
+    explored set. You need to specify the h function when you call
+    astar_tree_search, or else in your Problem subclass."""
+    h = memoize(h or problem.h, 'h')
+    return best_first_tree_search(problem, lambda n: n.path_cost + h(n), display)
 
 
 def iterative_deepening_astar_search(problem, h=None):

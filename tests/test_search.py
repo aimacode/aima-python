@@ -84,6 +84,19 @@ def test_astar_search():
     assert astar_search(n_queens).solution() == [7, 1, 3, 0, 6, 4, 2, 5]
 
 
+def test_tree_search_variants():
+    # n-queens is tree-structured (one queen per column, no repeated states), so
+    # the tree variants explore exactly like the graph ones and find the same solution
+    assert astar_tree_search(n_queens).solution() == astar_search(n_queens).solution()
+    # on Romania (a cyclic graph) cost-bounded tree search still terminates and
+    # returns the optimal path, matching the graph versions
+    assert uniform_cost_tree_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+    assert astar_tree_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
+    assert astar_tree_search(romania_problem).path_cost == 418
+    # the greedy tree-search alias mirrors greedy_best_first_graph_search
+    assert greedy_best_first_tree_search is best_first_tree_search
+
+
 def test_iterative_deepening_astar_search():
     # IDA* is optimal, so it returns a solution of the same cost as A*.
     assert iterative_deepening_astar_search(romania_problem).solution() == ['Sibiu', 'Rimnicu', 'Pitesti', 'Bucharest']
