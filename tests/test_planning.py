@@ -635,6 +635,25 @@ def test_hierarchical_search():
     assert (solution_2[1].args == (expr('MetroStop'), expr('SFO')))
 
 
+def test_hierarchical_search_max_depth():
+    # a recursive hierarchy: Walk refines to [Step, Walk] (recursive) or [] (base);
+    # without a bound, hierarchical_search loops forever when the goal is unreachable
+    recursive_library = {
+        'HLA': ['Walk()', 'Walk()', 'Step()'],
+        'steps': [['Step()', 'Walk()'], [], []],
+        'precond': [['At(Home)'], ['At(Home)'], ['At(Home)']],
+        'effect': [['At(Home)'], ['At(Home)'], ['At(Home)']]}
+    walk = HLA('Walk()', precond='At(Home)', effect='At(Home)')
+
+    # unreachable goal: max_depth guarantees termination, returning None
+    prob = RealWorldPlanningProblem('At(Home)', 'At(Mars)', [walk])
+    assert RealWorldPlanningProblem.hierarchical_search(prob, recursive_library, max_depth=8) is None
+
+    # reachable goal: a solution is still found within the bound
+    prob_ok = RealWorldPlanningProblem('At(Home)', 'At(Home)', [walk])
+    assert RealWorldPlanningProblem.hierarchical_search(prob_ok, recursive_library, max_depth=8) is not None
+
+
 def test_convert_angelic_HLA():
     """ 
     Converts angelic HLA's into expressions that correspond to their actions

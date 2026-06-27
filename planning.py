@@ -1985,13 +1985,17 @@ class RealWorldPlanningProblem(PlanningProblem):
                 actions.append(HLA(library['steps'][i][j], precond, effect))
             yield actions
 
-    def hierarchical_search(self, hierarchy):
+    def hierarchical_search(self, hierarchy, max_depth=None):
         """
         [Figure 11.5]
         'Hierarchical Search, a Breadth First Search implementation of Hierarchical
         Forward Planning Search'
         The problem is a real-world problem defined by the problem class, and the hierarchy is
-        a dictionary of HLA - refinements (see refinements generator for details)
+        a dictionary of HLA - refinements (see refinements generator for details).
+        With the default max_depth=None the search follows Figure 11.5 exactly and, like the
+        textbook algorithm, may not terminate on a recursive (cyclic) hierarchy whose goal is
+        unreachable. Passing max_depth prunes any plan longer than that many actions, which
+        guarantees termination (returning None when no solution is found within the bound).
         """
         act = Node(self.initial, None, [self.actions[0]])
         frontier = deque()
@@ -2011,7 +2015,9 @@ class RealWorldPlanningProblem(PlanningProblem):
                     return plan.action
             else:
                 for sequence in RealWorldPlanningProblem.refinements(hla, hierarchy):  # find refinements
-                    frontier.append(Node(outcome.initial, plan, prefix + sequence + suffix))
+                    refined_plan = prefix + sequence + suffix
+                    if max_depth is None or len(refined_plan) <= max_depth:
+                        frontier.append(Node(outcome.initial, plan, refined_plan))
 
     def result(state, actions):
         """The outcome of applying an action to the current problem"""
