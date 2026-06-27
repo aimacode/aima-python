@@ -515,6 +515,25 @@ def test_partial_order_planner():
     assert list(plan[3])[0].name == 'Finish'
 
 
+def test_partial_order_planner_solves_standard_problems():
+    # the planner must return a valid, executable plan (one that reaches the goal)
+    # for every standard problem, deterministically (not just the threat-free
+    # socks_and_shoes case)
+    for factory in (spare_tire, socks_and_shoes, have_cake_and_eat_cake_too,
+                    three_block_tower, air_cargo, shopping_problem, simple_blocks_world):
+        problem = factory()  # fresh problem instance to simulate the plan on
+        pop = PartialOrderPlanner(factory())
+        pop.execute(display=False)
+        levels = list(reversed(list(pop.toposort(pop.convert(pop.constraints)))))
+        plan = [action for level in levels for action in level
+                if action.name not in ('Start', 'Finish')]
+        assert plan, 'no plan found for ' + factory.__name__
+        for action in plan:
+            act_expr = expr(action.name)(*action.args) if action.args else expr(action.name)
+            problem.act(act_expr)  # raises if a precondition is unmet
+        assert problem.goal_test(), 'plan does not reach the goal for ' + factory.__name__
+
+
 def test_double_tennis():
     p = double_tennis_problem()
     assert not goal_test(p.goals, p.initial)

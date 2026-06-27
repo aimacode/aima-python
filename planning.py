@@ -1512,6 +1512,11 @@ class PartialOrderPlanner:
 
     def __init__(self, planning_problem):
         self.tries = 1
+        # safety bounds for the backtracking search in execute(): the maximum
+        # number of actions a plan may contain (iterative-deepening target) and
+        # the maximum number of node expansions per deepening level
+        self._max_plan_actions = 12
+        self._max_expansions = 20000
         self.planning_problem = planning_problem
         self.causal_links = []
         self.start = Action('Start', [], self.planning_problem.initial)
@@ -1527,39 +1532,33 @@ class PartialOrderPlanner:
         self.expanded_actions = planning_problem.expand_actions()
 
     def find_open_precondition(self):
-        """Find open precondition with the least number of possible actions"""
-
+        """
+        Find the open precondition with the least number of achieving actions
+        (a most-constrained-variable heuristic). Returns the triple
+        (precondition, action_that_needs_it, [achieving_actions]). Iteration is
+        ordered deterministically so the search does not depend on set/hash
+        ordering. Returns (None, None, None) when some open precondition has no
+        achiever at all, which is a dead end for the current partial plan.
+        """
+        possible_actions = list(self.actions) + self.expanded_actions
         number_of_ways = dict()
         actions_for_precondition = dict()
-        for element in self.agenda:
-            open_precondition = element[0]
-            possible_actions = list(self.actions) + self.expanded_actions
-            for action in possible_actions:
-                for effect in action.effect:
-                    if effect == open_precondition:
-                        if open_precondition in number_of_ways:
-                            number_of_ways[open_precondition] += 1
-                            actions_for_precondition[open_precondition].append(action)
-                        else:
-                            number_of_ways[open_precondition] = 1
-                            actions_for_precondition[open_precondition] = [action]
-
-        number = sorted(number_of_ways, key=number_of_ways.__getitem__)
-
-        for k, v in number_of_ways.items():
-            if v == 0:
+        for open_precondition, act in sorted(self.agenda, key=str):
+            if open_precondition in number_of_ways:
+                continue
+            achievers = [action for action in possible_actions
+                         if any(effect == open_precondition for effect in action.effect)]
+            if not achievers:
                 return None, None, None
+            number_of_ways[open_precondition] = len(achievers)
+            actions_for_precondition[open_precondition] = achievers
 
-        act1 = None
-        for element in self.agenda:
-            if element[0] == number[0]:
-                act1 = element[1]
-                break
+        if not number_of_ways:
+            return None, None, None
 
-        if number[0] in self.expanded_actions:
-            self.expanded_actions.remove(number[0])
-
-        return number[0], act1, actions_for_precondition[number[0]]
+        chosen = min(number_of_ways, key=lambda p: (number_of_ways[p], str(p)))
+        act1 = next(act for precond, act in sorted(self.agenda, key=str) if precond == chosen)
+        return chosen, act1, actions_for_precondition[chosen]
 
     def find_action_for_precondition(self, oprec):
         """Find action for a given precondition"""
@@ -1739,61 +1738,131 @@ class PartialOrderPlanner:
         print(list(reversed(list(self.toposort(self.convert(self.constraints))))))
 
     def execute(self, display=True):
-        """Execute the algorithm"""
+        """
+        Execute the algorithm with backtracking, using iterative deepening on the
+        number of actions in the plan. The original greedy version committed to
+        the first achiever it happened to iterate over and could not recover when
+        that action's own preconditions turned out to be unsatisfiable, so it
+        depended on hash ordering and often printed 'Probably Wrong' / "Couldn't
+        find a solution". Backtracking over both action choices and threat
+        resolution (promotion vs demotion), together with the deterministic
+        selection in find_open_precondition and a smallest-plan-first deepening
+        bound, makes the planner solve the standard problems reproducibly and
+        return a short, valid plan.
+        """
+        pristine = self._snapshot()
+        for limit in range(1, self._max_plan_actions + 1):
+            self._restore(pristine)
+            if self._search([self._max_expansions], limit):
+                if display:
+                    self.display_plan()
+                else:
+                    return self.constraints, self.causal_links
+                return
+        print("Couldn't find a solution")
+        if not display:
+            return None, None
 
-        step = 1
-        while len(self.agenda) > 0:
-            step += 1
-            # select <G, act1> from Agenda
-            try:
-                G, act1, possible_actions = self.find_open_precondition()
-            except IndexError:
-                print('Probably Wrong')
-                break
+    def _reachable(self, source, target):
+        """True if target is forced to come after source by the ordering constraints"""
 
-            act0 = possible_actions[0]
-            # remove <G, act1> from Agenda
-            self.agenda.remove((G, act1))
+        stack, seen = [source], set()
+        while stack:
+            node = stack.pop()
+            if node == target:
+                return True
+            if node in seen:
+                continue
+            seen.add(node)
+            stack.extend(b for a, b in self.constraints if a == node)
+        return False
 
-            # For actions with variable number of arguments, use least commitment principle
-            # act0_temp, bindings = self.find_action_for_precondition(G)
-            # act0 = self.generate_action_object(act0_temp, bindings)
-
-            # Actions = Actions U {act0}
-            self.actions.add(act0)
-
-            # Constraints = add_const(start < act0, Constraints)
-            self.constraints = self.add_const((self.start, act0), self.constraints)
-
-            # for each CL E CausalLinks do
-            #   Constraints = protect(CL, act0, Constraints)
-            for causal_link in self.causal_links:
-                self.constraints = self.protect(causal_link, act0, self.constraints)
-
-            # Agenda = Agenda U {<P, act0>: P is a precondition of act0}
-            for precondition in act0.precond:
-                self.agenda.add((precondition, act0))
-
-            # Constraints = add_const(act0 < act1, Constraints)
-            self.constraints = self.add_const((act0, act1), self.constraints)
-
-            # CausalLinks U {<act0, G, act1>}
-            if (act0, G, act1) not in self.causal_links:
-                self.causal_links.append((act0, G, act1))
-
-            # for each A E Actions do
-            #   Constraints = protect(<act0, G, act1>, A, Constraints)
+    def _open_threat(self):
+        """
+        Return an (action, causal_link) threat that is not yet resolved by the
+        ordering constraints, or None if every causal link is protected. A
+        causal link (a0, p, a1) is threatened by an action whose effect negates p
+        unless the action is already ordered before a0 (promotion) or after a1
+        (demotion).
+        """
+        for a0, p, a1 in self.causal_links:
             for action in self.actions:
-                self.constraints = self.protect((act0, G, act1), action, self.constraints)
+                if action == a0 or action == a1:
+                    continue
+                if any(self.is_a_threat(p, effect) for effect in action.effect):
+                    if not (self._reachable(action, a0) or self._reachable(a1, action)):
+                        return action, (a0, p, a1)
+        return None
 
-            if step > 200:
-                print("Couldn't find a solution")
-                return None, None
+    def _snapshot(self):
+        return set(self.actions), set(self.constraints), list(self.causal_links), set(self.agenda)
 
-        if display:
-            self.display_plan()
-        else:
-            return self.constraints, self.causal_links
+    def _restore(self, snapshot):
+        self.actions, self.constraints, self.causal_links, self.agenda = (
+            set(snapshot[0]), set(snapshot[1]), list(snapshot[2]), set(snapshot[3]))
+
+    def _search(self, budget, limit):
+        """
+        Recursively complete the partial plan, backtracking on failure. Three
+        kinds of choice points are explored: which action satisfies an open
+        precondition, how each threat is resolved (promotion vs demotion), and -
+        bounded by 'limit' - whether to introduce a new action at all. Returns
+        True and leaves the solution in self.* on success.
+        """
+        if budget[0] <= 0:
+            return False
+        budget[0] -= 1
+
+        # first, resolve any outstanding threat to a causal link (choice point)
+        threat = self._open_threat()
+        if threat is not None:
+            action, (a0, p, a1) = threat
+            snapshot = self._snapshot()
+            for ordering in ((action, a0), (a1, action)):  # promotion, then demotion
+                new_constraints = self.add_const(ordering, self.constraints)
+                if ordering in new_constraints:  # ordering was consistent (acyclic and allowed)
+                    self.constraints = new_constraints
+                    if self._search(budget, limit):
+                        return True
+                self._restore(snapshot)
+            return False
+
+        # no open threats: a plan with an empty agenda is a complete solution
+        if not self.agenda:
+            return True
+
+        # select <G, act1> from the agenda (most-constrained precondition first)
+        G, act1, possible_actions = self.find_open_precondition()
+        if G is None:  # an open precondition has no achiever -> dead end
+            return False
+
+        # number of actions already introduced, excluding the dummy Start/Finish
+        introduced = len(self.actions) - 2
+        snapshot = self._snapshot()
+        # try each achiever deterministically, reusing existing actions first
+        for act0 in sorted(set(possible_actions), key=lambda a: (a not in self.actions, str(a))):
+            is_new = act0 not in self.actions
+            if is_new and introduced >= limit:  # deepening bound on plan size
+                continue
+            self.agenda.discard((G, act1))
+            self.actions.add(act0)
+            self.constraints = self.add_const((self.start, act0), self.constraints)
+            self.constraints = self.add_const((act0, act1), self.constraints)
+            # the causal link act0 --G--> act1 requires act0 strictly before act1
+            # (and after start); add_const drops an ordering that would create a
+            # cycle, so reject the choice when the required ordering is not enforced
+            if ((act0 == act1 or self._reachable(act0, act1)) and
+                    (act0 == self.start or self._reachable(self.start, act0))):
+                if (act0, G, act1) not in self.causal_links:
+                    self.causal_links.append((act0, G, act1))
+                if is_new:  # a freshly introduced action contributes its own preconditions
+                    for precondition in act0.precond:
+                        self.agenda.add((precondition, act0))
+                if self._search(budget, limit):
+                    return True
+            # undo and try the next achiever
+            self._restore(snapshot)
+        return False
 
 
 def spare_tire_graph_plan():
