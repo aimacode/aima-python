@@ -130,7 +130,7 @@ class DataSet:
 
     def sanitize(self, example):
         """Return a copy of example, with non-input attributes replaced by None."""
-        return [attr_i if i in self.inputs else None for i, attr_i in enumerate(example)]
+        return [attr_i if i in self.inputs else None for i, attr_i in enumerate(example)][:-1]
 
     def classes_to_numbers(self, classes=None):
         """Converts class names to numbers."""
@@ -208,7 +208,10 @@ def err_ratio(predict, dataset, examples=None):
     """
     Return the proportion of the examples that are NOT correctly predicted.
     verbose - 0: No output; 1: Output wrong; 2 (or greater): Output correct
+    Accepts either a callable predictor or a learner object with a .predict method.
     """
+    if hasattr(predict, 'predict'):
+        predict = predict.predict
     examples = examples or dataset.examples
     if len(examples) == 0:
         return 0.0
@@ -225,7 +228,10 @@ def grade_learner(predict, tests):
     """
     Grades the given learner based on how many tests it passes.
     tests is a list with each element in the form: (values, output).
+    Accepts either a callable predictor or a learner object with a .predict method.
     """
+    if hasattr(predict, 'predict'):
+        predict = predict.predict
     return mean(int(predict(X) == y) for X, y in tests)
 
 

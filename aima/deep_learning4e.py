@@ -8,8 +8,40 @@ from keras import Sequential, optimizers
 from keras.layers import Embedding, SimpleRNN, Dense
 from keras.preprocessing import sequence
 
-from aima.utils4e import (conv1D, gaussian_kernel, element_wise_product, vector_add, random_weights,
-                     scalar_vector_product, map_vector, mean_squared_error_loss)
+from aima.utils import conv1D, gaussian_kernel, random_weights, map_vector, mean_squared_error_loss
+
+
+# The neural-network code operates on nested weight matrices, so it needs the
+# recursive variants of these vector helpers (the canonical aima.utils versions
+# are the flat ones used by the grid/search code, which return tuples/np arrays).
+def element_wise_product(x, y):
+    """Element-wise product of x and y, recursing into nested iterables."""
+    if hasattr(x, '__iter__') and hasattr(y, '__iter__'):
+        assert len(x) == len(y)
+        return [element_wise_product(_x, _y) for _x, _y in zip(x, y)]
+    elif hasattr(x, '__iter__') == hasattr(y, '__iter__'):
+        return x * y
+    else:
+        raise Exception('Inputs must be in the same size!')
+
+
+def vector_add(a, b):
+    """Component-wise (recursive) addition of two vectors."""
+    if not (a and b):
+        return a or b
+    if hasattr(a, '__iter__') and hasattr(b, '__iter__'):
+        assert len(a) == len(b)
+        return list(map(vector_add, a, b))
+    else:
+        try:
+            return a + b
+        except TypeError:
+            raise Exception('Inputs must be in the same size!')
+
+
+def scalar_vector_product(x, y):
+    """Product of a scalar x and a (possibly nested) vector y, recursively."""
+    return [scalar_vector_product(x, _y) for _y in y] if hasattr(y, '__iter__') else x * y
 
 
 class Node:
