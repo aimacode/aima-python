@@ -271,10 +271,25 @@ def test_and_or_graph_search():
 
 def test_online_dfs_agent():
     odfs_agent = OnlineDFSAgent(LRTA_problem)
-    keys = [key for key in odfs_agent('State_3')]
-    assert keys[0] in ['Right', 'Left']
-    assert keys[1] in ['Right', 'Left']
+    # each call returns a single legal action (or None at the goal)
+    first = odfs_agent('State_3')
+    assert first in ['Right', 'Left']
     assert odfs_agent('State_5') is None
+
+    # driving the agent through the environment must reach the goal and stop,
+    # only ever issuing actions that are legal in the current state
+    odfs_agent = OnlineDFSAgent(LRTA_problem)
+    graph_dict = one_dim_state_space.graph_dict
+    state = LRTA_problem.initial
+    action = odfs_agent(state)
+    for _ in range(40):
+        if action is None:
+            break
+        assert action in graph_dict[state]
+        state = graph_dict[state][action]
+        action = odfs_agent(state)
+    assert state == LRTA_problem.goal
+    assert action is None
 
 
 def test_LRTAStarAgent():

@@ -1077,23 +1077,23 @@ class OnlineDFSAgent:
             self.a = None
         else:
             if s1 not in self.untried.keys():
-                self.untried[s1] = self.problem.actions(s1)
+                self.untried[s1] = list(self.problem.actions(s1))
+                self.unbacktracked[s1] = []
             if self.s is not None:
-                if s1 != self.result[(self.s, self.a)]:
-                    self.result[(self.s, self.a)] = s1
-                    self.unbacktracked[s1].insert(0, self.s)
+                self.result[(self.s, self.a)] = s1
+                self.unbacktracked[s1].insert(0, self.s)
             if len(self.untried[s1]) == 0:
                 if len(self.unbacktracked[s1]) == 0:
                     self.a = None
                 else:
                     # else a <- an action b such that result[s', b] = POP(unbacktracked[s'])
-                    unbacktracked_pop = self.unbacktracked.pop(s1)
+                    unbacktracked_pop = self.unbacktracked[s1].pop(0)
                     for (s, b) in self.result.keys():
-                        if self.result[(s, b)] == unbacktracked_pop:
+                        if s == s1 and self.result[(s, b)] == unbacktracked_pop:
                             self.a = b
                             break
             else:
-                self.a = self.untried.pop(s1)
+                self.a = self.untried[s1].pop()
         self.s = s1
         return self.a
 
