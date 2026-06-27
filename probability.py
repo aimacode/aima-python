@@ -793,29 +793,27 @@ def fixed_lag_smoothing(e_t, HMM, d, ev, t):
     """
     [Figure 15.6]
     Smoothing algorithm with a fixed time lag of 'd' steps.
-    Online algorithm that outputs the new smoothed estimate if observation
-    for new time step is given.
+    Computes the smoothed estimate P(X_{t-d} | e_{1:t}) for the slice that lies
+    'd' steps in the past, given the evidence sequence ev = [e_1, ..., e_t].
+    Returns None when there is not yet enough evidence (t <= d).
     """
-    ev.insert(0, None)
-
-    T_model = HMM.transition_model
-    f = HMM.prior
-    B = [[1, 0], [0, 1]]
-
-    O_t = np.diag(HMM.sensor_dist(e_t))
-    if t > d:
-        f = forward(HMM, f, e_t)
-        O_tmd = np.diag(HMM.sensor_dist(ev[t - d]))
-        B = matrix_multiplication(np.linalg.inv(O_tmd), np.linalg.inv(T_model), B, T_model, O_t)
-    else:
-        B = matrix_multiplication(B, T_model, O_t)
-    t += 1
-
-    if t > d:
-        # always returns a 1x2 matrix
-        return [normalize(i) for i in matrix_multiplication([f], B)][0]
-    else:
+    if t <= d:
         return None
+
+    T_model = np.array(HMM.transition_model)
+
+    # forward message advanced over e_1 .. e_{t-d}
+    f = HMM.prior
+    for i in range(t - d):
+        f = forward(HMM, f, ev[i])
+
+    # backward transformation accumulated over the lag window e_{t-d+1} .. e_t
+    B = np.eye(len(f))
+    for i in range(t - d, t):
+        O_i = np.diag(HMM.sensor_dist(ev[i]))
+        B = B @ T_model @ O_i
+
+    return normalize((np.array(f) * (B @ np.ones(len(f)))).tolist())
 
 
 # _________________________________________________________________________

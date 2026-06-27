@@ -305,7 +305,7 @@ def test_fixed_lag_smoothing():
     umbrellaHMM = HiddenMarkovModel(umbrella_transition, umbrella_sensor)
 
     d = 2
-    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.1111, 0.8889]
+    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.2259, 0.7741]
     d = 5
     assert fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t) is None
 
@@ -314,7 +314,7 @@ def test_fixed_lag_smoothing():
     e_t = T
 
     d = 1
-    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.9939, 0.0061]
+    assert rounder(fixed_lag_smoothing(e_t, umbrellaHMM, d, umbrella_evidence, t)) == [0.2839, 0.7161]
 
 
 def test_particle_filtering():
