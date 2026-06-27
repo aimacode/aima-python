@@ -13,7 +13,7 @@ chapter numbering; the unsuffixed modules track the 3rd edition.
    :caption: API reference
 
    agents
-   search
+   searching
    games
    csp
    logic
