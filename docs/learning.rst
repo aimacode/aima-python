@@ -26,11 +26,6 @@ Learning
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: aima.reinforcement_learning4e
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. automodule:: aima.perception4e
    :members:
    :undoc-members:

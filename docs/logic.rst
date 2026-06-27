@@ -6,11 +6,6 @@ Logic & Knowledge
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: aima.logic4e
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. automodule:: aima.knowledge
    :members:
    :undoc-members:
