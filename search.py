@@ -779,67 +779,61 @@ class PlanRoute(Problem):
 
     def result(self, state, action):
         """ Given state and action, return a new state that is the result of the action.
-        Action is assumed to be a valid action in the state """
+        Action is assumed to be a valid action in the state. A fresh state object is
+        returned; the input state is never mutated, so the search tree stays consistent. """
         x, y = state.get_location()
-        proposed_loc = list()
+        orientation = state.get_orientation()
+        proposed_loc = None
+        new_orientation = orientation
 
         # Move Forward
         if action == 'Forward':
-            if state.get_orientation() == 'UP':
+            if orientation == 'UP':
                 proposed_loc = [x, y + 1]
-            elif state.get_orientation() == 'DOWN':
+            elif orientation == 'DOWN':
                 proposed_loc = [x, y - 1]
-            elif state.get_orientation() == 'LEFT':
+            elif orientation == 'LEFT':
                 proposed_loc = [x - 1, y]
-            elif state.get_orientation() == 'RIGHT':
+            elif orientation == 'RIGHT':
                 proposed_loc = [x + 1, y]
             else:
                 raise Exception('InvalidOrientation')
 
         # Rotate counter-clockwise
         elif action == 'TurnLeft':
-            if state.get_orientation() == 'UP':
-                state.set_orientation('LEFT')
-            elif state.get_orientation() == 'DOWN':
-                state.set_orientation('RIGHT')
-            elif state.get_orientation() == 'LEFT':
-                state.set_orientation('DOWN')
-            elif state.get_orientation() == 'RIGHT':
-                state.set_orientation('UP')
-            else:
-                raise Exception('InvalidOrientation')
+            new_orientation = {'UP': 'LEFT', 'DOWN': 'RIGHT', 'LEFT': 'DOWN', 'RIGHT': 'UP'}[orientation]
 
         # Rotate clockwise
         elif action == 'TurnRight':
-            if state.get_orientation() == 'UP':
-                state.set_orientation('RIGHT')
-            elif state.get_orientation() == 'DOWN':
-                state.set_orientation('LEFT')
-            elif state.get_orientation() == 'LEFT':
-                state.set_orientation('UP')
-            elif state.get_orientation() == 'RIGHT':
-                state.set_orientation('DOWN')
-            else:
-                raise Exception('InvalidOrientation')
+            new_orientation = {'UP': 'RIGHT', 'DOWN': 'LEFT', 'LEFT': 'UP', 'RIGHT': 'DOWN'}[orientation]
 
-        if proposed_loc in self.allowed:
-            state.set_location(proposed_loc[0], [proposed_loc[1]])
+        new_x, new_y = x, y
+        if proposed_loc is not None and proposed_loc in self.allowed:
+            new_x, new_y = proposed_loc[0], proposed_loc[1]
 
-        return state
+        return type(state)(new_x, new_y, new_orientation)
 
     def goal_test(self, state):
-        """ Given a state, return True if state is a goal state or False, otherwise """
-
-        return state.get_location() == tuple(self.goal)
+        """ Return True when the state matches any goal position. The goal is a
+        collection of [x, y] cells or of position objects; for the latter the
+        orientation must match too (e.g. a shooting position). """
+        for goal in self.goal:
+            if hasattr(goal, 'get_location'):
+                if (state.get_location() == goal.get_location() and
+                        state.get_orientation() == goal.get_orientation()):
+                    return True
+            elif list(state.get_location()) == list(goal):
+                return True
+        return False
 
     def h(self, node):
-        """ Return the heuristic value for a given state."""
-
-        # Manhattan Heuristic Function
+        """ Manhattan distance from the node's location to the nearest goal cell. """
         x1, y1 = node.state.get_location()
-        x2, y2 = self.goal
-
-        return abs(x2 - x1) + abs(y2 - y1)
+        distances = []
+        for goal in self.goal:
+            x2, y2 = goal.get_location() if hasattr(goal, 'get_location') else (goal[0], goal[1])
+            distances.append(abs(x2 - x1) + abs(y2 - y1))
+        return min(distances) if distances else 0
 
 
 # ______________________________________________________________________________

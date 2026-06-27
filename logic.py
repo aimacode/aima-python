@@ -1441,8 +1441,9 @@ class WumpusKB(PropKB):
         s = equiv(facing_south(time), a | b | c)
         self.tell(s)
 
-        # Rules about last action
-        self.tell(equiv(move_forward(t), ~turn_right(t) & ~turn_left(t)))
+        # Rules about last action: moving forward implies the agent did not turn
+        # (the converse does not hold -- the agent may instead grab, shoot or climb)
+        self.tell(implies(move_forward(t), ~turn_right(t) & ~turn_left(t)))
 
         # Rule about the arrow
         self.tell(equiv(have_arrow(time), have_arrow(t) & ~shoot(t)))
@@ -1451,7 +1452,10 @@ class WumpusKB(PropKB):
         self.tell(equiv(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
 
     def ask_if_true(self, query):
-        return pl_resolution(self, query)
+        # the KB entails the query iff KB & ~query is unsatisfiable; using a SAT
+        # solver here instead of pl_resolution keeps inference tractable on the
+        # large wumpus clause set (full resolution closure does not terminate)
+        return not dpll_satisfiable(associate('&', self.clauses + conjuncts(to_cnf(~query))))
 
 
 # ______________________________________________________________________________
@@ -1481,6 +1485,9 @@ class WumpusPosition:
             return True
         else:
             return False
+
+    def __hash__(self):
+        return hash((self.X, self.Y, self.orientation))
 
 
 # ______________________________________________________________________________

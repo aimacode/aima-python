@@ -1,5 +1,6 @@
 import pytest
 from search import *
+from logic import WumpusPosition
 
 random.seed("aima-python")
 
@@ -442,6 +443,32 @@ DIET LENT NETS NIL NIT SETAL LATS TARE ARE SATI'
 >>> boggle_hill_climbing(list('ABCDEFGHI'), verbose=False)
 (['E', 'P', 'R', 'D', 'O', 'A', 'G', 'S', 'T'], 123)
 """
+
+def test_plan_route():
+    dim = 4
+    allowed = [[i, j] for i in range(1, dim + 1) for j in range(1, dim + 1)]
+    start = WumpusPosition(1, 1, 'UP')
+
+    # a route to a goal cell: the planned actions must actually reach it
+    problem = PlanRoute(start, [[3, 3]], allowed, dim)
+    state = start
+    for action in astar_search(problem).solution():
+        state = problem.result(state, action)
+    assert list(state.get_location()) == [3, 3]
+    # the A* search must not mutate the initial state
+    assert start.get_location() == (1, 1) and start.get_orientation() == 'UP'
+
+    # a position goal also constrains the final orientation
+    problem = PlanRoute(start, [WumpusPosition(2, 1, 'RIGHT')], allowed, dim)
+    state = start
+    for action in astar_search(problem).solution():
+        state = problem.result(state, action)
+    assert state.get_location() == (2, 1) and state.get_orientation() == 'RIGHT'
+
+    # forward into a cell that is not allowed (unsafe) leaves the agent in place
+    problem = PlanRoute(start, [[2, 2]], [[1, 1]], dim)
+    assert problem.result(WumpusPosition(1, 1, 'RIGHT'), 'Forward').get_location() == (1, 1)
+
 
 if __name__ == '__main__':
     pytest.main()
