@@ -58,9 +58,20 @@ class CSP(search.Problem):
         self.variables = variables
         self.domains = domains
         self.neighbors = neighbors
-        self.constraints = constraints
+        # store the constraint relation privately and expose it through the
+        # constraints() method below, which counts every consistency check
+        self.constraint_relation = constraints
         self.curr_domains = None
         self.nassigns = 0
+        self.nchecks = 0
+
+    def constraints(self, A, a, B, b):
+        """Return True if neighbors A, B satisfy the constraint when A=a, B=b.
+        Every call is tallied in self.nchecks, so callers can measure the number
+        of consistency checks performed (e.g. to reproduce the benchmarks in
+        Figure 6.1), just as self.nassigns tallies the assignments made."""
+        self.nchecks += 1
+        return self.constraint_relation(A, a, B, b)
 
     def assign(self, var, val, assignment):
         """Add {var: val} to assignment; Discard the old value if any."""

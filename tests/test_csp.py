@@ -701,5 +701,20 @@ def test_zebra():
                    'Winston': 3, 'LuckyStrike': 4, 'Parliaments': 5}
 
 
+def test_constraint_check_count():
+    csp = MapColoringCSP(list('RGB'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
+    # before solving, no assignments or checks have been made
+    assert csp.nassigns == 0 and csp.nchecks == 0
+    solution = backtracking_search(csp)
+    assert solution is not None
+    # solving performs both variable assignments and constraint (consistency) checks
+    assert csp.nassigns > 0
+    assert csp.nchecks > 0
+    # every constraints() call is tallied
+    before = csp.nchecks
+    csp.constraints('WA', 'R', 'NT', 'G')
+    assert csp.nchecks == before + 1
+
+
 if __name__ == "__main__":
     pytest.main()
