@@ -204,6 +204,17 @@ def test_naive_bayes_em():
     assert np.allclose(model['weights'], 0.5, atol=0.1)
 
 
+def test_decision_list_learner():
+    restaurant = DataSet(name="restaurant")
+    dll = DecisionListLearner(restaurant)
+    # the learned decision list is consistent with the (discrete) training data
+    assert err_ratio(dll, restaurant) == 0
+    assert all(dll(example) == example[restaurant.target] for example in restaurant.examples)
+    # each rule is a (conjunctive test, outcome) pair, ending in the empty catch-all
+    assert all(isinstance(test, tuple) for test, _ in dll.decision_list)
+    assert dll.decision_list[-1][0] == ()
+
+
 def test_cross_validation():
     random.seed("aima-python")
     iris = DataSet(name="iris")

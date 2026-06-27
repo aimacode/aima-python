@@ -1,6 +1,7 @@
 """Learning from examples (Chapters 18)"""
 
 import copy
+import itertools
 from collections import defaultdict
 from statistics import stdev
 
@@ -459,34 +460,53 @@ def information_content(values):
 class DecisionListLearner:
     """
     [Figure 18.11]
-    A decision list implemented as a list of (test, value) pairs.
+    A decision list is a list of (test, outcome) pairs, where a test is a
+    conjunction of (attribute, value) literals. An example is classified by the
+    outcome of the first test it satisfies. Learning repeatedly finds a test that
+    selects a non-empty subset of the remaining examples that all share a single
+    outcome, appends (test, outcome), and removes those examples (Figure 18.11).
+    Works on datasets with discrete attribute values.
     """
 
-    def __init__(self, dataset):
-        self.predict.decision_list = self.decision_list_learning(set(dataset.examples))
+    def __init__(self, dataset, max_test_size=None):
+        self.attrs = dataset.inputs
+        self.target = dataset.target
+        # the largest conjunction tried; the default lets a test pin down a single
+        # example, so a consistent list exists when the data is not contradictory
+        self.max_size = max_test_size or len(self.attrs)
+        self.decision_list = self.decision_list_learning(list(dataset.examples))
+
+    def passes(self, example, test):
+        """Does the example satisfy every literal of the (conjunctive) test?"""
+        return all(example[attr] == val for attr, val in test)
+
+    def find_examples(self, examples):
+        """Find the smallest test selecting a non-empty subset of examples that
+        all share one outcome; return (test, outcome, matched_examples), or
+        (None, None, None) if no such test exists up to max_size literals."""
+        literals = sorted({(attr, e[attr]) for e in examples for attr in self.attrs}, key=str)
+        for size in range(1, self.max_size + 1):
+            for test in itertools.combinations(literals, size):
+                # a test may constrain each attribute at most once
+                if len({attr for attr, _ in test}) != size:
+                    continue
+                matched = [e for e in examples if self.passes(e, test)]
+                if matched and len({e[self.target] for e in matched}) == 1:
+                    return test, matched[0][self.target], matched
+        return None, None, None
 
     def decision_list_learning(self, examples):
         if not examples:
-            return [(True, False)]
-        t, o, examples_t = self.find_examples(examples)
-        if not t:
-            raise Exception
-        return [(t, o)] + self.decision_list_learning(examples - examples_t)
-
-    def find_examples(self, examples):
-        """
-        Find a set of examples that all have the same outcome under
-        some test. Return a tuple of the test, outcome, and examples.
-        """
-        raise NotImplementedError
-
-    def passes(self, example, test):
-        """Does the example pass the test?"""
-        raise NotImplementedError
+            return [((), None)]  # catch-all: the empty test matches any example
+        test, outcome, matched = self.find_examples(examples)
+        if test is None:
+            raise ValueError('DecisionListLearner: examples are not separable '
+                             '(contradictory examples sharing identical attributes)')
+        return [(test, outcome)] + self.decision_list_learning([e for e in examples if e not in matched])
 
     def predict(self, example):
-        """Predict the outcome for the first passing test."""
-        for test, outcome in self.predict.decision_list:
+        """Return the outcome of the first test the example satisfies."""
+        for test, outcome in self.decision_list:
             if self.passes(example, test):
                 return outcome
 

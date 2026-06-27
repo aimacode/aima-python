@@ -123,5 +123,13 @@ def test_ada_boost():
     assert err_ratio(ab, iris) < 0.25
 
 
+def test_decision_list_learner():
+    restaurant = DataSet(name="restaurant")
+    dll = DecisionListLearner(restaurant)
+    # the learned decision list classifies every (discrete) training example correctly
+    assert all(dll.predict(example) == example[restaurant.target] for example in restaurant.examples)
+    assert dll.decision_list[-1][0] == ()  # ends in the empty catch-all test
+
+
 if __name__ == "__main__":
     pytest.main()
