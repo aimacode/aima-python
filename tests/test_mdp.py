@@ -126,6 +126,10 @@ def test_transition_model():
     assert mdp.T("b", "plan2") == [(0.6, 'a'), (0.2, 'b'), (0.1, 'c'), (0.1, 'd')]
     assert mdp.T("c", "plan1") == [(0.3, 'a'), (0.5, 'b'), (0.1, 'c'), (0.1, 'd')]
 
+    # a set actlist must be accepted and yield indexable per-state actions
+    assert set(mdp.actions("a")) == {"plan1", "plan2", "plan3"}
+    assert mdp.actions("d") == [None]
+
 
 def test_pomdp_value_iteration():
     t_prob = [[[0.65, 0.35], [0.65, 0.35]], [[0.65, 0.35], [0.65, 0.35]], [[1.0, 0.0], [0.0, 1.0]]]

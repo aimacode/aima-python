@@ -42,6 +42,10 @@ class MDP:
             # if actlist is a dict, different actions for each state
             self.actlist = actlist
 
+        elif isinstance(actlist, set):
+            # if actlist is a set, convert it to a list so actions are indexable
+            self.actlist = list(actlist)
+
         self.terminals = terminals
         self.transitions = transitions or {}
         if not self.transitions:
