@@ -204,5 +204,23 @@ def test_naive_bayes_em():
     assert np.allclose(model['weights'], 0.5, atol=0.1)
 
 
+def test_cross_validation():
+    random.seed("aima-python")
+    iris = DataSet(name="iris")
+
+    # adapt k-NN to the (dataset, size) interface cross_validation expects,
+    # cross-validating over the neighbourhood size
+    def knn(dataset, size):
+        return NearestNeighborLearner(dataset, k=size or 1)
+
+    err_train, err_val = cross_validation(knn, iris, size=3, k=5)
+    # both are error ratios in [0, 1]; on iris k-NN generalizes well, so the
+    # validation error stays well below chance (~0.67 for 3 classes). Loose
+    # bounds are used on purpose -- the exact value depends on the shuffle.
+    assert 0.0 <= err_train <= 1.0
+    assert 0.0 <= err_val < 0.5
+    assert err_val >= err_train  # validation error should not beat training error
+
+
 if __name__ == "__main__":
     pytest.main()
