@@ -1,37 +1,37 @@
 Learning
 ========
 
-.. automodule:: learning
+.. automodule:: aima.learning
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: learning4e
+.. automodule:: aima.learning4e
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: probabilistic_learning
+.. automodule:: aima.probabilistic_learning
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: deep_learning4e
+.. automodule:: aima.deep_learning4e
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: reinforcement_learning
+.. automodule:: aima.reinforcement_learning
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: reinforcement_learning4e
+.. automodule:: aima.reinforcement_learning4e
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: perception4e
+.. automodule:: aima.perception4e
    :members:
    :undoc-members:
    :show-inheritance:

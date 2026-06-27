@@ -39,10 +39,10 @@ from collections import defaultdict, Counter
 
 import networkx as nx
 
-from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
-from csp import parse_neighbors, UniversalDict
-from search import astar_search, PlanRoute
-from utils import remove_all, unique, first, probability, isnumber, issequence, Expr, expr, subexpressions, extend
+from aima.agents import Agent, Glitter, Bump, Stench, Breeze, Scream
+from aima.csp import parse_neighbors, UniversalDict
+from aima.search import astar_search, PlanRoute
+from aima.utils import remove_all, unique, first, probability, isnumber, issequence, Expr, expr, subexpressions, extend
 
 
 class KB:

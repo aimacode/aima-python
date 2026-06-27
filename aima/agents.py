@@ -3,14 +3,14 @@ Implement Agents and Environments. (Chapters 1-2)
 
 The class hierarchies are as follows::
 
-    Thing ## A physical object that can exist in an environment
+    Thing  ## A physical object that can exist in an environment
         Agent
             Wumpus
         Dirt
         Wall
         ...
 
-    Environment ## An environment holds objects, runs simulations
+    Environment  ## An environment holds objects, runs simulations
         XYEnvironment
             VacuumEnvironment
             WumpusEnvironment
@@ -20,22 +20,17 @@ An agent program is a callable instance, taking percepts and choosing actions::
     SimpleReflexAgentProgram
     ...
 
-EnvGUI ## A window with a graphical representation of the Environment
+The GUI helpers are::
 
-EnvToolbar ## contains buttons for controlling EnvGUI
-
-EnvCanvas ## Canvas to display the environment of an EnvGUI
+    EnvGUI      ## A window with a graphical representation of the Environment
+    EnvToolbar  ## contains buttons for controlling EnvGUI
+    EnvCanvas   ## Canvas to display the environment of an EnvGUI
 """
 
 # TODO
-# Implement grabbing correctly.
-# When an object is grabbed, does it still have a location?
-# What if it is released?
-# What if the grabbed or the grabber is deleted?
-# What if the grabber moves?
 # Speed control in GUI does not have any effect -- fix it.
 
-from utils4e import distance_squared, turn_heading
+from aima.utils import distance_squared, turn_heading
 from statistics import mean
 from ipythonblocks import BlockGrid
 from IPython.display import HTML, display, clear_output
@@ -73,17 +68,17 @@ class Thing:
 
 
 class Agent(Thing):
-    """An Agent is a subclass of Thing with one required slot,
-    .program, which should hold a function that takes one argument, the
-    percept, and returns an action. (What counts as a percept or action
+    """An Agent is a subclass of Thing with one required instance attribute 
+    (aka slot), .program, which should hold a function that takes one argument,
+    the percept, and returns an action. (What counts as a percept or action 
     will depend on the specific environment in which the agent exists.)
-    Note that 'program' is a slot, not a method. If it were a method,
-    then the program could 'cheat' and look at aspects of the agent.
-    It's not supposed to do that: the program can only look at the
-    percepts. An agent program that needs a model of the world (and of
-    the agent itself) will have to build and maintain its own model.
-    There is an optional slot, .performance, which is a number giving
-    the performance measure of the agent in its environment."""
+    Note that 'program' is a slot, not a method. If it were a method, then the
+    program could 'cheat' and look at aspects of the agent. It's not supposed
+    to do that: the program can only look at the percepts. An agent program
+    that needs a model of the world (and of the agent itself) will have to
+    build and maintain its own model. There is an optional slot, .performance,
+    which is a number giving the performance measure of the agent in its
+    environment."""
 
     def __init__(self, program=None):
         self.alive = True
@@ -171,14 +166,14 @@ def SimpleReflexAgentProgram(rules, interpret_input):
     return program
 
 
-def ModelBasedReflexAgentProgram(rules, update_state, transition_model, sensor_model):
+def ModelBasedReflexAgentProgram(rules, update_state, model):
     """
     [Figure 2.12]
     This agent takes action based on the percept and state.
     """
 
     def program(percept):
-        program.state = update_state(program.state, program.action, percept, transition_model, sensor_model)
+        program.state = update_state(program.state, program.action, percept, model)
         rule = rule_match(program.state, rules)
         action = rule.action
         return action
@@ -292,9 +287,9 @@ class Environment:
     """Abstract class representing an Environment. 'Real' Environment classes
     inherit from this. Your Environment will typically need to implement::
 
-        percept:           Define the percept that an agent sees.
-        execute_action:    Define the effects of executing an action.
-                           Also update the agent.performance slot.
+        percept:         Define the percept that an agent sees.
+        execute_action:  Define the effects of executing an action;
+                         also update the agent.performance slot.
 
     The environment keeps a list of .things and .agents (which is a subset
     of .things). Each agent has a .performance slot, initialized to 0.
@@ -394,16 +389,16 @@ class Environment:
 
 
 class Direction:
-    """A direction class for agents that want to move in a 2D plane
+    """A direction class for agents that want to move in a 2D plane.
 
     Usage::
 
         d = Direction("down")
-        To change directions:
-        d = d + "right" or d = d + Direction.R #Both do the same thing
-        Note that the argument to __add__ must be a string and not a Direction object.
-        Also, it (the argument) can only be right or left.
-    """
+        # to change directions:
+        d = d + "right" or d = d + Direction.R  # both do the same thing
+
+    Note that the argument to __add__ must be a string and not a Direction
+    object, and it can only be 'right' or 'left'."""
 
     R = "right"
     L = "left"
@@ -492,7 +487,7 @@ class XYEnvironment(Environment):
         self.observers = []
         # Sets iteration start and end (no walls).
         self.x_start, self.y_start = (0, 0)
-        self.x_end, self.y_end = (self.width, self.height)
+        self.x_end, self.y_end = (self.width - 1, self.height - 1)
 
     perceptible_distance = 1
 
@@ -510,9 +505,10 @@ class XYEnvironment(Environment):
         return self.things_near(agent.location)
 
     def execute_action(self, agent, action):
-        """Apply a motion action for the agent. Supports turning
+        """Apply a motion or manipulation action for the agent. Supports turning
         ('TurnRight'/'TurnLeft'), moving one step ('Forward', setting agent.bump on
-        a collision) and dropping the last held thing ('Release')."""
+        a collision), grabbing a grabbable thing at the agent's location ('Grab'),
+        and dropping the last held thing ('Release')."""
         agent.bump = False
         if action == 'TurnRight':
             agent.direction += Direction.R
@@ -520,9 +516,17 @@ class XYEnvironment(Environment):
             agent.direction += Direction.L
         elif action == 'Forward':
             agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
+        elif action == 'Grab':
+            things = [thing for thing in self.list_things_at(agent.location) if agent.can_grab(thing)]
+            if things:    
+                agent.holding.append(things[0])
+                print("Grabbing ", things[0].__class__.__name__)
+                self.delete_thing(things[0])
         elif action == 'Release':
             if agent.holding:
-                agent.holding.pop()
+                dropped = agent.holding.pop()
+                print("Dropping ", dropped.__class__.__name__)
+                self.add_thing(dropped, location=agent.location)
 
     def default_location(self, thing):
         """Return a random inbounds location that contains no Obstacle."""
@@ -575,10 +579,7 @@ class XYEnvironment(Environment):
     def delete_thing(self, thing):
         """Deletes thing, and everything it is holding (if thing is an agent)"""
         if isinstance(thing, Agent):
-            for obj in thing.holding:
-                super().delete_thing(obj)
-                for obs in self.observers:
-                    obs.thing_deleted(obj)
+            del thing.holding
 
         super().delete_thing(thing)
         for obs in self.observers:
@@ -913,10 +914,10 @@ class WumpusEnvironment(XYEnvironment):
     def init_world(self, program):
         """Spawn items in the world based on probabilities from the book"""
 
-        # WALLS
+        "WALLS"
         self.add_walls()
 
-        # PITS
+        "PITS"
         for x in range(self.x_start, self.x_end):
             for y in range(self.y_start, self.y_end):
                 if random.random() < self.pit_probability:
@@ -926,7 +927,7 @@ class WumpusEnvironment(XYEnvironment):
                     self.add_thing(Breeze(), (x + 1, y), True)
                     self.add_thing(Breeze(), (x, y + 1), True)
 
-        # WUMPUS
+        "WUMPUS"
         w_x, w_y = self.random_location_inbounds(exclude=(1, 1))
         self.add_thing(Wumpus(lambda x: ""), (w_x, w_y), True)
         self.add_thing(Stench(), (w_x - 1, w_y), True)
@@ -934,10 +935,10 @@ class WumpusEnvironment(XYEnvironment):
         self.add_thing(Stench(), (w_x, w_y - 1), True)
         self.add_thing(Stench(), (w_x, w_y + 1), True)
 
-        # GOLD
+        "GOLD"
         self.add_thing(Gold(), self.random_location_inbounds(exclude=(1, 1)), True)
 
-        # AGENT
+        "AGENT"
         self.add_thing(Explorer(program), (1, 1), True)
 
     def get_world(self, show_walls=True):
@@ -1002,24 +1003,10 @@ class WumpusEnvironment(XYEnvironment):
 
         if isinstance(agent, Explorer) and self.in_danger(agent):
             return
-
+            
         agent.bump = False
-        if action == 'TurnRight':
-            agent.direction += Direction.R
-            agent.performance -= 1
-        elif action == 'TurnLeft':
-            agent.direction += Direction.L
-            agent.performance -= 1
-        elif action == 'Forward':
-            agent.bump = self.move_to(agent, agent.direction.move_forward(agent.location))
-            agent.performance -= 1
-        elif action == 'Grab':
-            things = [thing for thing in self.list_things_at(agent.location)
-                      if agent.can_grab(thing)]
-            if len(things):
-                print("Grabbing", things[0].__class__.__name__)
-                if len(things):
-                    agent.holding.append(things[0])
+        if action in ['TurnRight', 'TurnLeft', 'Forward', 'Grab']:
+            super().execute_action(agent, action)
             agent.performance -= 1
         elif action == 'Climb':
             if agent.location == (1, 1):  # Agent can only climb out of (1,1)

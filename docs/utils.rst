@@ -1,22 +1,22 @@
 Utilities & Notebook Helpers
 ============================
 
-.. automodule:: utils
+.. automodule:: aima.utils
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: utils4e
+.. automodule:: aima.utils4e
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: notebook_utils
+.. automodule:: aima.notebook_utils
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: notebook4e
+.. automodule:: aima.notebook4e
    :members:
    :undoc-members:
    :show-inheritance:

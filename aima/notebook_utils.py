@@ -11,10 +11,10 @@ from IPython.display import display
 from PIL import Image
 from matplotlib import lines
 
-from games import TicTacToe, alpha_beta_player, random_player, Fig52Extended
-from learning import DataSet
-from logic import parse_definite_clause, standardize_variables, unify_mm, subst
-from search import GraphProblem, romania_map
+from aima.games import TicTacToe, alpha_beta_player, random_player, Fig52Extended
+from aima.learning import DataSet
+from aima.logic import parse_definite_clause, standardize_variables, unify_mm, subst
+from aima.search import GraphProblem, romania_map
 
 
 # ______________________________________________________________________________

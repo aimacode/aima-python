@@ -1,7 +1,7 @@
 Planning
 ========
 
-.. automodule:: planning
+.. automodule:: aima.planning
    :members:
    :undoc-members:
    :show-inheritance:

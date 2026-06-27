@@ -1,17 +1,17 @@
 Natural Language
 ================
 
-.. automodule:: nlp
+.. automodule:: aima.nlp
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: nlp4e
+.. automodule:: aima.nlp4e
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: text
+.. automodule:: aima.text
    :members:
    :undoc-members:
    :show-inheritance:

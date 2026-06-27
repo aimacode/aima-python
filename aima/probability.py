@@ -3,8 +3,8 @@
 from collections import defaultdict
 from functools import reduce
 
-from agents import Agent
-from utils import *
+from aima.agents import Agent
+from aima.utils import *
 
 
 def DTAgentProgram(belief_state):

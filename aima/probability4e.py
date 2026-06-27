@@ -7,7 +7,7 @@ from functools import reduce
 
 import numpy as np
 
-from utils4e import product, probability, extend
+from aima.utils4e import product, probability, extend
 
 
 # ______________________________________________________________________________

@@ -7,8 +7,8 @@ from statistics import stdev
 
 from qpsolvers import solve_qp
 
-from probabilistic_learning import NaiveBayesLearner
-from utils import *
+from aima.probabilistic_learning import NaiveBayesLearner
+from aima.utils import *
 
 
 class DataSet:

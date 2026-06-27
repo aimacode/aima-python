@@ -3,12 +3,7 @@
 import random
 from collections import defaultdict
 
-from mdp4e import MDP, policy_evaluation
-
-
-# _________________________________________
-# 21.2 Passive Reinforcement Learning
-# 21.2.1 Direct utility estimation
+from aima.mdp import MDP, policy_evaluation
 
 
 class PassiveDUEAgent:
@@ -17,7 +12,7 @@ class PassiveDUEAgent:
     on a given MDP and policy::
 
         import sys
-        from mdp import sequential_decision_environment
+        from aima.mdp import sequential_decision_environment
         north = (0, 1)
         south = (0,-1)
         west = (-1, 0)
@@ -71,7 +66,7 @@ class PassiveDUEAgent:
         U2 = {k: sum(v) / max(len(v), 1) for k, v in U2.items()}
         # resetting history
         self.s_history, self.r_history = [], []
-        # setting the new utilities to the average of the previous
+        # setting the new utilities to the average of the previous 
         # iteration and this one
         for k in U2.keys():
             if k in self.U.keys():
@@ -86,9 +81,6 @@ class PassiveDUEAgent:
         return percept
 
 
-# 21.2.2 Adaptive dynamic programming
-
-
 class PassiveADPAgent:
     """
     [Figure 21.2]
@@ -96,7 +88,7 @@ class PassiveADPAgent:
     on a given MDP and policy::
 
         import sys
-        from mdp import sequential_decision_environment
+        from aima.mdp import sequential_decision_environment
         north = (0, 1)
         south = (0,-1)
         west = (-1, 0)
@@ -172,9 +164,6 @@ class PassiveADPAgent:
         return percept
 
 
-# 21.2.3 Temporal-difference learning
-
-
 class PassiveTDAgent:
     """
     [Figure 21.4]
@@ -184,7 +173,7 @@ class PassiveTDAgent:
     should be an instance of a subclass of the MDP Class::
 
         import sys
-        from mdp import sequential_decision_environment
+        from aima.mdp import sequential_decision_environment
         north = (0, 1)
         south = (0,-1)
         west = (-1, 0)
@@ -238,20 +227,15 @@ class PassiveTDAgent:
         return percept
 
 
-# __________________________________________
-# 21.3. Active Reinforcement Learning
-# 21.3.2 Learning an action-utility function
-
-
 class QLearningAgent:
     """
-    [Figure 21.8]
-    An exploratory Q-learning agent. It avoids having to learn the transition
-    model because the Q-value of a state can be related directly to those of
-    its neighbors::
+     [Figure 21.8]
+     An exploratory Q-learning agent. It avoids having to learn the transition
+     model because the Q-value of a state can be related directly to those of
+     its neighbors::
 
         import sys
-        from mdp import sequential_decision_environment
+        from aima.mdp import sequential_decision_environment
         north = (0, 1)
         south = (0,-1)
         west = (-1, 0)
@@ -310,7 +294,7 @@ class QLearningAgent:
         actions_in_state = self.actions_in_state
 
         if s in terminals:
-            Q[s, None] = r1
+            Q[s, None] = r
         if s is not None:
             Nsa[s, a] += 1
             Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1]
@@ -330,7 +314,7 @@ class QLearningAgent:
 
 class SARSALearningAgent(QLearningAgent):
     """
-    [Section 22.3]
+    [Section 21.3]
     An on-policy temporal-difference control agent (SARSA: State-Action-Reward-
     State-Action). It is identical to the Q-learning agent except for the update
     rule: instead of bootstrapping on the maximum Q-value over next actions, SARSA
@@ -350,7 +334,7 @@ class SARSALearningAgent(QLearningAgent):
         a1 = max(actions_in_state(s1), key=lambda a2: self.f(Q[s1, a2], Nsa[s1, a2]))
 
         if s in terminals:
-            Q[s, None] = r1
+            Q[s, None] = r
         if s is not None:
             Nsa[s, a] += 1
             # on-policy update: bootstrap on the actually-chosen next action a1

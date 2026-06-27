@@ -34,9 +34,9 @@ import itertools
 import random
 from collections import defaultdict
 
-from agents import Agent, Glitter, Bump, Stench, Breeze, Scream
-from search import astar_search, PlanRoute
-from utils4e import remove_all, unique, first, probability, isnumber, issequence, Expr, expr, subexpressions
+from aima.agents import Agent, Glitter, Bump, Stench, Breeze, Scream
+from aima.search import astar_search, PlanRoute
+from aima.utils4e import remove_all, unique, first, probability, isnumber, issequence, Expr, expr, subexpressions
 
 
 # ______________________________________________________________________________

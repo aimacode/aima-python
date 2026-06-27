@@ -1,6 +1,6 @@
 import pytest
 
-from mdp import *
+from aima.mdp import *
 
 random.seed("aima-python")
 

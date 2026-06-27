@@ -1,5 +1,5 @@
 """
-Markov Decision Processes (Chapter 16)
+Markov Decision Processes (Chapter 17)
 
 First we define an MDP, and the special case of a GridMDP, in which
 states are laid out in a 2-dimensional grid. We also represent a policy
@@ -13,7 +13,7 @@ from collections import defaultdict
 
 import numpy as np
 
-from utils4e import vector_add, orientations, turn_right, turn_left
+from aima.utils import vector_add, orientations, turn_right, turn_left
 
 
 class MDP:
@@ -138,7 +138,7 @@ class MDP2(MDP):
 
 
 class GridMDP(MDP):
-    """A two-dimensional grid MDP, as in [Figure 16.1]. All you have to do is
+    """A two-dimensional grid MDP, as in [Figure 17.1]. All you have to do is
     specify the grid as a list of lists of rewards; use None for an obstacle
     (unreachable state). Also, you should specify the terminal states.
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
@@ -184,7 +184,7 @@ class GridMDP(MDP):
     def go(self, state, direction):
         """Return the state that results from going in this direction."""
 
-        state1 = tuple(vector_add(state, direction))
+        state1 = vector_add(state, direction)
         return state1 if state1 in self.states else state
 
     def to_grid(self, mapping):
@@ -201,10 +201,28 @@ class GridMDP(MDP):
         return self.to_grid({s: chars[a] for (s, a) in policy.items()})
 
 
+def gen_grid(n_rows=3, n_cols=4, terminals=((3, 2), (3, 1)), main_reward=-0.04,
+             terminal_rewards=(1, -1), block_coords=((1, 1),)):
+    """Generate a grid (list of lists of rewards) of arbitrary size in the format
+    accepted by GridMDP, e.g. GridMDP(gen_grid(...), terminals=[...]).
+    n_rows, n_cols: grid dimensions.
+    terminals: (x, y) coordinates of the terminal cells.
+    main_reward: reward for every non-terminal, non-blocked cell.
+    terminal_rewards: reward for each cell in terminals (paired by position).
+    block_coords: (x, y) coordinates of obstacles (set to None / unreachable)."""
+    grid = [[main_reward] * n_cols for _ in range(n_rows)]
+    for (x, y), reward in zip(terminals, terminal_rewards):
+        grid[y][x] = reward
+    for x, y in block_coords:
+        grid[y][x] = None
+    grid.reverse()  # row 0 at the bottom, matching GridMDP's convention
+    return grid
+
+
 # ______________________________________________________________________________
 
 
-""" [Figure 16.1]
+""" [Figure 17.1]
 A 4x3 grid environment that presents the agent with a sequential decision problem.
 """
 
@@ -215,32 +233,10 @@ sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
 
 
 # ______________________________________________________________________________
-# 16.1.3 The Bellman equation for utilities
-
-
-def q_value(mdp, s, a, U):
-    """Return the Q-value of taking action ``a`` in state ``s`` given the utility estimates
-    ``U``, i.e. the expected sum of the immediate reward and the discounted utility of the
-    successor states. With no action it falls back to the reward of ``s``."""
-    if not a:
-        return mdp.R(s)
-    res = 0
-    for p, s_prime in mdp.T(s, a):
-        res += p * (mdp.R(s) + mdp.gamma * U[s_prime])
-    return res
-
-
-# Dynamic decision networks (DDNs) are solved online by the belief-state
-# look-ahead agent `pomdp_lookahead` defined below, with belief updates via
-# `update_belief` (POMDP filtering).
-
-# ______________________________________________________________________________
-# 16.2 Algorithms for MDPs
-# 16.2.1 Value Iteration
 
 
 def value_iteration(mdp, epsilon=0.001):
-    """Solving an MDP by value iteration. [Figure 16.6]"""
+    """Solving an MDP by value iteration. [Figure 17.4]"""
 
     U1 = {s: 0 for s in mdp.states}
     R, T, gamma = mdp.R, mdp.T, mdp.gamma
@@ -248,25 +244,20 @@ def value_iteration(mdp, epsilon=0.001):
         U = U1.copy()
         delta = 0
         for s in mdp.states:
-            # U1[s] = R(s) + gamma * max(sum(p * U[s1] for (p, s1) in T(s, a))
-            #                            for a in mdp.actions(s))
-            U1[s] = max(q_value(mdp, s, a, U) for a in mdp.actions(s))
+            U1[s] = R(s) + gamma * max(sum(p * U[s1] for (p, s1) in T(s, a))
+                                       for a in mdp.actions(s))
             delta = max(delta, abs(U1[s] - U[s]))
         if delta <= epsilon * (1 - gamma) / gamma:
             return U
 
 
-# ______________________________________________________________________________
-# 16.2.2 Policy Iteration
-
-
 def best_policy(mdp, U):
     """Given an MDP and a utility function U, determine the best policy,
-    as a mapping from state to action."""
+    as a mapping from state to action. [Equation 17.4]"""
 
     pi = {}
     for s in mdp.states:
-        pi[s] = max(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
+        pi[s] = max(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
     return pi
 
 
@@ -274,6 +265,9 @@ def expected_utility(a, s, U, mdp):
     """The expected utility of doing a in state s, according to the MDP and U."""
 
     return sum(p * U[s1] for (p, s1) in mdp.T(s, a))
+
+
+# ______________________________________________________________________________
 
 
 def policy_iteration(mdp):
@@ -285,10 +279,9 @@ def policy_iteration(mdp):
         U = policy_evaluation(pi, U, mdp)
         unchanged = True
         for s in mdp.states:
-            a_star = max(mdp.actions(s), key=lambda a: q_value(mdp, s, a, U))
-            # a = max(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
-            if q_value(mdp, s, a_star, U) > q_value(mdp, s, pi[s], U):
-                pi[s] = a_star
+            a = max(mdp.actions(s), key=lambda a: expected_utility(a, s, U, mdp))
+            if a != pi[s]:
+                pi[s] = a
                 unchanged = False
         if unchanged:
             return pi
@@ -303,10 +296,6 @@ def policy_evaluation(pi, U, mdp, k=20):
         for s in mdp.states:
             U[s] = R(s) + gamma * sum(p * U[s1] for (p, s1) in T(s, pi[s]))
     return U
-
-
-# ___________________________________________________________________
-# 16.4 Partially Observed MDPs
 
 
 class POMDP(MDP):
@@ -500,60 +489,6 @@ def pomdp_value_iteration(pomdp, epsilon=0.1):
         if count > 10:
             if pomdp.max_difference(U, prev_U) < epsilon * (1 - pomdp.gamma) / pomdp.gamma:
                 return U
-
-
-def update_belief(pomdp, belief, action, observation):
-    """
-    [Equation 17.17]
-    POMDP filtering: update the belief state (a probability distribution over the
-    states) after executing 'action' and perceiving 'observation'. The prediction
-    step propagates the belief through the transition model and the update step
-    weights it by the sensor model, then renormalizes::
-
-        b'(s') = alpha * P(o | s') * sum_s P(s' | s, a) b(s)
-    """
-    transition, sensor = pomdp.t_prob[int(action)], pomdp.e_prob[int(action)]
-    n = len(belief)
-    # prediction: b_pred(s') = sum_s b(s) P(s' | s, a)
-    predicted = [sum(belief[s] * transition[s][sp] for s in range(n)) for sp in range(n)]
-    # update: weight each predicted state by the likelihood of the observation
-    updated = [sensor[sp][observation] * predicted[sp] for sp in range(n)]
-    total = sum(updated)
-    return [b / total for b in updated] if total else predicted
-
-
-def pomdp_lookahead(pomdp, belief, depth):
-    """
-    [Section 17.5 - Dynamic Decision Networks]
-    Online decision making for a POMDP modeled as a dynamic decision network
-    (DDN): the network is projected 'depth' steps into the future and solved by
-    belief-state expectimax search. Decision nodes range over the belief states
-    and chance nodes branch over the possible observations, with the belief
-    updated by POMDP filtering ([Equation 17.17]) along each branch. Returns the
-    action that maximizes the expected discounted utility from 'belief'.
-    """
-
-    def utility(belief, depth):
-        if depth == 0:
-            return 0
-        return max(q_value(belief, action, depth) for action in pomdp.actions)
-
-    def q_value(belief, action, depth):
-        # expected immediate reward of taking 'action' in the current belief
-        reward = sum(belief[s] * pomdp.rewards[int(action)][s] for s in range(len(belief)))
-        # expectation over the possible observations of the next belief's utility
-        sensor = pomdp.e_prob[int(action)]
-        predicted = [sum(belief[s] * pomdp.t_prob[int(action)][s][sp] for s in range(len(belief)))
-                     for sp in range(len(belief))]
-        future = 0
-        for observation in range(len(sensor[0])):
-            # P(observation | belief, action)
-            p_o = sum(predicted[sp] * sensor[sp][observation] for sp in range(len(belief)))
-            if p_o > 0:
-                future += p_o * utility(update_belief(pomdp, belief, action, observation), depth - 1)
-        return reward + pomdp.gamma * future
-
-    return max(pomdp.actions, key=lambda action: q_value(belief, action, depth))
 
 
 __doc__ += """

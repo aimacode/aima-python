@@ -9,7 +9,7 @@ from keras.datasets import mnist
 from keras.layers import Dense, Activation, Flatten, InputLayer, Conv2D, MaxPooling2D
 from keras.models import Sequential
 
-from utils4e import gaussian_kernel_2D
+from aima.utils4e import gaussian_kernel_2D
 
 
 # ____________________________________________________

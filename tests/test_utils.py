@@ -1,5 +1,5 @@
 import pytest
-from utils import *
+from aima.utils import *
 import random
 
 random.seed("aima-python")

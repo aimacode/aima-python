@@ -1,6 +1,6 @@
 import pytest
 
-from games import *
+from aima.games import *
 
 # Creating the game instances
 f52 = Fig52Game()

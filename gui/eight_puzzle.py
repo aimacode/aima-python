@@ -4,7 +4,7 @@ import time
 from functools import partial
 from tkinter import *
 
-from search import astar_search, EightPuzzle
+from aima.search import astar_search, EightPuzzle
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 

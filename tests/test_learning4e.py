@@ -1,7 +1,7 @@
 import pytest
 
-from deep_learning4e import PerceptronLearner
-from learning4e import *
+from aima.deep_learning4e import PerceptronLearner
+from aima.learning4e import *
 
 random.seed("aima-python")
 

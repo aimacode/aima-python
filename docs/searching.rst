@@ -1,7 +1,7 @@
 Search
 ======
 
-.. automodule:: search
+.. automodule:: aima.search
    :members:
    :undoc-members:
    :show-inheritance:

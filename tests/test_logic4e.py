@@ -1,7 +1,7 @@
 import pytest
 
-from logic4e import *
-from utils4e import expr_handle_infix_ops, count
+from aima.logic4e import *
+from aima.utils4e import expr_handle_infix_ops, count
 
 definite_clauses_KB = PropDefiniteKB()
 for clause in ['(B & F)==>E',

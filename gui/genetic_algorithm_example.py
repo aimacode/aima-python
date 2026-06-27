@@ -14,7 +14,7 @@ from tkinter import *
 from tkinter import ttk
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import search
+from aima import search
 
 LARGE_FONT = ('Verdana', 12)
 EXTRA_LARGE_FONT = ('Consolas', 36, 'bold')

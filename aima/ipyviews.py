@@ -1,6 +1,6 @@
 from IPython.display import HTML, display, clear_output
 from collections import defaultdict
-from agents import PolygonObstacle
+from aima.agents import PolygonObstacle
 import time
 import json
 import copy

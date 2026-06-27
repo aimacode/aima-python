@@ -1,13 +1,13 @@
 import random
 
 import pytest
-import nlp
+from aima import nlp
 
-from nlp import load_page_html, strip_raw_html, find_outlinks, only_wikipedia_urls
-from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, get_in_links
-from nlp import get_out_links, Page, determine_inlinks, HITS
-from nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
-from nlp import Chart, CYK_parse
+from aima.nlp import load_page_html, strip_raw_html, find_outlinks, only_wikipedia_urls
+from aima.nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, get_in_links
+from aima.nlp import get_out_links, Page, determine_inlinks, HITS
+from aima.nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
+from aima.nlp import Chart, CYK_parse
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by functions within nlp.py
 

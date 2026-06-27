@@ -1,7 +1,7 @@
 import pytest
 
-from logic import *
-from utils import expr_handle_infix_ops, count
+from aima.logic import *
+from aima.utils import expr_handle_infix_ops, count
 
 random.seed("aima-python")
 

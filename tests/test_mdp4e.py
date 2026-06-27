@@ -1,6 +1,6 @@
 import pytest
 
-from mdp4e import *
+from aima.mdp4e import *
 
 random.seed("aima-python")
 

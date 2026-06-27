@@ -1,6 +1,6 @@
 import pytest
 
-from learning import *
+from aima.learning import *
 
 random.seed("aima-python")
 

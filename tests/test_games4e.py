@@ -1,6 +1,6 @@
 import pytest
 
-from games4e import *
+from aima.games4e import *
 
 # Creating the game instances
 f52 = Fig52Game()

@@ -1,7 +1,7 @@
 import pytest
 
-from probability import *
-from utils import rounder
+from aima.probability import *
+from aima.utils import rounder
 
 random.seed("aima-python")
 
@@ -469,7 +469,7 @@ def test_monte_carlo_localization():
         else:
             return 0
 
-    from utils import print_table
+    from aima.utils import print_table
     a = {'v': (0, 0), 'w': 0}
     z = (2, 4, 1, 6)
     S = monte_carlo_localization(a, z, 1000, P_motion_sample, P_sensor, m)

@@ -1,6 +1,6 @@
 import pytest
 
-from probability4e import *
+from aima.probability4e import *
 
 random.seed("aima-python")
 

@@ -13,7 +13,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from matplotlib.ticker import MaxNLocator
 
-from mdp import *
+from aima.mdp import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 

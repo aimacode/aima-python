@@ -1,27 +1,27 @@
 Probability, MDPs & Decisions
 =============================
 
-.. automodule:: probability
+.. automodule:: aima.probability
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: probability4e
+.. automodule:: aima.probability4e
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: mdp
+.. automodule:: aima.mdp
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: mdp4e
+.. automodule:: aima.mdp4e
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: making_simple_decisions4e
+.. automodule:: aima.making_simple_decisions4e
    :members:
    :undoc-members:
    :show-inheritance:

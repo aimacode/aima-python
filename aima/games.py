@@ -7,7 +7,7 @@ from collections import namedtuple
 
 import numpy as np
 
-from utils import vector_add
+from aima.utils import vector_add
 
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 StochasticGameState = namedtuple('StochasticGameState', 'to_move, utility, board, moves, chance')

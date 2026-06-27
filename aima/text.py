@@ -14,9 +14,9 @@ from collections import defaultdict
 
 import numpy as np
 
-import search
-from probabilistic_learning import CountingProbDist
-from utils import hashabledict
+from aima import search
+from aima.probabilistic_learning import CountingProbDist
+from aima.utils import hashabledict
 
 
 class UnigramWordModel(CountingProbDist):
@@ -161,7 +161,7 @@ class IRSystem:
 
     def index_collection(self, filenames):
         """Index a whole collection of files."""
-        prefix = os.path.dirname(__file__)
+        prefix = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         for filename in filenames:
             self.index_document(open(filename).read(), os.path.relpath(filename, prefix))
 
@@ -216,7 +216,7 @@ class UnixConsultant(IRSystem):
         IRSystem.__init__(self, stopwords="how do i the a of")
 
         import os
-        aima_root = os.path.dirname(__file__)
+        aima_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         mandir = os.path.join(aima_root, 'aima-data/MAN/')
         man_files = [mandir + f for f in os.listdir(mandir) if f.endswith('.txt')]
 

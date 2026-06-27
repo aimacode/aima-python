@@ -1,13 +1,15 @@
-"""Natural Language Processing; Chart Parsing and PageRanking (Chapter 22-23)"""
+"""Natural Language Processing (Chapter 22)"""
 
 from collections import defaultdict
-from utils import weighted_choice
-import urllib.request
-import re
+from aima.utils4e import weighted_choice
+import copy
+import operator
+import heapq
+from aima.search import Problem
 
 
 # ______________________________________________________________________________
-# Grammars and Lexicons
+# 22.2 Grammars
 
 
 def Rules(**rules):
@@ -158,7 +160,6 @@ class ProbGrammar:
     def generate_random(self, S='S'):
         """Replace each token in S by a random entry in grammar (recursively).
         Returns a tuple of (sentence, probability)."""
-        import random
 
         def rewrite(tokens, into):
             for token in tokens:
@@ -182,7 +183,7 @@ class ProbGrammar:
 
 
 E0 = Grammar('E0',
-             Rules(  # Grammar for E_0 [Figure 22.4]
+             Rules(  # Grammar for E_0 [Figure 22.2]
                  S='NP VP | S Conjunction S',
                  NP='Pronoun | Name | Noun | Article Noun | Digit Digit | NP PP | NP RelClause',
                  VP='Verb | VP NP | VP Adjective | VP PP | VP Adverb',
@@ -192,7 +193,7 @@ E0 = Grammar('E0',
              Lexicon(  # Lexicon for E_0 [Figure 22.3]
                  Noun="stench | breeze | glitter | nothing | wumpus | pit | pits | gold | east",
                  Verb="is | see | smell | shoot | fell | stinks | go | grab | carry | kill | turn | feel",  # noqa
-                 Adjective="right | left | east | south | back | smelly",
+                 Adjective="right | left | east | south | back | smelly | dead",
                  Adverb="here | there | nearby | ahead | right | left | east | south | back",
                  Pronoun="me | you | I | it",
                  Name="John | Mary | Boston | Aristotle",
@@ -285,7 +286,7 @@ E_Prob_Chomsky_ = ProbGrammar('E_Prob_Chomsky_',
 
 
 # ______________________________________________________________________________
-# Chart Parsing
+# 22.3 Parsing
 
 
 class Chart:
@@ -360,225 +361,187 @@ class Chart:
 # ______________________________________________________________________________
 # CYK Parsing
 
-def CYK_parse(words, grammar):
-    """ [Figure 23.5] """
-    # We use 0-based indexing instead of the book's 1-based.
-    N = len(words)
-    P = defaultdict(float)
 
-    # Insert lexical rules for each word.
+class Tree:
+    """A simple parse-tree node with a root label and a list of child leaves
+    (which may themselves be subtrees), as built by CYK parsing."""
+
+    def __init__(self, root, *args):
+        self.root = root
+        self.leaves = [leaf for leaf in args]
+
+
+def CYK_parse(words, grammar):
+    """ [Figure 22.6] """
+    # We use 0-based indexing instead of the book's 1-based.
+    P = defaultdict(float)
+    T = defaultdict(Tree)
+
+    # Insert lexical categories for each word.
     for (i, word) in enumerate(words):
         for (X, p) in grammar.categories[word]:
-            P[X, i, 1] = p
+            P[X, i, i] = p
+            T[X, i, i] = Tree(X, word)
 
-    # Combine first and second parts of right-hand sides of rules,
-    # from short to long.
+    # Construct X(i:k) from Y(i:j) and Z(j+1:k), shortest span first
+    for i, j, k in subspan(len(words)):
+        for (X, Y, Z, p) in grammar.cnf_rules():
+            PYZ = P[Y, i, j] * P[Z, j + 1, k] * p
+            if PYZ > P[X, i, k]:
+                P[X, i, k] = PYZ
+                T[X, i, k] = Tree(X, T[Y, i, j], T[Z, j + 1, k])
+
+    return T
+
+
+def subspan(N):
+    """returns all tuple(i, j, k) covering a span (i, k) with i <= j < k"""
     for length in range(2, N + 1):
-        for start in range(N - length + 1):
-            for len1 in range(1, length):  # N.B. the book incorrectly has N instead of length
-                len2 = length - len1
-                for (X, Y, Z, p) in grammar.cnf_rules():
-                    P[X, start, length] = max(P[X, start, length],
-                                              P[Y, start, len1] * P[Z, start + len1, len2] * p)
-
-    return P
+        for i in range(1, N + 2 - length):
+            k = i + length - 1
+            for j in range(i, k):
+                yield (i, j, k)
 
 
-# ______________________________________________________________________________
-# Page Ranking
-
-# First entry in list is the base URL, and then following are relative URL pages
-example_pages_set = ["https://en.wikipedia.org/wiki/", "Aesthetics", "Analytic_philosophy",
-                   "Ancient_Greek", "Aristotle", "Astrology", "Atheism", "Baruch_Spinoza",
-                   "Belief", "Betrand Russell", "Confucius", "Consciousness",
-                   "Continental Philosophy", "Dialectic", "Eastern_Philosophy",
-                   "Epistemology", "Ethics", "Existentialism", "Friedrich_Nietzsche",
-                   "Idealism", "Immanuel_Kant", "List_of_political_philosophers", "Logic",
-                   "Metaphysics", "Philosophers", "Philosophy", "Philosophy_of_mind", "Physics",
-                   "Plato", "Political_philosophy", "Pythagoras", "Rationalism",
-                   "Social_philosophy", "Socrates", "Subjectivity", "Theology",
-                   "Truth", "Western_philosophy"]
+# using search algorithms in the searching part
 
 
-def load_page_html(address_list):
-    """Download HTML page content for every URL address passed as argument"""
-    content_dict = {}
-    for addr in address_list:
-        with urllib.request.urlopen(addr) as response:
-            raw_html = response.read().decode('utf-8')
-            # Strip raw html of unnecessary content. Basically everything that isn't link or text
-            html = strip_raw_html(raw_html)
-            content_dict[addr] = html
-    return content_dict
+class TextParsingProblem(Problem):
+    """A search problem that parses a list of words bottom-up into a goal symbol.
+
+    States are partially-reduced word/category sequences; actions replace words
+    with their lexical categories and replace spans of categories by the rules
+    that produce them, so that a solution path corresponds to a valid parse."""
+
+    def __init__(self, initial, grammar, goal='S'):
+        """
+        :param initial: the initial state of words in a list.
+        :param grammar: a grammar object
+        :param goal: the goal state, usually S
+        """
+        super(TextParsingProblem, self).__init__(initial, goal)
+        self.grammar = grammar
+        self.combinations = defaultdict(list)  # article combinations
+        # backward lookup of rules
+        for rule in grammar.rules:
+            for comb in grammar.rules[rule]:
+                self.combinations[' '.join(comb)].append(rule)
+
+    def actions(self, state):
+        """Return the successor states reachable from ``state``: first replace each
+        word by each of its lexical categories, and once only categories remain
+        replace spans that match a grammar rule's right-hand side by that rule."""
+        actions = []
+        categories = self.grammar.categories
+        # first change each word to the article of its category
+        for i in range(len(state)):
+            word = state[i]
+            if word in categories:
+                for X in categories[word]:
+                    state[i] = X
+                    actions.append(copy.copy(state))
+                    state[i] = word
+        # if all words are replaced by articles, replace combinations of articles by inferring rules.
+        if not actions:
+            for start in range(len(state)):
+                for end in range(start, len(state) + 1):
+                    # try combinations between (start, end)
+                    articles = ' '.join(state[start:end])
+                    for c in self.combinations[articles]:
+                        actions.append(state[:start] + [c] + state[end:])
+        return actions
+
+    def result(self, state, action):
+        """Return the state resulting from applying ``action`` (the action is itself
+        the already-computed successor state)."""
+        return action
+
+    def h(self, state):
+        """Heuristic estimating remaining cost as the number of symbols still left
+        to reduce in ``state``."""
+        # heuristic function
+        return len(state)
 
 
-def init_pages(address_list):
-    """Create a dictionary of pages from a list of URL addresses"""
-    pages = {}
-    for addr in address_list:
-        pages[addr] = Page(addr)
-    return pages
+def astar_search_parsing(words, gramma):
+    """bottom-up parsing using A* search to find whether a list of words is a sentence"""
+    # init the problem
+    problem = TextParsingProblem(words, gramma, 'S')
+    state = problem.initial
+    # init the searching frontier
+    frontier = [(len(state) + problem.h(state), state)]
+    heapq.heapify(frontier)
+
+    while frontier:
+        # search the frontier node with lowest cost first
+        cost, state = heapq.heappop(frontier)
+        actions = problem.actions(state)
+        for action in actions:
+            new_state = problem.result(state, action)
+            # update the new frontier node to the frontier
+            if new_state == [problem.goal]:
+                return problem.goal
+            if new_state != state:
+                heapq.heappush(frontier, (len(new_state) + problem.h(new_state), new_state))
+    return False
 
 
-def strip_raw_html(raw_html):
-    """Remove the <head> section of the HTML which contains links to stylesheets etc.,
-    and remove all other unnecessary HTML"""
-    # TODO: Strip more out of the raw html
-    return re.sub("<head>.*?</head>", "", raw_html, flags=re.DOTALL)  # remove <head> section
+def beam_search_parsing(words, gramma, b=3):
+    """bottom-up text parsing using beam search"""
+    # init problem
+    problem = TextParsingProblem(words, gramma, 'S')
+    # init frontier
+    frontier = [(len(problem.initial), problem.initial)]
+    heapq.heapify(frontier)
 
+    # explore the current frontier and keep b new states with lowest cost
+    def explore(frontier):
+        new_frontier = []
+        for cost, state in frontier:
+            # expand the possible children states of current state
+            if not problem.goal_test(' '.join(state)):
+                actions = problem.actions(state)
+                for action in actions:
+                    new_state = problem.result(state, action)
+                    if [len(new_state), new_state] not in new_frontier and new_state != state:
+                        new_frontier.append([len(new_state), new_state])
+            else:
+                return problem.goal
+        heapq.heapify(new_frontier)
+        # only keep b states
+        return heapq.nsmallest(b, new_frontier)
 
-def determine_inlinks(page):
-    """Given a set of pages that have their outlinks determined, we can fill
-    out a page's inlinks by looking through all other page's outlinks"""
-    inlinks = []
-    for addr, index_page in pages_index.items():
-        if page.address == index_page.address:
-            continue
-        elif page.address in index_page.outlinks:
-            inlinks.append(addr)
-    return inlinks
-
-
-def find_outlinks(page, handle_urls=None):
-    """Search a page's HTML content for URL links to other pages"""
-    urls = re.findall(r'href=[\'"]?([^\'" >]+)', pages_content[page.address])
-    if handle_urls:
-        urls = handle_urls(urls)
-    return urls
-
-
-def only_wikipedia_urls(urls):
-    """Some example HTML page data is from wikipedia. This function converts
-    relative wikipedia links to full wikipedia URLs"""
-    wiki_urls = [url for url in urls if url.startswith('/wiki/')]
-    return ["https://en.wikipedia.org" + url for url in wiki_urls]
-
-
-# ______________________________________________________________________________
-# HITS Helper Functions
-
-def expand_pages(pages):
-    """Adds in every page that links to or is linked from one of
-    the relevant pages."""
-    expanded = {}
-    for addr, page in pages.items():
-        if addr not in expanded:
-            expanded[addr] = page
-        for inlink in page.inlinks:
-            if inlink not in expanded:
-                expanded[inlink] = pages_index[inlink]
-        for outlink in page.outlinks:
-            if outlink not in expanded:
-                expanded[outlink] = pages_index[outlink]
-    return expanded
-
-
-def relevant_pages(query):
-    """Relevant pages are pages that contain all of the query words. They are obtained by
-    intersecting the hit lists of the query words."""
-    hit_intersection = {addr for addr in pages_index}
-    query_words = query.split()
-    for query_word in query_words:
-        hit_list = set()
-        for addr in pages_index:
-            if query_word.lower() in pages_content[addr].lower():
-                hit_list.add(addr)
-        hit_intersection = hit_intersection.intersection(hit_list)
-    return {addr: pages_index[addr] for addr in hit_intersection}
-
-
-def normalize(pages):
-    """Normalize divides each page's score by the sum of the squares of all
-    pages' scores (separately for both the authority and hub scores).
-    """
-    summed_hub = sum(page.hub ** 2 for _, page in pages.items())
-    summed_auth = sum(page.authority ** 2 for _, page in pages.items())
-    for _, page in pages.items():
-        page.hub /= summed_hub ** 0.5
-        page.authority /= summed_auth ** 0.5
-
-
-class ConvergenceDetector(object):
-    """If the hub and authority values of the pages are no longer changing, we have
-    reached a convergence and further iterations will have no effect. This detects convergence
-    so that we can stop the HITS algorithm as early as possible."""
-
-    def __init__(self):
-        self.hub_history = None
-        self.auth_history = None
-
-    def __call__(self):
-        return self.detect()
-
-    def detect(self):
-        """Return True once the average change in hub and authority values across all
-        indexed pages falls below the convergence threshold, otherwise False."""
-        curr_hubs = [page.hub for addr, page in pages_index.items()]
-        curr_auths = [page.authority for addr, page in pages_index.items()]
-        if self.hub_history is None:
-            self.hub_history, self.auth_history = [], []
-        else:
-            diffs_hub = [abs(x - y) for x, y in zip(curr_hubs, self.hub_history[-1])]
-            diffs_auth = [abs(x - y) for x, y in zip(curr_auths, self.auth_history[-1])]
-            ave_delta_hub = sum(diffs_hub) / float(len(pages_index))
-            ave_delta_auth = sum(diffs_auth) / float(len(pages_index))
-            if ave_delta_hub < 0.01 and ave_delta_auth < 0.01:  # may need tweaking
-                return True
-        if len(self.hub_history) > 2:  # prevent list from getting long
-            del self.hub_history[0]
-            del self.auth_history[0]
-        self.hub_history.append([x for x in curr_hubs])
-        self.auth_history.append([x for x in curr_auths])
-        return False
-
-
-def get_in_links(page):
-    """Return the addresses of indexed pages that link into the given page."""
-    if not page.inlinks:
-        page.inlinks = determine_inlinks(page)
-    return [addr for addr, p in pages_index.items() if addr in page.inlinks]
-
-
-def get_out_links(page):
-    """Return the addresses of indexed pages that the given page links out to."""
-    if not page.outlinks:
-        page.outlinks = find_outlinks(page)
-    return [addr for addr, p in pages_index.items() if addr in page.outlinks]
+    while frontier:
+        frontier = explore(frontier)
+        if frontier == problem.goal:
+            return frontier
+    return False
 
 
 # ______________________________________________________________________________
-# HITS Algorithm
-
-class Page(object):
-    """A web page used by the HITS algorithm, holding its address, inbound and
-    outbound links, and its current hub and authority scores."""
-
-    def __init__(self, address, in_links=None, out_links=None, hub=0, authority=0):
-        self.address = address
-        self.hub = hub
-        self.authority = authority
-        self.inlinks = in_links
-        self.outlinks = out_links
+# 22.4 Augmented Grammar
 
 
-pages_content = {}  # maps Page relative or absolute URL/location to page's HTML content
-pages_index = {}
-convergence = ConvergenceDetector()  # assign function to variable to mimic pseudocode's syntax
+g = Grammar("arithmetic_expression",  # A Grammar of Arithmetic Expression
+            rules={
+                'Number_0': 'Digit_0', 'Number_1': 'Digit_1', 'Number_2': 'Digit_2',
+                'Number_10': 'Number_1 Digit_0', 'Number_11': 'Number_1 Digit_1',
+                'Number_100': 'Number_10 Digit_0',
+                'Exp_5': ['Number_5', '( Exp_5 )', 'Exp_1, Operator_+ Exp_4', 'Exp_2, Operator_+ Exp_3',
+                          'Exp_0, Operator_+ Exp_5', 'Exp_3, Operator_+ Exp_2', 'Exp_4, Operator_+ Exp_1',
+                          'Exp_5, Operator_+ Exp_0', 'Exp_1, Operator_* Exp_5'],  # more possible combinations
+                'Operator_+': operator.add, 'Operator_-': operator.sub, 'Operator_*': operator.mul,
+                'Operator_/': operator.truediv,
+                'Digit_0': 0, 'Digit_1': 1, 'Digit_2': 2, 'Digit_3': 3, 'Digit_4': 4
+            },
+            lexicon={})
 
-
-def HITS(query):
-    """The HITS algorithm for computing hubs and authorities with respect to a query."""
-    pages = expand_pages(relevant_pages(query))
-    for p in pages.values():
-        p.authority = 1
-        p.hub = 1
-    while not convergence():
-        authority = {p: pages[p].authority for p in pages}
-        hub = {p: pages[p].hub for p in pages}
-        for p in pages:
-            # p.authority ← ∑i Inlinki(p).Hub
-            pages[p].authority = sum(hub[x] for x in get_in_links(pages[p]))
-            # p.hub ← ∑i Outlinki(p).Authority
-            pages[p].hub = sum(authority[x] for x in get_out_links(pages[p]))
-        normalize(pages)
-    return pages
+g = Grammar("Ali loves Bob",  # A example grammar of Ali loves Bob example
+            rules={
+                "S_loves_ali_bob": "NP_ali, VP_x_loves_x_bob", "S_loves_bob_ali": "NP_bob, VP_x_loves_x_ali",
+                "VP_x_loves_x_bob": "Verb_xy_loves_xy NP_bob", "VP_x_loves_x_ali": "Verb_xy_loves_xy NP_ali",
+                "NP_bob": "Name_bob", "NP_ali": "Name_ali"
+            },
+            lexicon={
+                "Name_ali": "Ali", "Name_bob": "Bob", "Verb_xy_loves_xy": "loves"
+            })

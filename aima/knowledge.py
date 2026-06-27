@@ -7,9 +7,9 @@ from random import shuffle
 
 import numpy as np
 
-from logic import (FolKB, constant_symbols, predicate_symbols, standardize_variables,
+from aima.logic import (FolKB, constant_symbols, predicate_symbols, standardize_variables,
                    variables, is_definite_clause, subst, expr, Expr)
-from utils import power_set
+from aima.utils import power_set
 
 
 def current_best_learning(examples, h, examples_so_far=None):

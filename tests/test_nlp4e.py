@@ -1,10 +1,10 @@
 import random
 
 import pytest
-import nlp
+from aima import nlp
 
-from nlp4e import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar, E0
-from nlp4e import Chart, CYK_parse, subspan, astar_search_parsing, beam_search_parsing
+from aima.nlp4e import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar, E0
+from aima.nlp4e import Chart, CYK_parse, subspan, astar_search_parsing, beam_search_parsing
 
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by functions within nlp.py
