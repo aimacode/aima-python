@@ -1,5 +1,4 @@
 cvxopt
-image
 ipython
 ipythonblocks
 ipywidgets
