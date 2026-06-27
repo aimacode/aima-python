@@ -1,6 +1,6 @@
 
 
-# `aima-python` [![tests](https://github.com/aimacode/aima-python/actions/workflows/tests.yml/badge.svg)](https://github.com/aimacode/aima-python/actions/workflows/tests.yml) [![docs](https://github.com/aimacode/aima-python/actions/workflows/docs.yml/badge.svg)](https://aimacode.github.io/aima-python/) [![codecov](https://codecov.io/gh/aimacode/aima-python/branch/master/graph/badge.svg)](https://codecov.io/gh/aimacode/aima-python) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/aimacode/aima-python/master)
+# `aima-python` [![tests](https://github.com/aimacode/aima-python/actions/workflows/tests.yml/badge.svg)](https://github.com/aimacode/aima-python/actions/workflows/tests.yml) [![docs](https://github.com/aimacode/aima-python/actions/workflows/docs.yml/badge.svg)](https://aimacode.github.io/aima-python/) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/aimacode/aima-python/master)
 
 
 Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
@@ -12,6 +12,12 @@ The 4th edition of the book is out now in 2020, and thus we are updating the cod
 - Move from Python 3.5 to 3.7, and on to modern Python (the code now runs on Python 3.9 and up).
 - More emphasis on Jupyter (Ipython) notebooks.
 - More projects using external packages (tensorflow, etc.).
+
+**Edition policy (3rd vs 4th).** As [Peter Norvig stated](https://github.com/aimacode/aima-python/issues/1188#issuecomment-641669882), we are *not* maintaining two parallel editions — all new work should move toward the 4th edition. Concretely:
+
+- The **4th edition is canonical**: new algorithms, fixes and pseudocode references should follow the 4e numbering and content.
+- Some modules still come in pairs (e.g. `agents.py` / `agents4e.py`). The unsuffixed modules are the primary, fully-tested base that the notebooks and tests use today; the `*4e.py` modules carry 4e-specific ports and algorithms not present in the 3e files. We are **converging on a single version per module**; until that migration is complete, prefer adding 4e content over extending the 3e-only versions.
+- New 4th-edition-only material (e.g. `deep_learning4e.py`, `game_theory4e.py`, `perception4e.py`) lives directly in its 4e module.
 
 
 
@@ -71,7 +77,7 @@ And you are good to go!
 
 # Index of Algorithms
 
-Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was made for the third edition of the book and is being updated for the upcoming fourth edition. Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented. Another great place for contributors to start is by adding tests and writing on the notebooks. You can see which algorithms have tests and notebook sections below. If the algorithm you want to work on is covered, don't worry! You can still add more tests and provide some examples of use in the notebook!
+Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was originally made for the third edition of the book; per the edition policy above, the project is converging on the fourth edition (4e modules and numbering). Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented. Another great place for contributors to start is by adding tests and writing on the notebooks. You can see which algorithms have tests and notebook sections below. If the algorithm you want to work on is covered, don't worry! You can still add more tests and provide some examples of use in the notebook!
 
 | **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File** | **Tests** | **Notebook**
 |:-------|:----------------------------------|:------------------------------|:--------------------------------|:-----|:---------|

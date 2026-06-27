@@ -26,6 +26,10 @@ In more detail:
 - Check for common problems in [porting to Python 3](http://python3porting.com/problems.html), such as: `print` is now a function; `range` and `map` and other functions no longer produce `list`; objects of different types can no longer be compared with `<`; strings are now Unicode; it would be nice to move `%` string formatting to `.format`; there is a new `next` function for generators; integer division now returns a float; we can now use set literals.
 - Replace old Lisp-based idioms with proper Python idioms. For example, we have many functions that were taken directly from Common Lisp, such as the `every` function: `every(callable, items)` returns true if every element of `items` is callable. This is good Lisp style, but good Python style would be to use `all` and a generator expression: `all(callable(f) for f in items)`. Eventually, fix all calls to these legacy Lisp functions and then remove the functions.
 
+## Editions: target the 4th edition
+
+We are **not** maintaining two parallel editions. As [Peter Norvig stated](https://github.com/aimacode/aima-python/issues/1188#issuecomment-641669882), all new work should move toward the 4th edition. When a module exists as a pair (e.g. `agents.py` / `agents4e.py`), prefer adding 4e content; don't extend the 3e-only version. We are converging on a single, 4e version per module. See the *Edition policy* section in the README for details.
+
 ## New and Improved Algorithms
 
 - Implement functions that were in the third edition of the book but were not yet implemented in the code. Check the [list of pseudocode algorithms (pdf)](https://github.com/aimacode/pseudocode/blob/master/aima3e-algorithms.pdf) to see what's missing.
