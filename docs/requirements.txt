@@ -1,0 +1,11 @@
+# Dependencies for building the documentation on Read the Docs.
+# Heavy/optional runtime deps (tensorflow, keras, cv2, qpsolvers, ipywidgets, ...)
+# are mocked in conf.py (autodoc_mock_imports), so only Sphinx plus the light
+# scientific packages that the modules import at top level are needed here.
+sphinx>=7
+sphinx_rtd_theme>=2
+numpy
+scipy
+matplotlib
+networkx
+sortedcontainers
