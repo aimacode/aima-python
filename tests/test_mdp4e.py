@@ -149,7 +149,7 @@ def test_pomdp_value_iteration():
         for element in v:
             sum_ += sum(element)
 
-    assert -9.76 < sum_ < -9.70 or 246.5 < sum_ < 248.5 or 0 < sum_ < 1
+    assert -12.77 < sum_ < -12.75
 
 
 def test_pomdp_value_iteration2():

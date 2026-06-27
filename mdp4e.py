@@ -434,10 +434,10 @@ class Matrix:
         """Multiply two matrices A and B element-wise"""
 
         matrix = []
-        for i in range(len(B)):
+        for i in range(len(A)):
             row = []
-            for j in range(len(B[0])):
-                row.append(B[i][j] * A[j][i])
+            for j in range(len(A[0])):
+                row.append(A[i][j] * B[i][j])
             matrix.append(row)
 
         return matrix
