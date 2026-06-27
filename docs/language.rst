@@ -6,11 +6,6 @@ Natural Language
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: aima.nlp4e
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. automodule:: aima.text
    :members:
    :undoc-members:

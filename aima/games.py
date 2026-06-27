@@ -7,7 +7,7 @@ from collections import namedtuple
 
 import numpy as np
 
-from aima.utils import vector_add
+from aima.utils import vector_add, MCT_Node, ucb
 
 GameState = namedtuple('GameState', 'to_move, utility, board, moves')
 StochasticGameState = namedtuple('StochasticGameState', 'to_move, utility, board, moves, chance')
@@ -172,6 +172,60 @@ def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
 
 # ______________________________________________________________________________
+# Monte Carlo Tree Search
+
+
+def monte_carlo_tree_search(state, game, N=1000):
+    """Choose a move by running N iterations of Monte Carlo tree search from the
+    given state, repeatedly selecting a leaf via UCB, expanding it, simulating a
+    random playout, and backing the result up; return the most-visited child move."""
+    def select(n):
+        """select a leaf node in the tree"""
+        if n.children:
+            return select(max(n.children.keys(), key=ucb))
+        else:
+            return n
+
+    def expand(n):
+        """expand the leaf node by adding all its children states"""
+        if not n.children and not game.terminal_test(n.state):
+            n.children = {MCT_Node(state=game.result(n.state, action), parent=n): action
+                          for action in game.actions(n.state)}
+        return select(n)
+
+    def simulate(game, state):
+        """simulate the utility of current state by random picking a step"""
+        player = game.to_move(state)
+        while not game.terminal_test(state):
+            action = random.choice(list(game.actions(state)))
+            state = game.result(state, action)
+        v = game.utility(state, player)
+        return -v
+
+    def backprop(n, utility):
+        """passing the utility back to all parent nodes"""
+        if utility > 0:
+            n.U += utility
+        # if utility == 0:
+        #     n.U += 0.5
+        n.N += 1
+        if n.parent:
+            backprop(n.parent, -utility)
+
+    root = MCT_Node(state=state)
+
+    for _ in range(N):
+        leaf = select(root)
+        child = expand(leaf)
+        result = simulate(game, child.state)
+        backprop(child, result)
+
+    max_state = max(root.children, key=lambda p: p.N)
+
+    return root.children.get(max_state)
+
+
+# ______________________________________________________________________________
 # Players for Games
 
 
@@ -215,6 +269,11 @@ def minmax_player(game,state):
 def expect_minmax_player(game, state):
     """A player for stochastic games that picks a move using expectiminimax search."""
     return expect_minmax(state, game)
+
+
+def mcts_player(game, state):
+    """A player that picks a move using Monte Carlo tree search."""
+    return monte_carlo_tree_search(state, game)
 
 
 # ______________________________________________________________________________

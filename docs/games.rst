@@ -6,11 +6,6 @@ Games & Game Theory
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: aima.games4e
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. automodule:: aima.game_theory4e
    :members:
    :undoc-members:

@@ -822,3 +822,51 @@ class Bool(int):
 
 T = Bool(True)
 F = Bool(False)
+
+
+# ______________________________________________________________________________
+# 4th-edition additions (kernels, convolution, Monte Carlo tree search helpers)
+
+def gaussian_kernel(size=3):
+    """Return a length-size 1D Gaussian kernel centred at the middle (fixed st_dev 0.1)."""
+    return [gaussian((size - 1) / 2, 0.1, x) for x in range(size)]
+
+
+def gaussian_kernel_1D(size=3, sigma=0.5):
+    """Return a length-size 1D Gaussian kernel centred at the middle with st_dev sigma."""
+    return [gaussian((size - 1) / 2, sigma, x) for x in range(size)]
+
+
+def gaussian_kernel_2D(size=3, sigma=0.5):
+    """Return a size x size 2D Gaussian kernel with st_dev sigma, normalized to sum to 1."""
+    x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
+    g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
+    return g / g.sum()
+
+
+def conv1D(x, k):
+    """1D convolution. x: input vector; K: kernel vector."""
+    return np.convolve(x, k, mode='same')
+
+
+def map_vector(f, x):
+    """Apply function f to iterable x."""
+    return [map_vector(f, _x) for _x in x] if hasattr(x, '__iter__') else list(map(f, [x]))[0]
+
+
+class MCT_Node:
+    """Node in the Monte Carlo search tree, keeps track of the children states."""
+
+    def __init__(self, parent=None, state=None, U=0, N=0):
+        self.__dict__.update(parent=parent, state=state, U=U, N=N)
+        self.children = {}
+        self.actions = None
+
+
+def ucb(n, C=1.4):
+    """Return the UCB1 score of node n (exploitation plus C-weighted exploration term).
+
+    Unvisited nodes (n.N == 0) score infinity so they are selected first; used to guide
+    selection in Monte Carlo tree search.
+    """
+    return np.inf if n.N == 0 else n.U / n.N + C * np.sqrt(np.log(n.parent.N) / n.N)

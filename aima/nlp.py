@@ -2,7 +2,10 @@
 
 from collections import defaultdict
 from aima.utils import weighted_choice
+from aima.search import Problem
 import urllib.request
+import copy
+import heapq
 import re
 
 
@@ -382,6 +385,140 @@ def CYK_parse(words, grammar):
                                               P[Y, start, len1] * P[Z, start + len1, len2] * p)
 
     return P
+
+
+class Tree:
+    """A simple parse-tree node with a root label and a list of child leaves
+    (which may themselves be subtrees), as built by CYK parsing."""
+
+    def __init__(self, root, *args):
+        self.root = root
+        self.leaves = [leaf for leaf in args]
+
+
+def subspan(N):
+    """returns all tuple(i, j, k) covering a span (i, k) with i <= j < k"""
+    for length in range(2, N + 1):
+        for i in range(1, N + 2 - length):
+            k = i + length - 1
+            for j in range(i, k):
+                yield (i, j, k)
+
+
+# ______________________________________________________________________________
+# Text Parsing using Search
+
+
+class TextParsingProblem(Problem):
+    """A search problem that parses a list of words bottom-up into a goal symbol.
+
+    States are partially-reduced word/category sequences; actions replace words
+    with their lexical categories and replace spans of categories by the rules
+    that produce them, so that a solution path corresponds to a valid parse."""
+
+    def __init__(self, initial, grammar, goal='S'):
+        """
+        :param initial: the initial state of words in a list.
+        :param grammar: a grammar object
+        :param goal: the goal state, usually S
+        """
+        super(TextParsingProblem, self).__init__(initial, goal)
+        self.grammar = grammar
+        self.combinations = defaultdict(list)  # article combinations
+        # backward lookup of rules
+        for rule in grammar.rules:
+            for comb in grammar.rules[rule]:
+                self.combinations[' '.join(comb)].append(rule)
+
+    def actions(self, state):
+        """Return the successor states reachable from ``state``: first replace each
+        word by each of its lexical categories, and once only categories remain
+        replace spans that match a grammar rule's right-hand side by that rule."""
+        actions = []
+        categories = self.grammar.categories
+        # first change each word to the article of its category
+        for i in range(len(state)):
+            word = state[i]
+            if word in categories:
+                for X in categories[word]:
+                    state[i] = X
+                    actions.append(copy.copy(state))
+                    state[i] = word
+        # if all words are replaced by articles, replace combinations of articles by inferring rules.
+        if not actions:
+            for start in range(len(state)):
+                for end in range(start, len(state) + 1):
+                    # try combinations between (start, end)
+                    articles = ' '.join(state[start:end])
+                    for c in self.combinations[articles]:
+                        actions.append(state[:start] + [c] + state[end:])
+        return actions
+
+    def result(self, state, action):
+        """Return the state resulting from applying ``action`` (the action is itself
+        the already-computed successor state)."""
+        return action
+
+    def h(self, state):
+        """Heuristic estimating remaining cost as the number of symbols still left
+        to reduce in ``state``."""
+        # heuristic function
+        return len(state)
+
+
+def astar_search_parsing(words, gramma):
+    """bottom-up parsing using A* search to find whether a list of words is a sentence"""
+    # init the problem
+    problem = TextParsingProblem(words, gramma, 'S')
+    state = problem.initial
+    # init the searching frontier
+    frontier = [(len(state) + problem.h(state), state)]
+    heapq.heapify(frontier)
+
+    while frontier:
+        # search the frontier node with lowest cost first
+        cost, state = heapq.heappop(frontier)
+        actions = problem.actions(state)
+        for action in actions:
+            new_state = problem.result(state, action)
+            # update the new frontier node to the frontier
+            if new_state == [problem.goal]:
+                return problem.goal
+            if new_state != state:
+                heapq.heappush(frontier, (len(new_state) + problem.h(new_state), new_state))
+    return False
+
+
+def beam_search_parsing(words, gramma, b=3):
+    """bottom-up text parsing using beam search"""
+    # init problem
+    problem = TextParsingProblem(words, gramma, 'S')
+    # init frontier
+    frontier = [(len(problem.initial), problem.initial)]
+    heapq.heapify(frontier)
+
+    # explore the current frontier and keep b new states with lowest cost
+    def explore(frontier):
+        new_frontier = []
+        for cost, state in frontier:
+            # expand the possible children states of current state
+            if not problem.goal_test(' '.join(state)):
+                actions = problem.actions(state)
+                for action in actions:
+                    new_state = problem.result(state, action)
+                    if [len(new_state), new_state] not in new_frontier and new_state != state:
+                        new_frontier.append([len(new_state), new_state])
+            else:
+                return problem.goal
+        heapq.heapify(new_frontier)
+        # only keep b states
+        return heapq.nsmallest(b, new_frontier)
+
+    while frontier:
+        frontier = explore(frontier)
+        if frontier == problem.goal:
+            return frontier
+    return False
 
 
 # ______________________________________________________________________________

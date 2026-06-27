@@ -1,5 +1,6 @@
 """Probability models (Chapter 13-15)"""
 
+import copy
 from collections import defaultdict
 from functools import reduce
 
@@ -156,6 +157,49 @@ def enumerate_joint(variables, e, P):
         return P[e]
     Y, rest = variables[0], variables[1:]
     return sum([enumerate_joint(rest, extend(e, Y, y), P) for y in P.values(Y)])
+
+
+# ______________________________________________________________________________
+# Independence
+
+
+def is_independent(variables, P):
+    """
+    Return whether a list of variables are independent given their distribution P
+    P is an instance of JoinProbDist
+    >>> P = JointProbDist(['X', 'Y'])
+    >>> P[0,0] = 0.25; P[0,1] = 0.5; P[1,1] = P[1,0] = 0.125
+    >>> is_independent(['X', 'Y'], P)
+    False
+    """
+    for var in variables:
+        event_vars = variables[:]
+        event_vars.remove(var)
+        event = {}
+        distribution = enumerate_joint_ask(var, event, P)
+        events = gen_possible_events(event_vars, P)
+        for e in events:
+            conditional_distr = enumerate_joint_ask(var, e, P)
+            if conditional_distr.prob != distribution.prob:
+                return False
+    return True
+
+
+def gen_possible_events(vars, P):
+    """Generate all possible events of a collection of vars according to distribution of P"""
+    events = []
+
+    def backtrack(vars, P, temp):
+        if not vars:
+            events.append(temp)
+            return
+        var = vars[0]
+        for val in P.values(var):
+            temp[var] = val
+            backtrack([v for v in vars if v != var], P, copy.copy(temp))
+
+    backtrack(vars, P, {})
+    return events
 
 
 # ______________________________________________________________________________
@@ -375,6 +419,95 @@ burglary = BayesNet([('Burglary', '', 0.001),
                       {(T, T): 0.95, (T, F): 0.94, (F, T): 0.29, (F, F): 0.001}),
                      ('JohnCalls', 'Alarm', {T: 0.90, F: 0.05}),
                      ('MaryCalls', 'Alarm', {T: 0.70, F: 0.01})])
+
+
+# ______________________________________________________________________________
+# Bayesian nets with continuous variables
+
+
+def gaussian_probability(param, event, value):
+    """
+    Gaussian probability of a continuous Bayesian network node on condition of
+    certain event and the parameters determined by the event
+
+    :param param: parameters determined by discrete parent events of current node
+    :param event: a dict, continuous event of current node, the values are used
+                  as parameters in calculating distribution
+    :param value: float, the value of current continuous node
+    :return: float, the calculated probability
+
+    >>> param = {'sigma':0.5, 'b':1, 'a':{'h1':0.5, 'h2': 1.5}}
+    >>> event = {'h1':0.6, 'h2': 0.3}
+    >>> gaussian_probability(param, event, 1)
+    0.2590351913317835
+    """
+
+    assert isinstance(event, dict)
+    assert isinstance(param, dict)
+    buff = 0
+    for k, v in event.items():
+        # buffer varianle to calculate h1*a_h1 + h2*a_h2
+        buff += param['a'][k] * v
+    res = 1 / (param['sigma'] * np.sqrt(2 * np.pi)) * np.exp(-0.5 * ((value - buff - param['b']) / param['sigma']) ** 2)
+    return res
+
+
+def logistic_probability(param, event, value):
+    """
+    Logistic probability of a discrete node in Bayesian network with continuous parents,
+    :param param: a dict, parameters determined by discrete parents of current node
+    :param event: a dict, names and values of continuous parent variables of current node
+    :param value: boolean, True or False
+    :return: int, probability
+    """
+
+    buff = 1
+    for _, v in event.items():
+        # buffer variable to calculate (value-mu)/sigma
+
+        buff *= (v - param['mu']) / param['sigma']
+    p = 1 - 1 / (1 + np.exp(-4 / np.sqrt(2 * np.pi) * buff))
+    return p if value else 1 - p
+
+
+class ContinuousBayesNode:
+    """ A Bayesian network node with continuous distribution or with continuous distributed parents """
+
+    def __init__(self, name, d_parents, c_parents, parameters, type):
+        """
+        A continuous Bayesian node has two types of parents: discrete and continuous.
+        :param d_parents: str, name of discrete parents, value of which determines distribution parameters
+        :param c_parents: str, name of continuous parents, value of which is used to calculate distribution
+        :param parameters: a dict, parameters for distribution of current node, keys corresponds to discrete parents
+        :param type: str, type of current node's value, either 'd' (discrete) or 'c'(continuous)
+        """
+
+        self.parameters = parameters
+        self.type = type
+        self.d_parents = d_parents.split()
+        self.c_parents = c_parents.split()
+        self.parents = self.d_parents + self.c_parents
+        self.variable = name
+        self.children = []
+
+    def continuous_p(self, value, c_event, d_event):
+        """
+        Probability given the value of current node and its parents
+        :param c_event: event of continuous nodes
+        :param d_event: event of discrete nodes
+        """
+        assert isinstance(c_event, dict)
+        assert isinstance(d_event, dict)
+
+        d_event_vals = event_values(d_event, self.d_parents)
+        if len(d_event_vals) == 1:
+            d_event_vals = d_event_vals[0]
+        param = self.parameters[d_event_vals]
+        if self.type == "c":
+            p = gaussian_probability(param, c_event, value)
+        if self.type == "d":
+            p = logistic_probability(param, c_event, value)
+        return p
 
 
 # ______________________________________________________________________________
@@ -1052,3 +1185,57 @@ def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
 
     S = weighted_sample_with_replacement(N, S_, W_)
     return S
+
+
+# _________________________________________________________________________
+# Compiling approximate inference
+
+
+class complied_burglary:
+    """compiled version of burglary network"""
+
+    def Burglary(self, sample):
+        """Return P(Burglary=True) conditioned on the Alarm and Earthquake values of the
+        given sample, using precomputed (compiled) probabilities for its Markov blanket."""
+        if sample['Alarm']:
+            if sample['Earthquake']:
+                return probability(0.00327)
+            else:
+                return probability(0.485)
+        else:
+            if sample['Earthquake']:
+                return probability(7.05e-05)
+            else:
+                return probability(6.01e-05)
+
+    def Earthquake(self, sample):
+        """Return P(Earthquake=True) conditioned on the Alarm and Burglary values of the
+        given sample, using precomputed (compiled) probabilities for its Markov blanket."""
+        if sample['Alarm']:
+            if sample['Burglary']:
+                return probability(0.0020212)
+            else:
+                return probability(0.36755)
+        else:
+            if sample['Burglary']:
+                return probability(0.0016672)
+            else:
+                return probability(0.0014222)
+
+    def MaryCalls(self, sample):
+        """Return P(MaryCalls=True) given the Alarm value of the sample."""
+        if sample['Alarm']:
+            return probability(0.7)
+        else:
+            return probability(0.01)
+
+    def JongCalls(self, sample):
+        """Return P(JongCalls=True) given the Alarm value of the sample."""
+        if sample['Alarm']:
+            return probability(0.9)
+        else:
+            return probability(0.05)
+
+    def Alarm(self, sample):
+        """Return P(Alarm=True) for the sample (not implemented in this compiled network)."""
+        raise NotImplementedError

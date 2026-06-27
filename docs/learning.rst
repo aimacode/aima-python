@@ -6,11 +6,6 @@ Learning
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: aima.learning4e
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. automodule:: aima.probabilistic_learning
    :members:
    :undoc-members:

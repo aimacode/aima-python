@@ -4,7 +4,7 @@ import random
 
 from aima.agents import Agent
 from aima.probability import BayesNet
-from aima.utils4e import vector_add, weighted_sample_with_replacement
+from aima.utils import vector_add, weighted_sample_with_replacement
 
 
 class DecisionNetwork(BayesNet):
