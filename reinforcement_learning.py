@@ -50,6 +50,10 @@ class PassiveDUEAgent:
         return self.a
 
     def estimate_U(self):
+        """Update utility estimates from the most recent completed trial by direct
+        utility estimation: average the observed reward-to-go for each visited state,
+        blend it with the running estimate, and reset the trial history. Must be
+        called only once the MDP has reached a terminal state."""
         # this function can be called only if the MDP has reached a terminal state
         # it will also reset the mdp history
         assert self.a is None, 'MDP is not in terminal state'

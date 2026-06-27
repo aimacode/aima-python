@@ -82,6 +82,8 @@ class MDP:
             return self.actlist
 
     def get_states_from_transitions(self, transitions):
+        """Return the set of all states mentioned in the transition model, both as source
+        states and as reachable next states (or None if transitions is not a dict)."""
         if isinstance(transitions, dict):
             s1 = set(transitions.keys())
             s2 = set(tr[1] for actions in transitions.values()
@@ -93,6 +95,9 @@ class MDP:
             return None
 
     def check_consistency(self):
+        """Assert that the MDP is well formed: the states match those in the transitions,
+        the initial and terminal states are valid, rewards are defined for every state, and
+        each action's outcome probabilities sum to 1."""
 
         # check that all states in transitions are valid
         assert set(self.states) == self.get_states_from_transitions(self.transitions)
@@ -124,6 +129,8 @@ class MDP2(MDP):
         MDP.__init__(self, init, actlist, terminals, transitions, reward, gamma=gamma)
 
     def T(self, state, action):
+        """Return a list of (probability, next-state) pairs for taking the action in the
+        given state; a None action stays in place with probability 0.0."""
         if action is None:
             return [(0.0, state)]
         else:
@@ -160,6 +167,8 @@ class GridMDP(MDP):
                      reward=reward, states=states, gamma=gamma)
 
     def calculate_T(self, state, action):
+        """Return the (probability, next-state) outcomes for the intended action: 0.8 of
+        moving as intended and 0.1 each of veering to the right or left."""
         if action:
             return [(0.8, self.go(state, action)),
                     (0.1, self.go(state, turn_right(action))),
@@ -168,6 +177,8 @@ class GridMDP(MDP):
             return [(0.0, state)]
 
     def T(self, state, action):
+        """Return the list of (probability, next-state) pairs for the action in the given
+        state; a falsy action stays in place with probability 0.0."""
         return self.transitions[state][action] if action else [(0.0, state)]
 
     def go(self, state, direction):
@@ -184,6 +195,8 @@ class GridMDP(MDP):
                               for y in range(self.rows)]))
 
     def to_arrows(self, policy):
+        """Render a policy as a grid of arrow characters (``>``, ``^``, ``<``, ``v``, with
+        ``.`` for a None action) laid out to match the grid."""
         chars = {(1, 0): '>', (0, 1): '^', (-1, 0): '<', (0, -1): 'v', None: '.'}
         return self.to_grid({s: chars[a] for (s, a) in policy.items()})
 

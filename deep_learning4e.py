@@ -39,11 +39,18 @@ class Layer:
 
 
 class Activation:
+    """Abstract base class for neural-network activation functions.
+
+    Subclasses implement ``function`` and its ``derivative``; calling an
+    instance applies the activation to its input.
+    """
 
     def function(self, x):
+        """Apply the activation function to input ``x``."""
         raise NotImplementedError
 
     def derivative(self, x):
+        """Return the derivative of the activation function at ``x``."""
         raise NotImplementedError
 
     def __call__(self, x):
@@ -51,80 +58,104 @@ class Activation:
 
 
 class Sigmoid(Activation):
+    """Logistic sigmoid activation, ``1 / (1 + e**-x)``."""
 
     def function(self, x):
+        """Return the logistic sigmoid of ``x``."""
         return 1 / (1 + np.exp(-x))
 
     def derivative(self, value):
+        """Return the sigmoid derivative given the layer output ``value``."""
         return value * (1 - value)
 
 
 class ReLU(Activation):
+    """Rectified Linear Unit activation, ``max(0, x)``."""
 
     def function(self, x):
+        """Return ``max(0, x)``."""
         return max(0, x)
 
     def derivative(self, value):
+        """Return the ReLU derivative (1 if ``value`` > 0 else 0)."""
         return 1 if value > 0 else 0
 
 
 class ELU(Activation):
+    """Exponential Linear Unit activation, with scale ``alpha`` for non-positive inputs."""
 
     def __init__(self, alpha=0.01):
         self.alpha = alpha
 
     def function(self, x):
+        """Return ``x`` if positive else ``alpha * (e**x - 1)``."""
         return x if x > 0 else self.alpha * (np.exp(x) - 1)
 
     def derivative(self, value):
+        """Return the ELU derivative given the layer output ``value``."""
         return 1 if value > 0 else self.alpha * np.exp(value)
 
 
 class LeakyReLU(Activation):
+    """Leaky ReLU activation, with small slope ``alpha`` for negative inputs."""
 
     def __init__(self, alpha=0.01):
         self.alpha = alpha
 
     def function(self, x):
+        """Return ``max(x, alpha * x)``."""
         return max(x, self.alpha * x)
 
     def derivative(self, value):
+        """Return the Leaky ReLU derivative (1 if ``value`` > 0 else ``alpha``)."""
         return 1 if value > 0 else self.alpha
 
 
 class Tanh(Activation):
+    """Hyperbolic tangent activation."""
 
     def function(self, x):
+        """Return ``tanh(x)``."""
         return np.tanh(x)
 
     def derivative(self, value):
+        """Return the tanh derivative given the layer output ``value`` (``1 - value**2``)."""
         return 1 - (value ** 2)
 
 
 class SoftMax(Activation):
+    """Softmax activation that normalises a vector into a probability distribution."""
 
     def function(self, x):
+        """Return the softmax of vector ``x`` (normalised exponentials)."""
         return np.exp(x) / np.sum(np.exp(x))
 
     def derivative(self, x):
+        """Return a placeholder unit gradient for each element of ``x``."""
         return np.ones_like(x)
 
 
 class SoftPlus(Activation):
+    """SoftPlus activation, ``log(1 + e**x)`` (a smooth approximation of ReLU)."""
 
     def function(self, x):
+        """Return ``log(1 + e**x)`` for ``x``."""
         return np.log(1. + np.exp(x))
 
     def derivative(self, x):
+        """Return the SoftPlus derivative at ``x`` (the logistic sigmoid)."""
         return 1. / (1. + np.exp(-x))
 
 
 class Linear(Activation):
+    """Identity (linear) activation that returns its input unchanged."""
 
     def function(self, x):
+        """Return ``x`` unchanged."""
         return x
 
     def derivative(self, x):
+        """Return an all-ones gradient matching the shape of ``x``."""
         return np.ones_like(x)
 
 
@@ -149,6 +180,7 @@ class OutputLayer(Layer):
         super().__init__(size)
 
     def forward(self, inputs, activation=SoftMax):
+        """Apply ``activation`` (softmax by default) to ``inputs`` and store it in each node."""
         assert len(self.nodes) == len(inputs)
         res = activation().function(inputs)
         for node, val in zip(self.nodes, res):
@@ -174,6 +206,7 @@ class DenseLayer(Layer):
             node.weights = random_weights(-0.5, 0.5, in_size)
 
     def forward(self, inputs):
+        """Apply the activation to each unit's weighted sum of ``inputs`` and return the outputs."""
         self.inputs = inputs
         res = []
         # get the output value of each unit
@@ -197,6 +230,7 @@ class ConvLayer1D(Layer):
             node.weights = gaussian_kernel(kernel_size)
 
     def forward(self, features):
+        """Convolve each input channel in ``features`` with its node kernel and return the outputs."""
         # each node in layer takes a channel in the features
         assert len(self.nodes) == len(features)
         res = []
@@ -220,6 +254,7 @@ class MaxPoolingLayer1D(Layer):
         self.inputs = None
 
     def forward(self, features):
+        """Apply 1D max pooling over each channel in ``features`` and return the pooled outputs."""
         assert len(self.nodes) == len(features)
         res = []
         self.inputs = features
@@ -245,6 +280,7 @@ class BatchNormalizationLayer(Layer):
         self.inputs = None
 
     def forward(self, inputs):
+        """Normalise ``inputs`` by their mean and std, then scale and shift by the layer weights."""
         # mean value of inputs
         mu = sum(inputs) / len(inputs)
         # standard error of inputs
@@ -459,11 +495,13 @@ class NeuralNetworkLearner:
         self.raw_net = raw_net
 
     def fit(self, X, y):
+        """Train the network with the configured optimizer and loss, returning ``self``."""
         self.learned_net = self.optimizer(self.dataset, self.raw_net, loss=self.loss, epochs=self.epochs,
                                           l_rate=self.l_rate, batch_size=self.batch_size, verbose=self.verbose)
         return self
 
     def predict(self, example):
+        """Forward-pass ``example`` through the trained net and return the index of the max output."""
         n_layers = len(self.learned_net)
 
         layer_input = example
@@ -500,11 +538,13 @@ class PerceptronLearner:
         self.raw_net = [InputLayer(input_size), DenseLayer(input_size, output_size)]
 
     def fit(self, X, y):
+        """Train the perceptron with the configured optimizer and loss, returning ``self``."""
         self.learned_net = self.optimizer(self.dataset, self.raw_net, loss=self.loss, epochs=self.epochs,
                                           l_rate=self.l_rate, batch_size=self.batch_size, verbose=self.verbose)
         return self
 
     def predict(self, example):
+        """Forward-pass ``example`` and return the index of the maximum output unit."""
         layer_out = self.learned_net[1].forward(np.array(example).reshape((-1, 1)))
         return layer_out.index(max(layer_out))
 

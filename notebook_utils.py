@@ -98,6 +98,10 @@ def show_iris(i=0, j=1, k=2):
 
 
 def load_MNIST(path="aima-data/MNIST/Digits", fashion=False):
+    """Load the MNIST (or Fashion-MNIST when ``fashion`` is True) dataset from its
+    IDX files under ``path``. Returns ``(train_img, train_lbl, test_img, test_lbl)``
+    as numpy arrays, with images flattened to one row per sample.
+    """
     import os, struct
     import array
     import numpy as np
@@ -153,6 +157,9 @@ fashion_classes = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
 
 
 def show_MNIST(labels, images, samples=8, fashion=False):
+    """Display a grid of ``samples`` random example images for each class of the
+    (Fashion-)MNIST dataset.
+    """
     if not fashion:
         classes = digit_classes
     else:
@@ -175,6 +182,9 @@ def show_MNIST(labels, images, samples=8, fashion=False):
 
 
 def show_ave_MNIST(labels, images, fashion=False):
+    """Display the average image of every class in the (Fashion-)MNIST dataset and
+    print how many images each class contains.
+    """
     if not fashion:
         item_type = "Digit"
         classes = digit_classes
@@ -280,6 +290,7 @@ class Canvas:
         raise NotImplementedError
 
     def mouse_move(self, x, y):
+        """Override this method to handle mouse move at position (x, y)"""
         raise NotImplementedError
 
     def execute(self, exec_str):
@@ -372,6 +383,7 @@ class Canvas:
 
 
 def display_html(html_string):
+    """Render the given HTML string in the Jupyter notebook output."""
     display(HTML(html_string))
 
 
@@ -396,6 +408,9 @@ class Canvas_TicTacToe(Canvas):
         self.draw_board()
 
     def mouse_click(self, x, y):
+        """Handle a click at pixel (x, y): make the move for the current human or AI
+        player, or restart the game when it is over, then redraw the board.
+        """
         player = self.players[self.turn]
         if self.ttt.terminal_test(self.state):
             if 0.55 <= x / self.width <= 0.95 and 6 / 7 <= y / self.height <= 6 / 7 + 1 / 8:
@@ -419,6 +434,9 @@ class Canvas_TicTacToe(Canvas):
         self.draw_board()
 
     def draw_board(self):
+        """Redraw the board: grid lines, the current X/O marks, and the game status
+        (whose turn it is, the winning line, or the restart button).
+        """
         self.clear()
         self.stroke(0, 0, 0)
         offset = 1 / 20
@@ -467,6 +485,7 @@ class Canvas_TicTacToe(Canvas):
         self.update()
 
     def draw_x(self, position):
+        """Draw an 'X' mark in the cell at the given (column, row) board position."""
         self.stroke(0, 255, 0)
         x, y = [i - 1 for i in position]
         offset = 1 / 15
@@ -474,6 +493,7 @@ class Canvas_TicTacToe(Canvas):
         self.line_n(x / 3 + 1 / 3 - offset, (y / 3 + offset) * 6 / 7, x / 3 + offset, (y / 3 + 1 / 3 - offset) * 6 / 7)
 
     def draw_o(self, position):
+        """Draw an 'O' mark in the cell at the given (column, row) board position."""
         self.stroke(255, 0, 0)
         x, y = [i - 1 for i in position]
         self.arc_n(x / 3 + 1 / 6, (y / 3 + 1 / 6) * 6 / 7, 1 / 9, 0, 360)
@@ -505,6 +525,10 @@ class Canvas_min_max(Canvas):
         self.stack_manager = self.stack_manager_gen()
 
     def min_max(self, node):
+        """Run minimax from the given node, recording the sequence of canvas changes
+        (visited nodes, explored utilities, thick edges) for step-by-step animation.
+        Returns the node's minimax value.
+        """
         game = self.game
         player = game.to_move(node)
 
@@ -543,6 +567,9 @@ class Canvas_min_max(Canvas):
         return max_value(node)
 
     def stack_manager_gen(self):
+        """Generator that replays the recorded change list, updating the node stack,
+        explored set and thick lines, and yielding once per animation step.
+        """
         self.min_max(0)
         for change in self.change_list:
             if change[0] == 'a':
@@ -557,6 +584,7 @@ class Canvas_min_max(Canvas):
                 self.node_stack.pop()
 
     def mouse_click(self, x, y):
+        """Advance the minimax animation by one step on each click, then redraw the graph."""
         try:
             self.stack_manager.send(None)
         except StopIteration:
@@ -564,6 +592,9 @@ class Canvas_min_max(Canvas):
         self.draw_graph()
 
     def draw_graph(self):
+        """Draw the game tree: the nodes (highlighting those on the stack and showing the
+        utilities of explored nodes) together with the edges connecting them.
+        """
         self.clear()
         # draw nodes
         self.stroke(0, 0, 0)
@@ -632,6 +663,10 @@ class Canvas_alpha_beta(Canvas):
         self.stack_manager = self.stack_manager_gen()
 
     def alpha_beta_search(self, node):
+        """Run alpha-beta pruning from the given node, recording the sequence of canvas
+        changes (visited nodes, alpha/beta bounds, pruned nodes, thick edges) for
+        step-by-step animation. Returns the node's value.
+        """
         game = self.game
         player = game.to_move(node)
 
@@ -697,6 +732,10 @@ class Canvas_alpha_beta(Canvas):
         return max_value(node, -np.inf, np.inf)
 
     def stack_manager_gen(self):
+        """Generator that replays the recorded change list, updating the node stack,
+        alpha/beta bounds, explored and pruned sets and thick lines, yielding once
+        per animation step.
+        """
         self.alpha_beta_search(0)
         for change in self.change_list:
             if change[0] == 'a':
@@ -713,6 +752,7 @@ class Canvas_alpha_beta(Canvas):
                 self.node_stack.pop()
 
     def mouse_click(self, x, y):
+        """Advance the alpha-beta animation by one step on each click, then redraw the graph."""
         try:
             self.stack_manager.send(None)
         except StopIteration:
@@ -720,6 +760,9 @@ class Canvas_alpha_beta(Canvas):
         self.draw_graph()
 
     def draw_graph(self):
+        """Draw the game tree with nodes (highlighting those on the stack, explored and
+        pruned) and edges, and display the alpha/beta bounds of nodes on the stack.
+        """
         self.clear()
         # draw nodes
         self.stroke(0, 0, 0)
@@ -800,6 +843,9 @@ class Canvas_fol_bc_ask(Canvas):
         self.draw_table()
 
     def fol_bc_ask(self):
+        """Run first-order backward chaining for the stored query against the knowledge
+        base, yielding proof trees together with their substitutions.
+        """
         KB = self.kb
         query = self.query
 
@@ -823,6 +869,9 @@ class Canvas_fol_bc_ask(Canvas):
         return fol_bc_or(KB, query, {})
 
     def make_table(self, graph):
+        """Lay out the proof tree as a table of node positions and edges (stored on the
+        instance) ready for rendering on the canvas.
+        """
         table = []
         pos = {}
         links = set()
@@ -854,6 +903,7 @@ class Canvas_fol_bc_ask(Canvas):
         self.edges = edges
 
     def mouse_click(self, x, y):
+        """Select the proof-tree node under the click position and redraw, showing its text."""
         x, y = x / self.width, y / self.height
         for node in self.pos:
             xs, ys = self.pos[node]
@@ -864,6 +914,9 @@ class Canvas_fol_bc_ask(Canvas):
         self.draw_table()
 
     def draw_table(self):
+        """Draw the proof-tree nodes and edges, plus a text area showing the content of
+        the currently selected node.
+        """
         self.clear()
         self.strokeWidth(3)
         self.stroke(0, 0, 0)
@@ -906,6 +959,9 @@ class Canvas_fol_bc_ask(Canvas):
 
 
 def show_map(graph_data, node_colors=None):
+    """Draw a networkx graph of the given map data with coloured nodes, edge weight
+    labels and a legend describing the search-state colours.
+    """
     G = nx.Graph(graph_data['graph_dict'])
     node_colors = node_colors or graph_data['node_colors']
     node_positions = graph_data['node_positions']
@@ -956,6 +1012,10 @@ def final_path_colors(initial_node_colors, problem, solution):
 
 
 def display_visual(graph_data, user_input, algorithm=None, problem=None):
+    """Build interactive ipywidgets controls to animate a search algorithm on the map.
+    When ``user_input`` is True, also let the user choose the algorithm and the
+    start and goal cities; otherwise animate the supplied ``algorithm``.
+    """
     initial_node_colors = graph_data['node_colors']
     if user_input is False:
         def slider_callback(iteration):
@@ -1057,6 +1117,9 @@ def display_visual(graph_data, user_input, algorithm=None, problem=None):
 
 # Function to plot NQueensCSP in csp.py and NQueensProblem in search.py
 def plot_NQueens(solution):
+    """Draw an N-Queens chessboard with queen images for the given solution, which may
+    be a dict (from NQueensCSP) or a list (from NQueensProblem).
+    """
     n = len(solution)
     board = np.array([2 * int((i + j) % 2) for j in range(n) for i in range(n)]).reshape((n, n))
     im = Image.open('images/queen_s.png')
@@ -1084,6 +1147,7 @@ def plot_NQueens(solution):
 
 # Function to plot a heatmap, given a grid
 def heatmap(grid, cmap='binary', interpolation='nearest'):
+    """Display the given 2D grid as a heatmap."""
     fig = plt.figure(figsize=(7, 7))
     ax = fig.add_subplot(111)
     ax.set_title('Heatmap')
@@ -1094,6 +1158,7 @@ def heatmap(grid, cmap='binary', interpolation='nearest'):
 
 # Generates a gaussian kernel
 def gaussian_kernel(l=5, sig=1.0):
+    """Return an ``l`` x ``l`` Gaussian kernel with standard deviation ``sig``."""
     ax = np.arange(-l // 2 + 1., l // 2 + 1.)
     xx, yy = np.meshgrid(ax, ax)
     kernel = np.exp(-(xx ** 2 + yy ** 2) / (2. * sig ** 2))
@@ -1102,6 +1167,9 @@ def gaussian_kernel(l=5, sig=1.0):
 
 # Plots utility function for a POMDP
 def plot_pomdp_utility(utility):
+    """Plot the piecewise-linear utility functions of a POMDP's actions and mark the
+    belief thresholds between the optimal actions.
+    """
     save = utility['0'][0]
     delete = utility['1'][0]
     ask_save = utility['2'][0]

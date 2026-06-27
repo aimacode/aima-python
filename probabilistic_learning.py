@@ -67,6 +67,9 @@ class CountingProbDist:
 
 
 def NaiveBayesLearner(dataset, continuous=True, simple=False):
+    """Return a naive Bayes classifier for ``dataset``, dispatching to the simple,
+    continuous (Gaussian), or discrete variant according to ``simple`` and
+    ``continuous``."""
     if simple:
         return NaiveBayesSimple(dataset)
     if continuous:

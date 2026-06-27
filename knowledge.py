@@ -139,6 +139,8 @@ def version_space_learning(examples):
 
 
 def version_space_update(V, e):
+    """Return the version space ``V`` restricted to the hypotheses that remain
+    consistent with example ``e``."""
     return [h for h in V if is_consistent(e, h)]
 
 
@@ -253,6 +255,8 @@ class FOILContainer(FolKB):
         super().__init__(clauses)
 
     def tell(self, sentence):
+        """Add a definite clause to the knowledge base, recording its constant and
+        predicate symbols; raise an exception if it is not a definite clause."""
         if is_definite_clause(sentence):
             self.clauses.append(sentence)
             self.const_syms.update(constant_symbols(sentence))
@@ -412,12 +416,16 @@ def guess_value(e, h):
 
 
 def is_consistent(e, h):
+    """Return True iff hypothesis ``h`` predicts the same value as example ``e``'s
+    actual GOAL label."""
     return e['GOAL'] == guess_value(e, h)
 
 
 def false_positive(e, h):
+    """Return True iff ``h`` predicts True for ``e`` while its actual GOAL is False."""
     return guess_value(e, h) and not e['GOAL']
 
 
 def false_negative(e, h):
+    """Return True iff ``h`` predicts False for ``e`` while its actual GOAL is True."""
     return e['GOAL'] and not guess_value(e, h)

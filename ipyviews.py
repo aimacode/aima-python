@@ -35,6 +35,8 @@ class ContinuousWorldView:
         self.height = world.height
 
     def object_name(self):
+        """Return the variable name this view is bound to in the main namespace,
+        matched by its creation timestamp, so the JavaScript canvas can address it."""
         globals_in_main = {x: getattr(__main__, x) for x in dir(__main__)}
         for x in globals_in_main:
             if isinstance(globals_in_main[x], type(self)):
@@ -49,9 +51,11 @@ class ContinuousWorldView:
         self.show()
 
     def handle_remove_obstacle(self):
+        """Hook for removing an obstacle from the world; not yet implemented."""
         raise NotImplementedError
 
     def get_polygon_obstacles_coordinates(self):
+        """Return the vertex coordinates of every polygon obstacle in the world."""
         obstacle_coordiantes = []
         for thing in self.world.things:
             if isinstance(thing, PolygonObstacle):
@@ -59,6 +63,8 @@ class ContinuousWorldView:
         return obstacle_coordiantes
 
     def show(self):
+        """Render the continuous world (its dimensions and obstacles) as an HTML
+        canvas and display it in the notebook output."""
         clear_output()
         total_html = _CONTINUOUS_WORLD_HTML.format(self.width, self.height, self.object_name(),
                                                    str(self.get_polygon_obstacles_coordinates()),
@@ -101,6 +107,8 @@ class GridWorldView:
         self.block_size = block_size
 
     def object_name(self):
+        """Return the variable name this view is bound to in the main namespace,
+        matched by its creation timestamp, so the JavaScript canvas can address it."""
         globals_in_main = {x: getattr(__main__, x) for x in dir(__main__)}
         for x in globals_in_main:
             if isinstance(globals_in_main[x], type(self)):
@@ -132,6 +140,9 @@ class GridWorldView:
         self.show()
 
     def map_to_render(self):
+        """Build the grid's render model and return it as a JSON string: a 2D array of
+        cells annotated with each thing's class name and any per-location tooltip
+        label."""
         default_representation = {"val": "default", "tooltip": ""}
         world_map = [[copy.deepcopy(default_representation) for _ in range(self.world.width)]
                      for _ in range(self.world.height)]
@@ -150,6 +161,8 @@ class GridWorldView:
         return json.dumps(world_map)
 
     def show(self):
+        """Render the grid world (its cells, sizes, and representations) as an HTML
+        canvas and display it in the notebook output."""
         clear_output()
         total_html = _GRID_WORLD_HTML.format(
             self.object_name(), self.map_to_render(),

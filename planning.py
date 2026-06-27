@@ -48,6 +48,13 @@ class PlanningProblem:
         return new_clauses
 
     def expand_fluents(self, name=None):
+        """
+        Generate all ground fluents obtainable by binding the problem's objects to the
+        predicates appearing in the initial state, goals and action effects. If a fluent
+        ``name`` is given, only expansions of that single fluent are produced. When a domain
+        is defined, candidate ground fluents are filtered through a FolKB so that only those
+        consistent with the domain are kept.
+        """
 
         kb = None
         if self.domain:
@@ -800,12 +807,15 @@ class ForwardPlan(search.Problem):
         self.expanded_actions = self.planning_problem.expand_actions()
 
     def actions(self, state):
+        """Return the expanded actions whose preconditions all hold in the given state."""
         return [action for action in self.expanded_actions if all(pre in conjuncts(state) for pre in action.precond)]
 
     def result(self, state, action):
+        """Return the state resulting from applying the action to the given state."""
         return associate('&', action(conjuncts(state), action.args).clauses)
 
     def goal_test(self, state):
+        """Return True if every goal of the planning problem holds in the given state."""
         return all(goal in conjuncts(state) for goal in self.planning_problem.goals)
 
     def h(self, state):
@@ -855,10 +865,12 @@ class BackwardPlan(search.Problem):
                          for prop in action.precond))]
 
     def result(self, subgoal, action):
+        """Regress the subgoal through the action, i.e. ``g' = (g - effects(a)) + preconds(a)``."""
         # g' = (g - effects(a)) + preconds(a)
         return associate('&', set(set(conjuncts(subgoal)).difference(action.effect)).union(action.precond))
 
     def goal_test(self, subgoal):
+        """Return True if the subgoal is entailed by the search goal (the problem's initial state)."""
         return all(goal in conjuncts(self.goal) for goal in conjuncts(subgoal))
 
     def h(self, subgoal):
@@ -1382,6 +1394,7 @@ class GraphPlan:
         return None
 
     def goal_test(self, kb):
+        """Return True if all of the problem's goals can be proven from the knowledge base."""
         return all(kb.ask(q) is not False for q in self.graph.planning_problem.goals)
 
     def execute(self):
@@ -2221,6 +2234,13 @@ class RealWorldPlanningProblem(PlanningProblem):
         return True
 
     def decompose(hierarchy, plan, s_f, reachable_set):
+        """
+        Recursively refine the high-level actions of an abstract plan into a concrete
+        sequence of primitive actions. Working backwards from the final state ``s_f``,
+        it picks an intermediate state for each pessimistic action from ``reachable_set``
+        and uses angelic search to expand it, returning the assembled primitive solution
+        (or None if some action cannot be refined).
+        """
         solution = []
         i = max(reachable_set.keys())
         while plan.action_pes:

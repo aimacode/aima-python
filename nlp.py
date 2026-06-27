@@ -31,6 +31,10 @@ def Lexicon(**rules):
 
 
 class Grammar:
+    """A context-free grammar defined by a set of rewrite rules and a lexicon.
+
+    Rules map non-terminal categories to alternative right-hand sides, while the
+    lexicon maps categories to the words that belong to them."""
 
     def __init__(self, name, rules, lexicon):
         """A grammar has a set of rules and a lexicon."""
@@ -116,6 +120,10 @@ def ProbLexicon(**rules):
 
 
 class ProbGrammar:
+    """A probabilistic context-free grammar.
+
+    Like :class:`Grammar`, but every rule and lexicon entry carries a
+    probability, so derivations can be sampled and scored by likelihood."""
 
     def __init__(self, name, rules, lexicon):
         """A grammar has a set of rules and a lexicon.
@@ -503,6 +511,8 @@ class ConvergenceDetector(object):
         return self.detect()
 
     def detect(self):
+        """Return True once the average change in hub and authority values across all
+        indexed pages falls below the convergence threshold, otherwise False."""
         curr_hubs = [page.hub for addr, page in pages_index.items()]
         curr_auths = [page.authority for addr, page in pages_index.items()]
         if self.hub_history is None:
@@ -523,12 +533,14 @@ class ConvergenceDetector(object):
 
 
 def get_in_links(page):
+    """Return the addresses of indexed pages that link into the given page."""
     if not page.inlinks:
         page.inlinks = determine_inlinks(page)
     return [addr for addr, p in pages_index.items() if addr in page.inlinks]
 
 
 def get_out_links(page):
+    """Return the addresses of indexed pages that the given page links out to."""
     if not page.outlinks:
         page.outlinks = find_outlinks(page)
     return [addr for addr, p in pages_index.items() if addr in page.outlinks]
@@ -538,6 +550,9 @@ def get_out_links(page):
 # HITS Algorithm
 
 class Page(object):
+    """A web page used by the HITS algorithm, holding its address, inbound and
+    outbound links, and its current hub and authority scores."""
+
     def __init__(self, address, in_links=None, out_links=None, hub=0, authority=0):
         self.address = address
         self.hub = hub

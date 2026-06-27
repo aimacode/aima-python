@@ -1858,6 +1858,8 @@ def boggle_hill_climbing(board=None, ntimes=100, verbose=True):
 
 
 def mutate_boggle(board):
+    """Randomly replace one cell of a Boggle board with a random face of a random
+    die, returning the changed index and the old letter so the move can be undone."""
     i = random.randrange(len(board))
     oldc = board[i]
     # random.choice(boyan_best)

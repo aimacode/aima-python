@@ -83,6 +83,9 @@ class NgramWordModel(CountingProbDist):
 
 
 class NgramCharModel(NgramWordModel):
+    """An n-gram model over characters rather than words, trained on the
+    character n-grams of each word (prefixed with a space marker)."""
+
     def add_sequence(self, words):
         """Add an empty space to every word to catch the beginning of words."""
         for word in words:
@@ -90,6 +93,9 @@ class NgramCharModel(NgramWordModel):
 
 
 class UnigramCharModel(NgramCharModel):
+    """A unigram (single-character) probability model: the frequency
+    distribution of individual characters across the observed words."""
+
     def __init__(self, observation_sequence=None, default=0):
         CountingProbDist.__init__(self, default=default)
         self.n = 1
@@ -97,6 +103,7 @@ class UnigramCharModel(NgramCharModel):
         self.add_sequence(observation_sequence or [])
 
     def add_sequence(self, words):
+        """Count every character of every word in ``words`` into the model."""
         for word in words:
             for char in word:
                 self.add(char)
@@ -395,12 +402,20 @@ class PermutationDecoder:
 
 
 class PermutationDecoderProblem(search.Problem):
+    """A search problem for breaking a permutation (substitution) cipher.
+
+    A state is a partial mapping from plaintext characters to cipher characters;
+    the search incrementally assigns the most frequent unassigned character until
+    every character in the decoder's domain has been mapped."""
 
     def __init__(self, initial=None, goal=None, decoder=None):
         super().__init__(initial or hashabledict(), goal)
         self.decoder = decoder
 
     def actions(self, state):
+        """Yield (plain_char, cipher_char) assignments extending ``state``: pick the
+        highest-probability unassigned plaintext char and pair it with each unused
+        cipher char."""
         search_list = [c for c in self.decoder.chardomain if c not in state]
         target_list = [c for c in alphabet if c not in state.values()]
         # Find the best character to replace
@@ -409,6 +424,8 @@ class PermutationDecoderProblem(search.Problem):
             yield (plain_char, cipher_char)
 
     def result(self, state, action):
+        """Return a new state extending ``state`` with the (plain, cipher) mapping
+        given by ``action``."""
         new_state = hashabledict(state)  # copy to prevent hash issues
         new_state[action[0]] = action[1]
         return new_state

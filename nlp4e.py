@@ -33,6 +33,10 @@ def Lexicon(**rules):
 
 
 class Grammar:
+    """A context-free grammar defined by a set of rewrite rules and a lexicon.
+
+    Rules map non-terminal categories to alternative right-hand sides, while the
+    lexicon maps categories to the words that belong to them."""
 
     def __init__(self, name, rules, lexicon):
         """A grammar has a set of rules and a lexicon."""
@@ -118,6 +122,10 @@ def ProbLexicon(**rules):
 
 
 class ProbGrammar:
+    """A probabilistic context-free grammar.
+
+    Like :class:`Grammar`, but every rule and lexicon entry carries a
+    probability, so derivations can be sampled and scored by likelihood."""
 
     def __init__(self, name, rules, lexicon):
         """A grammar has a set of rules and a lexicon.
@@ -355,6 +363,9 @@ class Chart:
 
 
 class Tree:
+    """A simple parse-tree node with a root label and a list of child leaves
+    (which may themselves be subtrees), as built by CYK parsing."""
+
     def __init__(self, root, *args):
         self.root = root
         self.leaves = [leaf for leaf in args]
@@ -396,6 +407,12 @@ def subspan(N):
 
 
 class TextParsingProblem(Problem):
+    """A search problem that parses a list of words bottom-up into a goal symbol.
+
+    States are partially-reduced word/category sequences; actions replace words
+    with their lexical categories and replace spans of categories by the rules
+    that produce them, so that a solution path corresponds to a valid parse."""
+
     def __init__(self, initial, grammar, goal='S'):
         """
         :param initial: the initial state of words in a list.
@@ -411,6 +428,9 @@ class TextParsingProblem(Problem):
                 self.combinations[' '.join(comb)].append(rule)
 
     def actions(self, state):
+        """Return the successor states reachable from ``state``: first replace each
+        word by each of its lexical categories, and once only categories remain
+        replace spans that match a grammar rule's right-hand side by that rule."""
         actions = []
         categories = self.grammar.categories
         # first change each word to the article of its category
@@ -432,9 +452,13 @@ class TextParsingProblem(Problem):
         return actions
 
     def result(self, state, action):
+        """Return the state resulting from applying ``action`` (the action is itself
+        the already-computed successor state)."""
         return action
 
     def h(self, state):
+        """Heuristic estimating remaining cost as the number of symbols still left
+        to reduce in ``state``."""
         # heuristic function
         return len(state)
 

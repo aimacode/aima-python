@@ -447,6 +447,8 @@ def make_factor(var, e, bn):
 
 
 def pointwise_product(factors, bn):
+    """Multiply a sequence of factors together into a single factor over the union of their
+    variables, using the Bayes net ``bn`` to enumerate variable values."""
     return reduce(lambda f, g: f.pointwise_product(g, bn), factors)
 
 
@@ -637,6 +639,8 @@ class HiddenMarkovModel:
         self.prior = prior or [0.5, 0.5]
 
     def sensor_dist(self, ev):
+        """Return the sensor (observation) distribution corresponding to the evidence ``ev``:
+        the first row of the sensor model when ``ev`` is True, otherwise the second."""
         if ev is True:
             return self.sensor_model[0]
         else:
@@ -644,6 +648,9 @@ class HiddenMarkovModel:
 
 
 def forward(HMM, fv, ev):
+    """Perform one forward (filtering) step of an HMM: project the forward message ``fv``
+    through the transition model, weight it by the sensor distribution for evidence ``ev``,
+    and return the normalized next forward message. [Figure 15.4]"""
     prediction = vector_add(scalar_vector_product(fv[0], HMM.transition_model[0]),
                             scalar_vector_product(fv[1], HMM.transition_model[1]))
     sensor_dist = HMM.sensor_dist(ev)
@@ -652,6 +659,9 @@ def forward(HMM, fv, ev):
 
 
 def backward(HMM, b, ev):
+    """Perform one backward step of an HMM: weight the backward message ``b`` by the sensor
+    distribution for evidence ``ev`` and propagate it through the transition model, returning
+    the normalized previous backward message. [Figure 15.4]"""
     sensor_dist = HMM.sensor_dist(ev)
     prediction = element_wise_product(sensor_dist, b)
 

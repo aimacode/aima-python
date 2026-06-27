@@ -541,6 +541,8 @@ def make_factor(var, e, bn):
 
 
 def pointwise_product(factors, bn):
+    """Multiply a sequence of factors together into a single factor over the union of their
+    variables, using the Bayes net ``bn`` to enumerate variable values."""
     return reduce(lambda f, g: f.pointwise_product(g, bn), factors)
 
 
@@ -742,6 +744,8 @@ class complied_burglary:
     """compiled version of burglary network"""
 
     def Burglary(self, sample):
+        """Return P(Burglary=True) conditioned on the Alarm and Earthquake values of the
+        given sample, using precomputed (compiled) probabilities for its Markov blanket."""
         if sample['Alarm']:
             if sample['Earthquake']:
                 return probability(0.00327)
@@ -754,6 +758,8 @@ class complied_burglary:
                 return probability(6.01e-05)
 
     def Earthquake(self, sample):
+        """Return P(Earthquake=True) conditioned on the Alarm and Burglary values of the
+        given sample, using precomputed (compiled) probabilities for its Markov blanket."""
         if sample['Alarm']:
             if sample['Burglary']:
                 return probability(0.0020212)
@@ -766,16 +772,19 @@ class complied_burglary:
                 return probability(0.0014222)
 
     def MaryCalls(self, sample):
+        """Return P(MaryCalls=True) given the Alarm value of the sample."""
         if sample['Alarm']:
             return probability(0.7)
         else:
             return probability(0.01)
 
     def JongCalls(self, sample):
+        """Return P(JongCalls=True) given the Alarm value of the sample."""
         if sample['Alarm']:
             return probability(0.9)
         else:
             return probability(0.05)
 
     def Alarm(self, sample):
+        """Return P(Alarm=True) for the sample (not implemented in this compiled network)."""
         raise NotImplementedError
