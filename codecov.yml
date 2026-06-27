@@ -1,0 +1,15 @@
+# Codecov configuration. Coverage is reported but never fails CI (informational),
+# and non-library files are excluded from the percentage.
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+ignore:
+  - "tests/**"
+  - "gui/**"
+  - "**/*.ipynb"

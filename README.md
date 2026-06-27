@@ -1,6 +1,6 @@
 
 
-# `aima-python` [![tests](https://github.com/aimacode/aima-python/actions/workflows/tests.yml/badge.svg)](https://github.com/aimacode/aima-python/actions/workflows/tests.yml) [![Documentation Status](https://readthedocs.org/projects/aima-python/badge/?version=latest)](https://aima-python.readthedocs.io/en/latest/?badge=latest) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/aimacode/aima-python/master)
+# `aima-python` [![tests](https://github.com/aimacode/aima-python/actions/workflows/tests.yml/badge.svg)](https://github.com/aimacode/aima-python/actions/workflows/tests.yml) [![docs](https://github.com/aimacode/aima-python/actions/workflows/docs.yml/badge.svg)](https://aimacode.github.io/aima-python/) [![codecov](https://codecov.io/gh/aimacode/aima-python/branch/master/graph/badge.svg)](https://codecov.io/gh/aimacode/aima-python) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/aimacode/aima-python/master)
 
 
 Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.

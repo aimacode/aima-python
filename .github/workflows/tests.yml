@@ -37,4 +37,11 @@ jobs:
         continue-on-error: true
 
       - name: Run tests
-        run: pytest --cov=./
+        run: pytest --cov=./ --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
