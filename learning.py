@@ -125,6 +125,7 @@ class DataSet:
             return attr
 
     def update_values(self):
+        """Recompute ``self.values`` (the list of distinct values per attribute) from the examples."""
         self.values = list(map(unique, zip(*self.examples)))
 
     def sanitize(self, example):
@@ -316,6 +317,8 @@ def leave_one_out(learner, dataset, size=None):
 
 
 def learning_curve(learner, dataset, trials=10, sizes=None):
+    """Return a list of (training-set size, mean accuracy) pairs, obtained by
+    repeatedly cross-validating the learner on training sets of each given size."""
     if sizes is None:
         sizes = list(range(2, len(dataset.examples) - trials, 2))
 
@@ -367,6 +370,7 @@ class DecisionFork:
         self.branches[val] = subtree
 
     def display(self, indent=0):
+        """Print this subtree, showing the tested attribute and each branch, indented by ``indent``."""
         name = self.attr_name
         print('Test', name)
         for (val, subtree) in self.branches.items():
@@ -387,6 +391,7 @@ class DecisionLeaf:
         return self.result
 
     def display(self):
+        """Print the result stored at this leaf."""
         print('RESULT =', self.result)
 
     def __repr__(self):
@@ -806,6 +811,12 @@ def network(input_units, hidden_layer_sizes, output_units, activation=sigmoid):
 
 
 def init_examples(examples, idx_i, idx_t, o_units):
+    """Split examples into input and target dicts keyed by example index.
+
+    Inputs are read from the attribute positions in ``idx_i`` and targets from
+    position ``idx_t``. When ``o_units`` > 1 each target is one-hot encoded over
+    ``o_units`` units, otherwise it is wrapped in a single-element list. Returns
+    the pair (inputs, targets)."""
     inputs, targets = {}, {}
 
     for i, e in enumerate(examples):
@@ -825,10 +836,13 @@ def init_examples(examples, idx_i, idx_t, o_units):
 
 
 def find_max_node(nodes):
+    """Return the index of the node with the greatest ``value`` attribute."""
     return nodes.index(max(nodes, key=lambda node: node.value))
 
 
 class SVC:
+    """Support Vector Classifier trained in dual form by solving a quadratic
+    programming problem; supports arbitrary kernels and a soft-margin penalty ``C``."""
 
     def __init__(self, kernel=linear_kernel, C=1.0, verbose=False):
         self.kernel = kernel
@@ -894,6 +908,8 @@ class SVC:
 
 
 class SVR:
+    """Support Vector Regressor trained in dual form by solving a quadratic
+    programming problem, using an epsilon-insensitive loss and penalty ``C``."""
 
     def __init__(self, kernel=linear_kernel, C=1.0, epsilon=0.1, verbose=False):
         self.kernel = kernel
@@ -953,12 +969,15 @@ class SVR:
         self.alphas_n = alphas[m:]
 
     def predict(self, X):
+        """Predict the regression target value(s) for the samples ``X``."""
         if self.kernel != linear_kernel:
             return np.dot(self.alphas_p - self.alphas_n, self.kernel(self.sv, X)) + self.b
         return np.dot(X, self.w) + self.b
 
 
 class MultiClassLearner:
+    """Wrap a binary classifier ``clf`` to handle multiple classes, using either
+    the one-vs-rest ('ovr') or one-vs-one ('ovo') decision function."""
 
     def __init__(self, clf, decision_function='ovr'):
         self.clf = clf
@@ -1144,11 +1163,13 @@ def weighted_replicate(seq, weights, n):
 # metrics
 
 def accuracy_score(y_pred, y_true):
+    """Return the fraction of predictions in ``y_pred`` that match ``y_true``."""
     assert y_pred.shape == y_true.shape
     return np.mean(y_pred == y_true)
 
 
 def r2_score(y_pred, y_true):
+    """Return the R^2 (coefficient of determination) of ``y_pred`` against ``y_true``."""
     assert y_pred.shape == y_true.shape
     return 1. - (np.sum(np.square(y_pred - y_true)) /  # sum of square of residuals
                  np.sum(np.square(y_true - np.mean(y_true))))  # total sum of squares
@@ -1178,6 +1199,8 @@ restaurant = RestaurantDataSet()
 
 
 def T(attr_name, branches):
+    """Build a DecisionFork testing the restaurant attribute ``attr_name``, wrapping each
+    non-fork child in a DecisionLeaf; a shorthand for writing decision trees by hand."""
     branches = {value: (child if isinstance(child, DecisionFork) else DecisionLeaf(child))
                 for value, child in branches.items()}
     return DecisionFork(restaurant.attr_num(attr_name), attr_name, print, branches)

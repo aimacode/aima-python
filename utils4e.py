@@ -161,6 +161,7 @@ def extend(s, var, val):
 
 
 def flatten(seqs):
+    """Flatten a sequence of sequences into a single flat list."""
     return sum(seqs, [])
 
 
@@ -210,6 +211,10 @@ def histogram(values, mode=0, bin_function=None):
 
 
 def element_wise_product(x, y):
+    """Return the element-wise product of x and y, recursing into nested iterables.
+
+    Scalars are multiplied directly; iterables must have matching lengths.
+    """
     if hasattr(x, '__iter__') and hasattr(y, '__iter__'):
         assert len(x) == len(y)
         return [element_wise_product(_x, _y) for _x, _y in zip(x, y)]
@@ -301,30 +306,37 @@ def num_or_str(x):  # TODO: rename as `atom`
 
 
 def euclidean_distance(x, y):
+    """Return the Euclidean (L2) distance between vectors x and y."""
     return np.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
 def manhattan_distance(x, y):
+    """Return the Manhattan (L1) distance between vectors x and y."""
     return sum(abs(_x - _y) for _x, _y in zip(x, y))
 
 
 def hamming_distance(x, y):
+    """Return the number of positions at which vectors x and y differ."""
     return sum(_x != _y for _x, _y in zip(x, y))
 
 
 def rms_error(x, y):
+    """Return the root-mean-square error between vectors x and y."""
     return np.sqrt(ms_error(x, y))
 
 
 def ms_error(x, y):
+    """Return the mean of the squared differences between vectors x and y."""
     return mean((x - y) ** 2 for x, y in zip(x, y))
 
 
 def mean_error(x, y):
+    """Return the mean of the absolute differences between vectors x and y."""
     return mean(abs(x - y) for x, y in zip(x, y))
 
 
 def mean_boolean_error(x, y):
+    """Return the fraction of positions at which vectors x and y differ."""
     return mean(_x != _y for _x, _y in zip(x, y))
 
 
@@ -355,6 +367,7 @@ def normalize(dist):
 
 
 def random_weights(min_value, max_value, num_weights):
+    """Return a list of num_weights random floats drawn uniformly from [min_value, max_value]."""
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
@@ -364,14 +377,17 @@ def conv1D(x, k):
 
 
 def gaussian_kernel(size=3):
+    """Return a length-size 1D Gaussian kernel centred at the middle (fixed st_dev 0.1)."""
     return [gaussian((size - 1) / 2, 0.1, x) for x in range(size)]
 
 
 def gaussian_kernel_1D(size=3, sigma=0.5):
+    """Return a length-size 1D Gaussian kernel centred at the middle with st_dev sigma."""
     return [gaussian((size - 1) / 2, sigma, x) for x in range(size)]
 
 
 def gaussian_kernel_2D(size=3, sigma=0.5):
+    """Return a size x size 2D Gaussian kernel with st_dev sigma, normalized to sum to 1."""
     x, y = np.mgrid[-size // 2 + 1:size // 2 + 1, -size // 2 + 1:size // 2 + 1]
     g = np.exp(-((x ** 2 + y ** 2) / (2.0 * sigma ** 2)))
     return g / g.sum()
@@ -388,12 +404,14 @@ def gaussian(mean, st_dev, x):
 
 
 def linear_kernel(x, y=None):
+    """Return the linear kernel (dot product) between x and y; defaults y to x."""
     if y is None:
         y = x
     return np.dot(x, y.T)
 
 
 def polynomial_kernel(x, y=None, degree=2.0):
+    """Return the polynomial kernel (1 + x.y)**degree between x and y; defaults y to x."""
     if y is None:
         y = x
     return (1.0 + np.dot(x, y.T)) ** degree
@@ -419,14 +437,17 @@ turns = LEFT, RIGHT = (+1, -1)
 
 
 def turn_heading(heading, inc, headings=orientations):
+    """Return the heading reached by turning inc steps around the list of headings."""
     return headings[(headings.index(heading) + inc) % len(headings)]
 
 
 def turn_right(heading):
+    """Return the heading obtained by turning right (clockwise) from heading."""
     return turn_heading(heading, RIGHT)
 
 
 def turn_left(heading):
+    """Return the heading obtained by turning left (counter-clockwise) from heading."""
     return turn_heading(heading, LEFT)
 
 
@@ -523,6 +544,7 @@ def print_table(table, header=None, sep='   ', numfmt='{}'):
 
 
 def open_data(name, mode='r'):
+    """Open and return the file named name from the aima-data directory."""
     aima_root = os.path.dirname(__file__)
     aima_file = os.path.join(aima_root, *['aima-data', name])
 
@@ -793,6 +815,11 @@ class MCT_Node:
 
 
 def ucb(n, C=1.4):
+    """Return the UCB1 score of node n (exploitation plus C-weighted exploration term).
+
+    Unvisited nodes (n.N == 0) score infinity so they are selected first; used to guide
+    selection in Monte Carlo tree search.
+    """
     return np.inf if n.N == 0 else n.U / n.N + C * np.sqrt(np.log(n.parent.N) / n.N)
 
 

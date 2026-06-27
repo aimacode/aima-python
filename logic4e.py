@@ -138,86 +138,107 @@ def KB_AgentProgram(KB):
 
 
 def facing_east(time):
+    """Return the proposition that the agent is facing east at the given time."""
     return Expr('FacingEast', time)
 
 
 def facing_west(time):
+    """Return the proposition that the agent is facing west at the given time."""
     return Expr('FacingWest', time)
 
 
 def facing_north(time):
+    """Return the proposition that the agent is facing north at the given time."""
     return Expr('FacingNorth', time)
 
 
 def facing_south(time):
+    """Return the proposition that the agent is facing south at the given time."""
     return Expr('FacingSouth', time)
 
 
 def wumpus(x, y):
+    """Return the proposition that the Wumpus is in room (x, y)."""
     return Expr('W', x, y)
 
 
 def pit(x, y):
+    """Return the proposition that there is a pit in room (x, y)."""
     return Expr('P', x, y)
 
 
 def breeze(x, y):
+    """Return the proposition that there is a breeze in room (x, y)."""
     return Expr('B', x, y)
 
 
 def stench(x, y):
+    """Return the proposition that there is a stench in room (x, y)."""
     return Expr('S', x, y)
 
 
 def wumpus_alive(time):
+    """Return the proposition that the Wumpus is alive at the given time."""
     return Expr('WumpusAlive', time)
 
 
 def have_arrow(time):
+    """Return the proposition that the agent still has the arrow at the given time."""
     return Expr('HaveArrow', time)
 
 
 def percept_stench(time):
+    """Return the proposition that the agent perceives a stench at the given time."""
     return Expr('Stench', time)
 
 
 def percept_breeze(time):
+    """Return the proposition that the agent perceives a breeze at the given time."""
     return Expr('Breeze', time)
 
 
 def percept_glitter(time):
+    """Return the proposition that the agent perceives glitter at the given time."""
     return Expr('Glitter', time)
 
 
 def percept_bump(time):
+    """Return the proposition that the agent perceives a bump at the given time."""
     return Expr('Bump', time)
 
 
 def percept_scream(time):
+    """Return the proposition that the agent perceives a scream at the given time."""
     return Expr('Scream', time)
 
 
 def move_forward(time):
+    """Return the proposition that the agent moves forward at the given time."""
     return Expr('Forward', time)
 
 
 def shoot(time):
+    """Return the proposition that the agent shoots the arrow at the given time."""
     return Expr('Shoot', time)
 
 
 def turn_left(time):
+    """Return the proposition that the agent turns left at the given time."""
     return Expr('TurnLeft', time)
 
 
 def turn_right(time):
+    """Return the proposition that the agent turns right at the given time."""
     return Expr('TurnRight', time)
 
 
 def ok_to_move(x, y, time):
+    """Return the proposition that room (x, y) is safe to move into at the given time."""
     return Expr('OK', x, y, time)
 
 
 def location(x, y, time=None):
+    """Return the proposition that the agent is at room (x, y), optionally at a given time."""
     if time is None:
         return Expr('L', x, y)
     else:
@@ -228,10 +249,12 @@ def location(x, y, time=None):
 
 
 def implies(lhs, rhs):
+    """Return the implication ``lhs ==> rhs`` as an Expr."""
     return Expr('==>', lhs, rhs)
 
 
 def equiv(lhs, rhs):
+    """Return the biconditional ``lhs <=> rhs`` as an Expr."""
     return Expr('<=>', lhs, rhs)
 
 
@@ -239,6 +262,7 @@ def equiv(lhs, rhs):
 
 
 def new_disjunction(sentences):
+    """Return the disjunction (``|``) of all the sentences in the given list."""
     t = sentences[0]
     for i in range(1, len(sentences)):
         t |= sentences[i]
@@ -653,6 +677,7 @@ class PropDefiniteKB(PropKB):
             yield {}
 
     def retract(self, sentence):
+        """Remove the given definite clause from this KB."""
         self.clauses.remove(sentence)
 
     def clauses_with_premise(self, p):
@@ -934,6 +959,8 @@ class WumpusKB(PropKB):
         self.tell(~facing_west(0))
 
     def make_action_sentence(self, action, time):
+        """Tell the KB which action is taken at the given time (asserting that one and
+        negating all the others)."""
         actions = [move_forward(time), shoot(time), turn_left(time), turn_right(time)]
 
         for a in actions:
@@ -943,6 +970,8 @@ class WumpusKB(PropKB):
                 self.tell(~a)
 
     def make_percept_sentence(self, percept, time):
+        """Tell the KB the percept observed at the given time, asserting each perceived
+        fluent (Glitter, Bump, Stench, Breeze, Scream) and negating the unperceived ones."""
         # Glitter, Bump, Stench, Breeze, Scream
         flags = [0, 0, 0, 0, 0]
 
@@ -978,6 +1007,8 @@ class WumpusKB(PropKB):
                     self.tell(~percept_scream(time))
 
     def add_temporal_sentences(self, time):
+        """Tell the KB the successor-state axioms relating the world at the given time to
+        the previous time step (location, orientation, last action, arrow and Wumpus state)."""
         if time == 0:
             return
         t = time - 1
@@ -1050,6 +1081,7 @@ class WumpusKB(PropKB):
         self.tell(equiv(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
 
     def ask_if_true(self, query):
+        """Return True if the KB entails the query, using propositional resolution."""
         return pl_resolution(self, query)
 
 
@@ -1057,22 +1089,28 @@ class WumpusKB(PropKB):
 
 
 class WumpusPosition:
+    """A position in the wumpus world: a room (x, y) plus a facing orientation."""
+
     def __init__(self, x, y, orientation):
         self.X = x
         self.Y = y
         self.orientation = orientation
 
     def get_location(self):
+        """Return the (x, y) coordinates of this position."""
         return self.X, self.Y
 
     def set_location(self, x, y):
+        """Set the (x, y) coordinates of this position."""
         self.X = x
         self.Y = y
 
     def get_orientation(self):
+        """Return the facing orientation of this position."""
         return self.orientation
 
     def set_orientation(self, orientation):
+        """Set the facing orientation of this position."""
         self.orientation = orientation
 
     def __eq__(self, other):
@@ -1099,6 +1137,9 @@ class HybridWumpusAgent(Agent):
         super().__init__(self.execute)
 
     def execute(self, percept):
+        """Update the KB with the current percept, infer the agent's state, and return the
+        next action, building or following a plan to grab the gold, explore safe unvisited
+        rooms, shoot the Wumpus, or climb out."""
         self.kb.make_percept_sentence(percept, self.t)
         self.kb.add_temporal_sentences(self.t)
 
@@ -1183,10 +1224,14 @@ class HybridWumpusAgent(Agent):
         return action
 
     def plan_route(self, current, goals, allowed):
+        """Return a sequence of actions that moves from the current position to one of the
+        goals, staying within the allowed (safe) rooms, found with A* search."""
         problem = PlanRoute(current, goals, allowed, self.dimrow)
         return astar_search(problem).solution()
 
     def plan_shot(self, current, goals, allowed):
+        """Return a sequence of actions that moves to a room lined up with a possible Wumpus
+        location and then shoots, staying within the allowed (safe) rooms."""
         shooting_positions = set()
 
         for loc in goals:
@@ -1341,6 +1386,8 @@ def is_variable(x):
 
 
 def unify_var(var, x, s):
+    """Unify the variable var with x under substitution s, returning the extended
+    substitution, or None if the occur-check fails."""
     if var in s:
         return unify(s[var], x, s)
     elif x in s:
@@ -1399,18 +1446,22 @@ class FolKB(KB):
                 self.tell(clause)
 
     def tell(self, sentence):
+        """Add a first-order definite clause to the KB, raising if it is not definite."""
         if is_definite_clause(sentence):
             self.clauses.append(sentence)
         else:
             raise Exception("Not a definite clause: {}".format(sentence))
 
     def ask_generator(self, query):
+        """Yield each substitution that makes the query true, via backward chaining."""
         return fol_bc_ask(self, query)
 
     def retract(self, sentence):
+        """Remove the given clause from the KB."""
         self.clauses.remove(sentence)
 
     def fetch_rules_for_goal(self, goal):
+        """Return the clauses that could be used to prove the goal (here, all clauses)."""
         return self.clauses
 
 
@@ -1503,6 +1554,8 @@ def fol_bc_ask(KB, query):
 
 
 def fol_bc_or(KB, goal, theta):
+    """Yield each substitution extending theta that proves the goal by unifying it with
+    the head of some standardized rule and recursively proving that rule's premises."""
     for rule in KB.fetch_rules_for_goal(goal):
         lhs, rhs = parse_definite_clause(standardize_variables(rule))
         for theta1 in fol_bc_and(KB, lhs, unify(rhs, goal, theta)):
@@ -1510,6 +1563,8 @@ def fol_bc_or(KB, goal, theta):
 
 
 def fol_bc_and(KB, goals, theta):
+    """Yield each substitution extending theta that proves all the given goals in
+    conjunction by backward chaining."""
     if theta is None:
         pass
     elif not goals:

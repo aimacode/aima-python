@@ -535,6 +535,7 @@ class PropDefiniteKB(PropKB):
             yield {}
 
     def retract(self, sentence):
+        """Remove the given definite clause from this KB."""
         self.clauses.remove(sentence)
 
     def clauses_with_premise(self, p):
@@ -604,10 +605,12 @@ for clause in ['(B & F) ==> E',
 
 
 def no_branching_heuristic(symbols, clauses):
+    """Default DPLL branching rule: pick the first remaining symbol and try True."""
     return first(symbols), True
 
 
 def min_clauses(clauses):
+    """Return the clauses of minimum size (treating units as size 2 for MOMS-style heuristics)."""
     min_len = min(map(lambda c: len(c.args), clauses), default=2)
     return filter(lambda c: len(c.args) == (min_len if min_len > 1 else 2), clauses)
 
@@ -818,10 +821,12 @@ def inspect_literal(literal):
 
 
 def no_restart(conflicts, restarts, queue_lbd, sum_lbd):
+    """Default CDCL restart policy: never restart."""
     return False
 
 
 def luby(conflicts, restarts, queue_lbd, sum_lbd, unit=512):
+    """Restart policy based on the Luby sequence (restart after ``unit * luby(restarts)`` conflicts)."""
     # in the state-of-art tested with unit value 1, 2, 4, 6, 8, 12, 16, 32, 64, 128, 256 and 512
     def _luby(i):
         k = 1
@@ -836,6 +841,7 @@ def luby(conflicts, restarts, queue_lbd, sum_lbd, unit=512):
 
 
 def glucose(conflicts, restarts, queue_lbd, sum_lbd, x=100, k=0.7):
+    """Glucose-style restart policy based on recent vs. global average literal block distance (LBD)."""
     # in the state-of-art tested with (x, k) as (50, 0.8) and (100, 0.7)
     # if there were at least x conflicts since the last restart, and then the average LBD of the last
     # x learnt clauses was at least k times higher than the average LBD of all learnt clauses
@@ -883,6 +889,8 @@ def cdcl_satisfiable(s, vsids_decay=0.95, restart_strategy=no_restart):
 
 
 def assign_decision_literal(symbols, model, scores, G, dl):
+    """Pick the unassigned symbol with the highest VSIDS score, assign it at decision level ``dl``,
+    and record it as a decision node in the implication graph ``G``."""
     P = max(symbols, key=lambda symbol: scores[symbol] + scores[~symbol])
     value = True if scores[P] >= scores[~P] else False
     symbols.remove(P)
@@ -891,6 +899,12 @@ def assign_decision_literal(symbols, model, scores, G, dl):
 
 
 def unit_propagation(clauses, symbols, model, G, dl):
+    """Boolean constraint propagation over the two-watched-literal database.
+
+    Repeatedly assigns forced literals from unit clauses (extending ``model`` and the implication
+    graph ``G``) until a fixpoint is reached. Returns True if a conflict clause is found, else False.
+    """
+
     def check(c):
         if not model or clauses.get_first_watched(c) == clauses.get_second_watched(c):
             return True
@@ -951,6 +965,12 @@ def unit_propagation(clauses, symbols, model, G, dl):
 
 
 def conflict_analysis(G, dl):
+    """Analyse a conflict in the implication graph ``G`` using the first-UIP scheme.
+
+    Resolves the conflict clause back to the first unique implication point and returns a tuple
+    ``(backjump_level, learnt_clause, lbd)`` where ``lbd`` is the learnt clause's literal block
+    distance.
+    """
     conflict_clause = next(G[p]['K']['antecedent'] for p in G.pred['K'])
     P = next(node for node in G.nodes() - 'K' if G.nodes[node]['dl'] == dl and G.in_degree(node) == 0)
     first_uip = nx.immediate_dominators(G, P)['K']
@@ -968,6 +988,7 @@ def conflict_analysis(G, dl):
 
 
 def pl_binary_resolution(ci, cj):
+    """Resolve two clauses on a complementary pair of literals and return the resolvent."""
     for di in disjuncts(ci):
         for dj in disjuncts(cj):
             if di == ~dj or ~di == dj:
@@ -977,6 +998,7 @@ def pl_binary_resolution(ci, cj):
 
 
 def backjump(symbols, model, G, dl=0):
+    """Undo all assignments made above decision level ``dl``, restoring those symbols as unassigned."""
     delete = {node for node in G.nodes() if G.nodes[node]['dl'] > dl}
     G.remove_nodes_from(delete)
     for node in delete:
@@ -985,6 +1007,11 @@ def backjump(symbols, model, G, dl=0):
 
 
 class TwoWLClauseDatabase:
+    """Clause database using the two-watched-literal lazy data structure for fast unit propagation.
+
+    Maintains, for each clause, two watched literals and, for each literal, the set of clauses in
+    which it is watched (split into positive and negative occurrences).
+    """
 
     def __init__(self, clauses):
         self.__twl = {}
@@ -993,17 +1020,21 @@ class TwoWLClauseDatabase:
             self.add(c, None)
 
     def get_clauses(self):
+        """Return a view of all clauses currently stored in the database."""
         return self.__twl.keys()
 
     def set_first_watched(self, clause, new_watching):
+        """Set the first watched literal of ``clause`` (no-op for clauses of length <= 2)."""
         if len(clause.args) > 2:
             self.__twl[clause][0] = new_watching
 
     def set_second_watched(self, clause, new_watching):
+        """Set the second watched literal of ``clause`` (no-op for clauses of length <= 2)."""
         if len(clause.args) > 2:
             self.__twl[clause][1] = new_watching
 
     def get_first_watched(self, clause):
+        """Return the first watched literal of ``clause``."""
         if len(clause.args) == 2:
             return clause.args[0]
         if len(clause.args) > 2:
@@ -1011,6 +1042,7 @@ class TwoWLClauseDatabase:
         return clause
 
     def get_second_watched(self, clause):
+        """Return the second watched literal of ``clause``."""
         if len(clause.args) == 2:
             return clause.args[-1]
         if len(clause.args) > 2:
@@ -1018,12 +1050,15 @@ class TwoWLClauseDatabase:
         return clause
 
     def get_pos_watched(self, l):
+        """Return the set of clauses in which symbol ``l`` is watched positively."""
         return self.__watch_list[l][0]
 
     def get_neg_watched(self, l):
+        """Return the set of clauses in which symbol ``l`` is watched negatively."""
         return self.__watch_list[l][1]
 
     def add(self, clause, model):
+        """Add ``clause`` to the database, choosing its two watched literals given ``model``."""
         self.__twl[clause] = self.__assign_watching_literals(clause, model)
         w1, p1 = inspect_literal(self.get_first_watched(clause))
         w2, p2 = inspect_literal(self.get_second_watched(clause))
@@ -1032,6 +1067,7 @@ class TwoWLClauseDatabase:
             self.__watch_list[w2][0].add(clause) if p2 else self.__watch_list[w2][1].add(clause)
 
     def remove(self, clause):
+        """Remove ``clause`` from the database and from its watched literals' watch lists."""
         w1, p1 = inspect_literal(self.get_first_watched(clause))
         w2, p2 = inspect_literal(self.get_second_watched(clause))
         del self.__twl[clause]
@@ -1040,6 +1076,10 @@ class TwoWLClauseDatabase:
             self.__watch_list[w2][0].discard(clause) if p2 else self.__watch_list[w2][1].discard(clause)
 
     def update_first_watched(self, clause, model):
+        """Try to replace the first watched literal of ``clause`` with another non-falsified literal.
+
+        Returns True if a new watch was installed, otherwise None (the clause stays as is).
+        """
         # if a non-zero literal different from the other watched literal is found
         found, new_watching = self.__find_new_watching_literal(clause, self.get_first_watched(clause), model)
         if found:  # then it will replace the watched literal
@@ -1051,6 +1091,10 @@ class TwoWLClauseDatabase:
             return True
 
     def update_second_watched(self, clause, model):
+        """Try to replace the second watched literal of ``clause`` with another non-falsified literal.
+
+        Returns True if a new watch was installed, otherwise None (the clause stays as is).
+        """
         # if a non-zero literal different from the other watched literal is found
         found, new_watching = self.__find_new_watching_literal(clause, self.get_second_watched(clause), model)
         if found:  # then it will replace the watched literal
@@ -1171,86 +1215,107 @@ usa_sat = MapColoringSAT(list('RGBY'),
 # Expr functions for WumpusKB and HybridWumpusAgent
 
 def facing_east(time):
+    """Proposition: the agent is facing east at the given time step."""
     return Expr('FacingEast', time)
 
 
 def facing_west(time):
+    """Proposition: the agent is facing west at the given time step."""
     return Expr('FacingWest', time)
 
 
 def facing_north(time):
+    """Proposition: the agent is facing north at the given time step."""
     return Expr('FacingNorth', time)
 
 
 def facing_south(time):
+    """Proposition: the agent is facing south at the given time step."""
     return Expr('FacingSouth', time)
 
 
 def wumpus(x, y):
+    """Proposition: there is a wumpus in square (x, y)."""
     return Expr('W', x, y)
 
 
 def pit(x, y):
+    """Proposition: there is a pit in square (x, y)."""
     return Expr('P', x, y)
 
 
 def breeze(x, y):
+    """Proposition: there is a breeze in square (x, y)."""
     return Expr('B', x, y)
 
 
 def stench(x, y):
+    """Proposition: there is a stench in square (x, y)."""
     return Expr('S', x, y)
 
 
 def wumpus_alive(time):
+    """Proposition: the wumpus is alive at the given time step."""
     return Expr('WumpusAlive', time)
 
 
 def have_arrow(time):
+    """Proposition: the agent still has its arrow at the given time step."""
     return Expr('HaveArrow', time)
 
 
 def percept_stench(time):
+    """Proposition: the agent perceives a stench at the given time step."""
     return Expr('Stench', time)
 
 
 def percept_breeze(time):
+    """Proposition: the agent perceives a breeze at the given time step."""
     return Expr('Breeze', time)
 
 
 def percept_glitter(time):
+    """Proposition: the agent perceives glitter at the given time step."""
     return Expr('Glitter', time)
 
 
 def percept_bump(time):
+    """Proposition: the agent perceives a bump at the given time step."""
     return Expr('Bump', time)
 
 
 def percept_scream(time):
+    """Proposition: the agent perceives a scream at the given time step."""
     return Expr('Scream', time)
 
 
 def move_forward(time):
+    """Action proposition: the agent moves forward at the given time step."""
     return Expr('Forward', time)
 
 
 def shoot(time):
+    """Action proposition: the agent shoots its arrow at the given time step."""
     return Expr('Shoot', time)
 
 
 def turn_left(time):
+    """Action proposition: the agent turns left at the given time step."""
     return Expr('TurnLeft', time)
 
 
 def turn_right(time):
+    """Action proposition: the agent turns right at the given time step."""
     return Expr('TurnRight', time)
 
 
 def ok_to_move(x, y, time):
+    """Proposition: square (x, y) is safe to move into at the given time step."""
     return Expr('OK', x, y, time)
 
 
 def location(x, y, time=None):
+    """Proposition for the agent being at square (x, y), optionally at a given time step."""
     if time is None:
         return Expr('L', x, y)
     else:
@@ -1260,16 +1325,19 @@ def location(x, y, time=None):
 # Symbols
 
 def implies(lhs, rhs):
+    """Build the implication ``lhs ==> rhs`` as an Expr."""
     return Expr('==>', lhs, rhs)
 
 
 def equiv(lhs, rhs):
+    """Build the biconditional ``lhs <=> rhs`` as an Expr."""
     return Expr('<=>', lhs, rhs)
 
 
 # Helper Function
 
 def new_disjunction(sentences):
+    """Combine a list of sentences into a single disjunction (their logical OR)."""
     t = sentences[0]
     for i in range(1, len(sentences)):
         t |= sentences[i]
@@ -1348,6 +1416,7 @@ class WumpusKB(PropKB):
         self.tell(~facing_west(0))
 
     def make_action_sentence(self, action, time):
+        """Tell the KB that ``action`` was taken at ``time`` and that no other action was."""
         actions = [move_forward(time), shoot(time), turn_left(time), turn_right(time)]
 
         for a in actions:
@@ -1357,6 +1426,7 @@ class WumpusKB(PropKB):
                 self.tell(~a)
 
     def make_percept_sentence(self, percept, time):
+        """Tell the KB which of the five percepts hold (and which do not) at ``time``."""
         # Glitter, Bump, Stench, Breeze, Scream
         flags = [0, 0, 0, 0, 0]
 
@@ -1392,6 +1462,8 @@ class WumpusKB(PropKB):
                     self.tell(~percept_scream(time))
 
     def add_temporal_sentences(self, time):
+        """Add the successor-state axioms relating ``time`` to ``time - 1`` (location, orientation,
+        arrow possession and wumpus status). Does nothing for ``time == 0``."""
         if time == 0:
             return
         t = time - 1
@@ -1455,6 +1527,7 @@ class WumpusKB(PropKB):
         self.tell(equiv(wumpus_alive(time), wumpus_alive(t) & ~percept_scream(time)))
 
     def ask_if_true(self, query):
+        """Return True if the KB entails ``query``, decided via a SAT check on ``KB & ~query``."""
         # the KB entails the query iff KB & ~query is unsatisfiable; using a SAT
         # solver here instead of pl_resolution keeps inference tractable on the
         # large wumpus clause set (full resolution closure does not terminate)
@@ -1465,22 +1538,28 @@ class WumpusKB(PropKB):
 
 
 class WumpusPosition:
+    """A pose in the wumpus world: a square (x, y) together with an orientation."""
+
     def __init__(self, x, y, orientation):
         self.X = x
         self.Y = y
         self.orientation = orientation
 
     def get_location(self):
+        """Return the (x, y) coordinates of this position."""
         return self.X, self.Y
 
     def set_location(self, x, y):
+        """Set the (x, y) coordinates of this position."""
         self.X = x
         self.Y = y
 
     def get_orientation(self):
+        """Return the orientation of this position."""
         return self.orientation
 
     def set_orientation(self, orientation):
+        """Set the orientation of this position."""
         self.orientation = orientation
 
     def __eq__(self, other):
@@ -1511,6 +1590,12 @@ class HybridWumpusAgent(Agent):
         super().__init__(self.execute)
 
     def execute(self, percept):
+        """Update the KB with ``percept``, infer the current state, and return the next action.
+
+        Implements the agent program: it deduces the current pose and safe squares, then either
+        grabs the gold, explores unvisited safe squares, shoots at a possible wumpus, takes a
+        calculated risk, or heads home and climbs out.
+        """
         self.kb.make_percept_sentence(percept, self.t)
         self.kb.add_temporal_sentences(self.t)
 
@@ -1595,10 +1680,13 @@ class HybridWumpusAgent(Agent):
         return action
 
     def plan_route(self, current, goals, allowed):
+        """Return an action sequence from ``current`` to any of ``goals`` through ``allowed`` squares,
+        found by A* search."""
         problem = PlanRoute(current, goals, allowed, self.dimrow)
         return astar_search(problem).solution()
 
     def plan_shot(self, current, goals, allowed):
+        """Return an action sequence that moves to a square lined up with a possible wumpus and shoots."""
         shooting_positions = set()
 
         for loc in goals:
@@ -1753,6 +1841,11 @@ def is_variable(x):
 
 
 def unify_var(var, x, s):
+    """Unify the variable ``var`` with ``x`` under substitution ``s``.
+
+    Follows existing bindings, applies the occur-check to avoid cyclic bindings, and returns the
+    extended substitution (or None if unification fails).
+    """
     if var in s:
         return unify(s[var], x, s)
     elif x in s:
@@ -1947,18 +2040,22 @@ class FolKB(KB):
                 self.tell(clause)
 
     def tell(self, sentence):
+        """Add a definite clause to the KB, raising an exception if it is not one."""
         if is_definite_clause(sentence):
             self.clauses.append(sentence)
         else:
             raise Exception('Not a definite clause: {}'.format(sentence))
 
     def ask_generator(self, query):
+        """Yield substitutions under which the KB entails ``query`` (via backward chaining)."""
         return fol_bc_ask(self, query)
 
     def retract(self, sentence):
+        """Remove the given clause from the KB."""
         self.clauses.remove(sentence)
 
     def fetch_rules_for_goal(self, goal):
+        """Return the clauses that could be used to prove ``goal`` (here, all clauses)."""
         return self.clauses
 
 
@@ -2011,6 +2108,10 @@ def fol_bc_ask(kb, query):
 
 
 def fol_bc_or(kb, goal, theta):
+    """Backward-chaining OR step: yield substitutions proving ``goal`` via some rule in ``kb``.
+
+    See [Figure 9.6].
+    """
     for rule in kb.fetch_rules_for_goal(goal):
         lhs, rhs = parse_definite_clause(standardize_variables(rule))
         for theta1 in fol_bc_and(kb, lhs, unify_mm(rhs, goal, theta)):
@@ -2018,6 +2119,10 @@ def fol_bc_or(kb, goal, theta):
 
 
 def fol_bc_and(kb, goals, theta):
+    """Backward-chaining AND step: yield substitutions proving every goal in ``goals``.
+
+    See [Figure 9.6].
+    """
     if theta is None:
         pass
     elif not goals:

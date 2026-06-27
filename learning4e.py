@@ -126,6 +126,7 @@ class DataSet:
             return attr
 
     def update_values(self):
+        """Recompute ``self.values`` (the list of distinct values per attribute) from the examples."""
         self.values = list(map(unique, zip(*self.examples)))
 
     def sanitize(self, example):
@@ -312,6 +313,8 @@ def leave_one_out(learner, dataset, size=None):
 
 
 def learning_curve(learner, dataset, trials=10, sizes=None):
+    """Return a list of (training-set size, mean accuracy) pairs, obtained by
+    repeatedly cross-validating the learner on training sets of each given size."""
     if sizes is None:
         sizes = list(range(2, len(dataset.examples) - trials, 2))
 
@@ -363,6 +366,7 @@ class DecisionFork:
         self.branches[val] = subtree
 
     def display(self, indent=0):
+        """Print this subtree, showing the tested attribute and each branch, indented by ``indent``."""
         name = self.attr_name
         print('Test', name)
         for (val, subtree) in self.branches.items():
@@ -383,6 +387,7 @@ class DecisionLeaf:
         return self.result
 
     def display(self):
+        """Print the result stored at this leaf."""
         print('RESULT =', self.result)
 
     def __repr__(self):
@@ -397,6 +402,9 @@ class DecisionTreeLearner:
         self.tree = self.decision_tree_learning(dataset.examples, dataset.inputs)
 
     def decision_tree_learning(self, examples, attrs, parent_examples=()):
+        """Recursively build a decision tree: pick the most informative attribute, branch on
+        its values, and recurse, returning a leaf when examples are empty, all of one class,
+        or no attributes remain. [Figure 18.5]"""
         if len(examples) == 0:
             return self.plurality_value(parent_examples)
         if self.all_same_class(examples):
@@ -449,6 +457,7 @@ class DecisionTreeLearner:
         return [(v, [e for e in examples if e[attr] == v]) for v in self.dataset.values[attr]]
 
     def predict(self, x):
+        """Classify example ``x`` by walking the learned decision tree."""
         return self.tree(x)
 
 
@@ -497,6 +506,9 @@ class DecisionListLearner:
         return None, None, None
 
     def decision_list_learning(self, examples):
+        """Recursively build the decision list: find a test selecting a non-empty subset of
+        examples sharing one outcome, append (test, outcome), and recurse on the rest;
+        raise ValueError if no separating test exists. [Figure 18.11]"""
         if not examples:
             return [((), None)]  # catch-all: the empty test matches any example
         test, outcome, matched = self.find_examples(examples)
@@ -526,6 +538,8 @@ class NearestNeighborLearner:
 
 
 class SVC:
+    """Support Vector Classifier trained in dual form by solving a quadratic
+    programming problem; supports arbitrary kernels and a soft-margin penalty ``C``."""
 
     def __init__(self, kernel=linear_kernel, C=1.0, verbose=False):
         self.kernel = kernel
@@ -591,6 +605,8 @@ class SVC:
 
 
 class SVR:
+    """Support Vector Regressor trained in dual form by solving a quadratic
+    programming problem, using an epsilon-insensitive loss and penalty ``C``."""
 
     def __init__(self, kernel=linear_kernel, C=1.0, epsilon=0.1, verbose=False):
         self.kernel = kernel
@@ -649,12 +665,15 @@ class SVR:
         self.alphas_n = alphas[m:]
 
     def predict(self, X):
+        """Predict the regression target value(s) for the samples ``X``."""
         if self.kernel != linear_kernel:
             return np.dot(self.alphas_p - self.alphas_n, self.kernel(self.sv, X)) + self.b
         return np.dot(X, self.w) + self.b
 
 
 class MultiClassLearner:
+    """Wrap a binary classifier ``clf`` to handle multiple classes, using either
+    the one-vs-rest ('ovr') or one-vs-one ('ovo') decision function."""
 
     def __init__(self, clf, decision_function='ovr'):
         self.clf = clf
@@ -811,9 +830,11 @@ class EnsembleLearner:
         self.learners = learners
 
     def train(self, dataset):
+        """Train each constituent learner on ``dataset`` and store the resulting predictors."""
         self.predictors = [learner(dataset) for learner in self.learners]
 
     def predict(self, example):
+        """Classify ``example`` by majority vote of the trained predictors."""
         return mode(predictor.predict(example) for predictor in self.predictors)
 
 
@@ -847,6 +868,7 @@ class weighted_majority:
         self.weights = weights
 
     def predict(self, example):
+        """Classify ``example`` by the weighted vote of the predictors."""
         return weighted_mode((predictor.predict(example) for predictor in self.predictors), self.weights)
 
 
@@ -883,6 +905,7 @@ class RandomForest:
         return inputs or self.dataset.inputs
 
     def predict(self, example):
+        """Classify ``example`` by majority vote of the forest's decision trees."""
         return mode(predictor.predict(example) for predictor in self.predictors)
 
 
@@ -930,11 +953,13 @@ def weighted_replicate(seq, weights, n):
 # metrics
 
 def accuracy_score(y_pred, y_true):
+    """Return the fraction of predictions in ``y_pred`` that match ``y_true``."""
     assert y_pred.shape == y_true.shape
     return np.mean(y_pred == y_true)
 
 
 def r2_score(y_pred, y_true):
+    """Return the R^2 (coefficient of determination) of ``y_pred`` against ``y_true``."""
     assert y_pred.shape == y_true.shape
     return 1. - (np.sum(np.square(y_pred - y_true)) /  # sum of square of residuals
                  np.sum(np.square(y_true - np.mean(y_true))))  # total sum of squares
@@ -964,6 +989,8 @@ restaurant = RestaurantDataSet()
 
 
 def T(attr_name, branches):
+    """Build a DecisionFork testing the restaurant attribute ``attr_name``, wrapping each
+    non-fork child in a DecisionLeaf; a shorthand for writing decision trees by hand."""
     branches = {value: (child if isinstance(child, DecisionFork) else DecisionLeaf(child))
                 for value, child in branches.items()}
     return DecisionFork(restaurant.attr_num(attr_name), attr_name, print, branches)

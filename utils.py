@@ -96,6 +96,7 @@ def extend(s, var, val):
 
 
 def flatten(seqs):
+    """Flatten a sequence of sequences into a single flat list."""
     return sum(seqs, [])
 
 
@@ -229,38 +230,47 @@ def num_or_str(x):  # TODO: rename as `atom`
 
 
 def euclidean_distance(x, y):
+    """Return the Euclidean (L2) distance between vectors x and y."""
     return np.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
 def manhattan_distance(x, y):
+    """Return the Manhattan (L1) distance between vectors x and y."""
     return sum(abs(_x - _y) for _x, _y in zip(x, y))
 
 
 def hamming_distance(x, y):
+    """Return the number of positions at which vectors x and y differ."""
     return sum(_x != _y for _x, _y in zip(x, y))
 
 
 def cross_entropy_loss(x, y):
+    """Return the mean binary cross-entropy loss between targets x and predictions y."""
     return (-1.0 / len(x)) * sum(_x * np.log(_y) + (1 - _x) * np.log(1 - _y) for _x, _y in zip(x, y))
 
 
 def mean_squared_error_loss(x, y):
+    """Return the mean squared error loss between vectors x and y."""
     return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
 def rms_error(x, y):
+    """Return the root-mean-square error between vectors x and y."""
     return np.sqrt(ms_error(x, y))
 
 
 def ms_error(x, y):
+    """Return the mean of the squared differences between vectors x and y."""
     return mean((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
 def mean_error(x, y):
+    """Return the mean of the absolute differences between vectors x and y."""
     return mean(abs(_x - _y) for _x, _y in zip(x, y))
 
 
 def mean_boolean_error(x, y):
+    """Return the fraction of positions at which vectors x and y differ."""
     return mean(_x != _y for _x, _y in zip(x, y))
 
 
@@ -277,6 +287,7 @@ def normalize(dist):
 
 
 def random_weights(min_value, max_value, num_weights):
+    """Return a list of num_weights random floats drawn uniformly from [min_value, max_value]."""
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
 
@@ -286,38 +297,47 @@ def sigmoid(x):
 
 
 def sigmoid_derivative(value):
+    """Return the derivative of the sigmoid, given its already-computed output value."""
     return value * (1 - value)
 
 
 def elu(x, alpha=0.01):
+    """Return the Exponential Linear Unit activation of x."""
     return x if x > 0 else alpha * (np.exp(x) - 1)
 
 
 def elu_derivative(value, alpha=0.01):
+    """Return the derivative of the ELU activation, given its output value."""
     return 1 if value > 0 else alpha * np.exp(value)
 
 
 def tanh(x):
+    """Return the hyperbolic tangent activation of x."""
     return np.tanh(x)
 
 
 def tanh_derivative(value):
+    """Return the derivative of tanh, given its already-computed output value."""
     return 1 - (value ** 2)
 
 
 def leaky_relu(x, alpha=0.01):
+    """Return the Leaky ReLU activation of x (slope alpha for negative inputs)."""
     return x if x > 0 else alpha * x
 
 
 def leaky_relu_derivative(value, alpha=0.01):
+    """Return the derivative of the Leaky ReLU activation, given its output value."""
     return 1 if value > 0 else alpha
 
 
 def relu(x):
+    """Return the Rectified Linear Unit activation of x, i.e. max(0, x)."""
     return max(0, x)
 
 
 def relu_derivative(value):
+    """Return the derivative of the ReLU activation, given its output value."""
     return 1 if value > 0 else 0
 
 
@@ -332,12 +352,14 @@ def gaussian(mean, st_dev, x):
 
 
 def linear_kernel(x, y=None):
+    """Return the linear kernel (dot product) between x and y; defaults y to x."""
     if y is None:
         y = x
     return np.dot(x, y.T)
 
 
 def polynomial_kernel(x, y=None, degree=2.0):
+    """Return the polynomial kernel (1 + x.y)**degree between x and y; defaults y to x."""
     if y is None:
         y = x
     return (1.0 + np.dot(x, y.T)) ** degree
@@ -362,14 +384,17 @@ turns = LEFT, RIGHT = (+1, -1)
 
 
 def turn_heading(heading, inc, headings=orientations):
+    """Return the heading reached by turning inc steps around the list of headings."""
     return headings[(headings.index(heading) + inc) % len(headings)]
 
 
 def turn_right(heading):
+    """Return the heading obtained by turning right (clockwise) from heading."""
     return turn_heading(heading, RIGHT)
 
 
 def turn_left(heading):
+    """Return the heading obtained by turning left (counter-clockwise) from heading."""
     return turn_heading(heading, LEFT)
 
 
@@ -463,6 +488,7 @@ def print_table(table, header=None, sep='   ', numfmt='{}'):
 
 
 def open_data(name, mode='r'):
+    """Open and return the file named name from the aima-data directory."""
     aima_root = os.path.dirname(__file__)
     aima_file = os.path.join(aima_root, *['aima-data', name])
 
