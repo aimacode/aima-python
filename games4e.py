@@ -176,6 +176,9 @@ def alpha_beta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
 
 def monte_carlo_tree_search(state, game, N=1000):
+    """Choose a move by running N iterations of Monte Carlo tree search from the
+    given state, repeatedly selecting a leaf via UCB, expanding it, simulating a
+    random playout, and backing the result up; return the most-visited child move."""
     def select(n):
         """select a leaf node in the tree"""
         if n.children:
@@ -250,14 +253,17 @@ def random_player(game, state):
 
 
 def alpha_beta_player(game, state):
+    """A player that picks a move using full alpha-beta search."""
     return alpha_beta_search(state, game)
 
 
 def expect_min_max_player(game, state):
+    """A player for stochastic games that picks a move using expectiminimax search."""
     return expect_minmax(state, game)
 
 
 def mcts_player(game, state):
+    """A player that picks a move using Monte Carlo tree search."""
     return monte_carlo_tree_search(state, game)
 
 
@@ -356,21 +362,26 @@ class Fig52Game(Game):
     initial = 'A'
 
     def actions(self, state):
+        """Return the moves available from the given node of the game tree."""
         return list(self.succs.get(state, {}).keys())
 
     def result(self, state, move):
+        """Return the successor node reached by taking the given move."""
         return self.succs[state][move]
 
     def utility(self, state, player):
+        """Return the leaf value, negated for the MIN player."""
         if player == 'MAX':
             return self.utils[state]
         else:
             return -self.utils[state]
 
     def terminal_test(self, state):
+        """Return True for leaf nodes, i.e. anything other than A, B, C, D."""
         return state not in ('A', 'B', 'C', 'D')
 
     def to_move(self, state):
+        """Return 'MIN' for the second-ply nodes B, C, D, otherwise 'MAX'."""
         return 'MIN' if state in 'BCD' else 'MAX'
 
 
@@ -381,21 +392,26 @@ class Fig52Extended(Game):
     utils = dict()
 
     def actions(self, state):
+        """Return the moves, sorted, available from the given node."""
         return sorted(list(self.succs.get(state, {}).keys()))
 
     def result(self, state, move):
+        """Return the successor node reached by taking the given move."""
         return self.succs[state][move]
 
     def utility(self, state, player):
+        """Return the leaf value, negated for the MIN player."""
         if player == 'MAX':
             return self.utils[state]
         else:
             return -self.utils[state]
 
     def terminal_test(self, state):
+        """Return True once the state falls outside the 0-12 node range."""
         return state not in range(13)
 
     def to_move(self, state):
+        """Return 'MIN' for the second-ply nodes 1, 2, 3, otherwise 'MAX'."""
         return 'MIN' if state in {1, 2, 3} else 'MAX'
 
 
@@ -418,6 +434,8 @@ class TicTacToe(Game):
         return state.moves
 
     def result(self, state, move):
+        """Place the current player's mark at move and return the new state;
+        an illegal move leaves the state unchanged."""
         if move not in state.moves:
             return state  # Illegal move has no effect
         board = state.board.copy()
@@ -437,6 +455,7 @@ class TicTacToe(Game):
         return state.utility != 0 or len(state.moves) == 0
 
     def display(self, state):
+        """Print the board as a grid, with empty squares shown as dots."""
         board = state.board
         for x in range(1, self.h + 1):
             for y in range(1, self.v + 1):
@@ -478,6 +497,7 @@ class ConnectFour(TicTacToe):
         TicTacToe.__init__(self, h, v, k)
 
     def actions(self, state):
+        """Return legal moves: bottom-row squares or squares directly above an occupied one."""
         return [(x, y) for (x, y) in state.moves
                 if y == 1 or (x, y - 1) in state.board]
 
@@ -516,6 +536,8 @@ class Backgammon(StochasticGame):
         return legal_moves
 
     def result(self, state, move):
+        """Apply the player's checker move(s) for the current dice roll and return
+        the resulting state, with the turn passed to the opponent."""
         board = copy.deepcopy(state.board)
         player = state.to_move
         self.move_checker(board, move[0], state.chance[0], player)

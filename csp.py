@@ -187,10 +187,13 @@ class CSP(search.Problem):
 
 
 def no_arc_heuristic(csp, queue):
+    """Return the arc queue unchanged (no ordering heuristic for AC3)."""
     return queue
 
 
 def dom_j_up(csp, queue):
+    """Order the arc queue so arcs whose second variable has the smallest current
+    domain are popped first (a SortedSet keyed by the negated domain size)."""
     return SortedSet(queue, key=lambda t: neg(len(csp.curr_domains[t[1]])))
 
 
@@ -236,6 +239,10 @@ def revise(csp, Xi, Xj, removals, checks=0):
 # of AC3 with double-support domain-heuristic
 
 def AC3b(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
+    """An improved version of AC3 that uses double-support checks to share work
+    between an arc (Xi, Xj) and its reverse (Xj, Xi). Returns a tuple
+    (is_consistent, checks): False if a domain is wiped out, True if the CSP is
+    made arc-consistent, where checks counts the consistency checks performed."""
     if queue is None:
         queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
     csp.support_pruning()
@@ -286,6 +293,10 @@ def AC3b(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
 
 
 def partition(csp, Xi, Xj, checks=0):
+    """Helper for AC3b: split the domains of Xi and Xj using double-support checks.
+    Returns (Si_p, Sj_p, Sj_u, checks) where Si_p is the set of Xi values supported
+    by Xj, Sj_p the set of Xj values already known to be supported by Xi, Sj_u the
+    remaining (as yet unconfirmed) Xj values, and checks the updated check count."""
     Si_p = set()
     Sj_p = set()
     Sj_u = set(csp.curr_domains[Xj])
@@ -320,6 +331,10 @@ def partition(csp, Xi, Xj, checks=0):
 # Constraint Propagation with AC4
 
 def AC4(csp, queue=None, removals=None, arc_heuristic=dom_j_up):
+    """Enforce arc consistency using AC4, which keeps per-value support counters so
+    that pruning a value only triggers re-checks of the values it supported. Returns
+    a tuple (is_consistent, checks): False if a domain is wiped out, True if the CSP
+    is made arc-consistent, where checks counts the consistency checks performed."""
     if queue is None:
         queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]}
     csp.support_pruning()
@@ -380,6 +395,9 @@ def mrv(assignment, csp):
 
 
 def num_legal_values(csp, var, assignment):
+    """Return how many values are still legal for var (used by the mrv heuristic):
+    the size of its current domain if pruning is active, otherwise the number of
+    domain values that conflict with no other variable in the assignment."""
     if csp.curr_domains:
         return len(csp.curr_domains[var])
     else:
@@ -403,6 +421,7 @@ def lcv(var, assignment, csp):
 
 
 def no_inference(csp, var, value, assignment, removals):
+    """The default inference step for backtracking: do nothing and always succeed."""
     return True
 
 
@@ -748,6 +767,7 @@ class NQueensCSP(CSP):
 
 
 def flatten(seqs):
+    """Concatenate a sequence of lists into a single flat list."""
     return sum(seqs, [])
 
 
@@ -825,6 +845,8 @@ class Sudoku(CSP):
         CSP.__init__(self, None, domains, self.neighbors, different_values_constraint)
 
     def display(self, assignment):
+        """Print the Sudoku grid for the given assignment as a 9x9 board."""
+
         def show_box(box): return [' '.join(map(show_cell, row)) for row in box]
 
         def show_cell(cell): return str(assignment.get(cell, '.'))
@@ -909,6 +931,9 @@ def Zebra():
 
 
 def solve_zebra(algorithm=min_conflicts, **args):
+    """Solve the Zebra Puzzle with the given CSP algorithm, print which person is in
+    each house, and return a tuple (zebra_owner_house, water_drinker_house, nassigns,
+    full_assignment)."""
     z = Zebra()
     ans = algorithm(z, **args)
     for h in range(1, 6):
@@ -1048,10 +1073,13 @@ def ne_constraint(val):
 
 
 def no_heuristic(to_do):
+    """Return the to_do arc set unchanged (no ordering heuristic for GAC)."""
     return to_do
 
 
 def sat_up(to_do):
+    """Order the to_do arc set so that (variable, constraint) pairs whose constraint
+    has the smallest scope are processed first (a SortedSet keyed by 1 / scope size)."""
     return SortedSet(to_do, key=lambda t: 1 / len([var for var in t[1].scope]))
 
 
@@ -1194,6 +1222,9 @@ class ACSearchSolver(search.Problem):
         return all(len(node[var]) == 1 for var in node)
 
     def actions(self, state):
+        """Return the successor states obtained by splitting some still-multi-valued
+        variable's domain in two and enforcing GAC on each half; only arc-consistent
+        results are kept."""
         var = first(x for x in state if len(state[x]) > 1)
         neighs = []
         if var:
@@ -1207,6 +1238,7 @@ class ACSearchSolver(search.Problem):
         return neighs
 
     def result(self, state, action):
+        """Return the successor state, which is just the chosen reduced domains."""
         return action
 
 
@@ -1254,6 +1286,9 @@ words1 = {'ant', 'big', 'bus', 'car', 'has', 'book', 'buys', 'hold',
 
 
 class Crossword(NaryCSP):
+    """An n-ary CSP for a crossword puzzle. The puzzle is a grid where '_' marks a
+    writable cell and '*' a blocked cell; each maximal run of two or more cells (across
+    or down) becomes a variable sequence constrained to spell one of the given words."""
 
     def __init__(self, puzzle, words):
         domains = {}
@@ -1287,6 +1322,7 @@ class Crossword(NaryCSP):
         self.puzzle = puzzle
 
     def display(self, assignment=None):
+        """Print the crossword grid, filling in letters from assignment where known."""
         for i, line in enumerate(self.puzzle):
             puzzle = ""
             for j, element in enumerate(line):
@@ -1354,6 +1390,9 @@ kakuro4 = [
 
 
 class Kakuro(NaryCSP):
+    """An n-ary CSP for a Kakuro puzzle. Each '_' cell is a variable with domain 1..9;
+    every horizontal or vertical run of cells must contain distinct digits that sum to
+    the clue given in the adjacent '[down, right]' header cell."""
 
     def __init__(self, puzzle):
         variables = []
@@ -1409,6 +1448,8 @@ class Kakuro(NaryCSP):
         self.puzzle = puzzle
 
     def display(self, assignment=None):
+        """Print the Kakuro grid, showing clue cells and filling in digits from
+        assignment where known."""
         for i, line in enumerate(self.puzzle):
             puzzle = ""
             for j, element in enumerate(line):

@@ -301,6 +301,7 @@ class Environment:
         self.agents = []
 
     def thing_classes(self):
+        """Return the list of Thing subclasses that may appear in this environment."""
         return []  # List of classes that can go into environment
 
     def percept(self, agent):
@@ -504,6 +505,10 @@ class XYEnvironment(Environment):
         return self.things_near(agent.location)
 
     def execute_action(self, agent, action):
+        """Apply a motion or manipulation action for the agent. Supports turning
+        ('TurnRight'/'TurnLeft'), moving one step ('Forward', setting agent.bump on
+        a collision), grabbing a grabbable thing at the agent's location ('Grab'),
+        and dropping the last held thing ('Release')."""
         agent.bump = False
         if action == 'TurnRight':
             agent.direction += Direction.R
@@ -524,6 +529,7 @@ class XYEnvironment(Environment):
                 self.add_thing(dropped, location=agent.location)
 
     def default_location(self, thing):
+        """Return a random inbounds location that contains no Obstacle."""
         location = self.random_location_inbounds()
         while self.some_things_at(location, Obstacle):
             # we will find a random location with no obstacles
@@ -613,6 +619,7 @@ class Obstacle(Thing):
 
 
 class Wall(Obstacle):
+    """An impassable Obstacle forming the boundary or interior walls of a grid."""
     pass
 
 
@@ -620,6 +627,10 @@ class Wall(Obstacle):
 
 
 class GraphicEnvironment(XYEnvironment):
+    """An XYEnvironment that visualises itself in a Jupyter notebook using an
+    ipythonblocks BlockGrid, colouring each cell according to the class of the
+    last thing placed there."""
+
     def __init__(self, width=10, height=10, boundary=True, color={}, display=False):
         """Define all the usual XYEnvironment characteristics,
         but initialise a BlockGrid for GUI too."""
@@ -674,6 +685,7 @@ class GraphicEnvironment(XYEnvironment):
         self.update(delay)
 
     def update(self, delay=1):
+        """Pause for delay seconds, then redraw the world in the GUI."""
         sleep(delay)
         self.reveal()
 
@@ -689,6 +701,8 @@ class GraphicEnvironment(XYEnvironment):
         self.visible = True
 
     def draw_world(self):
+        """Repaint the BlockGrid, colouring each occupied cell by the class of the
+        last thing at that location using the configured color mapping."""
         self.grid[:] = (200, 200, 200)
         world = self.get_world()
         for x in range(0, len(world)):
@@ -714,10 +728,13 @@ class ContinuousWorld(Environment):
         self.height = height
 
     def add_obstacle(self, coordinates):
+        """Add a PolygonObstacle defined by the given list of vertex coordinates."""
         self.things.append(PolygonObstacle(coordinates))
 
 
 class PolygonObstacle(Obstacle):
+    """An Obstacle in a ContinuousWorld whose shape is a polygon described by a
+    list of vertex coordinates."""
 
     def __init__(self, coordinates):
         """Coordinates is a list of tuples."""
@@ -730,6 +747,7 @@ class PolygonObstacle(Obstacle):
 
 
 class Dirt(Thing):
+    """A piece of dirt that a vacuum agent can clean up."""
     pass
 
 
@@ -744,6 +762,7 @@ class VacuumEnvironment(XYEnvironment):
         self.add_walls()
 
     def thing_classes(self):
+        """Return the Thing/Agent classes that may populate the vacuum world."""
         return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent,
                 TableDrivenVacuumAgent, ModelBasedVacuumAgent]
 
@@ -756,6 +775,9 @@ class VacuumEnvironment(XYEnvironment):
         return status, bump
 
     def execute_action(self, agent, action):
+        """Carry out the agent's action. 'Suck' removes dirt at the agent's location
+        and adds 100 to its performance; movement actions are delegated to the
+        XYEnvironment, and every action other than 'NoOp' costs 1 performance point."""
         agent.bump = False
         if action == 'Suck':
             dirt_list = self.list_things_at(agent.location, Dirt)
@@ -782,6 +804,7 @@ class TrivialVacuumEnvironment(Environment):
                        loc_B: random.choice(['Clean', 'Dirty'])}
 
     def thing_classes(self):
+        """Return the Thing/Agent classes that may populate this vacuum world."""
         return [Wall, Dirt, ReflexVacuumAgent, RandomVacuumAgent, TableDrivenVacuumAgent, ModelBasedVacuumAgent]
 
     def percept(self, agent):
@@ -812,6 +835,7 @@ class TrivialVacuumEnvironment(Environment):
 
 
 class Gold(Thing):
+    """The gold the explorer is trying to grab in the Wumpus World."""
 
     def __eq__(self, rhs):
         """All Gold are equal"""
@@ -821,39 +845,49 @@ class Gold(Thing):
 
 
 class Bump(Thing):
+    """Percept signalling that the explorer walked into a wall."""
     pass
 
 
 class Glitter(Thing):
+    """Percept indicating that gold is in the explorer's current room."""
     pass
 
 
 class Pit(Thing):
+    """A pit that kills the explorer if entered."""
     pass
 
 
 class Breeze(Thing):
+    """Percept felt in rooms adjacent to a Pit."""
     pass
 
 
 class Arrow(Thing):
+    """The single arrow the explorer can shoot to try to kill the wumpus."""
     pass
 
 
 class Scream(Thing):
+    """Percept heard throughout the world when the wumpus is killed."""
     pass
 
 
 class Wumpus(Agent):
+    """The wumpus: a monster that kills the explorer sharing its room."""
     screamed = False
     pass
 
 
 class Stench(Thing):
+    """Percept smelled in rooms adjacent to the Wumpus."""
     pass
 
 
 class Explorer(Agent):
+    """The agent that explores the Wumpus World, seeking gold while avoiding
+    pits and the wumpus."""
     holding = []
     has_arrow = True
     killed_by = ""
@@ -865,6 +899,10 @@ class Explorer(Agent):
 
 
 class WumpusEnvironment(XYEnvironment):
+    """A grid implementation of the Wumpus World from Chapter 7: a cave of rooms
+    surrounded by walls, holding pits, the wumpus and gold, in which an Explorer
+    agent perceives stench, breeze, glitter, bump and scream."""
+
     pit_probability = 0.2  # Probability to spawn a pit in a location. (From Chapter 7.2)
 
     # Room should be 4x4 grid of rooms. The extra 2 for walls

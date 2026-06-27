@@ -159,15 +159,19 @@ class SimpleProblemSolvingAgentProgram:
         return self.seq.pop(0)
 
     def update_state(self, state, percept):
+        """Update the agent's world state from the latest percept (abstract)."""
         raise NotImplementedError
 
     def formulate_goal(self, state):
+        """Decide on a goal to pursue given the current state (abstract)."""
         raise NotImplementedError
 
     def formulate_problem(self, state, goal):
+        """Build a Problem instance from the current state and chosen goal (abstract)."""
         raise NotImplementedError
 
     def search(self, problem):
+        """Return a sequence of actions that solves the given problem (abstract)."""
         raise NotImplementedError
 
 
@@ -354,6 +358,9 @@ def iterative_deepening_search(problem):
 # Pseudocode from https://webdocs.cs.ualberta.ca/%7Eholte/Publications/MM-AAAI2016.pdf
 
 def bidirectional_search(problem):
+    """Meet-in-the-middle (MM) bidirectional search. Searches forward from the
+    initial state and backward from the goal at the same time, returning the cost
+    of the optimal path where the two frontiers meet (np.inf if no path exists)."""
     e = 0
     if isinstance(problem, GraphProblem):
         e = problem.find_min_edge()
@@ -662,6 +669,7 @@ class NPuzzle(Problem):
         return heuristics.get(self.heuristic)
     
     def hamming_distance_heuristic(self, node):
+        """Number of tiles that are not in their goal position (Hamming distance)."""
         return hamming_distance(node.state, self.goal)
 
 
@@ -716,6 +724,8 @@ class TravelingSalesman(Problem):
         return c + self.cities_matrix[state1[-1]][state2[-1]]
 
     def h(self, node):
+        """Admissible heuristic: total edge weight of the MST over the cities
+        that have not yet been visited."""
         h = 0.0
         unvisited_cities = self.get_unvisited_cities(node.state)
         mst_evaluation = self.eval_unvisited_mst_edges_sum(unvisited_cities)
@@ -723,6 +733,7 @@ class TravelingSalesman(Problem):
         return h
 
     def eval_unvisited_mst_edges_sum(self, unvisited_nodes):
+        """Return the total MST edge weight over the unvisited cities (0.0 if none)."""
         if not unvisited_nodes:
             return 0.0
         return self.tsp_kruskal(unvisited_nodes)
@@ -751,20 +762,27 @@ class TravelingSalesman(Problem):
 
 
 class DisjointSets:
+    """Union-find (disjoint-set) structure with union by rank, used to build the
+    MST for the TravelingSalesman heuristic."""
+
     def __init__(self):
         self.parent = {}
         self.rank = {}
 
     def make_set(self, vertex):
+        """Create a new singleton set whose only element is vertex."""
         self.parent[vertex] = vertex
         self.rank[vertex] = 0
 
     def find(self, vertex):
+        """Return the representative (root) of the set that vertex belongs to."""
         if self.parent[vertex] == vertex:
             return vertex
         return self.find(self.parent[vertex])
 
     def union(self, vertex_u, vertex_v):
+        """Merge the sets containing vertex_u and vertex_v, attaching the lower-rank
+        tree under the higher-rank one (union by rank)."""
         vertex_u_root = self.find(vertex_u)
         vertex_v_root = self.find(vertex_v)
 
@@ -1148,9 +1166,11 @@ class OnlineSearchProblem(Problem):
         self.graph = graph
 
     def actions(self, state):
+        """Return the actions available from state (the outgoing graph edges)."""
         return self.graph.graph_dict[state].keys()
 
     def output(self, state, action):
+        """Return the state reached by taking action in state."""
         return self.graph.graph_dict[state][action]
 
     def h(self, state):
@@ -1162,9 +1182,11 @@ class OnlineSearchProblem(Problem):
         return 1
 
     def update_state(self, percept):
+        """Convert a percept into a state (abstract; override in subclasses)."""
         raise NotImplementedError
 
     def goal_test(self, state):
+        """Return True if state is the goal state."""
         if state == self.goal:
             return True
         return False
@@ -1253,6 +1275,8 @@ def genetic_algorithm(population, fitness_fn, gene_pool=[0, 1], f_thres=None, ng
 
 
 def fitness_threshold(fitness_fn, f_thres, population):
+    """Return the fittest individual if its fitness reaches f_thres, otherwise None
+    (also None when no threshold f_thres is given)."""
     if not f_thres:
         return None
 
@@ -1278,18 +1302,24 @@ def init_population(pop_number, gene_pool, state_length):
 
 
 def select(r, population, fitness_fn):
+    """Select r individuals from the population, sampling each with probability
+    proportional to its fitness."""
     fitnesses = map(fitness_fn, population)
     sampler = weighted_sampler(population, fitnesses)
     return [sampler() for i in range(r)]
 
 
 def recombine(x, y):
+    """Single-point crossover: combine a random-length prefix of x with the
+    corresponding suffix of y."""
     n = len(x)
     c = random.randrange(0, n)
     return x[:c] + y[c:]
 
 
 def recombine_uniform(x, y):
+    """Uniform crossover: build a child string by taking roughly half of its genes
+    from x and the rest from y, at random positions."""
     n = len(x)
     result = [0] * n
     indexes = random.sample(range(n), n)
@@ -1301,6 +1331,8 @@ def recombine_uniform(x, y):
 
 
 def mutate(x, gene_pool, pmut):
+    """With probability pmut, replace one randomly chosen gene of x with a random
+    gene from gene_pool; otherwise return x unchanged."""
     if random.uniform(0, 1) >= pmut:
         return x
 
@@ -1513,6 +1545,7 @@ class GraphProblem(Problem):
         return action
 
     def path_cost(self, cost_so_far, A, action, B):
+        """Cost so far plus the length of the edge from A to B (np.inf if no edge)."""
         return cost_so_far + (self.graph.get(A, B) or np.inf)
 
     def find_min_edge(self):
@@ -1546,9 +1579,11 @@ class GraphProblemStochastic(GraphProblem):
     """
 
     def result(self, state, action):
+        """Return the list of possible states that the action may lead to."""
         return self.graph.get(state, action)
 
     def path_cost(self):
+        """Not defined for the stochastic graph problem."""
         raise NotImplementedError
 
 
@@ -1844,14 +1879,18 @@ class InstrumentedProblem(Problem):
         self.found = None
 
     def actions(self, state):
+        """Delegate to the wrapped problem, counting the successor query."""
         self.succs += 1
         return self.problem.actions(state)
 
     def result(self, state, action):
+        """Delegate to the wrapped problem, counting the generated state."""
         self.states += 1
         return self.problem.result(state, action)
 
     def goal_test(self, state):
+        """Delegate to the wrapped problem, counting the goal test and recording
+        the state when it is a goal."""
         self.goal_tests += 1
         result = self.problem.goal_test(state)
         if result:
@@ -1859,9 +1898,11 @@ class InstrumentedProblem(Problem):
         return result
 
     def path_cost(self, c, state1, action, state2):
+        """Delegate the path cost computation to the wrapped problem."""
         return self.problem.path_cost(c, state1, action, state2)
 
     def value(self, state):
+        """Delegate the state value computation to the wrapped problem."""
         return self.problem.value(state)
 
     def __getattr__(self, attr):
@@ -1879,6 +1920,9 @@ def compare_searchers(problems, header,
                                  iterative_deepening_search,
                                  depth_limited_search,
                                  recursive_best_first_search]):
+    """Run every searcher on every problem and print a table of the resulting
+    InstrumentedProblem statistics (successors / goal tests / states generated)."""
+
     def do(searcher, problem):
         p = InstrumentedProblem(problem)
         searcher(p)
