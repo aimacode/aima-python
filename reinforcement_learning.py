@@ -290,7 +290,7 @@ class QLearningAgent:
         actions_in_state = self.actions_in_state
 
         if s in terminals:
-            Q[s, None] = r1
+            Q[s, None] = r
         if s is not None:
             Nsa[s, a] += 1
             Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1]
@@ -330,7 +330,7 @@ class SARSALearningAgent(QLearningAgent):
         a1 = max(actions_in_state(s1), key=lambda a2: self.f(Q[s1, a2], Nsa[s1, a2]))
 
         if s in terminals:
-            Q[s, None] = r1
+            Q[s, None] = r
         if s is not None:
             Nsa[s, a] += 1
             # on-policy update: bootstrap on the actually-chosen next action a1
