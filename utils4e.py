@@ -1,5 +1,7 @@
 """Provides some utilities widely used by other modules"""
 
+from __future__ import annotations
+
 import bisect
 import collections
 import collections.abc
@@ -248,7 +250,7 @@ def map_vector(f, x):
     return [map_vector(f, _x) for _x in x] if hasattr(x, '__iter__') else list(map(f, [x]))[0]
 
 
-def probability(p):
+def probability(p: float) -> bool:
     """Return true with probability p."""
     return p > random.uniform(0.0, 1.0)
 
@@ -293,7 +295,7 @@ def rounder(numbers, d=4):
         return constructor(rounder(n, d) for n in numbers)
 
 
-def num_or_str(x):  # TODO: rename as `atom`
+def num_or_str(x: str) -> int | float | str:  # TODO: rename as `atom`
     """The argument is a string; convert to a number if
        possible, or strip it."""
     try:
@@ -305,37 +307,37 @@ def num_or_str(x):  # TODO: rename as `atom`
             return str(x).strip()
 
 
-def euclidean_distance(x, y):
+def euclidean_distance(x, y) -> float:
     """Return the Euclidean (L2) distance between vectors x and y."""
     return np.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
-def manhattan_distance(x, y):
+def manhattan_distance(x, y) -> float:
     """Return the Manhattan (L1) distance between vectors x and y."""
     return sum(abs(_x - _y) for _x, _y in zip(x, y))
 
 
-def hamming_distance(x, y):
+def hamming_distance(x, y) -> int:
     """Return the number of positions at which vectors x and y differ."""
     return sum(_x != _y for _x, _y in zip(x, y))
 
 
-def rms_error(x, y):
+def rms_error(x, y) -> float:
     """Return the root-mean-square error between vectors x and y."""
     return np.sqrt(ms_error(x, y))
 
 
-def ms_error(x, y):
+def ms_error(x, y) -> float:
     """Return the mean of the squared differences between vectors x and y."""
     return mean((x - y) ** 2 for x, y in zip(x, y))
 
 
-def mean_error(x, y):
+def mean_error(x, y) -> float:
     """Return the mean of the absolute differences between vectors x and y."""
     return mean(abs(x - y) for x, y in zip(x, y))
 
 
-def mean_boolean_error(x, y):
+def mean_boolean_error(x, y) -> float:
     """Return the fraction of positions at which vectors x and y differ."""
     return mean(_x != _y for _x, _y in zip(x, y))
 
@@ -344,12 +346,12 @@ def mean_boolean_error(x, y):
 # ______________________________________________________________________________
 
 
-def cross_entropy_loss(x, y):
+def cross_entropy_loss(x, y) -> float:
     """Cross entropy loss function. x and y are 1D iterable objects."""
     return (-1.0 / len(x)) * sum(_x * np.log(_y) + (1 - _x) * np.log(1 - _y) for _x, _y in zip(x, y))
 
 
-def mean_squared_error_loss(x, y):
+def mean_squared_error_loss(x, y) -> float:
     """Min square loss function. x and y are 1D iterable objects."""
     return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
 
@@ -366,7 +368,7 @@ def normalize(dist):
     return [(n / total) for n in dist]
 
 
-def random_weights(min_value, max_value, num_weights):
+def random_weights(min_value: float, max_value: float, num_weights: int) -> list:
     """Return a list of num_weights random floats drawn uniformly from [min_value, max_value]."""
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
@@ -393,12 +395,12 @@ def gaussian_kernel_2D(size=3, sigma=0.5):
     return g / g.sum()
 
 
-def step(x):
+def step(x: float) -> int:
     """Return activation value of x with sign function."""
     return 1 if x >= 0 else 0
 
 
-def gaussian(mean, st_dev, x):
+def gaussian(mean: float, st_dev: float, x: float) -> float:
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
     return 1 / (np.sqrt(2 * np.pi) * st_dev) * np.exp(-0.5 * (float(x - mean) / st_dev) ** 2)
 

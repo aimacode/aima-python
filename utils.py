@@ -1,5 +1,7 @@
 """Provides some utilities widely used by other modules"""
 
+from __future__ import annotations
+
 import bisect
 import collections
 import collections.abc
@@ -175,7 +177,7 @@ def scalar_vector_product(x, y):
     return np.multiply(x, y)
 
 
-def probability(p):
+def probability(p: float) -> bool:
     """Return true with probability p."""
     return p > random.uniform(0.0, 1.0)
 
@@ -218,7 +220,7 @@ def rounder(numbers, d=4):
         return constructor(rounder(n, d) for n in numbers)
 
 
-def num_or_str(x):  # TODO: rename as `atom`
+def num_or_str(x: str) -> int | float | str:  # TODO: rename as `atom`
     """The argument is a string; convert to a number if possible, or strip it."""
     try:
         return int(x)
@@ -229,47 +231,47 @@ def num_or_str(x):  # TODO: rename as `atom`
             return str(x).strip()
 
 
-def euclidean_distance(x, y):
+def euclidean_distance(x, y) -> float:
     """Return the Euclidean (L2) distance between vectors x and y."""
     return np.sqrt(sum((_x - _y) ** 2 for _x, _y in zip(x, y)))
 
 
-def manhattan_distance(x, y):
+def manhattan_distance(x, y) -> float:
     """Return the Manhattan (L1) distance between vectors x and y."""
     return sum(abs(_x - _y) for _x, _y in zip(x, y))
 
 
-def hamming_distance(x, y):
+def hamming_distance(x, y) -> int:
     """Return the number of positions at which vectors x and y differ."""
     return sum(_x != _y for _x, _y in zip(x, y))
 
 
-def cross_entropy_loss(x, y):
+def cross_entropy_loss(x, y) -> float:
     """Return the mean binary cross-entropy loss between targets x and predictions y."""
     return (-1.0 / len(x)) * sum(_x * np.log(_y) + (1 - _x) * np.log(1 - _y) for _x, _y in zip(x, y))
 
 
-def mean_squared_error_loss(x, y):
+def mean_squared_error_loss(x, y) -> float:
     """Return the mean squared error loss between vectors x and y."""
     return (1.0 / len(x)) * sum((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
-def rms_error(x, y):
+def rms_error(x, y) -> float:
     """Return the root-mean-square error between vectors x and y."""
     return np.sqrt(ms_error(x, y))
 
 
-def ms_error(x, y):
+def ms_error(x, y) -> float:
     """Return the mean of the squared differences between vectors x and y."""
     return mean((_x - _y) ** 2 for _x, _y in zip(x, y))
 
 
-def mean_error(x, y):
+def mean_error(x, y) -> float:
     """Return the mean of the absolute differences between vectors x and y."""
     return mean(abs(_x - _y) for _x, _y in zip(x, y))
 
 
-def mean_boolean_error(x, y):
+def mean_boolean_error(x, y) -> float:
     """Return the fraction of positions at which vectors x and y differ."""
     return mean(_x != _y for _x, _y in zip(x, y))
 
@@ -286,7 +288,7 @@ def normalize(dist):
     return [(n / total) for n in dist]
 
 
-def random_weights(min_value, max_value, num_weights):
+def random_weights(min_value: float, max_value: float, num_weights: int) -> list:
     """Return a list of num_weights random floats drawn uniformly from [min_value, max_value]."""
     return [random.uniform(min_value, max_value) for _ in range(num_weights)]
 
@@ -301,12 +303,12 @@ def sigmoid_derivative(value):
     return value * (1 - value)
 
 
-def elu(x, alpha=0.01):
+def elu(x: float, alpha: float = 0.01) -> float:
     """Return the Exponential Linear Unit activation of x."""
     return x if x > 0 else alpha * (np.exp(x) - 1)
 
 
-def elu_derivative(value, alpha=0.01):
+def elu_derivative(value: float, alpha: float = 0.01) -> float:
     """Return the derivative of the ELU activation, given its output value."""
     return 1 if value > 0 else alpha * np.exp(value)
 
@@ -321,32 +323,32 @@ def tanh_derivative(value):
     return 1 - (value ** 2)
 
 
-def leaky_relu(x, alpha=0.01):
+def leaky_relu(x: float, alpha: float = 0.01) -> float:
     """Return the Leaky ReLU activation of x (slope alpha for negative inputs)."""
     return x if x > 0 else alpha * x
 
 
-def leaky_relu_derivative(value, alpha=0.01):
+def leaky_relu_derivative(value: float, alpha: float = 0.01) -> float:
     """Return the derivative of the Leaky ReLU activation, given its output value."""
     return 1 if value > 0 else alpha
 
 
-def relu(x):
+def relu(x: float) -> float:
     """Return the Rectified Linear Unit activation of x, i.e. max(0, x)."""
     return max(0, x)
 
 
-def relu_derivative(value):
+def relu_derivative(value: float) -> int:
     """Return the derivative of the ReLU activation, given its output value."""
     return 1 if value > 0 else 0
 
 
-def step(x):
+def step(x: float) -> int:
     """Return activation value of x with sign function"""
     return 1 if x >= 0 else 0
 
 
-def gaussian(mean, st_dev, x):
+def gaussian(mean: float, st_dev: float, x: float) -> float:
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
     return 1 / (np.sqrt(2 * np.pi) * st_dev) * np.e ** (-0.5 * (float(x - mean) / st_dev) ** 2)
 
