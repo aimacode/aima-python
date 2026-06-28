@@ -1,3 +1,4 @@
+import os
 import time
 from collections import defaultdict
 from inspect import getsource
@@ -15,6 +16,10 @@ from aima.games import TicTacToe, alpha_beta_player, random_player, Fig52Extende
 from aima.learning import DataSet
 from aima.logic import parse_definite_clause, standardize_variables, unify_mm, subst
 from aima.search import GraphProblem, romania_map
+
+# repo root (the directory containing the `aima` package), so cwd-relative
+# data/image paths resolve regardless of where a notebook is launched from
+_AIMA_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # ______________________________________________________________________________
@@ -108,6 +113,9 @@ def load_MNIST(path="aima-data/MNIST/Digits", fashion=False):
 
     if fashion:
         path = "aima-data/MNIST/Fashion"
+
+    if not os.path.isabs(path):
+        path = os.path.join(_AIMA_ROOT, path)
 
     plt.rcParams.update(plt.rcParamsDefault)
     plt.rcParams['figure.figsize'] = (10.0, 8.0)
@@ -1122,7 +1130,7 @@ def plot_NQueens(solution):
     """
     n = len(solution)
     board = np.array([2 * int((i + j) % 2) for j in range(n) for i in range(n)]).reshape((n, n))
-    im = Image.open('images/queen_s.png')
+    im = Image.open(os.path.join(_AIMA_ROOT, 'images/queen_s.png'))
     height = im.size[1]
     im = np.array(im).astype(float) / 255
     fig = plt.figure(figsize=(7, 7))

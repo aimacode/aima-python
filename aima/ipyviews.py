@@ -1,10 +1,15 @@
 from IPython.display import HTML, display, clear_output
 from collections import defaultdict
 from aima.agents import PolygonObstacle
+import os
 import time
 import json
 import copy
 import __main__
+
+# repo root (the directory containing the `aima` package), so the bundled js/
+# files load regardless of the current working directory
+_AIMA_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ______________________________________________________________________________
 # Continuous environment
@@ -21,7 +26,7 @@ var all_polygons = {3};
 </script>
 '''  # noqa
 
-with open('js/continuousworld.js', 'r') as js_file:
+with open(os.path.join(_AIMA_ROOT, 'js/continuousworld.js'), 'r') as js_file:
     _JS_CONTINUOUS_WORLD = js_file.read()
 
 
@@ -88,7 +93,7 @@ var gridArray = {1} , size = {2} , elements = {3};
 </script>
 '''
 
-with open('js/gridworld.js', 'r') as js_file:
+with open(os.path.join(_AIMA_ROOT, 'js/gridworld.js'), 'r') as js_file:
     _JS_GRID_WORLD = js_file.read()
 
 

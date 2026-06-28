@@ -1,5 +1,7 @@
 """Perception (Chapter 24)"""
 
+import os
+
 import cv2
 import keras
 import matplotlib.pyplot as plt
@@ -10,6 +12,10 @@ from keras.layers import Dense, Activation, Flatten, InputLayer, Conv2D, MaxPool
 from keras.models import Sequential
 
 from aima.utils import gaussian_kernel_2D
+
+# repo root (the directory containing the `aima` package), so the bundled sample
+# images resolve regardless of the current working directory
+_AIMA_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # ____________________________________________________
@@ -366,7 +372,7 @@ def selective_search(image):
     :return list of bounding boxes, each element is in form of [x_min, y_min, x_max, y_max]
     """
     if not image:
-        im = cv2.imread("./images/stapler1-test.png")
+        im = cv2.imread(os.path.join(_AIMA_ROOT, "images/stapler1-test.png"))
     elif isinstance(image, str):
         im = cv2.imread(image)
     else:
