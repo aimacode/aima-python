@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from agents import (ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,
+from aima.agents import (ReflexVacuumAgent, ModelBasedVacuumAgent, TrivialVacuumEnvironment, compare_agents,
                     RandomVacuumAgent, TableDrivenVacuumAgent, TableDrivenAgentProgram, RandomAgentProgram,
                     SimpleReflexAgentProgram, ModelBasedReflexAgentProgram, Wall, Gold, Explorer, Thing, Bump, Glitter,
                     WumpusEnvironment, Pit, VacuumEnvironment, Dirt, Direction, Agent)

@@ -2,10 +2,10 @@ import random
 
 import pytest
 
-from planning import *
-from search import astar_search
-from utils import expr
-from logic import FolKB, conjuncts
+from aima.planning import *
+from aima.search import astar_search
+from aima.utils import expr
+from aima.logic import FolKB, conjuncts
 
 random.seed('aima-python')
 

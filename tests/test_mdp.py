@@ -1,6 +1,6 @@
 import pytest
 
-from mdp import *
+from aima.mdp import *
 
 random.seed("aima-python")
 
@@ -189,6 +189,36 @@ def test_pomdp_value_iteration2():
             sum_ += sum(element)
 
     assert -77.31 < sum_ < -77.25 or 799 < sum_ < 800
+
+
+def test_update_belief():
+    # action '2' keeps the state (identity transition) and gives an informative
+    # observation through the sensor model [[0.8, 0.2], [0.3, 0.7]]
+    t_prob = [[[0.65, 0.35], [0.65, 0.35]], [[0.65, 0.35], [0.65, 0.35]], [[1.0, 0.0], [0.0, 1.0]]]
+    e_prob = [[[0.5, 0.5], [0.5, 0.5]], [[0.5, 0.5], [0.5, 0.5]], [[0.8, 0.2], [0.3, 0.7]]]
+    rewards = [[5, -10], [-20, 5], [-1, -1]]
+    pomdp = POMDP(('0', '1', '2'), t_prob, e_prob, rewards, ('0', '1'), gamma=0.95)
+
+    # from a uniform belief, observation 0 (more likely in state 0) shifts the
+    # belief towards state 0: b'(s') ~ [0.8 * 0.5, 0.3 * 0.5] normalized
+    belief = update_belief(pomdp, [0.5, 0.5], '2', 0)
+    assert belief == pytest.approx([0.8 / 1.1, 0.3 / 1.1])
+    assert sum(belief) == pytest.approx(1)
+
+
+def test_pomdp_lookahead():
+    t_prob = [[[0.65, 0.35], [0.65, 0.35]], [[0.65, 0.35], [0.65, 0.35]], [[1.0, 0.0], [0.0, 1.0]]]
+    e_prob = [[[0.5, 0.5], [0.5, 0.5]], [[0.5, 0.5], [0.5, 0.5]], [[0.8, 0.2], [0.3, 0.7]]]
+    rewards = [[5, -10], [-20, 5], [-1, -1]]
+    pomdp = POMDP(('0', '1', '2'), t_prob, e_prob, rewards, ('0', '1'), gamma=0.95)
+
+    # when the state is (almost) known, commit to the rewarding action: action 0
+    # pays off in state 0 (reward 5), action 1 pays off in state 1 (reward 5)
+    assert pomdp_lookahead(pomdp, [0.9, 0.1], depth=1) == '0'
+    assert pomdp_lookahead(pomdp, [0.1, 0.9], depth=1) == '1'
+    # when the state is unknown, the DDN look-ahead prefers to gather information
+    # first (the sensing action 2) rather than commit blindly
+    assert pomdp_lookahead(pomdp, [0.5, 0.5], depth=2) == '2'
 
 
 if __name__ == "__main__":

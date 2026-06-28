@@ -5,8 +5,9 @@ Python implementations of the algorithms from *Artificial Intelligence: A Modern
 Approach* (AIMA). This site is the API reference, generated from the in-source
 docstrings; it complements the per-module Jupyter notebooks in the repository.
 
-Modules whose names carry a ``4e`` suffix track the 4th-edition pseudocode and
-chapter numbering; the unsuffixed modules track the 3rd edition.
+The 3rd- and 4th-edition module pairs have been merged into a single version per
+topic (4th-edition content, no ``4e`` suffixes), all importable from the ``aima``
+package.
 
 .. toctree::
    :maxdepth: 2

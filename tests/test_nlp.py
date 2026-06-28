@@ -1,13 +1,13 @@
 import random
 
 import pytest
-import nlp
+from aima import nlp
 
-from nlp import load_page_html, strip_raw_html, find_outlinks, only_wikipedia_urls
-from nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, get_in_links
-from nlp import get_out_links, Page, determine_inlinks, HITS
-from nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
-from nlp import Chart, CYK_parse
+from aima.nlp import load_page_html, strip_raw_html, find_outlinks, only_wikipedia_urls
+from aima.nlp import expand_pages, relevant_pages, normalize, ConvergenceDetector, get_in_links
+from aima.nlp import get_out_links, Page, determine_inlinks, HITS
+from aima.nlp import Rules, Lexicon, Grammar, ProbRules, ProbLexicon, ProbGrammar
+from aima.nlp import Chart, CYK_parse, subspan, Tree, astar_search_parsing, beam_search_parsing
 # Clumsy imports because we want to access certain nlp.py globals explicitly, because
 # they are accessed by functions within nlp.py
 
@@ -121,6 +121,25 @@ def test_CYK_parse():
     words = ['astronomers', 'saw', 'stars']
     P = CYK_parse(words, grammar)
     assert len(P) == 32
+
+
+def test_subspan():
+    spans = subspan(3)
+    assert spans.__next__() == (1, 1, 2)
+    assert spans.__next__() == (2, 2, 3)
+    assert spans.__next__() == (1, 1, 3)
+    assert spans.__next__() == (1, 2, 3)
+
+
+def test_text_parsing():
+    # NB: canonical nlp.E0 has the adjective "smelly" (not "dead" as in the 4e grammar)
+    words = ["the", "wumpus", "is", "smelly"]
+    grammar = nlp.E0
+    assert astar_search_parsing(words, grammar) == 'S'
+    assert beam_search_parsing(words, grammar) == 'S'
+    words = ["the", "is", "wupus", "smelly"]
+    assert astar_search_parsing(words, grammar) is False
+    assert beam_search_parsing(words, grammar) is False
 
 
 # ______________________________________________________________________________

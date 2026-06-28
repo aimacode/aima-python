@@ -1,7 +1,7 @@
 Constraint Satisfaction
 =======================
 
-.. automodule:: csp
+.. automodule:: aima.csp
    :members:
    :undoc-members:
    :show-inheritance:

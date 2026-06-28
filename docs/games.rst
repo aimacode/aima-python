@@ -1,17 +1,12 @@
 Games & Game Theory
 ===================
 
-.. automodule:: games
+.. automodule:: aima.games
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: games4e
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: game_theory4e
+.. automodule:: aima.game_theory
    :members:
    :undoc-members:
    :show-inheritance:

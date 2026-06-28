@@ -2,8 +2,8 @@ import random
 
 import pytest
 
-from learning import DataSet
-from probabilistic_learning import *
+from aima.learning import DataSet
+from aima.probabilistic_learning import *
 
 random.seed("aima-python")
 

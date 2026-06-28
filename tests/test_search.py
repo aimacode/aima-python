@@ -1,6 +1,6 @@
 import pytest
-from search import *
-from logic import WumpusPosition
+from aima.search import *
+from aima.logic import WumpusPosition
 
 random.seed("aima-python")
 

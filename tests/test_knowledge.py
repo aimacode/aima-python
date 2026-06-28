@@ -1,7 +1,7 @@
 import pytest
 
-from knowledge import *
-from utils import expr
+from aima.knowledge import *
+from aima.utils import expr
 import random
 
 random.seed("aima-python")

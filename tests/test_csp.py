@@ -1,7 +1,7 @@
 import pytest
-from utils import failure_test
-from csp import *
-from search import depth_first_tree_search
+from aima.utils import failure_test
+from aima.csp import *
+from aima.search import depth_first_tree_search
 import random
 
 random.seed("aima-python")

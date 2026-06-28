@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aima"
+version = "4.0.0"
+description = "Python implementations of the algorithms from Artificial Intelligence: A Modern Approach (4th edition)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "aima-python contributors" }]
+urls = { Homepage = "https://github.com/aimacode/aima-python", Documentation = "https://aimacode.github.io/aima-python/" }
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["aima*"]

@@ -2,7 +2,7 @@ from multiprocessing import Process, Queue
 
 import pytest
 
-from planning import *
+from aima.planning import *
 
 
 def test_blocksworld_manual():

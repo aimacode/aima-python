@@ -1,8 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
 
-import utils
-from search import *
+from aima import utils
+from aima.search import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 

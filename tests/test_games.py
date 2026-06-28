@@ -1,10 +1,11 @@
 import pytest
 
-from games import *
+from aima.games import *
 
 # Creating the game instances
 f52 = Fig52Game()
 ttt = TicTacToe()
+con4 = ConnectFour()
 
 random.seed("aima-python")
 
@@ -53,6 +54,32 @@ def test_alpha_beta_search():
     state = gen_state(to_move='X', x_positions=[(1, 1), (3, 1)],
                       o_positions=[(2, 2), (3, 1)])
     assert alpha_beta_search(state, ttt) == (1, 3)
+
+
+def test_monte_carlo_tree_search():
+    state = gen_state(to_move='X', x_positions=[(1, 1), (3, 3)],
+                      o_positions=[(1, 2), (3, 2)])
+    assert monte_carlo_tree_search(state, ttt) == (2, 2)
+
+    state = gen_state(to_move='O', x_positions=[(1, 1), (3, 1), (3, 3)],
+                      o_positions=[(1, 2), (3, 2)])
+    assert monte_carlo_tree_search(state, ttt) == (2, 2)
+
+    # uncomment the following when removing the 3rd edition
+    # state = gen_state(to_move='O', x_positions=[(1, 1)],
+    #                   o_positions=[])
+    # assert monte_carlo_tree_search(state, ttt) == (2, 2)
+
+    state = gen_state(to_move='X', x_positions=[(1, 1), (3, 1)],
+                      o_positions=[(2, 2), (3, 1)])
+    assert monte_carlo_tree_search(state, ttt) == (1, 3)
+
+    # should never lose to a random or alpha_beta player in a ttt game
+    assert ttt.play_game(mcts_player, random_player) >= 0
+    assert ttt.play_game(mcts_player, alpha_beta_player) >= 0
+
+    # should never lose to a random player in a connect four game
+    assert con4.play_game(mcts_player, random_player) >= 0
 
 
 def test_random_tests():

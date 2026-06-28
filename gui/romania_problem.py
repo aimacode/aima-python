@@ -1,8 +1,8 @@
 from copy import deepcopy
 import tkinter as tk
 
-from search import *
-from utils import PriorityQueue
+from aima.search import *
+from aima.utils import PriorityQueue
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 

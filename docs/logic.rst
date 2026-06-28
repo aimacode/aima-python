@@ -1,17 +1,12 @@
 Logic & Knowledge
 =================
 
-.. automodule:: logic
+.. automodule:: aima.logic
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: logic4e
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-.. automodule:: knowledge
+.. automodule:: aima.knowledge
    :members:
    :undoc-members:
    :show-inheritance:

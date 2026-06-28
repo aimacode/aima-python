@@ -3,8 +3,8 @@ import random
 import numpy as np
 import pytest
 
-from text import *
-from utils import open_data
+from aima.text import *
+from aima.utils import open_data
 
 random.seed("aima-python")
 

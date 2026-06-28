@@ -1,7 +1,7 @@
 import pytest
 
-from reinforcement_learning import *
-from mdp import sequential_decision_environment
+from aima.reinforcement_learning import *
+from aima.mdp import sequential_decision_environment
 
 random.seed("aima-python")
 

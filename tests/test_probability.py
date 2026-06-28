@@ -1,7 +1,7 @@
 import pytest
 
-from probability import *
-from utils import rounder
+from aima.probability import *
+from aima.utils import rounder
 
 random.seed("aima-python")
 
@@ -110,6 +110,27 @@ def test_enumerate_joint_ask():
     P[1, 1] = P[2, 1] = 0.125
     assert enumerate_joint_ask(
         'X', dict(Y=1), P).show_approx() == '0: 0.667, 1: 0.167, 2: 0.167'
+
+
+def test_is_independent():
+    P = JointProbDist(['X', 'Y'])
+    P[0, 0] = P[0, 1] = P[1, 1] = P[1, 0] = 0.25
+    assert enumerate_joint_ask(
+        'X', dict(Y=1), P).show_approx() == '0: 0.5, 1: 0.5'
+    assert is_independent(['X', 'Y'], P)
+
+
+def test_gaussian_probability():
+    param = {'sigma': 0.5, 'b': 1, 'a': {'h': 0.5}}
+    event = {'h': 0.6}
+    assert gaussian_probability(param, event, 1) == 0.6664492057835993
+
+
+def test_logistic_probability():
+    param = {'mu': 0.5, 'sigma': 0.1}
+    event = {'h': 0.6}
+    assert logistic_probability(param, event, True) == 0.16857376940725355
+    assert logistic_probability(param, event, False) == 0.8314262305927465
 
 
 def test_bayesnode_p():
@@ -469,7 +490,7 @@ def test_monte_carlo_localization():
         else:
             return 0
 
-    from utils import print_table
+    from aima.utils import print_table
     a = {'v': (0, 0), 'w': 0}
     z = (2, 4, 1, 6)
     S = monte_carlo_localization(a, z, 1000, P_motion_sample, P_sensor, m)

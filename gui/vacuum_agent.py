@@ -1,7 +1,7 @@
 import os.path
 from tkinter import *
 
-from agents import *
+from aima.agents import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
