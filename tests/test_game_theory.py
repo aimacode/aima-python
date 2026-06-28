@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from aima.game_theory4e import (dominates, dominant_strategy, iterated_dominance, pure_nash_equilibria, solve_zero_sum_game,
+from aima.game_theory import (dominates, dominant_strategy, iterated_dominance, pure_nash_equilibria, solve_zero_sum_game,
                          shapley_value, is_in_core, plurality_winner, borda_winner, condorcet_winner,
                          vickrey_auction, contract_net, alternating_offers_bargaining)
 

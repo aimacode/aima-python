@@ -1188,3 +1188,42 @@ def plot_pomdp_utility(utility):
     plt.text((right + left) / 2 - 0.02, 10, 'Ask')
     plt.text((right + 1) / 2 - 0.07, 10, 'Delete')
     plt.show()
+
+
+def plot_model_boundary(dataset, attr1, attr2, model=None):
+    """Plot the decision boundary of a classifier over two attributes of a dataset.
+    Builds a mesh over the ``attr1``/``attr2`` plane, colours each cell by the
+    ``model``'s prediction, and overlays the training examples.
+    """
+    # prepare data
+    examples = np.asarray(dataset.examples)
+    X = np.asarray([examples[:, attr1], examples[:, attr2]])
+    y = examples[:, dataset.target]
+    h = 0.1
+
+    # create color maps
+    cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#00AAFF'])
+    cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#00AAFF'])
+
+    # calculate min, max and limits
+    x_min, x_max = X[0].min() - 1, X[0].max() + 1
+    y_min, y_max = X[1].min() - 1, X[1].max() + 1
+    #  mesh the grid
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                         np.arange(y_min, y_max, h))
+    Z = []
+    for grid in zip(xx.ravel(), yy.ravel()):
+        # put them back to the example
+        grid = np.round(grid, decimals=1).tolist()
+        Z.append(model(grid))
+    # Put the result into a color plot
+    Z = np.asarray(Z)
+    Z = Z.reshape(xx.shape)
+    plt.figure()
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+
+    # Plot also the training points
+    plt.scatter(X[0], X[1], c=y, cmap=cmap_bold)
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+    plt.show()

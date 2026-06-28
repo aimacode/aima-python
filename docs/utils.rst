@@ -11,8 +11,4 @@ Utilities & Notebook Helpers
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: aima.notebook4e
-   :members:
-   :undoc-members:
-   :show-inheritance:
 

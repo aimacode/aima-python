@@ -11,7 +11,7 @@ Probability, MDPs & Decisions
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: aima.making_simple_decisions4e
+.. automodule:: aima.making_simple_decisions
    :members:
    :undoc-members:
    :show-inheritance:

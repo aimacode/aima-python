@@ -11,7 +11,7 @@ Learning
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: aima.deep_learning4e
+.. automodule:: aima.deep_learning
    :members:
    :undoc-members:
    :show-inheritance:
@@ -21,7 +21,7 @@ Learning
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: aima.perception4e
+.. automodule:: aima.perception
    :members:
    :undoc-members:
    :show-inheritance:

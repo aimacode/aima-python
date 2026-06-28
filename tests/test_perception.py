@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from aima.perception4e import *
+from aima.perception import *
 from PIL import Image
 import numpy as np
 import os
