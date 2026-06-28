@@ -2140,7 +2140,7 @@ class RealWorldPlanningProblem(PlanningProblem):
                 guaranteed = self.intersects_goal(pes_reachable_set)
                 if guaranteed and RealWorldPlanningProblem.making_progress(plan, initial_plan):
                     final_state = guaranteed[0]  # any element of guaranteed
-                    return RealWorldPlanningProblem.decompose(hierarchy, final_state, pes_reachable_set)
+                    return RealWorldPlanningProblem.decompose(hierarchy, plan, final_state, pes_reachable_set)
                 # there should be at least one HLA/AngelicHLA, otherwise plan would be primitive
                 hla, index = RealWorldPlanningProblem.find_hla(plan, hierarchy)
                 prefix = plan.action[:index]

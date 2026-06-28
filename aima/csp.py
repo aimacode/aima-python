@@ -11,7 +11,7 @@ from operator import eq, neg
 from sortedcontainers import SortedSet
 
 from aima import search
-from aima.utils import argmin_random_tie, count, first, extend
+from aima.utils import argmin_random_tie, count, first, extend, flatten
 
 
 class CSP(search.Problem):
@@ -764,11 +764,6 @@ class NQueensCSP(CSP):
 
 # ______________________________________________________________________________
 # Sudoku
-
-
-def flatten(seqs):
-    """Concatenate a sequence of lists into a single flat list."""
-    return sum(seqs, [])
 
 
 easy1 = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'
