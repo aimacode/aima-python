@@ -25,7 +25,7 @@ The 4th edition of the book is out now in 2020, and thus we are updating the cod
 When complete, this project will have Python implementations for all the pseudocode algorithms in the book, as well as tests and examples of use. The code is organised into three top-level folders:
 
 - **`aima/`** — the importable Python package: one module per major topic (e.g. `aima/search.py`) with the implementations of the pseudocode algorithms and their support functions/classes/data.
-- **`notebooks/`** — the Jupyter notebooks that explain and demonstrate the code (e.g. `notebooks/search.ipynb`), plus the per-chapter `notebooks/chapterNN/` demos. Each notebook starts with a small bootstrap cell so it runs correctly from the `notebooks/` folder (it `chdir`s to the repo root so `from aima import ...` and the `aima-data/`/`images/` paths resolve).
+- **`notebooks/`** — the Jupyter notebooks that explain and demonstrate the code (e.g. `notebooks/search.ipynb`), plus the per-chapter `notebooks/chapterNN/` demos. Each notebook starts with a `%run bootstrap.ipynb` cell that puts the repo root on `sys.path`, so `from aima import ...` works wherever the notebook is launched. A GitHub Action ([`notebooks-to-py.yml`](.github/workflows/notebooks-to-py.yml)) keeps a readable, diffable `.py` mirror of every notebook beside it (generated with [jupytext](https://jupytext.readthedocs.io)); the `.ipynb` is the source of truth, so edit the notebook, not the generated `.py`.
 - **`tests/`** — a lightweight test suite (e.g. `tests/test_search.py`), using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/) but also usable on their own.
 
 # Python 3.9 and up

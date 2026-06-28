@@ -38,7 +38,7 @@ We hope to have an `algorithm-name.md` file for each algorithm, eventually; it w
 
 ## Jupyter Notebooks
 
-In this project we use Jupyter/IPython Notebooks to showcase the algorithms in the book. They serve as short tutorials on what the algorithms do, how they are implemented and how one can use them. To install Jupyter, you can follow the instructions [here](https://jupyter.org/install.html). These are some ways you can contribute to the notebooks:
+In this project we use Jupyter/IPython Notebooks to showcase the algorithms in the book. They serve as short tutorials on what the algorithms do, how they are implemented and how one can use them. To install Jupyter, you can follow the instructions [here](https://jupyter.org/install.html). Each notebook has an auto-generated `.py` mirror next to it (produced by the `notebooks-to-py.yml` GitHub Action via jupytext): the `.ipynb` is the source of truth — edit the notebook, never the generated `.py`. These are some ways you can contribute to the notebooks:
 
 - Proofread the notebooks for grammar mistakes, typos, or general errors.
 - Move visualization and unrelated to the algorithm code from notebooks to `notebook_utils.py` (a file used to store code for the notebooks, like visualization and other miscellaneous stuff). Make sure the notebooks still work and have their outputs showing!

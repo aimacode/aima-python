@@ -1,0 +1,59 @@
+name: Notebooks → .py
+
+# Per Peter Norvig's suggestion (PR #1340): the .ipynb notebooks are the source
+# of truth; this action regenerates a readable, diffable .py mirror of each one
+# (via jupytext, py:percent) every time a notebook is edited on master, and
+# commits the result. It only writes notebooks/**/*.py — it never touches the
+# aima/ package, which is maintained by hand.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'notebooks/**/*.ipynb'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# only one regeneration at a time; newer pushes supersede in-flight ones
+concurrency:
+  group: notebooks-to-py
+  cancel-in-progress: true
+
+jobs:
+  jupytext:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install jupytext
+        run: pip install jupytext
+
+      - name: Generate .py mirrors from notebooks
+        run: |
+          # one-way export: each notebooks/**/X.ipynb -> notebooks/**/X.py (py:percent)
+          find notebooks -name '*.ipynb' -not -path '*/.ipynb_checkpoints/*' \
+            -exec jupytext --to py:percent {} +
+          # drop any .py whose source notebook no longer exists
+          find notebooks -name '*.py' | while read -r py; do
+            [ -f "${py%.py}.ipynb" ] || { echo "removing orphan $py"; rm -f "$py"; }
+          done
+
+      - name: Commit regenerated .py
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A notebooks
+          if git diff --cached --quiet; then
+            echo "notebook .py mirrors already up to date"
+          else
+            # the commit only changes *.py, which doesn't match this workflow's
+            # .ipynb path filter, so it won't retrigger; [skip ci] is belt-and-braces
+            git commit -m "Auto-generate notebook .py mirrors from edited .ipynb [skip ci]"
+            git push
+          fi
