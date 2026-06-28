@@ -16,18 +16,17 @@ The 4th edition of the book is out now in 2020, and thus we are updating the cod
 **Edition policy (3rd vs 4th).** As [Peter Norvig stated](https://github.com/aimacode/aima-python/issues/1188#issuecomment-641669882), we are *not* maintaining two parallel editions — all new work should move toward the 4th edition. Concretely:
 
 - The **4th edition is canonical**: new algorithms, fixes and pseudocode references should follow the 4e numbering and content.
-- Some modules still come in pairs (e.g. `agents.py` / `agents4e.py`). The unsuffixed modules are the primary, fully-tested base that the notebooks and tests use today; the `*4e.py` modules carry 4e-specific ports and algorithms not present in the 3e files. We are **converging on a single version per module**; until that migration is complete, prefer adding 4e content over extending the 3e-only versions.
-- New 4th-edition-only material (e.g. `deep_learning4e.py`, `game_theory4e.py`, `perception4e.py`) lives directly in its 4e module.
+- The 3e/4e split is **done**: there is now a **single version per module** (no `*4e.py` files remain). The old 3e/4e pairs have been merged — the canonical implementation was kept and any genuinely-new 4e algorithms were folded in — and the 4e-only modules (`deep_learning.py`, `game_theory.py`, `making_simple_decisions.py`, `perception.py`) were de-suffixed. Add new 4e content directly to the relevant module.
 
 
 
 # Structure of the Project
 
-When complete, this project will have Python implementations for all the pseudocode algorithms in the book, as well as tests and examples of use. For each major topic, such as `search`, we provide the following  files:
+When complete, this project will have Python implementations for all the pseudocode algorithms in the book, as well as tests and examples of use. The code is organised into three top-level folders:
 
-- `search.ipynb` and `search.py`: Implementations of all the pseudocode algorithms, and necessary support functions/classes/data. The `.py` file is generated automatically from the `.ipynb` file; the idea is that it is easier to read the documentation in the `.ipynb` file.
-- `search_XX.ipynb`: Notebooks that show how to use the code, broken out into various topics (the `XX`).
-- `tests/test_search.py`: A lightweight test suite, using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/), but also usable on their own.
+- **`aima/`** — the importable Python package: one module per major topic (e.g. `aima/search.py`) with the implementations of the pseudocode algorithms and their support functions/classes/data.
+- **`notebooks/`** — the Jupyter notebooks that explain and demonstrate the code (e.g. `notebooks/search.ipynb`), plus the per-chapter `notebooks/chapterNN/` demos. Each notebook starts with a small bootstrap cell so it runs correctly from the `notebooks/` folder (it `chdir`s to the repo root so `from aima import ...` and the `aima-data/`/`images/` paths resolve).
+- **`tests/`** — a lightweight test suite (e.g. `tests/test_search.py`), using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/) but also usable on their own.
 
 # Python 3.9 and up
 
