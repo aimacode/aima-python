@@ -28,7 +28,7 @@ In more detail:
 
 ## Editions: target the 4th edition
 
-We are **not** maintaining two parallel editions. As [Peter Norvig stated](https://github.com/aimacode/aima-python/issues/1188#issuecomment-641669882), all new work should move toward the 4th edition. When a module exists as a pair (e.g. `agents.py` / `agents4e.py`), prefer adding 4e content; don't extend the 3e-only version. We are converging on a single, 4e version per module. See the *Edition policy* section in the README for details.
+We are **not** maintaining two parallel editions. As [Peter Norvig stated](https://github.com/aimacode/aima-python/issues/1188#issuecomment-641669882), all new work should move toward the 4th edition. The old 3e/4e module pairs have now been **merged into a single version per topic** (no `*4e.py` files remain), and every module lives in the importable `aima/` package. Add new 4e content directly to the relevant module (e.g. `aima/search.py`); don't reintroduce edition-suffixed files. See the *Edition policy* section in the README for details.
 
 ## New and Improved Algorithms
 

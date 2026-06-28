@@ -76,7 +76,7 @@ And you are good to go!
 
 # Index of Algorithms
 
-Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was originally made for the third edition of the book; per the edition policy above, the project is converging on the fourth edition (4e modules and numbering). Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented. Another great place for contributors to start is by adding tests and writing on the notebooks. You can see which algorithms have tests and notebook sections below. If the algorithm you want to work on is covered, don't worry! You can still add more tests and provide some examples of use in the notebook!
+Here is a table of algorithms, the figure, name of the algorithm in the book and in the repository, and the file where they are implemented in the repository. This chart was originally made for the third edition of the book; per the edition policy above, the project has converged on the fourth edition (4th-edition content, a single module per topic, all under the `aima/` package). Empty implementations are a good place for contributors to look for an issue. The [aima-pseudocode](https://github.com/aimacode/aima-pseudocode) project describes all the algorithms from the book. An asterisk next to the file name denotes the algorithm is not fully implemented. Another great place for contributors to start is by adding tests and writing on the notebooks. You can see which algorithms have tests and notebook sections below. If the algorithm you want to work on is covered, don't worry! You can still add more tests and provide some examples of use in the notebook!
 
 | **Figure** | **Name (in 3<sup>rd</sup> edition)** | **Name (in repository)** | **File** | **Tests** | **Notebook**
 |:-------|:----------------------------------|:------------------------------|:--------------------------------|:-----|:---------|
@@ -158,16 +158,16 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 17.4   | Value-Iteration                   | `value_iteration`             | [`mdp.py`][mdp]                 | Done | Included |
 | 17.7   | Policy-Iteration                  | `policy_iteration`            | [`mdp.py`][mdp]                 | Done | Included |
 | 17.9   | POMDP-Value-Iteration             | `pomdp_value_iteration`       | [`mdp.py`][mdp]                 | Done | Included |
-| 17.4   | Dynamic-Decision-Network          | `pomdp_lookahead`             | [`mdp4e.py`](mdp4e.py)          | Done | Included |
-| 18.2   | Iterated-Dominance                | `iterated_dominance`          | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
-| 18.2   | Pure-Nash-Equilibria              | `pure_nash_equilibria`        | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
-| 18.2   | Zero-Sum-Game (LP)                | `solve_zero_sum_game`         | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
-| 18.3   | Shapley-Value                     | `shapley_value`               | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
-| 18.3   | Core (cooperative game)           | `is_in_core`                  | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
-| 18.4   | Voting (plurality/Borda/Condorcet)| `plurality_winner` etc.       | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
-| 18.4   | Vickrey-Auction                   | `vickrey_auction`             | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
-| 18.4.1 | Contract-Net-Protocol             | `contract_net`                | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
-| 18.4.4 | Alternating-Offers-Bargaining     | `alternating_offers_bargaining` | [`game_theory4e.py`](game_theory4e.py) | Done | Included |
+| 17.4   | Dynamic-Decision-Network          | `pomdp_lookahead`             | [`mdp.py`](aima/mdp.py)          | Done | Included |
+| 18.2   | Iterated-Dominance                | `iterated_dominance`          | [`game_theory.py`](aima/game_theory.py) | Done | Included |
+| 18.2   | Pure-Nash-Equilibria              | `pure_nash_equilibria`        | [`game_theory.py`](aima/game_theory.py) | Done | Included |
+| 18.2   | Zero-Sum-Game (LP)                | `solve_zero_sum_game`         | [`game_theory.py`](aima/game_theory.py) | Done | Included |
+| 18.3   | Shapley-Value                     | `shapley_value`               | [`game_theory.py`](aima/game_theory.py) | Done | Included |
+| 18.3   | Core (cooperative game)           | `is_in_core`                  | [`game_theory.py`](aima/game_theory.py) | Done | Included |
+| 18.4   | Voting (plurality/Borda/Condorcet)| `plurality_winner` etc.       | [`game_theory.py`](aima/game_theory.py) | Done | Included |
+| 18.4   | Vickrey-Auction                   | `vickrey_auction`             | [`game_theory.py`](aima/game_theory.py) | Done | Included |
+| 18.4.1 | Contract-Net-Protocol             | `contract_net`                | [`game_theory.py`](aima/game_theory.py) | Done | Included |
+| 18.4.4 | Alternating-Offers-Bargaining     | `alternating_offers_bargaining` | [`game_theory.py`](aima/game_theory.py) | Done | Included |
 | 18.5   | Decision-Tree-Learning            | `DecisionTreeLearner`         | [`learning.py`][learning]       | Done | Included |
 | 18.8   | Cross-Validation                  | `cross_validation`            | [`learning.py`][learning]       | Done | Included |
 | 18.11  | Decision-List-Learning            | `DecisionListLearner`         | [`learning.py`][learning]       | Done | Included |
@@ -176,10 +176,10 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 20.X   | EM (Mixture of Gaussians)         | `gaussian_mixture_em`         | [`learning.py`][learning]       | Done | Included |
 | 20.3.2 | EM (Bayes net hidden variable)    | `naive_bayes_em`              | [`learning.py`][learning]       | Done | Included |
 | 20.3   | Baum-Welch (HMM learning)         | `baum_welch`                  | [`probability.py`][probability] | Done | Included |
-| 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](knowledge.py)  | Done | Included |
-| 19.12  | FOIL                              | `FOIL_container`              | [`knowledge.py`](knowledge.py)  | Done | Included |
+| 19.2   | Current-Best-Learning             | `current_best_learning`       | [`knowledge.py`](aima/knowledge.py)  | Done | Included |
+| 19.3   | Version-Space-Learning            | `version_space_learning`      | [`knowledge.py`](aima/knowledge.py)  | Done | Included |
+| 19.8   | Minimal-Consistent-Det            | `minimal_consistent_det`      | [`knowledge.py`](aima/knowledge.py)  | Done | Included |
+| 19.12  | FOIL                              | `FOILContainer`              | [`knowledge.py`](aima/knowledge.py)  | Done | Included |
 | 21.2   | Passive-ADP-Agent                 | `PassiveADPAgent`             | [`reinforcement_learning.py`][rl]                   | Done | Included |
 | 21.4   | Passive-TD-Agent                  | `PassiveTDAgent`              | [`reinforcement_learning.py`][rl]                   | Done | Included |
 | 21.8   | Q-Learning-Agent                  | `QLearningAgent`              | [`reinforcement_learning.py`][rl]                   | Done | Included |
@@ -211,18 +211,18 @@ Here is a table of the implemented data structures, the figure, name of the impl
 Many thanks for contributions over the years. I got bug reports, corrected code, and other support from Darius Bacon, Phil Ruggera, Peng Shao, Amit Patil, Ted Nienstedt, Jim Martin, Ben Catanzariti, and others. Now that the project is on GitHub, you can see the [contributors](https://github.com/aimacode/aima-python/graphs/contributors) who are doing a great job of actively improving the project. Many thanks to all contributors, especially [@darius](https://github.com/darius), [@SnShine](https://github.com/SnShine), [@reachtarunhere](https://github.com/reachtarunhere), [@antmarakis](https://github.com/antmarakis), [@Chipe1](https://github.com/Chipe1), [@ad71](https://github.com/ad71) and [@MariannaSpyrakou](https://github.com/MariannaSpyrakou).
 
 <!---Reference Links-->
-[agents]:../master/agents.py
-[csp]:../master/csp.py
-[games]:../master/games.py
+[agents]:../master/aima/agents.py
+[csp]:../master/aima/csp.py
+[games]:../master/aima/games.py
 [grid]:../master/grid.py
-[knowledge]:../master/knowledge.py
-[learning]:../master/learning.py
-[logic]:../master/logic.py
-[mdp]:../master/mdp.py
-[nlp]:../master/nlp.py
-[planning]:../master/planning.py
-[probability]:../master/probability.py
-[rl]:../master/reinforcement_learning.py
-[search]:../master/search.py
-[utils]:../master/utils.py
-[text]:../master/text.py
+[knowledge]:../master/aima/knowledge.py
+[learning]:../master/aima/learning.py
+[logic]:../master/aima/logic.py
+[mdp]:../master/aima/mdp.py
+[nlp]:../master/aima/nlp.py
+[planning]:../master/aima/planning.py
+[probability]:../master/aima/probability.py
+[rl]:../master/aima/reinforcement_learning.py
+[search]:../master/aima/search.py
+[utils]:../master/aima/utils.py
+[text]:../master/aima/text.py
