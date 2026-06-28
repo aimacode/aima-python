@@ -11,4 +11,9 @@ Utilities & Notebook Helpers
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: aima.ipyviews
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
