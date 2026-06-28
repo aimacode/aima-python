@@ -527,8 +527,12 @@ def NearestNeighborLearner(dataset, k=1):
 
     def predict(example):
         """Find the k closest items, and have them vote for the best."""
-        best = heapq.nsmallest(k, ((dataset.distance(e, example), e) for e in dataset.examples))
-        return mode(e[dataset.target] for (d, e) in best)
+        # the enumerate() index is a tiebreaker so that equal-distance examples
+        # are never compared directly (examples may be numpy arrays, e.g. MNIST
+        # images, which are not orderable -> "truth value is ambiguous")
+        best = heapq.nsmallest(k, ((dataset.distance(e, example), i, e)
+                                   for i, e in enumerate(dataset.examples)))
+        return mode(e[dataset.target] for (d, i, e) in best)
 
     return predict
 

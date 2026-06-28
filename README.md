@@ -56,6 +56,10 @@ cd aima-python
 pip install -r requirements.txt
 ```
 
+A couple of notebooks also need the [Graphviz](https://graphviz.org/download/) system
+binary (`dot`) for rendering — the `graphviz` PyPI package is only a wrapper. Install it
+with your OS package manager if needed (e.g. `apt install graphviz`, `brew install graphviz`).
+
 You also need to fetch the datasets from the [`aima-data`](https://github.com/aimacode/aima-data) repository:
 
 ```
