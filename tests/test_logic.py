@@ -441,5 +441,13 @@ def test_hybrid_wumpus_agent_first_action():
     assert agent.current_position.get_location() == (1, 1)
 
 
+def test_gensym():
+    s1, s2, s3 = gensym(), gensym(), gensym()
+    assert len({s1, s2, s3}) == 3                         # all distinct
+    assert all(is_symbol(s.op) for s in (s1, s2, s3))     # genuine symbols
+    assert gensym('v_').op.startswith('v_')               # custom prefix
+    assert variables(s1 | s2) == {s1, s2}                 # usable in expressions
+
+
 if __name__ == '__main__':
     pytest.main()

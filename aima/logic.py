@@ -159,6 +159,20 @@ def is_prop_symbol(s):
     return is_symbol(s) and s[0].isupper()
 
 
+def gensym(prefix='s_'):
+    """Return a fresh logic symbol with a unique name, like Lisp's ``gensym`` [#230].
+
+    Successive calls return distinct symbols ``s_0``, ``s_1``, ``s_2``, ... -- handy
+    for building an array or dict of symbols, or for standardizing apart. Pass a
+    ``prefix`` to control the name stem.
+    """
+    gensym.counter += 1
+    return Expr(prefix + str(gensym.counter))
+
+
+gensym.counter = -1
+
+
 def variables(s):
     """Return a set of the variables in expression s.
     >>> variables(expr('F(x, x) & G(x, y) & H(y, z) & R(A, z, 2)')) == {x, y, z}
