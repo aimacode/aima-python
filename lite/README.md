@@ -29,6 +29,11 @@ The proof-of-concept ships these notebooks:
   forward chaining (`aima.logic`, needs `networkx`).
 - `content/csp.ipynb` — map colouring with AC-3 / backtracking and N-queens with
   min-conflicts (`aima.csp`, needs `sortedcontainers`).
+- `content/planning.ipynb` — STRIPS planning (spare tire, air cargo) with
+  GraphPlan (`aima.planning`, needs `networkx` + `sortedcontainers`).
+- `content/probability.ipynb` — exact (enumeration / variable elimination) and
+  approximate (likelihood weighting) inference on the burglary network
+  (`aima.probability`, numpy only).
 
 `networkx` and `sortedcontainers` are pure-Python and ship with Pyodide; they are
 preloaded for the kernel in `jupyter-lite.json`. `content/Welcome.ipynb` shows the
@@ -58,6 +63,6 @@ companion). Remaining work:
 - Verify in-browser execution across browsers (Pyodide runs only in a real
   browser, so this cannot be checked in headless CI — the CI job only proves the
   static site *builds*).
-- Port more lightweight notebooks (planning, probability) once their in-browser
-  behaviour is confirmed.
+- Port any remaining lightweight notebooks (e.g. mdp, learning's non-Keras parts)
+  once their in-browser behaviour is confirmed.
 - Decide whether to grow this into a full MyST / Jupyter Book textbook companion.
