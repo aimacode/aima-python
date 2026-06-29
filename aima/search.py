@@ -114,6 +114,15 @@ class Node:
             node = node.parent
         return list(reversed(path_back))
 
+    def path_states(self):
+        """Return the sequence of states on the path from the root to this node.
+
+        The search functions return the goal ``Node`` (staying close to the book's
+        pseudocode); this is the one-call way to read off the whole solution path as
+        states -- ``solution()`` gives the corresponding actions.
+        """
+        return [node.state for node in self.path()]
+
     # We want for a queue of nodes in breadth_first_graph_search or
     # astar_search to have no duplicated states, so we treat nodes
     # with the same state as equal. [Problem: this may not be what you

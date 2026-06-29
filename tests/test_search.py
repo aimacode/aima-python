@@ -512,5 +512,14 @@ def test_grid_search_visualization():
     assert plot_grid_search(problem, expl_astar, path_astar) is not None
 
 
+def test_node_path_states():
+    # the full root->goal path is one call away from the returned Node (#1068)
+    node = astar_search(GraphProblem('Arad', 'Bucharest', romania_map))
+    states = node.path_states()
+    assert states == [n.state for n in node.path()]
+    assert states[0] == 'Arad' and states[-1] == 'Bucharest'
+    assert len(node.solution()) == len(states) - 1   # actions are the path's edges
+
+
 if __name__ == '__main__':
     pytest.main()
