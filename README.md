@@ -114,7 +114,9 @@ Here is a table of algorithms, the figure, name of the algorithm in the book and
 | 4.21   | Online-DFS-Agent                  | `online_dfs_agent`            | [`search.py`][search]           | Done | Included |
 | 4.24   | LRTA\*-Agent                      | `LRTAStarAgent`               | [`search.py`][search]           | Done | Included |
 | 5.3    | Minimax-Decision                  | `minimax_decision`            | [`games.py`][games]             | Done | Included |
-| 5.7    | Alpha-Beta-Search                 | `alphabeta_search`            | [`games.py`][games]             | Done | Included |
+| 5.7    | Alpha-Beta-Search                 | `alpha_beta_search`           | [`games.py`][games]             | Done | Included |
+| 5.11   | Expectiminimax                    | `expect_minmax`               | [`games.py`][games]             | Done | Included |
+| 5.11   | Monte-Carlo-Tree-Search           | `monte_carlo_tree_search`     | [`games.py`][games]             | Done | Included |
 | 6      | CSP                               | `CSP`                         | [`csp.py`][csp]                 | Done | Included |
 | 6.3    | AC-3                              | `AC3`                         | [`csp.py`][csp]                 | Done | Included |
 | 6.5    | Backtracking-Search               | `backtracking_search`         | [`csp.py`][csp]                 | Done | Included |

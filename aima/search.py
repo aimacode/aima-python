@@ -905,7 +905,9 @@ class PlanRoute(Problem):
 
 
 def recursive_best_first_search(problem, h=None):
-    """[Figure 3.26]"""
+    """[Figure 3.26] A linear-space best-first search: it mimics A* but only keeps the
+    current path, backing up the best f-value of each forgotten subtree so it knows
+    where to resume."""
     h = memoize(h or problem.h, 'h')
 
     def RBFS(problem, node, flimit):
@@ -1207,12 +1209,15 @@ class GridProblem(Problem):
         return 0 <= x < self.width and 0 <= y < self.height and tuple(cell) not in self.obstacles
 
     def actions(self, state):
+        """The directions whose neighbouring cell is on the grid and obstacle-free."""
         return [a for a, d in self.directions.items() if self.passable(vector_add(state, d))]
 
     def result(self, state, action):
+        """Step one cell in ``action``'s direction."""
         return vector_add(state, self.directions[action])
 
     def path_cost(self, c, state1, action, state2):
+        """Unit cost per step."""
         return c + 1
 
     def h(self, node):

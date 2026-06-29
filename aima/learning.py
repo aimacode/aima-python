@@ -407,7 +407,9 @@ class DecisionLeaf:
 
 
 def DecisionTreeLearner(dataset):
-    """[Figure 18.5]"""
+    """[Figure 18.5] Learn a decision tree by recursively splitting the examples on
+    the attribute with the highest information gain, until each branch is pure (or
+    no attributes remain, falling back to the plurality class)."""
 
     target, values = dataset.target, dataset.values
 
@@ -1069,7 +1071,9 @@ def EnsembleLearner(learners):
 
 
 def ada_boost(dataset, L, K):
-    """[Figure 18.34]"""
+    """[Figure 18.34] AdaBoost: train ``K`` hypotheses with the weighted learner
+    ``L``, increasing the weight of misclassified examples after each round, and
+    return their weighted-majority ensemble."""
 
     examples, target = dataset.examples, dataset.target
     n = len(examples)

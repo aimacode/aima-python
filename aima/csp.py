@@ -503,7 +503,9 @@ def min_conflicts_value(csp, var, current):
 
 
 def tree_csp_solver(csp):
-    """[Figure 6.11]"""
+    """[Figure 6.11] Solve a tree-structured CSP in linear time: order the variables
+    so each has at most one parent, make the tree directionally arc-consistent from
+    the leaves up, then assign each variable consistently from the root down."""
     assignment = {}
     root = csp.variables[0]
     X, parent = topological_sort(csp, root)

@@ -862,7 +862,9 @@ def weighted_sample(bn, e):
 
 
 def gibbs_ask(X, e, bn, N=1000):
-    """[Figure 14.16]"""
+    """[Figure 14.16] Approximate P(X | e) by Gibbs sampling: from a random state
+    consistent with the evidence, repeatedly resample each nonevidence variable from
+    its Markov blanket and tally how often X takes each value."""
     assert X not in e, "Query variable must be distinct from evidence"
     counts = {x: 0 for x in bn.variable_values(X)}  # bold N in [Figure 14.16]
     Z = [var for var in bn.variables if var not in e]
@@ -1316,57 +1318,3 @@ def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
 
     S = weighted_sample_with_replacement(N, S_, W_)
     return S
-
-
-# _________________________________________________________________________
-# Compiling approximate inference
-
-
-class complied_burglary:
-    """compiled version of burglary network"""
-
-    def Burglary(self, sample):
-        """Return P(Burglary=True) conditioned on the Alarm and Earthquake values of the
-        given sample, using precomputed (compiled) probabilities for its Markov blanket."""
-        if sample['Alarm']:
-            if sample['Earthquake']:
-                return probability(0.00327)
-            else:
-                return probability(0.485)
-        else:
-            if sample['Earthquake']:
-                return probability(7.05e-05)
-            else:
-                return probability(6.01e-05)
-
-    def Earthquake(self, sample):
-        """Return P(Earthquake=True) conditioned on the Alarm and Burglary values of the
-        given sample, using precomputed (compiled) probabilities for its Markov blanket."""
-        if sample['Alarm']:
-            if sample['Burglary']:
-                return probability(0.0020212)
-            else:
-                return probability(0.36755)
-        else:
-            if sample['Burglary']:
-                return probability(0.0016672)
-            else:
-                return probability(0.0014222)
-
-    def MaryCalls(self, sample):
-        """Return P(MaryCalls=True) given the Alarm value of the sample."""
-        if sample['Alarm']:
-            return probability(0.7)
-        else:
-            return probability(0.01)
-
-    def JongCalls(self, sample):
-        """Return P(JongCalls=True) given the Alarm value of the sample."""
-        if sample['Alarm']:
-            return probability(0.9)
-        else:
-            return probability(0.05)
-
-    def Alarm(self, sample):
-        """Return P(Alarm=True) for the sample (not implemented in this compiled network)."""
-        raise NotImplementedError

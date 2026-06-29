@@ -11,8 +11,8 @@ important data types:
 
 Be careful: some functions take an Expr as argument, and some take a KB.
 
-Logical expressions can be created with Expr or expr, imported from utils, TODO
-or with expr, which adds the capability to write a string that uses
+Logical expressions can be created with Expr, imported from utils, or with expr,
+which adds the capability to write a string that uses
 the connectives ==>, <==, <=>, or <=/=>. But be careful: these have the
 operator precedence of commas; you may need to add parens to make precedence work.
 See logic.ipynb for examples.
@@ -740,7 +740,10 @@ def dpll_satisfiable(s, branching_heuristic=no_branching_heuristic):
 
 
 def dpll(clauses, symbols, model, branching_heuristic=no_branching_heuristic):
-    """See if the clauses are true in a partial model."""
+    """[Figure 7.17] The Davis-Putnam-Logemann-Loveland procedure: decide whether
+    ``clauses`` are satisfiable by depth-first assignment of ``symbols``, accelerated
+    by the pure-symbol and unit-clause heuristics (plus an optional branching
+    heuristic). Returns the satisfying model, or False."""
     unknown_clauses = []  # clauses with an unknown truth value
     for c in clauses:
         val = pl_true(c, model)
