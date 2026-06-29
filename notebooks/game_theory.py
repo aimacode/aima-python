@@ -18,7 +18,7 @@
 # %% [markdown]
 # # Game Theory and Social Choice (Chapter 18)
 #
-# Demonstrations of the non-cooperative game theory, cooperative game theory and social-choice algorithms in [`game_theory4e.py`](game_theory4e.py).
+# Demonstrations of the non-cooperative game theory, cooperative game theory and social-choice algorithms in [`game_theory.py`](game_theory.py).
 
 # %%
 from aima.game_theory import *

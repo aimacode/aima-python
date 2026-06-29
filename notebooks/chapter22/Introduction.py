@@ -15,7 +15,7 @@
 # %% [markdown]
 # # NATURAL LANGUAGE PROCESSING
 #
-# The notebooks in this folder cover chapters 23 of the book *Artificial Intelligence: A Modern Approach*, 4th Edition. The implementations of the algorithms can be found in [nlp.py](https://github.com/aimacode/aima-python/blob/master/nlp4e.py).
+# The notebooks in this folder cover chapters 23 of the book *Artificial Intelligence: A Modern Approach*, 4th Edition. The implementations of the algorithms can be found in [nlp.py](https://github.com/aimacode/aima-python/blob/master/nlp.py).
 #
 # Run the below cell to import the code from the module and get started!
 

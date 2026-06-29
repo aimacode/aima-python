@@ -18,7 +18,7 @@
 # %% [markdown]
 # # Dynamic Decision Networks (Section 17.4)
 #
-# Online decision making for a POMDP modeled as a dynamic decision network, using the belief-state look-ahead agent in [`mdp4e.py`](mdp4e.py).
+# Online decision making for a POMDP modeled as a dynamic decision network, using the belief-state look-ahead agent in [`mdp.py`](mdp.py).
 
 # %%
 from aima.mdp import POMDP, update_belief, pomdp_lookahead

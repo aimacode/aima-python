@@ -50,7 +50,7 @@ from aima.reinforcement_learning import *
 #
 # ### Implementation
 #
-# Passive agents are implemented in `rl4e.py` as various `Agent-Class`es.
+# Passive agents are implemented in `reinforcement_learning.py` as various `Agent-Class`es.
 #
 # To demonstrate these agents, we make use of the `GridMDP` object from the `MDP` module. `sequential_decision_environment` is similar to that used for the `MDP` notebook but has discounting with $\gamma = 0.9$.
 #
