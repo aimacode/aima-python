@@ -11,6 +11,7 @@ from IPython.display import HTML
 from IPython.display import display
 from PIL import Image
 from matplotlib import lines
+from matplotlib.colors import ListedColormap
 
 from aima.games import TicTacToe, alpha_beta_player, random_player, Fig52Extended
 from aima.learning import DataSet

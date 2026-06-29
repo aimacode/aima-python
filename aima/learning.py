@@ -309,7 +309,9 @@ def cross_validation(learner, dataset, size=None, k=10, trials=1):
         for fold in range(k):
             train_data, val_data = train_test_split(dataset, fold * (n // k), (fold + 1) * (n // k))
             dataset.examples = train_data
-            h = learner(dataset, size)
+            # pass `size` only to learners that take it (model selection); the
+            # plain learners used by e.g. compare() have a (dataset)-only signature
+            h = learner(dataset, size) if size is not None else learner(dataset)
             fold_errT += err_ratio(h, dataset, train_data)
             fold_errV += err_ratio(h, dataset, val_data)
             # reverting back to original once test is completed
