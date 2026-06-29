@@ -477,6 +477,49 @@ elimination_ask('Burglary', dict(JohnCalls=True, MaryCalls=True), burglary).show
 # Of course, for more complicated networks, variable elimination will be significantly faster and runtime will drop not just by a constant factor, but by a polynomial factor proportional to the number of nodes, due to the reduction in repeated calculations.
 
 # %% [markdown]
+# ## MULTI-VALUED NETWORKS: THE CAR-INSURANCE CASE STUDY
+#
+# The Bayesian networks above all use **boolean** variables. Many real models have variables with more than two values. AIMA's car-insurance case study (Section 16) is the classic example: the *Insurance* network of Binder, Koller, Russell & Kanazawa (1997), with 27 discrete variables.
+#
+# aima-python represents such networks with `DiscreteBayesNode` / `DiscreteBayesNet`. These expose the same `node.p(value, event)` / `variable_values` interface that inference relies on, so the very same `enumeration_ask` and `elimination_ask` used above work **unchanged** on multi-valued networks. Here is a tiny one built by hand:
+
+# %%
+rain_net = DiscreteBayesNet([
+    ('Rain', '', ['none', 'light', 'heavy'], {(): [0.6, 0.3, 0.1]}),
+    ('Traffic', 'Rain', ['low', 'high'],
+     {('none',): [0.9, 0.1], ('light',): [0.6, 0.4], ('heavy',): [0.2, 0.8]}),
+])
+
+enumeration_ask('Rain', {'Traffic': 'high'}, rain_net).show_approx()
+
+# %% [markdown]
+# ### Loading the Insurance network
+#
+# Networks in the standard **BIF** (Bayesian Interchange Format) of the [bnlearn Bayesian Network Repository](https://www.bnlearn.com/bnrepository/) can be read with `read_bif`. The Insurance network ships in `aima-data`, so `insurance()` returns it directly — these are the discrete conditional distributions the book refers to:
+
+# %%
+insurance_net = insurance()
+len(insurance_net.variables), insurance_net.variables[:8]
+
+# %% [markdown]
+# Its variables are multi-valued, e.g. the driver's `Age` and the medical-cost outcome `MedCost`:
+
+# %%
+insurance_net.variable_values('Age'), insurance_net.variable_values('MedCost')
+
+# %% [markdown]
+# Exact inference runs on the full 27-node network. The prior over the driver's age:
+
+# %%
+elimination_ask('Age', dict(), insurance_net).show_approx()
+
+# %% [markdown]
+# And a query with evidence — the good-student probability for a wealthy adolescent (both of `GoodStudent`'s parents are observed here, so this reads straight off its CPT):
+
+# %%
+elimination_ask('GoodStudent', dict(Age='Adolescent', SocioEcon='Wealthy'), insurance_net).show_approx()
+
+# %% [markdown]
 # ## Approximate Inference in Bayesian Networks
 #
 # Exact inference fails to scale for very large and complex Bayesian Networks. This section covers implementation of randomized sampling algorithms, also called Monte Carlo algorithms.
