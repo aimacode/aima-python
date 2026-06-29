@@ -483,5 +483,34 @@ def test_plan_route():
     assert problem.result(WumpusPosition(1, 1, 'RIGHT'), 'Forward').get_location() == (1, 1)
 
 
+def test_grid_problem():
+    # 5x5 grid with a wall blocking the direct route (gap at y=4)
+    walls = [(2, y) for y in range(4)]
+    problem = GridProblem((0, 0), (4, 0), 5, 5, obstacles=walls)
+    astar = astar_search(problem)
+    bfs = breadth_first_graph_search(problem)
+    assert astar is not None
+    assert astar.path_cost == bfs.path_cost                            # both optimal
+    assert all(problem.passable(node.state) for node in astar.path())  # avoids walls
+    # a goal walled off on every side is unreachable
+    boxed = GridProblem((0, 0), (4, 4), 5, 5, obstacles=[(3, 4), (4, 3)])
+    assert astar_search(boxed) is None
+
+
+def test_grid_search_visualization():
+    import matplotlib
+    matplotlib.use('Agg')
+    from aima.notebook_utils import grid_search_steps, plot_grid_search
+    walls = [(3, y) for y in range(7)]
+    problem = GridProblem((0, 0), (6, 0), 10, 10, obstacles=walls)
+    expl_bfs, path_bfs = grid_search_steps(problem, 'bfs')
+    expl_astar, path_astar = grid_search_steps(problem, 'astar')
+    assert path_bfs[0] == path_astar[0] == (0, 0)
+    assert path_bfs[-1] == path_astar[-1] == (6, 0)
+    assert len(path_astar) == len(path_bfs)            # same optimal path length
+    assert len(expl_astar) <= len(expl_bfs)            # informed search is more focused
+    assert plot_grid_search(problem, expl_astar, path_astar) is not None
+
+
 if __name__ == '__main__':
     pytest.main()

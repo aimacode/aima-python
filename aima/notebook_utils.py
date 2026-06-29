@@ -1,3 +1,4 @@
+import heapq
 import os
 import time
 from collections import defaultdict
@@ -16,7 +17,7 @@ from matplotlib.colors import ListedColormap
 from aima.games import TicTacToe, alpha_beta_player, random_player, Fig52Extended
 from aima.learning import DataSet
 from aima.logic import parse_definite_clause, standardize_variables, unify_mm, subst
-from aima.search import GraphProblem, romania_map
+from aima.search import GraphProblem, romania_map, Node
 
 # repo root (the directory containing the `aima` package), so cwd-relative
 # data/image paths resolve regardless of where a notebook is launched from
@@ -1236,3 +1237,75 @@ def plot_model_boundary(dataset, attr1, attr2, model=None):
     plt.xlim(xx.min(), xx.max())
     plt.ylim(yy.min(), yy.max())
     plt.show()
+
+
+# ______________________________________________________________________________
+# Visualizing search on a 2-D grid
+
+
+def grid_search_steps(problem, strategy='astar'):
+    """Run a search on a :class:`~aima.search.GridProblem`, recording how it explores.
+
+    Returns ``(explored, path)``: ``explored`` is the list of cells in the order
+    they are expanded (popped from the frontier), and ``path`` is the list of cells
+    from start to goal (``None`` if the goal is unreachable). ``strategy`` selects
+    the evaluation function -- ``'astar'`` (g + h), ``'ucs'`` (g), ``'bfs'`` (depth)
+    or ``'greedy'`` (h) -- which is what makes the different exploration patterns.
+    """
+    evaluators = {
+        'astar': lambda n: n.path_cost + problem.h(n),
+        'ucs': lambda n: n.path_cost,
+        'bfs': lambda n: n.depth,
+        'greedy': lambda n: problem.h(n),
+    }
+    f = evaluators[strategy]
+    start = Node(problem.initial)
+    frontier = [(f(start), 0, start)]   # (priority, tie-breaker, node)
+    best_cost = {problem.initial: start.path_cost}
+    explored, expanded = [], set()
+    counter = 1
+    while frontier:
+        _, _, node = heapq.heappop(frontier)
+        if node.state in expanded:
+            continue
+        expanded.add(node.state)
+        explored.append(node.state)
+        if problem.goal_test(node.state):
+            return explored, [n.state for n in node.path()]
+        for child in node.expand(problem):
+            if child.state not in best_cost or child.path_cost < best_cost[child.state]:
+                best_cost[child.state] = child.path_cost
+                heapq.heappush(frontier, (f(child), counter, child))
+                counter += 1
+    return explored, None
+
+
+def plot_grid_search(problem, explored, path=None, ax=None, title=None):
+    """Visualise a grid search: obstacles, the cells expanded (shaded by *when* they
+    were expanded), the solution path, and the start/goal. ``explored`` and ``path``
+    are as returned by :func:`grid_search_steps`. Returns the matplotlib Axes.
+    """
+    width, height = problem.width, problem.height
+    shade = np.full((height, width), np.nan)
+    for order, (x, y) in enumerate(explored):
+        shade[y, x] = order
+
+    if ax is None:
+        _, ax = plt.subplots(figsize=(width * 0.45 + 1, height * 0.45 + 1))
+    ax.imshow(shade, origin='lower', cmap='YlGnBu',
+              extent=(-0.5, width - 0.5, -0.5, height - 0.5))
+    for (x, y) in problem.obstacles:
+        ax.add_patch(plt.Rectangle((x - 0.5, y - 0.5), 1, 1, color='0.2'))
+    if path:
+        ax.plot([c[0] for c in path], [c[1] for c in path],
+                color='orange', linewidth=2, marker='.', zorder=2)
+    (sx, sy), (gx, gy) = problem.initial, problem.goal
+    ax.scatter([sx], [sy], c='lime', s=130, marker='o', edgecolors='k', zorder=3)
+    ax.scatter([gx], [gy], c='red', s=160, marker='*', edgecolors='k', zorder=3)
+    ax.set_xticks(range(width))
+    ax.set_yticks(range(height))
+    ax.grid(True, color='0.85', linewidth=0.5)
+    ax.set_xlim(-0.5, width - 0.5)
+    ax.set_ylim(-0.5, height - 0.5)
+    ax.set_title(title or '{} cells expanded'.format(len(explored)))
+    return ax

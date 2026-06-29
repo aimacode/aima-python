@@ -1103,6 +1103,43 @@ class PeakFindingProblem(Problem):
         return self.grid[x][y]
 
 
+class GridProblem(Problem):
+    """Shortest-path finding on a 2-D grid.
+
+    States are ``(x, y)`` cells. The agent steps between in-bounds, obstacle-free
+    cells -- 4-connected via ``directions4`` by default, or pass ``directions8``
+    for 8-connected movement. Every step costs 1; ``h`` is the Manhattan distance
+    to the goal (admissible for the 4-connected, unit-cost case).
+    """
+
+    def __init__(self, initial, goal, width, height, obstacles=(), directions=directions4):
+        super().__init__(initial, goal)
+        self.width = width
+        self.height = height
+        self.obstacles = set(map(tuple, obstacles))
+        self.directions = directions
+
+    def passable(self, cell):
+        """True if ``cell`` is on the grid and not an obstacle."""
+        x, y = cell
+        return 0 <= x < self.width and 0 <= y < self.height and tuple(cell) not in self.obstacles
+
+    def actions(self, state):
+        return [a for a, d in self.directions.items() if self.passable(vector_add(state, d))]
+
+    def result(self, state, action):
+        return vector_add(state, self.directions[action])
+
+    def path_cost(self, c, state1, action, state2):
+        return c + 1
+
+    def h(self, node):
+        """Manhattan distance from ``node`` (or a state) to the goal."""
+        x, y = node.state if isinstance(node, Node) else node
+        gx, gy = self.goal
+        return abs(x - gx) + abs(y - gy)
+
+
 class OnlineDFSAgent:
     """
     [Figure 4.21]

@@ -992,6 +992,33 @@ assert puzzle.check_solvability((2, 4, 3, 1, 5, 6, 7, 8, 0))
 recursive_best_first_search(puzzle).solution()
 
 # %% [markdown]
+# ## GRID SEARCH VISUALIZATION
+#
+# The visualizations above color the nodes of a *graph* (the Romania road map) as the search expands. On a 2-D **grid** the same idea is even more intuitive: we can watch the frontier spread out across the cells and see how an informed search is pulled towards the goal.
+#
+# `GridProblem` (in `search.py`) is shortest-path finding on a grid with obstacles, and `grid_search_steps` / `plot_grid_search` (in `notebook_utils.py`) run a strategy and draw the cells in the order they were expanded, shaded light-to-dark, with the solution path in orange and the start (green) and goal (red star).
+#
+# Below, the same grid (with a wall that has a gap near the top) is solved by an **uninformed** breadth-first search, a **greedy** best-first search, and **A\***:
+
+# %%
+# %matplotlib inline
+from aima.notebook_utils import grid_search_steps, plot_grid_search
+import matplotlib.pyplot as plt
+
+walls = [(4, y) for y in range(8)]          # vertical wall x=4, with a gap at y=8,9
+grid = GridProblem((0, 0), (8, 2), 12, 10, obstacles=walls)
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+for ax, strategy in zip(axes, ['bfs', 'greedy', 'astar']):
+    explored, path = grid_search_steps(grid, strategy)
+    plot_grid_search(grid, explored, path, ax=ax,
+                     title='{}: {} cells expanded'.format(strategy.upper(), len(explored)))
+plt.show()
+
+# %% [markdown]
+# Breadth-first search fans out in all directions and expands many cells; greedy best-first heads straight for the goal (expanding the fewest, but it can be misled by obstacles and is not optimal in general); **A\*** balances the two -- it is pulled toward the goal yet still returns an optimal path, expanding far fewer cells than the uninformed search.
+
+# %% [markdown]
 # ## A* HEURISTICS
 #
 # Different heuristics provide different efficiency in solving A* problems which are generally defined by the number of explored nodes as well as the branching factor. With the classic 8 puzzle we can show the efficiency of different heuristics through the number of explored nodes.
