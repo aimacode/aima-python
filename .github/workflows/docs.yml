@@ -31,6 +31,13 @@ jobs:
         # -W --keep-going: fail the build if any page can't be imported/rendered,
         # so an incomplete API reference can never be published silently again
         run: sphinx-build -b html -W --keep-going docs docs/_build/html
+      - name: Build the JupyterLite browser companion (issue #1072)
+        # Published alongside the API docs at /lite/. Kept non-fatal so a Pyodide
+        # toolchain hiccup can never block the reference-docs deploy.
+        continue-on-error: true
+        run: |
+          pip install -r lite/requirements-lite.txt
+          bash lite/build.sh "$PWD/docs/_build/html/lite"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: docs/_build/html

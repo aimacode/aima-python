@@ -78,3 +78,8 @@ target/
 # for macOS
 .DS_Store
 ._.DS_Store
+
+# JupyterLite browser companion build artifacts (see lite/README.md)
+lite/_output/
+lite/.jupyterlite.doit.db
+lite/aima-*.whl

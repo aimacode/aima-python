@@ -1,6 +1,6 @@
 
 
-# `aima-python` [![tests](https://github.com/aimacode/aima-python/actions/workflows/tests.yml/badge.svg)](https://github.com/aimacode/aima-python/actions/workflows/tests.yml) [![docs](https://github.com/aimacode/aima-python/actions/workflows/docs.yml/badge.svg)](https://aimacode.github.io/aima-python/) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/aimacode/aima-python/master)
+# `aima-python` [![tests](https://github.com/aimacode/aima-python/actions/workflows/tests.yml/badge.svg)](https://github.com/aimacode/aima-python/actions/workflows/tests.yml) [![docs](https://github.com/aimacode/aima-python/actions/workflows/docs.yml/badge.svg)](https://aimacode.github.io/aima-python/) [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/aimacode/aima-python/master) [![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://aimacode.github.io/aima-python/lite/)
 
 
 Python code for the book *[Artificial Intelligence: A Modern Approach](http://aima.cs.berkeley.edu).* You can use this in conjunction with a course on AI, or for study on your own. We're looking for [solid contributors](https://github.com/aimacode/aima-python/blob/master/CONTRIBUTING.md) to help.
@@ -22,11 +22,12 @@ The 4th edition of the book is out now in 2020, and thus we are updating the cod
 
 # Structure of the Project
 
-When complete, this project will have Python implementations for all the pseudocode algorithms in the book, as well as tests and examples of use. The code is organised into three top-level folders:
+When complete, this project will have Python implementations for all the pseudocode algorithms in the book, as well as tests and examples of use. The code is organised into these top-level folders:
 
 - **`aima/`** — the importable Python package: one module per major topic (e.g. `aima/search.py`) with the implementations of the pseudocode algorithms and their support functions/classes/data.
 - **`notebooks/`** — the Jupyter notebooks that explain and demonstrate the code (e.g. `notebooks/search.ipynb`), plus the per-chapter `notebooks/chapterNN/` demos. Each notebook starts with a `%run bootstrap.ipynb` cell that puts the repo root on `sys.path`, so `from aima import ...` works wherever the notebook is launched. A GitHub Action ([`notebooks-to-py.yml`](.github/workflows/notebooks-to-py.yml)) keeps a readable, diffable `.py` mirror of every notebook beside it (generated with [jupytext](https://jupytext.readthedocs.io)); the `.ipynb` is the source of truth, so edit the notebook, not the generated `.py`.
 - **`tests/`** — a lightweight test suite (e.g. `tests/test_search.py`), using `assert` statements, designed for use with [`py.test`](http://pytest.org/latest/) but also usable on their own.
+- **`lite/`** — a [JupyterLite](https://jupyterlite.readthedocs.io) proof-of-concept that runs a few notebooks entirely in the browser via [Pyodide](https://pyodide.org), no install required (try it [here](https://aimacode.github.io/aima-python/lite/); see [`lite/README.md`](lite/README.md) and [issue #1072](https://github.com/aimacode/aima-python/issues/1072)).
 
 # Python 3.9 and up
 

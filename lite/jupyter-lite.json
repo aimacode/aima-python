@@ -1,0 +1,11 @@
+{
+  "jupyter-config-data": {
+    "litePluginSettings": {
+      "@jupyterlite/pyodide-kernel-extension:kernel": {
+        "loadPyodideOptions": {
+          "packages": ["numpy", "networkx", "sortedcontainers"]
+        }
+      }
+    }
+  }
+}
