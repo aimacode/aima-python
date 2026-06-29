@@ -514,10 +514,60 @@ def test_monte_carlo_localization():
     assert grid[6][7] > 700
 
 
+def test_continuous_mcl():
+    import math
+    from aima.probability import ContinuousMCLmap
+
+    # a 10 x 10 arena with a central 4x4..6x6 square obstacle (Fig 25.10 style)
+    m = ContinuousMCLmap(10, 10, obstacles=[(4, 4, 6, 6)])
+
+    # ray casting returns continuous distances, not grid steps
+    assert m.ray_cast(0, (2.0, 2.0, 0.0)) == 8.0  # +x -> right wall
+    assert m.ray_cast(1, (2.0, 2.0, 0.0)) == 8.0  # +y -> top wall
+    assert m.ray_cast(2, (2.0, 2.0, 0.0)) == 2.0  # -x -> left wall
+    assert m.ray_cast(3, (2.0, 2.0, 0.0)) == 2.0  # -y -> bottom wall
+    assert m.ray_cast(0, (1.0, 5.0, 0.0)) == 3.0  # +x -> obstacle left edge at x=4
+    assert m.in_free_space(2, 2) and not m.in_free_space(5, 5)
+
+    # sample() always lands in free space
+    random.seed('aima-python')
+    for _ in range(100):
+        x, y, _ = m.sample()
+        assert m.in_free_space(x, y)
+
+    # the particle filter localizes the robot on the continuous map
+    true = (2.0, 2.0, 0.0)
+    z = [m.ray_cast(s, true) for s in range(len(m.sensors))]
+
+    def P_motion_sample(kin_state, v, w):
+        """Near-static motion with small Gaussian jitter to keep diversity."""
+        x, y, h = kin_state
+        return (x + random.gauss(0, 0.1), y + random.gauss(0, 0.1),
+                (h + random.gauss(0, 0.05)) % (2 * math.pi))
+
+    def P_sensor(observed, expected):
+        """Gaussian range-sensor likelihood (need not be normalized)."""
+        if expected == math.inf:
+            return 1e-6
+        return math.exp(-((observed - expected) ** 2) / (2 * 0.5 ** 2)) + 1e-6
+
+    random.seed('aima-python')
+    a = {'v': 0, 'w': 0}
+    N, S = 2000, None
+    for _ in range(6):
+        S = monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S)
+
+    assert len(S) == N
+    near = sum(1 for x, y, _ in S if math.hypot(x - 2, y - 2) < 1.5)
+    assert near > N / 2  # most particles concentrate around the true pose
+
+
 def test_gibbs_ask():
-    possible_solutions = ['False: 0.16, True: 0.84', 'False: 0.17, True: 0.83', 'False: 0.15, True: 0.85']
-    g_solution = gibbs_ask('Cloudy', dict(Rain=True), sprinkler, 200).show_approx()
-    assert g_solution in possible_solutions
+    # exact posterior P(Cloudy | Rain=True) = 0.8; seed + tolerance keep this
+    # Monte Carlo test deterministic and independent of execution order
+    random.seed('aima-python')
+    p = gibbs_ask('Cloudy', dict(Rain=True), sprinkler, 2000)[True]
+    assert abs(p - 0.8) < 0.05
 
 
 # The following should probably go in .ipynb:

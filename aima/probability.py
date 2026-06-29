@@ -1,6 +1,7 @@
 """Probability models (Chapter 13-15)"""
 
 import copy
+import math
 import re
 from collections import defaultdict
 from functools import reduce
@@ -1250,7 +1251,6 @@ class DynamicBayesNet:
 
 
 # _________________________________________________________________________
-# TODO: Implement continuous map for MonteCarlo similar to Fig25.10 from the book
 
 
 class MCLmap:
@@ -1318,3 +1318,72 @@ def monte_carlo_localization(a, z, N, P_motion_sample, P_sensor, m, S=None):
 
     S = weighted_sample_with_replacement(N, S_, W_)
     return S
+
+
+class ContinuousMCLmap:
+    """[Figure 25.10]
+    A continuous 2-D map for Monte Carlo localization. The world is a rectangular
+    arena [0, width] x [0, height] containing axis-aligned rectangular obstacles.
+    A kinematic state is (x, y, heading) with x, y real-valued coordinates and
+    heading an angle in radians, so the robot is no longer snapped to a grid.
+    Range sensors cast rays from the robot to the nearest wall, returning
+    continuous distances rather than the integer step counts of the discrete
+    MCLmap. It exposes the same sample()/ray_cast(sensor_num, kin_state) interface
+    as MCLmap, so it plugs straight into monte_carlo_localization."""
+
+    def __init__(self, width, height, obstacles=(),
+                 sensors=(0, math.pi / 2, math.pi, 3 * math.pi / 2)):
+        self.width = width
+        self.height = height
+        # each obstacle is a rectangle given as (x0, y0, x1, y1) with x0 <= x1, y0 <= y1
+        self.obstacles = [tuple(o) for o in obstacles]
+        # sensor beam angles (radians) measured relative to the robot's heading
+        self.sensors = list(sensors)
+        self.segments = self._wall_segments()
+
+    def _wall_segments(self):
+        """The arena boundary plus the four edges of every obstacle, each as a
+        ((x0, y0), (x1, y1)) line segment."""
+        w, h = self.width, self.height
+        segments = [((0, 0), (w, 0)), ((w, 0), (w, h)),
+                    ((w, h), (0, h)), ((0, h), (0, 0))]
+        for x0, y0, x1, y1 in self.obstacles:
+            segments += [((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)),
+                         ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))]
+        return segments
+
+    def in_free_space(self, x, y):
+        """True if (x, y) lies inside the arena and outside every obstacle."""
+        if not (0 <= x <= self.width and 0 <= y <= self.height):
+            return False
+        return not any(x0 <= x <= x1 and y0 <= y <= y1 for x0, y0, x1, y1 in self.obstacles)
+
+    def sample(self):
+        """Return a random kinematic state (x, y, heading) in free space."""
+        while True:
+            x = random.uniform(0, self.width)
+            y = random.uniform(0, self.height)
+            if self.in_free_space(x, y):
+                return x, y, random.uniform(0, 2 * math.pi)
+
+    def ray_cast(self, sensor_num, kin_state):
+        """Distance from the robot to the nearest wall along the given sensor.
+        Casts the ray (x, y) + t * (cos a, sin a), with a = heading + sensor
+        offset, and returns the smallest positive intersection with any wall
+        segment (infinity if the ray escapes the arena, which cannot happen for
+        a robot inside a closed arena)."""
+        x, y, heading = kin_state
+        angle = heading + self.sensors[sensor_num]
+        dx, dy = math.cos(angle), math.sin(angle)
+        nearest = math.inf
+        for (ax, ay), (bx, by) in self.segments:
+            ex, ey = bx - ax, by - ay
+            # ray-segment intersection: dot of segment with the ray normal (-dy, dx)
+            denom = ex * (-dy) + ey * dx
+            if abs(denom) < 1e-12:
+                continue  # ray parallel to this wall segment
+            t = (ex * (y - ay) - ey * (x - ax)) / denom  # distance along the ray
+            u = ((x - ax) * (-dy) + (y - ay) * dx) / denom  # position along the segment
+            if t >= 0 and 0 <= u <= 1:
+                nearest = min(nearest, t)
+        return nearest
