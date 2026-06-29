@@ -83,5 +83,15 @@ def test_ROIPoolingLayer():
                                                                [1, 1, 1, 1, 1, 1, 50]]
 
 
+def test_hog():
+    # a 16x16 image split by a vertical edge; HOG yields one L2-normalized 2x2 block
+    image = np.zeros((16, 16))
+    image[:, 8:] = 255.0
+    features = hog(image, cell_size=8, bins=9, block_size=2)
+    assert features.shape == (2 * 2 * 9,)              # one block of 2x2 cells x 9 bins
+    assert np.isfinite(features).all()
+    assert abs(np.linalg.norm(features) - 1) < 1e-3   # the single block is L2-normalized
+
+
 if __name__ == '__main__':
     pytest.main()

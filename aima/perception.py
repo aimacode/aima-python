@@ -64,6 +64,48 @@ def gaussian_derivative_edge_detector(image):
     return edges
 
 
+def hog(image, cell_size=8, bins=9, block_size=2):
+    """Histogram of Oriented Gradients (HOG) feature descriptor [#446].
+
+    Implements Dalal & Triggs (2005) -- the descriptor referenced by AIMA Chapter
+    24 (Perception), for which the book gives no pseudocode. The steps are:
+    gradient magnitude and unsigned (0-180 deg) orientation; for each
+    ``cell_size`` x ``cell_size`` cell, a ``bins``-bin orientation histogram weighted
+    by gradient magnitude; L2 normalization over each ``block_size`` x ``block_size``
+    block of cells; the normalized blocks concatenated into one feature vector.
+
+    Source: N. Dalal & B. Triggs, "Histograms of Oriented Gradients for Human
+    Detection", CVPR 2005.
+    """
+    image = np.asarray(image, dtype=float)
+    if image.ndim == 3:                       # collapse colour channels to grayscale
+        image = image.mean(axis=2)
+
+    gy, gx = np.gradient(image)
+    magnitude = np.hypot(gx, gy)
+    orientation = np.rad2deg(np.arctan2(gy, gx)) % 180     # unsigned gradient angle
+
+    cells_y, cells_x = image.shape[0] // cell_size, image.shape[1] // cell_size
+    bin_width = 180 / bins
+    histograms = np.zeros((cells_y, cells_x, bins))
+    for cy in range(cells_y):
+        for cx in range(cells_x):
+            rows = slice(cy * cell_size, (cy + 1) * cell_size)
+            cols = slice(cx * cell_size, (cx + 1) * cell_size)
+            cell_bins = (orientation[rows, cols] // bin_width).astype(int) % bins
+            cell_mag = magnitude[rows, cols]
+            for k in range(bins):
+                histograms[cy, cx, k] = cell_mag[cell_bins == k].sum()
+
+    eps = 1e-5
+    features = []
+    for by in range(cells_y - block_size + 1):
+        for bx in range(cells_x - block_size + 1):
+            block = histograms[by:by + block_size, bx:bx + block_size].ravel()
+            features.append(block / np.sqrt((block ** 2).sum() + eps ** 2))
+    return np.concatenate(features) if features else histograms.ravel()
+
+
 def laplacian_edge_detector(image):
     """Extract image edge with laplacian filter"""
     if not isinstance(image, np.ndarray):
