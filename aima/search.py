@@ -954,6 +954,79 @@ def hill_climbing(problem):
     return current.state
 
 
+# The following hill-climbing variants and local beam search are described in
+# AIMA Section 4.1 (Local Search) but the book gives no pseudocode for them, so
+# these are simple, faithful implementations of the prose descriptions.
+
+
+def stochastic_hill_climbing(problem):
+    """Hill climbing that, instead of the steepest neighbor, picks *at random*
+    among the uphill neighbors (AIMA 4e Section 4.1.1 -- no pseudocode in the book).
+    """
+    current = Node(problem.initial)
+    while True:
+        uphill = [node for node in current.expand(problem)
+                  if problem.value(node.state) > problem.value(current.state)]
+        if not uphill:
+            break
+        current = random.choice(uphill)
+    return current.state
+
+
+def first_choice_hill_climbing(problem, tries=100):
+    """Hill climbing that generates successors at random until it finds one better
+    than the current state -- useful when a state has very many successors (AIMA 4e
+    Section 4.1.1 -- no pseudocode in the book).
+    """
+    current = Node(problem.initial)
+    while True:
+        neighbors = current.expand(problem)
+        if not neighbors:
+            break
+        better = None
+        for _ in range(tries):
+            candidate = random.choice(neighbors)
+            if problem.value(candidate.state) > problem.value(current.state):
+                better = candidate
+                break
+        if better is None:
+            break
+        current = better
+    return current.state
+
+
+def random_restart_hill_climbing(problem, new_state, restarts=10):
+    """Run :func:`hill_climbing` from ``restarts`` random initial states (each from
+    the 0-argument ``new_state`` callable) and return the best state found (AIMA 4e
+    Section 4.1.1 -- no pseudocode in the book). Note: it sets ``problem.initial``.
+    """
+    best = None
+    for _ in range(restarts):
+        problem.initial = new_state()
+        state = hill_climbing(problem)
+        if best is None or problem.value(state) > problem.value(best):
+            best = state
+    return best
+
+
+def local_beam_search(problem, k=4, new_state=None, iterations=1000):
+    """Keep ``k`` states; at each step expand all of them and keep the ``k`` best
+    successors, stopping when none improves on the current best (AIMA 4e Section
+    4.1.3 -- no pseudocode in the book). The initial ``k`` states come from
+    ``new_state`` (a 0-argument callable) or default to the problem's initial state.
+    """
+    current = [Node(new_state() if new_state else problem.initial) for _ in range(k)]
+    for _ in range(iterations):
+        neighbors = [nb for node in current for nb in node.expand(problem)]
+        if not neighbors:
+            break
+        best = sorted(neighbors, key=lambda node: problem.value(node.state), reverse=True)[:k]
+        if problem.value(best[0].state) <= max(problem.value(node.state) for node in current):
+            break
+        current = best
+    return max(current, key=lambda node: problem.value(node.state)).state
+
+
 def exp_schedule(k=20, lam=0.005, limit=100):
     """One possible schedule function for simulated annealing"""
     return lambda t: (k * np.exp(-lam * t) if t < limit else 0)

@@ -512,6 +512,21 @@ def test_grid_search_visualization():
     assert plot_grid_search(problem, expl_astar, path_astar) is not None
 
 
+def test_local_search_variants():
+    # a unimodal grid (value = x + y + 1, single peak at (2, 2)): every local-search
+    # variant climbs to it. These algorithms have no pseudocode in the book (#1151).
+    random.seed(0)
+    grid = [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
+    assert stochastic_hill_climbing(PeakFindingProblem((0, 0), grid)) == (2, 2)
+    assert first_choice_hill_climbing(PeakFindingProblem((0, 0), grid)) == (2, 2)
+    assert local_beam_search(PeakFindingProblem((0, 0), grid), k=3) == (2, 2)
+    n, m = len(grid), len(grid[0])
+    best = random_restart_hill_climbing(
+        PeakFindingProblem((0, 0), grid),
+        lambda: (random.randrange(n), random.randrange(m)), restarts=5)
+    assert best == (2, 2)
+
+
 def test_node_path_states():
     # the full root->goal path is one call away from the returned Node (#1068)
     node = astar_search(GraphProblem('Arad', 'Bucharest', romania_map))
