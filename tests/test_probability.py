@@ -556,5 +556,50 @@ True
 True
 """
 
+
+def test_discrete_bayes_net_inference():
+    # a small multi-valued net; both exact-inference engines must agree with the
+    # hand-computed posterior  P(Rain | Traffic=high)
+    net = DiscreteBayesNet([
+        ('Rain', '', ['none', 'light', 'heavy'], {(): [0.6, 0.3, 0.1]}),
+        ('Traffic', 'Rain', ['low', 'high'],
+         {('none',): [0.9, 0.1], ('light',): [0.6, 0.4], ('heavy',): [0.2, 0.8]}),
+    ])
+    expected = {'none': 0.06 / 0.26, 'light': 0.12 / 0.26, 'heavy': 0.08 / 0.26}
+    for ask in (enumeration_ask, elimination_ask):
+        q = ask('Rain', {'Traffic': 'high'}, net)
+        for value, p in expected.items():
+            assert abs(q[value] - p) < 1e-9
+
+
+def test_read_bif():
+    bif = """
+    network n { }
+    variable A { type discrete [ 2 ] { yes, no }; }
+    variable B { type discrete [ 3 ] { lo, mid, hi }; }
+    probability ( A ) { table 0.3, 0.7; }
+    probability ( B | A ) {
+      (yes) 0.2, 0.3, 0.5;
+      (no)  0.1, 0.1, 0.8;
+    }
+    """
+    net = read_bif(bif)
+    assert set(net.variables) == {'A', 'B'}
+    assert net.variable_values('B') == ['lo', 'mid', 'hi']
+    assert net.variable_node('B').parents == ['A']
+    assert net.variable_node('A').p('yes', {}) == 0.3
+    assert net.variable_node('B').p('hi', {'A': 'no'}) == 0.8
+
+
+def test_insurance_bayes_net():
+    # the car-insurance ("Insurance") network loads from aima-data and supports
+    # exact inference (AIMA 4e §16 case study, issue #1285)
+    net = insurance()
+    assert len(net.variables) == 27
+    assert net.variable_values('Age') == ['Adolescent', 'Adult', 'Senior']
+    age = elimination_ask('Age', {}, net)
+    assert (round(age['Adolescent'], 3), round(age['Adult'], 3), round(age['Senior'], 3)) == (0.2, 0.6, 0.2)
+
+
 if __name__ == '__main__':
     pytest.main()

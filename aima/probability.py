@@ -1,6 +1,7 @@
 """Probability models (Chapter 13-15)"""
 
 import copy
+import re
 from collections import defaultdict
 from functools import reduce
 
@@ -407,6 +408,136 @@ class BayesNode:
 
     def __repr__(self):
         return repr((self.variable, ' '.join(self.parents)))
+
+
+class DiscreteBayesNode:
+    """A node of a discrete Bayesian network whose variable may take more than two
+    values (unlike :class:`BayesNode`, which is boolean).
+
+    ``values`` is the variable's domain. ``cpt`` maps each tuple of parent values
+    (ordered as in ``parents``) to the probabilities over ``values`` -- either a
+    sequence in domain order or a ``{value: prob}`` dict. A root node uses the
+    empty tuple ``()`` as its only key.
+    """
+
+    def __init__(self, X, parents, values, cpt):
+        if isinstance(parents, str):
+            parents = parents.split()
+        self.variable = X
+        self.parents = parents
+        self.values = list(values)
+        self.cpt = {}
+        for key, dist in cpt.items():
+            key = key if isinstance(key, tuple) else (key,)
+            assert len(key) == len(self.parents)
+            self.cpt[key] = dist if isinstance(dist, dict) else dict(zip(self.values, dist))
+        self.children = []
+
+    def p(self, value, event):
+        """Return P(X = ``value`` | parents = their values in ``event``)."""
+        return self.cpt[tuple(event[parent] for parent in self.parents)][value]
+
+    def __repr__(self):
+        return repr((self.variable, ' '.join(self.parents)))
+
+
+class DiscreteBayesNet:
+    """A Bayesian network of :class:`DiscreteBayesNode`\\ s (variables with arbitrary
+    finite domains). Exact inference works through the generic
+    :func:`enumeration_ask` / :func:`elimination_ask`, which rely only on
+    ``node.p`` and ``variable_values`` and so work unchanged for multi-valued nodes.
+    """
+
+    def __init__(self, node_specs=None):
+        self.nodes = []
+        self.variables = []
+        for spec in node_specs or []:
+            self.add(spec)
+
+    def add(self, node_spec):
+        """Add a ``DiscreteBayesNode`` (or a ``(name, parents, values, cpt)`` spec);
+        its parents must already be in the net and its variable must not."""
+        node = node_spec if isinstance(node_spec, DiscreteBayesNode) else DiscreteBayesNode(*node_spec)
+        assert node.variable not in self.variables
+        assert all(parent in self.variables for parent in node.parents)
+        self.nodes.append(node)
+        self.variables.append(node.variable)
+        for parent in node.parents:
+            self.variable_node(parent).children.append(node)
+
+    def variable_node(self, var):
+        for n in self.nodes:
+            if n.variable == var:
+                return n
+        raise Exception("No such variable: {}".format(var))
+
+    def variable_values(self, var):
+        """Return the domain of var."""
+        return self.variable_node(var).values
+
+    def __repr__(self):
+        return 'DiscreteBayesNet({0!r})'.format(self.nodes)
+
+
+def read_bif(source):
+    """Parse a Bayesian network in BIF (Bayesian Interchange Format) into a
+    :class:`DiscreteBayesNet`. ``source`` is the BIF text or an open file object.
+
+    BIF is the format used by the Bayesian Network Repository
+    (https://www.bnlearn.com/bnrepository/), so this lets aima load standard
+    multi-valued networks such as the car-insurance ("Insurance") model.
+    """
+    text = source.read() if hasattr(source, 'read') else source
+
+    # variable NAME { type discrete [ k ] { v1, v2, ... }; }
+    domains = {name: [v.strip() for v in vals.split(',') if v.strip()]
+               for name, vals in re.findall(r'variable\s+(\w+)\s*\{[^}]*?\{([^}]*)\}', text)}
+
+    # probability ( VAR [ | P1, P2, ... ] ) { table ... ;  |  (pv, ...) p, ... ; }
+    specs = {}
+    for header, body in re.findall(r'probability\s*\(\s*([^)]*?)\s*\)\s*\{(.*?)\}', text, re.S):
+        if '|' in header:
+            var, parent_str = header.split('|')
+            var, parents = var.strip(), [p.strip() for p in parent_str.split(',') if p.strip()]
+        else:
+            var, parents = header.strip(), []
+        cpt = {}
+        table = re.search(r'table\s+([^;]+);', body)
+        if table:
+            cpt[()] = [float(x) for x in table.group(1).split(',')]
+        else:
+            for key, probs in re.findall(r'\(([^)]*)\)\s*([^;]+);', body):
+                cpt[tuple(v.strip() for v in key.split(',') if v.strip())] = \
+                    [float(x) for x in probs.split(',')]
+        specs[var] = (parents, domains[var], cpt)
+
+    # add nodes parents-before-children (the BIF order need not be topological)
+    net, added = DiscreteBayesNet(), set()
+
+    def add_node(name):
+        if name in added:
+            return
+        parents, values, cpt = specs[name]
+        for parent in parents:
+            add_node(parent)
+        net.add(DiscreteBayesNode(name, parents, values, cpt))
+        added.add(name)
+
+    for name in specs:
+        add_node(name)
+    return net
+
+
+def insurance():
+    """Return the car-insurance ("Insurance") Bayesian network as a
+    :class:`DiscreteBayesNet`, loaded from ``aima-data/insurance.bif``.
+
+    This is the 27-variable discrete model of Binder, Koller, Russell & Kanazawa
+    (1997) referenced by the AIMA 4e car-insurance case study (Section 16); the
+    book notes the discrete conditional distributions are provided in the code
+    repository, and this is them.
+    """
+    return read_bif(open_data('insurance.bif').read())
 
 
 # Burglary example [Figure 14.2]
