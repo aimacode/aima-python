@@ -32,7 +32,6 @@ The GUI helpers are::
 
 from aima.utils import distance_squared, turn_heading
 from statistics import mean
-from ipythonblocks import BlockGrid
 from IPython.display import HTML, display, clear_output
 from time import sleep
 
@@ -635,6 +634,13 @@ class GraphicEnvironment(XYEnvironment):
         """Define all the usual XYEnvironment characteristics,
         but initialise a BlockGrid for GUI too."""
         super().__init__(width, height)
+        # imported lazily so the rest of aima.agents (and modules that import it,
+        # e.g. logic/csp) can be used without the optional ipythonblocks GUI dep
+        try:
+            from ipythonblocks import BlockGrid
+        except ImportError as e:
+            raise ImportError("GraphicEnvironment needs the optional 'ipythonblocks' "
+                              "package; install it with `pip install ipythonblocks`.") from e
         self.grid = BlockGrid(width, height, fill=(200, 200, 200))
         if display:
             self.grid.show()

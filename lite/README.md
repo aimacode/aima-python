@@ -21,12 +21,22 @@ cannot run here. The `aima` wheel is therefore installed with `deps=False` and
 the demo notebooks are restricted to modules that import only Pyodide-provided
 packages.
 
-The proof-of-concept ships two such notebooks:
+The proof-of-concept ships these notebooks:
 
 - `content/search.ipynb` — BFS / A* on the Romania map (`aima.search`, numpy only).
 - `content/games.ipynb` — minimax / alpha-beta on Tic-Tac-Toe (`aima.games`, numpy only).
+- `content/logic.ipynb` — propositional model checking / DPLL and first-order
+  forward chaining (`aima.logic`, needs `networkx`).
+- `content/csp.ipynb` — map colouring with AC-3 / backtracking and N-queens with
+  min-conflicts (`aima.csp`, needs `sortedcontainers`).
 
-`content/Welcome.ipynb` shows the one-cell install pattern used by every notebook.
+`networkx` and `sortedcontainers` are pure-Python and ship with Pyodide; they are
+preloaded for the kernel in `jupyter-lite.json`. `content/Welcome.ipynb` shows the
+one-cell install pattern used by every notebook.
+
+Note: `aima.logic`/`aima.csp` pull in `aima.agents`, whose only GUI dependency
+(`ipythonblocks`) is imported lazily, so these modules import cleanly in Pyodide
+without it.
 
 ## Build locally
 
@@ -48,7 +58,6 @@ companion). Remaining work:
 - Verify in-browser execution across browsers (Pyodide runs only in a real
   browser, so this cannot be checked in headless CI — the CI job only proves the
   static site *builds*).
-- Port more lightweight notebooks (logic, csp, planning, probability) once their
-  in-browser behaviour is confirmed; csp needs `sortedcontainers`, logic needs
-  `networkx` (both pure-Python, installable in Pyodide).
+- Port more lightweight notebooks (planning, probability) once their in-browser
+  behaviour is confirmed.
 - Decide whether to grow this into a full MyST / Jupyter Book textbook companion.
