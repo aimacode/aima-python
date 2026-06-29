@@ -405,5 +405,41 @@ def test_SAT_plan():
     assert SAT_plan((0, 0), transition, (1, 1), 4) == ['Right', 'Down']
 
 
+def test_hybrid_wumpus_agent_make_percept_sentence():
+    # a single square can yield several percepts at once (Stench *and* Breeze);
+    # the old elif-chain recorded only the first one
+    from aima.agents import Stench, Breeze
+    kb = WumpusKB(2)
+    kb.make_percept_sentence([Stench(), Breeze()], 0)
+    assert percept_stench(0) in kb.clauses
+    assert percept_breeze(0) in kb.clauses
+    assert ~percept_glitter(0) in kb.clauses
+
+
+def test_hybrid_wumpus_agent_plan_shot():
+    # plan_shot lines up with a possible wumpus and ends by shooting, using the
+    # same UP/DOWN/LEFT/RIGHT orientations as PlanRoute (it used to use EAST/WEST/…)
+    agent = HybridWumpusAgent(2)
+    actions = agent.plan_shot(WumpusPosition(1, 1, 'RIGHT'), [[2, 2]],
+                              [[1, 1], [2, 1], [1, 2], [2, 2]])
+    assert actions and actions[-1] == 'Shoot'
+
+
+def test_hybrid_wumpus_agent_plan_route_no_path():
+    # an unreachable / empty goal set yields an empty plan instead of crashing
+    agent = HybridWumpusAgent(2)
+    assert agent.plan_route(WumpusPosition(1, 1, 'RIGHT'), [], [[1, 1]]) == []
+
+
+def test_hybrid_wumpus_agent_first_action():
+    # end-to-end first step: from [1,1] (provably safe at t=0) the agent returns a
+    # legal action and records its pose. (Only t=0 is exercised: the propositional
+    # Fig 7.20 inference grows expensive as the temporal KB accumulates.)
+    agent = HybridWumpusAgent(2)
+    action = agent.program(None)
+    assert action in {'Forward', 'TurnLeft', 'TurnRight', 'Grab', 'Shoot', 'Climb'}
+    assert agent.current_position.get_location() == (1, 1)
+
+
 if __name__ == '__main__':
     pytest.main()

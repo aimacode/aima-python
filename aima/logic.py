@@ -1405,6 +1405,10 @@ class WumpusKB(PropKB):
             for j in range(1, dimrow + 1):
                 self.tell(implies(location(i, j, 0), equiv(percept_breeze(0), breeze(i, j))))
                 self.tell(implies(location(i, j, 0), equiv(percept_stench(0), stench(i, j))))
+                # a square is safe to move into at time 0 iff it has no pit, no
+                # (live) wumpus -- without this the agent cannot even prove [1,1]
+                # safe on its first move (the rule was only added for time > 0)
+                self.tell(equiv(ok_to_move(i, j, 0), ~pit(i, j) & ~wumpus(i, j) & wumpus_alive(0)))
                 if i != 1 or j != 1:
                     self.tell(~location(i, j, 0))
 
@@ -1426,40 +1430,28 @@ class WumpusKB(PropKB):
                 self.tell(~a)
 
     def make_percept_sentence(self, percept, time):
-        """Tell the KB which of the five percepts hold (and which do not) at ``time``."""
-        # Glitter, Bump, Stench, Breeze, Scream
-        flags = [0, 0, 0, 0, 0]
+        """Tell the KB which of the five percepts hold (and which do not) at ``time``.
 
-        # Things perceived
-        if isinstance(percept, Glitter):
-            flags[0] = 1
-            self.tell(percept_glitter(time))
-        elif isinstance(percept, Bump):
-            flags[1] = 1
-            self.tell(percept_bump(time))
-        elif isinstance(percept, Stench):
-            flags[2] = 1
-            self.tell(percept_stench(time))
-        elif isinstance(percept, Breeze):
-            flags[3] = 1
-            self.tell(percept_breeze(time))
-        elif isinstance(percept, Scream):
-            flags[4] = 1
-            self.tell(percept_scream(time))
+        A single square can yield several percepts at once (e.g. a Stench *and* a
+        Breeze), so ``percept`` may be one percept object or a collection of them
+        (the format produced by ``WumpusEnvironment.percept``); ``None`` means
+        nothing was perceived.
+        """
+        if percept is None:
+            percepts = []
+        elif isinstance(percept, (list, tuple, set)):
+            percepts = list(percept)
+        else:
+            percepts = [percept]
 
-        # Things not perceived
-        for i in range(len(flags)):
-            if flags[i] == 0:
-                if i == 0:
-                    self.tell(~percept_glitter(time))
-                elif i == 1:
-                    self.tell(~percept_bump(time))
-                elif i == 2:
-                    self.tell(~percept_stench(time))
-                elif i == 3:
-                    self.tell(~percept_breeze(time))
-                elif i == 4:
-                    self.tell(~percept_scream(time))
+        # for each of the five percepts, assert whether it holds at this time
+        for cls, sentence in ((Glitter, percept_glitter), (Bump, percept_bump),
+                              (Stench, percept_stench), (Breeze, percept_breeze),
+                              (Scream, percept_scream)):
+            if any(isinstance(p, cls) for p in percepts):
+                self.tell(sentence(time))
+            else:
+                self.tell(~sentence(time))
 
     def add_temporal_sentences(self, time):
         """Add the successor-state axioms relating ``time`` to ``time - 1`` (location, orientation,
@@ -1607,14 +1599,15 @@ class HybridWumpusAgent(Agent):
                     temp.append(i)
                     temp.append(j)
 
-        if self.kb.ask_if_true(facing_north(self.t)):
-            self.current_position = WumpusPosition(temp[0], temp[1], 'UP')
-        elif self.kb.ask_if_true(facing_south(self.t)):
-            self.current_position = WumpusPosition(temp[0], temp[1], 'DOWN')
-        elif self.kb.ask_if_true(facing_west(self.t)):
-            self.current_position = WumpusPosition(temp[0], temp[1], 'LEFT')
-        elif self.kb.ask_if_true(facing_east(self.t)):
-            self.current_position = WumpusPosition(temp[0], temp[1], 'RIGHT')
+        if len(temp) >= 2:  # a location was entailed; otherwise keep the previous pose
+            if self.kb.ask_if_true(facing_north(self.t)):
+                self.current_position = WumpusPosition(temp[0], temp[1], 'UP')
+            elif self.kb.ask_if_true(facing_south(self.t)):
+                self.current_position = WumpusPosition(temp[0], temp[1], 'DOWN')
+            elif self.kb.ask_if_true(facing_west(self.t)):
+                self.current_position = WumpusPosition(temp[0], temp[1], 'LEFT')
+            elif self.kb.ask_if_true(facing_east(self.t)):
+                self.current_position = WumpusPosition(temp[0], temp[1], 'RIGHT')
 
         safe_points = list()
         for i in range(1, self.dimrow + 1):
@@ -1631,17 +1624,13 @@ class HybridWumpusAgent(Agent):
             self.plan.append('Climb')
 
         if len(self.plan) == 0:
+            # unvisited = squares the agent has never been located in (for all t' <= t)
             unvisited = list()
             for i in range(1, self.dimrow + 1):
                 for j in range(1, self.dimrow + 1):
-                    for k in range(self.t):
-                        if self.kb.ask_if_true(location(i, j, k)):
-                            unvisited.append([i, j])
-            unvisited_and_safe = list()
-            for u in unvisited:
-                for s in safe_points:
-                    if u not in unvisited_and_safe and s == u:
-                        unvisited_and_safe.append(u)
+                    if not any(self.kb.ask_if_true(location(i, j, k)) for k in range(self.t + 1)):
+                        unvisited.append([i, j])
+            unvisited_and_safe = [u for u in unvisited if u in safe_points]
 
             temp = self.plan_route(self.current_position, unvisited_and_safe, safe_points)
             self.plan.extend(temp)
@@ -1650,7 +1639,7 @@ class HybridWumpusAgent(Agent):
             possible_wumpus = list()
             for i in range(1, self.dimrow + 1):
                 for j in range(1, self.dimrow + 1):
-                    if not self.kb.ask_if_true(wumpus(i, j)):
+                    if not self.kb.ask_if_true(~wumpus(i, j)):
                         possible_wumpus.append([i, j])
 
             temp = self.plan_shot(self.current_position, possible_wumpus, safe_points)
@@ -1660,7 +1649,7 @@ class HybridWumpusAgent(Agent):
             not_unsafe = list()
             for i in range(1, self.dimrow + 1):
                 for j in range(1, self.dimrow + 1):
-                    if not self.kb.ask_if_true(ok_to_move(i, j, self.t)):
+                    if not self.kb.ask_if_true(~ok_to_move(i, j, self.t)):
                         not_unsafe.append([i, j])
             temp = self.plan_route(self.current_position, not_unsafe, safe_points)
             self.plan.extend(temp)
@@ -1683,7 +1672,8 @@ class HybridWumpusAgent(Agent):
         """Return an action sequence from ``current`` to any of ``goals`` through ``allowed`` squares,
         found by A* search."""
         problem = PlanRoute(current, goals, allowed, self.dimrow)
-        return astar_search(problem).solution()
+        node = astar_search(problem)
+        return node.solution() if node is not None else []
 
     def plan_shot(self, current, goals, allowed):
         """Return an action sequence that moves to a square lined up with a possible wumpus and shoots."""
@@ -1694,19 +1684,19 @@ class HybridWumpusAgent(Agent):
             y = loc[1]
             for i in range(1, self.dimrow + 1):
                 if i < x:
-                    shooting_positions.add(WumpusPosition(i, y, 'EAST'))
+                    shooting_positions.add(WumpusPosition(i, y, 'RIGHT'))  # face east toward the wumpus
                 if i > x:
-                    shooting_positions.add(WumpusPosition(i, y, 'WEST'))
+                    shooting_positions.add(WumpusPosition(i, y, 'LEFT'))  # face west
                 if i < y:
-                    shooting_positions.add(WumpusPosition(x, i, 'NORTH'))
+                    shooting_positions.add(WumpusPosition(x, i, 'UP'))  # face north
                 if i > y:
-                    shooting_positions.add(WumpusPosition(x, i, 'SOUTH'))
+                    shooting_positions.add(WumpusPosition(x, i, 'DOWN'))  # face south
 
         # Can't have a shooting position from any of the rooms the Wumpus could reside
-        orientations = ['EAST', 'WEST', 'NORTH', 'SOUTH']
+        orientations = ['UP', 'DOWN', 'LEFT', 'RIGHT']
         for loc in goals:
             for orientation in orientations:
-                shooting_positions.remove(WumpusPosition(loc[0], loc[1], orientation))
+                shooting_positions.discard(WumpusPosition(loc[0], loc[1], orientation))
 
         actions = list()
         actions.extend(self.plan_route(current, shooting_positions, allowed))
