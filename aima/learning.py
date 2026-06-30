@@ -5,8 +5,6 @@ import itertools
 from collections import defaultdict
 from statistics import stdev
 
-from qpsolvers import solve_qp
-
 from aima.probabilistic_learning import NaiveBayesLearner
 from aima.utils import *
 
@@ -903,6 +901,10 @@ class SVC:
         ub = np.ones(m) * self.C  # upper bounds
         A = y.astype(np.float64)  # equality matrix
         b = np.zeros(1)  # equality vector
+        # imported lazily: SVM training is the only thing that needs the optional
+        # qpsolvers/cvxopt dependency, so the rest of the module (trees, kNN, naive
+        # Bayes, neural nets, ...) stays importable without it
+        from qpsolvers import solve_qp
         self.alphas = solve_qp(P, q, A=A, b=b, lb=lb, ub=ub, solver='cvxopt',
                                sym_proj=True, verbose=self.verbose)
 
@@ -977,6 +979,7 @@ class SVR:
         ub = np.ones(2 * m) * self.C  # upper bounds
         A = np.hstack((np.ones(m), -np.ones(m)))  # equality matrix
         b = np.zeros(1)  # equality vector
+        from qpsolvers import solve_qp  # lazy: see SVC.solve_qp above
         alphas = solve_qp(P, q, A=A, b=b, lb=lb, ub=ub, solver='cvxopt',
                           sym_proj=True, verbose=self.verbose)
         self.alphas_p = alphas[:m]
@@ -1192,14 +1195,19 @@ def r2_score(y_pred, y_true):
 
 
 # datasets
+# Loaded from the aima-data directory at import time. Guard against it being
+# absent (e.g. in a browser/Pyodide environment) so the rest of the module still
+# imports; these names are None when the data directory is unavailable.
+try:
+    orings = DataSet(name='orings', target='Distressed', attr_names='Rings Distressed Temp Pressure Flightnum')
 
-orings = DataSet(name='orings', target='Distressed', attr_names='Rings Distressed Temp Pressure Flightnum')
+    zoo = DataSet(name='zoo', target='type', exclude=['name'],
+                  attr_names='name hair feathers eggs milk airborne aquatic predator toothed backbone '
+                             'breathes venomous fins legs tail domestic catsize type')
 
-zoo = DataSet(name='zoo', target='type', exclude=['name'],
-              attr_names='name hair feathers eggs milk airborne aquatic predator toothed backbone '
-                         'breathes venomous fins legs tail domestic catsize type')
-
-iris = DataSet(name='iris', target='class', attr_names='sepal-len sepal-width petal-len petal-width class')
+    iris = DataSet(name='iris', target='class', attr_names='sepal-len sepal-width petal-len petal-width class')
+except FileNotFoundError:
+    orings = zoo = iris = None
 
 
 def RestaurantDataSet(examples=None):
@@ -1211,7 +1219,10 @@ def RestaurantDataSet(examples=None):
                    attr_names='Alternate Bar Fri/Sat Hungry Patrons Price Raining Reservation Type WaitEstimate Wait')
 
 
-restaurant = RestaurantDataSet()
+try:
+    restaurant = RestaurantDataSet()
+except FileNotFoundError:
+    restaurant = None
 
 
 def T(attr_name, branches):
@@ -1227,7 +1238,7 @@ def T(attr_name, branches):
 A decision tree for deciding whether to wait for a table at a hotel.
 """
 
-waiting_decision_tree = T('Patrons',
+waiting_decision_tree = None if restaurant is None else T('Patrons',
                           {'None': 'No', 'Some': 'Yes',
                            'Full': T('WaitEstimate',
                                      {'>60': 'No', '0-10': 'Yes',
