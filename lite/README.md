@@ -68,13 +68,28 @@ python -m http.server -d _output 8000   # then open http://localhost:8000
 `aima` wheel from the repo root, and bundles it into the JupyterLite site so the
 notebooks can `piplite.install("aima", deps=False)` offline.
 
+## Verify in a real browser
+
+`build.sh` proves the static site *builds*; `verify_browser.py` proves every
+notebook actually *runs* in Pyodide. It serves `_output`, loads real Pyodide in
+headless Chromium, installs the freshly-built wheel and executes each notebook's
+real code cells:
+
+```bash
+pip install playwright nbformat
+python -m playwright install chromium
+cd lite && ./build.sh && python verify_browser.py
+```
+
+It exits non-zero if any notebook errors. All 15 notebooks currently pass.
+
 ## Status / next steps
 
 This is a **proof of concept** (issue #1072 stays open until it is a complete
-companion). Remaining work:
+companion). In-browser execution of all 15 notebooks has been verified with
+`verify_browser.py` (headless Chromium + real Pyodide + the deployed wheel).
+Remaining ideas:
 
-- Verify in-browser execution across browsers (Pyodide runs only in a real
-  browser, so this cannot be checked in headless CI — the CI job only proves the
-  static site *builds*; the notebook code is separately validated against a
-  numpy/networkx/sortedcontainers/scipy environment that mirrors Pyodide).
-- Decide whether to grow this into a full MyST / Jupyter Book textbook companion.
+- Wire `verify_browser.py` into CI (it needs a headless browser, so it would be a
+  separate, heavier job than the build/deploy).
+- Grow this into a full MyST / Jupyter Book textbook companion.
