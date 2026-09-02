@@ -50,7 +50,7 @@ def psource(*functions):
         from pygments.lexers import PythonLexer
         from pygments import highlight
 
-        display(HTML(highlight(source_code, PythonLexer(), HtmlFormatter(full=True))))
+        display(HTML(highlight(source_code, PythonLexer(), HtmlFormatter(noclasses=True, style='monokai'))))
 
     except ImportError:
         print(source_code)

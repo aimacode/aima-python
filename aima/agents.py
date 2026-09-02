@@ -191,7 +191,8 @@ def rule_match(state, rules):
 # ______________________________________________________________________________
 
 
-loc_A, loc_B = (0, 0), (1, 0)  # The two locations for the Vacuum world
+loc_A, loc_B, loc_C, loc_D = (0, 0), (1, 0), (0, 1), (1,1)
+# The four locations for the Vacuum world
 
 
 def RandomVacuumAgent():
@@ -806,8 +807,11 @@ class TrivialVacuumEnvironment(Environment):
 
     def __init__(self):
         super().__init__()
-        self.status = {loc_A: random.choice(['Clean', 'Dirty']),
-                       loc_B: random.choice(['Clean', 'Dirty'])}
+        self.status = {loc_AA: random.choice(['Clean', 'Dirty']),
+                       loc_AB: random.choice(['Clean', 'Dirty']),
+                       loc_BB: random.choice(['Clean', 'Dirty']),
+                       loc_BA: random.choice(['Clean', 'Dirty'])
+                       }
 
     def thing_classes(self):
         """Return the Thing/Agent classes that may populate this vacuum world."""
@@ -821,10 +825,16 @@ class TrivialVacuumEnvironment(Environment):
         """Change agent's location and/or location's status; track performance.
         Score 10 for each dirt cleaned; -1 for each move."""
         if action == 'Right':
-            agent.location = loc_B
+            agent.location[0] += 1
             agent.performance -= 1
         elif action == 'Left':
-            agent.location = loc_A
+            agent.location[0] -= 1
+            agent.performance -= 1
+        elif action == 'Up':
+            agent.location[1] -= 1
+            agent.performance -= 1
+        elif action == 'Down':
+            agent.location[1] += 1
             agent.performance -= 1
         elif action == 'Suck':
             if self.status[agent.location] == 'Dirty':
