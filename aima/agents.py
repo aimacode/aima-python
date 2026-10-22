@@ -34,6 +34,7 @@ from aima.utils import distance_squared, turn_heading
 from statistics import mean
 from IPython.display import HTML, display, clear_output
 from time import sleep
+from aima.mdp import *
 
 import random
 import copy
@@ -316,6 +317,27 @@ def HillClimbingVacuumAgent():
     program.done = False
     return Agent(program)
 
+def RechargeMDPAgent(living_cost = -0.04):
+
+    # specify the grid as a list of lists of rewards
+    # top row first
+    grid = [
+        [living_cost, living_cost, living_cost, living_cost],
+        [living_cost, None,        living_cost, living_cost],
+        [living_cost, living_cost, living_cost, living_cost],
+        [living_cost, -1,           living_cost, 10]
+    ]
+
+    # specify terminal state where decision-making episode ends: ei the trap & recharge
+    terminals = [(1,0), (3,0)]
+
+    mdp = GridMDP(grid, terminals=terminals, init=(3,3), gamma=0.9)  # gamma controls how much future rewards matter
+
+    # calculate best policy using value iteration
+    utilities = value_iteration(mdp, epsilon=0.001)
+    policy = best_policy(mdp, utilities)
+
+    return mdp, utilities, policy
 # ______________________________________________________________________________
 
 
