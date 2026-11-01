@@ -1287,6 +1287,12 @@ class Crossword(NaryCSP):
     writable cell and '*' a blocked cell; each maximal run of two or more cells (across
     or down) becomes a variable sequence constrained to spell one of the given words."""
 
+    @staticmethod
+    def cell(row, col):
+        """Name of the variable of the cell in the given row and column; the separator
+        keeps the names distinct once the grid has ten or more rows or columns."""
+        return "p" + str(col) + "_" + str(row)
+
     def __init__(self, puzzle, words):
         domains = {}
         constraints = []
@@ -1294,7 +1300,7 @@ class Crossword(NaryCSP):
             scope = []
             for j, element in enumerate(line):
                 if element == '_':
-                    var = "p" + str(j) + str(i)
+                    var = self.cell(i, j)
                     domains[var] = list(string.ascii_lowercase)
                     scope.append(var)
                 else:
@@ -1308,7 +1314,7 @@ class Crossword(NaryCSP):
             scope = []
             for j, element in enumerate(line):
                 if element == '_':
-                    scope.append("p" + str(i) + str(j))
+                    scope.append(self.cell(j, i))
                 else:
                     if len(scope) > 1:
                         constraints.append(Constraint(tuple(scope), is_word_constraint(words)))
@@ -1326,7 +1332,7 @@ class Crossword(NaryCSP):
                 if element == '*':
                     puzzle += "[*] "
                 else:
-                    var = "p" + str(j) + str(i)
+                    var = self.cell(i, j)
                     if assignment is not None:
                         if isinstance(assignment[var], set) and len(assignment[var]) == 1:
                             puzzle += "[" + str(first(assignment[var])).upper() + "] "
