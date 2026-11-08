@@ -1,0 +1,16 @@
+graphviz
+ipython
+ipythonblocks
+ipywidgets
+jupyter
+keras
+matplotlib
+networkx
+numpy
+opencv-contrib-python
+pandas
+pillow
+pytest
+pytest-cov
+qpsolvers
+scipy
