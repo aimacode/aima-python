@@ -554,6 +554,14 @@ def test_crossword():
     assert _complete_and_consistent(crossword, ac_solver(crossword))
 
 
+def test_crossword_large_grid_names():
+    # on a 12x12 grid the cells (1, 11) and (11, 1) must be different variables
+    puzzle = [['_'] * 12 for _ in range(12)]
+    crossword = Crossword(puzzle, {'a' * 12})
+    assert len(crossword.variables) == 144
+    assert Crossword.cell(1, 11) != Crossword.cell(11, 1)
+
+
 def test_kakuro():
     kakuro = Kakuro(kakuro2)
     assert _complete_and_consistent(kakuro, ac_solver(kakuro))
