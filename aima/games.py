@@ -466,8 +466,8 @@ class TicTacToe(Game):
     def display(self, state):
         """Print the board as a grid, with empty squares shown as dots."""
         board = state.board
-        for x in range(1, self.h + 1):
-            for y in range(1, self.v + 1):
+        for y in range(1, self.v + 1):
+            for x in range(1, self.h + 1):
                 print(board.get((x, y), '.'), end=' ')
             print()
 
@@ -508,7 +508,7 @@ class ConnectFour(TicTacToe):
     def actions(self, state):
         """Return legal moves: bottom-row squares or squares directly above an occupied one."""
         return [(x, y) for (x, y) in state.moves
-                if x == self.h or (x + 1 , y ) in state.board]
+                if y == self.v or (x, y + 1) in state.board]
 
 class Gomoku(TicTacToe):
     """Also known as Five in a row."""
