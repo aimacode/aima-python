@@ -91,6 +91,23 @@ def test_random_tests():
     # The player 'X' (one who plays first) in TicTacToe never loses:
     assert ttt.play_game(alpha_beta_player, random_player) >= 0
 
+def test_ttt_display_dimensions():
+    import io
+    from contextlib import redirect_stdout
+
+    d = {
+        TicTacToe(): (3, 3),
+        TicTacToe(h=7, v=5): (7, 5), 
+        TicTacToe(h=5, v=7): (5, 7),
+        ConnectFour(): (7, 6)
+    }
+    
+    for game, (h, v) in d.items():
+        output = io.StringIO()
+        with redirect_stdout(output):
+            game.display()
+
+        assert output.getvalue() == (". " * h + "\n") * v
 
 if __name__ == "__main__":
     pytest.main()
