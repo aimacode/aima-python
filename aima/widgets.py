@@ -293,6 +293,17 @@ def moves(n):
     return f'{n} move{"" if n == 1 else "s"}'
 
 
+# the tiles that can move are outlined on hover; the style is scoped to the game
+_GAME_STYLE = (
+    '<style>'
+    '.aima-eight-puzzle-game .aima-tile {font-size: 28px; font-weight: bold; border-radius: 6px;'
+    ' cursor: default;}'
+    '.aima-eight-puzzle-game .aima-movable {cursor: pointer;}'
+    '.aima-eight-puzzle-game .aima-movable:hover {box-shadow: inset 0 0 0 3px #2a9d8f;}'
+    '.aima-eight-puzzle-game .aima-blank {box-shadow: inset 0 0 0 2px #d0d0d0;}'
+    '</style>')
+
+
 class EightPuzzleGame(ipywidgets.VBox):
     """An 8-puzzle the user solves by clicking a tile next to the blank. Any other
     click is refused with a message; when the puzzle is solved the number of
@@ -301,19 +312,23 @@ class EightPuzzleGame(ipywidgets.VBox):
     def __init__(self, initial=None, scramble=16, seed=None):
         self.goal = (1, 2, 3, 4, 5, 6, 7, 8, 0)
         self.scramble, self.rng = scramble, random.Random(seed)
-        self.buttons = [ipywidgets.Button(layout=ipywidgets.Layout(width='64px', height='64px'))
+        self.buttons = [ipywidgets.Button(layout=ipywidgets.Layout(width='80px', height='80px'))
                         for _ in range(9)]
         for i, button in enumerate(self.buttons):
-            button.style.font_weight = 'bold'
+            button.add_class('aima-tile')
             button.on_click(lambda b, i=i: self.click(i))
         board = ipywidgets.GridBox(self.buttons, layout=ipywidgets.Layout(
-            grid_template_columns='repeat(3, 64px)', grid_gap='4px', width='204px'))
+            grid_template_columns='repeat(3, 80px)', grid_gap='4px', width='252px',
+            padding='4px', border='1px solid #d0d0d0'))
         self.message = ipywidgets.HTML()
-        new_button = ipywidgets.Button(description='New puzzle', icon='random')
+        new_button = ipywidgets.Button(description='New puzzle', icon='random',
+                                       layout=ipywidgets.Layout(width='124px'))
         new_button.on_click(lambda b: self.new())
-        restart_button = ipywidgets.Button(description='Restart', icon='undo')
+        restart_button = ipywidgets.Button(description='Restart', icon='undo',
+                                           layout=ipywidgets.Layout(width='124px'))
         restart_button.on_click(lambda b: self.start(self.initial))
-        super().__init__([board, ipywidgets.HBox([new_button, restart_button]), self.message])
+        super().__init__([ipywidgets.HTML(_GAME_STYLE), board,
+                          ipywidgets.HBox([new_button, restart_button]), self.message])
         self.add_class('aima-eight-puzzle-game')
         self.start(initial or scrambled_eight_puzzle(scramble, self.goal, self.rng.random()))
 
@@ -324,27 +339,38 @@ class EightPuzzleGame(ipywidgets.VBox):
     def start(self, state):
         """Start (or restart) the game from the given state."""
         self.initial, self.state, self.moves, self.solved = tuple(state), tuple(state), 0, False
-        self.draw('Click a tile next to the blank to slide it.')
+        self.draw('click a tile next to the blank')
+
+    def movable(self, i):
+        """Is the tile in square i next to the blank?"""
+        blank = self.state.index(0)
+        return abs(i // 3 - blank // 3) + abs(i % 3 - blank % 3) == 1
 
     def draw(self, text):
-        """Show the current state and a message."""
-        for button, tile in zip(self.buttons, self.state):
+        """Show the current state and a one-line status."""
+        for i, (button, tile) in enumerate(zip(self.buttons, self.state)):
             button.description = str(tile) if tile else '\u00a0'  # a blank label may not refresh
-            button.style.button_color = '#555555' if tile == 0 else COLORS['tile']
-        self.message.value = f'Moves: {self.moves}. {text}'
+            button.style.button_color = '#fafafa' if tile == 0 else COLORS['tile']
+            for name, on in (('aima-blank', tile == 0),
+                             ('aima-movable', tile != 0 and not self.solved and self.movable(i))):
+                if on:
+                    button.add_class(name)
+                else:
+                    button.remove_class(name)
+        self.message.value = f'Moves: {self.moves} &middot; {text}'
 
     def click(self, i):
         """Slide tile i into the blank if they are adjacent, else refuse."""
         if self.solved:
-            self.draw('Solved already: press New puzzle to play again.')
+            self.draw('solved, press New puzzle to play again')
+            return
+        if self.state[i] == 0:
+            self.draw('that is the blank, click a tile next to it')
+            return
+        if not self.movable(i):
+            self.draw(f'tile {self.state[i]} is not next to the blank, so it cannot move')
             return
         blank = self.state.index(0)
-        if i == blank:
-            self.draw('That is the blank: click a tile next to it.')
-            return
-        if abs(i // 3 - blank // 3) + abs(i % 3 - blank % 3) != 1:
-            self.draw(f'Tile {self.state[i]} is not next to the blank, so it cannot move.')
-            return
         state = list(self.state)
         state[blank], state[i] = state[i], 0
         self.state, self.moves = tuple(state), self.moves + 1
@@ -352,13 +378,12 @@ class EightPuzzleGame(ipywidgets.VBox):
             self.solved = True
             optimum = len(astar_search(EightPuzzle(self.initial, self.goal),
                                        lambda n: manhattan(n, self.goal)).solution())
-            verdict = 'optimal.'
+            verdict = 'optimal'
             if self.moves > optimum:
-                verdict = f'{moves(self.moves - optimum)} longer than the optimum.'
-            self.draw(f'<b>Solved in {moves(self.moves)}.</b> '
-                      f'A* finds a solution in {moves(optimum)}, so yours is {verdict}')
+                verdict = f'{moves(self.moves - optimum)} longer than the optimum'
+            self.draw(f'<b>solved</b>, A* needs {moves(optimum)}, so yours is {verdict}')
         else:
-            self.draw('')
+            self.draw('click a tile next to the blank')
 
 
 # ______________________________________________________________________________

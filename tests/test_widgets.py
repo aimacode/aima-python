@@ -41,12 +41,13 @@ def test_eight_puzzle_game():
     assert scrambled_eight_puzzle(30, seed=1) == scrambled_eight_puzzle(30, seed=1)
     assert EightPuzzle(scrambled_eight_puzzle(30, seed=2)).check_solvability(scrambled_eight_puzzle(30, seed=2))
     game = EightPuzzleGame(initial=(1, 2, 3, 4, 5, 6, 0, 7, 8))
+    assert 'aima-movable' in game.buttons[7]._dom_classes and 'aima-movable' not in game.buttons[0]._dom_classes
     game.click(0)
     assert game.moves == 0 and 'cannot move' in game.message.value
     game.click(7)
     game.click(8)
     assert game.solved and game.moves == 2
-    assert 'Solved in 2 moves' in game.message.value and 'optimal' in game.message.value
+    assert 'Moves: 2' in game.message.value and 'yours is optimal' in game.message.value
     game.start((1, 2, 3, 4, 5, 6, 7, 0, 8))
     game.click(6)  # a legal but useless move, then back and forward
     game.click(7)
