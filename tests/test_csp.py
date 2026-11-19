@@ -749,5 +749,11 @@ def test_record_csp():
     assert [] in csp.curr_domains.values()
 
 
+def test_isolated_region():
+    # Tasmania has no neighbors but is still a variable of the map (Figure 6.1)
+    assert 'T' in australia_csp.variables and australia_csp.neighbors['T'] == []
+    csp = MapColoringCSP(list('RGB'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
+    assert set(backtracking_search(csp)) == {'SA', 'WA', 'NT', 'Q', 'NSW', 'V', 'T'}
+
 if __name__ == "__main__":
     pytest.main()

@@ -86,7 +86,7 @@ def test_map_coloring_game():
     game.click('SA')
     game.click('WA')  # same color as SA
     assert 'WA' not in game.assignment and 'cannot be R' in game.message.value
-    for value, regions in (('G', ['WA', 'Q', 'V']), ('B', ['NT', 'NSW'])):
+    for value, regions in (('G', ['WA', 'Q', 'V', 'T']), ('B', ['NT', 'NSW'])):
         game.color.value = value
         for region in regions:
             game.click(region)

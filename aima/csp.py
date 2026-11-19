@@ -684,6 +684,7 @@ def parse_neighbors(neighbors):
     specs = [spec.split(':') for spec in neighbors.split(';')]
     for (A, Aneighbors) in specs:
         A = A.strip()
+        dic[A]  # a region with no neighbors (e.g. 'T: ') is still a region
         for B in Aneighbors.split():
             dic[A].append(B)
             dic[B].append(A)
