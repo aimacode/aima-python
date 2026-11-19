@@ -17,3 +17,8 @@ Utilities & Notebook Helpers
    :show-inheritance:
 
 
+
+.. automodule:: aima.widgets
+   :members:
+   :undoc-members:
+   :show-inheritance:
