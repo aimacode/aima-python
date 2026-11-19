@@ -536,5 +536,29 @@ def test_node_path_states():
     assert len(node.solution()) == len(states) - 1   # actions are the path's edges
 
 
+def test_recording_problem():
+    # the wrapper records the run without changing what the search returns
+    for search in (breadth_first_graph_search, uniform_cost_search, astar_search,
+                   depth_first_graph_search):
+        recorder = RecordingProblem(GraphProblem('Arad', 'Bucharest', romania_map))
+        goal = search(recorder)
+        plain = search(GraphProblem('Arad', 'Bucharest', romania_map))
+        assert goal.path_states() == plain.path_states()
+        steps = recorder.steps(goal)
+        assert steps[0] == dict(current=None, frontier={'Arad'}, explored=set())
+        assert steps[1]['current'] == 'Arad' and steps[1]['frontier'] == {'Sibiu', 'Timisoara', 'Zerind'}
+        assert steps[-1]['path'] == plain.path_states() and steps[-1]['cost'] == plain.path_cost
+        assert len(steps) == recorder.succs + 2  # initial step + one per expansion + goal step
+        for step in steps[1:-1]:
+            assert step['current'] in step['explored']
+            assert not step['frontier'] & step['explored']
+    recorder = RecordingProblem(GraphProblem('Arad', 'Bucharest', romania_map))
+    astar_search(recorder)
+    assert [step['current'] for step in recorder.steps()] == [None, 'Arad', 'Sibiu', 'Fagaras', 'Rimnicu',
+                                                              'Pitesti']
+    recorder = RecordingProblem(NQueensProblem(4))
+    assert depth_first_tree_search(recorder).state == depth_first_tree_search(NQueensProblem(4)).state
+
+
 if __name__ == '__main__':
     pytest.main()

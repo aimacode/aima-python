@@ -2039,6 +2039,61 @@ class InstrumentedProblem(Problem):
                                                self.states, str(self.found)[:4])
 
 
+class RecordingProblem(InstrumentedProblem):
+    """Delegates to a problem, like InstrumentedProblem, and also records the
+    order in which states are expanded and generated, so that a run of any
+    search function can be replayed step by step. The search function is called
+    unchanged, with this wrapper in place of the problem:
+    >>> problem = RecordingProblem(GraphProblem('Arad', 'Bucharest', romania_map))
+    >>> goal = astar_search(problem)
+    >>> [step['current'] for step in problem.steps()][:4]
+    [None, 'Arad', 'Sibiu', 'Fagaras']
+    """
+
+    def __init__(self, problem):
+        super().__init__(problem)
+        self.events = []
+
+    def actions(self, state):
+        """A search function asks for the actions of a state when it expands it."""
+        self.events.append(('expand', state))
+        return super().actions(state)
+
+    def result(self, state, action):
+        """Delegate to the wrapped problem, recording the generated state."""
+        child = super().result(state, action)
+        self.events.append(('generate', child))
+        return child
+
+    def steps(self, goal=None):
+        """Return the recorded run as a list of steps, one per expansion. Each step
+        is a dict with the state being expanded ('current'), the states expanded
+        so far ('explored') and the states generated but not yet expanded
+        ('frontier'). The first step shows the initial state alone in the frontier;
+        if the goal node returned by the search is given, a last step adds its
+        'path' (a list of states) and its 'cost'. The frontier is a set of states,
+        which is exact for graph search; tree search may hold the same state in
+        several nodes."""
+        reached, explored = {self.problem.initial}, set()
+        steps = [dict(current=None, frontier=set(reached), explored=set())]
+        current = None
+        for kind, state in self.events:
+            if kind == 'expand':
+                if current is not None:
+                    steps.append(dict(current=current, frontier=reached - explored,
+                                      explored=set(explored)))
+                current = state
+                explored.add(state)
+            else:
+                reached.add(state)
+        if current is not None:
+            steps.append(dict(current=current, frontier=reached - explored, explored=set(explored)))
+        if goal is not None:
+            steps.append(dict(current=goal.state, frontier=reached - explored - {goal.state},
+                              explored=set(explored), path=goal.path_states(), cost=goal.path_cost))
+        return steps
+
+
 def compare_searchers(problems, header,
                       searchers=[breadth_first_tree_search,
                                  breadth_first_graph_search,
