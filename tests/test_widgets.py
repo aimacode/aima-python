@@ -1,5 +1,8 @@
+import random
+
 import pytest
 
+from aima.csp import MapColoringCSP, NQueensCSP, AC3, backtracking_search, forward_checking, min_conflicts
 from aima.search import *
 from aima.widgets import *
 
@@ -53,6 +56,41 @@ def test_eight_puzzle_game():
     game.click(7)
     game.click(8)
     assert game.solved and '2 moves longer than the optimum' in game.message.value
+
+
+def australia():
+    return MapColoringCSP(list('RGB'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
+
+
+def test_csp_player():
+    player = csp_player(backtracking_search, australia(), inference=forward_checking)
+    assert 'Start' in player.view.value
+    player.step()
+    assert 'assign <b>SA = R</b>' in player.view.value
+    player.slider.value = player.slider.max
+    assert player.frames[-1]['assignment'] == backtracking_search(australia(), inference=forward_checking)
+    assert 'Solved' in player.view.value
+    csp = australia()
+    csp.support_pruning()
+    player = csp_player(lambda c: AC3(c, removals=c.suppose('WA', 'R') + c.suppose('Q', 'G')), csp)
+    player.slider.value = player.slider.max
+    assert [] in player.frames[-1]['domains'].values() and 'Inconsistent' in player.view.value
+    random.seed(0)
+    player = csp_player(min_conflicts, NQueensCSP(4), max_steps=100)
+    player.slider.value = player.slider.max
+    assert player.view.value.count('Q</text>') == 4 and 'Solved' in player.view.value
+
+
+def test_map_coloring_game():
+    game = MapColoringGame(australia())
+    game.click('SA')
+    game.click('WA')  # same color as SA
+    assert 'WA' not in game.assignment and 'cannot be R' in game.message.value
+    for value, regions in (('G', ['WA', 'Q', 'V']), ('B', ['NT', 'NSW'])):
+        game.color.value = value
+        for region in regions:
+            game.click(region)
+    assert 'solved' in game.message.value
 
 
 if __name__ == '__main__':
