@@ -19,7 +19,14 @@ OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
 rm -f "$HERE"/aima-*.whl
 python -m build --wheel --outdir "$HERE" "$ROOT"
 
-# 2. Build the static JupyterLite site.
+# 2. Bundle the ipywidgets wheels, the same versions as the widget labextension
+#    installed here by requirements-lite.txt, so that the notebooks with widgets
+#    work offline once the site has loaded (piplite indexes the wheels in pypi/).
+rm -rf "$HERE/pypi"
+python -m pip download --quiet --no-deps --only-binary=:all: --dest "$HERE/pypi" \
+    $(python -m pip list --format=freeze | grep -iE '^(ipywidgets|jupyterlab[-_]widgets|comm)==')
+
+# 3. Build the static JupyterLite site.
 cd "$HERE"
 jupyter lite build --output-dir "$OUTPUT_DIR"
 
