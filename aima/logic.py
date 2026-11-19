@@ -35,6 +35,7 @@ And a few other functions:
 import heapq
 import itertools
 import random
+import sys
 from collections import defaultdict, Counter
 
 import networkx as nx
@@ -762,6 +763,38 @@ def dpll(clauses, symbols, model, branching_heuristic=no_branching_heuristic):
     P, value = branching_heuristic(symbols, unknown_clauses)
     return (dpll(clauses, remove_all(P, symbols), extend(model, P, value), branching_heuristic) or
             dpll(clauses, remove_all(P, symbols), extend(model, P, not value), branching_heuristic))
+
+
+def traced_dpll_satisfiable(s, branching_heuristic=no_branching_heuristic):
+    """Run dpll_satisfiable(s) and return its result together with the calls of
+    dpll it made, so that the search can be replayed step by step: a list of
+    ('call', model, depth) and ('return', result, depth) events, in order. The
+    calls are observed with a profile hook (sys.setprofile), so dpll runs
+    unchanged.
+    >>> result, events = traced_dpll_satisfiable(A & ~B)
+    >>> [event for event in events if event[0] == 'call'][-1][1] == {A: True, B: False}
+    True
+    """
+    events, depth = [], [0]
+    previous = sys.getprofile()
+
+    def profile(frame, event, arg):
+        if frame.f_code is dpll.__code__:
+            if event == 'call':
+                events.append(('call', dict(frame.f_locals['model']), depth[0]))
+                depth[0] += 1
+            elif event == 'return':
+                depth[0] -= 1
+                events.append(('return', arg, depth[0]))
+        if previous is not None:
+            previous(frame, event, arg)
+
+    sys.setprofile(profile)
+    try:
+        result = dpll_satisfiable(s, branching_heuristic)
+    finally:
+        sys.setprofile(previous)
+    return result, events
 
 
 def find_pure_symbol(symbols, clauses):

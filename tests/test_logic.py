@@ -449,5 +449,16 @@ def test_gensym():
     assert variables(s1 | s2) == {s1, s2}                 # usable in expressions
 
 
+def test_traced_dpll_satisfiable():
+    # the trace does not change the result, and the calls build the model one symbol at a time
+    for sentence in (expr('(A | B) & (~A | C) & (~C | ~B)'), expr('A & ~A'), expr('P12') & associate('&', wumpus_kb.clauses)):
+        result, events = traced_dpll_satisfiable(sentence)
+        assert result == dpll_satisfiable(sentence)
+        calls = [event for event in events if event[0] == 'call']
+        assert calls[0] == ('call', {}, 0)
+        assert all(len(model) == depth for _, model, depth in calls)
+        assert len(calls) == len([event for event in events if event[0] == 'return'])
+
+
 if __name__ == '__main__':
     pytest.main()

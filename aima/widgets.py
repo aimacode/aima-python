@@ -19,7 +19,9 @@ the user solve an 8-puzzle by clicking the tiles, and MapColoringGame color a ma
 game_tree_player replays the tree that minimax or alpha-beta explores (recorded
 with RecordingGame, in aima.games), and TicTacToeGame plays against them.
 plan_player executes a plan one action at a time, and graph_plan_player shows
-the planning graph that GraphPlan builds, level by level.
+the planning graph that GraphPlan builds, level by level. dpll_player replays
+DPLL (traced with traced_dpll_satisfiable, in aima.logic), and WumpusWorldGame
+lets the user explore the wumpus world while a KB says which squares are safe.
 """
 
 import copy
@@ -32,7 +34,11 @@ import ipywidgets
 
 from aima.csp import NQueensCSP, record_csp
 from aima.games import RecordingGame, TicTacToe, alpha_beta_search, minmax_decision
+from aima.logic import (associate, breeze, conjuncts, dpll_satisfiable, find_pure_symbol,
+                        find_unit_clause, pit, pl_true, prop_symbols, stench, to_cnf,
+                        traced_dpll_satisfiable, wumpus)
 from aima.planning import GraphPlan
+from aima.utils import Expr
 from aima.search import (EightPuzzle, Node, RecordingProblem, astar_search)
 
 # colors of the views (state of a node of the search, and the board squares)
@@ -1019,3 +1025,198 @@ def graph_plan_player(planning_problem, speed=1.0):
                 f'{"".join(columns)}</div><div>{caption}</div>')
 
     return Player(frames, render, speed)
+
+
+# ______________________________________________________________________________
+# Logic
+
+
+def dpll_steps(sentence, events):
+    """Turn the events of traced_dpll_satisfiable into steps: dicts with the
+    'model' of each call (or of each failed call, on a backtrack), the 'depth',
+    and what happened, as text ('what')."""
+    clauses = conjuncts(to_cnf(sentence))
+    symbols = prop_symbols(sentence)
+    steps, path = [], []
+    for kind, value, depth in events:
+        if kind == 'call':
+            path[depth:] = [value]
+            if depth == 0:
+                what = 'start with an empty model'
+            else:
+                parent = path[depth - 1]
+                (symbol, truth), = [(s, v) for s, v in value.items() if s not in parent]
+                remaining = [s for s in symbols if s not in parent]
+                unknown = [c for c in clauses if pl_true(c, parent) is None]
+                if find_pure_symbol(remaining, unknown) == (symbol, truth):
+                    rule = 'pure symbol'
+                elif find_unit_clause(clauses, parent) == (symbol, truth):
+                    rule = 'unit clause'
+                else:
+                    rule = 'branch'
+                what = f'{rule}: {symbol} = {truth}'
+            steps.append(dict(model=value, depth=depth, what=what))
+        elif value is False and depth < len(path):
+            false = [c for c in clauses if pl_true(c, path[depth]) is False]
+            what = (f'clause {false[0]} is false: fail' if false else
+                    'every way to go on failed: fail')
+            steps.append(dict(model=path[depth], depth=depth, what=what))
+    return steps
+
+
+def dpll_player(sentence, speed=1.0):
+    """Run DPLL on a propositional sentence (traced with traced_dpll_satisfiable,
+    so dpll itself is unchanged) and return a Player that shows, one call per
+    step, the model being built, why the last symbol got its value (pure symbol,
+    unit clause or branch), and each clause of the CNF as true, false or unknown."""
+    result, events = traced_dpll_satisfiable(sentence)
+    steps = dpll_steps(sentence, events)
+    clauses = conjuncts(to_cnf(sentence))
+    symbols = sorted(prop_symbols(sentence), key=str)
+
+    def render(player, i):
+        step = steps[i]
+        model = step['model']
+        chips = []
+        for symbol in symbols:
+            if symbol in model:
+                color = COLORS['path'] if model[symbol] else COLORS['current']
+                chips.append(f'<span style="background:{color};color:#ffffff;padding:2px 6px;'
+                             f'border-radius:4px">{escape(str(symbol))} = {model[symbol]}</span>')
+            else:
+                chips.append(f'<span style="border:1px solid #bbbbbb;padding:1px 6px;'
+                             f'border-radius:4px">{escape(str(symbol))}</span>')
+        rows = []
+        for clause in clauses:
+            value = pl_true(clause, model)
+            style = {True: f'color:{COLORS["path"]}', False: f'color:{COLORS["current"]};'
+                     f'font-weight:bold', None: ''}[value]
+            rows.append(f'<span style="{style}">{escape(str(clause))}</span>')
+        caption = f'Step {i} of {len(steps) - 1} (depth {step["depth"]}): {escape(step["what"])}.'
+        if i == len(steps) - 1:
+            caption += ' Satisfiable.' if result else ' Unsatisfiable: no model exists.'
+        return ('<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0">'
+                f'{"".join(chips)}</div>'
+                '<div style="font-family:monospace;columns:2;max-width:640px">'
+                f'{"<br>".join(rows)}</div>'
+                f'<div>{caption}</div>')
+
+    return Player(steps, render, speed)
+
+
+class WumpusWorldGame(ipywidgets.VBox):
+    """Explore the wumpus world of Figure 7.2 by clicking a square next to the
+    agent. The agent perceives a stench next to the wumpus, a breeze next to a
+    pit and a glitter on the gold; after each move a propositional KB made of the
+    rules and percepts of the visited squares is asked, with DPLL, which squares
+    next to them are provably safe, provably a pit or the wumpus, or unknown."""
+
+    def __init__(self, wumpus_at=(1, 3), pits=((3, 1), (3, 3), (4, 4)), gold=(2, 3), size=4):
+        self.wumpus_at, self.pits, self.gold, self.size = wumpus_at, set(pits), gold, size
+        self.buttons = {}
+        for y in range(size, 0, -1):
+            for x in range(1, size + 1):
+                button = ipywidgets.Button(layout=ipywidgets.Layout(width='80px', height='64px'))
+                button.add_class('aima-tile')
+                button.style.font_size = '13px'
+                button.on_click(lambda b, square=(x, y): self.click(square))
+                self.buttons[(x, y)] = button
+        layout = ipywidgets.Layout(grid_template_columns=f'repeat({size}, 80px)', grid_gap='4px',
+                                   padding='4px', border='1px solid #d0d0d0',
+                                   width=f'{84 * size + 10}px')
+        board = ipywidgets.GridBox([self.buttons[(x, y)] for y in range(size, 0, -1)
+                                    for x in range(1, size + 1)], layout=layout)
+        new_button = ipywidgets.Button(description='Start again', icon='undo')
+        new_button.on_click(lambda b: self.start())
+        self.message = ipywidgets.HTML()
+        super().__init__([ipywidgets.HTML(_GAME_STYLE), board, new_button, self.message])
+        self.add_class('aima-wumpus-world-game')
+        self.start()
+
+    def neighbors(self, square):
+        """The squares next to square, inside the grid."""
+        x, y = square
+        return [(x + dx, y + dy) for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1))
+                if 1 <= x + dx <= self.size and 1 <= y + dy <= self.size]
+
+    def percepts(self, square):
+        """The percepts in square."""
+        found = []
+        if any(n == self.wumpus_at for n in self.neighbors(square)):
+            found.append('Stench')
+        if any(n in self.pits for n in self.neighbors(square)):
+            found.append('Breeze')
+        if square == self.gold:
+            found.append('Glitter')
+        return found
+
+    def kb(self):
+        """The sentence the agent knows: no pit or wumpus where it has been, and the
+        breeze and stench rules of the visited squares with what it perceived."""
+        facts = []
+        for square in self.visited:
+            percepts = self.percepts(square)
+            facts += [~pit(*square), ~wumpus(*square)]
+            for symbol, cause, seen in ((breeze, pit, 'Breeze'), (stench, wumpus, 'Stench')):
+                around = associate('|', [cause(*n) for n in self.neighbors(square)])
+                facts.append(Expr('<=>', symbol(*square), around))
+                facts.append(symbol(*square) if seen in percepts else ~symbol(*square))
+        return associate('&', facts)
+
+    def entails(self, kb, alpha):
+        """Does kb entail alpha? It does when ``kb & ~alpha`` has no model (checked with
+        DPLL)."""
+        return not dpll_satisfiable(kb & ~alpha)
+
+    def start(self):
+        """Put the agent back in [1,1]."""
+        self.agent, self.visited, self.over = (1, 1), {(1, 1)}, False
+        self.draw('click a square next to the agent to move there')
+
+    def draw(self, text):
+        """Show the grid, what the KB proves about the squares next to the visited
+        ones, and a one-line status."""
+        kb = self.kb()
+        frontier = {n for square in self.visited for n in self.neighbors(square)} - self.visited
+        for square, button in self.buttons.items():
+            label, color = ' ', '#fafafa'
+            if square in self.visited:
+                label = ' '.join(p[0] for p in self.percepts(square)) or 'OK'
+                color = COLORS['explored']
+            elif square in frontier and not self.over:
+                if self.entails(kb, ~pit(*square) & ~wumpus(*square)):
+                    label, color = 'safe', '#cfe8cf'
+                elif self.entails(kb, pit(*square)):
+                    label, color = 'pit!', '#f4b6b6'
+                elif self.entails(kb, wumpus(*square)):
+                    label, color = 'wumpus!', '#f4b6b6'
+                else:
+                    label, color = '?', COLORS['frontier']
+            if square == self.agent:
+                label = 'A ' + (label if label != ' ' else '')
+            button.description = label
+            button.style.button_color = color
+        percepts = ', '.join(self.percepts(self.agent)) or 'nothing'
+        here = f'[{self.agent[0]},{self.agent[1]}]'
+        self.message.value = f'In {here} you perceive {percepts} &middot; {text}'
+
+    def click(self, square):
+        """Move the agent to square if it is next to it."""
+        if self.over:
+            self.draw('press Start again to play again')
+            return
+        if square not in self.neighbors(self.agent):
+            self.draw('you can only move to a square next to the agent')
+            return
+        self.agent = square
+        self.visited.add(square)
+        if square in self.pits or square == self.wumpus_at:
+            self.over = True
+            what = 'a pit' if square in self.pits else 'the wumpus'
+            self.draw(f'<b>you fell into {what}</b>; the safe squares were the green ones')
+        elif square == self.gold:
+            self.over = True
+            self.draw('<b>you found the gold</b>')
+        else:
+            self.draw('S = stench, B = breeze, G = glitter; safe, pit! and wumpus! are proved '
+                      'by the KB, ? is unknown')
