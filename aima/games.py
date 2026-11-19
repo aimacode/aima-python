@@ -328,6 +328,89 @@ class Game:
                     return self.utility(state, self.to_move(self.initial))
 
 
+class RecordingGame(Game):
+    """Delegates to a game, and records the game tree that a search explores, so
+    that the run can be replayed node by node. The search function is called
+    unchanged, with this wrapper in place of the game:
+    >>> game = RecordingGame(Fig52Game())
+    >>> alpha_beta_search('A', game)
+    'a1'
+    >>> [node['state'] for node in game.nodes]
+    ['A', 'B', 'B1', 'B2', 'B3', 'C', 'C1', 'D', 'D1', 'D2', 'D3']
+
+    Each node is a dict with its 'state', the index of its 'parent' (None for
+    the root), the 'move' that led to it, the 'actions' available in it and,
+    for a leaf, the 'utility' the search asked for. The nodes are in the order
+    the search visited them; an action of a node with no child for it was
+    pruned."""
+
+    def __init__(self, game):
+        self.game = game
+        self.nodes = []
+        self.path = []  # indices of the nodes from the root to the current one
+
+    def node(self, state):
+        """Return the index of the node of state on the current path, creating
+        the root if the tree is empty."""
+        if not self.nodes:
+            self.nodes.append(dict(state=state, parent=None, move=None, actions=None))
+            self.path = [0]
+        while len(self.path) > 1 and self.nodes[self.path[-1]]['state'] != state:
+            self.path.pop()
+        return self.path[-1]
+
+    def actions(self, state):
+        """Delegate to the wrapped game, recording the actions of the node."""
+        actions = self.game.actions(state)
+        self.nodes[self.node(state)]['actions'] = list(actions)
+        return actions
+
+    def result(self, state, move):
+        """Delegate to the wrapped game, adding the child to the tree."""
+        child = self.game.result(state, move)
+        parent = self.node(state)
+        self.nodes.append(dict(state=child, parent=parent, move=move, actions=None))
+        self.path.append(len(self.nodes) - 1)
+        return child
+
+    def utility(self, state, player):
+        """Delegate to the wrapped game, recording the utility of the leaf."""
+        value = self.game.utility(state, player)
+        if self.nodes:
+            self.nodes[self.node(state)]['utility'] = value
+        return value
+
+    def terminal_test(self, state):
+        """Delegate the terminal test to the wrapped game."""
+        return self.game.terminal_test(state)
+
+    def to_move(self, state):
+        """Delegate to the wrapped game."""
+        return self.game.to_move(state)
+
+    def __getattr__(self, attr):
+        return getattr(self.game, attr)
+
+    def values(self, maximizer):
+        """Return the backed-up value of every recorded node, from the point of
+        view of maximizer: the utility of a leaf, else the max (for maximizer to
+        move) or the min of the values of its explored children. For a node cut
+        off by alpha-beta this is the bound the search returned for it."""
+        children = [[] for _ in self.nodes]
+        for i, node in enumerate(self.nodes):
+            if node['parent'] is not None:
+                children[node['parent']].append(i)
+        values = [None] * len(self.nodes)
+        for i in reversed(range(len(self.nodes))):  # children come after parents
+            node = self.nodes[i]
+            if 'utility' in node:
+                values[i] = node['utility']
+            elif children[i]:
+                best = max if self.game.to_move(node['state']) == maximizer else min
+                values[i] = best(values[c] for c in children[i])
+        return values
+
+
 class StochasticGame(Game):
     """A stochastic game includes uncertain events which influence
     the moves of players at each state. To create a stochastic game, subclass

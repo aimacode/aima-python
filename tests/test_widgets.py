@@ -3,6 +3,7 @@ import random
 import pytest
 
 from aima.csp import MapColoringCSP, NQueensCSP, AC3, backtracking_search, forward_checking, min_conflicts
+from aima.games import Fig52Game, alpha_beta_search, minmax_decision
 from aima.search import *
 from aima.widgets import *
 
@@ -91,6 +92,33 @@ def test_map_coloring_game():
         for region in regions:
             game.click(region)
     assert 'solved' in game.message.value
+
+
+def test_game_tree_player():
+    player = game_tree_player(alpha_beta_search, Fig52Game())
+    assert len(player.frames) == 11
+    player.slider.value = 6  # leaf C1, after which C is done
+    assert 'back up C = 2' in player.view.value and 'pruned' in player.view.value
+    player.slider.value = player.slider.max
+    assert 'best move is <b>a1</b>, with value 3' in player.view.value
+    assert '2 actions pruned' in player.view.value
+    player = game_tree_player(minmax_decision, Fig52Game())
+    player.slider.value = player.slider.max
+    assert '0 actions pruned' in player.view.value
+
+
+def test_tic_tac_toe_game():
+    game = TicTacToeGame()
+    game.click((1, 1))
+    assert game.state.board[(1, 1)] == 'X' and len(game.state.board) == 2
+    assert 'alpha-beta looked at' in game.message.value
+    game.click((1, 1))
+    assert 'taken' in game.message.value and len(game.state.board) == 2
+    random.seed(1)
+    game.opponent.value = 'random'
+    while not game.game.terminal_test(game.state):
+        game.click(game.state.moves[0])
+    assert any(word in game.message.value for word in ('you win', 'O wins', 'draw'))
 
 
 if __name__ == '__main__':

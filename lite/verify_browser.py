@@ -13,8 +13,8 @@ loaded to mirror the JupyterLite kernel, which always provides it.
 With --lab NAME [NAME ...] it also opens those notebooks in the JupyterLite
 app itself, runs all their cells in the real kernel, checks that no cell fails
 and that every widget renders, presses Play and Step on the step-through players
-and clicks the tiles of the 8-puzzle game and the regions of the map-coloring
-game (see aima/widgets.py), and saves a
+and clicks the tiles of the 8-puzzle game, the regions of the map-coloring game
+and the squares of the tic-tac-toe game (see aima/widgets.py), and saves a
 screenshot of each widget in lite/_screenshots.
 
 Setup (one-off):
@@ -175,6 +175,22 @@ async def check_lab(browser, name):
         if "cannot be" not in message:
             problems.append(f"map coloring game {i}: {message!r}")
         await game.screenshot(path=str(SHOTS / f"{name}-map-game-{i}.png"))
+    boards = page.locator(".aima-tic-tac-toe-game")
+    for i in range(await boards.count()):
+        game = boards.nth(i)
+        await game.scroll_into_view_if_needed()
+        squares = game.locator(".widget-gridbox button")
+        await squares.nth(0).click()
+        await page.wait_for_timeout(3000)
+        message = await game.locator(".widget-html").last.inner_text()
+        marks = [(await squares.nth(j).inner_text()).strip() for j in range(9)]
+        await squares.nth(0).click()  # taken
+        await page.wait_for_timeout(1500)
+        taken = await game.locator(".widget-html").last.inner_text()
+        if marks.count("X") != 1 or marks.count("O") != 1 or "looked at" not in message \
+                or "taken" not in taken:
+            problems.append(f"tic-tac-toe game {i}: {marks}, {message!r}, {taken!r}")
+        await game.screenshot(path=str(SHOTS / f"{name}-tic-tac-toe-{i}.png"))
     await page.screenshot(path=str(SHOTS / f"{name}-page.png"), full_page=True)
     await page.close()
     return problems

@@ -16,6 +16,8 @@ the functions themselves unchanged. The ready-made players are:
 
 The CSP solvers are recorded with record_csp (in aima.csp). EightPuzzleGame lets
 the user solve an 8-puzzle by clicking the tiles, and MapColoringGame color a map.
+game_tree_player replays the tree that minimax or alpha-beta explores (recorded
+with RecordingGame, in aima.games), and TicTacToeGame plays against them.
 """
 
 import itertools
@@ -26,6 +28,7 @@ from html import escape
 import ipywidgets
 
 from aima.csp import NQueensCSP, record_csp
+from aima.games import RecordingGame, TicTacToe, alpha_beta_search, minmax_decision
 from aima.search import (EightPuzzle, Node, RecordingProblem, astar_search)
 
 # colors of the views (state of a node of the search, and the board squares)
@@ -297,14 +300,14 @@ def moves(n):
     return f'{n} move{"" if n == 1 else "s"}'
 
 
-# the tiles that can move are outlined on hover; the style is scoped to the game
+# the tiles that can move are outlined on hover; the style is scoped to the games
 _GAME_STYLE = (
     '<style>'
-    '.aima-eight-puzzle-game .aima-tile {font-size: 28px; font-weight: bold; border-radius: 6px;'
+    '.aima-game .aima-tile {font-size: 28px; font-weight: bold; border-radius: 6px;'
     ' cursor: default;}'
-    '.aima-eight-puzzle-game .aima-movable {cursor: pointer;}'
-    '.aima-eight-puzzle-game .aima-movable:hover {box-shadow: inset 0 0 0 3px #2a9d8f;}'
-    '.aima-eight-puzzle-game .aima-blank {box-shadow: inset 0 0 0 2px #d0d0d0;}'
+    '.aima-game .aima-movable {cursor: pointer;}'
+    '.aima-game .aima-movable:hover {box-shadow: inset 0 0 0 3px #2a9d8f;}'
+    '.aima-game .aima-blank {box-shadow: inset 0 0 0 2px #d0d0d0;}'
     '</style>')
 
 
@@ -334,6 +337,7 @@ class EightPuzzleGame(ipywidgets.VBox):
         super().__init__([ipywidgets.HTML(_GAME_STYLE), board,
                           ipywidgets.HBox([new_button, restart_button]), self.message])
         self.add_class('aima-eight-puzzle-game')
+        self.add_class('aima-game')
         self.start(initial or scrambled_eight_puzzle(scramble, self.goal, self.rng.random()))
 
     def new(self):
@@ -646,3 +650,223 @@ class MapColoringGame(ipywidgets.VBox):
             self.draw('<b>solved</b>, no two neighboring regions share a color')
         else:
             self.draw(f'{var} = {value}', highlight=var)
+
+
+# ______________________________________________________________________________
+# Games
+
+
+def game_tree_layout(game, nodes):
+    """Place the recorded nodes, and a stub for each pruned action, on a grid:
+    x is the leaf order, y the depth. Return (positions, stubs), where stubs maps
+    a node index to the list of (move, state) it never explored."""
+    explored = {}
+    for i, node in enumerate(nodes):
+        if node['parent'] is not None:
+            explored.setdefault(node['parent'], {})[node['move']] = i
+    stubs = {i: [(a, game.game.result(node['state'], a)) for a in node['actions'] or ()
+                 if a not in explored.get(i, {})] for i, node in enumerate(nodes)}
+    positions, next_x = {}, [0]
+
+    def place(i, depth):
+        children = []
+        for a in nodes[i]['actions'] or ():
+            if a in explored.get(i, {}):
+                children.append(place(explored[i][a], depth + 1))
+            else:
+                children.append(next_x[0])
+                positions[(i, a)] = (next_x[0], depth + 1)
+                next_x[0] += 1
+        if not children:
+            children = [next_x[0]]
+            next_x[0] += 1
+        positions[i] = (sum(children) / len(children), depth)
+        return positions[i][0]
+
+    place(0, 0)
+    return positions, stubs
+
+
+def game_tree_svg(game, nodes, values, k, maximizer, last):
+    """Draw the first k recorded nodes of a game tree, with MAX nodes as up
+    triangles, MIN nodes as down triangles and leaves as squares. A node shows its
+    value once its subtree is done, and then its pruned actions as dashed stubs."""
+    positions, stubs = game_tree_layout(game, nodes)
+    width = max(x for x, y in positions.values()) + 1
+    depth = max(y for x, y in positions.values()) + 1
+    dx, dy, pad = 56, 90, 30
+
+    def at(key):
+        x, y = positions[key]
+        return pad + x * dx + dx / 2, pad + y * dy + 20
+
+    body = []
+    done = [last[i] < k for i in range(len(nodes))]
+    for i in range(1, k):
+        (x1, y1), (x2, y2) = at(nodes[i]['parent']), at(i)
+        body.append(f'<line x1="{x1:.0f}" y1="{y1:.0f}" x2="{x2:.0f}" y2="{y2:.0f}" '
+                    f'stroke="{COLORS["edge"]}" stroke-width="2"/>')
+        body.append(f'<text x="{(x1 + x2) / 2 - 4:.0f}" y="{(y1 + y2) / 2:.0f}" font-size="11" '
+                    f'fill="#777777" text-anchor="end">{escape(str(nodes[i]["move"]))}</text>')
+    for i in range(k):
+        if not done[i]:
+            continue
+        for move, state in stubs[i]:
+            (x1, y1), (x2, y2) = at(i), at((i, move))
+            body.append(f'<line x1="{x1:.0f}" y1="{y1:.0f}" x2="{x2:.0f}" y2="{y2:.0f}" '
+                        f'stroke="#bbbbbb" stroke-width="2" stroke-dasharray="5,4"/>'
+                        f'<text x="{x2:.0f}" y="{y2 + 4:.0f}" font-size="11" fill="#999999" '
+                        f'text-anchor="middle">pruned</text>')
+    for i in range(k):
+        x, y = at(i)
+        node = nodes[i]
+        current = i == k - 1
+        stroke, stroke_width = ('#222222', 3) if current else ('#555555', 1.5)
+        fill = COLORS['current'] if current else (COLORS['explored'] if done[i] else '#ffffff')
+        if 'utility' in node or not node['actions']:
+            shape = f'<rect x="{x - 14:.0f}" y="{y - 14:.0f}" width="28" height="28" '
+        elif game.to_move(node['state']) == maximizer:
+            shape = (f'<polygon points="{x:.0f},{y - 18:.0f} {x - 18:.0f},{y + 13:.0f} '
+                     f'{x + 18:.0f},{y + 13:.0f}" ')
+        else:
+            shape = (f'<polygon points="{x:.0f},{y + 18:.0f} {x - 18:.0f},{y - 13:.0f} '
+                     f'{x + 18:.0f},{y - 13:.0f}" ')
+        body.append(f'{shape}fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}"/>')
+        if done[i] and values[i] is not None:
+            body.append(f'<text x="{x:.0f}" y="{y + 5:.0f}" font-size="13" font-weight="bold" '
+                        f'text-anchor="middle" fill="{COLORS["text"]}">{values[i]:g}</text>')
+        body.append(f'<text x="{x + 22:.0f}" y="{y + 4:.0f}" font-size="11" '
+                    f'fill="#555555">{escape(str(node["state"]))}</text>')
+    return svg_page(''.join(body), int(width * dx + 2 * pad), int(depth * dy + pad), 760)
+
+
+def game_tree_player(search, game, state=None, speed=1.0):
+    """Run search(state, game) (e.g. minmax_decision or alpha_beta_search) on a
+    small game, such as Fig52Game, and return a Player that replays the tree it
+    explores, one node per step: the values are backed up as the subtrees are
+    done, and the actions alpha-beta never explored are shown as pruned."""
+    recorder = RecordingGame(game)
+    state = game.initial if state is None else state
+    maximizer = game.to_move(state)
+    move = search(state, recorder)
+    nodes = recorder.nodes
+    values = recorder.values(maximizer)
+    last = list(range(len(nodes)))  # the last node visited in the subtree of each node
+    for i in reversed(range(1, len(nodes))):
+        parent = nodes[i]['parent']
+        last[parent] = max(last[parent], last[i])
+    pruned = sum(len(node['actions'] or ()) for node in nodes) - (len(nodes) - 1)
+
+    def render(player, i):
+        k = i + 1
+        node = nodes[i]
+        if 'utility' in node:
+            text = f'leaf {escape(str(node["state"]))}: utility {values[i]:g}'
+        else:
+            mover = escape(str(game.to_move(node['state'])))
+            text = f'expand {escape(str(node["state"]))} ({mover} to move)'
+        backed = [j for j in range(len(nodes)) if last[j] == i and j != i]
+        if backed:
+            text += '; back up ' + ', '.join(f'{escape(str(nodes[j]["state"]))} = {values[j]:g}'
+                                             for j in sorted(backed, reverse=True))
+        caption = f'Step {i} of {len(nodes) - 1}: {text}.'
+        if k == len(nodes):
+            caption += (f' The best move is <b>{escape(str(move))}</b>, with value {values[0]:g}; '
+                        f'{len(nodes)} nodes visited, {pruned} actions pruned.')
+        return f'{game_tree_svg(recorder, nodes, values, k, maximizer, last)}<div>{caption}</div>'
+
+    return Player(nodes, render, speed)
+
+
+class CountingGame:
+    """Delegates to a game and counts the states a search generates."""
+
+    def __init__(self, game):
+        self.game, self.count = game, 0
+
+    def result(self, state, move):
+        """Delegate to the wrapped game, counting the generated state."""
+        self.count += 1
+        return self.game.result(state, move)
+
+    def __getattr__(self, attr):
+        return getattr(self.game, attr)
+
+
+class TicTacToeGame(ipywidgets.VBox):
+    """Play tic-tac-toe as X against the computer as O, which picks its moves by
+    alpha-beta search, minimax or at random; after each move the status says
+    how many positions the search looked at."""
+
+    opponents = {'alpha-beta': alpha_beta_search, 'minimax': minmax_decision,
+                 'random': lambda state, game: random.choice(game.actions(state))}
+
+    def __init__(self):
+        self.game = TicTacToe()
+        self.buttons = {}
+        for x in range(1, 4):
+            for y in range(1, 4):
+                button = ipywidgets.Button(layout=ipywidgets.Layout(width='80px',
+                                                                    height='80px'))
+                button.add_class('aima-tile')
+                button.on_click(lambda b, move=(x, y): self.click(move))
+                self.buttons[(x, y)] = button
+        board = ipywidgets.GridBox(list(self.buttons.values()), layout=ipywidgets.Layout(
+            grid_template_columns='repeat(3, 80px)', grid_gap='4px', width='252px',
+            padding='4px', border='1px solid #d0d0d0'))
+        self.opponent = ipywidgets.ToggleButtons(options=list(self.opponents),
+                                                 description='O plays')
+        new_button = ipywidgets.Button(description='New game', icon='undo')
+        new_button.on_click(lambda b: self.start())
+        self.message = ipywidgets.HTML()
+        super().__init__([ipywidgets.HTML(_GAME_STYLE), self.opponent, board, new_button,
+                          self.message])
+        self.add_class('aima-tic-tac-toe-game')
+        self.add_class('aima-game')
+        self.start()
+
+    def start(self):
+        """Start a new game, with X (the user) to move."""
+        self.state = self.game.initial
+        self.draw('you are X, click a square')
+
+    def draw(self, text):
+        """Show the board and a one-line status."""
+        for move, button in self.buttons.items():
+            mark = self.state.board.get(move)
+            button.description = mark or ' '
+            button.style.button_color = COLORS['tile'] if mark else '#fafafa'
+            if mark is None and not self.game.terminal_test(self.state):
+                button.add_class('aima-movable')
+            else:
+                button.remove_class('aima-movable')
+        self.message.value = text
+
+    def outcome(self):
+        """The end of the game, in words."""
+        utility = self.game.utility(self.state, 'X')
+        if utility == 0:
+            return '<b>draw</b>'
+        return '<b>you win</b>' if utility > 0 else '<b>O wins</b>'
+
+    def click(self, move):
+        """Play X at move, then let the computer answer."""
+        if self.game.terminal_test(self.state):
+            self.draw(f'{self.outcome()}, press New game to play again')
+            return
+        if move not in self.state.moves:
+            self.draw('that square is taken, pick an empty one')
+            return
+        self.state = self.game.result(self.state, move)
+        if self.game.terminal_test(self.state):
+            self.draw(self.outcome())
+            return
+        self.draw(f'O is thinking ({self.opponent.value})...')
+        counter = CountingGame(self.game)
+        reply = self.opponents[self.opponent.value](self.state, counter)
+        self.state = self.game.result(self.state, reply)
+        looked = f'{self.opponent.value} looked at {counter.count:,} positions'
+        if self.game.terminal_test(self.state):
+            self.draw(f'O plays row {reply[0]}, column {reply[1]} ({looked}); {self.outcome()}')
+        else:
+            self.draw(f'O plays row {reply[0]}, column {reply[1]} ({looked}); your move')
