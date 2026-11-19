@@ -4,6 +4,7 @@ import pytest
 
 from aima.csp import MapColoringCSP, NQueensCSP, AC3, backtracking_search, forward_checking, min_conflicts
 from aima.games import Fig52Game, alpha_beta_search, minmax_decision
+from aima.planning import GraphPlan, linearize, spare_tire, three_block_tower
 from aima.search import *
 from aima.widgets import *
 
@@ -119,6 +120,29 @@ def test_tic_tac_toe_game():
     while not game.game.terminal_test(game.state):
         game.click(game.state.moves[0])
     assert any(word in game.message.value for word in ('you win', 'O wins', 'draw'))
+
+
+def test_plan_player():
+    problem = three_block_tower()
+    plan = linearize(GraphPlan(three_block_tower()).execute())
+    player = plan_player(problem, plan)
+    assert len(player.frames) == len(plan) + 1 and 'Goals holding: 0 of 2' in player.view.value
+    player.slider.value = player.slider.max
+    assert 'Goals holding: 2 of 2' in player.view.value
+    assert not problem.goal_test()  # the player works on a copy
+    player = plan_player(spare_tire(), linearize(GraphPlan(spare_tire()).execute()))
+    player.step()
+    assert 'line-through' in player.view.value
+
+
+def test_graph_plan_player():
+    player = graph_plan_player(spare_tire())
+    assert 'S0' in player.view.value and 'A0' not in player.view.value
+    player.slider.value = player.slider.max
+    assert 'PutOn(Spare, Axle)' in player.view.value and 'actions of the plan' in player.view.value
+    plan = GraphPlan(spare_tire()).execute()[0]
+    green = player.view.value.count('color:#2a9d8f;font-weight:bold')
+    assert green == sum(1 for step in plan for action in step if action.op[0] != 'P' or not action.op[1].isupper())
 
 
 if __name__ == '__main__':

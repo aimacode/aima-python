@@ -18,8 +18,11 @@ The CSP solvers are recorded with record_csp (in aima.csp). EightPuzzleGame lets
 the user solve an 8-puzzle by clicking the tiles, and MapColoringGame color a map.
 game_tree_player replays the tree that minimax or alpha-beta explores (recorded
 with RecordingGame, in aima.games), and TicTacToeGame plays against them.
+plan_player executes a plan one action at a time, and graph_plan_player shows
+the planning graph that GraphPlan builds, level by level.
 """
 
+import copy
 import itertools
 import math
 import random
@@ -29,6 +32,7 @@ import ipywidgets
 
 from aima.csp import NQueensCSP, record_csp
 from aima.games import RecordingGame, TicTacToe, alpha_beta_search, minmax_decision
+from aima.planning import GraphPlan
 from aima.search import (EightPuzzle, Node, RecordingProblem, astar_search)
 
 # colors of the views (state of a node of the search, and the board squares)
@@ -870,3 +874,148 @@ class TicTacToeGame(ipywidgets.VBox):
             self.draw(f'O plays row {reply[0]}, column {reply[1]} ({looked}); {self.outcome()}')
         else:
             self.draw(f'O plays row {reply[0]}, column {reply[1]} ({looked}); your move')
+
+
+# ______________________________________________________________________________
+# Planning
+
+
+def is_persistence(action):
+    """Is action one of the no-op (persistence) actions GraphPlan adds, e.g. PAt(...)?"""
+    return action.op[0] == 'P' and action.op[1:2].isupper()
+
+
+def blocks_svg(state, moved=None):
+    """Draw the On(block, place) facts of a blocks-world state as stacks of blocks
+    on a table; the block in moved is highlighted."""
+    on = {str(fact.args[0]): str(fact.args[1]) for fact in state if fact.op == 'On'}
+    stacks = []
+    for block in sorted(b for b, place in on.items() if place == 'Table'):
+        stack = [block]
+        while True:
+            above = [b for b, place in on.items() if place == stack[-1]]
+            if not above:
+                break
+            stack.append(above[0])
+        stacks.append(stack)
+    size, gap = 50, 30
+    height = size * max(len(on), 1) + 40
+    width = max(len(stacks), 1) * (size + gap) + gap
+    body = [f'<rect x="0" y="{height - 16}" width="{width}" height="16" fill="{COLORS["dark"]}"/>']
+    for s, stack in enumerate(stacks):
+        x = gap + s * (size + gap)
+        for level, block in enumerate(stack):
+            y = height - 16 - (level + 1) * size
+            fill = COLORS['frontier'] if block == moved else COLORS['tile']
+            body.append(f'<rect x="{x}" y="{y}" width="{size}" height="{size}" rx="4" '
+                        f'fill="{fill}" stroke="#555555"/>'
+                        f'<text x="{x + size / 2}" y="{y + size / 2 + 7}" font-size="20" '
+                        f'font-weight="bold" text-anchor="middle" '
+                        f'fill="{COLORS["text"]}">{escape(block)}</text>')
+    return svg_page(''.join(body), width, height, max(width, 240))
+
+
+def fluents_html(state, previous, goals):
+    """List the facts of a state, the ones the last action added in green and
+    the ones it deleted struck through; the goals that hold are checked."""
+    facts = [str(fact) for fact in state]
+    gone = [str(fact) for fact in previous or () if fact not in state]
+    rows = []
+    for fact in sorted(facts):
+        new = previous is not None and fact not in map(str, previous)
+        style = f'color:{COLORS["path"]};font-weight:bold' if new else ''
+        mark = ' &#10003;' if fact in map(str, goals) else ''
+        rows.append(f'<span style="{style}">{escape(fact)}{mark}</span>')
+    rows += [f'<span style="text-decoration:line-through;color:#999999">{escape(fact)}</span>'
+             for fact in sorted(gone)]
+    return ('<div style="columns:2;max-width:560px;font-family:monospace">'
+            + '<br>'.join(rows) + '</div>')
+
+
+def plan_player(planning_problem, plan, speed=1.0):
+    """Return a Player that executes plan (a list of actions, e.g. the
+    linearize'd output of GraphPlan) on a copy of planning_problem, one action
+    per step. A blocks world is drawn as stacks of blocks, any other problem as
+    its list of facts."""
+    problem = copy.deepcopy(planning_problem)
+    states = [list(problem.initial)]
+    for action in plan:
+        problem.act(action)
+        states.append(list(problem.initial))
+    blocks = any(fact.op == 'On' for fact in states[0])
+    goals = planning_problem.goals
+
+    def render(player, i):
+        state = states[i]
+        done = sum(goal in state for goal in goals)
+        if i == 0:
+            caption = 'Step 0: the initial state.'
+        else:
+            caption = f'Step {i} of {len(plan)}: <b>{escape(str(plan[i - 1]))}</b>.'
+        caption += f' Goals holding: {done} of {len(goals)}.'
+        if blocks:
+            moved = str(plan[i - 1].args[0]) if i > 0 else None
+            view = blocks_svg(state, moved)
+        else:
+            view = fluents_html(state, states[i - 1] if i > 0 else None, goals)
+        return f'{view}<div>{caption}</div>'
+
+    return Player(states, render, speed)
+
+
+def graph_plan_player(planning_problem, speed=1.0):
+    """Run GraphPlan on planning_problem and return a Player that shows the
+    planning graph one level at a time: the literals of each state level, the
+    actions of each action level (the persistence actions are only counted) and
+    the number of mutex pairs; the last step marks the actions of the plan."""
+    graph_plan = GraphPlan(planning_problem)
+    solution = graph_plan.execute()
+    levels = graph_plan.graph.levels
+    chosen = {}  # level -> the actions of the plan at that level
+    if solution:
+        chosen = {k: {str(action) for action in step} for k, step in enumerate(solution[0])}
+    goals = {str(goal) for goal in planning_problem.goals}
+    frames = list(range(len(levels))) + ([len(levels)] if solution else [])
+
+    def column(title, items, note):
+        return (f'<div style="flex:0 0 auto;padding:0 8px;border-left:1px solid #dddddd">'
+                f'<div style="font-weight:bold">{title}</div>{"<br>".join(items)}'
+                f'<div style="color:#777777">{note}</div></div>')
+
+    def render(player, i):
+        last = min(i, len(levels) - 1)
+        mark = i == len(levels)
+        columns = []
+        for k in range(last + 1):
+            level = levels[k]
+            literals = []
+            for fact in sorted(map(str, level.current_state)):
+                style = 'font-weight:bold' if fact in goals else ''
+                literals.append(f'<span style="{style}">{escape(fact)}</span>')
+            columns.append(column(f'S{k}', literals, f'{len(level.state_mutexes)} mutex pairs'))
+            if k < last:
+                actions = [a for a in level.current_action_links if not is_persistence(a)]
+                names = []
+                for action in sorted(map(str, actions)):
+                    style = ''
+                    if mark and action in chosen.get(k, ()):
+                        style = f'color:{COLORS["path"]};font-weight:bold'
+                    names.append(f'<span style="{style}">{escape(action)}</span>')
+                persistence = len(level.current_action_links) - len(actions)
+                columns.append(column(f'A{k}', names, f'+ {persistence} persistence actions, '
+                                                      f'{len(level.action_mutexes)} mutex pairs'))
+        if mark:
+            caption = ('The goals (in bold) hold, with no two of them mutex, at the last level; '
+                       'the actions of the plan extracted backwards are in green.')
+        elif i == 0:
+            caption = 'Level 0: the initial state.'
+        else:
+            caption = (f'Level {i}: the actions applicable at level {i - 1} and the literals '
+                       f'they make true.')
+        if not solution and i == frames[-1]:
+            caption += ' The graph levels off without a plan.'
+        return ('<div style="display:flex;flex-wrap:wrap;row-gap:12px;font-family:monospace;'
+                'font-size:12px;max-width:100%">'
+                f'{"".join(columns)}</div><div>{caption}</div>')
+
+    return Player(frames, render, speed)
