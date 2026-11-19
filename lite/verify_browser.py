@@ -13,7 +13,8 @@ loaded to mirror the JupyterLite kernel, which always provides it.
 With --lab NAME [NAME ...] it also opens those notebooks in the JupyterLite
 app itself, runs all their cells in the real kernel, checks that no cell fails
 and that every widget renders, presses Play and Step on the step-through players
-and clicks the tiles of the 8-puzzle game (see aima/widgets.py), and saves a
+and clicks the tiles of the 8-puzzle game and the regions of the map-coloring
+game (see aima/widgets.py), and saves a
 screenshot of each widget in lite/_screenshots.
 
 Setup (one-off):
@@ -161,6 +162,19 @@ async def check_lab(browser, name):
                 or after[near] != "" or after[blank] != labels[near]):
             problems.append(f"8-puzzle game {i}: {refused!r}, then {moved!r} with tiles {after}")
         await game.screenshot(path=str(SHOTS / f"{name}-game-{i}.png"))
+    maps = page.locator(".aima-map-coloring-game")
+    for i in range(await maps.count()):
+        game = maps.nth(i)
+        await game.scroll_into_view_if_needed()
+        region = game.locator(".widget-hbox button")
+        await region.nth(0).click()  # the first region, in the default color
+        await page.wait_for_timeout(1500)
+        await region.nth(1).click()  # a neighbor of the first region, same color
+        await page.wait_for_timeout(1500)
+        message = await game.locator(".widget-html").last.inner_text()
+        if "cannot be" not in message:
+            problems.append(f"map coloring game {i}: {message!r}")
+        await game.screenshot(path=str(SHOTS / f"{name}-map-game-{i}.png"))
     await page.screenshot(path=str(SHOTS / f"{name}-page.png"), full_page=True)
     await page.close()
     return problems

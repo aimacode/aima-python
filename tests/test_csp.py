@@ -724,5 +724,36 @@ def test_constraint_check_count():
     assert csp.nchecks == before + 1
 
 
+def test_record_csp():
+    # recording does not change what the solvers return
+    def australia():
+        return MapColoringCSP(list('RGB'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
+    for inference in (no_inference, forward_checking, mac):
+        csp = australia()
+        events = record_csp(csp)
+        solution = backtracking_search(csp, inference=inference)
+        assert solution == backtracking_search(australia(), inference=inference)
+        assignment = {}
+        for event in events:
+            if event[0] == 'assign':
+                assignment[event[1]] = event[2]
+            elif event[0] == 'unassign':
+                del assignment[event[1]]
+        assert assignment == solution
+    csp = australia()
+    csp.support_pruning()
+    events = record_csp(csp)
+    consistent, _ = AC3(csp, removals=csp.suppose('WA', 'R') + csp.suppose('Q', 'G'))
+    assert not consistent and events[:2] == [('suppose', 'WA', 'R'), ('suppose', 'Q', 'G')]
+    assert all(event[0] == 'prune' for event in events[2:])
+    assert [] in csp.curr_domains.values()
+
+
+def test_isolated_region():
+    # Tasmania has no neighbors but is still a variable of the map (Figure 6.1)
+    assert 'T' in australia_csp.variables and australia_csp.neighbors['T'] == []
+    csp = MapColoringCSP(list('RGB'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
+    assert set(backtracking_search(csp)) == {'SA', 'WA', 'NT', 'Q', 'NSW', 'V', 'T'}
+
 if __name__ == "__main__":
     pytest.main()

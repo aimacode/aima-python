@@ -502,6 +502,51 @@ def min_conflicts_value(csp, var, current):
 # ______________________________________________________________________________
 
 
+def record_csp(csp):
+    """Record what a solver does to csp, so that the run can be replayed step by
+    step: return a list that gets an event for every call of csp.assign
+    ('assign', var, val), csp.unassign ('unassign', var), csp.suppose
+    ('suppose', var, val), csp.prune ('prune', var, val) and csp.restore
+    ('restore', removals). The methods are
+    wrapped on this instance only, and still do what they did, so the solvers
+    (backtracking_search, AC3, min_conflicts, ...) are called unchanged:
+    >>> csp = MapColoringCSP(list('RGB'), 'SA: WA NT Q NSW V; NT: WA Q; NSW: Q V; T: ')
+    >>> events = record_csp(csp)
+    >>> solution = backtracking_search(csp)
+    >>> events[0]
+    ('assign', 'SA', 'R')
+    """
+    events = []
+    assign, unassign, prune, restore = csp.assign, csp.unassign, csp.prune, csp.restore
+    suppose = csp.suppose
+
+    def recorded_assign(var, val, assignment):
+        assign(var, val, assignment)
+        events.append(('assign', var, val))
+
+    def recorded_unassign(var, assignment):
+        if var in assignment:
+            events.append(('unassign', var))
+        unassign(var, assignment)
+
+    def recorded_prune(var, value, removals):
+        prune(var, value, removals)
+        events.append(('prune', var, value))
+
+    def recorded_suppose(var, value):
+        removals = suppose(var, value)
+        events.append(('suppose', var, value))
+        return removals
+
+    def recorded_restore(removals):
+        restore(removals)
+        events.append(('restore', list(removals)))
+
+    csp.assign, csp.unassign = recorded_assign, recorded_unassign
+    csp.prune, csp.restore, csp.suppose = recorded_prune, recorded_restore, recorded_suppose
+    return events
+
+
 def tree_csp_solver(csp):
     """[Figure 6.11] Solve a tree-structured CSP in linear time: order the variables
     so each has at most one parent, make the tree directionally arc-consistent from
@@ -639,6 +684,7 @@ def parse_neighbors(neighbors):
     specs = [spec.split(':') for spec in neighbors.split(';')]
     for (A, Aneighbors) in specs:
         A = A.strip()
+        dic[A]  # a region with no neighbors (e.g. 'T: ') is still a region
         for B in Aneighbors.split():
             dic[A].append(B)
             dic[B].append(A)

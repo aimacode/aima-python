@@ -12,16 +12,20 @@ the functions themselves unchanged. The ready-made players are:
     graph_search_player   a search on a graph with locations, e.g. the Romania map
     eight_puzzle_player   the solution path of a search on the 8-puzzle
     n_queens_player       a search on NQueensProblem, one board per expansion
+    csp_player            a CSP solver, one step per assignment, backtrack or pruning
 
-and EightPuzzleGame lets the user solve an 8-puzzle by clicking the tiles.
+The CSP solvers are recorded with record_csp (in aima.csp). EightPuzzleGame lets
+the user solve an 8-puzzle by clicking the tiles, and MapColoringGame color a map.
 """
 
 import itertools
+import math
 import random
 from html import escape
 
 import ipywidgets
 
+from aima.csp import NQueensCSP, record_csp
 from aima.search import (EightPuzzle, Node, RecordingProblem, astar_search)
 
 # colors of the views (state of a node of the search, and the board squares)
@@ -448,3 +452,197 @@ def n_queens_player(search, problem, *args, speed=1.0, **kwargs):
         return n_queens_svg(state, problem.N, column) + f'<div>{caption}</div>'
 
     return Player(steps, render, speed)
+
+
+# ______________________________________________________________________________
+# Constraint satisfaction
+
+
+# where to draw the regions of australia_csp (Figure 6.1)
+AUSTRALIA_LAYOUT = dict(WA=(70, 150), NT=(185, 70), SA=(200, 175), Q=(310, 90),
+                        NSW=(320, 195), V=(285, 270), T=(300, 345))
+
+# the fill of each value of a map coloring
+VALUE_COLORS = dict(R='#e15759', G='#59a14f', B='#4e79a7', Y='#edc948')
+
+
+def circle_layout(variables, center=(200, 190), radius=150):
+    """Place the variables evenly on a circle (for CSPs with no layout of their own)."""
+    n = len(variables)
+    return {v: (center[0] + radius * math.cos(2 * math.pi * i / n),
+                center[1] + radius * math.sin(2 * math.pi * i / n))
+            for i, v in enumerate(variables)}
+
+
+def csp_frames(csp, events):
+    """Replay the events recorded by record_csp into frames: dicts with the
+    'assignment' and the remaining 'domains' after each 'event' (None at first)."""
+    assignment, domains = {}, {v: list(csp.domains[v]) for v in csp.variables}
+    frames = [dict(assignment={}, domains={v: list(d) for v, d in domains.items()},
+                   event=None)]
+    for event in events:
+        kind, var = event[0], event[1]
+        if kind == 'assign':
+            assignment[var] = event[2]
+        elif kind == 'unassign':
+            assignment.pop(var, None)
+        elif kind == 'suppose':
+            domains[var] = [event[2]]
+        elif kind == 'prune':
+            if event[2] in domains[var]:
+                domains[var].remove(event[2])
+        else:  # restore
+            for v, value in event[1]:
+                if value not in domains[v]:
+                    domains[v].append(value)
+            for v in domains:  # keep the order of the original domains
+                domains[v] = [value for value in csp.domains[v] if value in domains[v]]
+        frames.append(dict(assignment=dict(assignment), event=event,
+                           domains={v: list(d) for v, d in domains.items()}))
+    return frames
+
+
+def describe_csp_event(event):
+    """One line of text for an event of record_csp."""
+    if event is None:
+        return 'Start: nothing assigned, every value in every domain.'
+    kind = event[0]
+    if kind == 'assign':
+        return f'assign <b>{event[1]} = {event[2]}</b>'
+    if kind == 'unassign':
+        return f'unassign <b>{event[1]}</b> (backtrack)'
+    if kind == 'suppose':
+        return f'suppose <b>{event[1]} = {event[2]}</b>, setting aside its other values'
+    if kind == 'prune':
+        return f'prune <b>{event[2]}</b> from the domain of <b>{event[1]}</b>'
+    return f'restore {len(event[1])} pruned values (undo an inference)'
+
+
+def map_coloring_svg(csp, frame, layout=None, highlight=None):
+    """Draw the constraint graph of a map-coloring CSP: each variable is filled
+    with its assigned value, and the small squares under it are the values still
+    in its domain. The variable in highlight is outlined."""
+    layout = layout or circle_layout(csp.variables)
+    assignment, domains = frame['assignment'], frame['domains']
+    body = []
+    drawn = set()
+    for a in csp.variables:
+        for b in csp.neighbors[a]:
+            if b in layout and (b, a) not in drawn:
+                drawn.add((a, b))
+                (x1, y1), (x2, y2) = layout[a], layout[b]
+                body.append(f'<line x1="{x1:.0f}" y1="{y1:.0f}" x2="{x2:.0f}" y2="{y2:.0f}" '
+                            f'stroke="{COLORS["edge"]}" stroke-width="2"/>')
+    for var in csp.variables:
+        x, y = layout[var]
+        fill = '#ffffff'
+        if var in assignment:
+            fill = VALUE_COLORS.get(assignment[var], '#bbbbbb')
+        ring, ring_width = ('#222222', 4) if var == highlight else ('#555555', 1.5)
+        body.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="24" fill="{fill}" stroke="{ring}" '
+                    f'stroke-width="{ring_width}"/>')
+        body.append(f'<text x="{x:.0f}" y="{y + 5:.0f}" font-size="14" font-weight="bold" '
+                    f'text-anchor="middle" fill="{COLORS["text"]}" stroke="#ffffff" '
+                    f'stroke-width="3" paint-order="stroke">{escape(str(var))}</text>')
+        values = csp.domains[var]
+        for k, value in enumerate(values):
+            vx = x - 8 * len(values) + 16 * k + 2
+            color = VALUE_COLORS.get(value, '#888888') if value in domains[var] else '#ffffff'
+            body.append(f'<rect x="{vx:.0f}" y="{y + 29:.0f}" width="12" height="12" '
+                        f'fill="{color}" stroke="#888888"/>')
+    xs = [layout[var][0] for var in csp.variables]
+    ys = [layout[var][1] for var in csp.variables]
+    return svg_page(''.join(body), int(max(xs) + 60), int(max(ys) + 60), 460)
+
+
+def csp_player(solver, csp, *args, layout=None, speed=1.0, **kwargs):
+    """Run ``solver(csp, *args, **kwargs)`` and return a Player that replays every
+    assignment, backtrack and pruning it makes. An NQueensCSP is drawn as a
+    board, any other CSP as its constraint graph (use layout to place the
+    variables; australia_csp-like maps get AUSTRALIA_LAYOUT)."""
+    events = record_csp(csp)
+    solution = solver(csp, *args, **kwargs)
+    frames = csp_frames(csp, events)
+    queens = isinstance(csp, NQueensCSP)
+    if layout is None and set(csp.variables) <= set(AUSTRALIA_LAYOUT):
+        layout = AUSTRALIA_LAYOUT
+
+    def render(player, i):
+        frame = frames[i]
+        event = frame['event']
+        if queens:
+            svg = n_queens_svg(frame['assignment'], len(csp.variables))
+        else:
+            var = event[1] if event and event[0] != 'restore' else None
+            svg = map_coloring_svg(csp, frame, layout, var)
+        caption = f'Step {i} of {len(frames) - 1}: {describe_csp_event(event)}.'
+        if i == len(frames) - 1:
+            if isinstance(solution, tuple):  # what AC3 returns
+                caption += (' Arc-consistent.' if solution[0] else
+                            ' Inconsistent: a domain is empty.')
+            elif solution:
+                caption += f' Solved with {csp.nassigns} assignments.'
+            else:
+                caption += ' No solution.'
+        return f'{svg}<div style="max-width:460px">{caption}</div>'
+
+    return Player(frames, render, speed)
+
+
+class MapColoringGame(ipywidgets.VBox):
+    """Color a map-coloring CSP by hand: pick a color, then click a region. A
+    color that a neighboring region already has is refused, with the reason."""
+
+    def __init__(self, csp, layout=None):
+        self.csp = csp
+        if layout is None:
+            australia = set(csp.variables) <= set(AUSTRALIA_LAYOUT)
+            layout = AUSTRALIA_LAYOUT if australia else circle_layout(csp.variables)
+        self.positions = layout
+        values = list(csp.domains[csp.variables[0]])
+        self.color = ipywidgets.ToggleButtons(options=values, description='Color')
+        self.regions = []
+        for var in csp.variables:
+            button = ipywidgets.Button(description=str(var),
+                                       layout=ipywidgets.Layout(width='64px'))
+            button.on_click(lambda b, var=var: self.click(var))
+            self.regions.append(button)
+        reset_button = ipywidgets.Button(description='Reset', icon='undo')
+        reset_button.on_click(lambda b: self.reset())
+        self.view = ipywidgets.HTML()
+        self.message = ipywidgets.HTML()
+        buttons = ipywidgets.HBox(self.regions + [reset_button],
+                                  layout=ipywidgets.Layout(flex_flow='row wrap'))
+        super().__init__([self.color, buttons, self.view, self.message])
+        self.add_class('aima-map-coloring-game')
+        self.reset()
+
+    def reset(self):
+        """Clear every region."""
+        self.assignment = {}
+        self.draw('pick a color, then click a region')
+
+    def draw(self, text, highlight=None):
+        """Show the map and a one-line status."""
+        domains = {v: list(self.csp.domains[v]) for v in self.csp.variables}
+        frame = dict(assignment=self.assignment, domains=domains)
+        self.view.value = map_coloring_svg(self.csp, frame, self.positions, highlight)
+        for button, var in zip(self.regions, self.csp.variables):
+            button.style.button_color = VALUE_COLORS.get(self.assignment.get(var), '#eeeeee')
+        colored = f'{len(self.assignment)} of {len(self.csp.variables)}'
+        self.message.value = f'Colored: {colored} &middot; {text}'
+
+    def click(self, var):
+        """Give var the selected color, unless a neighbor already has it."""
+        value = self.color.value
+        clashes = [n for n in self.csp.neighbors[var] if n in self.assignment
+                   and not self.csp.constraints(var, value, n, self.assignment[n])]
+        if clashes:
+            self.draw(f'{var} cannot be {value}: it borders {", ".join(map(str, clashes))}, '
+                      f'already {value}', highlight=var)
+            return
+        self.assignment[var] = value
+        if len(self.assignment) == len(self.csp.variables):
+            self.draw('<b>solved</b>, no two neighboring regions share a color')
+        else:
+            self.draw(f'{var} = {value}', highlight=var)
