@@ -4,6 +4,7 @@ import pytest
 
 from aima.csp import MapColoringCSP, NQueensCSP, AC3, backtracking_search, forward_checking, min_conflicts
 from aima.games import Fig52Game, alpha_beta_search, minmax_decision
+from aima.logic import associate, expr, wumpus_kb
 from aima.planning import GraphPlan, linearize, spare_tire, three_block_tower
 from aima.search import *
 from aima.widgets import *
@@ -143,6 +144,28 @@ def test_graph_plan_player():
     plan = GraphPlan(spare_tire()).execute()[0]
     green = player.view.value.count('color:#2a9d8f;font-weight:bold')
     assert green == sum(1 for step in plan for action in step if action.op[0] != 'P' or not action.op[1].isupper())
+
+
+def test_dpll_player():
+    player = dpll_player(associate('&', wumpus_kb.clauses) & expr('P12'))
+    player.slider.value = player.slider.max
+    assert 'Unsatisfiable' in player.view.value
+    player = dpll_player(expr('(A | B) & (~A | C) & (~C | ~B)'))
+    player.slider.value = player.slider.max
+    assert 'Satisfiable' in player.view.value
+
+
+def test_wumpus_world_game():
+    game = WumpusWorldGame()
+    game.click((3, 3))
+    assert 'only move to a square next to' in game.message.value
+    game.click((2, 1))
+    game.click((1, 1))
+    game.click((1, 2))  # as in Figure 7.4
+    labels = {square: button.description for square, button in game.buttons.items()}
+    assert labels[(1, 3)] == 'wumpus!' and labels[(3, 1)] == 'pit!' and labels[(2, 2)] == 'safe'
+    game.click((1, 3))
+    assert 'wumpus' in game.message.value and game.over
 
 
 if __name__ == '__main__':

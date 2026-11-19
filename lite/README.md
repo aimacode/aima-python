@@ -27,7 +27,7 @@ The companion ships a notebook per Pyodide-compatible module:
 - `content/search.ipynb` — BFS / A* on the Romania map, with step-through players for the search, the 8-puzzle and n-queens, and an 8-puzzle to solve by hand (`aima.search`, `aima.widgets`).
 - `content/games.ipynb` — minimax / alpha-beta on Tic-Tac-Toe, with a replay of the game tree each one explores and a game of tic-tac-toe against them (`aima.games`, `aima.widgets`).
 - `content/csp.ipynb` — map colouring (AC-3 / backtracking) and N-queens (min-conflicts), with step-through players of the solvers and a map to color by hand (`aima.csp`, `aima.widgets`).
-- `content/logic.ipynb` — propositional model checking / DPLL and first-order forward chaining (`aima.logic`).
+- `content/logic.ipynb` — propositional model checking / DPLL and first-order forward chaining, with a replay of DPLL and a wumpus world to explore (`aima.logic`, `aima.widgets`).
 - `content/planning.ipynb` — STRIPS planning (spare tire, air cargo) with GraphPlan, with a player that executes a plan and one that shows the planning graph level by level (`aima.planning`, `aima.widgets`).
 - `content/probability.ipynb` — exact and approximate inference on the burglary network (`aima.probability`).
 - `content/mdp.ipynb` — value / policy iteration on the 4x3 grid world (`aima.mdp`).
@@ -92,10 +92,10 @@ real code cells:
 ```bash
 pip install playwright nbformat
 python -m playwright install chromium
-cd lite && ./build.sh && python verify_browser.py --lab search csp games planning
+cd lite && ./build.sh && python verify_browser.py --lab search csp games planning logic
 ```
 
-It exits non-zero if any notebook errors. With `--lab search csp games planning` it also runs those
+It exits non-zero if any notebook errors. With `--lab search csp games planning logic` it also runs those
 notebooks in the JupyterLite app itself, presses Play and Step on each
 player, clicks the 8-puzzle, map-coloring and tic-tac-toe games, and saves screenshots of the
 widgets in `lite/_screenshots`.

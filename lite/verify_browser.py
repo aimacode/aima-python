@@ -13,9 +13,9 @@ loaded to mirror the JupyterLite kernel, which always provides it.
 With --lab NAME [NAME ...] it also opens those notebooks in the JupyterLite
 app itself, runs all their cells in the real kernel, checks that no cell fails
 and that every widget renders, presses Play and Step on the step-through players
-and clicks the tiles of the 8-puzzle game, the regions of the map-coloring game
-and the squares of the tic-tac-toe game (see aima/widgets.py), and saves a
-screenshot of each widget in lite/_screenshots.
+and clicks the tiles of the 8-puzzle game, the regions of the map-coloring game,
+the squares of the tic-tac-toe game and of the wumpus world (see
+aima/widgets.py), and saves a screenshot of each widget in lite/_screenshots.
 
 Setup (one-off):
     pip install playwright nbformat
@@ -191,6 +191,18 @@ async def check_lab(browser, name):
                 or "taken" not in taken:
             problems.append(f"tic-tac-toe game {i}: {marks}, {message!r}, {taken!r}")
         await game.screenshot(path=str(SHOTS / f"{name}-tic-tac-toe-{i}.png"))
+    worlds = page.locator(".aima-wumpus-world-game")
+    for i in range(await worlds.count()):
+        game = worlds.nth(i)
+        await game.scroll_into_view_if_needed()
+        squares = game.locator(".widget-gridbox button")  # top row first, as on the grid
+        for index in (13, 12, 8):  # [2,1], [1,1], [1,2] on a 4x4 grid
+            await squares.nth(index).click()
+            await page.wait_for_timeout(2000)
+        labels = [(await squares.nth(j).inner_text()).strip() for j in range(16)]
+        if labels[4] != "wumpus!" or labels[14] != "pit!" or labels[9] != "safe":
+            problems.append(f"wumpus world {i}: {labels}")
+        await game.screenshot(path=str(SHOTS / f"{name}-wumpus-{i}.png"))
     await page.screenshot(path=str(SHOTS / f"{name}-page.png"), full_page=True)
     await page.close()
     return problems
