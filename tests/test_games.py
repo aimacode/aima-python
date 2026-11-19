@@ -92,5 +92,23 @@ def test_random_tests():
     assert ttt.play_game(alpha_beta_player, random_player) >= 0
 
 
+def test_recording_game():
+    # recording does not change the move, and alpha-beta visits a subset of minimax's tree
+    for search in (minmax_decision, alpha_beta_search):
+        game = RecordingGame(Fig52Game())
+        assert search('A', game) == search('A', Fig52Game()) == 'a1'
+        assert game.values('MAX')[0] == 3
+    minimax, alphabeta = RecordingGame(Fig52Game()), RecordingGame(Fig52Game())
+    minmax_decision('A', minimax)
+    alpha_beta_search('A', alphabeta)
+    assert len(minimax.nodes) == 13 and len(alphabeta.nodes) == 11
+    assert 'C2' not in [node['state'] for node in alphabeta.nodes]
+    ttt = TicTacToe()
+    state = ttt.result(ttt.initial, (1, 1))
+    recorder = RecordingGame(ttt)
+    assert alpha_beta_search(state, recorder) == alpha_beta_search(state, ttt)
+    assert recorder.values('O')[0] == 0  # a draw with best play
+
+
 if __name__ == "__main__":
     pytest.main()
