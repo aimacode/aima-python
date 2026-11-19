@@ -24,7 +24,7 @@ packages.
 The companion ships a notebook per Pyodide-compatible module:
 
 - `content/agents.ipynb` — reflex vs. model-based agents in the vacuum world (`aima.agents`).
-- `content/search.ipynb` — BFS / A* on the Romania map (`aima.search`).
+- `content/search.ipynb` — BFS / A* on the Romania map, with step-through players for the search, the 8-puzzle and n-queens, and an 8-puzzle to solve by hand (`aima.search`, `aima.widgets`).
 - `content/games.ipynb` — minimax / alpha-beta on Tic-Tac-Toe (`aima.games`).
 - `content/csp.ipynb` — map colouring (AC-3 / backtracking) and N-queens (min-conflicts) (`aima.csp`).
 - `content/logic.ipynb` — propositional model checking / DPLL and first-order forward chaining (`aima.logic`).
@@ -39,6 +39,20 @@ The companion ships a notebook per Pyodide-compatible module:
 - `content/game_theory.ipynb` — Nash equilibria, zero-sum games, Shapley value (`aima.game_theory`).
 
 `content/Welcome.ipynb` shows the one-cell install pattern used by every notebook.
+
+## Widgets
+
+The interactive views in `aima/widgets.py` use only [ipywidgets](https://ipywidgets.readthedocs.io):
+the pictures are SVG inside an `HTML` widget and the animation is timed by a `Play`
+widget in the browser, so they need no other widget library and work in Jupyter,
+JupyterLab and JupyterLite alike. `requirements-lite.txt` puts the ipywidgets
+frontend in the site, and `build.sh` bundles the matching `ipywidgets`,
+`jupyterlab_widgets` and `comm` wheels, so `piplite.install("ipywidgets")` works
+offline once the site has loaded.
+
+Of the other libraries tried in this build, ipycanvas and bqplot work,
+`%matplotlib inline` gives static images, and ipympl (`%matplotlib widget`) fails
+in the Pyodide kernel; none of them is needed for these views.
 
 Most modules need only numpy; `aima.logic`/`aima.planning` need `networkx`,
 `aima.csp`/`aima.planning` need `sortedcontainers` (both pure-Python and shipped
@@ -78,10 +92,13 @@ real code cells:
 ```bash
 pip install playwright nbformat
 python -m playwright install chromium
-cd lite && ./build.sh && python verify_browser.py
+cd lite && ./build.sh && python verify_browser.py --lab search
 ```
 
-It exits non-zero if any notebook errors. All 15 notebooks currently pass.
+It exits non-zero if any notebook errors. With `--lab search` it also runs the
+search notebook in the JupyterLite app itself, presses Play and Step on each
+player, clicks the tiles of the 8-puzzle game, and saves screenshots of the
+widgets in `lite/_screenshots`.
 
 ## Status / next steps
 

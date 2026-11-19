@@ -3,5 +3,8 @@
 jupyterlite-core==0.8.7
 jupyterlite-pyodide-kernel==0.8.6
 jupyterlite==0.8.7
+# the ipywidgets frontend, built into the site (build.sh bundles the matching wheels)
+ipywidgets==8.1.9
+jupyterlab_widgets==3.0.17
 jupyter-server
 build

@@ -83,3 +83,5 @@ target/
 lite/_output/
 lite/.jupyterlite.doit.db
 lite/aima-*.whl
+lite/pypi/
+lite/_screenshots/
