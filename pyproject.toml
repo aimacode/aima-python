@@ -7,7 +7,7 @@ name = "aima"
 version = "4.0.0"
 description = "Python implementations of the algorithms from Artificial Intelligence: A Modern Approach (4th edition)"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = { file = "LICENSE" }
 authors = [{ name = "aima-python contributors" }]
 urls = { Homepage = "https://github.com/aimacode/aima-python", Documentation = "https://aimacode.github.io/aima-python/" }
