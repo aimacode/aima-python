@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.19.4
+#       jupytext_version: 1.19.6
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -775,6 +775,32 @@ print(SAT_plan((0, 0), transition, (1, 1), 4))
 # ## First-Order Logic Knowledge Bases: `FolKB`
 #
 # The class `FolKB` can be used to represent a knowledge base of First-order logic sentences. You would initialize and use it the same way as you would for `PropKB` except that the clauses are first-order definite clauses. We will see how to write such clauses to create a database and query them in the following sections.
+
+# %% [markdown]
+# ### First-order syntax in `expr`
+#
+# The connectives are written as in the table at the top of this notebook; the rest of the grammar of Figure 8.3 is written as follows.
+#
+# | Figure 8.3 | In `expr` | Example |
+# |------------|-----------|---------|
+# | *Constant* | a symbol starting with an uppercase letter | `John` |
+# | *Variable* | a symbol starting with a lowercase letter, with no arguments | `x` |
+# | *Predicate*(*Term*, ...) | a call | `Brother(Richard, John)` |
+# | *Function*(*Term*, ...) | a call nested inside another one | `LeftLeg(John)` in `Person(LeftLeg(John))` |
+# | *Term* = *Term* | not supported | |
+# | &forall; *Variable* *Sentence* | implicit: the variables of a clause in a `FolKB` are universally quantified | `King(x) & Greedy(x) ==> Evil(x)` |
+# | &exist; *Variable* *Sentence* | not supported: the object is named by a Skolem constant | `Owns(Nono, M1)` |
+#
+# `Expr` does not tell a predicate from a function, so the role of a call is given by where it appears. Python's `==` compares two expressions and returns `True` or `False`, so `x == y` is not an equality sentence; and since `FolKB` holds only definite clauses, there is no syntax for quantifiers. The variables of a query are answered by substitutions.
+
+# %%
+x, y = expr('x, y')
+x == y, expr('Person(LeftLeg(John))').args
+
+# %%
+kb = FolKB([expr('King(x) & Greedy(x) ==> Evil(x)'),
+            expr('King(John)'), expr('Greedy(John)')])
+list(fol_fc_ask(kb, expr('Evil(w)')))
 
 # %% [markdown]
 # ## Criminal KB
