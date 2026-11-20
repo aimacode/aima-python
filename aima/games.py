@@ -510,6 +510,7 @@ class ConnectFour(TicTacToe):
         return [(x, y) for (x, y) in state.moves
                 if y == self.v or (x, y + 1) in state.board]
 
+
 class Gomoku(TicTacToe):
     """Also known as Five in a row."""
 

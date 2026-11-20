@@ -91,23 +91,28 @@ def test_random_tests():
     # The player 'X' (one who plays first) in TicTacToe never loses:
     assert ttt.play_game(alpha_beta_player, random_player) >= 0
 
+
 def test_ttt_display_dimensions():
+    """display prints v rows of h squares, for square and rectangular boards."""
     import io
     from contextlib import redirect_stdout
 
-    d = {
-        TicTacToe(): (3, 3),
-        TicTacToe(h=7, v=5): (7, 5), 
-        TicTacToe(h=5, v=7): (5, 7),
-        ConnectFour(): (7, 6)
-    }
-    
-    for game, (h, v) in d.items():
+    dimensions = {TicTacToe(): (3, 3),
+                  TicTacToe(h=7, v=5): (7, 5),
+                  TicTacToe(h=5, v=7): (5, 7),
+                  ConnectFour(): (7, 6)}
+    for game, (h, v) in dimensions.items():
         output = io.StringIO()
         with redirect_stdout(output):
-            game.display()
+            game.display(game.initial)
+        assert output.getvalue() == ('. ' * h + '\n') * v
+    # Connect Four drops pieces from the top: the first legal moves are the
+    # 7 squares of the bottom row, and a piece there opens the square above it
+    c4 = ConnectFour()
+    assert sorted(c4.actions(c4.initial)) == [(x, 6) for x in range(1, 8)]
+    state = c4.result(c4.initial, (4, 6))
+    assert (4, 5) in c4.actions(state) and (4, 4) not in c4.actions(state)
 
-        assert output.getvalue() == (". " * h + "\n") * v
 
 if __name__ == "__main__":
     pytest.main()
