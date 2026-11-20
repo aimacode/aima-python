@@ -36,7 +36,7 @@ The algorithms live in the `aima` package, so you import them as `from aima.sear
 
 Features from Python 3.6 and 3.7 that we will be using for this version of the code:
 - [f-strings](https://docs.python.org/3.6/whatsnew/3.6.html#whatsnew36-pep498): all string formatting should be done with `f'var = {var}'`, not with `'var = {}'.format(var)` nor `'var = %s' % var`.
-- [`typing` module](https://docs.python.org/3.7/library/typing.html): declare functions with type hints: `def successors(state) -> List[State]:`; that is, give type declarations, but omit them when it is obvious. I don't need to say `state: State`, but in another context it would make sense to say `s: State`.
+- [type hints](https://docs.python.org/3/library/typing.html): declare functions as `def successors(state) -> list[State]:`; that is, give type declarations, but omit them when it is obvious. I don't need to say `state: State`, but in another context it would make sense to say `s: State`.
 - Underscores in numerics: write a million as `1_000_000` not as `1000000`.
 - [`dataclasses` module](https://docs.python.org/3.7/library/dataclasses.html#module-dataclasses): replace `namedtuple` with `dataclass`.
 

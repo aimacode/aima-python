@@ -199,16 +199,9 @@ def weighted_sampler(seq, weights):
 
 
 def weighted_choice(choices):
-    """A weighted version of random.choice"""
-    # NOTE: should be replaced by random.choices if we port to Python 3.6
-
-    total = sum(w for _, w in choices)
-    r = random.uniform(0, total)
-    upto = 0
-    for c, w in choices:
-        if upto + w >= r:
-            return c, w
-        upto += w
+    """A weighted version of random.choice: choices is a list of (item, weight)
+    pairs, and the chosen pair is returned."""
+    return random.choices(choices, weights=[w for _, w in choices])[0]
 
 
 def rounder(numbers, d=4):
